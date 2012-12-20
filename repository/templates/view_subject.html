@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4"><a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a></div>
+    </div>
+    <div class="row">
+        <div class="span2"><h4>Subject ID:</h4></div>
+        <div class="span4"><h4>{{ subject.subject_id }}</h4></div>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th colspan="2" class="center">Flow Cytometry Files</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sample in samples %}
+        <tr>
+          <td class="middle"><a href="{% url 'repository.views.retrieve_sample' sample.id %}">Download</a></td>
+          <td>
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>Channel</th>
+                    <th>Name</th>
+                    <th>Value Type</th>
+                    <th>Ab</th>
+                    <th>Fluorochrome</th>
+                </thead>
+                <tbody>
+                  {% for sp_map in sample.sampleparametermap_set.all %}
+                  <tr>
+                    <td>
+                      {{ sp_map.channel_number }}
+                    </td>
+                    <td>
+                      {{ sp_map.parameter.parameter_short_name }}
+                    </td>
+                    <td>
+                        {{ sp_map.value_type.value_type_name }}
+                    </td>
+                    <td>
+                      {% for ab in sp_map.parameter.parameterantibodymap_set.all %}
+                        {{ ab.antibody }}
+                      {% endfor %}
+                    </td>
+                    <td>
+                      {% for fluoro in sp_map.parameter.parameterfluorochromemap_set.all %}
+                        {{ fluoro.fluorochrome.fluorochrome_short_name }}
+                      {% endfor %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% load url from future %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>{{ header_title }}</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}/bootstrap/css/bootstrap.css">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
+
+    <!-- Custom login styles -->
+    <style type="text/css">
+      body {
+        padding-top: 80px;
+        padding-bottom: 80px;
+        background-color: #f5f5f5;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="row">
+          <div class="pagination-centered span4 offset4">
+              <img class="inline" src="{{ STATIC_URL }}/reflow_text.png">
+          </div>
+      </div>
+      <div class="row"><br></div>
+      <form class="form-signin" action="{% url 'authenticate.views.login_view' %}" method="POST">
+        {% csrf_token %}
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <input type="text" class="input-block-level" placeholder="Username" name="username">
+        <input type="password" class="input-block-level" placeholder="Password" name="password">
+        <button class="btn btn-large btn-primary" type="submit">Sign in</button>
+      </form>
+
+    </div>
+
+    <!-- Javascript
+     ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="{{ STATIC_URL }}/bootstrap/js/bootstrap.js"></script>
+
+  </body>
+</html>

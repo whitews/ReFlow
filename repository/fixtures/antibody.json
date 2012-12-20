@@ -1,0 +1,47 @@
+[
+    {
+        "model": "repository.antibody",
+        "pk": 1,
+        "fields": {
+            "antibody_name": "Cluster of Differentiation 3",
+            "antibody_short_name": "CD3",
+            "antibody_description": null
+        }
+    },
+    {
+        "model": "repository.antibody",
+        "pk": 2,
+        "fields": {
+            "antibody_name": "Cluster of Differentiation 4",
+            "antibody_short_name": "CD4",
+            "antibody_description": null
+        }
+    },
+    {
+        "model": "repository.antibody",
+        "pk": 3,
+        "fields": {
+            "antibody_name": "Cluster of Differentiation 8",
+            "antibody_short_name": "CD8",
+            "antibody_description": null
+        }
+    },
+    {
+        "model": "repository.antibody",
+        "pk": 4,
+        "fields": {
+            "antibody_name": "Interleukin-6",
+            "antibody_short_name": "IL-6",
+            "antibody_description": null
+        }
+    },
+    {
+        "model": "repository.antibody",
+        "pk": 5,
+        "fields": {
+            "antibody_name": "Cluster of Differentiation 45",
+            "antibody_short_name": "CD45",
+            "antibody_description": null
+        }
+    }
+]

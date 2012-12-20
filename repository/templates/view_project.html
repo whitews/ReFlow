@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4"><a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a></div>
+    </div>
+    <div class="row">
+      <div class="span6">{{ project.project_desc|default_if_none:'' }}</div>
+    </div>
+    <br/>
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Subject ID</th>
+            <th>Visit Count</th>
+          </tr>
+        </thead>
+          <tbody>
+          {% for s in subjects %}
+          <tr>
+            <td class="list">
+              <a href="{% url 'repository.views.view_subject' s.id %}">{{ s.subject_id }}</a>
+            </td>
+            <td class="list">{{ s.visit_set.count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
+{% endblock %}

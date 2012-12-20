@@ -1,0 +1,45 @@
+{% load url from future %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>{{ header_title }}</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}/bootstrap/css/bootstrap.css">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
+  </head>
+
+  <body>
+    <div id="wrap">
+      {% block header %}
+      <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+            <div class="brand"><img class="inline" height="24" src="{{ STATIC_URL }}/reflow_text.png">flow cytometry repository</div>
+            <ul class="nav pull-right">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'projects' %}">Projects</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% endblock %}
+
+      <div id="main">
+      {% block body %}
+      {% endblock %}
+      </div>
+
+    </div>
+    <div class="container">
+      <div id="footer">&copy Duke University</div>
+    </div>
+    <!-- Javascript
+     ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="{{ STATIC_URL }}/bootstrap/js/bootstrap.js"></script>
+
+  </body>
+
+</html>
