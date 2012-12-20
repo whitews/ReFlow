@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    {% for p in projects %}
+    <div class="row lead">
+      <div class="span4"><a href="{% url 'repository.views.view_project' p.id %}">{{ p.project_name }}</a></div>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}
