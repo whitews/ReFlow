@@ -1,4 +1,5 @@
 from repository.models import *
+from repository.forms import *
 
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -34,6 +35,27 @@ def view_project(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
+@login_required
+def add_project(request):
+    if request.method == 'POST':
+        project = Project()
+        form = ProjectForm(request.POST, instance=project)
+
+        if form.is_valid():
+            project.save()
+            return HttpResponseRedirect(reverse('view_project', args=(project.id,)))
+    else:
+        form = ProjectForm()
+
+    return render_to_response(
+        'add_project.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
 
 @login_required
 def view_subject(request, subject_id):
