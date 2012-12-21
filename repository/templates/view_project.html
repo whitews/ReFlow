@@ -19,10 +19,10 @@
           <tbody>
           {% for s in subjects %}
           <tr>
-            <td class="list">
+            <td>
               <a href="{% url 'repository.views.view_subject' s.id %}">{{ s.subject_id }}</a>
             </td>
-            <td class="list">{{ s.visit_set.count }}</td>
+            <td>{{ s.visit_set.count }}</td>
           </tr>
           {% endfor %}
         </tbody>
