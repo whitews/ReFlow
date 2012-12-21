@@ -56,6 +56,43 @@ def add_project(request):
         context_instance=RequestContext(request)
     )
 
+@login_required
+def project_panels(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    panels = Panel.objects.filter(site__project=project)
+
+    return render_to_response(
+        'project_panels.html',
+        {
+            'project': project,
+            'panels': panels,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def add_panel(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == 'POST':
+        panel = Panel()
+        form = PanelForm(request.POST, instance=panel)
+
+        if form.is_valid():
+            panel.save()
+            return HttpResponseRedirect(reverse('project_panels', args=(project_id,)))
+    else:
+        form = PanelForm()
+
+    return render_to_response(
+        'add_panel.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
 
 @login_required
 def view_subject(request, subject_id):
@@ -70,7 +107,8 @@ def view_subject(request, subject_id):
             'subject': subject,
             'samples': samples, 
         },
-        context_instance=RequestContext(request))
+        context_instance=RequestContext(request)
+    )
 
 @login_required
 def retrieve_sample(request, sample_id):
