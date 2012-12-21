@@ -14,8 +14,9 @@ pm_api.register(AntibodyResource())
 urlpatterns = patterns('repository.views',
     url(r'^$', 'projects', name='home'),
     url(r'projects/$', 'projects', name='projects'),
-    (r'^project/(?P<project_id>\d+)$', 'view_project'),
-    (r'^subject/(?P<subject_id>\d+)$', 'view_subject'),
-    (r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample'),
-    (r'^api/', include(pm_api.urls)),
+    url(r'^project/(?P<project_id>\d+)$', 'view_project', name='view_project'),
+    url(r'^project/add/$', 'add_project', name='add_project'),
+    url(r'^subject/(?P<subject_id>\d+)$', 'view_subject'),
+    url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample'),
+    url(r'^api/', include(pm_api.urls)),
 )

@@ -4,8 +4,8 @@ from django.db import models
 from reflow.settings import MEDIA_ROOT
 
 class Project(models.Model):
-    project_name = models.CharField(unique=True, null=False, blank=False, max_length=128)
-    project_desc = models.TextField(null=True, blank=True)
+    project_name = models.CharField("Project Name", unique=True, null=False, blank=False, max_length=128)
+    project_desc = models.TextField("Project Description", null=True, blank=True)
     
     def __unicode__(self):
         return u'Project: %s' % (self.project_name)
