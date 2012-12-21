@@ -1,4 +1,5 @@
 from string import join
+from django.contrib.auth.models import User
 from django.db import models
 
 from reflow.settings import MEDIA_ROOT
@@ -10,15 +11,27 @@ class Project(models.Model):
     def __unicode__(self):
         return u'Project: %s' % (self.project_name)
 
+class ProjectUserManager(models.Manager):
+    def get_user_projects(self, user):
+        return Project.objects.select_related().filter(projectusermap__user=user)
+    def get_project_users(self, project):
+        return User.objects.select_related().filter(projectusermap__project=project)
+
+class ProjectUserMap(models.Model):
+    project = models.ForeignKey(Project)
+    user = models.ForeignKey(User)
+
+    objects = ProjectUserManager()
+
 class Site(models.Model):
     project   = models.ForeignKey(Project)
     site_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
 
     def __unicode__(self):
-        return u'Site: %s' % (self.site_name)
+        return u'%s' % (self.site_name)
 
 class Panel(models.Model):
-    site = models.ForeignKey(Site)
+    site = models.ForeignKey(Site, null=False, blank=False)
     panel_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
 
     def __unicode__(self):
