@@ -8,6 +8,13 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from operator import attrgetter
 
+def d3_test(request):
+    return render_to_response(
+        'd3_test.html',
+        {},
+        context_instance=RequestContext(request)
+    )
+
 @login_required
 def projects(request):
 

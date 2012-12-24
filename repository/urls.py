@@ -20,5 +20,6 @@ urlpatterns = patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/panel/add/$', 'add_panel', name='add_panel'),
     url(r'^subject/(?P<subject_id>\d+)$', 'view_subject'),
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample'),
+    url(r'^d3/$', 'd3_test', name='d3_test'),
     url(r'^api/', include(pm_api.urls)),
 )
