@@ -27,31 +27,42 @@
                       Projects
                       <b class="caret"></b>
                   </a>
-                    <ul class="dropdown-menu">
-                      <li><a href="{% url 'projects' %}">All Projects</a></li>
-                      <li class="divider"></li>
-                      <li><a href="{% url 'add_project' %}">Add Project</a></li>
-                      {%  if project %}
-                      <li class="divider"></li>
-                      <li><a href="{% url 'project_panels' project.id %}">View Panels for {{ project.project_name }}</a></li>
-                      {% endif %}
-                      <li class="divider"></li>
-                      <li class="dropdown">
-                        <a class="dropdown-toggle"
-                           data-toggle="dropdown"
-                           href="#">
-                            Your Projects
-                            <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                          {% for p in user|user_projects %}
-                          <li><a href="{% url 'view_project' p.id %}">{{ p.project_name }}</a></li>
-                          {% endfor %}
-                        </ul>
-                      </li>
-                    </ul>
+                  <ul class="dropdown-menu">
+                    <li><a href="{% url 'projects' %}">All Projects</a></li>
+                    <li class="divider"></li>
+                    <li><a href="{% url 'add_project' %}">Add Project</a></li>
+                    {%  if project %}
+                    <li class="divider"></li>
+                    <li><a href="{% url 'project_panels' project.id %}">View Panels for {{ project.project_name }}</a></li>
+                    {% endif %}
+                    <li class="divider"></li>
+                    <li class="dropdown">
+                      <a class="dropdown-toggle"
+                         data-toggle="dropdown"
+                         href="#">
+                          Your Projects
+                          <b class="caret"></b>
+                      </a>
+                      <ul class="dropdown-menu">
+                        {% for p in user|user_projects %}
+                        <li><a href="{% url 'view_project' p.id %}">{{ p.project_name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  </ul>
                 </li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
+
+                <li class="dropdown">
+                  <a class="dropdown-toggle"
+                     data-toggle="dropdown"
+                     href="#">
+                      {{ user.username }}
+                      <b class="caret"></b>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                  </ul>
+                </li>
             </ul>
           </div>
         </div>
