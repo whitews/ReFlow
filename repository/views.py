@@ -19,7 +19,7 @@ def d3_test(request):
 @login_required
 def projects(request):
 
-    projects = Project.objects.all()
+    projects = ProjectUserMap.objects.get_user_projects(request.user)
 
     return render_to_response(
         'projects.html',
@@ -53,6 +53,10 @@ def add_project(request):
 
         if form.is_valid():
             project.save()
+
+            # Automatically add the request user to the project...it's the polite thing to do
+            ProjectUserMap(project=project, user=request.user).save()
+
             return HttpResponseRedirect(reverse('view_project', args=(project.id,)))
     else:
         form = ProjectForm()
