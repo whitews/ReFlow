@@ -16,6 +16,8 @@ class ProjectUserManager(models.Manager):
         return Project.objects.select_related().filter(projectusermap__user=user)
     def get_project_users(self, project):
         return User.objects.select_related().filter(projectusermap__project=project)
+    def is_project_user(self, project, user):
+        return super(ProjectUserManager, self).filter(project=project, user=user).exists()
 
 class ProjectUserMap(models.Model):
     project = models.ForeignKey(Project)
