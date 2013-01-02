@@ -1,4 +1,3 @@
-from django.forms.models import model_to_dict
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
 from repository.models import *
