@@ -1,5 +1,6 @@
 from repository.models import *
 from repository.forms import *
+from repository.decorators import require_project_user
 
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -29,6 +30,7 @@ def projects(request):
     )
 
 @login_required
+@require_project_user
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
