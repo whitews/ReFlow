@@ -71,7 +71,48 @@ def add_project(request):
     )
 
 @login_required
-def project_panels(request, project_id):
+@require_project_user
+def view_project_sites(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    sites = Site.objects.filter(project=project)
+
+    return render_to_response(
+        'view_project_sites.html',
+        {
+            'project': project,
+            'sites': sites,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def add_site(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == 'POST':
+        site = Site(project=project)
+        form = SiteForm(request.POST, instance=site)
+
+        if form.is_valid():
+            site.save()
+            return HttpResponseRedirect(reverse('project_sites', args=project_id))
+    else:
+        form = SiteForm()
+
+    return render_to_response(
+        'add_site.html',
+        {
+            'form': form,
+            'project': project,
+            },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def view_project_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     panels = Panel.objects.filter(site__project=project)
@@ -81,11 +122,12 @@ def project_panels(request, project_id):
         {
             'project': project,
             'panels': panels,
-        },
+            },
         context_instance=RequestContext(request)
     )
 
 @login_required
+@require_project_user
 def add_panel(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -115,6 +157,7 @@ def add_panel(request, project_id):
     )
 
 @login_required
+@require_project_user
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
@@ -131,6 +174,7 @@ def view_subject(request, subject_id):
     )
 
 @login_required
+@require_project_user
 def retrieve_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     sample_filename = sample.sample_file.name.split('/')[-1]
