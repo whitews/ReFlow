@@ -35,6 +35,7 @@
                     <li class="divider"></li>
                     <li><a href="{% url 'project_panels' project.id %}">View Panels for {{ project.project_name }}</a></li>
                     {% endif %}
+                    {%  if user|user_projects %}
                     <li class="divider"></li>
                     <li class="dropdown">
                       <a class="dropdown-toggle"
@@ -49,6 +50,7 @@
                         {% endfor %}
                       </ul>
                     </li>
+                    {% endif %}
                   </ul>
                 </li>
 
