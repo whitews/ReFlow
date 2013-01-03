@@ -8,6 +8,11 @@ class ProjectForm(ModelForm):
     class Meta:
         model = Project
 
+class SiteForm(ModelForm):
+    class Meta:
+        model = Site
+        exclude = ('project',)
+
 class PanelForm(ModelForm):
     class Meta:
         model = Panel

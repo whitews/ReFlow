@@ -11,9 +11,14 @@ def require_project_user(orig_func):
 
         if 'project_id' in kwargs:
             project = get_object_or_404(Project, pk=kwargs['project_id'])
-            if not ProjectUserMap.objects.is_project_user(project, request.user):
-                raise PermissionDenied
+        elif 'subject_id' in kwargs:
+            project = get_object_or_404(Project, site__subject__pk=kwargs['subject_id'])
+        elif 'sample_id' in kwargs:
+            project = get_object_or_404(Project, site__subject__sample__pk=kwargs['sample_id'])
         else:
+            raise PermissionDenied
+
+        if not ProjectUserMap.objects.is_project_user(project, request.user):
             raise PermissionDenied
 
         return orig_func(request, *args, **kwargs)

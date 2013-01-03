@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+    <div class="container">
+        <div class="row lead">
+            <div class="span4">
+                <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
+            </div>
+            <div class="pull-right">Project Sites <span class="badge badge-inverse align-top">{{ sites.count }}</span></div>
+        </div>
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>Site</th>
+                <th>Panels</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for site in sites %}
+                <tr>
+                    <td>{{ site.site_name }}</td>
+                    <td>
+                        {% for panel in site.panel_set.all %}
+                        {% for parameter in panel.panelparametermap_set.all %}
+                            {{ parameter }}
+                        {% endfor %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="pull-right">
+            <a class="btn btn-success btn-small" href="{% url 'add_site' project.id %}">
+                <i class="icon-plus icon-white"></i> Add Site
+            </a>
+        </div>
+    </div>
+{% endblock %}
