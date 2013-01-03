@@ -3,6 +3,7 @@ from repository.forms import *
 from repository.decorators import require_project_user
 
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
@@ -76,7 +77,7 @@ def project_panels(request, project_id):
     panels = Panel.objects.filter(site__project=project)
 
     return render_to_response(
-        'project_panels.html',
+        'view_project_panels.html',
         {
             'project': project,
             'panels': panels,
@@ -88,15 +89,21 @@ def project_panels(request, project_id):
 def add_panel(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    if request.method == 'POST':
+    # need to check if the project has any sites, since panels have a required site relation
+    if request.method == 'POST' and project.site_set.exists():
         panel = Panel()
         form = PanelForm(request.POST, instance=panel)
 
         if form.is_valid():
             panel.save()
-            return HttpResponseRedirect(reverse('project_panels', args=(project_id,)))
+            return HttpResponseRedirect(reverse('project_panels', args=project_id))
+
+    elif not project.site_set.exists():
+        messages.warning(request, 'This project has no associated sites. A panel must be associated with a specific site.')
+        return HttpResponseRedirect(reverse('warning_page',))
+
     else:
-        form = PanelForm()
+        form = PanelForm(project_id=project_id)
 
     return render_to_response(
         'add_panel.html',
