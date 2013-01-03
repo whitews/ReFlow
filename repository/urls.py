@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.generic import TemplateView
 from tastypie.api import Api
 from repository.api import *
 
@@ -22,4 +23,5 @@ urlpatterns = patterns('repository.views',
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample'),
     url(r'^d3/$', 'd3_test', name='d3_test'),
     url(r'^api/', include(pm_api.urls)),
+    url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 )
