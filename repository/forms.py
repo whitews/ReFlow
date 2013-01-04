@@ -48,3 +48,8 @@ class SubjectForm(ModelForm):
             if not sites:
                 raise ValidationError('Error creating panel. There are no sites for this project. A subject must belong to a project site.')
             self.fields['site'] = ModelChoiceField(sites)
+
+class SampleForm(ModelForm):
+    class Meta:
+        model = Sample
+        exclude = ('subject',)

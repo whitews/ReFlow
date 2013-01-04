@@ -106,7 +106,7 @@ def add_site(request, project_id):
         {
             'form': form,
             'project': project,
-            },
+        },
         context_instance=RequestContext(request)
     )
 
@@ -122,7 +122,7 @@ def view_project_panels(request, project_id):
         {
             'project': project,
             'panels': panels,
-            },
+        },
         context_instance=RequestContext(request)
     )
 
@@ -199,7 +199,31 @@ def add_subject(request, project_id):
         {
             'form': form,
             'project': project,
-            },
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def add_sample(request, subject_id):
+    subject = get_object_or_404(Subject, pk=subject_id)
+
+    if request.method == 'POST':
+        sample = Sample(subject=subject)
+        form = SampleForm(request.POST, request.FILES, instance=sample)
+
+        if form.is_valid():
+            sample.save()
+            return HttpResponseRedirect(reverse('view_subject', args=subject_id))
+    else:
+        form = SampleForm()
+
+    return render_to_response(
+        'add_sample.html',
+        {
+            'form': form,
+            'subject': subject,
+        },
         context_instance=RequestContext(request)
     )
 
