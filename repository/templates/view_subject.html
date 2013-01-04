@@ -4,12 +4,10 @@
   <div class="container">
     <div class="row lead">
       <div class="span4"><a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a></div>
-    </div>
-    <div class="row">
-        <div class="span2"><h4>Subject ID:</h4></div>
-        <div class="span4"><h4>{{ subject.subject_id }}</h4></div>
+      <div class="pull-right">Subject: {{ subject.subject_id }}</div>
     </div>
 
+    {% if samples %}
     <table class="table">
       <thead>
         <tr>
@@ -61,5 +59,13 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    <p>Subject has no flow cytometry samples.</p>
+    {% endif %}
+    <div class="pull-right">
+      <a class="btn btn-success btn-small" href="{% url 'add_sample' subject.id %}">
+        <i class="icon-plus icon-white"></i> Add Sample
+      </a>
+    </div>
   </div>
 {% endblock %}
