@@ -175,6 +175,36 @@ def view_subject(request, subject_id):
 
 @login_required
 @require_project_user
+def add_subject(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    # need to check if the project has any sites, since patients have a required site relation
+    if request.method == 'POST' and project.site_set.exists():
+        subject = Subject()
+        form = SubjectForm(request.POST, instance=subject)
+
+        if form.is_valid():
+            subject.save()
+            return HttpResponseRedirect(reverse('view_project', args=project_id))
+
+    elif not project.site_set.exists():
+        messages.warning(request, 'This project has no associated sites. A subject must be associated with a specific site.')
+        return HttpResponseRedirect(reverse('warning_page',))
+
+    else:
+        form = SubjectForm(project_id=project_id)
+
+    return render_to_response(
+        'add_subject.html',
+        {
+            'form': form,
+            'project': project,
+            },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
 def retrieve_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     sample_filename = sample.sample_file.name.split('/')[-1]
