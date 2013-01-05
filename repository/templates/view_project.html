@@ -24,13 +24,20 @@
         {% for s in subjects %}
         <tr>
           <td>
-            <a href="{% url 'repository.views.view_subject' s.id %}">{{ s.subject_id }}</a>
+            <div>
+              <a href="{% url 'repository.views.view_subject' s.id %}">{{ s.subject_id }}</a>
+              <span class="pull-right">
+                <a rel="tooltip" href="#" data-original-title="Edit Subject" data-placement="right">
+                  <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+                </a>
+              </span>
+            </div>
           </td>
           <td>
             {{ s.site }}
           </td>
           <td>
-            {{ s.visit_set.count }}
+            {{ s.sample_set.count }}
           </td>
         </tr>
         {% endfor %}
