@@ -1,0 +1,34 @@
+[
+  {
+    "pk": 1, 
+    "model": "repository.parametervaluetype", 
+    "fields": {
+      "value_type_name": "Area", 
+      "value_type_short_name": "A"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "repository.parametervaluetype", 
+    "fields": {
+      "value_type_name": "Height", 
+      "value_type_short_name": "H"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "repository.parametervaluetype", 
+    "fields": {
+      "value_type_name": "Time", 
+      "value_type_short_name": "T"
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "repository.parametervaluetype", 
+    "fields": {
+      "value_type_name": "Width", 
+      "value_type_short_name": "W"
+    }
+  }
+]
