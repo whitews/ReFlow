@@ -1,5 +1,6 @@
 from string import join
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from reflow.settings import MEDIA_ROOT
@@ -28,6 +29,18 @@ class ProjectUserMap(models.Model):
 class Site(models.Model):
     project   = models.ForeignKey(Project)
     site_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
+
+    def clean(self):
+        "Check for duplicate site names within a project. Returns ValidationError if any duplicates are found."
+
+        # count sites with matching site_name and parent project, which don't have this pk
+        site_duplicates = Site.objects.filter(
+            site_name=self.site_name,
+            project=self.project).exclude(
+            id=self.id)
+
+        if site_duplicates.count() > 0:
+            raise ValidationError("Site name already exists in this project.")
 
     def __unicode__(self):
         return u'%s' % (self.site_name)
@@ -107,7 +120,19 @@ class ParameterFluorochromeMap(models.Model):
 class Subject(models.Model):
     site    = models.ForeignKey(Site)    
     subject_id = models.CharField(null=False, blank=False, max_length=128)
-    
+
+    def clean(self):
+        "Check for duplicate subject ID in a project. Returns ValidationError if any duplicates are found."
+
+        # count subjects with matching subject_id and parent project, which don't have this pk
+        subject_duplicates = Subject.objects.filter(
+                subject_id=self.subject_id,
+                site__project=self.site.project).exclude(
+                        id=self.id)
+
+        if subject_duplicates.count() > 0:
+            raise ValidationError("Subject ID already exists in this project.")
+
     def __unicode__(self):
         return u'Project: %s, Subject: %s' % (self.site.project.project_name, self.subject_id)
 
