@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+    <div class="container">
+        <div class="row lead">
+            <div class="span4">
+                <a href="{% url 'view_project' panel.site.project.id %}">{{ panel.site.project.project_name }}</a>
+            </div>
+            <div class="pull-right">Edit Panel: {{ panel.panel_name }}</div>
+        </div>
+        <br/>
+        <form class="form-horizontal" action="{% url 'edit_panel' panel.id %}" method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            {% for field in form %}
+                <div class="control-group">
+                    <label class="control-label">{{ field.label }}</label>
+                    <div class="controls">
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-small btn-primary" type="submit">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

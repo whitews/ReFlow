@@ -6,21 +6,28 @@
       <div class="span4">
         <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
       </div>
-      <div class="pull-right">Project Panels <span class="badge badge-inverse align-top">{{ panels.count }}</span></div>
+      <div class="pull-right">Panels <span class="badge badge-inverse align-top">{{ panels.count }}</span></div>
     </div>
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th>Site</th>
           <th>Panel</th>
+          <th>Site</th>
           <th>Parameters</th>
         </tr>
       </thead>
       <tbody>
         {% for panel in panels %}
         <tr>
+          <td>
+            {{ panel.panel_name }}
+            <span class="pull-right">
+              <a rel="tooltip" href="{% url 'edit_panel' panel.id %}" data-original-title="Edit Panel" data-placement="right">
+                  <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+              </a>
+            </span>
+          </td>
           <td>{{ panel.site.site_name }}</td>
-          <td>{{ panel.panel_name }}</td>
           <td>
             {% for parameter in panel.panelparametermap_set.all %}
             {{ parameter }}

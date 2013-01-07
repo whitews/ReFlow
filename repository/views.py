@@ -157,6 +157,29 @@ def add_panel(request, project_id):
 
 @login_required
 @require_project_user
+def edit_panel(request, panel_id):
+    panel = get_object_or_404(Panel, pk=panel_id)
+
+    if request.method == 'POST':
+        form = PanelForm(request.POST, instance=panel)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_subject', args=panel_id))
+    else:
+        form = PanelForm(instance=panel)
+
+    return render_to_response(
+        'edit_panel.html',
+        {
+            'form': form,
+            'panel': panel,
+            },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
