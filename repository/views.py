@@ -37,8 +37,6 @@ def view_project(request, project_id):
 
     subjects = Subject.objects.filter(site__project=project)
 
-
-
     return render_to_response(
         'view_project.html',
         {
@@ -51,12 +49,10 @@ def view_project(request, project_id):
 @login_required
 def add_project(request):
     if request.method == 'POST':
-        project = Project()
-        form = ProjectForm(request.POST, instance=project)
-        print project.project_name
+        form = ProjectForm(request.POST)
 
         if form.is_valid():
-            project.save()
+            project = form.save()
 
             # Automatically add the request user to the project...it's the polite thing to do
             ProjectUserMap(project=project, user=request.user).save()
@@ -99,7 +95,7 @@ def add_site(request, project_id):
         form = SiteForm(request.POST, instance=site)
 
         if form.is_valid():
-            site.save()
+            form.save()
             return HttpResponseRedirect(reverse('project_sites', args=project_id))
     else:
         form = SiteForm()
@@ -140,7 +136,7 @@ def add_panel(request, project_id):
         form = PanelForm(request.POST, instance=panel)
 
         if form.is_valid():
-            panel.save()
+            form.save()
             return HttpResponseRedirect(reverse('project_panels', args=project_id))
 
     elif not project.site_set.exists():
@@ -187,7 +183,7 @@ def add_subject(request, project_id):
         form = SubjectForm(request.POST, instance=subject)
 
         if form.is_valid():
-            subject.save()
+            form.save()
             return HttpResponseRedirect(reverse('view_project', args=project_id))
 
     elif not project.site_set.exists():
@@ -215,7 +211,7 @@ def edit_subject(request, subject_id):
         form = SubjectForm(request.POST, instance=subject)
 
         if form.is_valid():
-            subject.save()
+            form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
         form = SubjectForm(instance=subject)
@@ -225,7 +221,7 @@ def edit_subject(request, subject_id):
         {
             'form': form,
             'subject': subject,
-            },
+        },
         context_instance=RequestContext(request)
     )
 
@@ -239,7 +235,7 @@ def add_sample(request, subject_id):
         form = SampleForm(request.POST, request.FILES, instance=sample)
 
         if form.is_valid():
-            sample.save()
+            form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
         form = SampleForm()
