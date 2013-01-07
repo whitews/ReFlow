@@ -3,8 +3,9 @@ from django.views.generic import TemplateView
 from tastypie.api import Api
 from repository.api import *
 
-pm_api = Api(api_name='pm')
+pm_api = Api(api_name='repo')
 pm_api.register(ProjectResource())
+pm_api.register(SiteResource())
 pm_api.register(PanelResource())
 pm_api.register(ParameterResource())
 pm_api.register(SubjectResource())

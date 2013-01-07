@@ -6,6 +6,21 @@ class ProjectResource(ModelResource):
     class Meta:
         queryset = Project.objects.all()
         resource_name = 'project'
+        filtering = {
+            'id': ALL_WITH_RELATIONS,
+            'project_name': ALL_WITH_RELATIONS,
+        }
+
+class SiteResource(ModelResource):
+    project = fields.ToOneField(ProjectResource, 'project')
+
+    class Meta:
+        queryset = Site.objects.all()
+        resource_name = 'site'
+        filtering = {
+            'id': ALL_WITH_RELATIONS,
+            'project': ALL_WITH_RELATIONS,
+        }
 
 class PanelResource(ModelResource):
     project = fields.ToOneField(ProjectResource, 'project')
@@ -18,11 +33,14 @@ class PanelResource(ModelResource):
         }
 
 class SubjectResource(ModelResource):
+    site = fields.ToOneField(SiteResource, 'site')
+
     class Meta:
         queryset = Subject.objects.all()
         resource_name = 'subject'
         filtering = {
             'subject_id': ALL_WITH_RELATIONS,
+            'site': ALL_WITH_RELATIONS,
         }
 
 class SampleResource(ModelResource):
