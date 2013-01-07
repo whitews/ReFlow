@@ -3,7 +3,7 @@
 {% block body %}
   <div class="container">
     <div class="row lead">
-      <div class="pull-right">Your Projects <span class="badge badge-inverse align-top">{{ projects|length }}</span></div>
+      <div class="pull-right">Projects <span class="badge badge-inverse align-top">{{ projects|length }}</span></div>
     </div>
     {{ projects.count }}
     {% for p in projects %}

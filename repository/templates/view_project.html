@@ -6,7 +6,7 @@
       <div class="span4">
         <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
       </div>
-      <div class="pull-right">Project Subjects <span class="badge badge-inverse align-top">{{ subjects|length }}</span></div>
+      <div class="pull-right">Subjects <span class="badge badge-inverse align-top">{{ subjects|length }}</span></div>
     </div>
     <div class="row">
       <div class="span6">{{ project.project_desc|default_if_none:'' }}</div>
