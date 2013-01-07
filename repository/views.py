@@ -53,6 +53,7 @@ def add_project(request):
     if request.method == 'POST':
         project = Project()
         form = ProjectForm(request.POST, instance=project)
+        print project.project_name
 
         if form.is_valid():
             project.save()
@@ -202,6 +203,29 @@ def add_subject(request, project_id):
             'form': form,
             'project': project,
         },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def edit_subject(request, subject_id):
+    subject = get_object_or_404(Subject, pk=subject_id)
+
+    if request.method == 'POST':
+        form = SubjectForm(request.POST, instance=subject)
+
+        if form.is_valid():
+            subject.save()
+            return HttpResponseRedirect(reverse('view_subject', args=subject_id))
+    else:
+        form = SubjectForm(instance=subject)
+
+    return render_to_response(
+        'edit_subject.html',
+        {
+            'form': form,
+            'subject': subject,
+            },
         context_instance=RequestContext(request)
     )
 

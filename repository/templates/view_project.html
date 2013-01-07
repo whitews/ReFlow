@@ -25,9 +25,9 @@
         <tr>
           <td>
             <div>
-              <a href="{% url 'repository.views.view_subject' s.id %}">{{ s.subject_id }}</a>
+              <a href="{% url 'view_subject' s.id %}">{{ s.subject_id }}</a>
               <span class="pull-right">
-                <a rel="tooltip" href="#" data-original-title="Edit Subject" data-placement="right">
+                <a rel="tooltip" href="{% url 'edit_subject' s.id %}" data-original-title="Edit Subject" data-placement="right">
                   <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
                 </a>
               </span>
