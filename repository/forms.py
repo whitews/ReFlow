@@ -31,6 +31,11 @@ class PanelForm(ModelForm):
                 raise ValidationError('Error creating panel. There are no sites for this project. A panel must belong to a project site.')
             self.fields['site'] = ModelChoiceField(sites)
 
+class PanelParameterMapForm(ModelForm):
+    class Meta:
+        model = PanelParameterMap
+        exclude = ('panel',)
+
 class SubjectForm(ModelForm):
     class Meta:
         model = Subject

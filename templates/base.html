@@ -85,13 +85,13 @@
     <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/jquery.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
     <script type='text/javascript'>
-        $(window).load(function(){
-            $('body').tooltip({
-                selector: "a[rel=tooltip]"
-            })
+        $(document).ready(function()
+        {
+            $("a[rel=tooltip]").tooltip();
         });
     </script>
 
+        {% block toes %}{% endblock %}
 
   </body>
 

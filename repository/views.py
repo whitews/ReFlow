@@ -165,12 +165,36 @@ def edit_panel(request, panel_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=panel_id))
+            return HttpResponseRedirect(reverse('view_panel', args=panel_id))
     else:
         form = PanelForm(instance=panel)
 
     return render_to_response(
         'edit_panel.html',
+        {
+            'form': form,
+            'panel': panel,
+            },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def add_panel_parameter(request, panel_id):
+    panel = get_object_or_404(Panel, pk=panel_id)
+
+    if request.method == 'POST':
+        ppm = PanelParameterMap(panel=panel)
+        form = PanelParameterMapForm(request.POST, instance=ppm)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
+    else:
+        form = PanelParameterMapForm(instance=panel)
+
+    return render_to_response(
+        'add_panel_parameter.html',
         {
             'form': form,
             'panel': panel,

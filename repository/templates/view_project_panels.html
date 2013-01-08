@@ -1,8 +1,38 @@
 {% extends "base.html" %}
 {% load url from future %}
+
 {% block extra_head %}
-<script></script>
+<link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
 {% endblock %}
+
+{% block toes %}
+<script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
+
+<script>
+$(document).ready(function()
+{
+    var add_param_dialog = $("<div></div>").dialog(
+    {
+        autoOpen: false,
+        title: 'Add a Parameter',
+        modal: true,
+        position: 'center',
+        height: 300,
+        width: 500
+    });
+
+    $(".add_parameter").click(function()
+    {
+        add_param_dialog.dialog({ close: function() { $(this).empty(); } });
+        add_param_dialog.load($(this).data("form"));
+        add_param_dialog.dialog('open');
+    });
+    return false;
+});
+
+</script>
+{% endblock %}
+
 {% block body %}
   <div class="container">
     <div class="row lead">
@@ -25,21 +55,22 @@
           <td>
             {{ panel.panel_name }}
             <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_panel' panel.id %}" data-original-title="Edit Panel" data-placement="right">
+              <a rel="tooltip" href="{% url 'edit_panel' panel.id %}" data-original-title="Edit Panel" data-placement="left">
                   <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
             </span>
           </td>
           <td>{{ panel.site.site_name }}</td>
           <td>
-            {% for ppm in panel.panelparametermap_set.all %}
-            {{ ppm.parameter.parameter_short_name }}-{{ ppm.value_type.value_type_short_name }}
-            {% endfor %}
             <span class="pull-right">
-              <a rel="tooltip" href="{% url 'project_panels' project.id %}" data-original-title="Add Parameter" data-placement="right">
-                  <i style="opacity: 0.4" class="icon-plus align-middle"></i>
+              <a class="add_parameter" rel="tooltip" href="#" data-form="{% url 'add_panel_parameter' panel.id %}" data-original-title="Add Parameter" data-placement="left">
+                <i style="opacity: 0.4" class="icon-plus align-middle"></i>
               </a>
             </span>
+            {% for ppm in panel.panelparametermap_set.all %}
+            {{ ppm.parameter.parameter_short_name }}-{{ ppm.value_type.value_type_short_name }}
+            {% if not forloop.last %}<br/>{% endif %}
+            {% endfor %}
           </td>
         </tr>
         {% endfor %}

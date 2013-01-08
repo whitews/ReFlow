@@ -50,7 +50,7 @@ class Panel(models.Model):
     panel_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
 
     def __unicode__(self):
-        return u'%s' % (self.panel_name)
+        return u'%s (Project: %s, Site: %s)' % (self.panel_name, self.site.project.project_name, self.site.site_name)
 
 class Parameter(models.Model):
     parameter_short_name = models.CharField(unique=True, max_length=32, null=False, blank=False)
