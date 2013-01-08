@@ -6,9 +6,9 @@
   <head>
     <title>{{ header_title }}</title>
     <meta charset="utf-8">
-    <script type="text/javascript" src="{{ STATIC_URL }}d3.js"></script>
     <link rel="stylesheet" href="{{ STATIC_URL }}/bootstrap/css/bootstrap.css">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
+    {% block extra_head %}{% endblock %}
   </head>
 
   <body>
@@ -81,9 +81,7 @@
     <div class="container">
       <div id="footer">&copy Duke University</div>
     </div>
-    <!-- Javascript
-     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- Javascript at the end of the document so pages load faster -->
     <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/jquery.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
     <script type='text/javascript'>

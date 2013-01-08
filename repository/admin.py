@@ -16,4 +16,5 @@ admin.site.register(Sample)
 
 admin.site.register(ParameterAntibodyMap)
 admin.site.register(ParameterFluorochromeMap)
+admin.site.register(PanelParameterMap)
 admin.site.register(SampleParameterMap)
