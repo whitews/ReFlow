@@ -5968,7 +5968,7 @@ body > #wrap {height: auto; min-height: 100%;}
 
 #main {
   padding-top: 120px;
-  /*padding-bottom: 300px;*/
+  padding-bottom: 24px;
 }
 
 #footer {
