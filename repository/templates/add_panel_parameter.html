@@ -1,21 +1,24 @@
 {% load url from future %}
+<script>
+    $(document).ready(function () {
+        $('#add_parameter_form').submit(function ()
+        {
+            $.ajax({
+                 data: $(this).serialize(),
+                 type: $(this).attr('method'),
+                 url: $(this).attr('action'),
+                 error: function(xhr, status, error) {
+                     $('#error_message').text(status);
+                 }
+            });
+            return false;
+        });
+    });
+</script>
 <div class="lead">{{ panel.panel_name }}</div>
-<form class="form-horizontal" action="{% url 'add_panel_parameter' panel.id %}" method="post">
+<form id="add_parameter_form" class="form-horizontal" action="{% url 'add_panel_parameter' panel.id %}" method="post">
     {% csrf_token %}
-
-    {% if form.errors %}
-        <div class="control-group warning">
-            <ul>
-                {% for field in form %}
-                    {% if field.errors %}
-                        <span class="help-inline">{{ field.errors|striptags }}</span>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-    {{ form.non_field_errors }}
-
+    <div id="error_message"></div>
     {% for field in form %}
         <div class="control-group">
             <label class="control-label">{{ field.label }}</label>

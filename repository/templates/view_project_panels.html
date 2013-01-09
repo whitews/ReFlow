@@ -24,7 +24,7 @@ $(document).ready(function()
     $(".add_parameter").click(function()
     {
         add_param_dialog.dialog({ close: function() { $(this).empty(); } });
-        add_param_dialog.load($(this).data("form"));
+        add_param_dialog.load($(this).data("form-url"));
         add_param_dialog.dialog('open');
     });
     return false;
@@ -63,7 +63,7 @@ $(document).ready(function()
           <td>{{ panel.site.site_name }}</td>
           <td>
             <span class="pull-right">
-              <a class="add_parameter" rel="tooltip" href="#" data-form="{% url 'add_panel_parameter' panel.id %}" data-original-title="Add Parameter" data-placement="left">
+              <a class="add_parameter" rel="tooltip" href="#" data-form-url="{% url 'add_panel_parameter' panel.id %}" data-original-title="Add Parameter" data-placement="left">
                 <i style="opacity: 0.4" class="icon-plus align-middle"></i>
               </a>
             </span>

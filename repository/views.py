@@ -5,9 +5,10 @@ from repository.decorators import require_project_user
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils import simplejson
 from operator import attrgetter
 
 def d3_test(request):
@@ -190,6 +191,11 @@ def add_panel_parameter(request, panel_id):
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
+        else:
+            response_dict = {'success': False}
+            json = simplejson.dumps(response_dict)
+            # TODO: add the form error messages to the response_dict
+            return HttpResponseBadRequest(json, mimetype='application/json')
     else:
         form = PanelParameterMapForm(instance=panel)
 
