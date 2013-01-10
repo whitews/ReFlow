@@ -83,26 +83,44 @@ class PanelParameterMap(models.Model):
     panel = models.ForeignKey(Panel)
     parameter = models.ForeignKey(Parameter)
     value_type = models.ForeignKey(ParameterValueType)
+    # fsc_text should match the FCS required keyword $PnN, the short name for parameter n.
+    fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
 
     def clean(self):
         "Check for duplicate parameter/value_type combos in a panel. Returns ValidationError if any duplicates are found."
 
         # first check that there are no empty values
+        error_message = []
         if not hasattr(self, 'panel'):
-            raise ValidationError("A panel is required")
+            error_message.append("Panel is required")
         if not hasattr(self, 'parameter'):
-            raise ValidationError("Parameter is required")
+            error_message.append("Parameter is required")
         if not hasattr(self, 'value_type'):
-            raise ValidationError("Value type is required")
+            error_message.append("Value type is required")
+        if not hasattr(self, 'fcs_text'):
+            error_message.append("FCS Text is required")
 
-    # count panel mappings with matching parameter and value_type, which don't have this pk
+        if len(error_message) > 0:
+            raise ValidationError(error_message)
+
+        # count panel mappings with matching parameter and value_type, which don't have this pk
         ppm_duplicates = PanelParameterMap.objects.filter(
             panel=self.panel,
             parameter=self.parameter,
             value_type=self.value_type).exclude(id=self.id)
 
         if ppm_duplicates.count() > 0:
-            raise ValidationError("This parameter and value type combination already exists in this panel.")
+            raise ValidationError("This combination already exists in this panel")
+
+        panel_fcs_text_duplicates = PanelParameterMap.objects.filter(
+            panel=self.panel,
+            fcs_text=self.fcs_text).exclude(id=self.id)
+
+        if panel_fcs_text_duplicates.count() > 0:
+            raise ValidationError("A panel cannot have duplicate FCS text")
+
+        if self.fcs_text == '':
+            raise ValidationError("FCS Text is required")
 
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s=%s' % (self.panel, self.parameter, self.value_type)

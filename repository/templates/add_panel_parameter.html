@@ -15,6 +15,7 @@
                 error: function(xhr, status, error) {
                     $('#error_message').empty();
                     var obj = JSON.parse(xhr.responseText);
+
                     $.each(obj['__all__'], function (i, value)
                     {
                         $('#error_message').append('<p class=\"text-warning\">' + value + '</p>');

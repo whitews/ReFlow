@@ -208,6 +208,15 @@ def add_panel_parameter(request, panel_id):
 
 @login_required
 @require_project_user
+def remove_panel_parameter(request, panel_parameter_id):
+    ppm = get_object_or_404(PanelParameterMap, pk=panel_parameter_id)
+    project = ppm.panel.site.project
+    ppm.delete()
+
+    return HttpResponseRedirect(reverse('project_panels', args=str(project.id)))
+
+@login_required
+@require_project_user
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 

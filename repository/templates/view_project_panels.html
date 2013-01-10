@@ -17,7 +17,7 @@ $(document).ready(function()
         title: 'Add a Parameter',
         modal: false,
         position: 'center',
-        height: 300,
+        height: 350,
         width: 500
     });
 
@@ -68,7 +68,10 @@ $(document).ready(function()
               </a>
             </span>
             {% for ppm in panel.panelparametermap_set.all %}
-            {{ ppm.parameter.parameter_short_name }}-{{ ppm.value_type.value_type_short_name }}
+            {{ ppm.parameter.parameter_short_name }}-{{ ppm.value_type.value_type_short_name }} (as {{ ppm.fcs_text }})
+            <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
+              <i style="opacity: 0.4" class="icon-remove align-middle"></i>
+            </a>
             {% if not forloop.last %}<br/>{% endif %}
             {% endfor %}
           </td>
