@@ -192,9 +192,7 @@ def add_panel_parameter(request, panel_id):
             form.save()
             return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
         else:
-            response_dict = {'success': False}
-            json = simplejson.dumps(response_dict)
-            # TODO: add the form error messages to the response_dict
+            json = simplejson.dumps(form.errors)
             return HttpResponseBadRequest(json, mimetype='application/json')
     else:
         form = PanelParameterMapForm(instance=panel)
@@ -204,7 +202,7 @@ def add_panel_parameter(request, panel_id):
         {
             'form': form,
             'panel': panel,
-            },
+        },
         context_instance=RequestContext(request)
     )
 

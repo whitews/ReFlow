@@ -3,13 +3,25 @@
     $(document).ready(function () {
         $('#add_parameter_form').submit(function ()
         {
-            $.ajax({
-                 data: $(this).serialize(),
-                 type: $(this).attr('method'),
-                 url: $(this).attr('action'),
-                 error: function(xhr, status, error) {
-                     $('#error_message').text(status);
-                 }
+            $('#add_parameter_button').attr('disabled', true);
+            $.ajax(
+            {
+                data: $(this).serialize(),
+                type: $(this).attr('method'),
+                url: $(this).attr('action'),
+                success: function (xhr, status, error) {
+                    window.location.reload(true);
+                },
+                error: function(xhr, status, error) {
+                    $('#error_message').empty();
+                    var obj = JSON.parse(xhr.responseText);
+                    $.each(obj['__all__'], function (i, value)
+                    {
+                        $('#error_message').append('<p class=\"text-warning\">' + value + '</p>');
+                    });
+
+                    $('#add_parameter_button').attr('disabled', false);
+                }
             });
             return false;
         });
@@ -27,7 +39,7 @@
     {% endfor %}
     <div class="control-group">
         <div class="controls">
-            <button class="btn btn-small btn-primary" type="submit">Save</button>
+            <button id="add_parameter_button" class="btn btn-small btn-primary" type="submit">Save</button>
         </div>
     </div>
 </form>

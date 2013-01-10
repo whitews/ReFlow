@@ -84,6 +84,26 @@ class PanelParameterMap(models.Model):
     parameter = models.ForeignKey(Parameter)
     value_type = models.ForeignKey(ParameterValueType)
 
+    def clean(self):
+        "Check for duplicate parameter/value_type combos in a panel. Returns ValidationError if any duplicates are found."
+
+        # first check that there are no empty values
+        if not hasattr(self, 'panel'):
+            raise ValidationError("A panel is required")
+        if not hasattr(self, 'parameter'):
+            raise ValidationError("Parameter is required")
+        if not hasattr(self, 'value_type'):
+            raise ValidationError("Value type is required")
+
+    # count panel mappings with matching parameter and value_type, which don't have this pk
+        ppm_duplicates = PanelParameterMap.objects.filter(
+            panel=self.panel,
+            parameter=self.parameter,
+            value_type=self.value_type).exclude(id=self.id)
+
+        if ppm_duplicates.count() > 0:
+            raise ValidationError("This parameter and value type combination already exists in this panel.")
+
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s=%s' % (self.panel, self.parameter, self.value_type)
 
