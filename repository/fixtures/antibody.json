@@ -43,5 +43,14 @@
             "antibody_short_name": "CD45",
             "antibody_description": null
         }
+    },
+    {
+        "model": "repository.antibody",
+        "pk": 6,
+        "fields": {
+            "antibody_name": "New York esophageal squamous cell carcinoma 1",
+            "antibody_short_name": "NY-ESO-1",
+            "antibody_description": null
+        }
     }
 ]

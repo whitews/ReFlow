@@ -83,7 +83,7 @@ class PanelParameterMap(models.Model):
     panel = models.ForeignKey(Panel)
     parameter = models.ForeignKey(Parameter)
     value_type = models.ForeignKey(ParameterValueType)
-    # fsc_text should match the FCS required keyword $PnN, the short name for parameter n.
+    # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
     fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
 
     def clean(self):
@@ -198,13 +198,19 @@ class Sample(models.Model):
 class SampleParameterMap(models.Model):
     sample = models.ForeignKey(Sample)
     parameter = models.ForeignKey(Parameter)
-    channel_number = models.IntegerField(null=False, blank=False)
     value_type = models.ForeignKey(ParameterValueType)
 
+    # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
+    fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
+    # fcs_number represents the parameter number in the FCS file
+    # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
+    fcs_number = models.IntegerField()
+
     def __unicode__(self):
-        return u'SampleID: %s, Parameter: %s-%s, Channel: %d' % (
-            self.sample.id,
-            self.parameter,
-            self.value_type,
-            self.channel_number)
+            return u'SampleID: %s, Parameter: %s-%s, Number: %d, Text: %s' % (
+                self.sample.id,
+                self.parameter,
+                self.value_type,
+                self.fcs_number,
+                self.fcs_text)
 

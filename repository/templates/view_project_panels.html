@@ -62,18 +62,51 @@ $(document).ready(function()
           </td>
           <td>{{ panel.site.site_name }}</td>
           <td>
-            <span class="pull-right">
-              <a class="add_parameter" rel="tooltip" href="#" data-form-url="{% url 'add_panel_parameter' panel.id %}" data-original-title="Add Parameter" data-placement="left">
-                <i style="opacity: 0.4" class="icon-plus align-middle"></i>
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Value Type</th>
+                    <th>FCS Text</th>
+                    <th>Antibody</th>
+                    <th>Fluorochrome</th>
+                </thead>
+                <tbody>
+                  {% for ppm in panel.panelparametermap_set.all %}
+                  <tr>
+                    <td>
+                      {{ ppm.parameter.parameter_short_name }}
+                      <span class="pull-right">
+                        <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
+                          <i style="opacity: 0.4" class="icon-remove align-middle"></i>
+                        </a>
+                      </span>
+                    </td>
+                    <td>
+                        {{ ppm.value_type.value_type_name }}
+                    </td>
+                    <td>
+                        {{ ppm.fcs_text }}
+                    </td>
+                    <td>
+                      {% for ab in ppm.parameter.parameterantibodymap_set.all %}
+                        {{ ab.antibody }}
+                      {% endfor %}
+                    </td>
+                    <td>
+                      {% for fl in ppm.parameter.parameterfluorochromemap_set.all %}
+                        {{ fl.fluorochrome.fluorochrome_short_name }}
+                      {% endfor %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              <a class="add_parameter btn btn-success btn-small" rel="tooltip" href="#" data-form-url="{% url 'add_panel_parameter' panel.id %}" data-original-title="Add Parameter" data-placement="right">
+                <i class="icon-plus icon-white"></i> Add Parameter
               </a>
-            </span>
-            {% for ppm in panel.panelparametermap_set.all %}
-            {{ ppm.parameter.parameter_short_name }}-{{ ppm.value_type.value_type_short_name }} (as {{ ppm.fcs_text }})
-            <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
-              <i style="opacity: 0.4" class="icon-remove align-middle"></i>
-            </a>
-            {% if not forloop.last %}<br/>{% endif %}
-            {% endfor %}
+
           </td>
         </tr>
         {% endfor %}

@@ -311,6 +311,37 @@ def add_sample(request, subject_id):
 
 @login_required
 @require_project_user
+def select_panel(request, sample_id):
+    sample = get_object_or_404(Sample, pk=sample_id)
+    site_panels = Panel.objects.filter(site=sample.subject.site)
+
+    if request.method == 'POST':
+        # Get the user selection
+
+        # Validate that it is a site panel
+
+        # Check the sample FCS file to make sure it contains the same $PnN text
+
+        # Copy all the parameters from PanelParameterMap to SampleParameterMap
+
+        # If something isn't right, return errors back to user
+#        json = simplejson.dumps(form.errors)
+#        return HttpResponseBadRequest(json, mimetype='application/json')
+
+        return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject.id)))
+
+
+    return render_to_response(
+        'select_panel.html',
+        {
+            'sample': sample,
+            'site_panels': site_panels,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
 def retrieve_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     sample_filename = sample.sample_file.name.split('/')[-1]
