@@ -2,6 +2,8 @@ from repository.models import *
 from repository.forms import *
 from repository.decorators import require_project_user
 
+import fcm
+
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -314,22 +316,28 @@ def add_sample(request, subject_id):
 def select_panel(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     site_panels = Panel.objects.filter(site=sample.subject.site)
+    errors = {}
 
     if request.method == 'POST':
-        # Get the user selection
+        if 'panel' in request.POST:
 
-        # Validate that it is a site panel
+            # Get the user selection
+            selected_panel = get_object_or_404(Panel, pk=request.POST['panel'])
 
-        # Check the sample FCS file to make sure it contains the same $PnN text
+            # Validate that it is a site panel
+            if selected_panel in site_panels:
+                pass
+                # Check the sample FCS file to make sure it contains the same $PnN text
 
-        # Copy all the parameters from PanelParameterMap to SampleParameterMap
+                # Copy all the parameters from PanelParameterMap to SampleParameterMap
 
-        # If something isn't right, return errors back to user
-#        json = simplejson.dumps(form.errors)
-#        return HttpResponseBadRequest(json, mimetype='application/json')
 
-        return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject.id)))
-
+            # If something isn't right, return errors back to user
+            if len(errors) > 0:
+                json = simplejson.dumps(errors)
+                return HttpResponseBadRequest(json, mimetype='application/json')
+            else:
+                return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject.id)))
 
     return render_to_response(
         'select_panel.html',

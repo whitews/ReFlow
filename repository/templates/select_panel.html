@@ -32,12 +32,16 @@
 <form id="select_panel_form" class="form-horizontal" action="{% url 'select_panel' sample.id %}" method="post">
     {% csrf_token %}
     <div id="error_message"></div>
-    {% for field in form %}
-        <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">{{ field }}</div>
-        </div>
-    {% endfor %}
+    <div class="control-group">
+      <label class="control-label">Panel: </label>
+      <div class="controls">
+        <select name="panel" id="id_panel">
+          {% for panel in site_panels %}
+          <option value="{{ panel.id }}">{{ panel.panel_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
     <div class="control-group">
         <div class="controls">
             <button id="add_parameter_button" class="btn btn-small btn-primary" type="submit">Save</button>
