@@ -61,7 +61,8 @@ $(document).ready(function()
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
-                    <th>Channel</th>
+                    <th>FCS Number</th>
+                    <th>FCS Text</th>
                     <th>Name</th>
                     <th>Value Type</th>
                     <th>Ab</th>
@@ -71,7 +72,10 @@ $(document).ready(function()
                   {% for sp_map in sample.sampleparametermap_set.all %}
                   <tr>
                     <td>
-                      {{ sp_map.channel_number }}
+                      {{ sp_map.fcs_number }}
+                    </td>
+                    <td>
+                      {{ sp_map.fcs_text }}
                     </td>
                     <td>
                       {{ sp_map.parameter.parameter_short_name }}

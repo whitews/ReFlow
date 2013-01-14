@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from fcm.io import loadFCS
+
 from reflow.settings import MEDIA_ROOT
 
 class Project(models.Model):
@@ -123,7 +125,7 @@ class PanelParameterMap(models.Model):
             raise ValidationError("FCS Text is required")
 
     def __unicode__(self):
-        return u'Panel: %s, Parameter: %s=%s' % (self.panel, self.parameter, self.value_type)
+        return u'Panel: %s, Parameter: %s-%s' % (self.panel, self.parameter, self.value_type)
 
 class Antibody(models.Model):
     antibody_name = models.CharField(unique=True, null=False, blank=False, max_length=128)
@@ -189,6 +191,10 @@ class Sample(models.Model):
     subject = models.ForeignKey(Subject)
     sample_file = models.FileField(upload_to=fcs_file_path)
 
+    def get_fcs_text_segment(self):
+        fcs = loadFCS(self.sample_file.file.name)
+        return fcs.notes.text
+
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
             self.subject.site.project.project_name,
@@ -207,7 +213,7 @@ class SampleParameterMap(models.Model):
     fcs_number = models.IntegerField()
 
     def __unicode__(self):
-            return u'SampleID: %s, Parameter: %s-%s, Number: %d, Text: %s' % (
+            return u'SampleID: %s, Parameter: %s-%s, Number: %s, Text: %s' % (
                 self.sample.id,
                 self.parameter,
                 self.value_type,

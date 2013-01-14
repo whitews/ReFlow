@@ -13,6 +13,8 @@ from django.template import RequestContext
 from django.utils import simplejson
 from operator import attrgetter
 
+import re
+
 def d3_test(request):
     return render_to_response(
         'd3_test.html',
@@ -316,7 +318,9 @@ def add_sample(request, subject_id):
 def select_panel(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     site_panels = Panel.objects.filter(site=sample.subject.site)
-    errors = {}
+    errors = []
+    sample_param_count = 0
+    sample_parameters = {} # parameter_number: PnN text
 
     if request.method == 'POST':
         if 'panel' in request.POST:
@@ -326,11 +330,46 @@ def select_panel(request, sample_id):
 
             # Validate that it is a site panel
             if selected_panel in site_panels:
-                pass
-                # Check the sample FCS file to make sure it contains the same $PnN text
 
-                # Copy all the parameters from PanelParameterMap to SampleParameterMap
+                # Read the FCS text segment and get the number of parameters
+                sample_text_segment = sample.get_fcs_text_segment()
 
+                if 'par' in sample_text_segment:
+                    if sample_text_segment['par'].isdigit():
+                        sample_param_count = int(sample_text_segment['par'])
+                    else:
+                        errors.append("Sample reports non-numeric parameter count")
+                else:
+                    errors.append("No parameters found in sample")
+
+                # Get our parameter numbers from all the PnN matches
+                for key in sample_text_segment:
+                    matches = re.search('^P(\d)N$', key, flags=re.IGNORECASE)
+                    if matches:
+                        # while we're here, verify sample parameter PnN text matches a parameter in selected panel
+                        if selected_panel.panelparametermap_set.filter(fcs_text=sample_text_segment[key]):
+                            sample_parameters[matches.group(1)] = sample_text_segment[key]
+                        else:
+                            errors.append("Sample parameter " + sample_text_segment[key] + " does not match a parameter in selected panel")
+
+                # Verify:
+                # sample parameter count == sample_param_count == selected panel parameter counts
+                if len(sample_parameters) == sample_param_count == len(selected_panel.panelparametermap_set.all()):
+
+                    # Copy all the parameters from PanelParameterMap to SampleParameterMap
+                    for key in sample_parameters:
+                        ppm = selected_panel.panelparametermap_set.get(fcs_text=sample_parameters[key])
+
+                        # Finally, construct and save our sample parameter map for all the matching parameters
+                        spm = SampleParameterMap()
+                        spm.sample = sample
+                        spm.parameter = ppm.parameter
+                        spm.value_type = ppm.value_type
+                        spm.fcs_number = key
+                        spm.fcs_text = sample_parameters[key]
+                        spm.save()
+                else:
+                    errors.append("Matching parameter counts differ between sample and selected panel")
 
             # If something isn't right, return errors back to user
             if len(errors) > 0:
