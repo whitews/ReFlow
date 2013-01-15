@@ -49,12 +49,18 @@ $(document).ready(function()
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th colspan="3" class="center">Flow Cytometry Files</th>
+          <th colspan="4" class="center">Flow Cytometry Files</th>
+        </tr>
+        <tr>
+            <th>Sample ID</th>
+            <th>Download</th>
+            <th>Parameters</th>
         </tr>
       </thead>
       <tbody>
         {% for sample in samples %}
         <tr>
+          <td class="middle">{{ sample.id }}</td>
           <td class="middle"><a href="{% url 'repository.views.retrieve_sample' sample.id %}">Download</a></td>
           <td>
               {% if sample.sampleparametermap_set.all.count > 0 %}

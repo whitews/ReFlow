@@ -1,5 +1,5 @@
 from tastypie import fields
-from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
+from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from repository.models import *
 
 class ProjectResource(ModelResource):
@@ -46,7 +46,9 @@ class SubjectResource(ModelResource):
 class SampleResource(ModelResource):
     subject = fields.ToOneField(SubjectResource, 'subject')
 
-    parameters = fields.ListField()
+    parameters = fields.ToManyField('repository.api.SampleParameterMapResource', 'sampleparametermap_set', full=True)
+
+#    parameters = fields.ListField()
 
     class Meta:
         queryset = Sample.objects.all()
@@ -54,28 +56,33 @@ class SampleResource(ModelResource):
         excludes = ['sample_file']
         filtering = {
             'subject': ALL_WITH_RELATIONS,
+            'parameters': ALL_WITH_RELATIONS,
         }
 
-    def dehydrate(self, bundle):
-        sample_parameter_set = SampleParameterMap.objects.filter(sample=bundle.obj.pk)
-        sp_list = []
-        for sp in sample_parameter_set:
-            sp_dict = {}
-            sp_dict['channel_number'] = sp.channel_number
-            sp_dict['parameter_short_name'] = sp.parameter.parameter_short_name
-            sp_dict['value_type'] = sp.value_type.value_type_short_name
-            sp_list.append(sp_dict)
-        if sp_list.count > 0:
-            bundle.data['parameters'] = sp_list
-
-        return bundle
+#    def dehydrate(self, bundle):
+#        sample_parameter_set = SampleParameterMap.objects.filter(sample=bundle.obj.pk)
+#        sp_list = []
+#        for sp in sample_parameter_set:
+#            sp_dict = {}
+#            sp_dict['parameter_number'] = sp.fcs_number
+#            sp_dict['parameter_short_name'] = sp.parameter.parameter_short_name
+#            sp_dict['value_type'] = sp.value_type.value_type_short_name
+#            sp_list.append(sp_dict)
+#        if sp_list.count > 0:
+#            bundle.data['parameters'] = sp_list
+#
+#        return bundle
 
 class ParameterResource(ModelResource):
-    sample_set = fields.ToManyField('repository.api.SampleParameterMapResource', 'sampleparametermap_set', full=True)
+    samples = fields.ToManyField('repository.api.SampleParameterMapResource', 'sampleparametermap_set', full=True)
 
     class Meta:
         queryset = Parameter.objects.all()
         resource_name = 'parameter'
+        filtering = {
+            'samples': ALL_WITH_RELATIONS,
+            'fcs_text': ALL,
+        }
 
 class SampleParameterMapResource(ModelResource):
     sample = fields.ToOneField(SampleResource, 'sample')
@@ -87,6 +94,7 @@ class SampleParameterMapResource(ModelResource):
         filtering = {
             'sample': ALL_WITH_RELATIONS,
             'parameter': ALL_WITH_RELATIONS,
+            'fcs_text': ALL,
         }
 
 class AntibodyResource(ModelResource):
