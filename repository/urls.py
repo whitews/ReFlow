@@ -13,6 +13,11 @@ pm_api.register(SampleResource())
 pm_api.register(SampleParameterMapResource())
 pm_api.register(AntibodyResource())
 
+# Override handler403 to provide a custom permission denied page.
+# Otherwise, a user has no links to get to their resources
+# Esp. useful for 'next' redirection after login
+handler403 = TemplateView.as_view(template_name='403.html')
+
 urlpatterns = patterns('repository.views',
     url(r'^$', 'projects', name='home'),
     url(r'projects/$', 'projects', name='projects'),
