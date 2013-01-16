@@ -3,15 +3,49 @@
 {% block body %}
   <div class="container">
     <div class="row lead">
+      <div class="span4">
+        Home
+      </div>
       <div class="pull-right">Projects <span class="badge badge-inverse align-top">{{ projects|length }}</span></div>
     </div>
     {{ projects.count }}
-    {% for p in projects %}
-    <div class="row lead">
-      <div class="span4"><a href="{% url 'repository.views.view_project' p.id %}">{{ p.project_name }}</a></div>
-    </div>
-    {% endfor %}
-    {% if not projects %}
+
+    {% if projects %}
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan="4" class="center">Your Projects</th>
+        </tr>
+        <tr>
+          <th>Project Name</th>
+          <th>Site Count</th>
+          <th>Subject Count</th>
+          <th>Sample Count</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+      {% for p in projects %}
+        <tr>
+          <td>
+            <a href="{% url 'repository.views.view_project' p.id %}">{{ p.project_name }}</a>
+            <span class="pull-right">
+              <a rel="tooltip" href="{% url 'edit_project' p.id %}" data-original-title="Edit Project" data-placement="left">
+                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+              </a>
+            </span>
+          </td>
+          <td>{{ p.site_set.count }}</td>
+          <td>{{ p.get_subject_count }}</td>
+          <td>{{ p.get_sample_count }}</td>
+        </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+
+    {% else %}
     <p>You do not belong to any projects. <a href="{% url 'repository.views.add_project'%}">Create a new project</a></p>
     {% endif %}
   </div>

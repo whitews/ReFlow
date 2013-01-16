@@ -76,6 +76,29 @@ def add_project(request):
 
 @login_required
 @require_project_user
+def edit_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == 'POST':
+        form = ProjectForm(request.POST, instance=project)
+
+        if form.is_valid():
+            project = form.save()
+            return HttpResponseRedirect(reverse('view_project', args=(project.id,)))
+    else:
+        form = ProjectForm(instance=project)
+
+    return render_to_response(
+        'edit_project.html',
+        {
+            'project': project,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
 def view_project_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 

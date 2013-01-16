@@ -10,7 +10,13 @@ from reflow.settings import MEDIA_ROOT
 class Project(models.Model):
     project_name = models.CharField("Project Name", unique=True, null=False, blank=False, max_length=128)
     project_desc = models.TextField("Project Description", null=True, blank=True)
-    
+
+    def get_subject_count(self):
+        return Subject.objects.filter(site__project=self).count()
+
+    def get_sample_count(self):
+        return Sample.objects.filter(subject__site__project=self).count()
+
     def __unicode__(self):
         return u'Project: %s' % (self.project_name)
 
