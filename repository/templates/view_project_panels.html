@@ -2,7 +2,8 @@
 {% load url from future %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css"
+      xmlns="http://www.w3.org/1999/html"/>
 {% endblock %}
 
 {% block toes %}
@@ -11,22 +12,58 @@
 <script>
 $(document).ready(function()
 {
-    var add_param_dialog = $("<div></div>").dialog(
+    var error_dialog = $("#error_dialog").dialog(
     {
         autoOpen: false,
-        title: 'Add a Parameter',
-        modal: false,
-        position: 'center',
-        height: 350,
-        width: 500
+        title: 'Error',
+        modal: true,
+        position: 'center'
+    });
+
+    $('#add_parameter_form').submit(function ()
+    {
+        $('#save_parameter_button').attr('disabled', true);
+        var form = $(this);
+        $.ajax(
+        {
+            data: $(this).serialize(),
+            type: $(this).attr('method'),
+            url: $(this).attr('action'),
+            success: function (xhr, status, error) {
+                window.location.reload(true);
+            },
+            error: function(xhr, status, error) {
+                $('#error_message').empty();
+                var obj = JSON.parse(xhr.responseText);
+
+                $.each(obj['__all__'], function (i, value)
+                {
+                    $('#error_dialog').append('<p class=\"text-warning\">' + value + '</p>');
+                });
+
+                error_dialog.dialog({ close: function() { $(this).empty(); } });
+                error_dialog.dialog('open');
+
+                $('#save_parameter_button').attr('disabled', false);
+            }
+        });
+        return false;
     });
 
     $(".add_parameter").click(function()
     {
-        add_param_dialog.dialog({ close: function() { $(this).empty(); } });
-        add_param_dialog.load($(this).data("form-url"));
-        add_param_dialog.dialog('open');
+        $(this).siblings('table').children('tbody').find('tr.add_parameter').show();
+        $(this).siblings('div.hide').show();
+        $(this).hide();
     });
+
+    $(".cancel").click(function()
+    {
+        $(this).closest('div.hide').siblings('table').children('tbody').find('tr.add_parameter').hide();
+        $(this).closest('div.hide').hide();
+        $(this).closest('div.hide').siblings('a.add_parameter').show();
+    });
+
     return false;
 });
 
@@ -34,10 +71,13 @@ $(document).ready(function()
 {% endblock %}
 
 {% block body %}
+<div id="error_dialog"></div>
+
+
   <div class="container">
     <div class="row lead">
       <div class="span4">
-        <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
+        <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
       </div>
       <div class="pull-right">Panels <span class="badge badge-inverse align-top">{{ panels.count }}</span></div>
     </div>
@@ -61,16 +101,14 @@ $(document).ready(function()
             </span>
           </td>
           <td>{{ panel.site.site_name }}</td>
-          <td>
+          <td width="80%">
             {% if panel.panelparametermap_set.all.count > 0 %}
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
                     <th>Name</th>
                     <th>Value Type</th>
-                    <th>FCS Text</th>
-                    <th>Antibody</th>
-                    <th>Fluorochrome</th>
+                    <th>FCS Text <a rel="tooltip" class="pull-right label label-inverse" data-original-title="Exact text from the FCS $PnN field" data-placement="left">?</a></th>
                 </thead>
                 <tbody>
                   {% for ppm in panel.panelparametermap_set.all %}
@@ -89,26 +127,38 @@ $(document).ready(function()
                     <td>
                         {{ ppm.fcs_text }}
                     </td>
-                    <td>
-                      {% for ab in ppm.parameter.parameterantibodymap_set.all %}
-                        {{ ab.antibody }}
-                      {% endfor %}
-                    </td>
-                    <td>
-                      {% for fl in ppm.parameter.parameterfluorochromemap_set.all %}
-                        {{ fl.fluorochrome.fluorochrome_short_name }}
-                      {% endfor %}
-                    </td>
                   </tr>
                   {% endfor %}
+                  <tr class="hide add_parameter">
+                    <td>
+                      <form id="add_parameter_form" style="margin: 0px; padding:0px" action="{% url 'project_panels' project.id %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="panel" value="{{ panel.id }}">
+                      {{ form.parameter }}
+                    </td>
+                    <td>
+                      {{ form.value_type }}
+                    </td>
+                    <td>
+                      {{ form.fcs_text }}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
               {% else %}
                 <p>No parameters have been associated with this panel.</p>
               {% endif %}
-              <a class="add_parameter btn btn-success btn-small" href="#" data-form-url="{% url 'add_panel_parameter' panel.id %}">
+              <a class="add_parameter btn btn-success btn-mini" href="#">
                 <i class="icon-plus icon-white"></i> Add Parameter
               </a>
+              <div class="hide control-group">
+                <div class="controls">
+                    <button id="save_parameter_button" class="btn btn-small btn-primary" type="submit">Save</button>
+                    <a class="cancel btn btn-small btn-warning">Cancel</a>
+                    <span style="font-size: 12px">Can't find a parameter? <a href="#">Create one</a></span>
+                </div>
+              </div>
+              </form>
           </td>
         </tr>
         {% endfor %}

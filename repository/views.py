@@ -142,13 +142,31 @@ def add_site(request, project_id):
 def view_project_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
+    if request.method == 'POST':
+        if 'panel' in request.POST:
+
+            panel = get_object_or_404(Panel, pk=request.POST['panel'])
+            ppm = PanelParameterMap(panel=panel)
+            form = PanelParameterMapForm(request.POST, instance=ppm)
+
+            if form.is_valid():
+                form.save()
+                return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
+            else:
+                json = simplejson.dumps(form.errors)
+                return HttpResponseBadRequest(json, mimetype='application/json')
+
     panels = Panel.objects.filter(site__project=project)
+
+    # for adding new parameters to panels
+    form = PanelParameterMapForm()
 
     return render_to_response(
         'view_project_panels.html',
         {
             'project': project,
             'panels': panels,
+            'form': form,
         },
         context_instance=RequestContext(request)
     )
@@ -199,33 +217,6 @@ def edit_panel(request, panel_id):
 
     return render_to_response(
         'edit_panel.html',
-        {
-            'form': form,
-            'panel': panel,
-            },
-        context_instance=RequestContext(request)
-    )
-
-@login_required
-@require_project_user
-def add_panel_parameter(request, panel_id):
-    panel = get_object_or_404(Panel, pk=panel_id)
-
-    if request.method == 'POST':
-        ppm = PanelParameterMap(panel=panel)
-        form = PanelParameterMapForm(request.POST, instance=ppm)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
-        else:
-            json = simplejson.dumps(form.errors)
-            return HttpResponseBadRequest(json, mimetype='application/json')
-    else:
-        form = PanelParameterMapForm(instance=panel)
-
-    return render_to_response(
-        'add_panel_parameter.html',
         {
             'form': form,
             'panel': panel,
