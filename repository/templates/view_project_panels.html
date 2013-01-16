@@ -52,14 +52,14 @@ $(document).ready(function()
 
     $(".add_parameter").click(function()
     {
-        $(this).siblings('table').children('tbody').find('tr.add_parameter').show();
+        $(this).siblings('table').children('tbody').find('tr.add_parameter_row').show();
         $(this).siblings('div.hide').show();
         $(this).hide();
     });
 
     $(".cancel").click(function()
     {
-        $(this).closest('div.hide').siblings('table').children('tbody').find('tr.add_parameter').hide();
+        $(this).closest('div.hide').siblings('table').children('tbody').find('tr.add_parameter_row').hide();
         $(this).closest('div.hide').hide();
         $(this).closest('div.hide').siblings('a.add_parameter').show();
     });
@@ -129,7 +129,7 @@ $(document).ready(function()
                     </td>
                   </tr>
                   {% endfor %}
-                  <tr class="hide add_parameter">
+                  <tr class="hide add_parameter_row">
                     <td>
                       <form id="add_parameter_form" style="margin: 0px; padding:0px" action="{% url 'project_panels' project.id %}" method="post">
                       {% csrf_token %}
