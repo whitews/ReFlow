@@ -5968,7 +5968,7 @@ body > #wrap {height: auto; min-height: 100%;}
 
 #main {
   padding-top: 120px;
-  padding-bottom: 24px;
+  padding-bottom: 64px;
 }
 
 #footer {
@@ -6019,7 +6019,7 @@ th.center {
   margin-bottom: 15px;
   padding: 7px 9px;
 }
-/* ----------  Login stuff START---------- */
+/* ----------  Login stuff   END---------- */
 /* ----------  Nested Dropdown customization START---------- */
 .nav li.dropdown ul.dropdown-menu li:HOVER ul {
   display:block;
