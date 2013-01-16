@@ -62,6 +62,7 @@ $(document).ready(function()
           </td>
           <td>{{ panel.site.site_name }}</td>
           <td>
+            {% if panel.panelparametermap_set.all.count > 0 %}
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
@@ -102,11 +103,12 @@ $(document).ready(function()
                   {% endfor %}
                 </tbody>
               </table>
-
+              {% else %}
+                <p>No parameters have been associated with this panel.</p>
+              {% endif %}
               <a class="add_parameter btn btn-success btn-small" href="#" data-form-url="{% url 'add_panel_parameter' panel.id %}">
                 <i class="icon-plus icon-white"></i> Add Parameter
               </a>
-
           </td>
         </tr>
         {% endfor %}

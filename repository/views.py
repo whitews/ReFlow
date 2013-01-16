@@ -170,7 +170,7 @@ def edit_panel(request, panel_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_panel', args=panel_id))
+            return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
     else:
         form = PanelForm(instance=panel)
 
