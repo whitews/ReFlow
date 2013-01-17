@@ -182,6 +182,14 @@ class Subject(models.Model):
     def __unicode__(self):
         return u'Project: %s, Subject: %s' % (self.site.project.project_name, self.subject_id)
 
+class ProjectVisitType(models.Model):
+    project                = models.ForeignKey(Project)
+    visit_type_name        = models.CharField(unique=False, null=False, blank=False, max_length=128)
+    visit_type_description = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u'%s' % (self.visit_type_name)
+
 def fcs_file_path(instance, filename):
     project_id = instance.subject.site.project.id
     site_id    = instance.subject.site.id
@@ -195,6 +203,7 @@ def fcs_file_path(instance, filename):
 
 class Sample(models.Model):
     subject = models.ForeignKey(Subject)
+    visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
     sample_file = models.FileField(upload_to=fcs_file_path)
 
     def get_fcs_text_segment(self):

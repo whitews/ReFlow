@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+    <div class="container">
+        <div class="row lead">
+            <div class="span4">
+                <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
+            </div>
+            <div class="pull-right">Visit Types <span class="badge badge-inverse align-top">{{ visit_types.count }}</span></div>
+        </div>
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>Visit Name</th>
+                <th>Visit Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for visit_type in visit_types %}
+                <tr>
+                    <td>{{ visit_type.visit_type_name }}</td>
+                    <td>{{ visit_type.visit_type_description }} </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="pull-right">
+            <a class="btn btn-success btn-small" href="{% url 'add_visit_type' project.id %}">
+                <i class="icon-plus icon-white"></i> Add Visit Type
+            </a>
+        </div>
+    </div>
+{% endblock %}

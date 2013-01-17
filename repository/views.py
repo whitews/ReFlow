@@ -99,7 +99,7 @@ def edit_project(request, project_id):
 
 @login_required
 @require_project_user
-def view_project_sites(request, project_id):
+def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     sites = Site.objects.filter(project=project)
@@ -130,6 +130,46 @@ def add_site(request, project_id):
 
     return render_to_response(
         'add_site.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def view_visit_types(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    visit_types = ProjectVisitType.objects.filter(project=project)
+
+    return render_to_response(
+        'view_project_visit_types.html',
+        {
+            'project': project,
+            'visit_types': visit_types,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def add_visit_type(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == 'POST':
+        visit_type = ProjectVisitType(project=project)
+        form = ProjectVisitTypeForm(request.POST, instance=visit_type)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('project_visit_types', args=project_id))
+    else:
+        form = ProjectVisitTypeForm()
+
+    return render_to_response(
+        'add_visit_type.html',
         {
             'form': form,
             'project': project,
@@ -316,7 +356,7 @@ def add_sample(request, subject_id):
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
-        form = SampleForm()
+        form = SampleForm(project_id=subject.site.project.id)
 
     return render_to_response(
         'add_sample.html',

@@ -33,6 +33,7 @@
                     <li><a href="{% url 'add_project' %}">Add Project</a></li>
                     {%  if project %}
                     <li class="divider"></li>
+                    <li><a href="{% url 'project_visit_types' project.id %}">View Visit Types for {{ project.project_name }}</a></li>
                     <li><a href="{% url 'project_sites' project.id %}">View Sites for {{ project.project_name }}</a></li>
                     <li><a href="{% url 'project_panels' project.id %}">View Panels for {{ project.project_name }}</a></li>
                     {% endif %}
