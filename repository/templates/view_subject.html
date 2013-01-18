@@ -53,7 +53,7 @@ $(document).ready(function()
         </tr>
         <tr>
             <th>Sample ID</th>
-            <th>Download</th>
+            <th>Actions</th>
             <th>Parameters</th>
         </tr>
       </thead>
@@ -61,7 +61,11 @@ $(document).ready(function()
         {% for sample in samples %}
         <tr>
           <td class="middle">{{ sample.id }}</td>
-          <td class="middle"><a href="{% url 'repository.views.retrieve_sample' sample.id %}">Download</a></td>
+          <td class="middle">
+              <a href="{% url 'retrieve_sample' sample.id %}">Download FCS File</a><br/>
+              <a href="{% url 'sample_data' sample.id %}">Download CSV</a><br/>
+              <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
+          </td>
           <td>
               {% if sample.sampleparametermap_set.all.count > 0 %}
               <table class="table table-bordered table-hover">

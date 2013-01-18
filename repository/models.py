@@ -210,6 +210,30 @@ class Sample(models.Model):
         fcs = loadFCS(self.sample_file.file.name)
         return fcs.notes.text
 
+    def get_fcs_data(self):
+        fcs = loadFCS(self.sample_file.file.name)
+        data = fcs.view()
+
+        header = []
+        if self.sampleparametermap_set.count():
+            for param in self.sampleparametermap_set.all():
+                header.append('%s-%s' % (param.parameter.parameter_short_name, param.value_type.value_type_short_name))
+        else:
+            for name in fcs.channels:
+                header.append(name)
+
+        # data is a 2-D numpy array, but we need to convert it to csv-style string
+        # most efficient way I've found so far is to iterate over the rows and join with ','
+        # then, joint the list with new line chars into one big string
+        data_list = []
+        data_list.append(','.join(header))
+        for i in data:
+            data_list.append(','.join(map(str,i)))
+            if len(data_list) > 1000:
+                break
+
+        return '\n'.join(data_list)
+
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
             self.subject.site.project.project_name,

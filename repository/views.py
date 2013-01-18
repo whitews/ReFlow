@@ -450,3 +450,23 @@ def retrieve_sample(request, sample_id):
     response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' % sample_filename
     return response
+
+@login_required
+@require_project_user
+def sample_data(request, sample_id):
+    sample = get_object_or_404(Sample, pk=sample_id)
+
+    return HttpResponse(sample.get_fcs_data(), content_type='application/csv')
+
+@login_required
+@require_project_user
+def view_sample_scatterplot(request, sample_id):
+    sample = get_object_or_404(Sample, pk=sample_id)
+
+    return render_to_response(
+        'view_sample_scatterplot.html',
+        {
+            'sample': sample,
+            },
+        context_instance=RequestContext(request)
+    )
