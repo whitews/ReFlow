@@ -456,7 +456,7 @@ def retrieve_sample(request, sample_id):
 def sample_data(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
-    return HttpResponse(sample.get_fcs_data(), content_type='application/csv')
+    return HttpResponse(sample.get_fcs_data(), content_type='text/csv')
 
 @login_required
 @require_project_user

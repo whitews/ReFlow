@@ -6,8 +6,8 @@
     <style>
 
         svg {
-            font: 10px sans-serif;
-            padding: 10px;
+            font-size: 12px;
+            padding: 12px;
         }
 
         .axis,
@@ -68,13 +68,13 @@
 
         var color = d3.scale.category10();
 
-        d3.csv("{% url 'sample_data' sample.id %}", function(error, data) {
-            var domainByTrait = {},
-                    traits = d3.keys(data[0]).filter(function(d) { return d !== "species"; }),
-                    n = traits.length;
+        d3.csv("{% url 'sample_data' sample.id %}", function(data) {
+            var domainByTrait = {};
+            var traits = d3.keys(data[0]).filter(function(d) { return d !== "category"; });
+            var n = traits.length;
 
             traits.forEach(function(trait) {
-                domainByTrait[trait] = d3.extent(data, function(d) { return d[trait]; });
+                domainByTrait[trait] = d3.extent(data, function(d) { return parseInt(d[trait]); });
             });
 
             xAxis.tickSize(size * n);
@@ -132,8 +132,8 @@
                         .enter().append("circle")
                         .attr("cx", function(d) { return x(d[p.x]); })
                         .attr("cy", function(d) { return y(d[p.y]); })
-                        .attr("r", 1)
-                        .style("fill", function(d) { return color(d.species); });
+                        .attr("r", 2)
+                        .style("fill", function(d) { return color(d.category); });
             }
 
             function cross(a, b) {

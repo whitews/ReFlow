@@ -1,4 +1,6 @@
 from string import join
+import numpy
+import cStringIO
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -225,14 +227,21 @@ class Sample(models.Model):
         # data is a 2-D numpy array, but we need to convert it to csv-style string
         # most efficient way I've found so far is to iterate over the rows and join with ','
         # then, joint the list with new line chars into one big string
-        data_list = []
-        data_list.append(','.join(header))
-        for i in data:
-            data_list.append(','.join(map(str,i)))
-            if len(data_list) > 1000:
-                break
+        buffer = cStringIO.StringIO()
+        buffer.write(str(header)+'\n')
+        print buffer.getvalue()
+        numpy.savetxt(buffer, data[:500,:], fmt='%d',delimiter=',')
 
-        return '\n'.join(data_list)
+#        data_list = []
+#        data_list.append(','.join(header))
+#        for i in data:
+#            list = i.tolist()
+#            list.append('cat0')
+#            data_list.append(','.join(map(str,list)))
+#            if len(data_list) > 10000:
+#                break
+
+        return buffer.getvalue()
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
