@@ -448,7 +448,7 @@ def retrieve_sample(request, sample_id):
     sample_filename = sample.sample_file.name.split('/')[-1]
     
     response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' % sample_filename
+    response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
     return response
 
 @login_required

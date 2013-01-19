@@ -207,6 +207,7 @@ class Sample(models.Model):
     subject = models.ForeignKey(Subject)
     visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
     sample_file = models.FileField(upload_to=fcs_file_path)
+    original_filename = models.CharField(unique=False, null=False, blank=False, max_length=256)
 
     def get_fcs_text_segment(self):
         fcs = loadFCS(self.sample_file.file.name)
@@ -237,6 +238,11 @@ class Sample(models.Model):
         numpy.savetxt(buffer, data_with_cat[:100,:], fmt='%d',delimiter=',')
 
         return buffer.getvalue()
+
+    def clean(self):
+        "Need to save the original file name, since it may already exist on our side"
+
+        self.original_filename = self.sample_file.name.split('/')[-1]
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
