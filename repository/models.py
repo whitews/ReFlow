@@ -218,28 +218,23 @@ class Sample(models.Model):
 
         header = []
         if self.sampleparametermap_set.count():
-            for param in self.sampleparametermap_set.all():
+            params = self.sampleparametermap_set.all()
+            for param in params.order_by('fcs_number'):
                 header.append('%s-%s' % (param.parameter.parameter_short_name, param.value_type.value_type_short_name))
         else:
             for name in fcs.channels:
                 header.append(name)
 
-        # data is a 2-D numpy array, but we need to convert it to csv-style string
-        # most efficient way I've found so far is to iterate over the rows and join with ','
-        # then, joint the list with new line chars into one big string
-        buffer = cStringIO.StringIO()
-        buffer.write(str(header)+'\n')
-        print buffer.getvalue()
-        numpy.savetxt(buffer, data[:500,:], fmt='%d',delimiter=',')
+        # Need a category column for the d3 selection to work
+        data_with_cat = numpy.zeros((data.shape[0], data.shape[1]+1))
+        data_with_cat[:,:-1] = data
 
-#        data_list = []
-#        data_list.append(','.join(header))
-#        for i in data:
-#            list = i.tolist()
-#            list.append('cat0')
-#            data_list.append(','.join(map(str,list)))
-#            if len(data_list) > 10000:
-#                break
+        # need to convert it to csv-style string with header row
+        buffer = cStringIO.StringIO()
+        buffer.write(','.join(header)+',category\n')
+        print buffer.getvalue()
+        # currently limiting to 100 rows b/c the browser can't handle too much
+        numpy.savetxt(buffer, data_with_cat[:100,:], fmt='%d',delimiter=',')
 
         return buffer.getvalue()
 
