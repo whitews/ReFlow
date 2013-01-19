@@ -27,6 +27,22 @@ $(document).ready(function()
         select_panel_dialog.load($(this).data("form-url"));
         select_panel_dialog.dialog('open');
     });
+
+    $(".show-all").click(function()
+    {
+        $('.params').show(250);
+    });
+
+    $(".hide-all").click(function()
+    {
+        $('.params').hide(250);
+    });
+
+    $(".toggle-closest").click(function()
+    {
+        $(this).siblings('table.params').toggle(250);
+    });
+
     return false;
 });
 
@@ -49,14 +65,19 @@ $(document).ready(function()
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th colspan="4" class="center">Flow Cytometry Files</th>
+          <th colspan="5" class="center"><h4>Flow Cytometry Samples</h4></th>
         </tr>
         <tr>
             <th>Sample ID</th>
             <th>File Name</th>
             <th>Data</th>
             <th>Visit</th>
-            <th>Parameters</th>
+            <th>
+                Parameters
+                <div class="pull-right">
+                  <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+                </div>
+            </th>
         </tr>
       </thead>
       <tbody>
@@ -72,9 +93,10 @@ $(document).ready(function()
           </td>
           <td class="middle">{{ sample.visit.visit_type_name }}</td>
 
-          <td>
+          <td style="width: 60%" class="middle">
             {% if sample.sampleparametermap_set.all.count > 0 %}
-            <table class="table table-bordered table-hover">
+            <a href="#" class="toggle-closest">Show/Hide</a>
+            <table class="table table-bordered table-hover hide params">
               <thead>
                 <tr>
                   <th>FCS Number</th>
