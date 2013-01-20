@@ -49,6 +49,10 @@ class SubjectForm(ModelForm):
         # pop our 'project_id' key since parent's init is not expecting it
         project_id = kwargs.pop('project_id', None)
 
+        if project_id is None:
+            if isinstance(kwargs['instance'], Subject):
+                project_id = kwargs['instance'].site.project.id
+
         # now it's safe to call the parent init
         super(SubjectForm, self).__init__(*args, **kwargs)
 

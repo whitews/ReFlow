@@ -334,8 +334,7 @@ def add_subject(request, project_id):
 
     # need to check if the project has any sites, since patients have a required site relation
     if request.method == 'POST' and project.site_set.exists():
-        subject = Subject()
-        form = SubjectForm(request.POST, instance=subject)
+        form = SubjectForm(request.POST, project_id=project_id)
 
         if form.is_valid():
             form.save()

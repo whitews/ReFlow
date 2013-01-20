@@ -45,5 +45,10 @@
       {% endfor %}
     </tbody>
   </table>
+  <div class="pull-right">
+    <a class="btn btn-success btn-small" href="{% url 'add_subject' project.id %}">
+      <i class="icon-plus icon-white"></i> Add Subject
+    </a>
+  </div>
 </div>
 {% endblock %}
