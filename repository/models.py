@@ -167,19 +167,26 @@ class ParameterFluorochromeMap(models.Model):
 
 class Subject(models.Model):
     site    = models.ForeignKey(Site)    
-    subject_id = models.CharField(null=False, blank=False, max_length=128)
+    subject_id = models.CharField("Subject ID", null=False, blank=False, max_length=128)
 
     def clean(self):
         "Check for duplicate subject ID in a project. Returns ValidationError if any duplicates are found."
 
         # count subjects with matching subject_id and parent project, which don't have this pk
-        subject_duplicates = Subject.objects.filter(
-                subject_id=self.subject_id,
-                site__project=self.site.project).exclude(
-                        id=self.id)
+        try:
+            site = Site.objects.get(id=self.site.id)
+        except:
+            site = None
 
-        if subject_duplicates.count() > 0:
-            raise ValidationError("Subject ID already exists in this project.")
+        if site:
+            subject_duplicates = Subject.objects.filter(
+                    subject_id=self.subject_id,
+                    site__project=self.site.project).exclude(
+                            id=self.id)
+            if subject_duplicates.count() > 0:
+                raise ValidationError("Subject ID already exists in this project.")
+        else:
+            pass # Site is required and will get caught by Form.is_valid()
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s' % (self.site.project.project_name, self.subject_id)

@@ -11,6 +11,8 @@ def require_project_user(orig_func):
 
         if 'project_id' in kwargs:
             project = get_object_or_404(Project, pk=kwargs['project_id'])
+        elif 'site_id' in kwargs:
+            project = get_object_or_404(Project, site__pk=kwargs['site_id'])
         elif 'panel_id' in kwargs:
             project = get_object_or_404(Project, site__panel__pk=kwargs['panel_id'])
         elif 'subject_id' in kwargs:

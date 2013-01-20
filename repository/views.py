@@ -2,8 +2,6 @@ from repository.models import *
 from repository.forms import *
 from repository.decorators import require_project_user
 
-import fcm
-
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -136,6 +134,30 @@ def add_site(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
+@login_required
+@require_project_user
+def edit_site(request, site_id):
+    site = get_object_or_404(Site, pk=site_id)
+
+    if request.method == 'POST':
+        form = SiteForm(request.POST, instance=site)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('project_sites', args=str(site.project.id)))
+    else:
+        form = SiteForm(instance=site)
+
+    return render_to_response(
+        'edit_site.html',
+        {
+            'form': form,
+            'site': site,
+            },
+        context_instance=RequestContext(request)
+    )
+
 
 @login_required
 @require_project_user

@@ -26,6 +26,8 @@ def login_view(request):
         if user is not None and user.is_active:
             login(request, user)
             if 'next' in request.POST:
+                if request.POST['next'] == '':
+                    return HttpResponseRedirect(reverse('home',))
                 return HttpResponseRedirect(request.POST.get('next'))
             else:
                 return HttpResponseRedirect(reverse('home',))
@@ -40,11 +42,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return render_to_response(
-        'login.html',
-        {},
-        context_instance=RequestContext(request)
-    )
+    return HttpResponseRedirect(reverse('login'))
 
 def login_failed(request):
     return render_to_response(

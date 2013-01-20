@@ -11,7 +11,11 @@
         <br/>
         <form class="form-horizontal" action="{% url 'edit_subject' subject.id %}" method="post">
             {% csrf_token %}
-            {{ form.non_field_errors }}
+            {% if form.non_field_errors %}
+                <div class="control-group text-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
 
             {% for field in form %}
                 <div class="control-group">

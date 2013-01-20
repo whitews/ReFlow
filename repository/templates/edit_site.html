@@ -3,15 +3,14 @@
 {% block body %}
     <div class="container">
         <div class="row lead">
-          <div class="span4">
-            <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
-          </div>
-          <div class="pull-right">Create a New Subject</div>
+            <div class="span4">
+                <a href="{% url 'view_project' site.project.id %}">{{ site.project.project_name }}</a>
+            </div>
+            <div class="pull-right">Edit Site: {{ site.site_name }}</div>
         </div>
         <br/>
-        <form class="form-horizontal" action="{% url 'repository.views.add_subject' project.id %}" method="post">
+        <form class="form-horizontal" action="{% url 'edit_site' site.id %}" method="post">
             {% csrf_token %}
-
             {% if form.non_field_errors %}
                 <div class="control-group text-error">
                     {{ form.non_field_errors }}
@@ -26,7 +25,8 @@
                         {% if field.errors %}
                             <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
                         {% endif %}
-                    </div>                </div>
+                    </div>
+                </div>
             {% endfor %}
             <div class="control-group">
                 <div class="controls">

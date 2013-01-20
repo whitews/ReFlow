@@ -14,7 +14,7 @@
           <ul>
             {% for field in form %}
               {% if field.errors %}
-                <span class="help-inline">{{ field.errors|striptags }}</span>
+                <span class="help-inline">{{ field.label }}: {{ field.errors|striptags }}</span>
               {% endif %}
             {% endfor %}
           </ul>
