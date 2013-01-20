@@ -67,6 +67,25 @@ class Panel(models.Model):
     site = models.ForeignKey(Site, null=False, blank=False)
     panel_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
 
+    def clean(self):
+        "Check for duplicate panel names within a project site. Returns ValidationError if any duplicates are found."
+
+        # count panels with matching panel_name and parent site, which don't have this pk
+        try:
+            site = Site.objects.get(id=self.site.id)
+        except:
+            site = None
+
+        if site:
+            duplicates = Panel.objects.filter(
+                panel_name=self.panel_name,
+                site=self.site).exclude(
+                id=self.id)
+            if duplicates.count() > 0:
+                raise ValidationError("A panel with this name already exists in this site.")
+        else:
+            pass # Site is required and will get caught by Form.is_valid()
+
     def __unicode__(self):
         return u'%s (Project: %s, Site: %s)' % (self.panel_name, self.site.project.project_name, self.site.site_name)
 
