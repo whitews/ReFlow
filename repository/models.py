@@ -204,6 +204,25 @@ class ProjectVisitType(models.Model):
     visit_type_name        = models.CharField(unique=False, null=False, blank=False, max_length=128)
     visit_type_description = models.TextField(null=True, blank=True)
 
+    def clean(self):
+        "Check for duplicate visit types in a project. Returns ValidationError if any duplicates are found."
+
+        # count visit types with matching visit_type_name and parent project, which don't have this pk
+        try:
+            project = Project.objects.get(id=self.project.id)
+        except:
+            project = None
+
+        if project:
+            duplicates = ProjectVisitType.objects.filter(
+                visit_type_name=self.visit_type_name,
+                project=self.project).exclude(
+                    id=self.id)
+            if duplicates.count() > 0:
+                raise ValidationError("Visit Name already exists in this project.")
+        else:
+            pass # Project is required and will get caught by Form.is_valid()
+
     def __unicode__(self):
         return u'%s' % (self.visit_type_name)
 

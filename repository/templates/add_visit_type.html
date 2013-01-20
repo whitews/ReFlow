@@ -11,24 +11,21 @@
         <br/>
         <form class="form-horizontal" action="{% url 'repository.views.add_visit_type' project.id %}" method="post">
             {% csrf_token %}
-
-            {% if form.errors %}
-                <div class="control-group warning">
-                    <ul>
-                        {% for field in form %}
-                            {% if field.errors %}
-                                <span class="help-inline">{{ field.errors|striptags }}</span>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
+            {% if form.non_field_errors %}
+                <div class="control-group text-error">
+                    {{ form.non_field_errors }}
                 </div>
             {% endif %}
-            {{ form.non_field_errors }}
 
             {% for field in form %}
                 <div class="control-group">
                     <label class="control-label">{{ field.label }}</label>
-                    <div class="controls">{{ field }}</div>
+                    <div class="controls">
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
             <div class="control-group">

@@ -20,7 +20,7 @@ $(document).ready(function()
         position: 'center'
     });
 
-    $('#add_parameter_form').submit(function ()
+    $('.add_parameter_form').submit(function ()
     {
         $('#save_parameter_button').attr('disabled', true);
         var form = $(this);
@@ -101,64 +101,65 @@ $(document).ready(function()
             </span>
           </td>
           <td>{{ panel.site.site_name }}</td>
-          <td width="80%">
-            {% if panel.panelparametermap_set.all.count > 0 %}
-              <table class="table table-bordered table-hover">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Value Type</th>
-                    <th>FCS Text <a rel="tooltip" class="pull-right label label-inverse" data-original-title="Exact text from the FCS $PnN field" data-placement="left">?</a></th>
-                </thead>
-                <tbody>
-                  {% for ppm in panel.panelparametermap_set.all %}
-                  <tr>
-                    <td>
-                      {{ ppm.parameter.parameter_short_name }}
-                      <span class="pull-right">
-                        <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
-                          <i style="opacity: 0.4" class="icon-remove align-middle"></i>
-                        </a>
-                      </span>
-                    </td>
-                    <td>
-                        {{ ppm.value_type.value_type_name }}
-                    </td>
-                    <td>
-                        {{ ppm.fcs_text }}
-                    </td>
-                  </tr>
-                  {% endfor %}
-                  <tr class="hide add_parameter_row">
-                    <td>
-                      <form id="add_parameter_form" style="margin: 0px; padding:0px" action="{% url 'project_panels' project.id %}" method="post">
-                      {% csrf_token %}
-                      <input type="hidden" name="panel" value="{{ panel.id }}">
-                      {{ form.parameter }}
-                    </td>
-                    <td>
-                      {{ form.value_type }}
-                    </td>
-                    <td>
-                      {{ form.fcs_text }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              {% else %}
-                <p>No parameters have been associated with this panel.</p>
-              {% endif %}
-              <a class="add_parameter btn btn-success btn-mini" href="#">
-                <i class="icon-plus icon-white"></i> Add Parameter
-              </a>
-              <div class="hide control-group">
-                <div class="controls">
-                    <button id="save_parameter_button" class="btn btn-small btn-primary" type="submit">Save</button>
-                    <a class="cancel btn btn-small btn-warning">Cancel</a>
-                    <span style="font-size: 12px">Can't find a parameter? <a href="#">Create one</a></span>
-                </div>
+          <td width="75%">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Value Type</th>
+                  <th>FCS Text <a rel="tooltip" class="pull-right label label-inverse" data-original-title="Exact text from the FCS $PnN field" data-placement="left">?</a></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ppm in panel.panelparametermap_set.all %}
+                <tr>
+                  <td width="33%">
+                    {{ ppm.parameter.parameter_short_name }}
+                    <span class="pull-right">
+                      <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
+                        <i style="opacity: 0.4" class="icon-remove align-middle"></i>
+                      </a>
+                    </span>
+                  </td>
+                  <td>
+                      {{ ppm.value_type.value_type_name }}
+                  </td>
+                  <td>
+                      {{ ppm.fcs_text }}
+                  </td>
+                </tr>
+                {% endfor %}
+                <tr class="hide add_parameter_row">
+                  <td>
+                    <form class="add_parameter_form" style="margin: 0px; padding:0px" action="{% url 'project_panels' project.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="panel" value="{{ panel.id }}">
+                    {{ form.parameter }}
+                  </td>
+                  <td>
+                    {{ form.value_type }}
+                  </td>
+                  <td>
+                    {{ form.fcs_text }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            {% if panel.panelparametermap_set.all.count == 0 %}
+            <p>No parameters have been associated with this panel.</p>
+            {% endif %}
+            <a class="add_parameter btn btn-success btn-mini" href="#">
+              <i class="icon-plus icon-white"></i> Add Parameter
+            </a>
+            <div class="hide control-group">
+              <div class="controls">
+                  <button id="save_parameter_button" class="btn btn-small btn-primary" type="submit">Save</button>
+                  <a class="cancel btn btn-small btn-warning">Cancel</a>
+                  <span style="font-size: 12px">Can't find a parameter? <a href="#">Create one</a></span>
               </div>
-              </form>
+            </div>
+          </form>
           </td>
         </tr>
         {% endfor %}
