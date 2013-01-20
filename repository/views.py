@@ -256,8 +256,7 @@ def add_panel(request, project_id):
 
     # need to check if the project has any sites, since panels have a required site relation
     if request.method == 'POST' and project.site_set.exists():
-        panel = Panel()
-        form = PanelForm(request.POST, instance=panel)
+        form = PanelForm(request.POST, project_id=project_id)
 
         if form.is_valid():
             form.save()
