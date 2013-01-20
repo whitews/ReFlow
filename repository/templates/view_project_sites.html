@@ -18,7 +18,7 @@
             <tbody>
             {% for site in sites %}
                 <tr>
-                    <td class="middle">
+                    <td class="middle" width="50%">
                       {{ site.site_name }}
                       <span class="pull-right">
                         <a rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit Site" data-placement="left">
