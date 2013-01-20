@@ -41,7 +41,7 @@ def view_project(request, project_id):
     subjects = Subject.objects.filter(site__project=project)
 
     return render_to_response(
-        'view_project.html',
+        'home.html',
         {
             'project': project,
             'subjects': sorted(subjects, key=attrgetter('subject_id')), 

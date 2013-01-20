@@ -183,7 +183,19 @@
     </script>
 {% endblock %}
 {% block body %}
-    <div class="container">
-        <div id="scatterplot" style="text-align: center"></div>
+  <div class="container">
+
+    <div class="row lead">
+      <div class="span4">
+        <a href="{% url 'view_project' sample.subject.site.project.id %}">{{ sample.subject.site.project.project_name }}</a>
+         (Subject: <a href="{% url 'view_subject' sample.subject.id %}">{{ sample.subject.subject_id }}</a>)
+
+
+      </div>
+      <div class="pull-right">{{ sample.original_filename }}</div>
     </div>
+
+    <div id="scatterplot" style="text-align: center"></div>
+
+  </div>
 {% endblock %}
