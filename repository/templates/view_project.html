@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4">
+        <a href="{% url 'view_project' project.id %}">
+          {{ project.project_name }}
+        </a>
+        <a rel="tooltip" href="{% url 'edit_project' project.id %}" data-original-title="Edit Project" data-placement="right">
+          <i style="opacity: 0.4; margin-left: 10px" class="icon-th-list align-middle"></i>
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span6">Project Description: {{ project.project_desc|default_if_none:'' }}</div>
+    </div>
+    <br/>
+    <table class="table table-bordered table-striped">
+      <tbody>
+        <tr>
+          <td class="center">
+            <span class="lead"><a href="{% url 'project_visit_types' project.id %}">Visit Types</a> <span class="badge badge-inverse align-top">{{ project.get_visit_type_count }}</span></span>
+            <div class="pull-right">
+              <a class="btn btn-success btn-small" href="{% url 'add_visit_type' project.id %}">
+                <i class="icon-plus icon-white"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="center">
+            <span class="lead"><a href="{% url 'project_panels' project.id %}">Panels</a> <span class="badge badge-inverse align-top">{{ project.get_panel_count }}</span></span>
+            <div class="pull-right">
+              <a class="btn btn-success btn-small" href="{% url 'add_panel' project.id %}">
+                <i class="icon-plus icon-white"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="center">
+            <span class="lead"><a href="{% url 'project_sites' project.id %}">Sites</a> <span class="badge badge-inverse align-top">{{ project.site_set.count }}</span></span>
+            <div class="pull-right">
+              <a class="btn btn-success btn-small" href="{% url 'add_site' project.id %}">
+                <i class="icon-plus icon-white"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="center">
+            <span class="lead"><a href="{% url 'project_subjects' project.id %}">Subjects</a> <span class="badge badge-inverse align-top">{{ project.get_subject_count }}</span></span>
+            <div class="pull-right">
+              <a class="btn btn-success btn-small" href="{% url 'add_subject' project.id %}">
+                <i class="icon-plus icon-white"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

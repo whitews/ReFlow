@@ -13,6 +13,12 @@ class Project(models.Model):
     project_name = models.CharField("Project Name", unique=True, null=False, blank=False, max_length=128)
     project_desc = models.TextField("Project Description", null=True, blank=True)
 
+    def get_visit_type_count(self):
+        return ProjectVisitType.objects.filter(project=self).count()
+
+    def get_panel_count(self):
+        return Panel.objects.filter(site__project=self).count()
+
     def get_subject_count(self):
         return Subject.objects.filter(site__project=self).count()
 
@@ -25,8 +31,10 @@ class Project(models.Model):
 class ProjectUserManager(models.Manager):
     def get_user_projects(self, user):
         return Project.objects.select_related().filter(projectusermap__user=user)
+
     def get_project_users(self, project):
         return User.objects.select_related().filter(projectusermap__project=project)
+
     def is_project_user(self, project, user):
         return super(ProjectUserManager, self).filter(project=project, user=user).exists()
 

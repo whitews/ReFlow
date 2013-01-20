@@ -21,12 +21,12 @@ def d3_test(request):
     )
 
 @login_required
-def projects(request):
+def view_projects(request):
 
     projects = ProjectUserMap.objects.get_user_projects(request.user)
 
     return render_to_response(
-        'projects.html',
+        'view_projects.html',
         {
             'projects': sorted(projects, key=attrgetter('project_name')),
         },
@@ -41,7 +41,7 @@ def view_project(request, project_id):
     subjects = Subject.objects.filter(site__project=project)
 
     return render_to_response(
-        'home.html',
+        'view_project.html',
         {
             'project': project,
             'subjects': sorted(subjects, key=attrgetter('subject_id')), 
@@ -91,6 +91,22 @@ def edit_project(request, project_id):
         {
             'project': project,
             'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+@require_project_user
+def view_subjects(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    subjects = Subject.objects.filter(site__project=project)
+
+    return render_to_response(
+        'view_project_subjects.html',
+        {
+            'project': project,
+            'subjects': subjects,
         },
         context_instance=RequestContext(request)
     )
