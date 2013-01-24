@@ -11,70 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-Instructions for installing dependencies and configuring apache for the ReFlow Django project.
-
-# Installation
-
-1.  Install Ubuntu 12.04 LTS ([http://www.ubuntu.com/download/server](http://www.ubuntu.com/download/server)). **Note: Amazon has an EC2 instance for 12.04.**
-
-1.  Update system packages
-
-    `apt-get upgrade`
-
-1.  Install Apache and mod-wsgi
-
-    `apt-get install apache2`
-
-    `apt-get install libapache2-mod-wsgi`
-
-1.  Install NumPy, matplotlib, and SciPy
-
-    `apt-get install python-numpy`
-
-    `apt-get install python-matplotlib`
-
-    `apt-get install python-scipy`
-
-1.  We need Mercurial and pip to get the latest py-fcm
-
-   `apt-get install mercurial`
-
-   `apt-get install python-pip`
-
-1.  Install py-fcm from the Mercurial repository. **Note: Do not pip install fcm. You will get errors due to the missing logicle.h file.**
-
-    `pip install hg+https://code.google.com/p/py-fcm/#egg=fcm`
-
-1.  Use pip to install Django so we get version 1.4. (You'll get v1.3 using apt-get)
-
-    `pip install django`
-
-1. Install Django app dependencies
-
-    `pip install django-extensions`
-
-    `pip install django-tastypie`
-
-1.  Install git to get ReFlow
-
-    `apt-get install git`
-
-1.  Clone ReFlow (for now, just put this somewhere like your home directory, we'll move it later)
-
-    `git clone https://github.com/whitews/ReFlow.git`
-
-### Optional, but recommended
-
-*   Install iPython (always nice to have)
-
-    `apt-get install ipython`
-
-*   Install sqlite3 (more convenient for development)
-
-    `apt-get install sqlite3`
-
-# Configuration
-
+   intro
+   setup-ubuntu
 
 Indices and tables
 ==================

@@ -1,0 +1,83 @@
+Setup Guide - Ubuntu Server 12.04 LTS
+=====================================
+
+Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.
+
+Why Ubuntu Server 12.04 LTS?
+
+The short answer is because SciPy is available from the official repository. CentOS 6 does not provide a pre-built SciPy package, and it is a rather involved process to build SciPy from source. Also, Amazon EC2 has a micro instance for Ubuntu Server 12.04 LTS which qualifies for it's Free Tier program (i.e. free for a year).
+
+============
+Installation
+============
+
+#. Install Ubuntu 12.04 LTS (http://www.ubuntu.com/download/server).
+
+#. Update system packages
+
+    ``apt-get upgrade``
+
+#. Install Apache and mod-wsgi
+
+    ``apt-get install apache2``
+
+    ``apt-get install libapache2-mod-wsgi``
+
+#. Install NumPy, matplotlib, and SciPy
+
+    ``apt-get install python-numpy``
+
+    ``apt-get install python-matplotlib``
+
+    ``apt-get install python-scipy``
+
+#. We need Mercurial and pip to get the latest py-fcm
+
+    ``apt-get install mercurial``
+
+    ``apt-get install python-pip``
+
+#. Install py-fcm from the Mercurial repository.
+
+   **Note: Do not pip install fcm. You will get errors due to the missing logicle.h file.**
+
+    ``pip install hg+https://code.google.com/p/py-fcm/#egg=fcm``
+
+#. Use pip to install Django to get version 1.4. *You'll get v1.3 using apt-get*
+
+    ``pip install django``
+
+#. Install Django app dependencies
+
+    ``pip install django-extensions``
+
+    ``pip install django-tastypie``
+
+#. Install git to get ReFlow
+
+    ``apt-get install git``
+
+#. Clone ReFlow (for now, just put this somewhere like your home directory, we'll move it later)
+
+    ``git clone https://github.com/whitews/ReFlow.git``
+
+-------------------------
+Optional, but recommended
+-------------------------
+
+* Install iPython (always nice to have)
+    ``apt-get install ipython``
+
+* Install sqlite3 (more convenient for development)
+    ``apt-get install sqlite3``
+
+=============
+Configuration
+=============
+
+There are essentially 3 separate configuration tasks:
+
+* Create an Apache2 VirtualHost
+* Create a mod_wsgi script
+* Create a Django settings file
+

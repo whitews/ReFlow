@@ -26,7 +26,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="ReFlow 0.1 documentation" href="#" /> 
+    <link rel="top" title="ReFlow 0.1 documentation" href="#" />
+    <link rel="next" title="Introduction" href="intro.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,6 +36,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="N">next</a> |</li>
         <li><a href="#">ReFlow 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -48,77 +52,15 @@
 <h1>Welcome to ReFlow&#8217;s documentation!<a class="headerlink" href="#welcome-to-reflow-s-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
-<ul class="simple">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup-ubuntu.html">Setup Guide - Ubuntu Server 12.04 LTS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#configuration">Configuration</a></li>
+</ul>
+</li>
 </ul>
 </div>
-<p>Instructions for installing dependencies and configuring apache for the ReFlow Django project.</p>
-<p># Installation</p>
-<ol class="arabic simple">
-<li>Install Ubuntu 12.04 LTS ([<a class="reference external" href="http://www.ubuntu.com/download/server](http://www.ubuntu.com/download/server">http://www.ubuntu.com/download/server](http://www.ubuntu.com/download/server</a>)). <strong>Note: Amazon has an EC2 instance for 12.04.</strong></li>
-</ol>
-<ol class="arabic">
-<li><p class="first">Update system packages</p>
-<p><cite>apt-get upgrade</cite></p>
-</li>
-</ol>
-<ol class="arabic">
-<li><p class="first">Install Apache and mod-wsgi</p>
-<p><cite>apt-get install apache2</cite></p>
-<p><cite>apt-get install libapache2-mod-wsgi</cite></p>
-</li>
-</ol>
-<ol class="arabic">
-<li><p class="first">Install NumPy, matplotlib, and SciPy</p>
-<p><cite>apt-get install python-numpy</cite></p>
-<p><cite>apt-get install python-matplotlib</cite></p>
-<p><cite>apt-get install python-scipy</cite></p>
-</li>
-</ol>
-<ol class="arabic simple">
-<li>We need Mercurial and pip to get the latest py-fcm</li>
-</ol>
-<blockquote>
-<div><p><cite>apt-get install mercurial</cite></p>
-<p><cite>apt-get install python-pip</cite></p>
-</div></blockquote>
-<ol class="arabic">
-<li><p class="first">Install py-fcm from the Mercurial repository. <strong>Note: Do not pip install fcm. You will get errors due to the missing logicle.h file.</strong></p>
-<p><cite>pip install hg+https://code.google.com/p/py-fcm/#egg=fcm</cite></p>
-</li>
-</ol>
-<ol class="arabic">
-<li><p class="first">Use pip to install Django so we get version 1.4. (You&#8217;ll get v1.3 using apt-get)</p>
-<p><cite>pip install django</cite></p>
-</li>
-</ol>
-<ol class="arabic">
-<li><p class="first">Install Django app dependencies</p>
-<blockquote>
-<div><p><cite>pip install django-extensions</cite></p>
-<p><cite>pip install django-tastypie</cite></p>
-</div></blockquote>
-</li>
-</ol>
-<ol class="arabic">
-<li><p class="first">Install git to get ReFlow</p>
-<p><cite>apt-get install git</cite></p>
-</li>
-</ol>
-<ol class="arabic">
-<li><p class="first">Clone ReFlow (for now, just put this somewhere like your home directory, we&#8217;ll move it later)</p>
-<p><cite>git clone https://github.com/whitews/ReFlow.git</cite></p>
-</li>
-</ol>
-<p>### Optional, but recommended</p>
-<ul>
-<li><p class="first">Install iPython (always nice to have)</p>
-<p><cite>apt-get install ipython</cite></p>
-</li>
-<li><p class="first">Install sqlite3 (more convenient for development)</p>
-<p><cite>apt-get install sqlite3</cite></p>
-</li>
-</ul>
-<p># Configuration</p>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -143,6 +85,9 @@
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="next chapter">Introduction</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -171,6 +116,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >next</a> |</li>
         <li><a href="#">ReFlow 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
