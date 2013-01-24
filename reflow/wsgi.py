@@ -14,6 +14,21 @@ framework.
 
 """
 import os
+import sys
+
+# Set matplotlib configuration directory, else Django complains it is not writable
+# We'll just use a tempfile
+import tempfile
+os.environ['MPLCONFIGDIR'] = tempfile.mkdtemp()
+
+paths = [
+    '/srv/django-projects/ReFlow',
+    '/srv/django-projects/ReFlow/reflow'
+]
+
+for path in paths:
+    if path not in sys.path:
+        sys.path.append(path)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "reflow.settings")
 
