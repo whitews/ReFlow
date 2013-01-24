@@ -43,7 +43,7 @@ Installation
 
     ``pip install hg+https://code.google.com/p/py-fcm/#egg=fcm``
 
-#. Use pip to install Django so we get version 1.4. (You'll get v1.3 using apt-get)
+#. Use pip to install Django to get version 1.4. *You'll get v1.3 using apt-get*
 
     ``pip install django``
 
@@ -74,3 +74,10 @@ Optional, but recommended
 =============
 Configuration
 =============
+
+There are essentially 3 separate configuration tasks:
+
+* Create an Apache2 VirtualHost
+* Create a mod_wsgi script
+* Create a Django settings file
+
