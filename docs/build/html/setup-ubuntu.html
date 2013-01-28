@@ -59,71 +59,56 @@
 <li><p class="first">Install Ubuntu 12.04 LTS (<a class="reference external" href="http://www.ubuntu.com/download/server">http://www.ubuntu.com/download/server</a>).</p>
 </li>
 <li><p class="first">Update system packages</p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">upgrade</span></tt></p>
-</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">upgrade</span></tt></p>
 </li>
 <li><p class="first">Install Apache and mod-wsgi</p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">apache2</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">apache2</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libapache2-mod-wsgi</span></tt></p>
-</div></blockquote>
 </li>
 <li><p class="first">Install NumPy, matplotlib, and SciPy</p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-numpy</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-numpy</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-matplotlib</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-scipy</span></tt></p>
-</div></blockquote>
 </li>
 <li><p class="first">We need Mercurial and pip to get the latest py-fcm</p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">mercurial</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">mercurial</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-pip</span></tt></p>
-</div></blockquote>
 </li>
 <li><p class="first">Install py-fcm from the Mercurial repository.</p>
 <p><strong>Note: Do not pip install fcm. You will get errors due to the missing logicle.h file.</strong></p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">hg+https://code.google.com/p/py-fcm/#egg=fcm</span></tt></p>
-</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">hg+https://code.google.com/p/py-fcm/#egg=fcm</span></tt></p>
 </li>
 <li><p class="first">Use pip to install Django to get version 1.4. <em>You&#8217;ll get v1.3 using apt-get</em></p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django</span></tt></p>
-</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django</span></tt></p>
 </li>
 <li><p class="first">Install Django app dependencies</p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-extensions</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-extensions</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-tastypie</span></tt></p>
-</div></blockquote>
 </li>
 <li><p class="first">Install git to get ReFlow</p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></tt></p>
-</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></tt></p>
 </li>
 <li><p class="first">Clone ReFlow (for now, just put this somewhere like your home directory, we&#8217;ll move it later)</p>
-<blockquote>
-<div><p><tt class="docutils literal"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/whitews/ReFlow.git</span></tt></p>
-</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/whitews/ReFlow.git</span></tt></p>
 </li>
 </ol>
 <div class="section" id="optional-but-recommended">
 <h3>Optional, but recommended<a class="headerlink" href="#optional-but-recommended" title="Permalink to this headline">¶</a></h3>
 <ul>
-<li><dl class="first docutils">
-<dt>Install iPython (always nice to have)</dt>
-<dd><p class="first last"><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">ipython</span></tt></p>
-</dd>
-</dl>
+<li><p class="first">Install iPython (always nice to have)</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">ipython</span></tt></p>
 </li>
-<li><dl class="first docutils">
-<dt>Install sqlite3 (more convenient for development)</dt>
-<dd><p class="first last"><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">sqlite3</span></tt></p>
-</dd>
-</dl>
+</ul>
+</div>
+<div class="section" id="choose-a-database">
+<h3>Choose a Database<a class="headerlink" href="#choose-a-database" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">Install sqlite3 (more convenient for development)</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">sqlite3</span></tt></p>
+</li>
+<li><p class="first">Install PostgreSQL and postgresql_psycopg2 driver</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">postgresql</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-psycopg2</span></tt></p>
 </li>
 </ul>
 </div>
@@ -134,8 +119,170 @@
 <ul class="simple">
 <li>Create an Apache2 VirtualHost</li>
 <li>Create a mod_wsgi script</li>
-<li>Create a Django settings file</li>
+<li>Create Django settings.py</li>
+<li>Create PostgreSQL Database</li>
 </ul>
+<div class="section" id="create-apache2-virtualhost">
+<h3>Create Apache2 VirtualHost<a class="headerlink" href="#create-apache2-virtualhost" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Copy the default VirtualHost</p>
+<p><tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">cp</span> <span class="pre">/etc/apache2/sites-available/default</span> <span class="pre">/etc/apache2/sites-available/reflow</span></tt></p>
+</li>
+<li><p class="first">The new VirtualHost file should look like this:</p>
+<div class="highlight-python"><pre>&lt;VirtualHost *:80&gt;
+    ServerAdmin webmaster@localhost
+
+    WSGIScriptAlias / /srv/django-projects/ReFlow/reflow/wsgi.py
+    WSGIApplicationGroup %{GLOBAL}
+
+    &lt;Directory /srv/django-projects/ReFlow/reflow&gt;
+
+        AllowOverride None
+
+        &lt;Files wsgi.py&gt;
+            Order allow,deny
+            Allow from all
+        &lt;/Files&gt;
+
+    &lt;/Directory&gt;
+
+    Alias /static /srv/django-projects/ReFlow-static/
+
+    ErrorLog ${APACHE_LOG_DIR}/reflow-error.log
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    CustomLog ${APACHE_LOG_DIR}/reflow-access.log combined
+&lt;/VirtualHost&gt;</pre>
+</div>
+</li>
+<li><p class="first">Edit apache2.conf.</p>
+<p>Note: If you need any of these features for other Virtual Hosts, edit as necessary. This list is meant as a guide for turning off certain Apache features that are not used by the ReFlow project.</p>
+<ul>
+<li><p class="first">Hide the Apache version number and OS details</p>
+<p><tt class="docutils literal"><span class="pre">ServerSignature</span> <span class="pre">Off</span></tt>
+<tt class="docutils literal"><span class="pre">ServerTokens</span> <span class="pre">Prod</span></tt></p>
+</li>
+<li><p class="first">Disable directory browsing</p>
+<p><tt class="docutils literal"><span class="pre">Options</span> <span class="pre">-Indexes</span></tt></p>
+</li>
+<li><p class="first">Disable server side includes</p>
+<p><tt class="docutils literal"><span class="pre">Options</span> <span class="pre">-Includes</span></tt></p>
+</li>
+<li><p class="first">Disable CGI</p>
+<p><tt class="docutils literal"><span class="pre">Options</span> <span class="pre">-ExecCGI</span></tt></p>
+</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="create-a-mod-wsgi-script">
+<h3>Create a mod_wsgi script<a class="headerlink" href="#create-a-mod-wsgi-script" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">From our VirtualHost WSGIScriptAlias, we&#8217;ll need to create a wsgi.py script here:</p>
+<p><tt class="docutils literal"><span class="pre">/srv/django-projects/ReFlow/reflow/wsgi.py</span></tt></p>
+</li>
+<li><p class="first">Edit the wsgi.py file to look like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c"># Set matplotlib configuration directory, else Django complains it is not writable</span>
+<span class="c"># We&#39;ll just use a tempfile</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;MPLCONFIGDIR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+
+<span class="n">paths</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;/srv/django-projects/ReFlow&#39;</span><span class="p">,</span>
+    <span class="s">&#39;/srv/django-projects/ReFlow/reflow&#39;</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&quot;DJANGO_SETTINGS_MODULE&quot;</span><span class="p">,</span> <span class="s">&quot;reflow.settings&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">django.core.wsgi</span> <span class="kn">import</span> <span class="n">get_wsgi_application</span>
+<span class="n">application</span> <span class="o">=</span> <span class="n">get_wsgi_application</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="create-django-settings-py">
+<h3>Create Django settings.py<a class="headerlink" href="#create-django-settings-py" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Copy the settings_sample.py to settings.py</p>
+<p><tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">cp</span> <span class="pre">/srv/django-projects/ReFlow/reflow/settings_sample.py</span> <span class="pre">/srv/django-projects/ReFlow/reflow/settings.py</span></tt></p>
+</li>
+<li><p class="first">Edit the settings.py file</p>
+<ul>
+<li><p class="first">Turn off debugging</p>
+<p><tt class="docutils literal"><span class="pre">Debug</span> <span class="pre">=</span> <span class="pre">False</span></tt></p>
+</li>
+<li><p class="first">Change BASE_DIR</p>
+<p><tt class="docutils literal"><span class="pre">BASE_DIR</span> <span class="pre">=</span> <span class="pre">'/srv/django-projects</span></tt></p>
+</li>
+<li><p class="first">Change DATABASES to whichever database you are using. For example, PostgreSQL would look similar to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;django.db.backends.postgresql_psycopg2&#39;</span><span class="p">,</span>
+        <span class="s">&#39;NAME&#39;</span><span class="p">:</span> <span class="s">&#39;somedb&#39;</span><span class="p">,</span>
+        <span class="s">&#39;USER&#39;</span><span class="p">:</span> <span class="s">&#39;someuser&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PASSWORD&#39;</span><span class="p">:</span> <span class="s">&#39;somepassword&#39;</span><span class="p">,</span>
+        <span class="s">&#39;HOST&#39;</span><span class="p">:</span> <span class="s">&#39;somehost&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PORT&#39;</span><span class="p">:</span> <span class="s">&#39;5432&#39;</span><span class="p">,</span> <span class="c"># or whatever port your DB is listening on</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Change TIME_ZONE according to <a class="reference external" href="http://en.wikipedia.org/wiki/List_of_tz_zones_by_name">http://en.wikipedia.org/wiki/List_of_tz_zones_by_name</a></p>
+</li>
+<li><p class="first">Change MEDIA_ROOT to the locate where user uploaded files will be stores. This is where the FCS files will live.</p>
+</li>
+<li><p class="first">Change SECRET_KEY to a new super secret key. If you have already cloned the ReFlow project and have django_extensions installed, you can generate a new random key using:</p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">generate_secret_key</span></tt></p>
+<p>Copy and paste the output as the new SECRET_KEY value.</p>
+</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="create-postgresql-database">
+<h3>Create PostgreSQL Database<a class="headerlink" href="#create-postgresql-database" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Become &#8216;postgres&#8217; user.</p>
+<p><tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">posgres</span></tt></p>
+</li>
+<li><p class="first">Open PostgreSQL Shell</p>
+<p><tt class="docutils literal"><span class="pre">psql</span></tt></p>
+</li>
+<li><p class="first">Create Database and User</p>
+<p><tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">DATABASE</span> <span class="pre">somedb;</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">USER</span> <span class="pre">someuser</span> <span class="pre">WITH</span> <span class="pre">PASSWORD</span> <span class="pre">'somepassword';</span></tt></p>
+</li>
+<li><p class="first">Grant DB Access to the User</p>
+<p><tt class="docutils literal"><span class="pre">GRANT</span> <span class="pre">ALL</span> <span class="pre">PRIVILEGES</span> <span class="pre">ON</span> <span class="pre">DATABASE</span> <span class="pre">somedb</span> <span class="pre">TO</span> <span class="pre">someuser;</span></tt></p>
+</li>
+<li><p class="first">Edit the PostgreSQL configuration file <tt class="docutils literal"><span class="pre">pg_hba.conf</span></tt> to all local access for the user to the new DB by adding the following line:</p>
+<p><tt class="docutils literal"><span class="pre">local</span>&nbsp;&nbsp;&nbsp; <span class="pre">somedb</span>&nbsp;&nbsp;&nbsp; <span class="pre">someuser</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="pre">password</span></tt></p>
+</li>
+<li><p class="first">Restart PostgreSQL</p>
+<p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">postgresql</span> <span class="pre">restart</span></tt></p>
+</li>
+<li><p class="first">From <tt class="docutils literal"><span class="pre">/srv/django-projects/ReFlow/</span></tt> run manage.py with syncdb option. Follow the prompts for create an Django admin user.</p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">syncdb</span></tt></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="restart-apache">
+<h2>Restart Apache<a class="headerlink" href="#restart-apache" title="Permalink to this headline">¶</a></h2>
+<p>That&#8217;s it! If everything was configured correctly just restart apache:</p>
+<p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">apache2</span> <span class="pre">restart</span></tt></p>
 </div>
 </div>
 
@@ -150,9 +297,17 @@
 <li><a class="reference internal" href="#">Setup Guide - Ubuntu Server 12.04 LTS</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#optional-but-recommended">Optional, but recommended</a></li>
+<li><a class="reference internal" href="#choose-a-database">Choose a Database</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li><a class="reference internal" href="#create-apache2-virtualhost">Create Apache2 VirtualHost</a></li>
+<li><a class="reference internal" href="#create-a-mod-wsgi-script">Create a mod_wsgi script</a></li>
+<li><a class="reference internal" href="#create-django-settings-py">Create Django settings.py</a></li>
+<li><a class="reference internal" href="#create-postgresql-database">Create PostgreSQL Database</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#restart-apache">Restart Apache</a></li>
 </ul>
 </li>
 </ul>
