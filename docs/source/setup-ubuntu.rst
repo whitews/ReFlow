@@ -134,7 +134,7 @@ Create Apache2 VirtualHost
             CustomLog ${APACHE_LOG_DIR}/reflow-access.log combined
         </VirtualHost>
 
-#.  Edit apache2.conf.
+#.  Edit apache2.conf file
 
     Note: If you need any of these features for other Virtual Hosts, edit as necessary. This list is meant as a guide for turning off certain Apache features that are not used by the ReFlow project.
 
@@ -207,7 +207,7 @@ Create Django settings.py
 
     *   Change BASE_DIR
 
-        ``BASE_DIR = '/srv/django-projects``
+        ``BASE_DIR = '/srv/django-projects'``
 
     *   Change DATABASES to whichever database you are using. For example, PostgreSQL would look similar to:
 
@@ -238,7 +238,7 @@ Create Django settings.py
 Create PostgreSQL Database
 --------------------------
 
-#.  Become 'postgres' user.
+#.  Become 'postgres' user
 
     ``sudo posgres``
 
