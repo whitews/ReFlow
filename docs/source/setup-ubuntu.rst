@@ -57,7 +57,11 @@ Installation
 
     ``apt-get install git``
 
-#.  Clone ReFlow (for now, just put this somewhere like your home directory, we'll move it later)
+#.  Clone ReFlow to ``/srv/django-projects``
+
+    ``mkdir /srv/django-projects``
+
+    ``cd /srv/django-projects``
 
     ``git clone https://github.com/whitews/ReFlow.git``
 
@@ -136,7 +140,7 @@ Create Apache2 VirtualHost
 
 #.  Edit apache2.conf file
 
-    Note: If you need any of these features for other Virtual Hosts, edit as necessary. This list is meant as a guide for turning off certain Apache features that are not used by the ReFlow project.
+    Note: If you need any of these features for other Virtual Hosts, edit as necessary. This list is meant as a guide for turning off certain Apache features that are not used by the ReFlow project. There are also Apache modules enabled by default that ReFlow does not need.
 
     *   Hide the Apache version number and OS details
 
@@ -190,6 +194,7 @@ Create a mod_wsgi script
         from django.core.wsgi import get_wsgi_application
         application = get_wsgi_application()
 
+    **Note: This should be the same content as the wsgi.py file in the ReFlow repository, so you will only need to change this if you are changing the location from where ReFlow is served or you need to setup your own WSGI middleware.**
 
 -------------------------
 Create Django settings.py
@@ -234,35 +239,43 @@ Create Django settings.py
 
         Copy and paste the output as the new SECRET_KEY value.
 
+#.  Collect the Django static files. From ``/srv/django-projects/ReFlow/`` run:
+
+    ``python manage.py collectstatic``
+
 --------------------------
 Create PostgreSQL Database
 --------------------------
 
 #.  Become 'postgres' user
 
-    ``sudo posgres``
+    ``su - posgres``
 
 #.  Open PostgreSQL Shell
 
     ``psql``
 
-#.  Create Database and User
+#.  Create a new database and user
 
     ``CREATE DATABASE somedb;``
 
     ``CREATE USER someuser WITH PASSWORD 'somepassword';``
 
-#.  Grant DB Access to the User
+#.  Grant database access to the user and quit psql
 
     ``GRANT ALL PRIVILEGES ON DATABASE somedb TO someuser;``
 
-#.  Edit the PostgreSQL configuration file ``pg_hba.conf`` to all local access for the user to the new DB by adding the following line:
+    ``\q``
+
+#.  Edit the PostgreSQL configuration file ``pg_hba.conf`` in ``/etc/postgresql/9.1/main/`` (version number may be different). Add the following line to allow local access for the user to the new database:
 
     ``local    somedb    someuser        password``
 
-#.  Restart PostgreSQL
+#.  Restart PostgreSQL and exit the postgres user.
 
     ``service postgresql restart``
+
+    ``exit postgres``
 
 #.  From ``/srv/django-projects/ReFlow/`` run manage.py with syncdb option. Follow the prompts for create an Django admin user.
 
@@ -270,9 +283,19 @@ Create PostgreSQL Database
 
 
 ==============
-Restart Apache
+Almost Done!!!
 ==============
 
-That's it! If everything was configured correctly just restart apache:
+#.  Disable the default VirtualHost
+
+    ``a2dissite default``
+
+#.  Enable the reflow VirtualHost
+
+    ``a2ensite reflow``
+
+#.  Restart apache:
 
 ``service apache2 restart``
+
+That's it! If everything was configured correctly you should see the ReFlow login screen at your server's URL.

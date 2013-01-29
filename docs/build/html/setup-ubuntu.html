@@ -88,7 +88,9 @@
 <li><p class="first">Install git to get ReFlow</p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></tt></p>
 </li>
-<li><p class="first">Clone ReFlow (for now, just put this somewhere like your home directory, we&#8217;ll move it later)</p>
+<li><p class="first">Clone ReFlow to <tt class="docutils literal"><span class="pre">/srv/django-projects</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">mkdir</span> <span class="pre">/srv/django-projects</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">cd</span> <span class="pre">/srv/django-projects</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/whitews/ReFlow.git</span></tt></p>
 </li>
 </ol>
@@ -159,7 +161,7 @@
 </div>
 </li>
 <li><p class="first">Edit apache2.conf file</p>
-<p>Note: If you need any of these features for other Virtual Hosts, edit as necessary. This list is meant as a guide for turning off certain Apache features that are not used by the ReFlow project.</p>
+<p>Note: If you need any of these features for other Virtual Hosts, edit as necessary. This list is meant as a guide for turning off certain Apache features that are not used by the ReFlow project. There are also Apache modules enabled by default that ReFlow does not need.</p>
 <ul>
 <li><p class="first">Hide the Apache version number and OS details</p>
 <p><tt class="docutils literal"><span class="pre">ServerSignature</span> <span class="pre">Off</span></tt>
@@ -208,6 +210,7 @@
 <span class="n">application</span> <span class="o">=</span> <span class="n">get_wsgi_application</span><span class="p">()</span>
 </pre></div>
 </div>
+<p><strong>Note: This should be the same content as the wsgi.py file in the ReFlow repository, so you will only need to change this if you are changing the location from where ReFlow is served or you need to setup your own WSGI middleware.</strong></p>
 </li>
 </ol>
 </div>
@@ -249,25 +252,29 @@
 </li>
 </ul>
 </li>
+<li><p class="first">Collect the Django static files. From <tt class="docutils literal"><span class="pre">/srv/django-projects/ReFlow/</span></tt> run:</p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">collectstatic</span></tt></p>
+</li>
 </ol>
 </div>
 <div class="section" id="create-postgresql-database">
 <h3>Create PostgreSQL Database<a class="headerlink" href="#create-postgresql-database" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
 <li><p class="first">Become &#8216;postgres&#8217; user</p>
-<p><tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">posgres</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">su</span> <span class="pre">-</span> <span class="pre">posgres</span></tt></p>
 </li>
 <li><p class="first">Open PostgreSQL Shell</p>
 <p><tt class="docutils literal"><span class="pre">psql</span></tt></p>
 </li>
-<li><p class="first">Create Database and User</p>
+<li><p class="first">Create a new database and user</p>
 <p><tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">DATABASE</span> <span class="pre">somedb;</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">USER</span> <span class="pre">someuser</span> <span class="pre">WITH</span> <span class="pre">PASSWORD</span> <span class="pre">'somepassword';</span></tt></p>
 </li>
-<li><p class="first">Grant DB Access to the User</p>
+<li><p class="first">Grant database access to the user and quit psql</p>
 <p><tt class="docutils literal"><span class="pre">GRANT</span> <span class="pre">ALL</span> <span class="pre">PRIVILEGES</span> <span class="pre">ON</span> <span class="pre">DATABASE</span> <span class="pre">somedb</span> <span class="pre">TO</span> <span class="pre">someuser;</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">\q</span></tt></p>
 </li>
-<li><p class="first">Edit the PostgreSQL configuration file <tt class="docutils literal"><span class="pre">pg_hba.conf</span></tt> to all local access for the user to the new DB by adding the following line:</p>
+<li><p class="first">Edit the PostgreSQL configuration file <tt class="docutils literal"><span class="pre">pg_hba.conf</span></tt> in <tt class="docutils literal"><span class="pre">/etc/postgresql/9.1/main/</span></tt> (version number may be different). Add the following line to allow local access for the user to the new database:</p>
 <p><tt class="docutils literal"><span class="pre">local</span>&nbsp;&nbsp;&nbsp; <span class="pre">somedb</span>&nbsp;&nbsp;&nbsp; <span class="pre">someuser</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="pre">password</span></tt></p>
 </li>
 <li><p class="first">Restart PostgreSQL</p>
@@ -279,10 +286,20 @@
 </ol>
 </div>
 </div>
-<div class="section" id="restart-apache">
-<h2>Restart Apache<a class="headerlink" href="#restart-apache" title="Permalink to this headline">¶</a></h2>
-<p>That&#8217;s it! If everything was configured correctly just restart apache:</p>
+<div class="section" id="almost-done">
+<h2>Almost Done!!!<a class="headerlink" href="#almost-done" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Disable the default VirtualHost</p>
+<p><tt class="docutils literal"><span class="pre">a2dissite</span> <span class="pre">default</span></tt></p>
+</li>
+<li><p class="first">Enable the reflow VirtualHost</p>
+<p><tt class="docutils literal"><span class="pre">a2ensite</span> <span class="pre">reflow</span></tt></p>
+</li>
+<li><p class="first">Restart apache:</p>
+</li>
+</ol>
 <p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">apache2</span> <span class="pre">restart</span></tt></p>
+<p>That&#8217;s it! If everything was configured correctly you should see the ReFlow login screen at your server&#8217;s URL.</p>
 </div>
 </div>
 
@@ -307,7 +324,7 @@
 <li><a class="reference internal" href="#create-postgresql-database">Create PostgreSQL Database</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#restart-apache">Restart Apache</a></li>
+<li><a class="reference internal" href="#almost-done">Almost Done!!!</a></li>
 </ul>
 </li>
 </ul>
