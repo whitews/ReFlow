@@ -277,8 +277,9 @@
 <li><p class="first">Edit the PostgreSQL configuration file <tt class="docutils literal"><span class="pre">pg_hba.conf</span></tt> in <tt class="docutils literal"><span class="pre">/etc/postgresql/9.1/main/</span></tt> (version number may be different). Add the following line to allow local access for the user to the new database:</p>
 <p><tt class="docutils literal"><span class="pre">local</span>&nbsp;&nbsp;&nbsp; <span class="pre">somedb</span>&nbsp;&nbsp;&nbsp; <span class="pre">someuser</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="pre">password</span></tt></p>
 </li>
-<li><p class="first">Restart PostgreSQL</p>
+<li><p class="first">Restart PostgreSQL and exit the postgres user.</p>
 <p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">postgresql</span> <span class="pre">restart</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">exit</span> <span class="pre">postgres</span></tt></p>
 </li>
 <li><p class="first">From <tt class="docutils literal"><span class="pre">/srv/django-projects/ReFlow/</span></tt> run manage.py with syncdb option. Follow the prompts for create an Django admin user.</p>
 <p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">syncdb</span></tt></p>

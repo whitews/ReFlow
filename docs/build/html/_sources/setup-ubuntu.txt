@@ -271,9 +271,11 @@ Create PostgreSQL Database
 
     ``local    somedb    someuser        password``
 
-#.  Restart PostgreSQL
+#.  Restart PostgreSQL and exit the postgres user.
 
     ``service postgresql restart``
+
+    ``exit postgres``
 
 #.  From ``/srv/django-projects/ReFlow/`` run manage.py with syncdb option. Follow the prompts for create an Django admin user.
 
