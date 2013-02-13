@@ -1,24 +1,38 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
-from tastypie.api import Api
-from repository.api import *
 
-pm_api = Api(api_name='repo')
-pm_api.register(ProjectResource())
-pm_api.register(SiteResource())
-pm_api.register(PanelResource())
-pm_api.register(ParameterResource())
-pm_api.register(SubjectResource())
-pm_api.register(SampleResource())
-pm_api.register(SampleParameterMapResource())
-pm_api.register(AntibodyResource())
+from rest_framework.urlpatterns import format_suffix_patterns
+from repository.api_views import *
+
+#from tastypie.api import Api
+#from repository.api import *
+
+#pm_api = Api(api_name='repo')
+#pm_api.register(ProjectResource())
+#pm_api.register(SiteResource())
+#pm_api.register(PanelResource())
+#pm_api.register(SubjectResource())
+# pm_api.register(ParameterResource())
+# pm_api.register(SampleResource())
+# pm_api.register(SampleParameterMapResource())
+#pm_api.register(AntibodyResource())
 
 # Override handler403 to provide a custom permission denied page.
 # Otherwise, a user has no links to get to their resources
 # Esp. useful for 'next' redirection after login
 handler403 = TemplateView.as_view(template_name='403.html')
 
-urlpatterns = patterns('repository.views',
+# API routes
+urlpatterns = patterns('repository.api_views',
+    url(r'^api/$', 'api_root'),
+    url(r'^api/projects/$', ProjectList.as_view(), name='project-list'),
+    url(r'^api/projects/(?P<pk>\d+)/$', ProjectDetail.as_view(), name='project-detail'),
+    url(r'^api/samples/$', SampleList.as_view(), name='sample-list'),
+    url(r'^api/samples/(?P<pk>\d+)/$', SampleDetail.as_view(), name='sample-detail'),
+)
+
+# Regular web routes
+urlpatterns += patterns('repository.views',
     url(r'^$', 'view_projects', name='home'),
     url(r'^project/(?P<project_id>\d+)$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),
@@ -50,7 +64,7 @@ urlpatterns = patterns('repository.views',
 
     url(r'^d3/$', 'd3_test', name='d3_test'),
 
-    url(r'^api/', include(pm_api.urls)),
+    #url(r'^api/', include(pm_api.urls)),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 )

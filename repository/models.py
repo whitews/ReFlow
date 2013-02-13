@@ -11,7 +11,11 @@ from reflow.settings import MEDIA_ROOT
 
 class Project(models.Model):
     project_name = models.CharField("Project Name", unique=True, null=False, blank=False, max_length=128)
-    project_desc = models.TextField("Project Description", null=True, blank=True)
+    project_desc = models.TextField(
+                                "Project Description",
+                                null=True,
+                                blank=True,
+                                help_text="A short description of the project")
 
     def get_visit_type_count(self):
         return ProjectVisitType.objects.filter(project=self).count()
@@ -286,7 +290,7 @@ class Sample(models.Model):
         # need to convert it to csv-style string with header row
         buffer = cStringIO.StringIO()
         buffer.write(','.join(header)+',category\n')
-        print buffer.getvalue()
+
         # currently limiting to 100 rows b/c the browser can't handle too much
         numpy.savetxt(buffer, data_with_cat[:100,:], fmt='%d',delimiter=',')
 
@@ -313,6 +317,12 @@ class SampleParameterMap(models.Model):
     # fcs_number represents the parameter number in the FCS file
     # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
     fcs_number = models.IntegerField()
+
+    def _get_name(self):
+        "Returns the parameter name with value type."
+        return '%s-%s' % (self.parameter.parameter_short_name, self.value_type.value_type_short_name)
+
+    name = property(_get_name)
 
     def __unicode__(self):
             return u'SampleID: %s, Parameter: %s-%s, Number: %s, Text: %s' % (

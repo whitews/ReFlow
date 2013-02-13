@@ -53,8 +53,6 @@ class SampleResource(ModelResource):
 
     parameters = fields.ToManyField('repository.api.SampleParameterMapResource', 'sampleparametermap_set', full=True)
 
-#    parameters = fields.ListField()
-
     class Meta:
         queryset = Sample.objects.all()
         resource_name = 'sample'
@@ -70,7 +68,9 @@ class SampleResource(ModelResource):
 #        sp_list = []
 #        for sp in sample_parameter_set:
 #            sp_dict = {}
-#            sp_dict['parameter_number'] = sp.fcs_number
+#            sp_dict['fcs_number'] = sp.fcs_number
+#            sp_dict['fcs_text'] = sp.fcs_text
+#            sp_dict['parameter_id'] = sp.parameter.id
 #            sp_dict['parameter_short_name'] = sp.parameter.parameter_short_name
 #            sp_dict['value_type'] = sp.value_type.value_type_short_name
 #            sp_list.append(sp_dict)
@@ -80,13 +80,19 @@ class SampleResource(ModelResource):
 #        return bundle
 
 class ParameterResource(ModelResource):
-    samples = fields.ToManyField('repository.api.SampleParameterMapResource', 'sampleparametermap_set', full=True)
+#    sample_maps = fields.ToManyField(
+#                    'repository.api.SampleParameterMapResource',
+#                    'sampleparametermap',
+#                    related_name='parameter',
+#                    full=True)
 
     class Meta:
         queryset = Parameter.objects.all()
         resource_name = 'parameter'
         filtering = {
-            'samples': ALL_WITH_RELATIONS,
+            'id': ALL_WITH_RELATIONS,
+            'parameter_short_name': ALL,
+            #'sample_maps': ALL_WITH_RELATIONS,
             'fcs_text': ALL,
         }
         authentication = BasicAuthentication()
@@ -95,13 +101,18 @@ class SampleParameterMapResource(ModelResource):
     sample = fields.ToOneField(SampleResource, 'sample')
     parameter = fields.ToOneField(ParameterResource, 'parameter')
 
+    name = fields.CharField(attribute='_get_name', readonly=True)
+
     class Meta:
         queryset = SampleParameterMap.objects.all()
-        resource_name = 'sample_parameter'
+        resource_name = 'sampleparametermap'
         filtering = {
+            'id': ALL_WITH_RELATIONS,
+            'name': ALL,
             'sample': ALL_WITH_RELATIONS,
             'parameter': ALL_WITH_RELATIONS,
             'fcs_text': ALL,
+            'fcs_number': ALL,
         }
         authentication = BasicAuthentication()
 
