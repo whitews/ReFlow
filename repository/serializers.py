@@ -1,5 +1,7 @@
-from repository.models import *
 from rest_framework import serializers
+
+from repository.models import *
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='project-detail')
@@ -18,9 +20,10 @@ class SampleParameterSerializer(serializers.ModelSerializer):
 
 class SampleSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
+    url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
 
     class Meta:
         model = Sample
-        fields = ('id', 'subject', 'original_filename', 'sampleparameters')
+        fields = ('id', 'url', 'subject', 'original_filename', 'sampleparameters')
 
 

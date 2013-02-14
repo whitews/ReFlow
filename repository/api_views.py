@@ -1,11 +1,14 @@
-from repository.models import *
-from repository.serializers import *
-
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
+from django.contrib.auth.decorators import login_required
 
+from repository.models import *
+from repository.serializers import *
+
+
+@login_required
 @api_view(['GET'])
 def api_root(request, format=None):
     """
@@ -51,6 +54,9 @@ class SampleList(generics.ListAPIView):
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('name', None)
 
+        if name_value is None:
+            return
+
         # The name property is just a concatenation of 2 related fields:
         #  - parameter__parameter_short_name
         #  - value_type__value_type_short_name (single character for H, A, W, T)
@@ -72,7 +78,7 @@ class SampleList(generics.ListAPIView):
 
 class SampleDetail(generics.RetrieveAPIView):
     """
-    API endpoint representing a single project.
+    API endpoint representing a single FCS sample.
     """
 
     model = Sample
