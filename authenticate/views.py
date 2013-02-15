@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
@@ -32,7 +32,7 @@ def login_view(request):
             else:
                 return HttpResponseRedirect(reverse('home',))
         else:
-            return HttpResponseRedirect(reverse('login_failed'))
+            return HttpResponse('Login Failed', status=401)
 
     return render_to_response(
         'login.html',
