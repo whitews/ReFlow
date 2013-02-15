@@ -1,21 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
 
-from rest_framework.urlpatterns import format_suffix_patterns
 from repository.api_views import *
-
-#from tastypie.api import Api
-#from repository.api import *
-
-#pm_api = Api(api_name='repo')
-#pm_api.register(ProjectResource())
-#pm_api.register(SiteResource())
-#pm_api.register(PanelResource())
-#pm_api.register(SubjectResource())
-# pm_api.register(ParameterResource())
-# pm_api.register(SampleResource())
-# pm_api.register(SampleParameterMapResource())
-#pm_api.register(AntibodyResource())
 
 # Override handler403 to provide a custom permission denied page.
 # Otherwise, a user has no links to get to their resources
@@ -61,10 +47,6 @@ urlpatterns += patterns('repository.views',
     url(r'^sample/(?P<sample_id>\d+)/data/', 'sample_data', name='sample_data'),
     url(r'^sample/(?P<sample_id>\d+)/scatterplot/', 'view_sample_scatterplot', name='sample_scatterplot'),
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample', name='retrieve_sample'),
-
-    url(r'^d3/$', 'd3_test', name='d3_test'),
-
-    #url(r'^api/', include(pm_api.urls)),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 )

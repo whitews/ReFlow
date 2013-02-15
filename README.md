@@ -7,11 +7,11 @@ Requirements
 ----
 
 * django 1.4.2
-* django-tastypie 0.9.11
-* fcm 0.9 (https://code.google.com/p/py-fcm/)
+* djangorestframework 2.2.0
+* fcm 0.9.1 (https://code.google.com/p/py-fcm/)
 * numpy 1.6.2
-* scipy
-* matplotlib
+* scipy 0.11.0
+* matplotlib 1.3
 
 Installation
 ----
