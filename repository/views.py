@@ -13,12 +13,14 @@ from operator import attrgetter
 
 import re
 
+
 def d3_test(request):
     return render_to_response(
         'd3_test.html',
         {},
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 def view_projects(request):
@@ -32,6 +34,7 @@ def view_projects(request):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 @require_project_user
@@ -48,6 +51,7 @@ def view_project(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 def add_project(request):
@@ -72,6 +76,7 @@ def add_project(request):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def edit_project(request, project_id):
@@ -95,6 +100,7 @@ def edit_project(request, project_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def view_subjects(request, project_id):
@@ -111,6 +117,7 @@ def view_subjects(request, project_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def view_sites(request, project_id):
@@ -126,6 +133,7 @@ def view_sites(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 @require_project_user
@@ -151,6 +159,7 @@ def add_site(request, project_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def edit_site(request, site_id):
@@ -170,7 +179,7 @@ def edit_site(request, site_id):
         {
             'form': form,
             'site': site,
-            },
+        },
         context_instance=RequestContext(request)
     )
 
@@ -190,6 +199,7 @@ def view_visit_types(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 @require_project_user
@@ -214,6 +224,7 @@ def add_visit_type(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 @require_project_user
@@ -249,6 +260,7 @@ def view_project_panels(request, project_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def add_panel(request, project_id):
@@ -263,7 +275,9 @@ def add_panel(request, project_id):
             return HttpResponseRedirect(reverse('project_panels', args=project_id))
 
     elif not project.site_set.exists():
-        messages.warning(request, 'This project has no associated sites. A panel must be associated with a specific site.')
+        messages.warning(
+            request,
+            'This project has no associated sites. A panel must be associated with a specific site.')
         return HttpResponseRedirect(reverse('warning_page',))
 
     else:
@@ -277,6 +291,7 @@ def add_panel(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 @require_project_user
@@ -301,6 +316,7 @@ def edit_panel(request, panel_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def remove_panel_parameter(request, panel_parameter_id):
@@ -309,6 +325,7 @@ def remove_panel_parameter(request, panel_parameter_id):
     ppm.delete()
 
     return HttpResponseRedirect(reverse('project_panels', args=str(project.id)))
+
 
 @login_required
 @require_project_user
@@ -327,6 +344,7 @@ def view_subject(request, subject_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def add_subject(request, project_id):
@@ -341,7 +359,9 @@ def add_subject(request, project_id):
             return HttpResponseRedirect(reverse('view_project', args=project_id))
 
     elif not project.site_set.exists():
-        messages.warning(request, 'This project has no associated sites. A subject must be associated with a specific site.')
+        messages.warning(
+            request,
+            'This project has no associated sites. A subject must be associated with a specific site.')
         return HttpResponseRedirect(reverse('warning_page',))
 
     else:
@@ -355,6 +375,7 @@ def add_subject(request, project_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 @require_project_user
@@ -378,6 +399,7 @@ def edit_subject(request, subject_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 @require_project_user
@@ -403,6 +425,7 @@ def add_sample(request, subject_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def select_panel(request, sample_id):
@@ -410,7 +433,9 @@ def select_panel(request, sample_id):
     site_panels = Panel.objects.filter(site=sample.subject.site)
     errors = []
     sample_param_count = 0
-    sample_parameters = {} # parameter_number: PnN text
+
+    # parameter_number: PnN text
+    sample_parameters = {}
 
     if request.method == 'POST':
         if 'panel' in request.POST:
@@ -440,7 +465,10 @@ def select_panel(request, sample_id):
                         if selected_panel.panelparametermap_set.filter(fcs_text=sample_text_segment[key]):
                             sample_parameters[matches.group(1)] = sample_text_segment[key]
                         else:
-                            errors.append("Sample parameter " + sample_text_segment[key] + " does not match a parameter in selected panel")
+                            errors.append(
+                                "Sample parameter " +
+                                sample_text_segment[key] + " "
+                                "does not match a parameter in selected panel")
 
                 # Verify:
                 # sample parameter count == sample_param_count == selected panel parameter counts
@@ -477,15 +505,16 @@ def select_panel(request, sample_id):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 @require_project_user
 def retrieve_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
-    sample_filename = sample.sample_file.name.split('/')[-1]
-    
+
     response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
     return response
+
 
 @login_required
 @require_project_user
@@ -493,6 +522,7 @@ def sample_data(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
     return HttpResponse(sample.get_fcs_data(), content_type='text/csv')
+
 
 @login_required
 @require_project_user
