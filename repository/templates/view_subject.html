@@ -83,7 +83,14 @@ $(document).ready(function()
       <tbody>
         {% for sample in samples %}
         <tr>
-          <td class="middle">{{ sample.id }}</td>
+          <td class="middle">
+            {{ sample.id }}
+            <div class="pull-right">
+              <a rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
+                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+              </a>
+            </div>
+          </td>
           <td class="middle">
             <a href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a><br/>
           </td>

@@ -43,6 +43,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^subject/(?P<subject_id>\d+)/sample/add/$', 'add_sample', name='add_sample'),
 
+    url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
     url(r'^sample/(?P<sample_id>\d+)/select_panel/', 'select_panel', name='select_panel'),
     url(r'^sample/(?P<sample_id>\d+)/data/', 'sample_data', name='sample_data'),
     url(r'^sample/(?P<sample_id>\d+)/scatterplot/', 'view_sample_scatterplot', name='sample_scatterplot'),

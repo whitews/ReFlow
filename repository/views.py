@@ -428,6 +428,30 @@ def add_sample(request, subject_id):
 
 @login_required
 @require_project_user
+def edit_sample(request, sample_id):
+    sample = get_object_or_404(Sample, pk=sample_id)
+
+    if request.method == 'POST':
+        form = SampleEditForm(request.POST, request.FILES, instance=sample)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject.id)))
+    else:
+        form = SampleEditForm(instance=sample)
+
+    return render_to_response(
+        'edit_sample.html',
+        {
+            'form': form,
+            'sample': sample,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
 def select_panel(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     site_panels = Panel.objects.filter(site=sample.subject.site)

@@ -1,4 +1,7 @@
 from rest_framework import generics
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
@@ -14,8 +17,9 @@ from repository.serializers import *
 # Design Note: For any detail view the PermissionRequiredMixin will restrict access to users of that project
 # For any List view, the view itself will have to restrict the list of objects by user
 
-@login_required
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def api_root(request, format=None):
     """
     The entry endpoint of our API.
@@ -91,7 +95,7 @@ class ProjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retrie
     serializer_class = ProjectSerializer
 
 
-class SampleList(LoginRequiredMixin, generics.ListAPIView):
+class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of projects.
     """
@@ -134,6 +138,13 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
             ).distinct()
 
         return queryset
+
+    # def post(self, request, format=None):
+    #     serializer = SampleSerializer(data=request.DATA)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """

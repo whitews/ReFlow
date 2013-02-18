@@ -79,3 +79,21 @@ class SampleForm(ModelForm):
         if project_id:
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = ModelChoiceField(visit_types)
+
+
+class SampleEditForm(ModelForm):
+    class Meta:
+        model = Sample
+        exclude = ('subject', 'original_filename', 'sample_file')
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(SampleEditForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure only project's visit types are the available choices
+        if project_id:
+            visit_types = ProjectVisitType.objects.filter(project__id=project_id)
+            self.fields['visit'] = ModelChoiceField(visit_types)

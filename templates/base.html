@@ -72,6 +72,17 @@
       {% endblock %}
 
       <div id="main">
+
+          <div class="container">
+            {% block breadcrumbs %}
+{#            <ul class="breadcrumb">#}
+{#              <li><a href="#">Home</a> <span class="divider">/</span></li>#}
+{#              <li><a href="#">Library</a> <span class="divider">/</span></li>#}
+{#              <li class="active">Data</li>#}
+{#            </ul>#}
+            {% endblock %}
+          </div>
+
       {% block body %}
       {% endblock %}
       </div>    <!-- id:main -->

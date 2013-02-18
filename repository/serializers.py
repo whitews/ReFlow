@@ -21,11 +21,12 @@ class SampleParameterSerializer(serializers.ModelSerializer):
 class SampleSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    site = serializers.IntegerField(source='subject.site.id')
-    project = serializers.IntegerField(source='subject.site.project.id')
+    site = serializers.IntegerField(source='subject.site.id', read_only=True)
+    project = serializers.IntegerField(source='subject.site.project.id', read_only=True)
 
     class Meta:
         model = Sample
-        fields = ('id', 'url', 'subject', 'site', 'project', 'original_filename', 'sampleparameters')
+        fields = ('id', 'url', 'visit', 'subject', 'site', 'project', 'original_filename', 'sampleparameters', 'sample_file')
+        read_only_fields = ('original_filename', 'visit')
 
 
