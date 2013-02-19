@@ -24,6 +24,13 @@ class SampleSerializer(serializers.ModelSerializer):
     site = serializers.IntegerField(source='subject.site.id', read_only=True)
     project = serializers.IntegerField(source='subject.site.project.id', read_only=True)
 
+    # Trying to get the sample_file field to show up in POST but not GET, not working yet, so commented out
+    # def get_field(self, model_field):
+    #     if model_field.name == 'sample_file' and self.context['request'].method == 'GET':
+    #         return None
+    #     else:
+    #         return super(SampleSerializer, self).get_field(model_field=model_field)
+
     class Meta:
         model = Sample
         fields = ('id', 'url', 'visit', 'subject', 'site', 'project', 'original_filename', 'sampleparameters', 'sample_file')

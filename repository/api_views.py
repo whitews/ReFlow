@@ -7,6 +7,7 @@ from rest_framework.reverse import reverse
 from rest_framework.response import Response
 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -18,7 +19,7 @@ from repository.serializers import *
 # For any List view, the view itself will have to restrict the list of objects by user
 
 @api_view(['GET'])
-@authentication_classes((SessionAuthentication, BasicAuthentication))
+@authentication_classes((BasicAuthentication, SessionAuthentication))
 @permission_classes((IsAuthenticated,))
 def api_root(request, format=None):
     """
@@ -36,7 +37,11 @@ class LoginRequiredMixin(object):
     View mixin to verify a user is logged in.
     """
 
-    @method_decorator(login_required)
+    authentication_classes = (BasicAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    #@method_decorator(login_required)
+    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(
                 request, *args, **kwargs)
