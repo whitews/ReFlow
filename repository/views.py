@@ -483,7 +483,7 @@ def select_panel(request, sample_id):
 
                 # Get our parameter numbers from all the PnN matches
                 for key in sample_text_segment:
-                    matches = re.search('^P(\d)N$', key, flags=re.IGNORECASE)
+                    matches = re.search('^P(\d+)N$', key, flags=re.IGNORECASE)
                     if matches:
                         # while we're here, verify sample parameter PnN text matches a parameter in selected panel
                         if selected_panel.panelparametermap_set.filter(fcs_text=sample_text_segment[key]):
