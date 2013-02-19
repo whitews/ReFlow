@@ -1,56 +1,74 @@
 [
     {
-        "model": "repository.antibody",
         "pk": 1,
+        "model": "repository.antibody",
         "fields": {
-            "antibody_name": "Cluster of Differentiation 3",
             "antibody_short_name": "CD3",
+            "antibody_name": "Cluster of Differentiation 3",
             "antibody_description": null
         }
     },
     {
-        "model": "repository.antibody",
         "pk": 2,
+        "model": "repository.antibody",
         "fields": {
-            "antibody_name": "Cluster of Differentiation 4",
             "antibody_short_name": "CD4",
+            "antibody_name": "Cluster of Differentiation 4",
             "antibody_description": null
         }
     },
     {
-        "model": "repository.antibody",
         "pk": 3,
+        "model": "repository.antibody",
         "fields": {
-            "antibody_name": "Cluster of Differentiation 8",
             "antibody_short_name": "CD8",
+            "antibody_name": "Cluster of Differentiation 8",
             "antibody_description": null
         }
     },
     {
-        "model": "repository.antibody",
         "pk": 4,
+        "model": "repository.antibody",
         "fields": {
-            "antibody_name": "Interleukin-6",
             "antibody_short_name": "IL-6",
+            "antibody_name": "Interleukin-6",
             "antibody_description": null
         }
     },
     {
-        "model": "repository.antibody",
         "pk": 5,
+        "model": "repository.antibody",
         "fields": {
-            "antibody_name": "Cluster of Differentiation 45",
             "antibody_short_name": "CD45",
+            "antibody_name": "Cluster of Differentiation 45",
             "antibody_description": null
         }
     },
     {
-        "model": "repository.antibody",
         "pk": 6,
+        "model": "repository.antibody",
         "fields": {
-            "antibody_name": "New York esophageal squamous cell carcinoma 1",
             "antibody_short_name": "NY-ESO-1",
+            "antibody_name": "New York esophageal squamous cell carcinoma 1",
             "antibody_description": null
+        }
+    },
+    {
+        "pk": 7,
+        "model": "repository.antibody",
+        "fields": {
+            "antibody_short_name": "IFN",
+            "antibody_name": "Interferon-gamma",
+            "antibody_description": ""
+        }
+    },
+    {
+        "pk": 8,
+        "model": "repository.antibody",
+        "fields": {
+            "antibody_short_name": "IL2",
+            "antibody_name": "Interleukin 2",
+            "antibody_description": ""
         }
     }
 ]

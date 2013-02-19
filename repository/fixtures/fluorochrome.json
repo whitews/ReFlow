@@ -1,7 +1,7 @@
 [
     {
-        "model": "repository.fluorochrome",
         "pk": 1,
+        "model": "repository.fluorochrome",
         "fields": {
             "fluorochrome_name": "R-Phycoerythrin",
             "fluorochrome_short_name": "PE",
@@ -9,15 +9,17 @@
         }
     },
     {
+        "pk": 2,
         "model": "repository.fluorochrome",
-        "pk":2,
         "fields": {
-            "fluorochrome_name":"Peridinin chlorophyll protein","fluorochrome_short_name":"PerCP","fluorochrome_description":null
+            "fluorochrome_name": "Peridinin chlorophyll protein",
+            "fluorochrome_short_name": "PerCP",
+            "fluorochrome_description": null
         }
     },
     {
-        "model": "repository.fluorochrome",
         "pk": 3,
+        "model": "repository.fluorochrome",
         "fields": {
             "fluorochrome_name": "Fluorescein",
             "fluorochrome_short_name": "FITC",
@@ -25,12 +27,21 @@
         }
     },
     {
+        "pk": 4,
         "model": "repository.fluorochrome",
-        "pk":4,
         "fields": {
             "fluorochrome_name": "Allophycocyanin",
             "fluorochrome_short_name": "APC",
             "fluorochrome_description": null
+        }
+    },
+    {
+        "pk": 5,
+        "model": "repository.fluorochrome",
+        "fields": {
+            "fluorochrome_name": "PerCP-Cy5.5",
+            "fluorochrome_short_name": "PerCP-Cy5-5",
+            "fluorochrome_description": ""
         }
     }
 ]

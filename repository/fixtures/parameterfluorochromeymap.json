@@ -1,0 +1,66 @@
+[
+    {
+        "pk": 1,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 3,
+            "parameter": 3
+        }
+    },
+    {
+        "pk": 2,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 1,
+            "parameter": 4
+        }
+    },
+    {
+        "pk": 3,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 2,
+            "parameter": 5
+        }
+    },
+    {
+        "pk": 4,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 4,
+            "parameter": 6
+        }
+    },
+    {
+        "pk": 5,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 5,
+            "parameter": 8
+        }
+    },
+    {
+        "pk": 6,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 4,
+            "parameter": 10
+        }
+    },
+    {
+        "pk": 7,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 3,
+            "parameter": 9
+        }
+    },
+    {
+        "pk": 8,
+        "model": "repository.parameterfluorochromemap",
+        "fields": {
+            "fluorochrome": 1,
+            "parameter": 7
+        }
+    }
+]

@@ -1,50 +1,90 @@
 [
-  {
-    "pk": 1, 
-    "model": "repository.parameter", 
-    "fields": {
-      "parameter_short_name": "FSC", 
-      "parameter_type": "FS"
+    {
+        "pk": 1,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "FSC",
+            "parameter_type": "FS"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "SSC",
+            "parameter_type": "SS"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "CD45-FITC",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "CD3-PE",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "CD8-PerCP",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "NY-ESO-1-APC",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 7,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "IFN-IL2-PE",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "CD8-PerCP-Cy5-5",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 9,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "CD4-FITC",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 10,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "CD3-APC",
+            "parameter_type": "FL"
+        }
+    },
+    {
+        "pk": 11,
+        "model": "repository.parameter",
+        "fields": {
+            "parameter_short_name": "Time",
+            "parameter_type": "TM"
+        }
     }
-  }, 
-  {
-    "pk": 2, 
-    "model": "repository.parameter", 
-    "fields": {
-      "parameter_short_name": "SSC", 
-      "parameter_type": "SS"
-    }
-  }, 
-  {
-    "pk": 3, 
-    "model": "repository.parameter", 
-    "fields": {
-      "parameter_short_name": "CD45-FITC", 
-      "parameter_type": "FL"
-    }
-  }, 
-  {
-    "pk": 4, 
-    "model": "repository.parameter", 
-    "fields": {
-      "parameter_short_name": "CD3-PE", 
-      "parameter_type": "FL"
-    }
-  }, 
-  {
-    "pk": 5, 
-    "model": "repository.parameter", 
-    "fields": {
-      "parameter_short_name": "CD8-PerCP", 
-      "parameter_type": "FL"
-    }
-  }, 
-  {
-    "pk": 6, 
-    "model": "repository.parameter", 
-    "fields": {
-      "parameter_short_name": "NY-ESO-1-APC", 
-      "parameter_type": "FL"
-    }
-  }
 ]
