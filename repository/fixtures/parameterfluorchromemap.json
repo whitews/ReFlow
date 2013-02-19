@@ -1,0 +1,34 @@
+[
+    {
+        "pk": 1, 
+        "model": "repository.parameterantibodymap", 
+        "fields": {
+            "antibody": 5, 
+            "parameter": 3
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "repository.parameterantibodymap", 
+        "fields": {
+            "antibody": 1, 
+            "parameter": 4
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "repository.parameterantibodymap", 
+        "fields": {
+            "antibody": 3, 
+            "parameter": 5
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "repository.parameterantibodymap", 
+        "fields": {
+            "antibody": 6, 
+            "parameter": 6
+        }
+    }
+]
