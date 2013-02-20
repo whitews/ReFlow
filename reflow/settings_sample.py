@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'authenticate',
     'repository',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_extensions',
 )
 
@@ -143,6 +144,7 @@ REST_FRAMEWORK = {
     'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     )
 }
 
