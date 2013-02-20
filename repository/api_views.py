@@ -91,6 +91,7 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
         queryset = ProjectUserMap.objects.get_user_projects(self.request.user)
         return queryset
 
+
 class ProjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
@@ -138,18 +139,18 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
             value_type = name[-1]
 
             queryset = queryset.filter(
-                    sampleparametermap__parameter__parameter_short_name=parameter,
-                    sampleparametermap__value_type__value_type_short_name=value_type,
+                sampleparametermap__parameter__parameter_short_name=parameter,
+                sampleparametermap__value_type__value_type_short_name=value_type,
             ).distinct()
 
         return queryset
 
-    # def post(self, request, format=None):
-    #     serializer = SampleSerializer(data=request.DATA)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return SamplePOSTSerializer
+
+        return super(SampleList, self).get_serializer_class()
+
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
