@@ -1,5 +1,5 @@
 from rest_framework import generics
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
@@ -19,7 +19,7 @@ from repository.serializers import *
 # For any List view, the view itself will have to restrict the list of objects by user
 
 @api_view(['GET'])
-@authentication_classes((BasicAuthentication, SessionAuthentication))
+@authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
 def api_root(request, format=None):
     """
@@ -37,10 +37,9 @@ class LoginRequiredMixin(object):
     View mixin to verify a user is logged in.
     """
 
-    authentication_classes = (BasicAuthentication, SessionAuthentication)
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticated,)
 
-    #@method_decorator(login_required)
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(
