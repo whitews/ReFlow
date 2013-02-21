@@ -24,10 +24,10 @@ class Project(models.Model):
         return Panel.objects.filter(site__project=self).count()
 
     def get_subject_count(self):
-        return Subject.objects.filter(site__project=self).count()
+        return Subject.objects.filter(project=self).count()
 
     def get_sample_count(self):
-        return Sample.objects.filter(subject__site__project=self).count()
+        return Sample.objects.filter(subject__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % (self.project_name)
@@ -197,7 +197,7 @@ class ParameterFluorochromeMap(models.Model):
         return u'%s: %s' % (self.parameter, self.fluorochrome)
 
 class Subject(models.Model):
-    site    = models.ForeignKey(Site)    
+    project    = models.ForeignKey(Project)
     subject_id = models.CharField("Subject ID", null=False, blank=False, max_length=128)
 
     def clean(self):
@@ -205,22 +205,22 @@ class Subject(models.Model):
 
         # count subjects with matching subject_id and parent project, which don't have this pk
         try:
-            site = Site.objects.get(id=self.site.id)
+            project = Project.objects.get(id=self.project.id)
         except:
-            site = None
+            project = None
 
-        if site:
+        if project:
             subject_duplicates = Subject.objects.filter(
                     subject_id=self.subject_id,
-                    site__project=self.site.project).exclude(
+                    project=self.project).exclude(
                             id=self.id)
             if subject_duplicates.count() > 0:
                 raise ValidationError("Subject ID already exists in this project.")
         else:
-            pass # Site is required and will get caught by Form.is_valid()
+            pass # Project is required and will get caught by Form.is_valid()
 
     def __unicode__(self):
-        return u'Project: %s, Subject: %s' % (self.site.project.project_name, self.subject_id)
+        return u'Project: %s, Subject: %s' % (self.project.project_name, self.subject_id)
 
 class ProjectVisitType(models.Model):
     project                = models.ForeignKey(Project)
@@ -250,11 +250,10 @@ class ProjectVisitType(models.Model):
         return u'%s' % (self.visit_type_name)
 
 def fcs_file_path(instance, filename):
-    project_id = instance.subject.site.project.id
-    site_id    = instance.subject.site.id
+    project_id = instance.subject.project.id
     subject_id = instance.subject.id
     
-    upload_dir = join([MEDIA_ROOT, str(project_id), str(site_id), str(subject_id), str(filename)], "/")
+    upload_dir = join([MEDIA_ROOT, str(project_id), str(subject_id), str(filename)], "/")
     
     print "Upload dir is: %s" % upload_dir
     
@@ -262,6 +261,7 @@ def fcs_file_path(instance, filename):
 
 class Sample(models.Model):
     subject = models.ForeignKey(Subject)
+    site = models.ForeignKey(Site, null=True, blank=True)
     visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
     sample_file = models.FileField(upload_to=fcs_file_path)
     original_filename = models.CharField(unique=False, null=False, blank=False, max_length=256)
@@ -303,7 +303,7 @@ class Sample(models.Model):
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
-            self.subject.site.project.project_name,
+            self.subject.project.project_name,
             self.subject.subject_id,
             self.sample_file.name.split('/')[-1])
 

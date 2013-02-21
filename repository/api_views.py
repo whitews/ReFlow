@@ -61,9 +61,9 @@ class PermissionRequiredMixin(object):
         elif isinstance(obj, Panel):
             project = get_object_or_404(Project, site__panel=obj)
         elif isinstance(obj, Subject):
-            project = get_object_or_404(Project, site__subject=obj)
+            project = get_object_or_404(Project, subject=obj)
         elif isinstance(obj, Sample):
-            project = get_object_or_404(Project, site__subject__sample=obj)
+            project = get_object_or_404(Project, subject__sample=obj)
         elif isinstance(obj, PanelParameterMap):
             project = get_object_or_404(Project, site__panel__panelparametermap=obj)
         else:
@@ -107,7 +107,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = ('subject', 'subject__site', 'subject__site__project', 'original_filename')
+    filter_fields = ('subject', 'site', 'subject__project', 'original_filename')
 
     def get_queryset(self):
         """
@@ -119,7 +119,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
-        queryset = Sample.objects.filter(subject__site__project__in=user_projects)
+        queryset = Sample.objects.filter(subject__project__in=user_projects)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('name', None)

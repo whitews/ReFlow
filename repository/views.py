@@ -41,7 +41,7 @@ def view_projects(request):
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    subjects = Subject.objects.filter(site__project=project)
+    subjects = Subject.objects.filter(project=project)
 
     return render_to_response(
         'view_project.html',
@@ -106,7 +106,7 @@ def edit_project(request, project_id):
 def view_subjects(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    subjects = Subject.objects.filter(site__project=project)
+    subjects = Subject.objects.filter(project=project)
 
     return render_to_response(
         'view_project_subjects.html',
@@ -337,7 +337,7 @@ def view_subject(request, subject_id):
     return render_to_response(
         'view_subject.html',
         {
-            'project': subject.site.project,
+            'project': subject.project,
             'subject': subject,
             'samples': samples, 
         },
@@ -350,22 +350,16 @@ def view_subject(request, subject_id):
 def add_subject(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    # need to check if the project has any sites, since patients have a required site relation
-    if request.method == 'POST' and project.site_set.exists():
-        form = SubjectForm(request.POST, project_id=project_id)
+    if request.method == 'POST':
+        subject = Subject(project=project)
+        form = SubjectForm(request.POST, instance=subject)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project', args=project_id))
-
-    elif not project.site_set.exists():
-        messages.warning(
-            request,
-            'This project has no associated sites. A subject must be associated with a specific site.')
-        return HttpResponseRedirect(reverse('warning_page',))
+            return HttpResponseRedirect(reverse('project_subjects', args=project_id))
 
     else:
-        form = SubjectForm(project_id=project_id)
+        form = SubjectForm()
 
     return render_to_response(
         'add_subject.html',
@@ -414,7 +408,7 @@ def add_sample(request, subject_id):
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
-        form = SampleForm(project_id=subject.site.project.id)
+        form = SampleForm(project_id=subject.project.id)
 
     return render_to_response(
         'add_sample.html',
@@ -454,7 +448,7 @@ def edit_sample(request, sample_id):
 @require_project_user
 def select_panel(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
-    site_panels = Panel.objects.filter(site=sample.subject.site)
+    site_panels = Panel.objects.filter(site=sample.site)
     errors = []
     sample_param_count = 0
 

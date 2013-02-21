@@ -23,8 +23,7 @@ class SampleParameterSerializer(serializers.ModelSerializer):
 class SampleSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    site = serializers.IntegerField(source='subject.site.id', read_only=True)
-    project = serializers.IntegerField(source='subject.site.project.id', read_only=True)
+    project = serializers.IntegerField(source='subject.project.id', read_only=True)
 
     class Meta:
         model = Sample
@@ -35,8 +34,7 @@ class SampleSerializer(serializers.ModelSerializer):
 class SamplePOSTSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    site = serializers.IntegerField(source='subject.site.id', read_only=True)
-    project = serializers.IntegerField(source='subject.site.project.id', read_only=True)
+    project = serializers.IntegerField(source='subject.project.id', read_only=True)
 
     class Meta:
         model = Sample
