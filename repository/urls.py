@@ -11,11 +11,14 @@ handler403 = TemplateView.as_view(template_name='403.html')
 # API routes
 urlpatterns = patterns('repository.api_views',
     url(r'^api/$', 'api_root'),
+    url(r'^api/panels/$', PanelList.as_view(), name='panel-list'),
     url(r'^api/parameters/$', ParameterList.as_view(), name='parameter-list'),
     url(r'^api/projects/$', ProjectList.as_view(), name='project-list'),
     url(r'^api/projects/(?P<pk>\d+)/$', ProjectDetail.as_view(), name='project-detail'),
     url(r'^api/samples/$', SampleList.as_view(), name='sample-list'),
     url(r'^api/samples/(?P<pk>\d+)/$', SampleDetail.as_view(), name='sample-detail'),
+    url(r'^api/sites/$', SiteList.as_view(), name='site-list'),
+    url(r'^api/subjects/$', SubjectList.as_view(), name='subject-list'),
 )
 
 urlpatterns += patterns('rest_framework',

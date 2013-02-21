@@ -28,9 +28,12 @@ def api_root(request, format=None):
     """
 
     return Response({
+        'panels': reverse('panel-list', request=request),
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
         'samples': reverse('sample-list', request=request),
+        'sites': reverse('site-list', request=request),
+        'subjects': reverse('subject-list', request=request),
     })
 
 
@@ -44,8 +47,7 @@ class LoginRequiredMixin(object):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(
-                request, *args, **kwargs)
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class PermissionRequiredMixin(object):
@@ -100,6 +102,93 @@ class ProjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retrie
 
     model = Project
     serializer_class = ProjectSerializer
+
+
+class SubjectList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of panels.
+    """
+
+    model = Subject
+    serializer_class = SubjectSerializer
+    filter_fields = ('id', 'subject_id', 'project')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        """
+
+        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+
+        # filter on user's projects
+        queryset = Subject.objects.filter(project__in=user_projects)
+
+        return queryset
+
+
+class SiteList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of panels.
+    """
+
+    model = Site
+    serializer_class = SiteSerializer
+    filter_fields = ('id', 'site_name', 'project')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        """
+
+        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+
+        # filter on user's projects
+        queryset = Site.objects.filter(project__in=user_projects)
+
+        return queryset
+
+
+class PanelList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of panels.
+    """
+
+    model = Panel
+    serializer_class = PanelSerializer
+    filter_fields = ('id', 'site', 'site__project')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        """
+
+        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+
+        # filter on user's projects
+        queryset = Panel.objects.filter(site__project__in=user_projects)
+
+        # Value may have multiple names separated by commas
+        name_value = self.request.QUERY_PARAMS.get('name', None)
+
+        if name_value is None:
+            return queryset
+
+        # The name property is just a concatenation of 2 related fields:
+        #  - parameter__parameter_short_name
+        #  - value_type__value_type_short_name (single character for H, A, W, T)
+        # they are joined by a hyphen
+        names = name_value.split(',')
+
+        for name in names:
+            parameter = name[0:-2]
+            value_type = name[-1]
+
+            queryset = queryset.filter(
+                panelparametermap__parameter__parameter_short_name=parameter,
+                panelparametermap__value_type__value_type_short_name=value_type,
+            ).distinct()
+
+        return queryset
 
 
 class ParameterList(LoginRequiredMixin, generics.ListAPIView):

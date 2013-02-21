@@ -11,6 +11,22 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'project_name', 'project_desc', 'url')
 
 
+class SiteSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer(source='project')
+
+    class Meta:
+        model = Site
+        fields = ('id', 'site_name', 'project')
+
+
+class SubjectSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer(source='project')
+
+    class Meta:
+        model = Subject
+        fields = ('id', 'subject_id', 'project')
+
+
 class ParameterAntibodySerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='antibody.antibody_short_name', read_only=True)
 
@@ -25,6 +41,25 @@ class ParameterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parameter
         fields = ('id', 'parameter_short_name', 'parameter_type', 'antibodies')
+
+
+class PanelParameterSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='name', read_only=True)
+
+    class Meta:
+        model = PanelParameterMap
+        fields = ('id', 'fcs_text', 'name')
+        depth = 1
+
+
+class PanelSerializer(serializers.ModelSerializer):
+    site = SiteSerializer(source='site')
+    panelparameters = PanelParameterSerializer(source='panelparametermap_set')
+
+    class Meta:
+        model = Panel
+        fields = ('id', 'panel_name', 'site', 'panelparameters')
+        #depth = 2
 
 
 class SampleParameterSerializer(serializers.ModelSerializer):

@@ -139,6 +139,14 @@ class PanelParameterMap(models.Model):
     # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
     fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
 
+    def _get_name(self):
+        """
+        Returns the parameter name with value type.
+        """
+        return '%s-%s' % (self.parameter.parameter_short_name, self.value_type.value_type_short_name)
+
+    name = property(_get_name)
+
     def clean(self):
         """
         Check for duplicate parameter/value_type combos in a panel. Returns ValidationError if any duplicates are found.
