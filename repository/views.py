@@ -7,11 +7,11 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils import simplejson
-import re
 
 from repository.models import *
 from repository.forms import *
 from repository.decorators import require_project_user
+from repository.utils import apply_panel_to_sample
 
 
 def d3_test(request):
@@ -490,7 +490,6 @@ def edit_sample(request, sample_id):
 def select_panel(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     site_panels = Panel.objects.filter(site=sample.site)
-    errors = []
     sample_param_count = 0
 
     # parameter_number: PnN text
@@ -502,56 +501,13 @@ def select_panel(request, sample_id):
             # Get the user selection
             selected_panel = get_object_or_404(Panel, pk=request.POST['panel'])
 
-            # Validate that it is a site panel
-            if selected_panel in site_panels:
+            status = apply_panel_to_sample(selected_panel, sample)
 
-                # Read the FCS text segment and get the number of parameters
-                sample_text_segment = sample.get_fcs_text_segment()
-
-                if 'par' in sample_text_segment:
-                    if sample_text_segment['par'].isdigit():
-                        sample_param_count = int(sample_text_segment['par'])
-                    else:
-                        errors.append("Sample reports non-numeric parameter count")
-                else:
-                    errors.append("No parameters found in sample")
-
-                # Get our parameter numbers from all the PnN matches
-                for key in sample_text_segment:
-                    matches = re.search('^P(\d+)N$', key, flags=re.IGNORECASE)
-                    if matches:
-                        # while we're here, verify sample parameter PnN text matches a parameter in selected panel
-                        if selected_panel.panelparametermap_set.filter(fcs_text=sample_text_segment[key]):
-                            sample_parameters[matches.group(1)] = sample_text_segment[key]
-                        else:
-                            errors.append(
-                                "Sample parameter " +
-                                sample_text_segment[key] + " "
-                                "does not match a parameter in selected panel")
-
-                # Verify:
-                # sample parameter count == sample_param_count == selected panel parameter counts
-                if len(sample_parameters) == sample_param_count == len(selected_panel.panelparametermap_set.all()):
-
-                    # Copy all the parameters from PanelParameterMap to SampleParameterMap
-                    for key in sample_parameters:
-                        ppm = selected_panel.panelparametermap_set.get(fcs_text=sample_parameters[key])
-
-                        # Finally, construct and save our sample parameter map for all the matching parameters
-                        spm = SampleParameterMap()
-                        spm.sample = sample
-                        spm.parameter = ppm.parameter
-                        spm.value_type = ppm.value_type
-                        spm.fcs_number = key
-                        spm.fcs_text = sample_parameters[key]
-                        spm.save()
-                else:
-                    errors.append("Matching parameter counts differ between sample and selected panel")
-
-            # If something isn't right, return errors back to user
-            if len(errors) > 0:
-                json = simplejson.dumps(errors)
-                return HttpResponseBadRequest(json, mimetype='application/json')
+            # if everything saved ok, then the status should be 0, but might be an array of errors
+            if status != 0:
+                if isinstance(status, list):
+                    json = simplejson.dumps(status)
+                    return HttpResponseBadRequest(json, mimetype='application/json')
             else:
                 return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject.id)))
 

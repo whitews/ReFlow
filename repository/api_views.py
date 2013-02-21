@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 
 from repository.models import *
 from repository.serializers import *
+from repository.utils import apply_panel_to_sample
 
 # Design Note: For any detail view the PermissionRequiredMixin will restrict access to users of that project
 # For any List view, the view itself will have to restrict the list of objects by user
@@ -110,7 +111,7 @@ class ParameterList(LoginRequiredMixin, generics.ListAPIView):
 
 class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of projects.
+    API endpoint representing a list of samples.
     """
 
     model = Sample
@@ -157,6 +158,27 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
             return SamplePOSTSerializer
 
         return super(SampleList, self).get_serializer_class()
+
+    def post(self, request, *args, **kwargs):
+        response = super(SampleList, self).post(request, *args, **kwargs)
+
+        if request.DATA.has_key('panel') and response.status_code == 201:
+            try:
+                panel = Panel.objects.get(id=request.DATA['panel'])
+                sample = Sample.objects.get(id=response.data['id'])
+
+                # now try to create the sample's parameters
+                apply_panel_to_sample(panel, sample)
+            except:
+                return response
+
+        # need to re-serialize our sample to get the sampleparameters field updated
+        # we can also use this to use the SampleSerializer instead of the POST one to not give
+        # back the sample_file field containing the file path on the server
+        serializer = SampleSerializer(sample)
+        response.data = serializer.data
+
+        return response
 
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
