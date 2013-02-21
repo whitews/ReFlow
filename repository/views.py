@@ -1,6 +1,4 @@
-from repository.models import *
-from repository.forms import *
-from repository.decorators import require_project_user
+from operator import attrgetter
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -9,9 +7,11 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils import simplejson
-from operator import attrgetter
-
 import re
+
+from repository.models import *
+from repository.forms import *
+from repository.decorators import require_project_user
 
 
 def d3_test(request):
@@ -114,6 +114,23 @@ def view_subjects(request, project_id):
             'project': project,
             'subjects': subjects,
         },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
+def view_samples(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    samples = Sample.objects.filter(subject__project=project)
+
+    return render_to_response(
+        'view_project_samples.html',
+        {
+            'project': project,
+            'samples': samples,
+            },
         context_instance=RequestContext(request)
     )
 
@@ -397,21 +414,45 @@ def edit_subject(request, subject_id):
 
 @login_required
 @require_project_user
-def add_sample(request, subject_id):
+def add_sample(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == 'POST':
+        form = SampleForm(request.POST, request.FILES, project_id=project_id)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('project_samples', args=project_id))
+    else:
+        form = SampleForm(project_id=project_id)
+
+    return render_to_response(
+        'add_sample.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
+def add_subject_sample(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
     if request.method == 'POST':
         sample = Sample(subject=subject)
-        form = SampleForm(request.POST, request.FILES, instance=sample)
+        form = SampleSubjectForm(request.POST, request.FILES, instance=sample)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
-        form = SampleForm(project_id=subject.project.id)
+        form = SampleSubjectForm(project_id=subject.project.id)
 
     return render_to_response(
-        'add_sample.html',
+        'add_subject_sample.html',
         {
             'form': form,
             'subject': subject,

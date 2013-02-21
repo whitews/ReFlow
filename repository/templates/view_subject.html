@@ -157,7 +157,7 @@ $(document).ready(function()
     <p>Subject has no flow cytometry samples.</p>
     {% endif %}
     <div class="pull-right">
-      <a class="btn btn-success btn-small" href="{% url 'add_sample' subject.id %}">
+      <a class="btn btn-success btn-small" href="{% url 'add_subject_sample' subject.id %}">
         <i class="icon-plus icon-white"></i> Add Sample
       </a>
     </div>

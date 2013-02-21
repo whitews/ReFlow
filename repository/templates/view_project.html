@@ -58,6 +58,16 @@
             </div>
           </td>
         </tr>
+        <tr>
+            <td class="center">
+                <span class="lead"><a href="{% url 'project_samples' project.id %}">Samples</a> <span class="badge badge-inverse align-top">{{ project.get_sample_count }}</span></span>
+                <div class="pull-right">
+                    <a class="btn btn-success btn-small" href="{% url 'add_sample' project.id %}">
+                        <i class="icon-plus icon-white"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
       </tbody>
     </table>
   </div>

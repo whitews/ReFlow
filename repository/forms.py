@@ -1,22 +1,26 @@
 __author__ = 'swhite'
-from repository.models import *
-
 from django.forms import ModelForm, ModelChoiceField
 from django.core.exceptions import ValidationError
+
+from repository.models import *
+
 
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
+
 
 class SiteForm(ModelForm):
     class Meta:
         model = Site
         exclude = ('project',)
 
+
 class ProjectVisitTypeForm(ModelForm):
     class Meta:
         model = ProjectVisitType
         exclude = ('project',)
+
 
 class PanelForm(ModelForm):
     class Meta:
@@ -36,6 +40,7 @@ class PanelForm(ModelForm):
                 raise ValidationError('Error creating panel. There are no sites for this project. A panel must belong to a project site.')
             self.fields['site'] = ModelChoiceField(sites)
 
+
 class PanelParameterMapForm(ModelForm):
     class Meta:
         model = PanelParameterMap
@@ -51,7 +56,7 @@ class SubjectForm(ModelForm):
 class SampleForm(ModelForm):
     class Meta:
         model = Sample
-        exclude = ('subject','original_filename')
+        exclude = ('original_filename')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -62,6 +67,33 @@ class SampleForm(ModelForm):
 
         # finally, make sure only project's visit types are the available choices
         if project_id:
+            subjects = Subject.objects.filter(project__id=project_id)
+            self.fields['subject'] = ModelChoiceField(subjects)
+
+            sites = Site.objects.filter(project__id=project_id)
+            self.fields['site'] = ModelChoiceField(sites)
+
+            visit_types = ProjectVisitType.objects.filter(project__id=project_id)
+            self.fields['visit'] = ModelChoiceField(visit_types)
+
+
+class SampleSubjectForm(ModelForm):
+    class Meta:
+        model = Sample
+        exclude = ('subject', 'original_filename')
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(SampleSubjectForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure only project's visit types are the available choices
+        if project_id:
+            sites = Site.objects.filter(project__id=project_id)
+            self.fields['site'] = ModelChoiceField(sites)
+
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = ModelChoiceField(visit_types)
 

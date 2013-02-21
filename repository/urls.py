@@ -46,8 +46,10 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/subject/add/$', 'add_subject', name='add_subject'),
     url(r'^subject/(?P<subject_id>\d+)/edit/$', 'edit_subject', name='edit_subject'),
 
-    url(r'^subject/(?P<subject_id>\d+)/sample/add/$', 'add_sample', name='add_sample'),
+    url(r'^project/(?P<project_id>\d+)/sample/add/$', 'add_sample', name='add_sample'),
+    url(r'^subject/(?P<subject_id>\d+)/sample/add/$', 'add_subject_sample', name='add_subject_sample'),
 
+    url(r'^project/(?P<project_id>\d+)/samples/$', 'view_samples', name='project_samples'),
     url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
     url(r'^sample/(?P<sample_id>\d+)/select_panel/', 'select_panel', name='select_panel'),
     url(r'^sample/(?P<sample_id>\d+)/data/', 'sample_data', name='sample_data'),
