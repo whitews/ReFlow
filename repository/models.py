@@ -1,21 +1,22 @@
 from string import join
-import numpy
 import cStringIO
+
+import numpy
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-
 from fcm.io import loadFCS
 
 from reflow.settings import MEDIA_ROOT
 
+
 class Project(models.Model):
     project_name = models.CharField("Project Name", unique=True, null=False, blank=False, max_length=128)
     project_desc = models.TextField(
-                                "Project Description",
-                                null=True,
-                                blank=True,
-                                help_text="A short description of the project")
+        "Project Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the project")
 
     def get_visit_type_count(self):
         return ProjectVisitType.objects.filter(project=self).count()
@@ -30,7 +31,8 @@ class Project(models.Model):
         return Sample.objects.filter(subject__project=self).count()
 
     def __unicode__(self):
-        return u'Project: %s' % (self.project_name)
+        return u'Project: %s' % self.project_name
+
 
 class ProjectUserManager(models.Manager):
     def get_user_projects(self, user):
@@ -42,37 +44,44 @@ class ProjectUserManager(models.Manager):
     def is_project_user(self, project, user):
         return super(ProjectUserManager, self).filter(project=project, user=user).exists()
 
+
 class ProjectUserMap(models.Model):
     project = models.ForeignKey(Project)
     user = models.ForeignKey(User)
 
     objects = ProjectUserManager()
 
+
 class Site(models.Model):
-    project   = models.ForeignKey(Project)
+    project = models.ForeignKey(Project)
     site_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
 
     def clean(self):
-        "Check for duplicate site names within a project. Returns ValidationError if any duplicates are found."
+        """
+        Check for duplicate site names within a project. Returns ValidationError if any duplicates are found.
+        """
 
         # count sites with matching site_name and parent project, which don't have this pk
         site_duplicates = Site.objects.filter(
             site_name=self.site_name,
             project=self.project).exclude(
-            id=self.id)
+                id=self.id)
 
         if site_duplicates.count() > 0:
             raise ValidationError("Site name already exists in this project.")
 
     def __unicode__(self):
-        return u'%s' % (self.site_name)
+        return u'%s' % self.site_name
+
 
 class Panel(models.Model):
     site = models.ForeignKey(Site, null=False, blank=False)
     panel_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
 
     def clean(self):
-        "Check for duplicate panel names within a project site. Returns ValidationError if any duplicates are found."
+        """
+        Check for duplicate panel names within a project site. Returns ValidationError if any duplicates are found.
+        """
 
         # count panels with matching panel_name and parent site, which don't have this pk
         try:
@@ -84,14 +93,15 @@ class Panel(models.Model):
             duplicates = Panel.objects.filter(
                 panel_name=self.panel_name,
                 site=self.site).exclude(
-                id=self.id)
+                    id=self.id)
             if duplicates.count() > 0:
                 raise ValidationError("A panel with this name already exists in this site.")
         else:
-            pass # Site is required and will get caught by Form.is_valid()
+            pass  # Site is required and will get caught by Form.is_valid()
 
     def __unicode__(self):
         return u'%s (Project: %s, Site: %s)' % (self.panel_name, self.site.project.project_name, self.site.site_name)
+
 
 class Parameter(models.Model):
     parameter_short_name = models.CharField(unique=True, max_length=32, null=False, blank=False)
@@ -111,14 +121,16 @@ class Parameter(models.Model):
         choices=PARAMETER_TYPE_CHOICES)
 
     def __unicode__(self):
-        return u'%s' % (self.parameter_short_name)
+        return u'%s' % self.parameter_short_name
+
 
 class ParameterValueType(models.Model):
     value_type_name = models.CharField(max_length=32, null=False, blank=False)
     value_type_short_name = models.CharField(max_length=2, null=False, blank=False)
 
     def __unicode__(self):
-        return u'%s' % (self.value_type_short_name)
+        return u'%s' % self.value_type_short_name
+
 
 class PanelParameterMap(models.Model):
     panel = models.ForeignKey(Panel)
@@ -128,7 +140,9 @@ class PanelParameterMap(models.Model):
     fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
 
     def clean(self):
-        "Check for duplicate parameter/value_type combos in a panel. Returns ValidationError if any duplicates are found."
+        """
+        Check for duplicate parameter/value_type combos in a panel. Returns ValidationError if any duplicates are found.
+        """
 
         # first check that there are no empty values
         error_message = []
@@ -166,13 +180,15 @@ class PanelParameterMap(models.Model):
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s-%s' % (self.panel, self.parameter, self.value_type)
 
+
 class Antibody(models.Model):
     antibody_name = models.CharField(unique=True, null=False, blank=False, max_length=128)
     antibody_short_name = models.CharField(unique=True, null=False, blank=False, max_length=32)
     antibody_description = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
-        return u'%s' % (self.antibody_short_name)
+        return u'%s' % self.antibody_short_name
+
 
 class ParameterAntibodyMap(models.Model):
     parameter = models.ForeignKey(Parameter)
@@ -181,13 +197,15 @@ class ParameterAntibodyMap(models.Model):
     def __unicode__(self):
         return u'%s: %s' % (self.parameter, self.antibody)
 
+
 class Fluorochrome(models.Model):
     fluorochrome_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
     fluorochrome_short_name = models.CharField(unique=False, null=False, blank=False, max_length=32)
     fluorochrome_description = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
-        return u'%s' % (self.fluorochrome_short_name)
+        return u'%s' % self.fluorochrome_short_name
+
 
 class ParameterFluorochromeMap(models.Model):
     parameter = models.ForeignKey(Parameter)
@@ -196,12 +214,15 @@ class ParameterFluorochromeMap(models.Model):
     def __unicode__(self):
         return u'%s: %s' % (self.parameter, self.fluorochrome)
 
+
 class Subject(models.Model):
-    project    = models.ForeignKey(Project)
+    project = models.ForeignKey(Project)
     subject_id = models.CharField("Subject ID", null=False, blank=False, max_length=128)
 
     def clean(self):
-        "Check for duplicate subject ID in a project. Returns ValidationError if any duplicates are found."
+        """
+        Check for duplicate subject ID in a project. Returns ValidationError if any duplicates are found.
+        """
 
         # count subjects with matching subject_id and parent project, which don't have this pk
         try:
@@ -211,24 +232,27 @@ class Subject(models.Model):
 
         if project:
             subject_duplicates = Subject.objects.filter(
-                    subject_id=self.subject_id,
-                    project=self.project).exclude(
-                            id=self.id)
+                subject_id=self.subject_id,
+                project=self.project).exclude(
+                    id=self.id)
             if subject_duplicates.count() > 0:
                 raise ValidationError("Subject ID already exists in this project.")
         else:
-            pass # Project is required and will get caught by Form.is_valid()
+            pass  # Project is required and will get caught by Form.is_valid()
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s' % (self.project.project_name, self.subject_id)
 
+
 class ProjectVisitType(models.Model):
-    project                = models.ForeignKey(Project)
-    visit_type_name        = models.CharField(unique=False, null=False, blank=False, max_length=128)
+    project = models.ForeignKey(Project)
+    visit_type_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
     visit_type_description = models.TextField(null=True, blank=True)
 
     def clean(self):
-        "Check for duplicate visit types in a project. Returns ValidationError if any duplicates are found."
+        """
+        Check for duplicate visit types in a project. Returns ValidationError if any duplicates are found.
+        """
 
         # count visit types with matching visit_type_name and parent project, which don't have this pk
         try:
@@ -244,10 +268,11 @@ class ProjectVisitType(models.Model):
             if duplicates.count() > 0:
                 raise ValidationError("Visit Name already exists in this project.")
         else:
-            pass # Project is required and will get caught by Form.is_valid()
+            pass  # Project is required and will get caught by Form.is_valid()
 
     def __unicode__(self):
-        return u'%s' % (self.visit_type_name)
+        return u'%s' % self.visit_type_name
+
 
 def fcs_file_path(instance, filename):
     project_id = instance.subject.project.id
@@ -258,6 +283,7 @@ def fcs_file_path(instance, filename):
     print "Upload dir is: %s" % upload_dir
     
     return upload_dir
+
 
 class Sample(models.Model):
     subject = models.ForeignKey(Subject)
@@ -284,20 +310,22 @@ class Sample(models.Model):
                 header.append(name)
 
         # Need a category column for the d3 selection to work
-        data_with_cat = numpy.zeros((data.shape[0], data.shape[1]+1))
-        data_with_cat[:,:-1] = data
+        data_with_cat = numpy.zeros((data.shape[0], data.shape[1] + 1))
+        data_with_cat[:, :-1] = data
 
         # need to convert it to csv-style string with header row
-        buffer = cStringIO.StringIO()
-        buffer.write(','.join(header)+',category\n')
+        csv_data = cStringIO.StringIO()
+        csv_data.write(','.join(header) + ',category\n')
 
         # currently limiting to 100 rows b/c the browser can't handle too much
-        numpy.savetxt(buffer, data_with_cat[:100,:], fmt='%d',delimiter=',')
+        numpy.savetxt(csv_data, data_with_cat[:100, :], fmt='%d', delimiter=',')
 
-        return buffer.getvalue()
+        return csv_data.getvalue()
 
     def clean(self):
-        "Need to save the original file name, since it may already exist on our side"
+        """
+        Need to save the original file name, since it may already exist on our side
+        """
 
         self.original_filename = self.sample_file.name.split('/')[-1]
 
@@ -306,6 +334,7 @@ class Sample(models.Model):
             self.subject.project.project_name,
             self.subject.subject_id,
             self.sample_file.name.split('/')[-1])
+
 
 class SampleParameterMap(models.Model):
     sample = models.ForeignKey(Sample)
@@ -319,7 +348,9 @@ class SampleParameterMap(models.Model):
     fcs_number = models.IntegerField()
 
     def _get_name(self):
-        "Returns the parameter name with value type."
+        """
+        Returns the parameter name with value type.
+        """
         return '%s-%s' % (self.parameter.parameter_short_name, self.value_type.value_type_short_name)
 
     name = property(_get_name)
@@ -331,4 +362,3 @@ class SampleParameterMap(models.Model):
                 self.value_type,
                 self.fcs_number,
                 self.fcs_text)
-
