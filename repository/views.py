@@ -130,7 +130,7 @@ def view_samples(request, project_id):
         {
             'project': project,
             'samples': samples,
-            },
+        },
         context_instance=RequestContext(request)
     )
 
@@ -490,10 +490,6 @@ def edit_sample(request, sample_id):
 def select_panel(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     site_panels = Panel.objects.filter(site=sample.site)
-    sample_param_count = 0
-
-    # parameter_number: PnN text
-    sample_parameters = {}
 
     if request.method == 'POST':
         if 'panel' in request.POST:

@@ -26,6 +26,7 @@ class ParameterSerializer(serializers.ModelSerializer):
         model = Parameter
         fields = ('id', 'parameter_short_name', 'parameter_type', 'antibodies')
 
+
 class SampleParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
 
@@ -53,5 +54,9 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sample
-        fields = ('id', 'url', 'visit', 'subject', 'site', 'project', 'original_filename', 'sampleparameters', 'sample_file')
+        fields = (
+            'id', 'url', 'visit', 'subject',
+            'site', 'project', 'original_filename',
+            'sampleparameters', 'sample_file'
+        )
         read_only_fields = ('original_filename', 'visit')

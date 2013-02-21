@@ -18,6 +18,7 @@ from repository.utils import apply_panel_to_sample
 # Design Note: For any detail view the PermissionRequiredMixin will restrict access to users of that project
 # For any List view, the view itself will have to restrict the list of objects by user
 
+
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
@@ -100,6 +101,7 @@ class ProjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retrie
     model = Project
     serializer_class = ProjectSerializer
 
+
 class ParameterList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of parameters.
@@ -162,21 +164,22 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         response = super(SampleList, self).post(request, *args, **kwargs)
 
-        if request.DATA.has_key('panel') and response.status_code == 201:
+        if 'panel' in request.DATA and response.status_code == 201:
             try:
                 panel = Panel.objects.get(id=request.DATA['panel'])
                 sample = Sample.objects.get(id=response.data['id'])
 
                 # now try to create the sample's parameters
                 apply_panel_to_sample(panel, sample)
-            except:
-                return response
 
-        # need to re-serialize our sample to get the sampleparameters field updated
-        # we can also use this to use the SampleSerializer instead of the POST one to not give
-        # back the sample_file field containing the file path on the server
-        serializer = SampleSerializer(sample)
-        response.data = serializer.data
+                # need to re-serialize our sample to get the sampleparameters field updated
+                # we can also use this to use the SampleSerializer instead of the POST one to not give
+                # back the sample_file field containing the file path on the server
+                serializer = SampleSerializer(sample)
+                response.data = serializer.data
+            except Exception, e:
+                print e
+                return response
 
         return response
 
