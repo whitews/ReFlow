@@ -11,6 +11,21 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'project_name', 'project_desc', 'url')
 
 
+class ParameterAntibodySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='antibody.antibody_short_name', read_only=True)
+
+    class Meta:
+        model = ParameterAntibodyMap
+        exclude = ('id', 'parameter', 'antibody')
+
+
+class ParameterSerializer(serializers.ModelSerializer):
+    antibodies = ParameterAntibodySerializer(source='parameterantibodymap_set')
+
+    class Meta:
+        model = Parameter
+        fields = ('id', 'parameter_short_name', 'parameter_type', 'antibodies')
+
 class SampleParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
 

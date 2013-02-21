@@ -6,7 +6,6 @@ from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
@@ -27,6 +26,7 @@ def api_root(request, format=None):
     """
 
     return Response({
+        'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
         'samples': reverse('sample-list', request=request),
     })
@@ -98,6 +98,14 @@ class ProjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retrie
 
     model = Project
     serializer_class = ProjectSerializer
+
+class ParameterList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of parameters.
+    """
+
+    model = Parameter
+    serializer_class = ParameterSerializer
 
 
 class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):

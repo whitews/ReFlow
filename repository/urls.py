@@ -1,8 +1,7 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
 
 from repository.api_views import *
-from rest_framework.authtoken.views import obtain_auth_token
 
 # Override handler403 to provide a custom permission denied page.
 # Otherwise, a user has no links to get to their resources
@@ -12,6 +11,7 @@ handler403 = TemplateView.as_view(template_name='403.html')
 # API routes
 urlpatterns = patterns('repository.api_views',
     url(r'^api/$', 'api_root'),
+    url(r'^api/parameters/$', ParameterList.as_view(), name='parameter-list'),
     url(r'^api/projects/$', ProjectList.as_view(), name='project-list'),
     url(r'^api/projects/(?P<pk>\d+)/$', ProjectDetail.as_view(), name='project-detail'),
     url(r'^api/samples/$', SampleList.as_view(), name='sample-list'),
