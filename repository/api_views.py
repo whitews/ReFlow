@@ -273,10 +273,32 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         return response
 
 
-class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single FCS sample.
     """
 
     model = Sample
     serializer_class = SampleSerializer
+
+    def patch(self, request, *args, **kwargs):
+        response = super(SampleDetail, self).patch(request, *args, **kwargs)
+
+        if 'panel' in request.DATA and response.status_code == 200:
+            try:
+                panel = Panel.objects.get(id=request.DATA['panel'])
+                sample = Sample.objects.get(id=response.data['id'])
+
+                # now try to create the sample's parameters
+                apply_panel_to_sample(panel, sample)
+
+                # need to re-serialize our sample to get the sampleparameters field updated
+                # we can also use this to use the SampleSerializer instead of the POST one to not give
+                # back the sample_file field containing the file path on the server
+                serializer = SampleSerializer(sample)
+                response.data = serializer.data
+            except Exception, e:
+                print e
+                return response
+
+        return response
