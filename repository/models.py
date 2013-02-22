@@ -1,10 +1,12 @@
 from string import join
 import cStringIO
+import hashlib
 
 import numpy
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.forms import ValidationError
 from fcm.io import loadFCS
 
 from reflow.settings import MEDIA_ROOT
@@ -249,7 +251,7 @@ class Subject(models.Model):
             pass  # Project is required and will get caught by Form.is_valid()
 
     def __unicode__(self):
-        return u'Project: %s, Subject: %s' % (self.project.project_name, self.subject_id)
+        return u'%s' % (self.subject_id)
 
 
 class ProjectVisitType(models.Model):
@@ -299,6 +301,7 @@ class Sample(models.Model):
     visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
     sample_file = models.FileField(upload_to=fcs_file_path)
     original_filename = models.CharField(unique=False, null=False, blank=False, max_length=256)
+    sha1 = models.CharField(unique=False, null=False, blank=False, max_length=40)
 
     def get_fcs_text_segment(self):
         fcs = loadFCS(self.sample_file.file.name)
@@ -332,10 +335,18 @@ class Sample(models.Model):
 
     def clean(self):
         """
-        Need to save the original file name, since it may already exist on our side
+        Need to save the original file name, since it may already exist on our side.
+        We'll save the SHA-1 hash here as well.
         """
 
         self.original_filename = self.sample_file.name.split('/')[-1]
+
+        # get the hash
+        hash = hashlib.sha1(self.sample_file.read())
+        self.sha1 = hash.hexdigest()
+        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).values_list('sha1', flat=True):
+            raise ValidationError("An FCS file with this SHA-1 hash already exists for this project.")
+
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
