@@ -80,7 +80,7 @@ class SampleForm(ModelForm):
 class SampleSubjectForm(ModelForm):
     class Meta:
         model = Sample
-        exclude = ('subject', 'original_filename')
+        exclude = ('subject', 'original_filename', 'sha1')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
