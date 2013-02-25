@@ -65,12 +65,13 @@ $(document).ready(function()
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th colspan="5" class="center"><h4>Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4></th>
+          <th colspan="6" class="center"><h4>Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4></th>
         </tr>
         <tr>
             <th>Sample ID</th>
             <th>File Name</th>
             <th>Data</th>
+            <th>Site</th>
             <th>Visit</th>
             <th>
                 Parameters
@@ -98,6 +99,7 @@ $(document).ready(function()
               <a href="{% url 'sample_data' sample.id %}">Download CSV</a><br/>
               <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
           </td>
+          <td class="middle">{{ sample.site.site_name }}</td>
           <td class="middle">{{ sample.visit.visit_type_name }}</td>
 
           <td style="width: 60%" class="middle">

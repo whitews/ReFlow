@@ -344,7 +344,7 @@ class Sample(models.Model):
         # get the hash
         hash = hashlib.sha1(self.sample_file.read())
         self.sha1 = hash.hexdigest()
-        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).values_list('sha1', flat=True):
+        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
             raise ValidationError("An FCS file with this SHA-1 hash already exists for this project.")
 
 
