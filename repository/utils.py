@@ -1,4 +1,6 @@
 from django.utils import simplejson
+from django.core.exceptions import ValidationError
+
 import re
 
 from repository.models import *
@@ -76,4 +78,5 @@ def apply_panel_to_sample(panel, sample):
         else:
             return 0
     else:
+        raise ValidationError("Panel does not belong to the Sample's Site")
         return 1

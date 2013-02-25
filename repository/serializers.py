@@ -79,7 +79,7 @@ class SampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
         fields = ('id', 'url', 'visit', 'subject', 'site', 'project', 'original_filename', 'sampleparameters')
-        read_only_fields = ('original_filename', 'visit')
+        read_only_fields = ('original_filename',)
 
 
 class SamplePOSTSerializer(serializers.ModelSerializer):
@@ -94,4 +94,4 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'site', 'project', 'original_filename',
             'sampleparameters', 'sample_file'
         )
-        read_only_fields = ('original_filename', 'visit')
+        read_only_fields = ('original_filename',)

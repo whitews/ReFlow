@@ -6,7 +6,6 @@ import numpy
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.forms import ValidationError
 from fcm.io import loadFCS
 
 from reflow.settings import MEDIA_ROOT
@@ -337,7 +336,17 @@ class Sample(models.Model):
         """
         Need to save the original file name, since it may already exist on our side.
         We'll save the SHA-1 hash here as well.
+
+        Also, checking visit_type and site belong to the subject project (subject is required)
         """
+
+        project_id = self.subject.project.id
+
+        if self.site is not None and self.site.project.id != project_id:
+            raise ValidationError("Site chosen is not in this Project")
+
+        if self.visit is not None and self.visit.project.id != project_id:
+            raise ValidationError("Visit Type chosen is not in this Project")
 
         self.original_filename = self.sample_file.name.split('/')[-1]
 
@@ -345,7 +354,7 @@ class Sample(models.Model):
         hash = hashlib.sha1(self.sample_file.read())
         self.sha1 = hash.hexdigest()
         if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
-            raise ValidationError("An FCS file with this SHA-1 hash already exists for this project.")
+            raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
 
 
     def __unicode__(self):

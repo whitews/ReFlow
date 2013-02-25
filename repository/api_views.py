@@ -267,8 +267,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
                 serializer = SampleSerializer(sample)
                 response.data = serializer.data
             except Exception, e:
-                print e
-                return response
+                return Response(data={'__all__': e.messages}, status=400)
 
         return response
 
@@ -298,7 +297,6 @@ class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retriev
                 serializer = SampleSerializer(sample)
                 response.data = serializer.data
             except Exception, e:
-                print e
-                return response
+                return Response(data={'__all__': e.messages}, status=400)
 
         return response
