@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 
+import django_filters
+
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
@@ -86,7 +88,7 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Project
     serializer_class = ProjectSerializer
-    filter_fields = ('project_name')
+    filter_fields = ('project_name',)
 
     def get_queryset(self):
         """
@@ -156,7 +158,7 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Panel
     serializer_class = PanelSerializer
-    filter_fields = ('site', 'site__project')
+    filter_fields = ('panel_name', 'site', 'site__project')
 
     def get_queryset(self):
         """
@@ -192,6 +194,14 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
+class ParameterFilter(django_filters.FilterSet):
+    name_contains = django_filters.CharFilter(name='parameter_short_name', lookup_type='contains')
+
+    class Meta:
+        model = Parameter
+        fields = ['parameter_short_name', 'parameter_type', 'name_contains']
+
+
 class ParameterList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of parameters.
@@ -199,6 +209,8 @@ class ParameterList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Parameter
     serializer_class = ParameterSerializer
+    filter_class = ParameterFilter
+    #filter_fields = ('parameter_type', 'parameter_short_name')
 
 
 class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -223,7 +235,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         queryset = Sample.objects.filter(subject__project__in=user_projects)
 
         # Value may have multiple names separated by commas
-        name_value = self.request.QUERY_PARAMS.get('name', None)
+        name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
 
         if name_value is None:
             return queryset

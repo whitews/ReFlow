@@ -35,12 +35,21 @@ class ParameterAntibodySerializer(serializers.ModelSerializer):
         exclude = ('id', 'parameter', 'antibody')
 
 
+class ParameterFluorochromeSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='fluorochrome.fluorochrome_short_name', read_only=True)
+
+    class Meta:
+        model = ParameterFluorochromeMap
+        exclude = ('id', 'parameter', 'antibody')
+
+
 class ParameterSerializer(serializers.ModelSerializer):
     antibodies = ParameterAntibodySerializer(source='parameterantibodymap_set')
+    fluorochromes = ParameterFluorochromeSerializer(source='parameterfluorochromemap_set')
 
     class Meta:
         model = Parameter
-        fields = ('id', 'parameter_short_name', 'parameter_type', 'antibodies')
+        fields = ('id', 'parameter_short_name', 'parameter_type', 'antibodies', 'fluorochromes')
 
 
 class PanelParameterSerializer(serializers.ModelSerializer):
