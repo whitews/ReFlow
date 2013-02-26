@@ -351,6 +351,7 @@ class Sample(models.Model):
         self.original_filename = self.sample_file.name.split('/')[-1]
 
         # get the hash
+        self.sample_file.open()
         hash = hashlib.sha1(self.sample_file.read())
         self.sha1 = hash.hexdigest()
         if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):

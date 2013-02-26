@@ -36,6 +36,7 @@ def api_root(request, format=None):
         'samples': reverse('sample-list', request=request),
         'sites': reverse('site-list', request=request),
         'subjects': reverse('subject-list', request=request),
+        'visit_types': reverse('visit-type-list', request=request),
     })
 
 
@@ -105,6 +106,28 @@ class ProjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retrie
 
     model = Project
     serializer_class = ProjectSerializer
+
+
+class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of panels.
+    """
+
+    model = ProjectVisitType
+    serializer_class = VisitTypeSerializer
+    filter_fields = ('visit_type_name', 'project')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        """
+
+        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+
+        # filter on user's projects
+        queryset = ProjectVisitType.objects.filter(project__in=user_projects)
+
+        return queryset
 
 
 class SubjectList(LoginRequiredMixin, generics.ListAPIView):

@@ -19,7 +19,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/samples/(?P<pk>\d+)/$', SampleDetail.as_view(), name='sample-detail'),
     url(r'^api/sites/$', SiteList.as_view(), name='site-list'),
     url(r'^api/subjects/$', SubjectList.as_view(), name='subject-list'),
-)
+    url(r'^api/visit_types/$', VisitTypeList.as_view(), name='visit-type-list'),)
 
 urlpatterns += patterns('rest_framework',
     url(r'^api-token-auth/', 'authtoken.views.obtain_auth_token'),

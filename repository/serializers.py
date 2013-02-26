@@ -11,6 +11,12 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'project_name', 'project_desc', 'url')
 
 
+class VisitTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectVisitType
+        fields = ('id', 'visit_type_name', 'project')
+
+
 class SiteSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(source='project')
 
