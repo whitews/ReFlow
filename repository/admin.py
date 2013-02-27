@@ -10,6 +10,7 @@ admin.site.register(Panel)
 admin.site.register(Parameter)
 admin.site.register(ParameterValueType)
 
+admin.site.register(ProjectVisitType)
 admin.site.register(Site)
 admin.site.register(Subject)
 admin.site.register(Sample)
