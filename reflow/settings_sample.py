@@ -4,8 +4,10 @@
 # Ex. For project 'MyProject' in /home/user/env/:
 #     BASE_DIR = '/home/user/env'
 BASE_DIR = '/srv/django-projects'
+FILE_UPLOAD_TEMP_DIR = '/tmp'
 
 DEBUG = True
+INTERACTIVE_DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
