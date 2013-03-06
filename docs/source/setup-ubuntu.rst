@@ -51,7 +51,9 @@ Installation
 
     ``pip install django-extensions``
 
-    ``pip install django-tastypie``
+    ``pip install djangorestframework``
+
+    ``pip install django-filter``
 
 #.  Install git to get ReFlow
 
