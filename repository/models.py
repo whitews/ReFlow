@@ -351,13 +351,19 @@ class Sample(models.Model):
         self.original_filename = self.sample_file.name.split('/')[-1]
 
         # get the hash
-        self.sample_file.open()
-        hash = hashlib.sha1(self.sample_file.read())
+        if self.sample_file.closed:
+            self.sample_file.open()
+            hash = hashlib.sha1(self.sample_file.read())
+            self.sample_file.close()
+        else:
+            hash = hashlib.sha1(self.sample_file.read())
 
         self.sha1 = hash.hexdigest()
         if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
             raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
 
+    def save(self, *args, **kwargs):
+        super(Sample, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (

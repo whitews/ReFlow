@@ -17,6 +17,8 @@ from repository.models import *
 from repository.serializers import *
 from repository.utils import apply_panel_to_sample
 
+import sys
+
 # Design Note: For any detail view the PermissionRequiredMixin will restrict access to users of that project
 # For any List view, the view itself will have to restrict the list of objects by user
 
@@ -48,9 +50,9 @@ class LoginRequiredMixin(object):
     authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticated,)
 
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+    # @method_decorator(csrf_exempt)
+    # def dispatch(self, request, *args, **kwargs):
+    #     return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class PermissionRequiredMixin(object):
@@ -286,26 +288,27 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         return super(SampleList, self).get_serializer_class()
 
-    def post(self, request, *args, **kwargs):
-        response = super(SampleList, self).post(request, *args, **kwargs)
-
-        if 'panel' in request.DATA and response.status_code == 201:
-            try:
-                panel = Panel.objects.get(id=request.DATA['panel'])
-                sample = Sample.objects.get(id=response.data['id'])
-
-                # now try to create the sample's parameters
-                apply_panel_to_sample(panel, sample)
-
-                # need to re-serialize our sample to get the sampleparameters field updated
-                # we can also use this to use the SampleSerializer instead of the POST one to not give
-                # back the sample_file field containing the file path on the server
-                serializer = SampleSerializer(sample)
-                response.data = serializer.data
-            except Exception, e:
-                return Response(data={'__all__': e.messages}, status=400)
-
-        return response
+    # def post(self, request, *args, **kwargs):
+    #     response = super(SampleList, self).post(request, *args, **kwargs)
+    #
+    #     if 'panel' in request.DATA and response.status_code == 201:
+    #         try:
+    #             panel = Panel.objects.get(id=request.DATA['panel'])
+    #             sample = Sample.objects.get(id=response.data['id'])
+    #
+    #             # now try to create the sample's parameters
+    #             apply_panel_to_sample(panel, sample)
+    #
+    #             # need to re-serialize our sample to get the sampleparameters field updated
+    #             # we can also use this to use the SampleSerializer instead of the POST one to not give
+    #             # back the sample_file field containing the file path on the server
+    #             serializer = SampleSerializer(sample)
+    #             response.data = serializer.data
+    #         except Exception, e:
+    #             print >> sys.stderr, e
+    #             return Response(data={'__all__': e.messages}, status=400)
+    #
+    #     return response
 
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveUpdateAPIView):
