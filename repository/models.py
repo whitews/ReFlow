@@ -1,11 +1,15 @@
 from string import join
 import cStringIO
 import hashlib
+import os
 
 import numpy
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import post_save
+
 from fcm.io import loadFCS
 
 from reflow.settings import MEDIA_ROOT
@@ -287,10 +291,9 @@ def fcs_file_path(instance, filename):
     project_id = instance.subject.project.id
     subject_id = instance.subject.id
     
-    upload_dir = join([MEDIA_ROOT, str(project_id), str(subject_id), str(filename)], "/")
-    
-    print "Upload dir is: %s" % upload_dir
-    
+    upload_dir = join([str(project_id), str(subject_id), str(filename)], "/")
+    upload_dir = join([MEDIA_ROOT, upload_dir], '')
+
     return upload_dir
 
 
@@ -363,6 +366,10 @@ class Sample(models.Model):
             raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
 
     def save(self, *args, **kwargs):
+        if hasattr(self.sample_file.file, 'temporary_file_path'):
+            # part of the crazy hack to avoid accumulating temp files in /tmp
+            # must be done before parent save() or else the FileField file is no longer a TemporaryUploadFile
+            self.temp_file_path = self.sample_file.file.temporary_file_path()
         super(Sample, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -370,6 +377,15 @@ class Sample(models.Model):
             self.subject.project.project_name,
             self.subject.subject_id,
             self.sample_file.name.split('/')[-1])
+
+# Crazy hack ahead...needed for some weird bug where temp upload files are getting stuck in /tmp
+def remove_temp_sample_file(sender, **kwargs):
+    obj = kwargs['instance']
+    if hasattr(obj, 'temp_file_path'):
+        os.unlink(obj.temp_file_path)
+
+# connect crazy hack to post_save
+post_save.connect(remove_temp_sample_file, sender=Sample)
 
 
 class SampleParameterMap(models.Model):

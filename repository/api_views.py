@@ -8,16 +8,12 @@ from rest_framework.response import Response
 
 import django_filters
 
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 from repository.models import *
 from repository.serializers import *
 from repository.utils import apply_panel_to_sample
-
-import sys
 
 # Design Note: For any detail view the PermissionRequiredMixin will restrict access to users of that project
 # For any List view, the view itself will have to restrict the list of objects by user
@@ -288,9 +284,12 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         return super(SampleList, self).get_serializer_class()
 
-    # def post(self, request, *args, **kwargs):
-    #     response = super(SampleList, self).post(request, *args, **kwargs)
-    #
+    def post(self, request, *args, **kwargs):
+        response = super(SampleList, self).post(request, *args, **kwargs)
+        # don't give back the sample_file field containing the file path on the server
+        if response.data.has_key('sample_file'):
+            del(response.data['sample_file'])
+        return response
     #     if 'panel' in request.DATA and response.status_code == 201:
     #         try:
     #             panel = Panel.objects.get(id=request.DATA['panel'])
