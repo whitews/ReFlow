@@ -298,10 +298,10 @@ def fcs_file_path(instance, filename):
 
 
 class Sample(models.Model):
-    subject = models.ForeignKey(Subject)
+    subject = models.ForeignKey(Subject, null=False, blank=False)
     site = models.ForeignKey(Site, null=True, blank=True)
     visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
-    sample_file = models.FileField(upload_to=fcs_file_path)
+    sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, max_length=256)
     sha1 = models.CharField(unique=False, null=False, blank=False, max_length=40)
 
@@ -337,33 +337,38 @@ class Sample(models.Model):
 
     def clean(self):
         """
-        Need to save the original file name, since it may already exist on our side.
-        We'll save the SHA-1 hash here as well.
-
-        Also, checking visit_type and site belong to the subject project (subject is required)
+        Overriding clean to do the following:
+            - Verify specified subject exists (subject is required)
+            - Use subject to get the project (project is required for Subject)
+            - Verify visit_type and site belong to the subject project
+            - Save the original file name, since it may already exist on our side.
+            - Save the SHA-1 hash and check for duplicate FCS files in this project.
+            - Extract the FCS data as a numpy array to the _data field
         """
 
-        project_id = self.subject.project.id
+        try:
+            subject = Subject.objects.get(id = self.subject.id)
+            self.original_filename = self.sample_file.name.split('/')[-1]
+            # get the hash
+            file_hash = hashlib.sha1(self.sample_file.read())
+            self.sha1 = file_hash.hexdigest()
+        except Exception, e:
+            return  # Subject & sample_file are required...will get caught by Form.is_valid()
 
-        if self.site is not None and self.site.project.id != project_id:
+        # Check if the project already has this file, if so delete the temp file and raise ValidationError
+        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
+            if hasattr(self.sample_file.file, 'temporary_file_path'):
+                temp_file_path = self.sample_file.file.temporary_file_path()
+                os.unlink(temp_file_path)
+
+            raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
+
+        if self.site is not None and self.site.project.id != self.subject.project.id:
             raise ValidationError("Site chosen is not in this Project")
 
-        if self.visit is not None and self.visit.project.id != project_id:
+        if self.visit is not None and self.visit.project.id != self.subject.project.id:
             raise ValidationError("Visit Type chosen is not in this Project")
 
-        self.original_filename = self.sample_file.name.split('/')[-1]
-
-        # get the hash
-        if self.sample_file.closed:
-            self.sample_file.open()
-            hash = hashlib.sha1(self.sample_file.read())
-            self.sample_file.close()
-        else:
-            hash = hashlib.sha1(self.sample_file.read())
-
-        self.sha1 = hash.hexdigest()
-        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
-            raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
 
     def save(self, *args, **kwargs):
         if hasattr(self.sample_file.file, 'temporary_file_path'):

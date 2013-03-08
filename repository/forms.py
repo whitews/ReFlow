@@ -71,10 +71,10 @@ class SampleForm(ModelForm):
             self.fields['subject'] = ModelChoiceField(subjects)
 
             sites = Site.objects.filter(project__id=project_id)
-            self.fields['site'] = ModelChoiceField(sites)
+            self.fields['site'] = ModelChoiceField(sites, required=False)
 
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
-            self.fields['visit'] = ModelChoiceField(visit_types)
+            self.fields['visit'] = ModelChoiceField(visit_types, required=False)
 
 
 class SampleSubjectForm(ModelForm):
