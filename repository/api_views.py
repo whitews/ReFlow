@@ -279,35 +279,14 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def get_serializer_class(self):
+        # hack to get the POST form to display the file upload field, but avoid it on the GET list
+        if self.request.method == 'GET' and hasattr(self, 'response'):
+            return SamplePOSTSerializer
+
         if self.request.method == 'POST':
             return SamplePOSTSerializer
 
         return super(SampleList, self).get_serializer_class()
-
-    def post(self, request, *args, **kwargs):
-        response = super(SampleList, self).post(request, *args, **kwargs)
-        # don't give back the sample_file field containing the file path on the server
-        if response.data.has_key('sample_file'):
-            del(response.data['sample_file'])
-        return response
-    #     if 'panel' in request.DATA and response.status_code == 201:
-    #         try:
-    #             panel = Panel.objects.get(id=request.DATA['panel'])
-    #             sample = Sample.objects.get(id=response.data['id'])
-    #
-    #             # now try to create the sample's parameters
-    #             apply_panel_to_sample(panel, sample)
-    #
-    #             # need to re-serialize our sample to get the sampleparameters field updated
-    #             # we can also use this to use the SampleSerializer instead of the POST one to not give
-    #             # back the sample_file field containing the file path on the server
-    #             serializer = SampleSerializer(sample)
-    #             response.data = serializer.data
-    #         except Exception, e:
-    #             print >> sys.stderr, e
-    #             return Response(data={'__all__': e.messages}, status=400)
-    #
-    #     return response
 
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveUpdateAPIView):
