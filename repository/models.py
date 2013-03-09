@@ -2,6 +2,9 @@ from string import join
 import cStringIO
 import hashlib
 import os
+import io
+from tempfile import TemporaryFile
+import base64
 
 import numpy
 
@@ -10,7 +13,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 
-from fcm.io import loadFCS
+import fcm
 
 from reflow.settings import MEDIA_ROOT
 
@@ -304,13 +307,28 @@ class Sample(models.Model):
     sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, max_length=256)
     sha1 = models.CharField(unique=False, null=False, blank=False, max_length=40)
+    _data = models.TextField(
+        db_column='data',
+        blank=True,
+        editable=False)
+
+    def set_data(self, data):
+        self._data = base64.encodestring(data)
+
+    def get_data(self):
+        return base64.decodestring(self._data)
+
+    def get_data_as_numpy(self):
+        return numpy.load(io.BytesIO(self.get_data()))
+
+    data = property(get_data, set_data)
 
     def get_fcs_text_segment(self):
-        fcs = loadFCS(self.sample_file.file.name)
+        fcs = fcm.loadFCS(self.sample_file.file.name)
         return fcs.notes.text
 
     def get_fcs_data(self):
-        fcs = loadFCS(self.sample_file.file.name)
+        fcs = fcm.loadFCS(self.sample_file.file.name)
         data = fcs.view()
 
         header = []
@@ -369,6 +387,18 @@ class Sample(models.Model):
         if self.visit is not None and self.visit.project.id != self.subject.project.id:
             raise ValidationError("Visit Type chosen is not in this Project")
 
+        # Verify the file is an FCS file, and get the numpy array to save to _data
+        if hasattr(self.sample_file.file, 'temporary_file_path'):
+            fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path())
+        else:
+            self.sample_file.seek(0)
+            fcm_obj = fcm.loadFCS(io.BytesIO(self.uploaded_file.read()))
+
+        numpy_array = fcm_obj.view()
+        temp_file = TemporaryFile()
+        numpy.save(temp_file, numpy_array)
+        temp_file.seek(0)
+        self.set_data(temp_file.read())
 
     def save(self, *args, **kwargs):
         if hasattr(self.sample_file.file, 'temporary_file_path'):
