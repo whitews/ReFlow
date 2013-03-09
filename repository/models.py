@@ -389,10 +389,10 @@ class Sample(models.Model):
 
         # Verify the file is an FCS file, and get the numpy array to save to _data
         if hasattr(self.sample_file.file, 'temporary_file_path'):
-            fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path())
+            fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path(), transform=None, auto_comp=False)
         else:
             self.sample_file.seek(0)
-            fcm_obj = fcm.loadFCS(io.BytesIO(self.uploaded_file.read()))
+            fcm_obj = fcm.loadFCS(io.BytesIO(self.uploaded_file.read()), transform=None, auto_comp=False)
 
         numpy_array = fcm_obj.view()
         temp_file = TemporaryFile()
