@@ -25,6 +25,9 @@ def apply_panel_to_sample(panel, sample):
         raise ValidationError("Sample parameters not equal to Panel parameters")
 
     for sample_param in sample_parameters:
+        if sample_param.parameter or sample_param.value_type:
+            raise ValidationError("Sample parameter is already specified")
+
         # Verify sample parameter text matches a parameter in selected panel
         try:
             panel_param = panel_parameters.get(fcs_text=sample_param.fcs_text)

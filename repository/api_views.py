@@ -289,7 +289,16 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         return super(SampleList, self).get_serializer_class()
 
 
-class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveUpdateAPIView):
+class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single FCS sample.
+    """
+
+    model = Sample
+    serializer_class = SampleSerializer
+
+
+class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.UpdateAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -298,14 +307,15 @@ class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retriev
     serializer_class = SampleSerializer
 
     def patch(self, request, *args, **kwargs):
-        #response = super(SampleDetail, self).patch(request, *args, **kwargs)
-
         if 'panel' in request.DATA:
             try:
                 panel = Panel.objects.get(id=request.DATA['panel'])
                 sample = Sample.objects.get(id=kwargs['pk'])
+            except Exception, e:
+                return Response(data={'__all__': e.message}, status=400)
 
-                # now try to create the sample's parameters
+            try:
+                # now try to apply panel parameters to the sample's parameters
                 apply_panel_to_sample(panel, sample)
 
                 # need to re-serialize our sample to get the sampleparameters field updated
@@ -314,8 +324,8 @@ class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retriev
                 serializer = SampleSerializer(sample)
 
                 return Response(serializer.data, status=201)
-            except Exception, e:
-                return Response(data={'__all__': e.message}, status=400)
+            except ValidationError as e:
+                return Response(data={'__all__': e.messages}, status=400)
 
         return Response(data={'__all__': 'Bad request'}, status=400)
 
