@@ -318,27 +318,33 @@ class Sample(models.Model):
     def get_data(self):
         return base64.decodestring(self._data)
 
+    data = property(get_data, set_data)
+
     def get_data_as_numpy(self):
         return numpy.load(io.BytesIO(self.get_data()))
 
-    data = property(get_data, set_data)
+    def get_channel_as_numpy(self, fcs_channel_number):
+        # Verify fcs_channel_number not zero or negative
+        if fcs_channel_number < 1:
+            return ''
 
-    def get_fcs_text_segment(self):
-        fcs = fcm.loadFCS(self.sample_file.file.name)
-        return fcs.notes.text
+        # Remember, fcs channels indexed at 1, numpy cols 0 indexed
+        numpy_data = self.get_data_as_numpy()
+        try:
+            return numpy_data[:,(fcs_channel_number-1)].dumps()
+        except:
+            return ''
 
     def get_fcs_data(self):
-        fcs = fcm.loadFCS(self.sample_file.file.name)
-        data = fcs.view()
-
+        data = self.get_data_as_numpy()
         header = []
         if self.sampleparametermap_set.count():
             params = self.sampleparametermap_set.all()
             for param in params.order_by('fcs_number'):
-                header.append('%s-%s' % (param.parameter.parameter_short_name, param.value_type.value_type_short_name))
-        else:
-            for name in fcs.channels:
-                header.append(name)
+                if param.parameter and param.value_type:
+                    header.append('%s-%s' % (param.parameter.parameter_short_name, param.value_type.value_type_short_name))
+                else:
+                    header.append('%s' % (param.fcs_text))
 
         # Need a category column for the d3 selection to work
         data_with_cat = numpy.zeros((data.shape[0], data.shape[1] + 1))
@@ -392,8 +398,9 @@ class Sample(models.Model):
             fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path(), transform=None, auto_comp=False)
         else:
             self.sample_file.seek(0)
-            fcm_obj = fcm.loadFCS(io.BytesIO(self.uploaded_file.read()), transform=None, auto_comp=False)
+            fcm_obj = fcm.loadFCS(io.BytesIO(self.sample_file.read()), transform=None, auto_comp=False)
 
+        # Now that we have the fcm object, save numpy data array and create SampleParameters
         numpy_array = fcm_obj.view()
         temp_file = TemporaryFile()
         numpy.save(temp_file, numpy_array)
@@ -425,8 +432,10 @@ post_save.connect(remove_temp_sample_file, sender=Sample)
 
 class SampleParameterMap(models.Model):
     sample = models.ForeignKey(Sample)
-    parameter = models.ForeignKey(Parameter)
-    value_type = models.ForeignKey(ParameterValueType)
+
+    # The parameter and value_type may not be known on initial import, thus null, blank = True
+    parameter = models.ForeignKey(Parameter, null=True, blank=True)
+    value_type = models.ForeignKey(ParameterValueType, null=True, blank=True)
 
     # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
     fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
