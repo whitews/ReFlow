@@ -136,6 +136,7 @@ INSTALLED_APPS = (
     'authenticate',
     'repository',
     'rest_framework',
+    'rest_framework_docs',
     'rest_framework.authtoken',
     'django_extensions',
 )

@@ -544,6 +544,6 @@ def view_sample_scatterplot(request, sample_id):
         'view_sample_scatterplot.html',
         {
             'sample': sample,
-            },
+        },
         context_instance=RequestContext(request)
     )

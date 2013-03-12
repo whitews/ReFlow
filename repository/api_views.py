@@ -298,12 +298,12 @@ class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retriev
     serializer_class = SampleSerializer
 
     def patch(self, request, *args, **kwargs):
-        response = super(SampleDetail, self).patch(request, *args, **kwargs)
+        #response = super(SampleDetail, self).patch(request, *args, **kwargs)
 
-        if 'panel' in request.DATA and response.status_code == 200:
+        if 'panel' in request.DATA:
             try:
                 panel = Panel.objects.get(id=request.DATA['panel'])
-                sample = Sample.objects.get(id=response.data['id'])
+                sample = Sample.objects.get(id=kwargs['pk'])
 
                 # now try to create the sample's parameters
                 apply_panel_to_sample(panel, sample)
@@ -312,8 +312,42 @@ class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retriev
                 # we can also use this to use the SampleSerializer instead of the POST one to not give
                 # back the sample_file field containing the file path on the server
                 serializer = SampleSerializer(sample)
-                response.data = serializer.data
-            except Exception, e:
-                return Response(data={'__all__': e.messages}, status=400)
 
-        return response
+                return Response(serializer.data, status=201)
+            except Exception, e:
+                return Response(data={'__all__': e.message}, status=400)
+
+        return Response(data={'__all__': 'Bad request'}, status=400)
+
+
+class ChannelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint returning data from a single channel from a Sample
+    """
+    model = Sample
+    serializer_class = SampleChannelSerializer
+
+    def get(self, request, *args, **kwargs):
+        """
+        Override get() to filter on the channel numbers 'channels'.
+        If no name is provided, all channels are returned.
+        """
+
+        #user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+
+        # filter on user's projects
+        #queryset = Sample.objects.filter(subject__project__in=user_projects)
+
+        # Value may have multiple names separated by commas
+        channels_value = self.request.QUERY_PARAMS.get('channels', None)
+
+        if channels_value is None:
+            return super(ChannelDetail, self).get(request, *args, **kwargs)
+
+        # The channels property is just a list of comma-delimited channel numbers
+        channels = channels_value.split(',')
+
+        if channels:
+            pass
+
+        return super(ChannelDetail, self).get(request, *args, **kwargs)

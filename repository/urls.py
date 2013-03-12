@@ -17,6 +17,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/projects/(?P<pk>\d+)/$', ProjectDetail.as_view(), name='project-detail'),
     url(r'^api/samples/$', SampleList.as_view(), name='sample-list'),
     url(r'^api/samples/(?P<pk>\d+)/$', SampleDetail.as_view(), name='sample-detail'),
+    url(r'^api/samples/(?P<pk>\d+)/channels/$', ChannelDetail.as_view(), name='channel-detail'),
     url(r'^api/sites/$', SiteList.as_view(), name='site-list'),
     url(r'^api/subjects/$', SubjectList.as_view(), name='subject-list'),
     url(r'^api/visit_types/$', VisitTypeList.as_view(), name='visit-type-list'),)

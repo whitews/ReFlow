@@ -1,18 +1,17 @@
 from string import join
 import cStringIO
 import hashlib
-import os
 import io
 from tempfile import TemporaryFile
 import base64
 
+import os
+import re
 import numpy
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
-
 import fcm
 
 from reflow.settings import MEDIA_ROOT
@@ -305,8 +304,8 @@ class Sample(models.Model):
     site = models.ForeignKey(Site, null=True, blank=True)
     visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
     sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
-    original_filename = models.CharField(unique=False, null=False, blank=False, max_length=256)
-    sha1 = models.CharField(unique=False, null=False, blank=False, max_length=40)
+    original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
+    sha1 = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=40)
     _data = models.TextField(
         db_column='data',
         blank=True,
@@ -407,12 +406,48 @@ class Sample(models.Model):
         temp_file.seek(0)
         self.set_data(temp_file.read())
 
+        # Now we have the data, start collecting channel info even though no Panel is
+        # associated yet...note, the SampleParameterMap instances are saved in overridden save
+
+        # Read the FCS text segment and get the number of parameters
+        sample_text_segment = fcm_obj.notes.text
+
+        if 'par' in sample_text_segment:
+            if sample_text_segment['par'].isdigit():
+                sample_param_count = int(sample_text_segment['par'])
+            else:
+                raise ValidationError("FCS file reports non-numeric parameter count")
+        else:
+            raise ValidationError("No parameters found in FCS file")
+
+        # Get our parameter numbers from all the PnN matches
+        sample_parameters = {}  # parameter_number: PnN text
+        for key in sample_text_segment:
+            matches = re.search('^P(\d+)N$', key, flags=re.IGNORECASE)
+            if matches:
+                sample_parameters[matches.group(1)] = sample_text_segment[key]
+
+        # Verify the number of data columns matches the number of params we found
+        if len(sample_parameters) != numpy_array.shape[1]:
+            raise ValidationError("FCS file parameter count and the number of data columns differ.")
+        else:
+            self._sample_parameters = sample_parameters
+
     def save(self, *args, **kwargs):
         if hasattr(self.sample_file.file, 'temporary_file_path'):
             # part of the crazy hack to avoid accumulating temp files in /tmp
             # must be done before parent save() or else the FileField file is no longer a TemporaryUploadFile
             self.temp_file_path = self.sample_file.file.temporary_file_path()
         super(Sample, self).save(*args, **kwargs)
+
+        # Save all the parameters as SampleParameterMap instances if we have _sample_parameters
+        if hasattr(self, '_sample_parameters'):
+            for key in self._sample_parameters:
+                spm = SampleParameterMap()
+                spm.sample = self
+                spm.fcs_number = key
+                spm.fcs_text = self._sample_parameters[key]
+                spm.save()
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
@@ -445,9 +480,12 @@ class SampleParameterMap(models.Model):
 
     def _get_name(self):
         """
-        Returns the parameter name with value type.
+        Returns the parameter name with value type, or empty string if none
         """
-        return '%s-%s' % (self.parameter.parameter_short_name, self.value_type.value_type_short_name)
+        if self.parameter and self.value_type:
+            return '%s-%s' % (self.parameter.parameter_short_name, self.value_type.value_type_short_name)
+        else:
+            return ''
 
     name = property(_get_name)
 

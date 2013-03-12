@@ -110,3 +110,14 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'sampleparameters', 'sample_file'
         )
         read_only_fields = ('original_filename', 'sha1')
+
+
+class SampleChannelSerializer(serializers.ModelSerializer):
+    channel_data = serializers.SerializerMethodField('get_data')
+
+    class Meta:
+        model = Sample
+        fields = ('channel_data',)
+
+    def get_data(self, obj):
+        return (obj._data)  # don't call Sample's get_data, we need the string, not the decoded one
