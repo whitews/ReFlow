@@ -144,6 +144,7 @@ INSTALLED_APPS = (
 REST_FRAMEWORK = {
     #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser'),
     'PAGINATE_BY': 10,
+    'PAGINATE_BY_PARAM': 'paginate_by',
     'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',

@@ -140,7 +140,7 @@ def view_samples(request, project_id):
 def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    sites = Site.objects.filter(project=project)
+    sites = Site.objects.filter(project=project).order_by('site_name')
 
     return render_to_response(
         'view_project_sites.html',
