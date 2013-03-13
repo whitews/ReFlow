@@ -253,7 +253,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
-        queryset = Sample.objects.defer('_data').filter(subject__project__in=user_projects)
+        queryset = Sample.objects.defer('array_data').filter(subject__project__in=user_projects)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
@@ -299,7 +299,7 @@ class SampleDetail(LoginRequiredMixin, generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            sample = Sample.objects.defer('_data').get(id=kwargs['pk'])
+            sample = Sample.objects.defer('array_data').get(id=kwargs['pk'])
             project = get_object_or_404(Project, subject__sample=sample)
         except Exception as e:
             return Response(data={'detail': e.message}, status=400)
@@ -324,7 +324,7 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
         if 'panel' in request.DATA:
             try:
                 panel = Panel.objects.get(id=request.DATA['panel'])
-                sample = Sample.objects.defer('_data').get(id=kwargs['pk'])
+                sample = Sample.objects.defer('array_data').get(id=kwargs['pk'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
 

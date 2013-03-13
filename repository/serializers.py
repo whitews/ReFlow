@@ -95,7 +95,7 @@ class SampleSerializer(serializers.ModelSerializer):
         model = Sample
         fields = ('id', 'url', 'visit', 'subject', 'site', 'project', 'original_filename', 'sha1', 'sampleparameters')
         read_only_fields = ('original_filename', 'sha1')
-        exclude = ('_data', 'sample_file')
+        exclude = ('array_data', 'sample_file')
 
 
 class SamplePOSTSerializer(serializers.ModelSerializer):
@@ -111,7 +111,7 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'sampleparameters', 'sample_file'
         )
         read_only_fields = ('original_filename', 'sha1')
-        exclude = ('_data',)
+        exclude = ('array_data',)
 
 
 class SampleChannelSerializer(serializers.ModelSerializer):
@@ -122,4 +122,4 @@ class SampleChannelSerializer(serializers.ModelSerializer):
         fields = ('channel_data',)
 
     def get_data(self, obj):
-        return (obj._data)  # don't call Sample's get_data, we need the string, not the decoded one
+        return (obj.array_data)  # don't call Sample's get_data, we need the string, not the decoded one

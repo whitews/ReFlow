@@ -35,7 +35,7 @@ class Project(models.Model):
         return Subject.objects.filter(project=self).count()
 
     def get_sample_count(self):
-        return Sample.objects.defer('_data').filter(subject__project=self).count()
+        return Sample.objects.defer('array_data').filter(subject__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
@@ -299,6 +299,11 @@ def fcs_file_path(instance, filename):
     return upload_dir
 
 
+class SampleAdminManager(models.Manager):
+    def get_query_set(self):
+        return super(SampleAdminManager, self).get_query_set().defer("array_data",)
+
+
 class Sample(models.Model):
     subject = models.ForeignKey(Subject, null=False, blank=False)
     site = models.ForeignKey(Site, null=True, blank=True)
@@ -306,18 +311,20 @@ class Sample(models.Model):
     sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
     sha1 = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=40)
-    _data = models.TextField(
-        db_column='data',
+    array_data = models.TextField(
         blank=True,
         editable=False)
 
     def set_data(self, data):
-        self._data = base64.encodestring(data)
+        self.array_data = base64.encodestring(data)
 
     def get_data(self):
-        return base64.decodestring(self._data)
+        return base64.decodestring(self.array_data)
 
     data = property(get_data, set_data)
+
+    objects = models.Manager()
+    admin = SampleAdminManager()  # to prevent loading array_data field in admin interface
 
     def get_data_as_numpy(self):
         return numpy.load(io.BytesIO(self.get_data()))
@@ -366,7 +373,7 @@ class Sample(models.Model):
             - Verify visit_type and site belong to the subject project
             - Save the original file name, since it may already exist on our side.
             - Save the SHA-1 hash and check for duplicate FCS files in this project.
-            - Extract the FCS data as a numpy array to the _data field
+            - Extract the FCS data as a numpy array to the array_data field
         """
 
         try:
@@ -379,7 +386,7 @@ class Sample(models.Model):
             return  # Subject & sample_file are required...will get caught by Form.is_valid()
 
         # Check if the project already has this file, if so delete the temp file and raise ValidationError
-        if self.sha1 in Sample.objects.defer('_data').filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
+        if self.sha1 in Sample.objects.defer('array_data').filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
             if hasattr(self.sample_file.file, 'temporary_file_path'):
                 temp_file_path = self.sample_file.file.temporary_file_path()
                 os.unlink(temp_file_path)
@@ -392,7 +399,7 @@ class Sample(models.Model):
         if self.visit is not None and self.visit.project.id != self.subject.project.id:
             raise ValidationError("Visit Type chosen is not in this Project")
 
-        # Verify the file is an FCS file, and get the numpy array to save to _data
+        # Verify the file is an FCS file, and get the numpy array to save to array_data
         if hasattr(self.sample_file.file, 'temporary_file_path'):
             fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path(), transform=None, auto_comp=False)
         else:
@@ -465,6 +472,11 @@ def remove_temp_sample_file(sender, **kwargs):
 post_save.connect(remove_temp_sample_file, sender=Sample)
 
 
+class SampleParameterMapAdminManager(models.Manager):
+    def get_query_set(self):
+        return super(SampleParameterMapAdminManager, self).get_query_set().defer("sample__array_data",)
+
+
 class SampleParameterMap(models.Model):
     sample = models.ForeignKey(Sample)
 
@@ -477,6 +489,9 @@ class SampleParameterMap(models.Model):
     # fcs_number represents the parameter number in the FCS file
     # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
     fcs_number = models.IntegerField()
+
+    objects = models.Manager()
+    admin = SampleParameterMapAdminManager()  # to prevent loading array_data field in admin interface
 
     def _get_name(self):
         """
