@@ -350,7 +350,7 @@ def remove_panel_parameter(request, panel_parameter_id):
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
-    samples = Sample.objects.filter(subject=subject)
+    samples = Sample.objects.defer('_data').filter(subject=subject)
 
     return render_to_response(
         'view_subject.html',
