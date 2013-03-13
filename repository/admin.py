@@ -21,25 +21,13 @@ admin.site.register(PanelParameterMap)
 
 class SampleAdmin(admin.ModelAdmin):
     def queryset(self, request):
-        qs = Sample.admin  #Use the admin manager regardless of what the default one is
-
-        # we need this from the superclass method
-        ordering = self.ordering or ()
-        if ordering:
-            qs = qs.order_by(*ordering)
-        return qs
+        return super(SampleAdmin, self).queryset(request).defer("array_data", )
 
 admin.site.register(Sample, SampleAdmin)
 
 
 class SampleParameterMapAdmin(admin.ModelAdmin):
-    def queryset(self, request):
-        qs = SampleParameterMap.admin  #Use the admin manager regardless of what the default one is
-
-        # we need this from the superclass method
-        ordering = self.ordering or ()
-        if ordering:
-            qs = qs.order_by(*ordering)
-        return qs
+    def get_queryset(self, request):
+        return super(SampleParameterMapAdminManager, self).queryset(request).defer("sample__array_data",)
 
 admin.site.register(SampleParameterMap, SampleParameterMapAdmin)

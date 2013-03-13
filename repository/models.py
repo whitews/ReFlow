@@ -299,11 +299,6 @@ def fcs_file_path(instance, filename):
     return upload_dir
 
 
-class SampleAdminManager(models.Manager):
-    def get_query_set(self):
-        return super(SampleAdminManager, self).get_query_set().defer("array_data",)
-
-
 class Sample(models.Model):
     subject = models.ForeignKey(Subject, null=False, blank=False)
     site = models.ForeignKey(Site, null=True, blank=True)
@@ -322,9 +317,6 @@ class Sample(models.Model):
         return base64.decodestring(self.array_data)
 
     data = property(get_data, set_data)
-
-    objects = models.Manager()
-    admin = SampleAdminManager()  # to prevent loading array_data field in admin interface
 
     def get_data_as_numpy(self):
         return numpy.load(io.BytesIO(self.get_data()))
@@ -472,11 +464,6 @@ def remove_temp_sample_file(sender, **kwargs):
 post_save.connect(remove_temp_sample_file, sender=Sample)
 
 
-class SampleParameterMapAdminManager(models.Manager):
-    def get_query_set(self):
-        return super(SampleParameterMapAdminManager, self).get_query_set().defer("sample__array_data",)
-
-
 class SampleParameterMap(models.Model):
     sample = models.ForeignKey(Sample)
 
@@ -489,9 +476,6 @@ class SampleParameterMap(models.Model):
     # fcs_number represents the parameter number in the FCS file
     # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
     fcs_number = models.IntegerField()
-
-    objects = models.Manager()
-    admin = SampleParameterMapAdminManager()  # to prevent loading array_data field in admin interface
 
     def _get_name(self):
         """
