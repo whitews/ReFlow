@@ -123,7 +123,8 @@ def view_subjects(request, project_id):
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    samples = Sample.objects.filter(subject__project=project).order_by('site', 'subject__subject_id', 'visit__visit_type_name')
+    samples = Sample.objects.defer('data').filter(subject__project=project)\
+        .order_by('site', 'subject__subject_id', 'visit__visit_type_name')
 
     return render_to_response(
         'view_project_samples.html',
