@@ -289,13 +289,27 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         return super(SampleList, self).get_serializer_class()
 
 
-class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SampleDetail(LoginRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single FCS sample.
     """
 
     model = Sample
     serializer_class = SampleSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            sample = Sample.objects.defer('_data').get(id=kwargs['pk'])
+            project = get_object_or_404(Project, subject__sample=sample)
+        except Exception as e:
+            return Response(data={'detail': e.message}, status=400)
+
+        if not ProjectUserMap.objects.is_project_user(project, self.request.user):
+            raise PermissionDenied
+
+        serializer = SampleSerializer(sample)
+
+        return Response(serializer.data, status=201)
 
 
 class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.UpdateAPIView):
@@ -310,9 +324,9 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
         if 'panel' in request.DATA:
             try:
                 panel = Panel.objects.get(id=request.DATA['panel'])
-                sample = Sample.objects.get(id=kwargs['pk'])
-            except Exception, e:
-                return Response(data={'__all__': e.message}, status=400)
+                sample = Sample.objects.defer('_data').get(id=kwargs['pk'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
 
             try:
                 # now try to apply panel parameters to the sample's parameters
