@@ -253,7 +253,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
-        queryset = Sample.objects.filter(subject__project__in=user_projects)
+        queryset = Sample.objects.defer('_data').filter(subject__project__in=user_projects)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
