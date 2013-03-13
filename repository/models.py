@@ -35,7 +35,7 @@ class Project(models.Model):
         return Subject.objects.filter(project=self).count()
 
     def get_sample_count(self):
-        return Sample.objects.filter(subject__project=self).count()
+        return Sample.objects.defer('_data').filter(subject__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
@@ -379,7 +379,7 @@ class Sample(models.Model):
             return  # Subject & sample_file are required...will get caught by Form.is_valid()
 
         # Check if the project already has this file, if so delete the temp file and raise ValidationError
-        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
+        if self.sha1 in Sample.objects.defer('_data').filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
             if hasattr(self.sample_file.file, 'temporary_file_path'):
                 temp_file_path = self.sample_file.file.temporary_file_path()
                 os.unlink(temp_file_path)
