@@ -123,7 +123,7 @@ def view_subjects(request, project_id):
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    samples = Sample.objects.defer('array_data').filter(subject__project=project)\
+    samples = Sample.objects.filter(subject__project=project)\
         .order_by('site', 'subject__subject_id', 'visit__visit_type_name')
 
     return render_to_response(
@@ -350,7 +350,7 @@ def remove_panel_parameter(request, panel_parameter_id):
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
-    samples = Sample.objects.defer('array_data').filter(subject=subject)
+    samples = Sample.objects.filter(subject=subject)
 
     return render_to_response(
         'view_subject.html',

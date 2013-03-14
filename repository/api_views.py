@@ -253,7 +253,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
-        queryset = Sample.objects.defer('array_data').filter(subject__project__in=user_projects)
+        queryset = Sample.objects.filter(subject__project__in=user_projects)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
@@ -297,20 +297,6 @@ class SampleDetail(LoginRequiredMixin, generics.RetrieveAPIView):
     model = Sample
     serializer_class = SampleSerializer
 
-    def get(self, request, *args, **kwargs):
-        try:
-            sample = Sample.objects.defer('array_data').get(id=kwargs['pk'])
-            project = get_object_or_404(Project, subject__sample=sample)
-        except Exception as e:
-            return Response(data={'detail': e.message}, status=400)
-
-        if not ProjectUserMap.objects.is_project_user(project, self.request.user):
-            raise PermissionDenied
-
-        serializer = SampleSerializer(sample)
-
-        return Response(serializer.data, status=201)
-
 
 class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.UpdateAPIView):
     """
@@ -324,7 +310,7 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
         if 'panel' in request.DATA:
             try:
                 panel = Panel.objects.get(id=request.DATA['panel'])
-                sample = Sample.objects.defer('array_data').get(id=kwargs['pk'])
+                sample = Sample.objects.get(id=kwargs['pk'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
 
@@ -342,36 +328,3 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
                 return Response(data={'__all__': e.messages}, status=400)
 
         return Response(data={'__all__': 'Bad request'}, status=400)
-
-
-class ChannelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
-    """
-    API endpoint returning data from a single channel from a Sample
-    """
-    model = Sample
-    serializer_class = SampleChannelSerializer
-
-    def get(self, request, *args, **kwargs):
-        """
-        Override get() to filter on the channel numbers 'channels'.
-        If no name is provided, all channels are returned.
-        """
-
-        #user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
-
-        # filter on user's projects
-        #queryset = Sample.objects.filter(subject__project__in=user_projects)
-
-        # Value may have multiple names separated by commas
-        channels_value = self.request.QUERY_PARAMS.get('channels', None)
-
-        if channels_value is None:
-            return super(ChannelDetail, self).get(request, *args, **kwargs)
-
-        # The channels property is just a list of comma-delimited channel numbers
-        channels = channels_value.split(',')
-
-        if channels:
-            pass
-
-        return super(ChannelDetail, self).get(request, *args, **kwargs)

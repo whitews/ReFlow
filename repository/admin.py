@@ -18,16 +18,5 @@ admin.site.register(ParameterAntibodyMap)
 admin.site.register(ParameterFluorochromeMap)
 admin.site.register(PanelParameterMap)
 
-
-class SampleAdmin(admin.ModelAdmin):
-    def queryset(self, request):
-        return super(SampleAdmin, self).queryset(request).defer("array_data", )
-
-admin.site.register(Sample, SampleAdmin)
-
-
-class SampleParameterMapAdmin(admin.ModelAdmin):
-    def get_queryset(self, request):
-        return super(SampleParameterMapAdminManager, self).queryset(request).defer("sample__array_data",)
-
-admin.site.register(SampleParameterMap, SampleParameterMapAdmin)
+admin.site.register(Sample)
+admin.site.register(SampleParameterMap)

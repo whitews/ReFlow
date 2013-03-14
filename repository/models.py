@@ -35,7 +35,7 @@ class Project(models.Model):
         return Subject.objects.filter(project=self).count()
 
     def get_sample_count(self):
-        return Sample.objects.defer('array_data').filter(subject__project=self).count()
+        return Sample.objects.filter(subject__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
@@ -306,32 +306,10 @@ class Sample(models.Model):
     sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
     sha1 = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=40)
-    array_data = models.TextField(
-        blank=True,
-        editable=False)
-
-    def set_data(self, data):
-        self.array_data = base64.encodestring(data)
-
-    def get_data(self):
-        return base64.decodestring(self.array_data)
-
-    data = property(get_data, set_data)
 
     def get_data_as_numpy(self):
-        return numpy.load(io.BytesIO(self.get_data()))
-
-    def get_channel_as_numpy(self, fcs_channel_number):
-        # Verify fcs_channel_number not zero or negative
-        if fcs_channel_number < 1:
-            return ''
-
-        # Remember, fcs channels indexed at 1, numpy cols 0 indexed
-        numpy_data = self.get_data_as_numpy()
-        try:
-            return numpy_data[:,(fcs_channel_number-1)].dumps()
-        except:
-            return ''
+        fcs = fcm.loadFCS(self.sample_file.file.name)
+        return fcs.view()
 
     def get_fcs_data(self):
         data = self.get_data_as_numpy()
@@ -365,7 +343,6 @@ class Sample(models.Model):
             - Verify visit_type and site belong to the subject project
             - Save the original file name, since it may already exist on our side.
             - Save the SHA-1 hash and check for duplicate FCS files in this project.
-            - Extract the FCS data as a numpy array to the array_data field
         """
 
         try:
@@ -378,10 +355,10 @@ class Sample(models.Model):
             return  # Subject & sample_file are required...will get caught by Form.is_valid()
 
         # Check if the project already has this file, if so delete the temp file and raise ValidationError
-        if self.sha1 in Sample.objects.defer('array_data').filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
+        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
             if hasattr(self.sample_file.file, 'temporary_file_path'):
                 temp_file_path = self.sample_file.file.temporary_file_path()
-                os.unlink(temp_file_path)
+                os.unlink(temp_file_path)  # TODO: check if this generate an IOError if Django tries to delete
 
             raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
 
@@ -391,22 +368,15 @@ class Sample(models.Model):
         if self.visit is not None and self.visit.project.id != self.subject.project.id:
             raise ValidationError("Visit Type chosen is not in this Project")
 
-        # Verify the file is an FCS file, and get the numpy array to save to array_data
+        # Verify the file is an FCS file
         if hasattr(self.sample_file.file, 'temporary_file_path'):
             fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path(), transform=None, auto_comp=False)
         else:
             self.sample_file.seek(0)
             fcm_obj = fcm.loadFCS(io.BytesIO(self.sample_file.read()), transform=None, auto_comp=False)
 
-        # Now that we have the fcm object, save numpy data array and create SampleParameters
-        numpy_array = fcm_obj.view()
-        temp_file = TemporaryFile()
-        numpy.save(temp_file, numpy_array)
-        temp_file.seek(0)
-        self.set_data(temp_file.read())
-
-        # Now we have the data, start collecting channel info even though no Panel is
-        # associated yet...note, the SampleParameterMap instances are saved in overridden save
+        # Start collecting channel info even though no Panel is associated yet
+        # Note: the SampleParameterMap instances are saved in overridden save
 
         # Read the FCS text segment and get the number of parameters
         sample_text_segment = fcm_obj.notes.text
@@ -426,17 +396,9 @@ class Sample(models.Model):
             if matches:
                 sample_parameters[matches.group(1)] = sample_text_segment[key]
 
-        # Verify the number of data columns matches the number of params we found
-        if len(sample_parameters) != numpy_array.shape[1]:
-            raise ValidationError("FCS file parameter count and the number of data columns differ.")
-        else:
-            self._sample_parameters = sample_parameters
+        self._sample_parameters = sample_parameters
 
     def save(self, *args, **kwargs):
-        if hasattr(self.sample_file.file, 'temporary_file_path'):
-            # part of the crazy hack to avoid accumulating temp files in /tmp
-            # must be done before parent save() or else the FileField file is no longer a TemporaryUploadFile
-            self.temp_file_path = self.sample_file.file.temporary_file_path()
         super(Sample, self).save(*args, **kwargs)
 
         # Save all the parameters as SampleParameterMap instances if we have _sample_parameters
@@ -453,15 +415,6 @@ class Sample(models.Model):
             self.subject.project.project_name,
             self.subject.subject_id,
             self.sample_file.name.split('/')[-1])
-
-# Crazy hack ahead...needed for some weird bug where temp upload files are getting stuck in /tmp
-def remove_temp_sample_file(sender, **kwargs):
-    obj = kwargs['instance']
-    if hasattr(obj, 'temp_file_path'):
-        os.unlink(obj.temp_file_path)
-
-# connect crazy hack to post_save
-post_save.connect(remove_temp_sample_file, sender=Sample)
 
 
 class SampleParameterMap(models.Model):
