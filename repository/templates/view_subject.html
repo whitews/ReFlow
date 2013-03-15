@@ -103,7 +103,9 @@ $(document).ready(function()
           <td class="middle">{{ sample.visit.visit_type_name }}</td>
 
           <td style="width: 60%" class="middle">
+
             {% if sample.sampleparametermap_set.all.count > 0 %}
+
             <a href="#" class="toggle-closest">Show/Hide</a>
             <table class="table table-bordered table-hover hide params">
               <thead>
@@ -142,14 +144,19 @@ $(document).ready(function()
                   </td>
                 </tr>
                 {% endfor %}
+                <tr>
+                  <td colspan="6">
+                    Select a panel to associate parameters.<br/>
+                    <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
+                      <i class="icon-plus icon-white"></i> Select Panel
+                    </a>
+                  </td>
+                </tr>
               </tbody>
             </table>
-            {% else %}
-            No parameters have been associated with this sample. Select a panel to associate parameters.<br/>
-            <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-              <i class="icon-plus icon-white"></i> Select Panel
-            </a>
+
             {% endif %}
+
           </td>
         </tr>
         {% endfor %}
