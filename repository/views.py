@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils import simplejson
+from django.forms.models import inlineformset_factory
 
 from repository.models import *
 from repository.forms import *
@@ -347,6 +348,61 @@ def remove_panel_parameter(request, panel_parameter_id):
 
 @login_required
 @require_project_user
+def create_panel_from_sample(request, sample_id):
+    sample = get_object_or_404(Sample, pk=sample_id)
+
+    ParameterFormSet = inlineformset_factory(
+        Panel,
+        PanelParameterMap,
+        form=PanelParameterMapFromSampleForm,
+        extra=sample.sampleparametermap_set.count(),
+        can_delete=False,
+    )
+
+    if request.method == 'POST':
+        panel_form = PanelFromSampleForm(request.POST, instance=Panel(site=sample.site))
+
+        if panel_form.is_valid():
+            panel = panel_form.save(commit=False)
+            parameter_formset = ParameterFormSet(request.POST, instance=panel)
+
+            if parameter_formset.is_valid():
+                panel.save()
+                parameter_formset.save()
+
+                return HttpResponseRedirect(reverse('project_panels', args=str(sample.subject.project.id)))
+
+    else:
+        # need to check if the sample is associated with a site, since panels have a required site relation
+        if sample.site:
+            panel = Panel(site=sample.site, panel_name=sample.original_filename)
+            panel_form = PanelFromSampleForm(instance=panel)
+
+            initial_param_data = list()
+            for param in sample.sampleparametermap_set.all():
+                initial_param_data.append({'fcs_text': param.fcs_text})
+
+            parameter_formset = ParameterFormSet(instance=panel, initial=initial_param_data)
+
+        else:
+            messages.warning(
+                request,
+                'This sample is not associated with a site. Associate the sample with a site first.')
+            return HttpResponseRedirect(reverse('warning_page', ))
+
+    return render_to_response(
+        'create_panel_from_sample.html',
+        {
+            'panel_form': panel_form,
+            'parameter_formset': parameter_formset,
+            'sample': sample,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
@@ -498,7 +554,10 @@ def select_panel(request, sample_id):
             # Get the user selection
             selected_panel = get_object_or_404(Panel, pk=request.POST['panel'])
 
-            status = apply_panel_to_sample(selected_panel, sample)
+            try:
+                status = apply_panel_to_sample(selected_panel, sample)
+            except ValidationError as e:
+                status = e.messages
 
             # if everything saved ok, then the status should be 0, but might be an array of errors
             if status != 0:

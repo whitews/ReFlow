@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+        <div class="span4">
+            Create a Panel based on Sample ({{ sample.original_filename }})
+        </div>
+    </div>
+    <br/>
+      <form class="form-horizontal" action="{% url 'repository.views.create_panel_from_sample' sample.id %}" method="post">
+        {% csrf_token %}
+          {% if panel_form.non_field_errors %}
+              <div class="control-group text-error">
+                  {{ panel_form.non_field_errors }}
+                  {{ parameter_formset.non_form_errors }}
+              </div>
+          {% endif %}
+
+          {% for field in panel_form %}
+              <div class="control-group">
+                  <label class="control-label">{{ field.label }}</label>
+                  <div class="controls">
+                      {{ field }}
+                      {% if field.errors %}
+                          <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+                      {% endif %}
+                  </div>
+              </div>
+          {% endfor %}
+            {{ parameter_formset.management_form }}
+          <table class="table">
+            <thead>
+              <tr>
+                  <th>FCS Text</th>
+                  <th>Parameter</th>
+                  <th>Value Type</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            {% for parameter_form in parameter_formset %}
+            <tr>
+            {% for field in parameter_form.visible_fields %}
+              <td>
+              {{ field }}
+              {{ field.errors }}
+              </td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+          </table>
+        <div class="control-group">
+          <div class="controls">
+            <button class="btn btn-small btn-primary" type="submit">Save</button>
+          </div>
+        </div>
+      </form>
+  </div>
+{% endblock %}

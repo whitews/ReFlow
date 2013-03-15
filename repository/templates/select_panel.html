@@ -1,4 +1,6 @@
 {% load url from future %}
+<script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/jquery.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#select_panel_form').submit(function ()
@@ -16,7 +18,7 @@
                     $('#error_message').empty();
                     var obj = JSON.parse(xhr.responseText);
 
-                    $.each(obj['__all__'], function (i, value)
+                    $.each(obj, function (i, value)
                     {
                         $('#error_message').append('<p class=\"text-warning\">' + value + '</p>');
                     });

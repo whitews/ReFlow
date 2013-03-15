@@ -1,5 +1,6 @@
 __author__ = 'swhite'
 from django.forms import ModelForm, ModelChoiceField
+from django.forms.models import inlineformset_factory
 from django.core.exceptions import ValidationError
 
 from repository.models import *
@@ -41,9 +42,22 @@ class PanelForm(ModelForm):
             self.fields['site'] = ModelChoiceField(sites)
 
 
+class PanelFromSampleForm(ModelForm):
+    class Meta:
+        model = Panel
+        exclude = ('site',)
+
+
+class PanelParameterMapFromSampleForm(ModelForm):
+    class Meta:
+        model = PanelParameterMap
+        fields = ('fcs_text', 'parameter', 'value_type')
+
+
 class PanelParameterMapForm(ModelForm):
     class Meta:
         model = PanelParameterMap
+        fields = ('fcs_text', 'parameter', 'value_type')
         exclude = ('panel',)
 
 

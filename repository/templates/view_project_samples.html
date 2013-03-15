@@ -144,13 +144,17 @@
                 </td>
               </tr>
               {% endfor %}
+              <tr>
+                  <td colspan="7">
+                    Select a panel to associate parameters.<br/>
+                    <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
+                      <i class="icon-plus icon-white"></i> Select Panel
+                    </a>
+                  </td>
+              </tr>
             </tbody>
           </table>
-          {% else %}
-          No parameters have been associated with this sample. Select a panel to associate parameters.<br/>
-          <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-            <i class="icon-plus icon-white"></i> Select Panel
-          </a>
+
           {% endif %}
         </td>
       </tr>
