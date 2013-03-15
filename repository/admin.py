@@ -20,3 +20,5 @@ admin.site.register(PanelParameterMap)
 
 admin.site.register(Sample)
 admin.site.register(SampleParameterMap)
+admin.site.register(Compensation)
+admin.site.register(SampleCompensationMap)

@@ -2,16 +2,13 @@ from string import join
 import cStringIO
 import hashlib
 import io
-from tempfile import TemporaryFile
-import base64
 
 import os
 import re
 import numpy
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
-from django.db.models.signals import post_save
 import fcm
 
 from reflow.settings import MEDIA_ROOT
@@ -92,19 +89,16 @@ class Panel(models.Model):
 
         # count panels with matching panel_name and parent site, which don't have this pk
         try:
-            site = Site.objects.get(id=self.site.id)
-        except:
-            site = None
+            Site.objects.get(id=self.site.id)
+        except ObjectDoesNotExist:
+            return  # Site is required and will get caught by Form.is_valid()
 
-        if site:
-            duplicates = Panel.objects.filter(
-                panel_name=self.panel_name,
-                site=self.site).exclude(
-                    id=self.id)
-            if duplicates.count() > 0:
-                raise ValidationError("A panel with this name already exists in this site.")
-        else:
-            pass  # Site is required and will get caught by Form.is_valid()
+        duplicates = Panel.objects.filter(
+            panel_name=self.panel_name,
+            site=self.site).exclude(
+                id=self.id)
+        if duplicates.count() > 0:
+            raise ValidationError("A panel with this name already exists in this site.")
 
     def __unicode__(self):
         return u'%s (Project: %s, Site: %s)' % (self.panel_name, self.site.project.project_name, self.site.site_name)
@@ -204,6 +198,9 @@ class Antibody(models.Model):
     def __unicode__(self):
         return u'%s' % self.antibody_short_name
 
+    class Meta:
+        verbose_name_plural = 'Antibodies'
+
 
 class ParameterAntibodyMap(models.Model):
     parameter = models.ForeignKey(Parameter)
@@ -241,22 +238,19 @@ class Subject(models.Model):
 
         # count subjects with matching subject_id and parent project, which don't have this pk
         try:
-            project = Project.objects.get(id=self.project.id)
-        except:
-            project = None
+            Project.objects.get(id=self.project.id)
+        except ObjectDoesNotExist:
+            return  # Project is required and will get caught by Form.is_valid()
 
-        if project:
-            subject_duplicates = Subject.objects.filter(
-                subject_id=self.subject_id,
-                project=self.project).exclude(
-                    id=self.id)
-            if subject_duplicates.count() > 0:
-                raise ValidationError("Subject ID already exists in this project.")
-        else:
-            pass  # Project is required and will get caught by Form.is_valid()
+        subject_duplicates = Subject.objects.filter(
+            subject_id=self.subject_id,
+            project=self.project).exclude(
+                id=self.id)
+        if subject_duplicates.count() > 0:
+            raise ValidationError("Subject ID already exists in this project.")
 
     def __unicode__(self):
-        return u'%s' % (self.subject_id)
+        return u'%s' % self.subject_id
 
 
 class ProjectVisitType(models.Model):
@@ -271,19 +265,16 @@ class ProjectVisitType(models.Model):
 
         # count visit types with matching visit_type_name and parent project, which don't have this pk
         try:
-            project = Project.objects.get(id=self.project.id)
-        except:
-            project = None
+            Project.objects.get(id=self.project.id)
+        except ObjectDoesNotExist:
+            return  # Project is required and will get caught by Form.is_valid()
 
-        if project:
-            duplicates = ProjectVisitType.objects.filter(
-                visit_type_name=self.visit_type_name,
-                project=self.project).exclude(
-                    id=self.id)
-            if duplicates.count() > 0:
-                raise ValidationError("Visit Name already exists in this project.")
-        else:
-            pass  # Project is required and will get caught by Form.is_valid()
+        duplicates = ProjectVisitType.objects.filter(
+            visit_type_name=self.visit_type_name,
+            project=self.project).exclude(
+                id=self.id)
+        if duplicates.count() > 0:
+            raise ValidationError("Visit Name already exists in this project.")
 
     def __unicode__(self):
         return u'%s' % self.visit_type_name
@@ -318,9 +309,14 @@ class Sample(models.Model):
             params = self.sampleparametermap_set.all()
             for param in params.order_by('fcs_number'):
                 if param.parameter and param.value_type:
-                    header.append('%s-%s' % (param.parameter.parameter_short_name, param.value_type.value_type_short_name))
+                    header.append(
+                        '%s-%s' % (
+                            param.parameter.parameter_short_name,
+                            param.value_type.value_type_short_name
+                        )
+                    )
                 else:
-                    header.append('%s' % (param.fcs_text))
+                    header.append('%s' % param.fcs_text)
 
         # Need a category column for the d3 selection to work
         data_with_cat = numpy.zeros((data.shape[0], data.shape[1] + 1))
@@ -346,16 +342,18 @@ class Sample(models.Model):
         """
 
         try:
-            subject = Subject.objects.get(id = self.subject.id)
+            Subject.objects.get(id=self.subject.id)
             self.original_filename = self.sample_file.name.split('/')[-1]
             # get the hash
             file_hash = hashlib.sha1(self.sample_file.read())
-            self.sha1 = file_hash.hexdigest()
-        except Exception, e:
+        except ObjectDoesNotExist:
             return  # Subject & sample_file are required...will get caught by Form.is_valid()
 
         # Check if the project already has this file, if so delete the temp file and raise ValidationError
-        if self.sha1 in Sample.objects.filter(subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True):
+        self.sha1 = file_hash.hexdigest()
+        other_sha_values_in_project = Sample.objects.filter(
+            subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True)
+        if self.sha1 in other_sha_values_in_project:
             if hasattr(self.sample_file.file, 'temporary_file_path'):
                 temp_file_path = self.sample_file.file.temporary_file_path()
                 os.unlink(temp_file_path)  # TODO: check if this generate an IOError if Django tries to delete
@@ -382,9 +380,7 @@ class Sample(models.Model):
         sample_text_segment = fcm_obj.notes.text
 
         if 'par' in sample_text_segment:
-            if sample_text_segment['par'].isdigit():
-                sample_param_count = int(sample_text_segment['par'])
-            else:
+            if not sample_text_segment['par'].isdigit():
                 raise ValidationError("FCS file reports non-numeric parameter count")
         else:
             raise ValidationError("No parameters found in FCS file")
@@ -448,3 +444,17 @@ class SampleParameterMap(models.Model):
                 self.value_type,
                 self.fcs_number,
                 self.fcs_text)
+
+
+class Compensation(models.Model):
+    site = models.ForeignKey(Site)
+    original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
+    matrix_text = models.TextField(null=False, blank=False, editable=False)
+
+
+class SampleCompensationMap(models.Model):
+    sample = models.ForeignKey(Sample, null=False, blank=False)
+    compensation = models.ForeignKey(Compensation, null=False, blank=False)
+
+    class Meta:
+        unique_together = (('sample', 'compensation'),)
