@@ -95,7 +95,7 @@ class SampleSerializer(serializers.ModelSerializer):
         model = Sample
         fields = ('id', 'url', 'visit', 'subject', 'site', 'project', 'original_filename', 'sha1', 'sampleparameters')
         read_only_fields = ('original_filename', 'sha1')
-        exclude = ('sample_file')
+        exclude = ('sample_file',)
 
 
 class SamplePOSTSerializer(serializers.ModelSerializer):

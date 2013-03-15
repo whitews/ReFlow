@@ -1,9 +1,8 @@
-__author__ = 'swhite'
-
 from repository.models import Project, ProjectUserMap
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+
 
 def require_project_user(orig_func):
 

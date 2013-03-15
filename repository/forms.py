@@ -1,6 +1,4 @@
-__author__ = 'swhite'
 from django.forms import ModelForm, ModelChoiceField
-from django.forms.models import inlineformset_factory
 from django.core.exceptions import ValidationError
 
 from repository.models import *
