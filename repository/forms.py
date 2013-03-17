@@ -1,4 +1,4 @@
-from django.forms import ModelForm, ModelChoiceField
+from django.forms import ModelForm, ModelChoiceField, CharField
 from django.core.exceptions import ValidationError
 
 from repository.models import *
@@ -47,9 +47,11 @@ class PanelFromSampleForm(ModelForm):
 
 
 class PanelParameterMapFromSampleForm(ModelForm):
+    fcs_opt_text = CharField(required=False)
+
     class Meta:
         model = PanelParameterMap
-        fields = ('fcs_text', 'parameter', 'value_type')
+        fields = ('fcs_text', 'fcs_opt_text', 'parameter', 'value_type')
 
 
 class PanelParameterMapForm(ModelForm):

@@ -388,9 +388,13 @@ class Sample(models.Model):
         # Get our parameter numbers from all the PnN matches
         sample_parameters = {}  # parameter_number: PnN text
         for key in sample_text_segment:
-            matches = re.search('^P(\d+)N$', key, flags=re.IGNORECASE)
+            matches = re.search('^P(\d+)([N,S])$', key, flags=re.IGNORECASE)
             if matches:
-                sample_parameters[matches.group(1)] = sample_text_segment[key]
+                channel_number = matches.group(1)
+                n_or_s = str.lower(matches.group(2))
+                if channel_number not in sample_parameters:
+                    sample_parameters[channel_number] = {}
+                sample_parameters[channel_number][n_or_s] = sample_text_segment[key]
 
         self._sample_parameters = sample_parameters
 
@@ -403,7 +407,8 @@ class Sample(models.Model):
                 spm = SampleParameterMap()
                 spm.sample = self
                 spm.fcs_number = key
-                spm.fcs_text = self._sample_parameters[key]
+                spm.fcs_text = self._sample_parameters[key].get('n')
+                spm.fcs_opt_text = self._sample_parameters[key].get('s', '')
                 spm.save()
 
     def __unicode__(self):
@@ -421,7 +426,11 @@ class SampleParameterMap(models.Model):
     value_type = models.ForeignKey(ParameterValueType, null=True, blank=True)
 
     # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
-    fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
+    fcs_text = models.CharField("FCS PnN", max_length=32, null=False, blank=False)
+
+    # fcs_opt_text matches the optional FCS keywork $PnS
+    fcs_opt_text = models.CharField("FCS PnS", max_length=32, null=True, blank=True)
+
     # fcs_number represents the parameter number in the FCS file
     # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
     fcs_number = models.IntegerField()

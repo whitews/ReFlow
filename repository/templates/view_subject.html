@@ -111,7 +111,8 @@ $(document).ready(function()
               <thead>
                 <tr>
                   <th>FCS Number</th>
-                  <th>FCS Text</th>
+                  <th>FCS PnN</th>
+                  <th>FCS PnS</th>
                   <th>Name</th>
                   <th>Value Type</th>
                   <th>Antibody</th>
@@ -125,6 +126,9 @@ $(document).ready(function()
                   </td>
                   <td>
                     {{ sp_map.fcs_text }}
+                  </td>
+                  <td>
+                    {{ sp_map.fcs_opt_text }}
                   </td>
                   <td>
                     {{ sp_map.name }}
@@ -145,10 +149,13 @@ $(document).ready(function()
                 </tr>
                 {% endfor %}
                 <tr>
-                  <td colspan="6">
-                    Select a panel to associate parameters.<br/>
+                  <td colspan="7">
+                    Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
                     <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-                      <i class="icon-plus icon-white"></i> Select Panel
+                        <i class="icon-plus icon-white"></i> Select Panel
+                    </a>
+                    <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
+                        <i class="icon-pencil icon-white"></i> Create Panel from Sample
                     </a>
                   </td>
                 </tr>
