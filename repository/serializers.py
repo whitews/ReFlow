@@ -82,7 +82,7 @@ class SampleParameterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SampleParameterMap
-        fields = ('id', 'fcs_text', 'fcs_number', 'name')
+        fields = ('id', 'fcs_text', 'fcs_opt_text', 'fcs_number', 'name')
         depth = 1
 
 

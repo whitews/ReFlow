@@ -241,7 +241,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = ('subject', 'site', 'subject__project', 'original_filename')
+    filter_fields = ('subject', 'site', 'visit', 'subject__project', 'original_filename')
 
     def get_queryset(self):
         """
@@ -300,7 +300,7 @@ class SampleDetail(LoginRequiredMixin, generics.RetrieveAPIView):
 
 class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.UpdateAPIView):
     """
-    API endpoint representing a single FCS sample.
+    API endpoint for applying a panel to an FCS sample.
     """
 
     model = Sample
