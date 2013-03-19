@@ -34,6 +34,9 @@ class Project(models.Model):
     def get_sample_count(self):
         return Sample.objects.filter(subject__project=self).count()
 
+    def get_compensation_count(self):
+        return Compensation.objects.filter(site__project=self).count()
+
     def __unicode__(self):
         return u'Project: %s' % self.project_name
 
@@ -463,10 +466,41 @@ class SampleParameterMap(models.Model):
                 self.fcs_text)
 
 
+def compensation_file_path(instance, filename):
+    project_id = instance.site.project.id
+    site_id = instance.site.id
+
+    upload_dir = join([str(project_id), 'compensation', str(site_id), str(filename)], "/")
+    upload_dir = join([MEDIA_ROOT, upload_dir], '')
+
+    return upload_dir
+
+
 class Compensation(models.Model):
     site = models.ForeignKey(Site)
+    compensation_file = models.FileField(upload_to=compensation_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
     matrix_text = models.TextField(null=False, blank=False, editable=False)
+
+    def clean(self):
+        """
+        Overriding clean to do the following:
+            - Verify specified site exists (site is required)
+            - Save the original file name, since it may already exist on our side.
+            - Save the matrix text
+        """
+
+        try:
+            Site.objects.get(id=self.site.id)
+            self.original_filename = self.compensation_file.name.split('/')[-1]
+        except ObjectDoesNotExist:
+            return  # site and compensation file are required...will get caught by Form.is_valid()
+
+        # get the matrix, a bit funky b/c the files may have \r or \n line termination,
+        # we'll save the matrix_text with \n line terminators
+        self.compensation_file.seek(0)
+        text = self.compensation_file.read()
+        self.matrix_text = '\n'.join(text.splitlines())
 
 
 class SampleCompensationMap(models.Model):

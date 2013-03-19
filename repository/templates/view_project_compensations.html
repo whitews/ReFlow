@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
+{% endblock %}
+
+{% block toes %}
+    <script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
+
+    <script>
+        $(document).ready(function()
+        {
+            $(".show-all").click(function()
+            {
+                $('.params').show(250);
+            });
+
+            $(".hide-all").click(function()
+            {
+                $('.params').hide(250);
+            });
+
+            $(".toggle-closest").click(function()
+            {
+                $(this).siblings('table.params').toggle(250);
+            });
+
+            return false;
+        });
+
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="row lead">
+    <div class="span4">
+      <a href="{% url 'view_project' project.id %}">
+        {{ project.project_name }}
+      </a>
+      <a rel="tooltip" href="{% url 'edit_project' project.id %}" data-original-title="Edit Project" data-placement="right">
+        <i style="opacity: 0.4; margin-left: 10px" class="icon-th-list align-middle"></i>
+      </a>
+    </div>
+    <div class="pull-right">Compensation Matrices <span class="badge badge-inverse align-top">{{ compensations|length }}</span></div>
+  </div>
+
+  {% if compensations %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+          <th>Compensation ID</th>
+          <th>Site</th>
+          <th>File Name</th>
+          <th>Text</th>
+          <th>
+              Samples
+              <div class="pull-right">
+                <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+              </div>
+          </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for comp in compensations %}
+      <tr>
+        <td class="middle">
+          {{ comp.id }}
+        </td>
+        <td class="middle">{{ comp.site.site_name }}</td>
+        <td class="middle">
+          <a href="{% url 'retrieve_compensation' comp.id %}">{{ comp.original_filename }}</a><br/>
+        </td>
+
+        <td class="middle">{{ comp.matrix_text }}</td>
+
+        <td style="width: 60%" class="middle">
+          {% if comp.samplecompensationmap_set.all.count > 0 %}
+          <a href="#" class="toggle-closest">Show/Hide</a>
+          <table class="table table-bordered table-hover hide params">
+            <thead>
+              <tr>
+                <th>Sample ID</th>
+                <th>Sample File</th>
+            </thead>
+            <tbody>
+              {% for sc_map in comp.samplecompensationmap_set.all %}
+              <tr>
+                <td>
+                  {{ sc_map.sample.id }}
+                </td>
+                <td>
+                  {{ sc_map.sample.original_filename }}
+                </td>
+              </tr>
+              {% endfor %}
+              <tr>
+                  <td colspan="8">
+                    Select a site samples to associate with this compensation matrix.<br/>
+                    <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
+                      <i class="icon-plus icon-white"></i> Select Panel
+                    </a>
+                  </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Project has no compensation matrices.</p>
+  {% endif %}
+  <div class="pull-right">
+    <a class="btn btn-success btn-small" href="{% url 'add_compensation' project.id %}">
+      <i class="icon-plus icon-white"></i> Add Compensation Matrix
+    </a>
+  </div>
+</div>
+{% endblock %}

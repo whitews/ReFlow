@@ -79,7 +79,7 @@ class SampleForm(ModelForm):
         # now it's safe to call the parent init
         super(SampleForm, self).__init__(*args, **kwargs)
 
-        # finally, make sure only project's visit types are the available choices
+        # finally, make sure only project's subjects, sites, and visit types are the available choices
         if project_id:
             subjects = Subject.objects.filter(project__id=project_id)
             self.fields['subject'] = ModelChoiceField(subjects)
@@ -103,7 +103,7 @@ class SampleSubjectForm(ModelForm):
         # now it's safe to call the parent init
         super(SampleSubjectForm, self).__init__(*args, **kwargs)
 
-        # finally, make sure only project's visit types are the available choices
+        # finally, make sure only project's site and visit types are the available choices
         if project_id:
             sites = Site.objects.filter(project__id=project_id)
             self.fields['site'] = ModelChoiceField(sites)
@@ -128,3 +128,21 @@ class SampleEditForm(ModelForm):
         if project_id:
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = ModelChoiceField(visit_types)
+
+
+class CompensationForm(ModelForm):
+    class Meta:
+        model = Compensation
+        exclude = ('original_filename', 'matrix_text')
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(CompensationForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure only project's sites are the available choices
+        if project_id:
+            sites = Site.objects.filter(project__id=project_id)
+            self.fields['site'] = ModelChoiceField(sites, required=True)

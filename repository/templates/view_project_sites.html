@@ -13,6 +13,7 @@
             <tr>
                 <th>Site</th>
                 <th>Panels</th>
+                <th>Compensation Matrices</th>
             </tr>
             </thead>
             <tbody>
@@ -29,6 +30,11 @@
                     <td>
                         {% for panel in site.panel_set.all %}
                           {{ panel.panel_name }}<br/>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for comp in site.compensation_set.all %}
+                          {{ comp.original_filename }}<br/>
                         {% endfor %}
                     </td>
                 </tr>

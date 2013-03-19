@@ -205,6 +205,89 @@ def edit_site(request, site_id):
 
 @login_required
 @require_project_user
+def view_compensations(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    compensations = Compensation.objects.filter(site__project=project).order_by('original_filename')
+
+    return render_to_response(
+        'view_project_compensations.html',
+        {
+            'project': project,
+            'compensations': compensations,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
+def view_site_compensations(request, site_id):
+    site = get_object_or_404(Site, pk=site_id)
+
+    compensations = Compensation.objects.filter(site=site).order_by('original_filename')
+
+    return render_to_response(
+        'view_site_compensations.html',
+        {
+            'site': site,
+            'compensations': compensations,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
+def add_compensation(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == 'POST':
+        form = CompensationForm(request.POST, request.FILES, project_id=project_id)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('project_sites', args=project_id))
+    else:
+        form = CompensationForm(project_id=project_id)
+
+    return render_to_response(
+        'add_compensation.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
+def add_site_compensation(request, site_id):
+    site = get_object_or_404(Subject, pk=site_id)
+
+    if request.method == 'POST':
+        compensation = Compensation(site=site)
+        form = CompensationForm(request.POST, request.FILES, instance=compensation)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_site', args=site_id))
+    else:
+        form = CompensationForm()
+
+    return render_to_response(
+        'add_compensation.html',
+        {
+            'form': form,
+            'project': site.project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
 def view_visit_types(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -588,6 +671,16 @@ def retrieve_sample(request, sample_id):
 
     response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
+    return response
+
+
+@login_required
+@require_project_user
+def retrieve_compensation(request, compensation_id):
+    compensation = get_object_or_404(Compensation, pk=compensation_id)
+
+    response = HttpResponse(compensation.compensation_file, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' % compensation.original_filename
     return response
 
 
