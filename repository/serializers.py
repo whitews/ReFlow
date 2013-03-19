@@ -103,6 +103,19 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
     project = serializers.IntegerField(source='subject.project.id', read_only=True)
 
+    def get_fields(self):
+        fields = super(SamplePOSTSerializer, self).get_default_fields()
+        user = self.context['view'].request.user
+        user_projects = ProjectUserMap.objects.get_user_projects(user)
+        if 'subject' in fields:
+            fields['subject'].queryset = Subject.objects.filter(project__in=user_projects)
+        if 'site' in fields:
+            fields['site'].queryset = Site.objects.filter(project__in=user_projects)
+        if 'visit' in fields:
+            fields['visit'].queryset = ProjectVisitType.objects.filter(project__in=user_projects)
+
+        return fields
+
     class Meta:
         model = Sample
         fields = (
