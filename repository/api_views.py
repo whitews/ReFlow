@@ -10,6 +10,7 @@ import django_filters
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 
 from repository.models import *
 from repository.serializers import *
@@ -36,6 +37,21 @@ def api_root(request, format=None):
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
     })
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_sample(request, pk):
+    sample = get_object_or_404(Sample, pk=pk)
+    project = get_object_or_404(Project, subject__sample=sample)
+
+    if not ProjectUserMap.objects.is_project_user(project, request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
+    return response
 
 
 class LoginRequiredMixin(object):
