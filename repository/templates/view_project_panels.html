@@ -56,6 +56,7 @@ $(document).ready(function()
         $(this).siblings('table').children('tbody').find('tr.add_parameter_row').show();
         $(this).siblings('div.hide').show();
         $(this).hide();
+        return false;
     });
 
     $(".cancel").click(function()
@@ -63,21 +64,25 @@ $(document).ready(function()
         $(this).closest('div.hide').siblings('table').children('tbody').find('tr.add_parameter_row').hide();
         $(this).closest('div.hide').hide();
         $(this).closest('div.hide').siblings('a.add_parameter').show();
+        return false;
     });
 
     $(".show-all").click(function()
     {
         $('.params').show(250);
+        return false;
     });
 
     $(".hide-all").click(function()
     {
         $('.params').hide(250);
+        return false;
     });
 
     $(".toggle-closest").click(function()
     {
         $(this).siblings('div.params').toggle(250);
+        return false;
     });
 
     return false;

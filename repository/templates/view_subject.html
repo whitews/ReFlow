@@ -32,16 +32,19 @@ $(document).ready(function()
     $(".show-all").click(function()
     {
         $('.params').show(250);
+        return false;
     });
 
     $(".hide-all").click(function()
     {
         $('.params').hide(250);
+        return false;
     });
 
     $(".toggle-closest").click(function()
     {
         $(this).siblings('table.params').toggle(250);
+        return false;
     });
 
     return false;
