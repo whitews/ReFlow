@@ -509,3 +509,12 @@ class SampleCompensationMap(models.Model):
 
     class Meta:
         unique_together = (('sample', 'compensation'),)
+
+    def clean(self):
+        """
+        Verify the compensation and sample belong to the same site
+        """
+
+        if self.sample.site != self.compensation.site:
+            raise ValidationError("Compensation matrix must belong to the same site as the sample.")
+

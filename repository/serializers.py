@@ -86,14 +86,43 @@ class SampleParameterSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class CompensationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Compensation
+        fields = ('id', 'original_filename', 'matrix_text')
+        exclude = ('compensation_file',)
+
+
+class SampleCompensationSerializer(serializers.ModelSerializer):
+    compensation = CompensationSerializer(source='compensation')
+
+    class Meta:
+        model = SampleCompensationMap
+        fields = ('id', 'compensation',)
+        depth = 1
+
+
 class SampleSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
+    compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
     project = serializers.IntegerField(source='subject.project.id', read_only=True)
 
     class Meta:
         model = Sample
-        fields = ('id', 'url', 'visit', 'subject', 'site', 'project', 'original_filename', 'sha1', 'sampleparameters')
+        fields = (
+            'id',
+            'url',
+            'visit',
+            'subject',
+            'site',
+            'project',
+            'original_filename',
+            'sha1',
+            'sampleparameters',
+            'compensations'
+        )
         read_only_fields = ('original_filename', 'sha1')
         exclude = ('sample_file',)
 
