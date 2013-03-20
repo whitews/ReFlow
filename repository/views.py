@@ -463,7 +463,7 @@ def create_panel_from_sample(request, sample_id):
             panel_form = PanelFromSampleForm(instance=panel)
 
             initial_param_data = list()
-            for param in sample.sampleparametermap_set.all():
+            for param in sample.sampleparametermap_set.all().order_by('fcs_text'):
                 initial_param_data.append({
                     'fcs_text': param.fcs_text,
                     'fcs_opt_text': param.fcs_opt_text
