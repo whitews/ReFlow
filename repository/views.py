@@ -107,7 +107,7 @@ def edit_project(request, project_id):
 def view_subjects(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    subjects = Subject.objects.filter(project=project)
+    subjects = Subject.objects.filter(project=project).order_by('subject_id')
 
     return render_to_response(
         'view_project_subjects.html',
@@ -125,7 +125,7 @@ def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     samples = Sample.objects.filter(subject__project=project)\
-        .order_by('site', 'subject__subject_id', 'visit__visit_type_name')
+        .order_by('site', 'subject__subject_id', 'visit__visit_type_name', 'original_filename')
 
     return render_to_response(
         'view_project_samples.html',
@@ -291,7 +291,7 @@ def add_site_compensation(request, site_id):
 def view_visit_types(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    visit_types = ProjectVisitType.objects.filter(project=project)
+    visit_types = ProjectVisitType.objects.filter(project=project).order_by('visit_type_name')
 
     return render_to_response(
         'view_project_visit_types.html',
@@ -347,7 +347,7 @@ def view_project_panels(request, project_id):
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
-    panels = Panel.objects.filter(site__project=project)
+    panels = Panel.objects.filter(site__project=project).order_by('site__site_name', 'panel_name')
 
     # for adding new parameters to panels
     form = PanelParameterMapForm()
@@ -493,7 +493,7 @@ def create_panel_from_sample(request, sample_id):
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
-    samples = Sample.objects.filter(subject=subject)
+    samples = Sample.objects.filter(subject=subject).order_by('site', 'visit', 'original_filename')
 
     return render_to_response(
         'view_subject.html',

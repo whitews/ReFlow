@@ -151,6 +151,9 @@ class PanelParameterMap(models.Model):
 
     name = property(_get_name)
 
+    class Meta:
+        ordering = ['fcs_text']
+
     def clean(self):
         """
         Check for duplicate parameter/value_type combos in a panel. Returns ValidationError if any duplicates are found.

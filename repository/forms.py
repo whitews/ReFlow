@@ -34,7 +34,7 @@ class PanelForm(ModelForm):
 
         # finally, the reason we're here...make sure only the project's sites are the available choices
         if project_id:
-            sites = Site.objects.filter(project__id=project_id)
+            sites = Site.objects.filter(project__id=project_id).order_by('site_name')
             if not sites:
                 raise ValidationError('Error creating panel. There are no sites for this project. A panel must belong to a project site.')
             self.fields['site'] = ModelChoiceField(sites)
@@ -81,13 +81,13 @@ class SampleForm(ModelForm):
 
         # finally, make sure only project's subjects, sites, and visit types are the available choices
         if project_id:
-            subjects = Subject.objects.filter(project__id=project_id)
+            subjects = Subject.objects.filter(project__id=project_id).order_by('subject_id')
             self.fields['subject'] = ModelChoiceField(subjects)
 
-            sites = Site.objects.filter(project__id=project_id)
+            sites = Site.objects.filter(project__id=project_id).order_by('site_name')
             self.fields['site'] = ModelChoiceField(sites, required=False)
 
-            visit_types = ProjectVisitType.objects.filter(project__id=project_id)
+            visit_types = ProjectVisitType.objects.filter(project__id=project_id).order_by('visit_type_name')
             self.fields['visit'] = ModelChoiceField(visit_types, required=False)
 
 
