@@ -144,5 +144,5 @@ class CompensationForm(ModelForm):
 
         # finally, make sure only project's sites are the available choices
         if project_id:
-            sites = Site.objects.filter(project__id=project_id)
+            sites = Site.objects.filter(project__id=project_id).order_by('site_name')
             self.fields['site'] = ModelChoiceField(sites, required=True)
