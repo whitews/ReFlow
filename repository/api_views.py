@@ -87,6 +87,8 @@ class PermissionRequiredMixin(object):
             project = get_object_or_404(Project, subject__sample=obj)
         elif isinstance(obj, PanelParameterMap):
             project = get_object_or_404(Project, site__panel__panelparametermap=obj)
+        elif isinstance(obj, SampleCompensationMap):
+            project = get_object_or_404(Project, compensation__site__project=obj)
         else:
             raise PermissionDenied
 
@@ -247,7 +249,6 @@ class ParameterList(LoginRequiredMixin, generics.ListAPIView):
     model = Parameter
     serializer_class = ParameterSerializer
     filter_class = ParameterFilter
-    #filter_fields = ('parameter_type', 'parameter_short_name')
 
 
 class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -344,3 +345,12 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
                 return Response(data={'__all__': e.messages}, status=400)
 
         return Response(data={'__all__': 'Bad request'}, status=400)
+
+
+class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for associating a compensation matrix with an FCS sample.
+    """
+
+    model = SampleCompensationMap
+    serializer_class = SampleCompensationPOSTSerializer

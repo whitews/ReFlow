@@ -103,6 +103,22 @@ class SampleCompensationSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class SampleCompensationPOSTSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleCompensationMap
+
+    def get_fields(self):
+        fields = super(SampleCompensationPOSTSerializer, self).get_default_fields()
+        user = self.context['view'].request.user
+        user_projects = ProjectUserMap.objects.get_user_projects(user)
+        if 'compensation' in fields:
+            fields['compensation'].queryset = Compensation.objects.filter(site__project__in=user_projects)
+        if 'sample' in fields:
+            fields['sample'].queryset = Sample.objects.filter(subject__project__in=user_projects)
+
+        return fields
+
+
 class SampleSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
