@@ -48,6 +48,7 @@ class PanelFromSampleForm(ModelForm):
 
 class PanelParameterMapFromSampleForm(ModelForm):
     fcs_opt_text = CharField(required=False)
+    parameter = ModelChoiceField(queryset=Parameter.objects.order_by('parameter_short_name'))
 
     class Meta:
         model = PanelParameterMap
