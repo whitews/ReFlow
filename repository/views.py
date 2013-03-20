@@ -247,7 +247,7 @@ def add_compensation(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_sites', args=project_id))
+            return HttpResponseRedirect(reverse('project_compensations', args=project_id))
     else:
         form = CompensationForm(project_id=project_id)
 
