@@ -27,6 +27,7 @@
                 select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
                 select_panel_dialog.load($(this).data("form-url"));
                 select_panel_dialog.dialog('open');
+                return false;
             });
 
             $(".show-all").click(function()
