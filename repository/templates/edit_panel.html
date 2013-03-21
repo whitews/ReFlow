@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row lead">
             <div class="span4">
-                <a href="{% url 'view_project' panel.site.project_id %}">{{ panel.site.project.project_name }}</a>
+                <a href="{% url 'view_project' panel.site.project.id %}">{{ panel.site.project.project_name }}</a>
             </div>
             <div class="pull-right">Edit Panel: {{ panel.panel_name }}</div>
         </div>

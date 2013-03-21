@@ -92,7 +92,7 @@ class Panel(models.Model):
 
         # count panels with matching panel_name and parent site, which don't have this pk
         try:
-            Site.objects.get(id=self.site_id)
+            Site.objects.get(id=self.site.id)
         except ObjectDoesNotExist:
             return  # Site is required and will get caught by Form.is_valid()
 
@@ -244,7 +244,7 @@ class Subject(models.Model):
 
         # count subjects with matching subject_id and parent project, which don't have this pk
         try:
-            Project.objects.get(id=self.project_id)
+            Project.objects.get(id=self.project.id)
         except ObjectDoesNotExist:
             return  # Project is required and will get caught by Form.is_valid()
 
@@ -271,7 +271,7 @@ class ProjectVisitType(models.Model):
 
         # count visit types with matching visit_type_name and parent project, which don't have this pk
         try:
-            Project.objects.get(id=self.project_id)
+            Project.objects.get(id=self.project.id)
         except ObjectDoesNotExist:
             return  # Project is required and will get caught by Form.is_valid()
 
@@ -287,8 +287,8 @@ class ProjectVisitType(models.Model):
 
 
 def fcs_file_path(instance, filename):
-    project_id = instance.subject.project_id
-    subject_id = instance.subject_id
+    project_id = instance.subject.project.id
+    subject_id = instance.subject.id
     
     upload_dir = join([str(project_id), str(subject_id), str(filename)], "/")
     upload_dir = join([MEDIA_ROOT, upload_dir], '')
@@ -348,7 +348,7 @@ class Sample(models.Model):
         """
 
         try:
-            Subject.objects.get(id=self.subject_id)
+            Subject.objects.get(id=self.subject.id)
             self.original_filename = self.sample_file.name.split('/')[-1]
             # get the hash
             file_hash = hashlib.sha1(self.sample_file.read())
@@ -374,10 +374,10 @@ class Sample(models.Model):
 
             raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
 
-        if self.site is not None and self.site.project_id != self.subject.project_id:
+        if self.site is not None and self.site.project.id != self.subject.project.id:
             raise ValidationError("Site chosen is not in this Project")
 
-        if self.visit is not None and self.visit.project_id != self.subject.project_id:
+        if self.visit is not None and self.visit.project.id != self.subject.project.id:
             raise ValidationError("Visit Type chosen is not in this Project")
 
         # Verify the file is an FCS file
@@ -462,7 +462,7 @@ class SampleParameterMap(models.Model):
 
     def __unicode__(self):
             return u'SampleID: %s, Parameter: %s-%s, Number: %s, Text: %s' % (
-                self.sample_id,
+                self.sample.id,
                 self.parameter,
                 self.value_type,
                 self.fcs_number,
@@ -470,8 +470,8 @@ class SampleParameterMap(models.Model):
 
 
 def compensation_file_path(instance, filename):
-    project_id = instance.site.project_id
-    site_id = instance.site_id
+    project_id = instance.site.project.id
+    site_id = instance.site.id
 
     upload_dir = join([str(project_id), 'compensation', str(site_id), str(filename)], "/")
     upload_dir = join([MEDIA_ROOT, upload_dir], '')
@@ -494,7 +494,7 @@ class Compensation(models.Model):
         """
 
         try:
-            Site.objects.get(id=self.site_id)
+            Site.objects.get(id=self.site.id)
             self.original_filename = self.compensation_file.name.split('/')[-1]
         except ObjectDoesNotExist:
             return  # site and compensation file are required...will get caught by Form.is_valid()

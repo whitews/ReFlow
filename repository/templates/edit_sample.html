@@ -3,7 +3,7 @@
 {% block body %}
   <div class="container">
     <div class="row lead">
-      <div class="span4">Subject: <a href="{% url 'view_subject' sample.subject_id %}">{{ sample.subject.subject_id }}</a></div>
+      <div class="span4">Subject: <a href="{% url 'view_subject' sample.subject.id %}">{{ sample.subject.subject_id }}</a></div>
       <div class="pull-right">Edit Sample</div>
     </div>
     <br/>

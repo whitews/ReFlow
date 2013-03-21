@@ -124,7 +124,7 @@ def view_subjects(request, project_id):
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    samples = Sample.objects.select_related().prefetch_related('sampleparametermap_set').filter(subject__project=project)\
+    samples = Sample.objects.filter(subject__project=project)\
         .order_by('site', 'subject__subject_id', 'visit__visit_type_name', 'original_filename')
 
     return render_to_response(
@@ -142,7 +142,7 @@ def view_samples(request, project_id):
 def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    sites = Site.objects.select_related().filter(project=project).order_by('site_name')
+    sites = Site.objects.filter(project=project).order_by('site_name')
 
     return render_to_response(
         'view_project_sites.html',
@@ -189,7 +189,7 @@ def edit_site(request, site_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_sites', args=str(site.project_id)))
+            return HttpResponseRedirect(reverse('project_sites', args=str(site.project.id)))
     else:
         form = SiteForm(instance=site)
 
@@ -208,7 +208,7 @@ def edit_site(request, site_id):
 def view_compensations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    compensations = Compensation.objects.select_related().filter(site__project=project).order_by('original_filename')
+    compensations = Compensation.objects.filter(site__project=project).order_by('original_filename')
 
     return render_to_response(
         'view_project_compensations.html',
@@ -342,12 +342,12 @@ def view_project_panels(request, project_id):
 
             if form.is_valid():
                 form.save()
-                return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project_id)))
+                return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
             else:
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
-    panels = Panel.objects.select_related().prefetch_related('panelparametermap_set').filter(site__project=project).order_by('site__site_name', 'panel_name')
+    panels = Panel.objects.filter(site__project=project).order_by('site__site_name', 'panel_name')
 
     # for adding new parameters to panels
     form = PanelParameterMapForm()
@@ -401,13 +401,13 @@ def edit_panel(request, panel_id):
     panel = get_object_or_404(Panel, pk=panel_id)
 
     if request.method == 'POST':
-        form = PanelEditForm(request.POST, instance=panel)
+        form = PanelForm(request.POST, instance=panel)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project_id)))
+            return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project.id)))
     else:
-        form = PanelEditForm(instance=panel)
+        form = PanelForm(instance=panel)
 
     return render_to_response(
         'edit_panel.html',
@@ -454,7 +454,7 @@ def create_panel_from_sample(request, sample_id):
                 panel.save()
                 parameter_formset.save()
 
-                return HttpResponseRedirect(reverse('project_panels', args=str(sample.subject.project_id)))
+                return HttpResponseRedirect(reverse('project_panels', args=str(sample.subject.project.id)))
 
     else:
         # need to check if the sample is associated with a site, since panels have a required site relation
@@ -593,7 +593,7 @@ def add_subject_sample(request, subject_id):
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
-        form = SampleSubjectForm(project_id=subject.project_id)
+        form = SampleSubjectForm(project_id=subject.project.id)
 
     return render_to_response(
         'add_subject_sample.html',
@@ -615,9 +615,9 @@ def edit_sample(request, sample_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject_id)))
+            return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject.id)))
     else:
-        form = SampleEditForm(instance=sample, project_id=sample.subject.project_id)
+        form = SampleEditForm(instance=sample)
 
     return render_to_response(
         'edit_sample.html',
@@ -652,7 +652,7 @@ def select_panel(request, sample_id):
                     json = simplejson.dumps(status)
                     return HttpResponseBadRequest(json, mimetype='application/json')
             else:
-                return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject_id)))
+                return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject.id)))
 
     return render_to_response(
         'select_panel.html',

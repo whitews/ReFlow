@@ -40,13 +40,6 @@ class PanelForm(ModelForm):
             self.fields['site'] = ModelChoiceField(sites)
 
 
-class PanelEditForm(ModelForm):
-    class Meta:
-        model = Panel
-        exclude = ('site',)  # don't allow editing of the site for an existing panel
-
-
-# yes it's the same as PanelEditForm, but the class names provide context
 class PanelFromSampleForm(ModelForm):
     class Meta:
         model = Panel
@@ -134,9 +127,6 @@ class SampleEditForm(ModelForm):
 
         # finally, make sure only project's visit types are the available choices
         if project_id:
-            sites = Site.objects.filter(project__id=project_id)
-            self.fields['site'] = ModelChoiceField(sites)
-
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = ModelChoiceField(visit_types)
 
