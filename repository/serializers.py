@@ -74,7 +74,6 @@ class PanelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Panel
         fields = ('id', 'panel_name', 'site', 'panelparameters')
-        #depth = 2
 
 
 class SampleParameterSerializer(serializers.ModelSerializer):

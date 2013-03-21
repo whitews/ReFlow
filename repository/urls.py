@@ -11,6 +11,7 @@ handler403 = TemplateView.as_view(template_name='403.html')
 # API routes
 urlpatterns = patterns('repository.api_views',
     url(r'^api/$', 'api_root'),
+    url(r'^api/compensations/$', CompensationList.as_view(), name='compensation-list'),
     url(r'^api/panels/$', PanelList.as_view(), name='panel-list'),
     url(r'^api/parameters/$', ParameterList.as_view(), name='parameter-list'),
     url(r'^api/projects/$', ProjectList.as_view(), name='project-list'),

@@ -29,6 +29,7 @@ def api_root(request, format=None):
     """
 
     return Response({
+        'compensations': reverse('compensation-list', request=request),
         'panels': reverse('panel-list', request=request),
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
@@ -345,6 +346,28 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
                 return Response(data={'__all__': e.messages}, status=400)
 
         return Response(data={'__all__': 'Bad request'}, status=400)
+
+
+class CompensationList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of compensations.
+    """
+
+    model = Compensation
+    serializer_class = CompensationSerializer
+    filter_fields = ('original_filename', 'site', 'site__project')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        """
+
+        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+
+        # filter on user's projects
+        queryset = Compensation.objects.filter(site__project__in=user_projects)
+        return queryset
+
 
 
 class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, generics.CreateAPIView):
