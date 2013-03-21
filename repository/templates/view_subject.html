@@ -119,8 +119,6 @@ $(document).ready(function()
                   <th>FCS PnS</th>
                   <th>Name</th>
                   <th>Value Type</th>
-                  <th>Antibody</th>
-                  <th>Fluorochrome</th>
               </thead>
               <tbody>
                 {% for sp_map in sample.sampleparametermap_set.all|dictsort:"fcs_number" %}
@@ -139,16 +137,6 @@ $(document).ready(function()
                   </td>
                   <td>
                       {{ sp_map.value_type.value_type_name }}
-                  </td>
-                  <td>
-                    {% for ab in sp_map.parameter.parameterantibodymap_set.all %}
-                      {{ ab.antibody }}
-                    {% endfor %}
-                  </td>
-                  <td>
-                    {% for fluoro in sp_map.parameter.parameterfluorochromemap_set.all %}
-                      {{ fluoro.fluorochrome.fluorochrome_short_name }}
-                    {% endfor %}
                   </td>
                 </tr>
                 {% endfor %}
