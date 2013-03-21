@@ -124,7 +124,7 @@ def view_subjects(request, project_id):
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    samples = Sample.objects.select_related().filter(subject__project=project)\
+    samples = Sample.objects.select_related().prefetch_related('sampleparametermap_set').filter(subject__project=project)\
         .order_by('site', 'subject__subject_id', 'visit__visit_type_name', 'original_filename')
 
     return render_to_response(
@@ -142,7 +142,7 @@ def view_samples(request, project_id):
 def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    sites = Site.objects.filter(project=project).order_by('site_name')
+    sites = Site.objects.select_related().filter(project=project).order_by('site_name')
 
     return render_to_response(
         'view_project_sites.html',
@@ -347,7 +347,7 @@ def view_project_panels(request, project_id):
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
-    panels = Panel.objects.filter(site__project=project).order_by('site__site_name', 'panel_name')
+    panels = Panel.objects.select_related().prefetch_related('panelparametermap_set').filter(site__project=project).order_by('site__site_name', 'panel_name')
 
     # for adding new parameters to panels
     form = PanelParameterMapForm()
