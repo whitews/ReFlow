@@ -123,7 +123,7 @@ class SampleSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(source='subject.project.id', read_only=True)
+    project = serializers.IntegerField(source='subject.project_id', read_only=True)
 
     class Meta:
         model = Sample
@@ -146,7 +146,7 @@ class SampleSerializer(serializers.ModelSerializer):
 class SamplePOSTSerializer(serializers.ModelSerializer):
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(source='subject.project.id', read_only=True)
+    project = serializers.IntegerField(source='subject.project_id', read_only=True)
 
     def get_fields(self):
         fields = super(SamplePOSTSerializer, self).get_default_fields()
