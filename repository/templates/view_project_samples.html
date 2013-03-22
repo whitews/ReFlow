@@ -104,26 +104,23 @@
             <a href="{% url 'sample_data' sample.id %}">Download CSV</a><br/>
             <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
         </td>
-        <td class="middle">{{ sample.subject.subject_id }}</td>
-        <td class="middle">{{ sample.site.site_name }}</td>
-        <td class="middle">{{ sample.visit.visit_type_name }}</td>
+        <td class="middle">{{ sample.subject__subject_id }}</td>
+        <td class="middle">{{ sample.site__site_name }}</td>
+        <td class="middle">{{ sample.visit__visit_type_name }}</td>
 
         <td style="width: 60%" class="middle">
-          {% if sample.sampleparametermap_set.all.count > 0 %}
+          {% if sample.parameters.count > 0 %}
           <a href="#" class="toggle-closest">Show/Hide</a>
           <table class="table table-bordered table-hover hide params">
             <thead>
-              <tr>
-                <th>FCS Number</th>
-                <th>FCS PnN</th>
-                <th>FCS PnS</th>
-                <th>Name</th>
-                <th>Value Type</th>
-                <th>Antibody</th>
-                <th>Fluorochrome</th>
+            <tr>
+            <th>FCS Number</th>
+            <th>FCS PnN</th>
+            <th>FCS PnS</th>
+            <th>Name</th>
             </thead>
             <tbody>
-              {% for sp_map in sample.sampleparametermap_set.all|dictsort:"fcs_number" %}
+              {% for sp_map in sample.parameters|dictsort:"fcs_number" %}
               <tr>
                 <td>
                   {{ sp_map.fcs_number }}
@@ -135,33 +132,20 @@
                   {{ sp_map.fcs_opt_text }}
                 </td>
                 <td>
-                  {{ sp_map.name }}
-                </td>
-                <td>
-                    {{ sp_map.value_type.value_type_name }}
-                </td>
-                <td>
-                  {% for ab in sp_map.parameter.parameterantibodymap_set.all %}
-                    {{ ab.antibody }}
-                  {% endfor %}
-                </td>
-                <td>
-                  {% for fluoro in sp_map.parameter.parameterfluorochromemap_set.all %}
-                    {{ fluoro.fluorochrome.fluorochrome_short_name }}
-                  {% endfor %}
+                  {{ sp_map.parameter__parameter_short_name }}-{{ sp_map.value_type__value_type_short_name }}
                 </td>
               </tr>
               {% endfor %}
               <tr>
-                  <td colspan="8">
-                    Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
-                    <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-                      <i class="icon-plus icon-white"></i> Select Panel
-                    </a>
-                    <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
-                        <i class="icon-pencil icon-white"></i> Create Panel from Sample
-                    </a>
-                  </td>
+                <td colspan="4">
+                  Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
+                  <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
+                    <i class="icon-plus icon-white"></i> Select Panel
+                  </a>
+                  <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
+                      <i class="icon-pencil icon-white"></i> Create Panel from Sample
+                  </a>
+                </td>
               </tr>
             </tbody>
           </table>

@@ -124,8 +124,25 @@ def view_subjects(request, project_id):
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    samples = Sample.objects.select_related().prefetch_related('sampleparametermap_set').filter(subject__project=project)\
-        .order_by('site', 'subject__subject_id', 'visit__visit_type_name', 'original_filename')
+    samples = Sample.objects.filter(subject__project=project).values(
+        'id',
+        'subject__subject_id',
+        'site__site_name',
+        'visit__visit_type_name',
+        'original_filename')
+
+    spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
+        'id',
+        'sample_id',
+        'fcs_number',
+        'fcs_text',
+        'fcs_opt_text',
+        'parameter__parameter_short_name',
+        'value_type__value_type_short_name',
+        )
+
+    for sample in samples:
+        sample['parameters'] = [i for i in spm_maps if i['sample_id']==sample['id']]
 
     return render_to_response(
         'view_project_samples.html',
@@ -493,7 +510,24 @@ def create_panel_from_sample(request, sample_id):
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
 
-    samples = Sample.objects.filter(subject=subject).order_by('site', 'visit', 'original_filename')
+    samples = Sample.objects.filter(subject=subject).values(
+        'id',
+        'site__site_name',
+        'visit__visit_type_name',
+        'original_filename')
+
+    spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
+        'id',
+        'sample_id',
+        'fcs_number',
+        'fcs_text',
+        'fcs_opt_text',
+        'parameter__parameter_short_name',
+        'value_type__value_type_short_name',
+    )
+
+    for sample in samples:
+        sample['parameters'] = [i for i in spm_maps if i['sample_id']==sample['id']]
 
     return render_to_response(
         'view_subject.html',
