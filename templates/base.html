@@ -17,54 +17,26 @@
       <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
           <div class="container">
-            <div class="brand"><img class="inline" height="24" src="{{ STATIC_URL }}reflow_text.png">flow cytometry repository</div>
+            <div class="brand">
+              <a href="{% url 'home' %}">
+                <img class="inline" height="24" src="{{ STATIC_URL }}reflow_text.png">
+              </a>
+              flow cytometry repository
+            </div>
             <ul class="nav pull-right">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li class="dropdown">
-                  <a class="dropdown-toggle"
-                     data-toggle="dropdown"
-                     href="#">
-                      Projects
-                      <b class="caret"></b>
-                  </a>
-                  <ul class="dropdown-menu">
+              <li class="dropdown">
+                <a class="dropdown-toggle"
+                   data-toggle="dropdown"
+                   href="#">
+                    {{ user.username }}
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
                     <li><a href="{% url 'add_project' %}">Add Project</a></li>
-                    {%  if project %}
                     <li class="divider"></li>
-                    <li><a href="{% url 'project_visit_types' project.id %}">View Visit Types for {{ project.project_name }}</a></li>
-                    <li><a href="{% url 'project_sites' project.id %}">View Sites for {{ project.project_name }}</a></li>
-                    <li><a href="{% url 'project_panels' project.id %}">View Panels for {{ project.project_name }}</a></li>
-                    {% endif %}
-                    {%  if user|user_projects %}
-                    <li class="divider"></li>
-                    <li class="dropdown">
-                      <a class="dropdown-toggle"
-                         data-toggle="dropdown"
-                         href="#">
-                          Your Projects
-                          <b class="caret"></b>
-                      </a>
-                      <ul class="dropdown-menu">
-                        {% for p in user|user_projects %}
-                        <li><a href="{% url 'view_project' p.id %}">{{ p.project_name }}</a></li>
-                        {% endfor %}
-                      </ul>
-                    </li>
-                    {% endif %}
-                  </ul>
-                </li>
-
-                <li class="dropdown">
-                  <a class="dropdown-toggle"
-                     data-toggle="dropdown"
-                     href="#">
-                      {{ user.username }}
-                      <b class="caret"></b>
-                  </a>
-                  <ul class="dropdown-menu">
                     <li><a href="{% url 'logout' %}">Logout</a></li>
-                  </ul>
-                </li>
+                </ul>
+              </li>
             </ul>
           </div>
         </div>
