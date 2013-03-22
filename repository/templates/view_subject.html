@@ -118,7 +118,6 @@ $(document).ready(function()
                   <th>FCS PnN</th>
                   <th>FCS PnS</th>
                   <th>Name</th>
-                  <th>Value Type</th>
               </thead>
               <tbody>
                 {% for sp_map in sample.sampleparametermap_set.all|dictsort:"fcs_number" %}
@@ -134,9 +133,6 @@ $(document).ready(function()
                   </td>
                   <td>
                     {{ sp_map.name }}
-                  </td>
-                  <td>
-                      {{ sp_map.value_type.value_type_name }}
                   </td>
                 </tr>
                 {% endfor %}
