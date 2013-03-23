@@ -106,7 +106,7 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Project
     serializer_class = ProjectSerializer
-    filter_fields = ('project_name',)
+    filter_fields = ('id', 'project_name',)
 
     def get_queryset(self):
         """
@@ -176,7 +176,7 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Site
     serializer_class = SiteSerializer
-    filter_fields = ('site_name', 'project')
+    filter_fields = ('id', 'site_name', 'project')
 
     def get_queryset(self):
         """
@@ -198,7 +198,7 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Panel
     serializer_class = PanelSerializer
-    filter_fields = ('panel_name', 'site', 'site__project')
+    filter_fields = ('id', 'panel_name', 'site', 'site__project')
 
     def get_queryset(self):
         """
@@ -259,7 +259,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = ('subject', 'site', 'visit', 'subject__project', 'original_filename')
+    filter_fields = ('id', 'subject', 'site', 'visit', 'subject__project', 'original_filename')
 
     def get_queryset(self):
         """
