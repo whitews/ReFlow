@@ -8,7 +8,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('id', 'project_name', 'project_desc', 'url')
+        fields = ('id', 'url', 'project_name', 'project_desc')
 
 
 class VisitTypeSerializer(serializers.ModelSerializer):
@@ -16,23 +16,25 @@ class VisitTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProjectVisitType
-        fields = ('id', 'visit_type_name', 'visit_type_description', 'project', 'url')
+        fields = ('id', 'url', 'visit_type_name', 'visit_type_description', 'project')
 
 
 class SiteSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(source='project')
+    url = serializers.HyperlinkedIdentityField(view_name='site-detail')
 
     class Meta:
         model = Site
-        fields = ('id', 'site_name', 'project')
+        fields = ('id', 'url', 'site_name', 'project')
 
 
 class SubjectSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(source='project')
+    url = serializers.HyperlinkedIdentityField(view_name='subject-detail')
 
     class Meta:
         model = Subject
-        fields = ('id', 'subject_id', 'project')
+        fields = ('id', 'url', 'subject_id', 'project')
 
 
 class ParameterAntibodySerializer(serializers.ModelSerializer):
@@ -54,10 +56,11 @@ class ParameterFluorochromeSerializer(serializers.ModelSerializer):
 class ParameterSerializer(serializers.ModelSerializer):
     antibodies = ParameterAntibodySerializer(source='parameterantibodymap_set')
     fluorochromes = ParameterFluorochromeSerializer(source='parameterfluorochromemap_set')
+    url = serializers.HyperlinkedIdentityField(view_name='parameter-detail')
 
     class Meta:
         model = Parameter
-        fields = ('id', 'parameter_short_name', 'parameter_type', 'antibodies', 'fluorochromes')
+        fields = ('id', 'url', 'parameter_short_name', 'parameter_type', 'antibodies', 'fluorochromes')
 
 
 class PanelParameterSerializer(serializers.ModelSerializer):
@@ -72,10 +75,11 @@ class PanelParameterSerializer(serializers.ModelSerializer):
 class PanelSerializer(serializers.ModelSerializer):
     site = SiteSerializer(source='site')
     panelparameters = PanelParameterSerializer(source='panelparametermap_set')
+    url = serializers.HyperlinkedIdentityField(view_name='panel-detail')
 
     class Meta:
         model = Panel
-        fields = ('id', 'panel_name', 'site', 'panelparameters')
+        fields = ('id', 'url', 'panel_name', 'site', 'panelparameters')
 
 
 class SampleParameterSerializer(serializers.ModelSerializer):
@@ -88,10 +92,11 @@ class SampleParameterSerializer(serializers.ModelSerializer):
 
 
 class CompensationSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
 
     class Meta:
         model = Compensation
-        fields = ('id', 'original_filename', 'matrix_text')
+        fields = ('id', 'url', 'original_filename', 'matrix_text')
         exclude = ('compensation_file',)
 
 

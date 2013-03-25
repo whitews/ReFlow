@@ -108,7 +108,7 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Project
     serializer_class = ProjectSerializer
-    filter_fields = ('id', 'project_name',)
+    filter_fields = ('project_name',)
 
     def get_queryset(self):
         """
@@ -180,6 +180,15 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
+class SubjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single project.
+    """
+
+    model = Subject
+    serializer_class = SubjectSerializer
+
+
 class SiteList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of panels.
@@ -187,7 +196,7 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Site
     serializer_class = SiteSerializer
-    filter_fields = ('id', 'site_name', 'project')
+    filter_fields = ('site_name', 'project')
 
     def get_queryset(self):
         """
@@ -202,6 +211,15 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
+class SiteDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single project.
+    """
+
+    model = Site
+    serializer_class = SiteSerializer
+
+
 class PanelList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of panels.
@@ -209,7 +227,7 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Panel
     serializer_class = PanelSerializer
-    filter_fields = ('id', 'panel_name', 'site', 'site__project')
+    filter_fields = ('panel_name', 'site', 'site__project')
 
     def get_queryset(self):
         """
@@ -245,6 +263,15 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
+class PanelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single project.
+    """
+
+    model = Panel
+    serializer_class = PanelSerializer
+
+
 class ParameterFilter(django_filters.FilterSet):
     name_contains = django_filters.CharFilter(name='parameter_short_name', lookup_type='contains')
 
@@ -263,6 +290,15 @@ class ParameterList(LoginRequiredMixin, generics.ListAPIView):
     filter_class = ParameterFilter
 
 
+class ParameterDetail(LoginRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single project.
+    """
+
+    model = Parameter
+    serializer_class = ParameterSerializer
+
+
 class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of samples.
@@ -270,7 +306,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = ('id', 'subject', 'site', 'visit', 'subject__project', 'original_filename')
+    filter_fields = ('subject', 'site', 'visit', 'subject__project', 'original_filename')
 
     def get_queryset(self):
         """
@@ -379,6 +415,14 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         queryset = Compensation.objects.filter(site__project__in=user_projects)
         return queryset
 
+
+class CompensationDetail(LoginRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single FCS sample.
+    """
+
+    model = Compensation
+    serializer_class = CompensationSerializer
 
 
 class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, generics.CreateAPIView):
