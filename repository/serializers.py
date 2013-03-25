@@ -12,9 +12,11 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class VisitTypeSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='visittype-detail')
+
     class Meta:
         model = ProjectVisitType
-        fields = ('id', 'visit_type_name', 'project')
+        fields = ('id', 'visit_type_name', 'visit_type_description', 'project', 'url')
 
 
 class SiteSerializer(serializers.ModelSerializer):

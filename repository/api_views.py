@@ -86,6 +86,8 @@ class PermissionRequiredMixin(object):
             project = get_object_or_404(Project, subject=obj)
         elif isinstance(obj, Sample):
             project = get_object_or_404(Project, subject__sample=obj)
+        elif isinstance(obj, ProjectVisitType):
+            project = get_object_or_404(Project, projectvisittype=obj)
         elif isinstance(obj, PanelParameterMap):
             project = get_object_or_404(Project, site__panel__panelparametermap=obj)
         elif isinstance(obj, SampleCompensationMap):
@@ -145,6 +147,15 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
         queryset = ProjectVisitType.objects.filter(project__in=user_projects)
 
         return queryset
+
+
+class VisitTypeDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single project.
+    """
+
+    model = ProjectVisitType
+    serializer_class = VisitTypeSerializer
 
 
 class SubjectList(LoginRequiredMixin, generics.ListAPIView):

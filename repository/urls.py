@@ -23,7 +23,9 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/samples/(?P<pk>\d+)/add_compensation/$', SampleCompensationCreate.as_view(), name='sample-compensation-create'),
     url(r'^api/sites/$', SiteList.as_view(), name='site-list'),
     url(r'^api/subjects/$', SubjectList.as_view(), name='subject-list'),
-    url(r'^api/visit_types/$', VisitTypeList.as_view(), name='visit-type-list'),)
+    url(r'^api/visit_types/$', VisitTypeList.as_view(), name='visit-type-list'),
+    url(r'^api/visit_types/(?P<pk>\d+)/$', VisitTypeDetail.as_view(), name='visittype-detail'),
+)
 
 urlpatterns += patterns('rest_framework',
     url(r'^api-token-auth/', 'authtoken.views.obtain_auth_token'),
