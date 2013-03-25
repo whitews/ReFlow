@@ -355,13 +355,15 @@ class Sample(models.Model):
         except ObjectDoesNotExist:
             return  # Subject & sample_file are required...will get caught by Form.is_valid()
 
-        # validate the subject project is the same as the site and visit project
+        # Verify subject project is the same as the site and visit project (if either site or visit is specified)
         if hasattr(self, 'site'):
-            if self.subject.project != self.site.project:
-                raise ValidationError("Subject and Site must belong to the same project")
+            if self.site is not None:
+                if self.subject.project != self.site.project:
+                    raise ValidationError("Subject and Site must belong to the same project")
         if hasattr(self, 'visit'):
-            if self.subject.project != self.visit.project:
-                raise ValidationError("Subject and Visit must belong to the same project")
+            if self.visit is not None:
+                if self.subject.project != self.visit.project:
+                    raise ValidationError("Subject and Visit must belong to the same project")
 
         # Check if the project already has this file, if so delete the temp file and raise ValidationError
         self.sha1 = file_hash.hexdigest()
