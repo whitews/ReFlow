@@ -388,7 +388,25 @@ def view_project_panels(request, project_id):
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
-    panels = Panel.objects.select_related().prefetch_related('panelparametermap_set').filter(site__project=project).order_by('site__site_name', 'panel_name')
+    #panels = Panel.objects.select_related().prefetch_related('panelparametermap_set').filter(site__project=project).order_by('site__site_name', 'panel_name')
+
+    panels = Panel.objects.filter(site__project=project).values(
+        'id',
+        'panel_name',
+        'panel_description',
+        'site__site_name'
+    )
+
+    ppm_maps = PanelParameterMap.objects.filter(panel_id__in=[i['id'] for i in panels]).values(
+        'id',
+        'panel_id',
+        'fcs_text',
+        'parameter__parameter_short_name',
+        'value_type__value_type_name',
+    )
+
+    for panel in panels:
+        panel['parameters'] = [i for i in ppm_maps if i['panel_id'] == panel['id']]
 
     # for adding new parameters to panels
     form = PanelParameterMapForm()

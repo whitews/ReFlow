@@ -123,12 +123,17 @@ $(document).ready(function()
           <td>
             {{ panel.panel_name }}
             <span class="pull-right">
+              {% if panel.panel_description != None %}
+              <a rel="tooltip" href="#" data-original-title="{{ panel.panel_description }}" data-placement="bottom">
+                  <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
+              </a>
+              {% endif %}
               <a rel="tooltip" href="{% url 'edit_panel' panel.id %}" data-original-title="Edit Panel" data-placement="left">
                   <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
             </span>
           </td>
-          <td>{{ panel.site.site_name }}</td>
+          <td>{{ panel.site__site_name }}</td>
           <td width="75%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="show params">
@@ -141,10 +146,10 @@ $(document).ready(function()
                   </tr>
                 </thead>
                 <tbody>
-                  {% for ppm in panel.panelparametermap_set.all %}
+                  {% for ppm in panel.parameters|dictsort:"fcs_text" %}
                   <tr>
                     <td width="33%">
-                      {{ ppm.parameter.parameter_short_name }}
+                      {{ ppm.parameter__parameter_short_name }}
                       <span class="pull-right">
                         <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
                           <i style="opacity: 0.4" class="icon-remove align-middle"></i>
@@ -152,7 +157,7 @@ $(document).ready(function()
                       </span>
                     </td>
                     <td>
-                        {{ ppm.value_type.value_type_name }}
+                        {{ ppm.value_type__value_type_name }}
                     </td>
                     <td>
                         {{ ppm.fcs_text }}
@@ -176,7 +181,7 @@ $(document).ready(function()
                 </tbody>
               </table>
 
-              {% if panel.panelparametermap_set.all.count == 0 %}
+              {% if panel.parameters.count == 0 %}
               <p>No parameters have been associated with this panel.</p>
               {% endif %}
               <a class="add_parameter btn btn-success btn-mini" href="#">

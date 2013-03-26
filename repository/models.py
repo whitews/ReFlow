@@ -84,6 +84,11 @@ class Site(models.Model):
 class Panel(models.Model):
     site = models.ForeignKey(Site, null=False, blank=False)
     panel_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
+    panel_description = models.TextField(
+        "Panel Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the panel")
 
     def clean(self):
         """
