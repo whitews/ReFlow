@@ -352,7 +352,7 @@ class Sample(models.Model):
             self.original_filename = self.sample_file.name.split('/')[-1]
             # get the hash
             file_hash = hashlib.sha1(self.sample_file.read())
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             return  # Subject & sample_file are required...will get caught by Form.is_valid()
 
         # Verify subject project is the same as the site and visit project (if either site or visit is specified)
@@ -384,10 +384,16 @@ class Sample(models.Model):
 
         # Verify the file is an FCS file
         if hasattr(self.sample_file.file, 'temporary_file_path'):
-            fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path(), transform=None, auto_comp=False)
+            try:
+                fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path(), transform=None, auto_comp=False)
+            except:
+                raise ValidationError("Chosen file does not appear to be an FCS file.")
         else:
             self.sample_file.seek(0)
-            fcm_obj = fcm.loadFCS(io.BytesIO(self.sample_file.read()), transform=None, auto_comp=False)
+            try:
+                fcm_obj = fcm.loadFCS(io.BytesIO(self.sample_file.read()), transform=None, auto_comp=False)
+            except:
+                raise ValidationError("Chosen file does not appear to be an FCS file.")
 
         # Start collecting channel info even though no Panel is associated yet
         # Note: the SampleParameterMap instances are saved in overridden save

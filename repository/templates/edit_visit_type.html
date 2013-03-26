@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+    <div class="container">
+        <div class="row lead">
+            <div class="span4">
+                <a href="{% url 'view_project' visit_type.project.id %}">{{ visit_type.project.project_name }}</a>
+            </div>
+            <div class="pull-right">Edit Visit Type: {{ visit_type.visit_type_name }}</div>
+        </div>
+        <br/>
+        <form class="form-horizontal" action="{% url 'repository.views.edit_visit_type' visit_type.id %}" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="control-group text-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="control-group">
+                    <label class="control-label">{{ field.label }}</label>
+                    <div class="controls">
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-small btn-primary" type="submit">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

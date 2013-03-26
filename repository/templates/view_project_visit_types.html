@@ -18,7 +18,14 @@
             <tbody>
             {% for visit_type in visit_types %}
                 <tr>
-                    <td>{{ visit_type.visit_type_name }}</td>
+                    <td>
+                      {{ visit_type.visit_type_name }}
+                      <span class="pull-right">
+                        <a rel="tooltip" href="{% url 'edit_visit_type' visit_type.id %}" data-original-title="Edit Visit Type" data-placement="left">
+                          <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+                        </a>
+                      </span>
+                    </td>
                     <td>{{ visit_type.visit_type_description }} </td>
                 </tr>
             {% endfor %}

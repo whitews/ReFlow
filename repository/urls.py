@@ -54,6 +54,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/visit_types/$', 'view_visit_types', name='project_visit_types'),
     url(r'^project/(?P<project_id>\d+)/visit_type/add/$', 'add_visit_type', name='add_visit_type'),
+    url(r'^visit_type/(?P<visit_type_id>\d+)/edit/$', 'edit_visit_type', name='edit_visit_type'),
 
     url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='project_panels'),
     url(r'^project/(?P<project_id>\d+)/panel/add/$', 'add_panel', name='add_panel'),

@@ -347,6 +347,30 @@ def add_visit_type(request, project_id):
 
 @login_required
 @require_project_user
+def edit_visit_type(request, visit_type_id):
+    visit_type = get_object_or_404(ProjectVisitType, pk=visit_type_id)
+
+    if request.method == 'POST':
+        form = ProjectVisitTypeForm(request.POST, instance=visit_type)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('project_visit_types', args=str(visit_type.project_id)))
+    else:
+        form = ProjectVisitTypeForm(instance=visit_type)
+
+    return render_to_response(
+        'edit_visit_type.html',
+        {
+            'form': form,
+            'visit_type': visit_type,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+@require_project_user
 def view_project_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
