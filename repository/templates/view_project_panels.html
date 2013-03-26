@@ -118,7 +118,7 @@ $(document).ready(function()
         </tr>
       </thead>
       <tbody>
-        {% for panel in panels %}
+        {% for panel in panels|dictsort:"panel_name" %}
         <tr>
           <td>
             {{ panel.panel_name }}
