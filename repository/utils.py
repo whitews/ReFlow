@@ -41,4 +41,3 @@ def apply_panel_to_sample(panel, sample):
         sample_param.save()
 
     return 0
-
