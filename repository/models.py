@@ -41,8 +41,8 @@ class ProjectManager(models.Manager):
         including any access to even a single site in the project. Do not use the method
         to determine whether a user has access to a particular project resource.
         """
-        projects = get_objects_for_user(user, get_perms_for_model(Project).values_list('codename'), klass=Project)
-        sites = get_objects_for_user(user, get_perms_for_model(Site).values_list('codename'), klass=Site)
+        projects = get_objects_for_user(user, 'view_project_data', klass=Project)
+        sites = get_objects_for_user(user, 'view_site_data', klass=Site)
         site_projects = Project.objects.filter(id__in=[i['project_id'] for i in sites])
 
         return list(chain(projects, site_projects))
@@ -66,7 +66,7 @@ class Project(ProtectedModel):
             ('manage_project_users', 'Manage Project Users'),
         )
 
-    def has_view_permission(self, user):
+    #def has_view_permission(self, user):
 
 
     def get_visit_type_count(self):
