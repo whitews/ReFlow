@@ -45,9 +45,8 @@ def api_root(request, format=None):
 @permission_classes((IsAuthenticated,))
 def retrieve_sample(request, pk):
     sample = get_object_or_404(Sample, pk=pk)
-    project = get_object_or_404(Project, subject__sample=sample)
 
-    if not ProjectUserMap.objects.is_project_user(project, request.user):
+    if not sample.has_view_permission(request.user):
         raise PermissionDenied
 
     response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
@@ -76,27 +75,9 @@ class PermissionRequiredMixin(object):
     def get_object(self, *args, **kwargs):
         obj = super(PermissionRequiredMixin, self).get_object(*args, **kwargs)
 
-        if isinstance(obj, Project):
-            project = obj
-        elif isinstance(obj, Site):
-            project = get_object_or_404(Project, site=obj)
-        elif isinstance(obj, Panel):
-            project = get_object_or_404(Project, site__panel=obj)
-        elif isinstance(obj, Subject):
-            project = get_object_or_404(Project, subject=obj)
-        elif isinstance(obj, Sample):
-            project = get_object_or_404(Project, subject__sample=obj)
-        elif isinstance(obj, ProjectVisitType):
-            project = get_object_or_404(Project, projectvisittype=obj)
-        elif isinstance(obj, PanelParameterMap):
-            project = get_object_or_404(Project, site__panel__panelparametermap=obj)
-        elif isinstance(obj, SampleCompensationMap):
-            project = get_object_or_404(Project, compensation__site__project=obj)
-        else:
-            raise PermissionDenied
-
-        if not ProjectUserMap.objects.is_project_user(project, self.request.user):
-            raise PermissionDenied
+        if isinstance(obj, ProtectedModel):
+            if not obj.has_view_permission(self.request.user):
+                raise PermissionDenied
 
         return obj
 
@@ -114,7 +95,7 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
         """
         Override .get_queryset() to filter on user's projects.
         """
-        queryset = ProjectUserMap.objects.get_user_projects(self.request.user)
+        queryset = Project.objects.get_user_projects(self.request.user)
         return queryset
 
 
@@ -141,7 +122,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
         queryset = ProjectVisitType.objects.filter(project__in=user_projects)
@@ -172,7 +153,7 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
         queryset = Subject.objects.filter(project__in=user_projects)
@@ -203,7 +184,7 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
         queryset = Site.objects.filter(project__in=user_projects)
@@ -234,7 +215,7 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
         queryset = Panel.objects.filter(site__project__in=user_projects)
@@ -315,7 +296,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         All results are restricted to projects to which the user belongs.
         """
 
-        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
         queryset = Sample.objects.filter(subject__project__in=user_projects)
@@ -409,7 +390,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = ProjectUserMap.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_user_projects(self.request.user)
 
         # filter on user's projects
         queryset = Compensation.objects.filter(site__project__in=user_projects)

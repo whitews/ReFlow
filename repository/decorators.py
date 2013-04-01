@@ -1,10 +1,11 @@
-from repository.models import Project, ProjectUserMap
+from repository.models import Project
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 
 def require_project_user(orig_func):
+    # TODO: look into guardian decorator permission_required() as replacement for this
 
     def user_test(request, *args, **kwargs):
 
@@ -27,7 +28,7 @@ def require_project_user(orig_func):
         else:
             raise PermissionDenied
 
-        if not ProjectUserMap.objects.is_project_user(project, request.user):
+        if not project.has_view_permission(request.user):
             raise PermissionDenied
 
         return orig_func(request, *args, **kwargs)

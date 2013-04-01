@@ -5,7 +5,6 @@ admin.site.register(Antibody)
 admin.site.register(Fluorochrome)
 
 admin.site.register(Project)
-admin.site.register(ProjectUserMap)
 admin.site.register(Panel)
 admin.site.register(Parameter)
 admin.site.register(ParameterValueType)

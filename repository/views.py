@@ -9,6 +9,9 @@ from django.template import RequestContext
 from django.utils import simplejson
 from django.forms.models import inlineformset_factory
 
+from guardian.shortcuts import assign_perm
+from guardian.decorators import permission_required
+
 from repository.models import *
 from repository.forms import *
 from repository.decorators import require_project_user
@@ -26,7 +29,7 @@ def d3_test(request):
 @login_required
 def view_projects(request):
 
-    projects = ProjectUserMap.objects.get_user_projects(request.user)
+    projects = Project.objects.get_user_projects(request.user)
 
     return render_to_response(
         'view_projects.html',
@@ -62,8 +65,11 @@ def add_project(request):
         if form.is_valid():
             project = form.save()
 
-            # Automatically add the request user to the project...it's the polite thing to do
-            ProjectUserMap(project=project, user=request.user).save()
+            # Automatically add the request user to the project with all permissions...it's the polite thing to do
+            assign_perm('view_project_data', request.user, project)
+            assign_perm('add_project_data', request.user, project)
+            assign_perm('modify_project_data', request.user, project)
+            assign_perm('manage_project_users', request.user, project)
 
             return HttpResponseRedirect(reverse('view_project', args=(project.id,)))
     else:
@@ -182,6 +188,13 @@ def add_site(request, project_id):
 
         if form.is_valid():
             form.save()
+
+            # Automatically grant all site permissions to the request user
+            assign_perm('view_site_data', request.user, site)
+            assign_perm('add_site_data', request.user, site)
+            assign_perm('modify_site_data', request.user, site)
+            assign_perm('manage_site_users', request.user, site)
+
             return HttpResponseRedirect(reverse('project_sites', args=project_id))
     else:
         form = SiteForm()

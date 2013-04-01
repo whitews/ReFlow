@@ -2,25 +2,72 @@ from string import join
 import cStringIO
 import hashlib
 import io
-
 import os
 import re
-import numpy
-from django.contrib.auth.models import User
+from itertools import chain
+
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
+
+from guardian.shortcuts import get_objects_for_user, get_perms_for_model
+
+import numpy
 import fcm
 
 from reflow.settings import MEDIA_ROOT
 
 
-class Project(models.Model):
+class ProtectedModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def has_view_permission(self, user):
+        return False
+
+    def has_add_permission(self, user):
+        return False
+
+    def has_modify_permission(self, user):
+        return False
+
+    def has_user_management_permission(self, user):
+        return False
+
+
+class ProjectManager(models.Manager):
+    def get_user_projects(self, user):
+        """
+        Returns a list of projects for which the given user has any level of access,
+        including any access to even a single site in the project. Do not use the method
+        to determine whether a user has access to a particular project resource.
+        """
+        projects = get_objects_for_user(user, get_perms_for_model(Project).values_list('codename'), klass=Project)
+        sites = get_objects_for_user(user, get_perms_for_model(Site).values_list('codename'), klass=Site)
+        site_projects = Project.objects.filter(id__in=[i['project_id'] for i in sites])
+
+        return list(chain(projects, site_projects))
+
+
+class Project(ProtectedModel):
     project_name = models.CharField("Project Name", unique=True, null=False, blank=False, max_length=128)
     project_desc = models.TextField(
         "Project Description",
         null=True,
         blank=True,
         help_text="A short description of the project")
+
+    objects = ProjectManager()
+
+    class Meta:
+        permissions = (
+            ('view_project_data', 'View Project'),
+            ('add_project_data', 'Add Project Data'),
+            ('modify_project_data', 'Modify/Delete Project Data'),
+            ('manage_project_users', 'Manage Project Users'),
+        )
+
+    def has_view_permission(self, user):
+
 
     def get_visit_type_count(self):
         return ProjectVisitType.objects.filter(project=self).count()
@@ -41,27 +88,17 @@ class Project(models.Model):
         return u'Project: %s' % self.project_name
 
 
-class ProjectUserManager(models.Manager):
-    def get_user_projects(self, user):
-        return Project.objects.select_related().filter(projectusermap__user=user)
-
-    def get_project_users(self, project):
-        return User.objects.select_related().filter(projectusermap__project=project)
-
-    def is_project_user(self, project, user):
-        return super(ProjectUserManager, self).filter(project=project, user=user).exists()
-
-
-class ProjectUserMap(models.Model):
-    project = models.ForeignKey(Project)
-    user = models.ForeignKey(User)
-
-    objects = ProjectUserManager()
-
-
-class Site(models.Model):
+class Site(ProtectedModel):
     project = models.ForeignKey(Project)
     site_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
+
+    class Meta:
+        permissions = (
+            ('view_site_data', 'View Site'),
+            ('add_site_data', 'Add Site Data'),
+            ('modify_site_data', 'Modify/Delete Site Data'),
+            ('manage_site_users', 'Manage Site Users')
+        )
 
     def clean(self):
         """
@@ -81,7 +118,7 @@ class Site(models.Model):
         return u'%s' % self.site_name
 
 
-class Panel(models.Model):
+class Panel(ProtectedModel):
     site = models.ForeignKey(Site, null=False, blank=False)
     panel_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
     panel_description = models.TextField(
@@ -141,7 +178,7 @@ class ParameterValueType(models.Model):
         return u'%s' % self.value_type_short_name
 
 
-class PanelParameterMap(models.Model):
+class PanelParameterMap(ProtectedModel):
     panel = models.ForeignKey(Panel)
     parameter = models.ForeignKey(Parameter)
     value_type = models.ForeignKey(ParameterValueType)
@@ -238,7 +275,7 @@ class ParameterFluorochromeMap(models.Model):
         return u'%s: %s' % (self.parameter, self.fluorochrome)
 
 
-class Subject(models.Model):
+class Subject(ProtectedModel):
     project = models.ForeignKey(Project)
     subject_id = models.CharField("Subject ID", null=False, blank=False, max_length=128)
 
@@ -264,7 +301,7 @@ class Subject(models.Model):
         return u'%s' % self.subject_id
 
 
-class ProjectVisitType(models.Model):
+class ProjectVisitType(ProtectedModel):
     project = models.ForeignKey(Project)
     visit_type_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
     visit_type_description = models.TextField(null=True, blank=True)
@@ -301,13 +338,23 @@ def fcs_file_path(instance, filename):
     return upload_dir
 
 
-class Sample(models.Model):
+class Sample(ProtectedModel):
     subject = models.ForeignKey(Subject, null=False, blank=False)
     site = models.ForeignKey(Site, null=True, blank=True)
     visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
     sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
     sha1 = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=40)
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('projects.view_project', self.subject.project):
+            return True
+        elif self.site is not None:
+            if user.has_perm('sites.view_site', self.site):
+                return True
+
+        return False
 
     def get_data_as_numpy(self):
         fcs = fcm.loadFCS(self.sample_file.file.name)
@@ -445,7 +492,7 @@ class Sample(models.Model):
             self.sample_file.name.split('/')[-1])
 
 
-class SampleParameterMap(models.Model):
+class SampleParameterMap(ProtectedModel):
     sample = models.ForeignKey(Sample)
 
     # The parameter and value_type may not be known on initial import, thus null, blank = True
@@ -492,7 +539,7 @@ def compensation_file_path(instance, filename):
     return upload_dir
 
 
-class Compensation(models.Model):
+class Compensation(ProtectedModel):
     site = models.ForeignKey(Site)
     compensation_file = models.FileField(upload_to=compensation_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
@@ -519,7 +566,7 @@ class Compensation(models.Model):
         self.matrix_text = '\n'.join(text.splitlines())
 
 
-class SampleCompensationMap(models.Model):
+class SampleCompensationMap(ProtectedModel):
     sample = models.ForeignKey(Sample, null=False, blank=False)
     compensation = models.ForeignKey(Compensation, null=False, blank=False)
 
