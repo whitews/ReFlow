@@ -46,7 +46,7 @@ if settings.INTERACTIVE_DEBUG:
             self.__object = object
 
         def __call__(self, *args, **kwargs):
-            import pdb, sys
+            import pdb
             debugger = pdb.Pdb()
             debugger.use_rawinput = 0
             debugger.reset()

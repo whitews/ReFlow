@@ -30,7 +30,7 @@ $(document).ready(function()
             type: $(this).attr('method'),
             url: $(this).attr('action'),
             success: function (xhr, status, error) {
-                window.location.reload(true);
+                window.location.reload();
             },
             error: function(xhr, status, error) {
                 $('#error_message').empty();
@@ -166,7 +166,7 @@ $(document).ready(function()
                   {% endfor %}
                   <tr class="hide add_parameter_row">
                     <td>
-                      <form class="add_parameter_form" style="margin: 0px; padding:0px" action="{% url 'project_panels' project.id %}" method="post">
+                      <form class="add_parameter_form" style="margin: 0; padding: 0" action="{% url 'project_panels' project.id %}" method="post">
                       {% csrf_token %}
                       <input type="hidden" name="panel" value="{{ panel.id }}">
                       {{ form.parameter }}

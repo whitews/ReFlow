@@ -12,7 +12,7 @@
                 type: $(this).attr('method'),
                 url: $(this).attr('action'),
                 success: function (xhr, status, error) {
-                    window.location.reload(true);
+                    window.location.reload();
                 },
                 error: function(xhr, status, error) {
                     $('#error_message').empty();

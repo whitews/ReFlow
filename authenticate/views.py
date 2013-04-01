@@ -4,12 +4,13 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+
 def login_view(request):
     if request.method == 'GET':
         if 'next' in request.GET:
             return render_to_response(
                 'login.html',
-                {'next': request.GET.get('next'),},
+                {'next': request.GET.get('next')},
                 context_instance=RequestContext(request)
             )
         else:
@@ -22,7 +23,7 @@ def login_view(request):
     if request.method == 'POST' and request.POST.get('username') and request.POST.get('password'):
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(username=username,password=password)
+        user = authenticate(username=username, password=password)
         if user is not None and user.is_active:
             login(request, user)
             if 'next' in request.POST:
@@ -40,9 +41,11 @@ def login_view(request):
         context_instance=RequestContext(request)
     )
 
+
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse('login'))
+
 
 def login_failed(request):
     return render_to_response(
