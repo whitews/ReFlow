@@ -65,8 +65,25 @@ class Project(ProtectedModel):
             ('manage_project_users', 'Manage Project Users'),
         )
 
-    #def has_view_permission(self, user):
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self):
+            return True
+        return False
 
+    def has_add_permission(self, user):
+        if user.has_perm('add_project_data', self):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self):
+            return True
+        return False
+
+    def has_user_management_permission(self, user):
+        if user.has_perm('manage_project_users', self):
+            return True
+        return False
 
     def get_visit_type_count(self):
         return ProjectVisitType.objects.filter(project=self).count()
