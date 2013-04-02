@@ -9,8 +9,10 @@ register = template.Library()
 
 
 @register.filter
-def user_projects(value):
-    if User.objects.filter(username=value).count() == 0:
+def get_user_permissions(project, user):
+    try:
+        perms = project.get_user_permissions(user)
+    except:
         return None
 
-    return Project.objects.get_user_projects(user=User.objects.get(username=value))
+    return perms

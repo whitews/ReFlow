@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load repository_filters %}
 {% block body %}
   <div class="container">
     <div class="row lead">
@@ -15,9 +16,7 @@
       <thead>
         <tr>
           <th>Project Name</th>
-          <th>Sites</th>
-          <th>Subjects</th>
-          <th>Samples</th>
+          <th>Permissions</th>
         </tr>
       </thead>
 
@@ -27,15 +26,12 @@
         <tr>
           <td>
             <a href="{% url 'repository.views.view_project' p.id %}">{{ p.project_name }}</a>
-            <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_project' p.id %}" data-original-title="Edit Project" data-placement="left">
-                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-              </a>
-            </span>
           </td>
-          <td>{{ p.site_set.count }}</td>
-          <td>{{ p.get_subject_count }}</td>
-          <td>{{ p.get_sample_count }}</td>
+          <td>
+          {%  for user_perm in p|get_user_permissions:user %}
+            {{ user_perm.permission.name }}<br/>
+          {% endfor %}
+          </td>
         </tr>
       {% endfor %}
 

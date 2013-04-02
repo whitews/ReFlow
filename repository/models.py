@@ -7,8 +7,10 @@ from itertools import chain
 import os
 import re
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from guardian.shortcuts import get_objects_for_user
+from guardian.models import UserObjectPermission
 import numpy
 import fcm
 
@@ -84,6 +86,12 @@ class Project(ProtectedModel):
         if user.has_perm('manage_project_users', self):
             return True
         return False
+
+    def get_user_permissions(self, user):
+        return UserObjectPermission.objects.filter(
+            user=user,
+            content_type=ContentType.objects.get_for_model(Project),
+            object_pk=self.id)
 
     def get_visit_type_count(self):
         return ProjectVisitType.objects.filter(project=self).count()
