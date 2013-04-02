@@ -7,9 +7,11 @@
         <a href="{% url 'view_project' project.id %}">
           {{ project.project_name }}
         </a>
+        {% if can_modify_project_data %}
         <a rel="tooltip" href="{% url 'edit_project' project.id %}" data-original-title="Edit Project" data-placement="right">
           <i style="opacity: 0.4; margin-left: 10px" class="icon-th-list align-middle"></i>
         </a>
+        {% endif %}
       </div>
     </div>
     <div class="row">
@@ -21,61 +23,73 @@
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'project_visit_types' project.id %}">Visit Types</a> <span class="badge badge-inverse align-top">{{ project.get_visit_type_count }}</span></span>
+            {% if can_add_project_data %}
             <div class="pull-right">
               <a class="btn btn-success btn-small" href="{% url 'add_visit_type' project.id %}">
                 <i class="icon-plus icon-white"></i>
               </a>
             </div>
+            {% endif %}
           </td>
         </tr>
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'project_panels' project.id %}">Panels</a> <span class="badge badge-inverse align-top">{{ project.get_panel_count }}</span></span>
+            {% if can_add_project_data %}
             <div class="pull-right">
               <a class="btn btn-success btn-small" href="{% url 'add_panel' project.id %}">
                 <i class="icon-plus icon-white"></i>
               </a>
             </div>
+            {% endif %}
           </td>
         </tr>
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'project_sites' project.id %}">Sites</a> <span class="badge badge-inverse align-top">{{ project.site_set.count }}</span></span>
+            {% if can_add_project_data %}
             <div class="pull-right">
               <a class="btn btn-success btn-small" href="{% url 'add_site' project.id %}">
                 <i class="icon-plus icon-white"></i>
               </a>
             </div>
+            {% endif %}
           </td>
         </tr>
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'project_subjects' project.id %}">Subjects</a> <span class="badge badge-inverse align-top">{{ project.get_subject_count }}</span></span>
+            {% if can_add_project_data %}
             <div class="pull-right">
               <a class="btn btn-success btn-small" href="{% url 'add_subject' project.id %}">
                 <i class="icon-plus icon-white"></i>
               </a>
             </div>
+            {% endif %}
           </td>
         </tr>
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'project_samples' project.id %}">Samples</a> <span class="badge badge-inverse align-top">{{ project.get_sample_count }}</span></span>
+            {% if can_add_project_data %}
             <div class="pull-right">
               <a class="btn btn-success btn-small" href="{% url 'add_sample' project.id %}">
                 <i class="icon-plus icon-white"></i>
               </a>
             </div>
+            {% endif %}
           </td>
         </tr>
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'project_compensations' project.id %}">Compensation Matrices</a> <span class="badge badge-inverse align-top">{{ project.get_compensation_count }}</span></span>
+            {% if can_add_project_data %}
             <div class="pull-right">
               <a class="btn btn-success btn-small" href="{% url 'add_compensation' project.id %}">
                 <i class="icon-plus icon-white"></i>
               </a>
             </div>
+            {% endif %}
           </td>
         </tr>
       </tbody>

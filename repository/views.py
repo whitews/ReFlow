@@ -45,12 +45,17 @@ def view_projects(request):
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
+    can_add_project_data = request.user.has_perm('add_project_data', project)
+    can_modify_project_data = request.user.has_perm('modify_project_data', project)
+
     subjects = Subject.objects.filter(project=project)
 
     return render_to_response(
         'view_project.html',
         {
             'project': project,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
             'subjects': sorted(subjects, key=attrgetter('subject_id')), 
         },
         context_instance=RequestContext(request)
@@ -145,10 +150,10 @@ def view_samples(request, project_id):
         'fcs_opt_text',
         'parameter__parameter_short_name',
         'value_type__value_type_short_name',
-        )
+    )
 
     for sample in samples:
-        sample['parameters'] = [i for i in spm_maps if i['sample_id']==sample['id']]
+        sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
     return render_to_response(
         'view_project_samples.html',
@@ -258,7 +263,7 @@ def view_site_compensations(request, site_id):
     compensations = Compensation.objects.filter(site=site).order_by('original_filename')
 
     return render_to_response(
-        'view_site_compensations.html',
+        'view_site_compensations.html',  # TODO: create site compensation view
         {
             'site': site,
             'compensations': compensations,
