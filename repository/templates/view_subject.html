@@ -59,9 +59,11 @@ $(document).ready(function()
       <div class="span4"><a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a></div>
       <div class="pull-right">
         Subject: {{ subject.subject_id }}
+        {% if can_modify_project_data %}
         <a rel="tooltip" href="{% url 'edit_subject' subject.id %}" data-original-title="Edit Subject" data-placement="bottom">
           <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
         </a>
+        {% endif %}
       </div>
     </div>
 
@@ -90,11 +92,13 @@ $(document).ready(function()
         <tr>
           <td class="middle">
             {{ sample.id }}
+            {% if can_modify_project_data %}
             <div class="pull-right">
               <a rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
                 <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
             </div>
+            {% endif %}
           </td>
           <td class="middle">
             <a href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a><br/>
@@ -136,6 +140,7 @@ $(document).ready(function()
                   </td>
                 </tr>
                 {% endfor %}
+                {% if can_add_project_data %}
                 <tr>
                   <td colspan="4">
                     Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
@@ -147,6 +152,7 @@ $(document).ready(function()
                     </a>
                   </td>
                 </tr>
+                {% endif %}
               </tbody>
             </table>
 
@@ -160,10 +166,12 @@ $(document).ready(function()
     {% else %}
     <p>Subject has no flow cytometry samples.</p>
     {% endif %}
+    {% if can_add_project_data %}
     <div class="pull-right">
       <a class="btn btn-success btn-small" href="{% url 'add_subject_sample' subject.id %}">
         <i class="icon-plus icon-white"></i> Add Sample
       </a>
     </div>
+    {% endif %}
   </div>
 {% endblock %}

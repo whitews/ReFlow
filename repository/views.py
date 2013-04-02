@@ -568,9 +568,10 @@ def create_panel_from_sample(request, sample_id):
 
 
 @login_required
-@require_project_user
-def view_subject(request, subject_id):
-    subject = get_object_or_404(Subject, pk=subject_id)
+@permission_required('view_project_data', (Project, 'id', 'project_id'), return_403=True)
+def view_subject(request, project_id, subject_id):
+    subject = get_object_or_404(Subject, pk=subject_id, project_id=project_id)
+    project = subject.project
 
     samples = Sample.objects.filter(subject=subject).values(
         'id',
@@ -588,15 +589,21 @@ def view_subject(request, subject_id):
         'value_type__value_type_short_name',
     )
 
+    # this is done to avoid hitting the database too hard in templates
     for sample in samples:
         sample['parameters'] = [i for i in spm_maps if i['sample_id']==sample['id']]
+
+    can_add_project_data = request.user.has_perm('add_project_data', project)
+    can_modify_project_data = request.user.has_perm('modify_project_data', project)
 
     return render_to_response(
         'view_subject.html',
         {
-            'project': subject.project,
+            'project': project,
             'subject': subject,
-            'samples': samples, 
+            'samples': samples,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
         },
         context_instance=RequestContext(request)
     )
