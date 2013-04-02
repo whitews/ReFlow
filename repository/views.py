@@ -90,7 +90,7 @@ def add_project(request):
 
 
 @login_required
-@require_project_user
+@permission_required('modify_project_data', (Project, 'id', 'project_id'), return_403=True)
 def edit_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 

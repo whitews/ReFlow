@@ -40,9 +40,6 @@
       <a href="{% url 'view_project' project.id %}">
         {{ project.project_name }}
       </a>
-      <a rel="tooltip" href="{% url 'edit_project' project.id %}" data-original-title="Edit Project" data-placement="right">
-        <i style="opacity: 0.4; margin-left: 10px" class="icon-th-list align-middle"></i>
-      </a>
     </div>
     <div class="pull-right">Compensation Matrices <span class="badge badge-inverse align-top">{{ compensations|length }}</span></div>
   </div>
