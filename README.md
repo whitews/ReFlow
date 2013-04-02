@@ -7,6 +7,7 @@ Requirements
 ----
 
 * django 1.4.3
+* django-guardian 1.1.0
 * djangorestframework 2.2.4
 * fcm 0.9.1 (https://code.google.com/p/py-fcm/)
 * numpy 1.6.2
@@ -18,6 +19,7 @@ __
 
 * django-extensions 1.0.2
 * django-rest-framework-docs 0.1.3
+* django-debug-toolbar 0.9.4
 
 Installation
 ----
