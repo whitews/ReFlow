@@ -2,15 +2,13 @@ from string import join
 import cStringIO
 import hashlib
 import io
-import os
-import re
 from itertools import chain
 
+import os
+import re
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
-
-from guardian.shortcuts import get_objects_for_user, get_perms_for_model
-
+from guardian.shortcuts import get_objects_for_user
 import numpy
 import fcm
 
@@ -37,9 +35,10 @@ class ProtectedModel(models.Model):
 class ProjectManager(models.Manager):
     def get_user_projects(self, user):
         """
-        Returns a list of projects for which the given user has any level of access,
-        including any access to even a single site in the project. Do not use the method
-        to determine whether a user has access to a particular project resource.
+        Returns a list of projects for which the given user has view permissions,
+        including any view access to even a single site in the project.
+        Do NOT use this method to determine whether a user has access to a
+        particular project resource.
         """
         projects = get_objects_for_user(user, 'view_project_data', klass=Project)
         sites = get_objects_for_user(user, 'view_site_data', klass=Site)
