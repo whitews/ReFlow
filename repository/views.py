@@ -48,15 +48,12 @@ def view_project(request, project_id):
     can_add_project_data = request.user.has_perm('add_project_data', project)
     can_modify_project_data = request.user.has_perm('modify_project_data', project)
 
-    subjects = Subject.objects.filter(project=project)
-
     return render_to_response(
         'view_project.html',
         {
             'project': project,
             'can_add_project_data': can_add_project_data,
             'can_modify_project_data': can_modify_project_data,
-            'subjects': sorted(subjects, key=attrgetter('subject_id')), 
         },
         context_instance=RequestContext(request)
     )
@@ -114,16 +111,21 @@ def edit_project(request, project_id):
 
 
 @login_required
-@require_project_user
+@permission_required('view_project_data', (Project, 'id', 'project_id'), return_403=True)
 def view_subjects(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     subjects = Subject.objects.filter(project=project).order_by('subject_id')
 
+    can_add_project_data = request.user.has_perm('add_project_data', project)
+    can_modify_project_data = request.user.has_perm('modify_project_data', project)
+
     return render_to_response(
         'view_project_subjects.html',
         {
             'project': project,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
             'subjects': subjects,
         },
         context_instance=RequestContext(request)
@@ -601,7 +603,7 @@ def view_subject(request, subject_id):
 
 
 @login_required
-@require_project_user
+@permission_required('add_project_data', (Project, 'id', 'project_id'), return_403=True)
 def add_subject(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 

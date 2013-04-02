@@ -24,11 +24,13 @@
         <td>
           <div>
             <a href="{% url 'view_subject' s.id %}">{{ s.subject_id }}</a>
+            {% if can_modify_project_data %}
             <span class="pull-right">
               <a rel="tooltip" href="{% url 'edit_subject' s.id %}" data-original-title="Edit Subject" data-placement="left">
                 <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
             </span>
+            {% endif %}
           </div>
         </td>
         <td>
@@ -38,10 +40,12 @@
       {% endfor %}
     </tbody>
   </table>
+  {% if can_add_project_data %}
   <div class="pull-right">
     <a class="btn btn-success btn-small" href="{% url 'add_subject' project.id %}">
       <i class="icon-plus icon-white"></i> Add Subject
     </a>
   </div>
+  {% endif %}
 </div>
 {% endblock %}
