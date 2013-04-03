@@ -1,4 +1,4 @@
-from repository.models import Project
+from repository.models import Project, Site
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -16,6 +16,31 @@ def require_project_or_site_view_permission(orig_func):
         # get_user_projects returns projects for any level of view access, even to a single site
         user_projects = Project.objects.get_user_projects(request.user)
         if not project in user_projects:
+            raise PermissionDenied
+
+        return orig_func(request, *args, **kwargs)
+
+    return user_test
+
+
+def require_project_or_site_add_permission(orig_func):
+    def user_test(request, *args, **kwargs):
+        has_perm = False
+
+        if 'project_id' in kwargs:
+            project = get_object_or_404(Project, pk=kwargs['project_id'])
+        else:
+            raise PermissionDenied
+
+        if project is not None:
+            has_perm = request.user.has_perm('add_project_data', project)
+
+        if not has_perm:
+            for site in Site.objects.get_user_sites_add_perms_by_project(request.user, project):
+                if request.user.has_perm('add_site_data', site):
+                    has_perm = True
+
+        if not has_perm:
             raise PermissionDenied
 
         return orig_func(request, *args, **kwargs)

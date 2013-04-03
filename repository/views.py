@@ -14,7 +14,7 @@ from guardian.decorators import permission_required
 
 from repository.models import *
 from repository.forms import *
-from repository.decorators import require_project_user, require_project_or_site_view_permission
+from repository.decorators import *
 from repository.utils import apply_panel_to_sample
 
 
@@ -147,7 +147,7 @@ def view_samples(request, project_id):
             'original_filename'
         )
     else:
-        user_sites = get_objects_for_user(request.user, 'view_site_data', klass=Site).filter(project=project)
+        user_sites = Site.objects.get_user_sites_by_project(request.user, project=project)
         samples = Sample.objects.filter(subject__project=project, site__in=user_sites).values(
             'id',
             'subject__subject_id',
@@ -180,24 +180,29 @@ def view_samples(request, project_id):
 
 
 @login_required
-@require_project_user
+@require_project_or_site_view_permission
 def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    sites = Site.objects.select_related().filter(project=project).order_by('site_name')
+    sites = Site.objects.get_user_sites_by_project(request.user, project)
+
+    can_add_project_data = request.user.has_perm('add_project_data', project)
+    can_modify_project_data = request.user.has_perm('modify_project_data', project)
 
     return render_to_response(
         'view_project_sites.html',
         {
             'project': project,
             'sites': sites,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
         },
         context_instance=RequestContext(request)
     )
 
 
 @login_required
-@require_project_user
+@permission_required('add_project_data', (Project, 'id', 'project_id'), return_403=True)
 def add_site(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -207,12 +212,6 @@ def add_site(request, project_id):
 
         if form.is_valid():
             form.save()
-
-            # Automatically grant all site permissions to the request user
-            assign_perm('view_site_data', request.user, site)
-            assign_perm('add_site_data', request.user, site)
-            assign_perm('modify_site_data', request.user, site)
-            assign_perm('manage_site_users', request.user, site)
 
             return HttpResponseRedirect(reverse('project_sites', args=project_id))
     else:
@@ -229,9 +228,9 @@ def add_site(request, project_id):
 
 
 @login_required
-@require_project_user
-def edit_site(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
+@permission_required('modify_project_data', (Project, 'id', 'project_id'), return_403=True)
+def edit_site(request, project_id, site_id):
+    site = get_object_or_404(Site, pk=site_id, project_id=project_id)
 
     if request.method == 'POST':
         form = SiteForm(request.POST, instance=site)
@@ -675,18 +674,18 @@ def edit_subject(request, project_id, subject_id):
 
 
 @login_required
-@require_project_user
+@require_project_or_site_add_permission
 def add_sample(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     if request.method == 'POST':
-        form = SampleForm(request.POST, request.FILES, project_id=project_id)
+        form = SampleForm(request.POST, request.FILES, project_id=project_id, request=request)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('project_samples', args=project_id))
     else:
-        form = SampleForm(project_id=project_id)
+        form = SampleForm(project_id=project_id, request=request)
 
     return render_to_response(
         'add_sample.html',

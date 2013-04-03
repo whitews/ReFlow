@@ -112,9 +112,29 @@ class Project(ProtectedModel):
         return u'Project: %s' % self.project_name
 
 
+class SiteManager(models.Manager):
+    def get_user_sites_by_project(self, user, project):
+        """
+        Returns project sites for which the given user has view permissions
+        """
+        sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project=project)
+
+        return sites
+
+    def get_user_sites_add_perms_by_project(self, user, project):
+        """
+        Returns project sites for which the given user has view permissions
+        """
+        sites = get_objects_for_user(user, 'add_site_data', klass=Site).filter(project=project)
+
+        return sites
+
+
 class Site(ProtectedModel):
     project = models.ForeignKey(Project)
     site_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
+
+    objects = SiteManager()
 
     class Meta:
         permissions = (
@@ -429,6 +449,9 @@ class Sample(ProtectedModel):
             - Save the SHA-1 hash and check for duplicate FCS files in this project.
         """
 
+        # TODO: need to add a check for the site to be restricted to those the requesting user has add perms for
+        # but request isn't available in clean() ???
+
         try:
             Subject.objects.get(id=self.subject_id)
             self.original_filename = self.sample_file.name.split('/')[-1]
@@ -436,7 +459,6 @@ class Sample(ProtectedModel):
             file_hash = hashlib.sha1(self.sample_file.read())
         except (ObjectDoesNotExist, ValueError):
             return  # Subject & sample_file are required...will get caught by Form.is_valid()
-
         # Verify subject project is the same as the site and visit project (if either site or visit is specified)
         if hasattr(self, 'site'):
             if self.site is not None:

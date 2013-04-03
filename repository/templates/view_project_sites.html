@@ -21,11 +21,13 @@
                 <tr>
                     <td class="middle" width="50%">
                       {{ site.site_name }}
+                      {% if can_modify_project_data %}
                       <span class="pull-right">
-                        <a rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit Site" data-placement="left">
+                        <a rel="tooltip" href="{% url 'edit_site' site.project_id site.id %}" data-original-title="Edit Site" data-placement="left">
                           <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
                         </a>
                       </span>
+                      {% endif %}
                     </td>
                     <td>
                         {% for panel in site.panel_set.all %}
@@ -41,10 +43,12 @@
             {% endfor %}
             </tbody>
         </table>
+        {% if can_add_project_data %}
         <div class="pull-right">
             <a class="btn btn-success btn-small" href="{% url 'add_site' project.id %}">
                 <i class="icon-plus icon-white"></i> Add Site
             </a>
         </div>
+        {% endif %}
     </div>
 {% endblock %}

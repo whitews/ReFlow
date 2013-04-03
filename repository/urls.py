@@ -45,7 +45,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/sites/$', 'view_sites', name='project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
-    url(r'^site/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
+    url(r'^project/(?P<project_id>\d+)/sites/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
     url(r'^site/(?P<site_id>\d+)/compensations/$', 'view_site_compensations', name='site_compensations'),
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
