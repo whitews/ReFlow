@@ -14,7 +14,7 @@ from guardian.decorators import permission_required
 
 from repository.models import *
 from repository.forms import *
-from repository.decorators import require_project_user
+from repository.decorators import require_project_user, require_project_or_site_view_permission
 from repository.utils import apply_panel_to_sample
 
 
@@ -41,7 +41,7 @@ def view_projects(request):
 
 
 @login_required
-@permission_required('view_project_data', (Project, 'id', 'project_id'), return_403=True)
+@require_project_or_site_view_permission
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -111,7 +111,7 @@ def edit_project(request, project_id):
 
 
 @login_required
-@permission_required('view_project_data', (Project, 'id', 'project_id'), return_403=True)
+@require_project_or_site_view_permission
 def view_subjects(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -133,16 +133,28 @@ def view_subjects(request, project_id):
 
 
 @login_required
-@require_project_user
+@require_project_or_site_view_permission
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    samples = Sample.objects.filter(subject__project=project).values(
-        'id',
-        'subject__subject_id',
-        'site__site_name',
-        'visit__visit_type_name',
-        'original_filename')
+    # get user's sites based on their site_view_permission, unless they have full project view permission
+    if project.has_view_permission(request.user):
+        samples = Sample.objects.filter(subject__project=project).values(
+            'id',
+            'subject__subject_id',
+            'site__site_name',
+            'visit__visit_type_name',
+            'original_filename'
+        )
+    else:
+        user_sites = get_objects_for_user(request.user, 'view_site_data', klass=Site).filter(project=project)
+        samples = Sample.objects.filter(subject__project=project, site__in=user_sites).values(
+            'id',
+            'subject__subject_id',
+            'site__site_name',
+            'visit__visit_type_name',
+            'original_filename'
+        )
 
     spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
         'id',

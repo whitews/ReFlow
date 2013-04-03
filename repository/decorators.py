@@ -4,8 +4,26 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 
+def require_project_or_site_view_permission(orig_func):
+    def user_test(request, *args, **kwargs):
+        if 'project_id' in kwargs:
+            project = get_object_or_404(Project, pk=kwargs['project_id'])
+        elif 'site_id' in kwargs:
+            project = get_object_or_404(Project, site__pk=kwargs['site_id'])
+        else:
+            raise PermissionDenied
+
+        # get_user_projects returns projects for any level of view access, even to a single site
+        user_projects = Project.objects.get_user_projects(request.user)
+        if not project in user_projects:
+            raise PermissionDenied
+
+        return orig_func(request, *args, **kwargs)
+
+    return user_test
+
+
 def require_project_user(orig_func):
-    # TODO: look into guardian decorator permission_required() as replacement for this
 
     def user_test(request, *args, **kwargs):
 
