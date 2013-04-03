@@ -53,11 +53,11 @@ urlpatterns += patterns('repository.views',
     url(r'^download/compensation/(?P<compensation_id>\d+)$', 'retrieve_compensation', name='retrieve_compensation'),
 
     url(r'^project/(?P<project_id>\d+)/visit_types/$', 'view_visit_types', name='project_visit_types'),
-    url(r'^project/(?P<project_id>\d+)/visit_type/add/$', 'add_visit_type', name='add_visit_type'),
+    url(r'^project/(?P<project_id>\d+)/visit_types/add/$', 'add_visit_type', name='add_visit_type'),
     url(r'^visit_type/(?P<visit_type_id>\d+)/edit/$', 'edit_visit_type', name='edit_visit_type'),
 
     url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='project_panels'),
-    url(r'^project/(?P<project_id>\d+)/panel/add/$', 'add_panel', name='add_panel'),
+    url(r'^project/(?P<project_id>\d+)/panels/add/$', 'add_panel', name='add_panel'),
     url(r'^panel/(?P<panel_id>\d+)/edit/$', 'edit_panel', name='edit_panel'),
     url(r'^parameter/(?P<panel_parameter_id>\d+)/remove/$', 'remove_panel_parameter', name='remove_panel_parameter'),
 
@@ -66,8 +66,8 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/subjects/add/$', 'add_subject', name='add_subject'),
     url(r'^project/(?P<project_id>\d+)/subjects/(?P<subject_id>\d+)/edit/$', 'edit_subject', name='edit_subject'),
 
-    url(r'^project/(?P<project_id>\d+)/sample/add/$', 'add_sample', name='add_sample'),
-    url(r'^subject/(?P<subject_id>\d+)/sample/add/$', 'add_subject_sample', name='add_subject_sample'),
+    url(r'^project/(?P<project_id>\d+)/samples/add/$', 'add_sample', name='add_sample'),
+    url(r'^subject/(?P<subject_id>\d+)/samples/add/$', 'add_subject_sample', name='add_subject_sample'),
 
     url(r'^project/(?P<project_id>\d+)/samples/$', 'view_samples', name='project_samples'),
     url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),

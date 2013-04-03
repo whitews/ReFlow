@@ -336,24 +336,29 @@ def add_site_compensation(request, site_id):
 
 
 @login_required
-@require_project_user
+@require_project_or_site_view_permission
 def view_visit_types(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     visit_types = ProjectVisitType.objects.filter(project=project).order_by('visit_type_name')
+
+    can_add_project_data = request.user.has_perm('add_project_data', project)
+    can_modify_project_data = request.user.has_perm('modify_project_data', project)
 
     return render_to_response(
         'view_project_visit_types.html',
         {
             'project': project,
             'visit_types': visit_types,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
         },
         context_instance=RequestContext(request)
     )
 
 
 @login_required
-@require_project_user
+@permission_required('add_project_data', (Project, 'id', 'project_id'), return_403=True)
 def add_visit_type(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
