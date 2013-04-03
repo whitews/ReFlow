@@ -420,8 +420,6 @@ def view_project_panels(request, project_id):
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
-    #panels = Panel.objects.select_related().prefetch_related('panelparametermap_set').filter(site__project=project).order_by('site__site_name', 'panel_name')
-
     panels = Panel.objects.filter(site__project=project).values(
         'id',
         'panel_name',
@@ -603,7 +601,7 @@ def view_subject(request, project_id, subject_id):
 
     # this is done to avoid hitting the database too hard in templates
     for sample in samples:
-        sample['parameters'] = [i for i in spm_maps if i['sample_id']==sample['id']]
+        sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
     can_add_project_data = request.user.has_perm('add_project_data', project)
     can_modify_project_data = request.user.has_perm('modify_project_data', project)
