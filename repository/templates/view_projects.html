@@ -16,20 +16,28 @@
       <thead>
         <tr>
           <th>Project Name</th>
-          <th>Permissions</th>
+          <th>Project Permissions</th>
+          <th>Site Permissions</th>
         </tr>
       </thead>
 
       <tbody>
 
-      {% for p in projects %}
+      {% for project in projects %}
         <tr>
           <td>
-            <a href="{% url 'repository.views.view_project' p.id %}">{{ p.project_name }}</a>
+            <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
           </td>
           <td>
-          {%  for user_perm in p|get_user_permissions:user %}
+          {%  for user_perm in project|get_user_project_permissions:user %}
             {{ user_perm.permission.name }}<br/>
+          {% endfor %}
+          </td>
+        <td>
+          {% for site in project.site_set.all %}
+            {%  for user_perm in site|get_user_site_permissions:user %}
+              {{ site.site_name }}: {{ user_perm.permission.name }}<br/>
+            {% endfor %}
           {% endfor %}
           </td>
         </tr>

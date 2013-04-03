@@ -124,6 +124,12 @@ class Site(ProtectedModel):
             ('manage_site_users', 'Manage Site Users')
         )
 
+    def get_user_permissions(self, user):
+        return UserObjectPermission.objects.filter(
+            user=user,
+            content_type=ContentType.objects.get_for_model(Site),
+            object_pk=self.id)
+
     def clean(self):
         """
         Check for duplicate site names within a project. Returns ValidationError if any duplicates are found.
