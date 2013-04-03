@@ -604,4 +604,3 @@ class SampleCompensationMap(ProtectedModel):
 
         if self.sample.site != self.compensation.site:
             raise ValidationError("Compensation matrix must belong to the same site as the sample.")
-
