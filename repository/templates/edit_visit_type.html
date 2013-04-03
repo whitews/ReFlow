@@ -9,7 +9,7 @@
             <div class="pull-right">Edit Visit Type: {{ visit_type.visit_type_name }}</div>
         </div>
         <br/>
-        <form class="form-horizontal" action="{% url 'repository.views.edit_visit_type' visit_type.id %}" method="post">
+        <form class="form-horizontal" action="{% url 'repository.views.edit_visit_type' visit_type.project_id visit_type.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
                 <div class="control-group text-error">

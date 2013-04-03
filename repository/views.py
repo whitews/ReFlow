@@ -383,9 +383,9 @@ def add_visit_type(request, project_id):
 
 
 @login_required
-@require_project_user
-def edit_visit_type(request, visit_type_id):
-    visit_type = get_object_or_404(ProjectVisitType, pk=visit_type_id)
+@permission_required('modify_project_data', (Project, 'id', 'project_id'), return_403=True)
+def edit_visit_type(request, project_id, visit_type_id):
+    visit_type = get_object_or_404(ProjectVisitType, pk=visit_type_id, project_id=project_id)
 
     if request.method == 'POST':
         form = ProjectVisitTypeForm(request.POST, instance=visit_type)

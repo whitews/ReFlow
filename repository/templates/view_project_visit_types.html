@@ -22,7 +22,7 @@
                       {{ visit_type.visit_type_name }}
                       {% if can_modify_project_data %}
                       <span class="pull-right">
-                        <a rel="tooltip" href="{% url 'edit_visit_type' visit_type.id %}" data-original-title="Edit Visit Type" data-placement="left">
+                        <a rel="tooltip" href="{% url 'edit_visit_type' visit_type.project_id visit_type.id %}" data-original-title="Edit Visit Type" data-placement="left">
                           <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
                         </a>
                       </span>
