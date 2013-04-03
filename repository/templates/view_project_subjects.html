@@ -26,7 +26,7 @@
             <a href="{% url 'view_subject' s.project_id s.id %}">{{ s.subject_id }}</a>
             {% if can_modify_project_data %}
             <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_subject' s.id %}" data-original-title="Edit Subject" data-placement="left">
+              <a rel="tooltip" href="{% url 'edit_subject' s.project_id s.id %}" data-original-title="Edit Subject" data-placement="left">
                 <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
             </span>

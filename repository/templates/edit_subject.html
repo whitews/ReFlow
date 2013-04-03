@@ -9,7 +9,7 @@
             <div class="pull-right">Edit Subject: {{ subject.subject_id }}</div>
         </div>
         <br/>
-        <form class="form-horizontal" action="{% url 'edit_subject' subject.id %}" method="post">
+        <form class="form-horizontal" action="{% url 'edit_subject' subject.project_id subject.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
                 <div class="control-group text-error">

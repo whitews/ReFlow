@@ -60,7 +60,7 @@ $(document).ready(function()
       <div class="pull-right">
         Subject: {{ subject.subject_id }}
         {% if can_modify_project_data %}
-        <a rel="tooltip" href="{% url 'edit_subject' subject.id %}" data-original-title="Edit Subject" data-placement="bottom">
+        <a rel="tooltip" href="{% url 'edit_subject' subject.project_id subject.id %}" data-original-title="Edit Subject" data-placement="bottom">
           <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
         </a>
         {% endif %}

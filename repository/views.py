@@ -636,16 +636,16 @@ def add_subject(request, project_id):
 
 
 @login_required
-@require_project_user
-def edit_subject(request, subject_id):
-    subject = get_object_or_404(Subject, pk=subject_id)
+@permission_required('modify_project_data', (Project, 'id', 'project_id'), return_403=True)
+def edit_subject(request, project_id, subject_id):
+    subject = get_object_or_404(Subject, pk=subject_id, project_id=project_id)
 
     if request.method == 'POST':
         form = SubjectForm(request.POST, instance=subject)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=subject_id))
+            return HttpResponseRedirect(reverse('view_subject', args=(project_id, subject_id)))
     else:
         form = SubjectForm(instance=subject)
 
