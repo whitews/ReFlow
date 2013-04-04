@@ -561,7 +561,8 @@ class Sample(ProtectedModel):
         super(Sample, self).save(*args, **kwargs)
 
         # Save all the parameters as SampleParameterMap instances if we have _sample_parameters
-        if hasattr(self, '_sample_parameters'):
+        # Check if sample has any parameters, could happen if someone 'edits' an existing sample
+        if hasattr(self, '_sample_parameters') and self.sampleparametermap_set.count() == 0:
             for key in self._sample_parameters:
                 spm = SampleParameterMap()
                 spm.sample = self

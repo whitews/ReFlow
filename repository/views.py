@@ -814,9 +814,12 @@ def edit_sample(request, sample_id):
 
 
 @login_required
-@require_project_user
 def select_panel(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
+
+    if not sample.site.has_add_permission(request.user):
+        raise PermissionDenied
+
     site_panels = Panel.objects.filter(site=sample.site)
 
     if request.method == 'POST':
