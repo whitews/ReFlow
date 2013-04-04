@@ -1,57 +1,56 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-
 {% block extra_head %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
 {% endblock %}
 
 {% block toes %}
-    <script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
+<script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
 
-    <script>
-        $(document).ready(function()
-        {
-            var select_panel_dialog = $("<div></div>").dialog(
-                    {
-                        autoOpen: false,
-                        title: 'Select a Panel',
-                        modal: false,
-                        position: 'center',
-                        height: 350,
-                        width: 500
-                    });
+<script>
+$(document).ready(function()
+{
+    var select_panel_dialog = $("<div></div>").dialog(
+    {
+        autoOpen: false,
+        title: 'Select a Panel',
+        modal: false,
+        position: 'center',
+        height: 350,
+        width: 500
+    });
 
-            $(".select_panel").click(function()
-            {
-                select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
-                select_panel_dialog.load($(this).data("form-url"));
-                select_panel_dialog.dialog('open');
-                return false;
-            });
+    $(".select_panel").click(function()
+    {
+        select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
+        select_panel_dialog.load($(this).data("form-url"));
+        select_panel_dialog.dialog('open');
+        return false;
+    });
 
-            $(".show-all").click(function()
-            {
-                $('.params').show(250);
-                return false;
-            });
+    $(".show-all").click(function()
+    {
+        $('.params').show(250);
+        return false;
+    });
 
-            $(".hide-all").click(function()
-            {
-                $('.params').hide(250);
-                return false;
-            });
+    $(".hide-all").click(function()
+    {
+        $('.params').hide(250);
+        return false;
+    });
 
-            $(".toggle-closest").click(function()
-            {
-                $(this).siblings('table.params').toggle(250);
-                return false;
-            });
+    $(".toggle-closest").click(function()
+    {
+        $(this).siblings('table.params').toggle(250);
+        return false;
+    });
 
-            return false;
-        });
+    return false;
+});
 
-    </script>
+</script>
 {% endblock %}
 
 {% block body %}
@@ -62,12 +61,17 @@
         {{ project.project_name }}
       </a>
     </div>
-    <div class="pull-right">Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></div>
+    <div class="pull-right">
+      Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span>
+    </div>
   </div>
 
   {% if samples %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="5" class="center"><h4>Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4></th>
+      </tr>
       <tr>
           <th>Sample ID</th>
           <th>File Name</th>
@@ -108,15 +112,18 @@
         <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
 
         <td style="width: 60%" class="middle">
+
           {% if sample.parameters.count > 0 %}
+
           <a href="#" class="toggle-closest">Show/Hide</a>
           <table class="table table-bordered table-hover hide params">
             <thead>
-            <tr>
-            <th>FCS Number</th>
-            <th>FCS PnN</th>
-            <th>FCS PnS</th>
-            <th>Name</th>
+              <tr>
+                <th>FCS Number</th>
+                <th>FCS PnN</th>
+                <th>FCS PnS</th>
+                <th>Name</th>
+              </tr>
             </thead>
             <tbody>
               {% for sp_map in sample.parameters|dictsort:"fcs_number" %}
@@ -152,6 +159,7 @@
           </table>
 
           {% endif %}
+
         </td>
       </tr>
       {% endfor %}
