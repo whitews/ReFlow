@@ -10,7 +10,6 @@ from django.utils import simplejson
 from django.forms.models import inlineformset_factory
 
 from guardian.shortcuts import assign_perm
-from guardian.decorators import permission_required
 
 from repository.models import *
 from repository.forms import *
@@ -33,9 +32,12 @@ def view_projects(request):
 
 
 @login_required
-@require_project_or_site_view_permission
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
+
+    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -105,9 +107,13 @@ def edit_project(request, project_id):
 
 
 @login_required
-@require_project_or_site_view_permission
 def view_subjects(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
+
+    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
 
     subjects = Subject.objects.filter(project=project).order_by('subject_id')
 
@@ -267,6 +273,7 @@ def edit_site(request, project_id, site_id):
 def view_compensations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+
     if project.has_view_permission(request.user):
         compensations = Compensation.objects\
             .select_related()\
@@ -300,9 +307,13 @@ def view_compensations(request, project_id):
 
 
 @login_required
-@require_project_or_site_add_permission
 def add_compensation(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+
+    user_sites = Site.objects.get_sites_user_can_add(request.user, project)
+
+    if not (project.has_add_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = CompensationForm(request.POST, request.FILES, project_id=project_id, request=request)
@@ -351,9 +362,12 @@ def add_site_compensation(request, site_id):
 
 
 @login_required
-@require_project_or_site_view_permission
 def view_visit_types(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
+
+    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
 
     visit_types = ProjectVisitType.objects.filter(project=project).order_by('visit_type_name')
 
@@ -602,10 +616,10 @@ def create_panel_from_sample(request, sample_id):
 
 
 @login_required
-@require_project_or_site_view_permission
 def view_subject(request, project_id, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id, project_id=project_id)
     project = subject.project
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
 
     # get user's sites based on their site_view_permission, unless they have full project view permission
     if project.has_view_permission(request.user):
@@ -617,7 +631,7 @@ def view_subject(request, project_id, subject_id):
             'visit__visit_type_name',
             'original_filename'
         )
-    else:
+    elif user_sites.count() > 0:
         user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
         samples = Sample.objects.filter(subject=subject, site__in=user_view_sites).values(
             'id',
@@ -627,6 +641,8 @@ def view_subject(request, project_id, subject_id):
             'visit__visit_type_name',
             'original_filename'
         )
+    else:
+        raise PermissionDenied
 
     spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
         'id',
@@ -663,9 +679,11 @@ def view_subject(request, project_id, subject_id):
 
 
 @login_required
-@permission_required('add_project_data', (Project, 'id', 'project_id'), return_403=True)
 def add_subject(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_add_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         subject = Subject(project=project)
@@ -689,9 +707,11 @@ def add_subject(request, project_id):
 
 
 @login_required
-@permission_required('modify_project_data', (Project, 'id', 'project_id'), return_403=True)
 def edit_subject(request, project_id, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id, project_id=project_id)
+
+    if not subject.project.has_modify_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = SubjectForm(request.POST, instance=subject)
@@ -713,9 +733,12 @@ def edit_subject(request, project_id, subject_id):
 
 
 @login_required
-@require_project_or_site_add_permission
 def add_sample(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user_sites = Site.objects.get_sites_user_can_add(request.user, project)
+
+    if not (project.has_add_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = SampleForm(request.POST, request.FILES, project_id=project_id, request=request)
