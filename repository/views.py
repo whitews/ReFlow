@@ -616,8 +616,8 @@ def create_panel_from_sample(request, sample_id):
 
 
 @login_required
-def view_subject(request, project_id, subject_id):
-    subject = get_object_or_404(Subject, pk=subject_id, project_id=project_id)
+def view_subject(request, subject_id):
+    subject = get_object_or_404(Subject, pk=subject_id)
     project = subject.project
     user_sites = Site.objects.get_sites_user_can_view(request.user, project)
 
@@ -718,7 +718,7 @@ def edit_subject(request, project_id, subject_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=(project_id, subject_id)))
+            return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
         form = SubjectForm(instance=subject)
 

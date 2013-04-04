@@ -423,7 +423,7 @@ def fcs_file_path(instance, filename):
 
 class Sample(ProtectedModel):
     subject = models.ForeignKey(Subject, null=False, blank=False)
-    site = models.ForeignKey(Site, null=True, blank=True)
+    site = models.ForeignKey(Site, null=False, blank=False)
     visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
     sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
@@ -604,6 +604,9 @@ class SampleParameterMap(ProtectedModel):
             return ''
 
     name = property(_get_name)
+
+    class Meta:
+        unique_together = (('sample', 'fcs_text'),)
 
     def __unicode__(self):
             return u'SampleID: %s, Parameter: %s-%s, Number: %s, Text: %s' % (

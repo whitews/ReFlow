@@ -98,7 +98,7 @@ class SampleForm(ModelForm):
             # we also need to limit the sites to those that the user has 'add' permission for
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = ModelChoiceField(sites, required=False)
+            self.fields['site'] = ModelChoiceField(sites)
 
             visit_types = ProjectVisitType.objects.filter(project__id=project_id).order_by('visit_type_name')
             self.fields['visit'] = ModelChoiceField(visit_types, required=False)
@@ -144,7 +144,7 @@ class SampleEditForm(ModelForm):
         if project_id:
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = ModelChoiceField(sites, required=False)
+            self.fields['site'] = ModelChoiceField(sites)
 
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = ModelChoiceField(visit_types)
