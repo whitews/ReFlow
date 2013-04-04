@@ -18,14 +18,6 @@ from repository.decorators import *
 from repository.utils import apply_panel_to_sample
 
 
-def d3_test(request):
-    return render_to_response(
-        'd3_test.html',
-        {},
-        context_instance=RequestContext(request)
-    )
-
-
 @login_required
 def view_projects(request):
 
