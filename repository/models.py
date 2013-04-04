@@ -119,7 +119,10 @@ class SiteManager(models.Manager):
         """
         Returns project sites for which the given user has view permissions
         """
-        sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project=project)
+        if project.has_view_permission(user):
+            sites = Site.objects.filter(project=project)
+        else:
+            sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project=project)
 
         return sites
 
@@ -127,7 +130,10 @@ class SiteManager(models.Manager):
         """
         Returns project sites for which the given user has add permissions
         """
-        sites = get_objects_for_user(user, 'add_site_data', klass=Site).filter(project=project)
+        if project.has_add_permission(user):
+            sites = Site.objects.filter(project=project)
+        else:
+            sites = get_objects_for_user(user, 'add_site_data', klass=Site).filter(project=project)
 
         return sites
 
@@ -135,7 +141,10 @@ class SiteManager(models.Manager):
         """
         Returns project sites for which the given user has modify permissions
         """
-        sites = get_objects_for_user(user, 'modify_site_data', klass=Site).filter(project=project)
+        if project.has_modify_permission(user):
+            sites = Site.objects.filter(project=project)
+        else:
+            sites = get_objects_for_user(user, 'modify_site_data', klass=Site).filter(project=project)
 
         return sites
 

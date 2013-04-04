@@ -127,9 +127,9 @@ def view_subjects(request, project_id):
 
 
 @login_required
-@require_project_or_site_view_permission
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
     # get user's sites based on their site_view_permission, unless they have full project view permission
     if project.has_view_permission(request.user):
@@ -141,8 +141,7 @@ def view_samples(request, project_id):
             'visit__visit_type_name',
             'original_filename'
         )
-    else:
-        user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    elif user_view_sites.count() > 0:
         samples = Sample.objects.filter(subject__project=project, site__in=user_view_sites).values(
             'id',
             'subject__subject_id',
@@ -151,9 +150,8 @@ def view_samples(request, project_id):
             'visit__visit_type_name',
             'original_filename'
         )
-        for site in user_view_sites:
-            sites = get_objects_for_user(request.user, 'add_site_data', klass=Site) \
-                .filter(project_id=project_id).order_by('site_name')
+    else:
+        raise PermissionDenied
 
     spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
         'id',
@@ -188,11 +186,13 @@ def view_samples(request, project_id):
 
 
 @login_required
-@require_project_or_site_view_permission
 def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     sites = Site.objects.get_sites_user_can_view(request.user, project)
+
+    if not (project.has_view_permission(request.user) or sites.count() > 0):
+        raise PermissionDenied
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -268,9 +268,15 @@ def view_compensations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
     if project.has_view_permission(request.user):
-        compensations = Compensation.objects.select_related().filter(site__project=project).order_by('original_filename')
+        compensations = Compensation.objects\
+            .select_related()\
+            .filter(site__project=project)\
+            .order_by('original_filename')
     elif user_view_sites.count() > 0:
-        compensations = Compensation.objects.select_related().filter(site__in=user_view_sites).order_by('original_filename')
+        compensations = Compensation.objects\
+            .select_related()\
+            .filter(site__in=user_view_sites)\
+            .order_by('original_filename')
     else:
         raise PermissionDenied
 
@@ -288,23 +294,6 @@ def view_compensations(request, project_id):
             'can_modify_project_data': can_modify_project_data,
             'user_add_sites': user_add_sites,
             'user_modify_sites': user_modify_sites
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-@require_project_user
-def view_site_compensations(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
-
-    compensations = Compensation.objects.filter(site=site).order_by('original_filename')
-
-    return render_to_response(
-        'view_site_compensations.html',  # TODO: create site compensation view
-        {
-            'site': site,
-            'compensations': compensations,
         },
         context_instance=RequestContext(request)
     )
@@ -638,9 +627,6 @@ def view_subject(request, project_id, subject_id):
             'visit__visit_type_name',
             'original_filename'
         )
-        for site in user_view_sites:
-            sites = get_objects_for_user(request.user, 'add_site_data', klass=Site) \
-                .filter(project_id=project_id).order_by('site_name')
 
     spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
         'id',
