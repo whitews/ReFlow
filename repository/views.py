@@ -210,9 +210,11 @@ def view_sites(request, project_id):
 
 
 @login_required
-@permission_required('add_project_data', (Project, 'id', 'project_id'), return_403=True)
 def add_site(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_add_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         site = Site(project=project)
@@ -236,9 +238,11 @@ def add_site(request, project_id):
 
 
 @login_required
-@permission_required('modify_project_data', (Project, 'id', 'project_id'), return_403=True)
 def edit_site(request, project_id, site_id):
     site = get_object_or_404(Site, pk=site_id, project_id=project_id)
+
+    if not site.project.has_modify_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = SiteForm(request.POST, instance=site)
@@ -260,17 +264,30 @@ def edit_site(request, project_id, site_id):
 
 
 @login_required
-@require_project_user
 def view_compensations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    if project.has_view_permission(request.user):
+        compensations = Compensation.objects.select_related().filter(site__project=project).order_by('original_filename')
+    elif user_view_sites.count() > 0:
+        compensations = Compensation.objects.select_related().filter(site__in=user_view_sites).order_by('original_filename')
+    else:
+        raise PermissionDenied
 
-    compensations = Compensation.objects.select_related().filter(site__project=project).order_by('original_filename')
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+    user_add_sites = Site.objects.get_sites_user_can_add(request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(request.user, project).values_list('id', flat=True)
 
     return render_to_response(
         'view_project_compensations.html',
         {
             'project': project,
             'compensations': compensations,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+            'user_add_sites': user_add_sites,
+            'user_modify_sites': user_modify_sites
         },
         context_instance=RequestContext(request)
     )
@@ -294,18 +311,18 @@ def view_site_compensations(request, site_id):
 
 
 @login_required
-@require_project_user
+@require_project_or_site_add_permission
 def add_compensation(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     if request.method == 'POST':
-        form = CompensationForm(request.POST, request.FILES, project_id=project_id)
+        form = CompensationForm(request.POST, request.FILES, project_id=project_id, request=request)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('project_compensations', args=project_id))
     else:
-        form = CompensationForm(project_id=project_id)
+        form = CompensationForm(project_id=project_id, request=request)
 
     return render_to_response(
         'add_compensation.html',
@@ -318,19 +335,21 @@ def add_compensation(request, project_id):
 
 
 @login_required
-@require_project_user
 def add_site_compensation(request, site_id):
     site = get_object_or_404(Subject, pk=site_id)
 
+    if not site.has_add_permission(request.user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         compensation = Compensation(site=site)
-        form = CompensationForm(request.POST, request.FILES, instance=compensation)
+        form = CompensationForm(request.POST, request.FILES, instance=compensation, request=request)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('view_site', args=site_id))
     else:
-        form = CompensationForm()
+        form = CompensationForm(request=request)
 
     return render_to_response(
         'add_compensation.html',

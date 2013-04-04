@@ -1,36 +1,30 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-
 {% block extra_head %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
+<link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
 {% endblock %}
 
 {% block toes %}
-    <script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
+<script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
 
-    <script>
-        $(document).ready(function()
-        {
-            $(".show-all").click(function()
-            {
-                $('.params').show(250);
-            });
+<script>
+  $(document).ready(function() {
+    $(".show-all").click(function() {
+      $('.params').show(250);
+    });
 
-            $(".hide-all").click(function()
-            {
-                $('.params').hide(250);
-            });
+    $(".hide-all").click(function() {
+      $('.params').hide(250);
+    });
 
-            $(".toggle-closest").click(function()
-            {
-                $(this).siblings('table.params').toggle(250);
-            });
+    $(".toggle-closest").click(function() {
+      $(this).siblings('table.params').toggle(250);
+    });
 
-            return false;
-        });
-
-    </script>
+    return false;
+  });
+</script>
 {% endblock %}
 
 {% block body %}
@@ -48,16 +42,16 @@
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-          <th>Compensation ID</th>
-          <th>Site</th>
-          <th>File Name</th>
-          <th>Text</th>
-          <th>
-              Samples
-              <div class="pull-right">
-                <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-              </div>
-          </th>
+        <th>Compensation ID</th>
+        <th>Site</th>
+        <th>File Name</th>
+        <th>Text</th>
+        <th>
+          Samples
+          <div class="pull-right">
+            <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+          </div>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -94,12 +88,12 @@
               </tr>
               {% endfor %}
               <tr>
-                  <td colspan="8">
-                    Select a site sample to associate with this compensation matrix.<br/>
-                    <a class="select_panel btn btn-success btn-small" href="#">
-                      <i class="icon-plus icon-white"></i> Select Sample
-                    </a>
-                  </td>
+                <td colspan="8">
+                  Select a site sample to associate with this compensation matrix.<br/>
+                  <a class="select_panel btn btn-success btn-small" href="#">
+                    <i class="icon-plus icon-white"></i> Select Sample
+                  </a>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -113,10 +107,12 @@
   {% else %}
   <p>Project has no compensation matrices.</p>
   {% endif %}
+  {% if can_add_project_data or user_add_sites.count > 0 %}
   <div class="pull-right">
     <a class="btn btn-success btn-small" href="{% url 'add_compensation' project.id %}">
       <i class="icon-plus icon-white"></i> Add Compensation Matrix
     </a>
   </div>
+  {% endif %}
 </div>
 {% endblock %}
