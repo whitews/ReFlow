@@ -44,7 +44,9 @@ class ProjectManager(models.Manager):
         """
         projects = get_objects_for_user(user, 'view_project_data', klass=Project)
         sites = get_objects_for_user(user, 'view_site_data', klass=Site)
-        site_projects = Project.objects.filter(id__in=[i.project_id for i in sites])
+        site_projects = Project.objects\
+            .filter(id__in=[i.project_id for i in sites])\
+            .exclude(id__in=[p.id for p in projects])
 
         return list(chain(projects, site_projects))
 
