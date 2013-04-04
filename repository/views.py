@@ -760,19 +760,22 @@ def add_sample(request, project_id):
 
 
 @login_required
-@require_project_user
 def add_subject_sample(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
+    user_sites = Site.objects.get_sites_user_can_add(request.user, subject.project)
+
+    if not (subject.project.has_add_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
 
     if request.method == 'POST':
         sample = Sample(subject=subject)
-        form = SampleSubjectForm(request.POST, request.FILES, instance=sample)
+        form = SampleSubjectForm(request.POST, request.FILES, instance=sample, request=request)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
-        form = SampleSubjectForm(project_id=subject.project_id)
+        form = SampleSubjectForm(project_id=subject.project_id, request=request)
 
     return render_to_response(
         'add_subject_sample.html',

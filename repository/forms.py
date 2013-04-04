@@ -113,12 +113,20 @@ class SampleSubjectForm(ModelForm):
         # pop our 'project_id' key since parent's init is not expecting it
         project_id = kwargs.pop('project_id', None)
 
+        # likewise for 'request' arg
+        request = kwargs.pop('request', None)
+
         # now it's safe to call the parent init
         super(SampleSubjectForm, self).__init__(*args, **kwargs)
 
         # finally, make sure only project's site and visit types are the available choices
         if project_id:
             sites = Site.objects.filter(project__id=project_id)
+            self.fields['site'] = ModelChoiceField(sites)
+
+            # we also need to limit the sites to those that the user has 'add' permission for
+            project = Project.objects.get(id=project_id)
+            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
             self.fields['site'] = ModelChoiceField(sites)
 
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
