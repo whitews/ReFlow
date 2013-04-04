@@ -35,7 +35,7 @@ class ProtectedModel(models.Model):
 
 
 class ProjectManager(models.Manager):
-    def get_user_projects(self, user):
+    def get_projects_user_can_view(self, user):
         """
         Returns a list of projects for which the given user has view permissions,
         including any view access to even a single site in the project.
@@ -113,7 +113,7 @@ class Project(ProtectedModel):
 
 
 class SiteManager(models.Manager):
-    def get_user_sites_by_project(self, user, project):
+    def get_sites_user_can_view(self, user, project):
         """
         Returns project sites for which the given user has view permissions
         """
@@ -121,11 +121,19 @@ class SiteManager(models.Manager):
 
         return sites
 
-    def get_user_sites_add_perms_by_project(self, user, project):
+    def get_sites_user_can_add(self, user, project):
         """
-        Returns project sites for which the given user has view permissions
+        Returns project sites for which the given user has add permissions
         """
         sites = get_objects_for_user(user, 'add_site_data', klass=Site).filter(project=project)
+
+        return sites
+
+    def get_sites_user_can_modify(self, user, project):
+        """
+        Returns project sites for which the given user has modify permissions
+        """
+        sites = get_objects_for_user(user, 'modify_site_data', klass=Site).filter(project=project)
 
         return sites
 
@@ -149,6 +157,20 @@ class Site(ProtectedModel):
             user=user,
             content_type=ContentType.objects.get_for_model(Site),
             object_pk=self.id)
+
+    def has_add_permission(self, user):
+        if user.has_perm('add_project_data', self.project):
+            return True
+        elif user.has_perm('add_site_data', self):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        elif user.has_perm('modify_site_data', self):
+            return True
+        return False
 
     def clean(self):
         """

@@ -29,7 +29,7 @@ def d3_test(request):
 @login_required
 def view_projects(request):
 
-    projects = Project.objects.get_user_projects(request.user)
+    projects = Project.objects.get_projects_user_can_view(request.user)
 
     return render_to_response(
         'view_projects.html',
@@ -45,8 +45,8 @@ def view_projects(request):
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    can_add_project_data = request.user.has_perm('add_project_data', project)
-    can_modify_project_data = request.user.has_perm('modify_project_data', project)
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
 
     return render_to_response(
         'view_project.html',
@@ -117,8 +117,8 @@ def view_subjects(request, project_id):
 
     subjects = Subject.objects.filter(project=project).order_by('subject_id')
 
-    can_add_project_data = request.user.has_perm('add_project_data', project)
-    can_modify_project_data = request.user.has_perm('modify_project_data', project)
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
 
     return render_to_response(
         'view_project_subjects.html',
@@ -147,14 +147,19 @@ def view_samples(request, project_id):
             'original_filename'
         )
     else:
-        user_sites = Site.objects.get_user_sites_by_project(request.user, project=project)
-        samples = Sample.objects.filter(subject__project=project, site__in=user_sites).values(
+        user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+        samples = Sample.objects.filter(subject__project=project, site__in=user_view_sites).values(
             'id',
             'subject__subject_id',
             'site__site_name',
+            'site__id',
             'visit__visit_type_name',
             'original_filename'
         )
+        for site in user_view_sites:
+            sites = get_objects_for_user(request.user, 'add_site_data', klass=Site) \
+                .filter(project_id=project_id).order_by('site_name')
+
 
     spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
         'id',
@@ -169,11 +174,20 @@ def view_samples(request, project_id):
     for sample in samples:
         sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+    user_add_sites = Site.objects.get_sites_user_can_add(request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(request.user, project).values_list('id', flat=True)
+
     return render_to_response(
         'view_project_samples.html',
         {
             'project': project,
             'samples': samples,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+            'user_add_sites': user_add_sites,
+            'user_modify_sites': user_modify_sites
         },
         context_instance=RequestContext(request)
     )
@@ -184,10 +198,10 @@ def view_samples(request, project_id):
 def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    sites = Site.objects.get_user_sites_by_project(request.user, project)
+    sites = Site.objects.get_sites_user_can_view(request.user, project)
 
-    can_add_project_data = request.user.has_perm('add_project_data', project)
-    can_modify_project_data = request.user.has_perm('modify_project_data', project)
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
 
     return render_to_response(
         'view_project_sites.html',
@@ -341,8 +355,8 @@ def view_visit_types(request, project_id):
 
     visit_types = ProjectVisitType.objects.filter(project=project).order_by('visit_type_name')
 
-    can_add_project_data = request.user.has_perm('add_project_data', project)
-    can_modify_project_data = request.user.has_perm('modify_project_data', project)
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
 
     return render_to_response(
         'view_project_visit_types.html',
@@ -607,8 +621,8 @@ def view_subject(request, project_id, subject_id):
     for sample in samples:
         sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
-    can_add_project_data = request.user.has_perm('add_project_data', project)
-    can_modify_project_data = request.user.has_perm('modify_project_data', project)
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
 
     return render_to_response(
         'view_subject.html',
@@ -723,18 +737,20 @@ def add_subject_sample(request, subject_id):
 
 
 @login_required
-@require_project_user
 def edit_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
+    if not sample.site.has_modify_permission(request.user):
+        raise PermissionDenied
+
     if request.method == 'POST':
-        form = SampleEditForm(request.POST, request.FILES, instance=sample)
+        form = SampleEditForm(request.POST, request.FILES, instance=sample, request=request)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject_id)))
     else:
-        form = SampleEditForm(instance=sample, project_id=sample.subject.project_id)
+        form = SampleEditForm(instance=sample, project_id=sample.subject.project_id, request=request)
 
     return render_to_response(
         'edit_sample.html',

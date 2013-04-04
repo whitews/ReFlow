@@ -95,7 +95,7 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
         """
         Override .get_queryset() to filter on user's projects.
         """
-        queryset = Project.objects.get_user_projects(self.request.user)
+        queryset = Project.objects.get_projects_user_can_view(self.request.user)
         return queryset
 
 
@@ -122,7 +122,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
 
         # filter on user's projects
         queryset = ProjectVisitType.objects.filter(project__in=user_projects)
@@ -153,7 +153,7 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
 
         # filter on user's projects
         queryset = Subject.objects.filter(project__in=user_projects)
@@ -184,7 +184,7 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
 
         # filter on user's projects
         queryset = Site.objects.filter(project__in=user_projects)
@@ -215,7 +215,7 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
 
         # filter on user's projects
         queryset = Panel.objects.filter(site__project__in=user_projects)
@@ -296,7 +296,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         All results are restricted to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
 
         # filter on user's projects
         queryset = Sample.objects.filter(subject__project__in=user_projects)
@@ -390,7 +390,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_user_projects(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
 
         # filter on user's projects
         queryset = Compensation.objects.filter(site__project__in=user_projects)

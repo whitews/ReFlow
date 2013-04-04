@@ -116,7 +116,7 @@ class SampleCompensationPOSTSerializer(serializers.ModelSerializer):
     def get_fields(self):
         fields = super(SampleCompensationPOSTSerializer, self).get_default_fields()
         user = self.context['view'].request.user
-        user_projects = Project.objects.get_user_projects(user)
+        user_projects = Project.objects.get_projects_user_can_view(user)
         if 'compensation' in fields:
             fields['compensation'].queryset = Compensation.objects.filter(site__project__in=user_projects)
         if 'sample' in fields:
@@ -157,7 +157,7 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
     def get_fields(self):
         fields = super(SamplePOSTSerializer, self).get_default_fields()
         user = self.context['view'].request.user
-        user_projects = Project.objects.get_user_projects(user)
+        user_projects = Project.objects.get_projects_user_can_view(user)
         if 'subject' in fields:
             fields['subject'].queryset = Subject.objects.filter(project__in=user_projects)
         if 'site' in fields:

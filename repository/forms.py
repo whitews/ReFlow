@@ -96,8 +96,8 @@ class SampleForm(ModelForm):
             self.fields['subject'] = ModelChoiceField(subjects)
 
             # we also need to limit the sites to those that the user has 'add' permission for
-            sites = get_objects_for_user(request.user, 'add_site_data', klass=Site)\
-                .filter(project_id=project_id).order_by('site_name')
+            project = Project.objects.get(id=project_id)
+            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
             self.fields['site'] = ModelChoiceField(sites, required=False)
 
             visit_types = ProjectVisitType.objects.filter(project__id=project_id).order_by('visit_type_name')
@@ -134,13 +134,17 @@ class SampleEditForm(ModelForm):
         # pop our 'project_id' key since parent's init is not expecting it
         project_id = kwargs.pop('project_id', None)
 
+        # likewise for 'request' arg
+        request = kwargs.pop('request', None)
+
         # now it's safe to call the parent init
         super(SampleEditForm, self).__init__(*args, **kwargs)
 
         # finally, make sure only project's visit types are the available choices
         if project_id:
-            sites = Site.objects.filter(project__id=project_id)
-            self.fields['site'] = ModelChoiceField(sites)
+            project = Project.objects.get(id=project_id)
+            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
+            self.fields['site'] = ModelChoiceField(sites, required=False)
 
             visit_types = ProjectVisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = ModelChoiceField(visit_types)
