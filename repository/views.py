@@ -384,9 +384,11 @@ def view_visit_types(request, project_id):
 
 
 @login_required
-@permission_required('add_project_data', (Project, 'id', 'project_id'), return_403=True)
 def add_visit_type(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_add_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         visit_type = ProjectVisitType(project=project)
@@ -409,9 +411,11 @@ def add_visit_type(request, project_id):
 
 
 @login_required
-@permission_required('modify_project_data', (Project, 'id', 'project_id'), return_403=True)
 def edit_visit_type(request, project_id, visit_type_id):
     visit_type = get_object_or_404(ProjectVisitType, pk=visit_type_id, project_id=project_id)
+
+    if not visit_type.project.has_modify_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = ProjectVisitTypeForm(request.POST, instance=visit_type)
