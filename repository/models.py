@@ -169,6 +169,13 @@ class Site(ProtectedModel):
             content_type=ContentType.objects.get_for_model(Site),
             object_pk=self.id)
 
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.project):
+            return True
+        elif user.has_perm('view_site_data', self):
+            return True
+        return False
+
     def has_add_permission(self, user):
         if user.has_perm('add_project_data', self.project):
             return True

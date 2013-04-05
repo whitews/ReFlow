@@ -2,6 +2,7 @@ from operator import attrgetter
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response, get_object_or_404
@@ -13,7 +14,6 @@ from guardian.shortcuts import assign_perm
 
 from repository.models import *
 from repository.forms import *
-from repository.decorators import *
 from repository.utils import apply_panel_to_sample
 
 
@@ -440,9 +440,9 @@ def edit_visit_type(request, project_id, visit_type_id):
 
 
 @login_required
-@require_project_user
 def view_project_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
     if request.method == 'POST':
         if 'panel' in request.POST:
@@ -458,12 +458,25 @@ def view_project_panels(request, project_id):
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
-    panels = Panel.objects.filter(site__project=project).values(
-        'id',
-        'panel_name',
-        'panel_description',
-        'site__site_name'
-    )
+    # get user's panels based on their site_view_permission, unless they have full project view permission
+    if project.has_view_permission(request.user):
+        panels = Panel.objects.filter(site__project=project).values(
+            'id',
+            'panel_name',
+            'panel_description',
+            'site__site_name',
+            'site__id'
+        )
+    elif user_view_sites.count() > 0:
+        panels = Panel.objects.filter(site__project=project, site__in=user_view_sites).values(
+            'id',
+            'panel_name',
+            'panel_description',
+            'site__site_name',
+            'site__id'
+        )
+    else:
+        raise PermissionDenied
 
     ppm_maps = PanelParameterMap.objects.filter(panel_id__in=[i['id'] for i in panels]).values(
         'id',
@@ -479,21 +492,33 @@ def view_project_panels(request, project_id):
     # for adding new parameters to panels
     form = PanelParameterMapForm()
 
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+    user_add_sites = Site.objects.get_sites_user_can_add(request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(request.user, project).values_list('id', flat=True)
+
     return render_to_response(
         'view_project_panels.html',
         {
             'project': project,
             'panels': panels,
             'form': form,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+            'user_add_sites': user_add_sites,
+            'user_modify_sites': user_modify_sites
         },
         context_instance=RequestContext(request)
     )
 
 
 @login_required
-@require_project_user
 def add_panel(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
+    user_sites = Site.objects.get_sites_user_can_add(request.user, project)
+
+    if not (project.has_add_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
 
     # need to check if the project has any sites, since panels have a required site relation
     if request.method == 'POST' and project.site_set.exists():
@@ -523,9 +548,11 @@ def add_panel(request, project_id):
 
 
 @login_required
-@require_project_user
 def edit_panel(request, panel_id):
     panel = get_object_or_404(Panel, pk=panel_id)
+
+    if not panel.site.has_modify_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = PanelEditForm(request.POST, instance=panel)
@@ -547,9 +574,12 @@ def edit_panel(request, panel_id):
 
 
 @login_required
-@require_project_user
 def remove_panel_parameter(request, panel_parameter_id):
     ppm = get_object_or_404(PanelParameterMap, pk=panel_parameter_id)
+
+    if not ppm.panel.site.has_modify_permission(request.user):
+        raise PermissionDenied
+
     project = ppm.panel.site.project
     ppm.delete()
 
@@ -557,9 +587,11 @@ def remove_panel_parameter(request, panel_parameter_id):
 
 
 @login_required
-@require_project_user
 def create_panel_from_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
+
+    if not sample.site.has_add_permission(request.user):
+        raise PermissionDenied
 
     ParameterFormSet = inlineformset_factory(
         Panel,
@@ -852,9 +884,11 @@ def select_panel(request, sample_id):
 
 
 @login_required
-@require_project_user
 def retrieve_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
+
+    if not sample.site.has_view_permission(request.user):
+        raise PermissionDenied
 
     response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
@@ -862,9 +896,11 @@ def retrieve_sample(request, sample_id):
 
 
 @login_required
-@require_project_user
 def retrieve_compensation(request, compensation_id):
     compensation = get_object_or_404(Compensation, pk=compensation_id)
+
+    if not compensation.site.has_view_permission(request.user):
+        raise PermissionDenied
 
     response = HttpResponse(compensation.compensation_file, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % compensation.original_filename
@@ -872,17 +908,21 @@ def retrieve_compensation(request, compensation_id):
 
 
 @login_required
-@require_project_user
 def sample_data(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
+
+    if not sample.site.has_view_permission(request.user):
+        raise PermissionDenied
 
     return HttpResponse(sample.get_fcs_data(), content_type='text/csv')
 
 
 @login_required
-@require_project_user
 def view_sample_scatterplot(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
+
+    if not sample.site.has_view_permission(request.user):
+        raise PermissionDenied
 
     return render_to_response(
         'view_sample_scatterplot.html',

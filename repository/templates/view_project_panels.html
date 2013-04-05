@@ -128,9 +128,11 @@ $(document).ready(function()
                   <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
               </a>
               {% endif %}
+              {% if can_modify_project_data or user_modify_sites.count > 0 %}
               <a rel="tooltip" href="{% url 'edit_panel' panel.id %}" data-original-title="Edit Panel" data-placement="left">
                   <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
+              {% endif %}
             </span>
           </td>
           <td>{{ panel.site__site_name }}</td>
@@ -150,11 +152,13 @@ $(document).ready(function()
                   <tr>
                     <td width="33%">
                       {{ ppm.parameter__parameter_short_name }}
+                      {% if can_modify_project_data or user_modify_sites.count > 0 %}
                       <span class="pull-right">
                         <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
                           <i style="opacity: 0.4" class="icon-remove align-middle"></i>
                         </a>
                       </span>
+                      {% endif %}
                     </td>
                     <td>
                         {{ ppm.value_type__value_type_name }}
@@ -164,6 +168,7 @@ $(document).ready(function()
                     </td>
                   </tr>
                   {% endfor %}
+                  {% if can_add_project_data or user_add_sites.count > 0 %}
                   <tr class="hide add_parameter_row">
                     <td>
                       <form class="add_parameter_form" style="margin: 0; padding: 0" action="{% url 'project_panels' project.id %}" method="post">
@@ -178,12 +183,14 @@ $(document).ready(function()
                       {{ form.fcs_text }}
                     </td>
                   </tr>
+                  {% endif %}
                 </tbody>
               </table>
 
               {% if panel.parameters.count == 0 %}
               <p>No parameters have been associated with this panel.</p>
               {% endif %}
+              {% if can_add_project_data or user_add_sites.count > 0 %}
               <a class="add_parameter btn btn-success btn-mini" href="#">
                 <i class="icon-plus icon-white"></i> Add Parameter
               </a>
@@ -195,16 +202,19 @@ $(document).ready(function()
                 </div>
               </div>
               </form>
+              {% endif %}
             </div>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+    {% if can_add_project_data or user_add_sites.count > 0 %}
     <div class="pull-right">
       <a class="btn btn-success btn-small" href="{% url 'add_panel' project.id %}">
         <i class="icon-plus icon-white"></i> Add Panel
       </a>
     </div>
+    {% endif %}
   </div>
 {% endblock %}
