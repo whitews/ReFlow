@@ -48,7 +48,7 @@ class ProjectManager(models.Manager):
             .filter(id__in=[i.project_id for i in sites])\
             .exclude(id__in=[p.id for p in projects])
 
-        return list(chain(projects, site_projects))
+        return projects | site_projects
 
 
 class Project(ProtectedModel):
@@ -115,14 +115,26 @@ class Project(ProtectedModel):
 
 
 class SiteManager(models.Manager):
-    def get_sites_user_can_view(self, user, project):
+    def get_sites_user_can_view(self, user, project=None):
         """
         Returns project sites for which the given user has view permissions
         """
-        if project.has_view_permission(user):
-            sites = Site.objects.filter(project=project)
+
+        if project is None:
+            project_list = Project.objects.get_projects_user_can_view(user)
+            project_id_list = []
+            for p in project_list:
+                if p.has_view_permission(user):
+                    project_id_list.append(p.id)
+            project_view_sites = Site.objects.filter(project_id__in=project_id_list)
+            view_sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project__in=project_list)
+
+            sites = project_view_sites | view_sites
         else:
-            sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project=project)
+            if project.has_view_permission(user):
+                sites = Site.objects.filter(project=project)
+            else:
+                sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project=project)
 
         return sites
 
@@ -216,6 +228,17 @@ class Panel(ProtectedModel):
         null=True,
         blank=True,
         help_text="A short description of the panel")
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.site.project):
+            return True
+        elif self.site is not None:
+            if user.has_perm('view_site_data', self.site):
+                return True
+
+        return False
+
 
     def clean(self):
         """
@@ -369,6 +392,11 @@ class Subject(ProtectedModel):
     project = models.ForeignKey(Project)
     subject_id = models.CharField("Subject ID", null=False, blank=False, max_length=128)
 
+    def has_view_permission(self, user):
+        if self.project in Project.objects.get_projects_user_can_view(user):
+            return True
+        return False
+
     def clean(self):
         """
         Check for duplicate subject ID in a project. Returns ValidationError if any duplicates are found.
@@ -395,6 +423,11 @@ class ProjectVisitType(ProtectedModel):
     project = models.ForeignKey(Project)
     visit_type_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
     visit_type_description = models.TextField(null=True, blank=True)
+
+    def has_view_permission(self, user):
+        if self.project in Project.objects.get_projects_user_can_view(user):
+            return True
+        return False
 
     def clean(self):
         """
@@ -438,10 +471,10 @@ class Sample(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if user.has_perm('projects.view_project', self.subject.project):
+        if user.has_perm('view_project_data', self.subject.project):
             return True
         elif self.site is not None:
-            if user.has_perm('sites.view_site', self.site):
+            if user.has_perm('view_site_data', self.site):
                 return True
 
         return False
@@ -640,6 +673,14 @@ class Compensation(ProtectedModel):
     compensation_file = models.FileField(upload_to=compensation_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
     matrix_text = models.TextField(null=False, blank=False, editable=False)
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.site.project):
+            return True
+        elif self.site is not None:
+            if user.has_perm('view_site_data', self.site):
+                return True
 
     def clean(self):
         """

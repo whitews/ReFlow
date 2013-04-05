@@ -34,7 +34,7 @@ def view_projects(request):
 @login_required
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
@@ -110,7 +110,7 @@ def edit_project(request, project_id):
 def view_subjects(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
@@ -195,7 +195,7 @@ def view_samples(request, project_id):
 def view_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    sites = Site.objects.get_sites_user_can_view(request.user, project)
+    sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
     if not (project.has_view_permission(request.user) or sites.count() > 0):
         raise PermissionDenied
@@ -364,7 +364,7 @@ def add_site_compensation(request, site_id):
 @login_required
 def view_visit_types(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
@@ -651,7 +651,7 @@ def create_panel_from_sample(request, sample_id):
 def view_subject(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
     project = subject.project
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project)
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
     # get user's sites based on their site_view_permission, unless they have full project view permission
     if project.has_view_permission(request.user):

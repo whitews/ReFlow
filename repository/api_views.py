@@ -76,7 +76,12 @@ class PermissionRequiredMixin(object):
         obj = super(PermissionRequiredMixin, self).get_object(*args, **kwargs)
 
         if isinstance(obj, ProtectedModel):
-            if not obj.has_view_permission(self.request.user):
+            if isinstance(obj, Project):
+                user_sites = Site.objects.get_sites_user_can_view(self.request.user, obj)
+
+                if not (obj.has_view_permission(self.request.user) or user_sites.count() > 0):
+                    raise PermissionDenied
+            elif not obj.has_view_permission(self.request.user):
                 raise PermissionDenied
 
         return obj
@@ -181,13 +186,9 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        Override .get_queryset() to restrict sites for which the user has view permission.
         """
-
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
-
-        # filter on user's projects
-        queryset = Site.objects.filter(project__in=user_projects)
+        queryset = Site.objects.get_sites_user_can_view(self.request.user)
 
         return queryset
 
@@ -215,10 +216,10 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = Panel.objects.filter(site__project__in=user_projects)
+        queryset = Panel.objects.filter(site__in=user_sites)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('name', None)
@@ -296,10 +297,10 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         All results are restricted to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = Sample.objects.filter(subject__project__in=user_projects)
+        queryset = Sample.objects.filter(site__in=user_sites)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
@@ -335,7 +336,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         return super(SampleList, self).get_serializer_class()
 
 
-class SampleDetail(LoginRequiredMixin, generics.RetrieveAPIView):
+class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -390,14 +391,14 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = Compensation.objects.filter(site__project__in=user_projects)
+        queryset = Compensation.objects.filter(site__in=user_sites)
         return queryset
 
 
-class CompensationDetail(LoginRequiredMixin, generics.RetrieveAPIView):
+class CompensationDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single FCS sample.
     """

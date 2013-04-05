@@ -96,7 +96,7 @@ class CompensationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Compensation
-        fields = ('id', 'url', 'original_filename', 'matrix_text')
+        fields = ('id', 'url', 'original_filename', 'matrix_text', 'site')
         exclude = ('compensation_file',)
 
 
