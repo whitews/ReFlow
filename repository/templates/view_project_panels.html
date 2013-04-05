@@ -123,7 +123,7 @@ $(document).ready(function()
           <td>
             {{ panel.panel_name }}
             <span class="pull-right">
-              {% if panel.panel_description != None %}
+              {% if panel.panel_description != '' and panel.panel_description != None  %}
               <a rel="tooltip" href="#" data-original-title="{{ panel.panel_description }}" data-placement="bottom">
                   <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
               </a>
