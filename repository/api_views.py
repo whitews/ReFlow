@@ -335,6 +335,12 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         return super(SampleList, self).get_serializer_class()
 
+    def post(self, request, *args, **kwargs):
+        site = Site.objects.get(id=request.DATA['site'])
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        return super(SampleList, self).post(request, *args, **kwargs)
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
@@ -360,6 +366,9 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
                 sample = Sample.objects.get(id=kwargs['pk'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
+
+            if not sample.site.has_add_permission(request.user):
+                raise PermissionDenied
 
             try:
                 # now try to apply panel parameters to the sample's parameters
@@ -414,3 +423,10 @@ class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, gene
 
     model = SampleCompensationMap
     serializer_class = SampleCompensationPOSTSerializer
+
+    def post(self, request, *args, **kwargs):
+        sample = Sample.objects.get(id=request.DATA['sample'])
+        if not sample.site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        return super(SampleCompensationCreate, self).post(request, *args, **kwargs)
