@@ -2,7 +2,6 @@ from string import join
 import cStringIO
 import hashlib
 import io
-from itertools import chain
 
 import os
 import re
@@ -247,7 +246,6 @@ class Panel(ProtectedModel):
 
         return False
 
-
     def clean(self):
         """
         Check for duplicate panel names within a project site. Returns ValidationError if any duplicates are found.
@@ -472,7 +470,7 @@ def fcs_file_path(instance, filename):
 class Sample(ProtectedModel):
     subject = models.ForeignKey(Subject, null=False, blank=False)
     site = models.ForeignKey(Site, null=False, blank=False)
-    visit = models.ForeignKey(ProjectVisitType, null=True, blank=True)
+    visit = models.ForeignKey(ProjectVisitType, null=False, blank=False)
     sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
     original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
     sha1 = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=40)
@@ -636,7 +634,7 @@ class SampleParameterMap(ProtectedModel):
     # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
     fcs_text = models.CharField("FCS PnN", max_length=32, null=False, blank=False)
 
-    # fcs_opt_text matches the optional FCS keywork $PnS
+    # fcs_opt_text matches the optional FCS keyword $PnS
     fcs_opt_text = models.CharField("FCS PnS", max_length=32, null=True, blank=True)
 
     # fcs_number represents the parameter number in the FCS file
