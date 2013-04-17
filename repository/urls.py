@@ -43,6 +43,11 @@ urlpatterns += patterns('repository.views',
     url(r'^project/add/$', 'add_project', name='add_project'),
     url(r'^project/(?P<project_id>\d+)/edit/$', 'edit_project', name='edit_project'),
 
+    url(r'^project/(?P<project_id>\d+)/users/$', 'view_project_users', name='view_project_users'),
+    url(r'^project/(?P<project_id>\d+)/users/add/$', 'add_user_permissions', name='add_user_permissions'),
+    url(r'^project/(?P<project_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_project_user', name='manage_project_user'),
+    url(r'^site/(?P<site_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_site_user', name='manage_site_user'),
+
     url(r'^project/(?P<project_id>\d+)/sites/$', 'view_sites', name='project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
     url(r'^project/(?P<project_id>\d+)/sites/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),

@@ -1,6 +1,7 @@
 from operator import attrgetter
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -10,7 +11,8 @@ from django.template import RequestContext
 from django.utils import simplejson
 from django.forms.models import inlineformset_factory
 
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_users_with_perms
+from guardian.forms import UserObjectPermissionsForm
 
 from repository.models import *
 from repository.forms import *
@@ -41,6 +43,7 @@ def view_project(request, project_id):
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
+    can_manage_project_users = project.has_user_management_permission(request.user)
 
     return render_to_response(
         'view_project.html',
@@ -48,6 +51,7 @@ def view_project(request, project_id):
             'project': project,
             'can_add_project_data': can_add_project_data,
             'can_modify_project_data': can_modify_project_data,
+            'can_manage_project_users': can_manage_project_users,
         },
         context_instance=RequestContext(request)
     )
@@ -72,7 +76,7 @@ def add_project(request):
         form = ProjectForm()
 
     return render_to_response(
-        'add_project.html',
+        'add_user_permissions.html',
         {
             'form': form,
         },
@@ -100,6 +104,107 @@ def edit_project(request, project_id):
         'edit_project.html',
         {
             'project': project,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def view_project_users(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    can_manage_project_users = project.has_user_management_permission(request.user)
+
+    if not can_manage_project_users:
+        raise PermissionDenied
+
+    project_users = project.get_project_users()
+
+    return render_to_response(
+        'view_project_users.html',
+        {
+            'project': project,
+            'project_users': project_users,
+            'can_manage_project_users': can_manage_project_users,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def add_user_permissions(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_user_management_permission(request.user):
+        raise PermissionDenied
+
+    form = UserSelectForm(request.POST or None, project_id=project_id)
+
+    if request.method == 'POST' and form.is_valid():
+        if request.POST['site']:
+            return HttpResponseRedirect(reverse(
+                'manage_site_user',
+                args=(request.POST['site'], request.POST['user'])))
+        else:
+            return HttpResponseRedirect(reverse(
+                'manage_project_user',
+                args=(project.id,request.POST['user'])))
+
+    return render_to_response(
+        'add_user_permissions.html',
+        {
+            'project': project,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def manage_project_user(request, project_id, user_id):
+    project = get_object_or_404(Project, pk=project_id)
+    project_user = get_object_or_404(User, pk=user_id)
+
+    if not project.has_user_management_permission(request.user):
+        raise PermissionDenied
+
+    form = UserObjectPermissionsForm(project_user, project, request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save_obj_perms()
+        return HttpResponseRedirect(reverse('view_project_users', args=(project.id,)))
+
+    return render_to_response(
+        'manage_project_user.html',
+        {
+            'project': project,
+            'project_user': project_user,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def manage_site_user(request, site_id, user_id):
+    site = get_object_or_404(Site, pk=site_id)
+    user = get_object_or_404(User, pk=user_id)
+
+    if not site.project.has_user_management_permission(request.user) or site.has_user_management_permission(request.user):
+        raise PermissionDenied
+
+    form = UserObjectPermissionsForm(user, site, request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save_obj_perms()
+        return HttpResponseRedirect(reverse('view_project_users', args=(site.project_id,)))
+
+    return render_to_response(
+        'manage_site_user.html',
+        {
+            'site': site,
+            'site_user': user,
             'form': form,
         },
         context_instance=RequestContext(request)

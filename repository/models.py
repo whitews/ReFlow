@@ -9,7 +9,7 @@ import re
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import get_objects_for_user, get_users_with_perms
 from guardian.models import UserObjectPermission
 import numpy
 import fcm
@@ -63,7 +63,7 @@ class Project(ProtectedModel):
 
     class Meta:
         permissions = (
-            ('view_project_data', 'View Project'),
+            ('view_project_data', 'View Project Data'),
             ('add_project_data', 'Add Project Data'),
             ('modify_project_data', 'Modify/Delete Project Data'),
             ('manage_project_users', 'Manage Project Users'),
@@ -88,6 +88,14 @@ class Project(ProtectedModel):
         if user.has_perm('manage_project_users', self):
             return True
         return False
+
+    def get_project_users(self):
+        user_set = set()
+        user_set.update(get_users_with_perms(self, with_superusers=False))
+        for site in self.site_set.all():
+            user_set.update(get_users_with_perms(site, with_superusers=False))
+
+        return user_set
 
     def get_user_permissions(self, user):
         return UserObjectPermission.objects.filter(

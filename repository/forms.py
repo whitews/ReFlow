@@ -1,5 +1,6 @@
-from django.forms import ModelForm, ModelChoiceField, CharField
+from django.forms import Form, ModelForm, ModelChoiceField, CharField, BooleanField
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 from repository.models import *
 
@@ -7,6 +8,22 @@ from repository.models import *
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
+
+
+class UserSelectForm(Form):
+    user = ModelChoiceField(label='User', queryset=User.objects.order_by('username'))
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(UserSelectForm, self).__init__(*args, **kwargs)
+
+        # finally, the reason we're here...make sure only the project's sites are the available choices
+        if project_id:
+            sites = Site.objects.filter(project__id=project_id).order_by('site_name')
+            self.fields['site'] = ModelChoiceField(sites, required=False, empty_label='Project Level - All Sites')
 
 
 class SiteForm(ModelForm):

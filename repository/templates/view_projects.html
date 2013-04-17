@@ -33,7 +33,7 @@
             {{ user_perm.permission.name }}<br/>
           {% endfor %}
           </td>
-        <td>
+          <td>
           {% for site in project.site_set.all %}
             {%  for user_perm in site|get_user_site_permissions:user %}
               {{ site.site_name }}: {{ user_perm.permission.name }}<br/>

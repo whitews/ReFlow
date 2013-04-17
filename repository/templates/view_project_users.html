@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load repository_filters %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4">
+        <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
+      </div>
+      <div class="pull-right">Project Users</div>
+    </div>
+    <table class="table table-bordered table-striped">
+      <thead>
+      <tr>
+        <th>Username</th>
+        <th>Project Permissions</th>
+        <th>Site Permissions</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for user in project_users %}
+        <tr>
+          <td class="middle">
+            {{ user.username }}
+          </td>
+          <td>
+          {%  for user_perm in project|get_user_project_permissions:user %}
+            {{ user_perm.permission.name }}<br/>
+          {% endfor %}
+          {% if can_manage_project_users %}
+            <a href="{% url 'manage_project_user' project.id user.id %}">
+              Edit
+            </a>
+          {% endif %}
+          </td>
+          <td>
+          {% for site in project.site_set.all %}
+            {{ site.site_name }}<a class="pull-right" href="{% url 'manage_site_user' site.id user.id %}">Edit</a>
+            <hr>
+            {%  for user_perm in site|get_user_site_permissions:user %}
+              {{ site.site_name }}: {{ user_perm.permission.name }}<br/>
+            {% endfor %}
+          {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if can_manage_project_users %}
+      <tr>
+        <div class="pull-right">
+          <a class="btn btn-success btn-small" href="{% url 'add_user_permissions' project.id %}">
+            <i class="icon-plus icon-white"></i> Add User
+          </a>
+        </div>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -342,6 +342,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         return super(SampleList, self).post(request, *args, **kwargs)
 
+
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single FCS sample.
