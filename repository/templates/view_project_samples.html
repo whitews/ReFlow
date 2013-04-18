@@ -98,17 +98,17 @@ $(document).ready(function()
           {% endif %}
         </td>
         <td class="middle">
-          <a href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a><br/>
+          <a class="no-wrap" href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a>
         </td>
-          <td class="middle">
-            <a href="{% url 'sample_data' sample.id %}">Download CSV</a><br/>
-            <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
+        <td class="middle">
+          <a href="{% url 'sample_data' sample.id %}">CSV</a><br/>
+          <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
         </td>
         <td class="middle">{{ sample.subject__subject_id }}</td>
         <td class="middle">{{ sample.site__site_name }}</td>
         <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
 
-        <td style="width: 60%" class="middle">
+        <td style="width: 50%" class="middle">
 
           {% if sample.parameters.count > 0 %}
 

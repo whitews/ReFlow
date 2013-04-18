@@ -6026,7 +6026,7 @@ th.center {
   display:block;
   position:absolute;
   top: 200%;
-  right: 0%;
+  right: 0;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -6044,4 +6044,7 @@ th.center {
 }
 .align-middle {
   vertical-align: middle;
+}
+.no-wrap {
+  white-space: nowrap;
 }

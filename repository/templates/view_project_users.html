@@ -36,10 +36,12 @@
           <td>
           {% for site in project.site_set.all %}
             {{ site.site_name }}<a class="pull-right" href="{% url 'manage_site_user' site.id user.id %}">Edit</a>
-            <hr>
+            <ul>
             {%  for user_perm in site|get_user_site_permissions:user %}
-              {{ site.site_name }}: {{ user_perm.permission.name }}<br/>
+              <li>{{ user_perm.permission.name }}</li>
             {% endfor %}
+            </ul>
+            <hr>
           {% endfor %}
           </td>
         </tr>
