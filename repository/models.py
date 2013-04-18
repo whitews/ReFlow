@@ -167,6 +167,17 @@ class SiteManager(models.Manager):
 
         return sites
 
+    def get_sites_user_can_manage_users(self, user, project):
+        """
+        Returns project sites for which the given user has modify permissions
+        """
+        if project.has_user_management_permission(user):
+            sites = Site.objects.filter(project=project)
+        else:
+            sites = get_objects_for_user(user, 'manage_site_users', klass=Site).filter(project=project)
+
+        return sites
+
 
 class Site(ProtectedModel):
     project = models.ForeignKey(Project)
