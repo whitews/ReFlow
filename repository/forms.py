@@ -194,4 +194,4 @@ class CompensationForm(ModelForm):
         if project_id:
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = ModelChoiceField(sites, required=False)
+            self.fields['site'] = ModelChoiceField(sites)
