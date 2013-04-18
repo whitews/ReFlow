@@ -76,7 +76,7 @@ def add_project(request):
         form = ProjectForm()
 
     return render_to_response(
-        'add_user_permissions.html',
+        'add_project.html',
         {
             'form': form,
         },
