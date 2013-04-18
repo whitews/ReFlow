@@ -6,7 +6,7 @@
             <div class="span4">
                 <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
             </div>
-            <div class="pull-right">Create a Project Visit Type</div>
+            <div class="pull-right">Add Visit Type</div>
         </div>
         <br/>
         <form class="form-horizontal" action="{% url 'add_visit_type' project.id %}" method="post">

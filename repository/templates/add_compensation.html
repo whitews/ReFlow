@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row lead">
             <div class="span4"><a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a></div>
-            <div class="pull-right">Upload a Compensation Matrix</div>
+            <div class="pull-right">Add Compensation Matrix</div>
         </div>
         <br/>
         <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_compensation' project.id %}" method="post">

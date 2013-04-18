@@ -6,7 +6,7 @@
         <div class="span4">
             <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
         </div>
-        <div class="pull-right">Create a New Panel</div>
+        <div class="pull-right">Add Panel</div>
     </div>
     <br/>
       <form class="form-horizontal" action="{% url 'add_panel' project.id %}" method="post">

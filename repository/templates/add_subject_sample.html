@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row lead">
           <div class="span4">Subject: <a href="{% url 'view_subject' subject.id %}">{{ subject.subject_id }}</a></div>
-          <div class="pull-right">Upload a Flow File</div>
+          <div class="pull-right">Add Sample</div>
         </div>
         <br/>
         <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_subject_sample' subject.id %}" method="post">
