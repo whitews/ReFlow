@@ -9,7 +9,7 @@
         <div class="pull-right">Create a New Panel</div>
     </div>
     <br/>
-      <form class="form-horizontal" action="{% url 'repository.views.add_panel' project.id %}" method="post">
+      <form class="form-horizontal" action="{% url 'add_panel' project.id %}" method="post">
         {% csrf_token %}
           {% if form.non_field_errors %}
               <div class="control-group text-error">

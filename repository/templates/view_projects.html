@@ -26,7 +26,7 @@
       {% for project in projects %}
         <tr>
           <td>
-            <a href="{% url 'repository.views.view_project' project.id %}">{{ project.project_name }}</a>
+            <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
           </td>
           <td>
           {%  for user_perm in project|get_user_project_permissions:user %}
@@ -47,7 +47,7 @@
     </table>
 
     {% else %}
-    <p>You do not belong to any projects. <a href="{% url 'repository.views.add_project'%}">Create a new project</a></p>
+    <p>You do not belong to any projects. <a href="{% url 'add_project' %}">Create a new project</a></p>
     {% endif %}
   </div>
 {% endblock %}
