@@ -340,7 +340,11 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
-        return super(SampleList, self).post(request, *args, **kwargs)
+        response = super(SampleList, self).post(request, *args, **kwargs)
+        if hasattr(response, 'data'):
+            if 'sample_file' in response.data:
+                response.data.pop('sample_file')
+        return response
 
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
