@@ -108,7 +108,7 @@ $(document).ready(function()
           <a href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a><br/>
         </td>
           <td class="middle">
-            <a href="{% url 'sample_data' sample.id %}">Download CSV</a><br/>
+            <a href="{% url 'sample_data' sample.id %}">CSV</a><br/>
             <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
         </td>
         <td class="middle">{{ sample.site__site_name }}</td>
