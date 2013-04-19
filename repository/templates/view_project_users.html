@@ -41,7 +41,7 @@
               <li>{{ user_perm.permission.name }}</li>
             {% endfor %}
             </ul>
-            <hr>
+            {% if not forloop.last %}<hr>{% endif %}
           {% endfor %}
           </td>
         </tr>
