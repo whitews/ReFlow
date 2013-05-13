@@ -49,7 +49,7 @@ def view_antibodies(request):
             'antibody_id',
             'parameter__parameter_short_name',
             'parameter__parameter_type',
-    )
+        )
 
     for antibody in antibodies:
         antibody['parameters'] = [
@@ -93,7 +93,7 @@ def edit_antibody(request, antibody_id):
         form = AntibodyForm(request.POST, instance=antibody)
 
         if form.is_valid():
-            antibody = form.save()
+            form.save()
             return HttpResponseRedirect(reverse('view_antibodies'))
     else:
         form = AntibodyForm(instance=antibody)
@@ -124,7 +124,7 @@ def view_fluorochromes(request):
             'fluorochrome_id',
             'parameter__parameter_short_name',
             'parameter__parameter_type',
-    )
+        )
 
     for fluorochrome in fluorochromes:
         fluorochrome['parameters'] = [
@@ -168,7 +168,7 @@ def edit_fluorochrome(request, fluorochrome_id):
         form = FluorochromeForm(request.POST, instance=fluorochrome)
 
         if form.is_valid():
-            fluorochrome = form.save()
+            form.save()
             return HttpResponseRedirect(reverse('view_fluorochromes'))
     else:
         form = FluorochromeForm(instance=fluorochrome)
@@ -215,7 +215,8 @@ def add_project(request):
         if form.is_valid():
             project = form.save()
 
-            # Automatically add the request user to the project with all permissions...it's the polite thing to do
+            # Automatically add the request user to the project with all
+            # permissions...it's the polite thing to do
             assign_perm('view_project_data', request.user, project)
             assign_perm('add_project_data', request.user, project)
             assign_perm('modify_project_data', request.user, project)
@@ -299,7 +300,7 @@ def add_user_permissions(request, project_id):
         else:
             return HttpResponseRedirect(reverse(
                 'manage_project_user',
-                args=(project.id,request.POST['user'])))
+                args=(project.id, request.POST['user'])))
 
     return render_to_response(
         'add_user_permissions.html',
@@ -392,7 +393,8 @@ def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
-    # get user's sites based on their site_view_permission, unless they have full project view permission
+    # get user's sites based on their site_view_permission,
+    # unless they have full project view permission
     if project.has_view_permission(request.user):
         samples = Sample.objects.filter(subject__project=project).values(
             'id',
@@ -403,34 +405,38 @@ def view_samples(request, project_id):
             'original_filename'
         )
     elif user_view_sites.count() > 0:
-        samples = Sample.objects.filter(subject__project=project, site__in=user_view_sites).values(
-            'id',
-            'subject__subject_id',
-            'site__site_name',
-            'site__id',
-            'visit__visit_type_name',
-            'original_filename'
-        )
+        samples = Sample.objects.filter(
+            subject__project=project, site__in=user_view_sites).values(
+                'id',
+                'subject__subject_id',
+                'site__site_name',
+                'site__id',
+                'visit__visit_type_name',
+                'original_filename'
+            )
     else:
         raise PermissionDenied
 
-    spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
-        'id',
-        'sample_id',
-        'fcs_number',
-        'fcs_text',
-        'fcs_opt_text',
-        'parameter__parameter_short_name',
-        'value_type__value_type_short_name',
-    )
+    spm_maps = SampleParameterMap.objects.filter(
+        sample_id__in=[i['id'] for i in samples]).values(
+            'id',
+            'sample_id',
+            'fcs_number',
+            'fcs_text',
+            'fcs_opt_text',
+            'parameter__parameter_short_name',
+            'value_type__value_type_short_name',
+        )
 
     for sample in samples:
         sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(request.user, project).values_list('id', flat=True)
+    user_add_sites = Site.objects.get_sites_user_can_add(
+        request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(
+        request.user, project).values_list('id', flat=True)
 
     return render_to_response(
         'view_project_samples.html',
@@ -544,8 +550,10 @@ def view_compensations(request, project_id):
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(request.user, project).values_list('id', flat=True)
+    user_add_sites = Site.objects.get_sites_user_can_add(
+        request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(
+        request.user, project).values_list('id', flat=True)
 
     return render_to_response(
         'view_project_compensations.html',
@@ -571,7 +579,11 @@ def add_compensation(request, project_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = CompensationForm(request.POST, request.FILES, project_id=project_id, request=request)
+        form = CompensationForm(
+            request.POST,
+            request.FILES,
+            project_id=project_id,
+            request=request)
 
         if form.is_valid():
             form.save()
@@ -598,7 +610,11 @@ def add_site_compensation(request, site_id):
 
     if request.method == 'POST':
         compensation = Compensation(site=site)
-        form = CompensationForm(request.POST, request.FILES, instance=compensation, request=request)
+        form = CompensationForm(
+            request.POST,
+            request.FILES,
+            instance=compensation,
+            request=request)
 
         if form.is_valid():
             form.save()
@@ -680,7 +696,9 @@ def edit_visit_type(request, project_id, visit_type_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_visit_types', args=str(visit_type.project_id)))
+            return HttpResponseRedirect(reverse(
+                'project_visit_types',
+                args=str(visit_type.project_id)))
     else:
         form = ProjectVisitTypeForm(instance=visit_type)
 
@@ -708,12 +726,15 @@ def view_project_panels(request, project_id):
 
             if form.is_valid():
                 form.save()
-                return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project_id)))
+                return HttpResponseRedirect(reverse(
+                    'project_panels',
+                    args=str(panel.site.project_id)))
             else:
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
-    # get user's panels based on their site_view_permission, unless they have full project view permission
+    # get user's panels based on their site_view_permission,
+    # unless they have full project view permission
     if project.has_view_permission(request.user):
         panels = Panel.objects.filter(site__project=project).values(
             'id',
@@ -749,8 +770,10 @@ def view_project_panels(request, project_id):
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(request.user, project).values_list('id', flat=True)
+    user_add_sites = Site.objects.get_sites_user_can_add(
+        request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(
+        request.user, project).values_list('id', flat=True)
 
     return render_to_response(
         'view_project_panels.html',
@@ -786,7 +809,7 @@ def add_panel(request, project_id):
     elif not project.site_set.exists():
         messages.warning(
             request,
-            'This project has no associated sites. A panel must be associated with a specific site.')
+            'This project has no sites. A panel must be associated with a specific site.')
         return HttpResponseRedirect(reverse('warning_page',))
 
     else:
@@ -814,7 +837,9 @@ def edit_panel(request, panel_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_panels', args=str(panel.site.project_id)))
+            return HttpResponseRedirect(reverse(
+                'project_panels',
+                args=str(panel.site.project_id)))
     else:
         form = PanelEditForm(instance=panel)
 
@@ -868,10 +893,13 @@ def create_panel_from_sample(request, sample_id):
                 panel.save()
                 parameter_formset.save()
 
-                return HttpResponseRedirect(reverse('project_panels', args=str(sample.subject.project_id)))
+                return HttpResponseRedirect(reverse(
+                    'project_panels',
+                    args=str(sample.subject.project_id)))
 
     else:
-        # need to check if the sample is associated with a site, since panels have a required site relation
+        # need to check if the sample is associated with a site,
+        # since panels have a required site relation
         if sample.site:
             panel = Panel(site=sample.site, panel_name=sample.original_filename)
             panel_form = PanelFromSampleForm(instance=panel)
@@ -888,7 +916,7 @@ def create_panel_from_sample(request, sample_id):
         else:
             messages.warning(
                 request,
-                'This sample is not associated with a site. Associate the sample with a site first.')
+                'This sample is not associated with a site.')
             return HttpResponseRedirect(reverse('warning_page', ))
 
     return render_to_response(
@@ -908,7 +936,8 @@ def view_subject(request, subject_id):
     project = subject.project
     user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
 
-    # get user's sites based on their site_view_permission, unless they have full project view permission
+    # get user's sites based on their site_view_permission,
+    # unless they have full project view permission
     if project.has_view_permission(request.user):
         samples = Sample.objects.filter(subject=subject).values(
             'id',
@@ -931,15 +960,16 @@ def view_subject(request, subject_id):
     else:
         raise PermissionDenied
 
-    spm_maps = SampleParameterMap.objects.filter(sample_id__in=[i['id'] for i in samples]).values(
-        'id',
-        'sample_id',
-        'fcs_number',
-        'fcs_text',
-        'fcs_opt_text',
-        'parameter__parameter_short_name',
-        'value_type__value_type_short_name',
-    )
+    spm_maps = SampleParameterMap.objects.filter(
+        sample_id__in=[i['id'] for i in samples]).values(
+            'id',
+            'sample_id',
+            'fcs_number',
+            'fcs_text',
+            'fcs_opt_text',
+            'parameter__parameter_short_name',
+            'value_type__value_type_short_name',
+        )
 
     # this is done to avoid hitting the database too hard in templates
     for sample in samples:
@@ -947,8 +977,10 @@ def view_subject(request, subject_id):
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(request.user, project).values_list('id', flat=True)
+    user_add_sites = Site.objects.get_sites_user_can_add(
+        request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(
+        request.user, project).values_list('id', flat=True)
 
     return render_to_response(
         'view_subject.html',
@@ -1088,7 +1120,10 @@ def edit_sample(request, sample_id):
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject_id)))
     else:
-        form = SampleEditForm(instance=sample, project_id=sample.subject.project_id, request=request)
+        form = SampleEditForm(
+            instance=sample,
+            project_id=sample.subject.project_id,
+            request=request)
 
     return render_to_response(
         'edit_sample.html',
@@ -1120,13 +1155,16 @@ def select_panel(request, sample_id):
             except ValidationError as e:
                 status = e.messages
 
-            # if everything saved ok, then the status should be 0, but might be an array of errors
+            # if everything saved ok, then the status should be 0,
+            # but might be an array of errors
             if status != 0:
                 if isinstance(status, list):
                     json = simplejson.dumps(status)
                     return HttpResponseBadRequest(json, mimetype='application/json')
             else:
-                return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject_id)))
+                return HttpResponseRedirect(reverse(
+                    'view_subject',
+                    args=str(sample.subject_id)))
 
     return render_to_response(
         'select_panel.html',
