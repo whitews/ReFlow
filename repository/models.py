@@ -36,12 +36,15 @@ class ProtectedModel(models.Model):
 class ProjectManager(models.Manager):
     def get_projects_user_can_view(self, user):
         """
-        Returns a list of projects for which the given user has view permissions,
+        Return a list of projects for which the given user has view permissions,
         including any view access to even a single site in the project.
         Do NOT use this method to determine whether a user has access to a
         particular project resource.
         """
-        projects = get_objects_for_user(user, 'view_project_data', klass=Project)
+        projects = get_objects_for_user(
+            user,
+            'view_project_data',
+            klass=Project)
         sites = get_objects_for_user(user, 'view_site_data', klass=Site)
         site_projects = Project.objects\
             .filter(id__in=[i.project_id for i in sites])\
@@ -51,7 +54,12 @@ class ProjectManager(models.Manager):
 
 
 class Project(ProtectedModel):
-    project_name = models.CharField("Project Name", unique=True, null=False, blank=False, max_length=128)
+    project_name = models.CharField(
+        "Project Name",
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128)
     project_desc = models.TextField(
         "Project Description",
         null=True,
@@ -133,15 +141,22 @@ class SiteManager(models.Manager):
             for p in project_list:
                 if p.has_view_permission(user):
                     project_id_list.append(p.id)
-            project_view_sites = Site.objects.filter(project_id__in=project_id_list)
-            view_sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project__in=project_list)
+            project_view_sites = Site.objects.filter(
+                project_id__in=project_id_list)
+            view_sites = get_objects_for_user(
+                user, 'view_site_data',
+                klass=Site).filter(
+                    project__in=project_list)
 
             sites = project_view_sites | view_sites
         else:
             if project.has_view_permission(user):
                 sites = Site.objects.filter(project=project)
             else:
-                sites = get_objects_for_user(user, 'view_site_data', klass=Site).filter(project=project)
+                sites = get_objects_for_user(
+                    user, 'view_site_data',
+                    klass=Site).filter(
+                        project=project)
 
         return sites
 
@@ -152,7 +167,11 @@ class SiteManager(models.Manager):
         if project.has_add_permission(user):
             sites = Site.objects.filter(project=project)
         else:
-            sites = get_objects_for_user(user, 'add_site_data', klass=Site).filter(project=project)
+            sites = get_objects_for_user(
+                user,
+                'add_site_data',
+                klass=Site).filter(
+                    project=project)
 
         return sites
 
@@ -163,7 +182,11 @@ class SiteManager(models.Manager):
         if project.has_modify_permission(user):
             sites = Site.objects.filter(project=project)
         else:
-            sites = get_objects_for_user(user, 'modify_site_data', klass=Site).filter(project=project)
+            sites = get_objects_for_user(
+                user,
+                'modify_site_data',
+                klass=Site).filter(
+                    project=project)
 
         return sites
 
@@ -174,14 +197,22 @@ class SiteManager(models.Manager):
         if project.has_user_management_permission(user):
             sites = Site.objects.filter(project=project)
         else:
-            sites = get_objects_for_user(user, 'manage_site_users', klass=Site).filter(project=project)
+            sites = get_objects_for_user(
+                user,
+                'manage_site_users',
+                klass=Site).filter(
+                    project=project)
 
         return sites
 
 
 class Site(ProtectedModel):
     project = models.ForeignKey(Project)
-    site_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
+    site_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
 
     objects = SiteManager()
 
@@ -222,10 +253,12 @@ class Site(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate site names within a project. Returns ValidationError if any duplicates are found.
+        Check for duplicate site names within a project.
+        Returns ValidationError if any duplicates are found.
         """
 
-        # count sites with matching site_name and parent project, which don't have this pk
+        # count sites with matching site_name and parent project,
+        # which don't have this pk
         site_duplicates = Site.objects.filter(
             site_name=self.site_name,
             project=self.project).exclude(
@@ -240,7 +273,11 @@ class Site(ProtectedModel):
 
 class Panel(ProtectedModel):
     site = models.ForeignKey(Site, null=False, blank=False)
-    panel_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
+    panel_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
     panel_description = models.TextField(
         "Panel Description",
         null=True,
@@ -259,10 +296,12 @@ class Panel(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate panel names within a project site. Returns ValidationError if any duplicates are found.
+        Check for duplicate panel names within a project site.
+        Returns ValidationError if any duplicates are found.
         """
 
-        # count panels with matching panel_name and parent site, which don't have this pk
+        # count panels with matching panel_name and parent site,
+        # which don't have this pk
         try:
             Site.objects.get(id=self.site_id)
         except ObjectDoesNotExist:
@@ -273,14 +312,23 @@ class Panel(ProtectedModel):
             site=self.site).exclude(
                 id=self.id)
         if duplicates.count() > 0:
-            raise ValidationError("A panel with this name already exists in this site.")
+            raise ValidationError(
+                "A panel with this name already exists in this site."
+            )
 
     def __unicode__(self):
-        return u'%s (Project: %s, Site: %s)' % (self.panel_name, self.site.project.project_name, self.site.site_name)
+        return u'%s (Project: %s, Site: %s)' % (
+            self.panel_name,
+            self.site.project.project_name,
+            self.site.site_name)
 
 
 class Parameter(models.Model):
-    parameter_short_name = models.CharField(unique=True, max_length=32, null=False, blank=False)
+    parameter_short_name = models.CharField(
+        unique=True,
+        max_length=32,
+        null=False,
+        blank=False)
 
     PARAMETER_TYPE_CHOICES = (
         ('FS', 'Forward Scatter'),
@@ -301,8 +349,14 @@ class Parameter(models.Model):
 
 
 class ParameterValueType(models.Model):
-    value_type_name = models.CharField(max_length=32, null=False, blank=False)
-    value_type_short_name = models.CharField(max_length=2, null=False, blank=False)
+    value_type_name = models.CharField(
+        max_length=32,
+        null=False,
+        blank=False)
+    value_type_short_name = models.CharField(
+        max_length=2,
+        null=False,
+        blank=False)
 
     def __unicode__(self):
         return u'%s' % self.value_type_short_name
@@ -312,14 +366,21 @@ class PanelParameterMap(ProtectedModel):
     panel = models.ForeignKey(Panel)
     parameter = models.ForeignKey(Parameter)
     value_type = models.ForeignKey(ParameterValueType)
-    # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
-    fcs_text = models.CharField("FCS Text", max_length=32, null=False, blank=False)
+    # fcs_text should match the FCS required keyword $PnN,
+    # the short name for parameter n.
+    fcs_text = models.CharField(
+        "FCS Text",
+        max_length=32,
+        null=False,
+        blank=False)
 
     def _get_name(self):
         """
         Returns the parameter name with value type.
         """
-        return '%s-%s' % (self.parameter.parameter_short_name, self.value_type.value_type_short_name)
+        return '%s-%s' % (
+            self.parameter.parameter_short_name,
+            self.value_type.value_type_short_name)
 
     name = property(_get_name)
 
@@ -328,7 +389,8 @@ class PanelParameterMap(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate parameter/value_type combos in a panel. Returns ValidationError if any duplicates are found.
+        Check for duplicate parameter/value_type combos in a panel.
+        Returns ValidationError if any duplicates are found.
         """
 
         # first check that there are no empty values
@@ -345,14 +407,17 @@ class PanelParameterMap(ProtectedModel):
         if len(error_message) > 0:
             raise ValidationError(error_message)
 
-        # count panel mappings with matching parameter and value_type, which don't have this pk
+        # count panel mappings with matching parameter and value_type,
+        # which don't have this pk
         ppm_duplicates = PanelParameterMap.objects.filter(
             panel=self.panel,
             parameter=self.parameter,
             value_type=self.value_type).exclude(id=self.id)
 
         if ppm_duplicates.count() > 0:
-            raise ValidationError("This combination already exists in this panel")
+            raise ValidationError(
+                "This combination already exists in this panel"
+            )
 
         panel_fcs_text_duplicates = PanelParameterMap.objects.filter(
             panel=self.panel,
@@ -365,13 +430,27 @@ class PanelParameterMap(ProtectedModel):
             raise ValidationError("FCS Text is required")
 
     def __unicode__(self):
-        return u'Panel: %s, Parameter: %s-%s' % (self.panel, self.parameter, self.value_type)
+        return u'Panel: %s, Parameter: %s-%s' % (
+            self.panel,
+            self.parameter,
+            self.value_type
+        )
 
 
 class Antibody(models.Model):
-    antibody_name = models.CharField(unique=True, null=False, blank=False, max_length=128)
-    antibody_short_name = models.CharField(unique=True, null=False, blank=False, max_length=32)
-    antibody_description = models.TextField(null=True, blank=True)
+    antibody_name = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128)
+    antibody_short_name = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=32)
+    antibody_description = models.TextField(
+        null=True,
+        blank=True)
 
     def __unicode__(self):
         return u'%s' % self.antibody_short_name
@@ -389,8 +468,16 @@ class ParameterAntibodyMap(models.Model):
 
 
 class Fluorochrome(models.Model):
-    fluorochrome_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
-    fluorochrome_short_name = models.CharField(unique=False, null=False, blank=False, max_length=32)
+    fluorochrome_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    fluorochrome_short_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=32)
     fluorochrome_description = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
@@ -407,7 +494,11 @@ class ParameterFluorochromeMap(models.Model):
 
 class Subject(ProtectedModel):
     project = models.ForeignKey(Project)
-    subject_id = models.CharField("Subject ID", null=False, blank=False, max_length=128)
+    subject_id = models.CharField(
+        "Subject ID",
+        null=False,
+        blank=False,
+        max_length=128)
 
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
@@ -416,10 +507,12 @@ class Subject(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate subject ID in a project. Returns ValidationError if any duplicates are found.
+        Check for duplicate subject ID in a project.
+        Returns ValidationError if any duplicates are found.
         """
 
-        # count subjects with matching subject_id and parent project, which don't have this pk
+        # count subjects with matching subject_id and parent project,
+        # which don't have this pk
         try:
             Project.objects.get(id=self.project_id)
         except ObjectDoesNotExist:
@@ -430,7 +523,9 @@ class Subject(ProtectedModel):
             project=self.project).exclude(
                 id=self.id)
         if subject_duplicates.count() > 0:
-            raise ValidationError("Subject ID already exists in this project.")
+            raise ValidationError(
+                "Subject ID already exists in this project."
+            )
 
     def __unicode__(self):
         return u'%s' % self.subject_id
@@ -438,7 +533,11 @@ class Subject(ProtectedModel):
 
 class ProjectVisitType(ProtectedModel):
     project = models.ForeignKey(Project)
-    visit_type_name = models.CharField(unique=False, null=False, blank=False, max_length=128)
+    visit_type_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
     visit_type_description = models.TextField(null=True, blank=True)
 
     def has_view_permission(self, user):
@@ -448,10 +547,12 @@ class ProjectVisitType(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate visit types in a project. Returns ValidationError if any duplicates are found.
+        Check for duplicate visit types in a project.
+        Returns ValidationError if any duplicates are found.
         """
 
-        # count visit types with matching visit_type_name and parent project, which don't have this pk
+        # count visit types with matching visit_type_name and parent project,
+        # which don't have this pk
         try:
             Project.objects.get(id=self.project_id)
         except ObjectDoesNotExist:
@@ -479,12 +580,34 @@ def fcs_file_path(instance, filename):
 
 
 class Sample(ProtectedModel):
-    subject = models.ForeignKey(Subject, null=False, blank=False)
-    site = models.ForeignKey(Site, null=False, blank=False)
-    visit = models.ForeignKey(ProjectVisitType, null=False, blank=False)
-    sample_file = models.FileField(upload_to=fcs_file_path, null=False, blank=False)
-    original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
-    sha1 = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=40)
+    subject = models.ForeignKey(
+        Subject,
+        null=False,
+        blank=False)
+    site = models.ForeignKey(
+        Site,
+        null=False,
+        blank=False)
+    visit = models.ForeignKey(
+        ProjectVisitType,
+        null=False,
+        blank=False)
+    sample_file = models.FileField(
+        upload_to=fcs_file_path,
+        null=False,
+        blank=False)
+    original_filename = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        editable=False,
+        max_length=256)
+    sha1 = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        editable=False,
+        max_length=40)
 
     def has_view_permission(self, user):
 
@@ -535,11 +658,11 @@ class Sample(ProtectedModel):
             - Verify specified subject exists (subject is required)
             - Use subject to get the project (project is required for Subject)
             - Verify visit_type and site belong to the subject project
-            - Save the original file name, since it may already exist on our side.
-            - Save the SHA-1 hash and check for duplicate FCS files in this project.
+            - Save  original file name, since it may already exist on our side.
+            - Save SHA-1 hash and check for duplicate FCS files in this project.
         """
 
-        # TODO: need to add a check for the site to be restricted to those the requesting user has add perms for
+        # TODO: restrict site to ones the requesting user has add perms for
         # but request isn't available in clean() ???
 
         try:
@@ -548,27 +671,41 @@ class Sample(ProtectedModel):
             # get the hash
             file_hash = hashlib.sha1(self.sample_file.read())
         except (ObjectDoesNotExist, ValueError):
-            return  # Subject & sample_file are required...will get caught by Form.is_valid()
-        # Verify subject project is the same as the site and visit project (if either site or visit is specified)
+            # Subject & sample_file are required...
+            # will get caught by Form.is_valid()
+            return
+
+        # Verify subject project is the same as the site and
+        # visit project (if either site or visit is specified)
         if hasattr(self, 'site'):
             if self.site is not None:
                 if self.subject.project != self.site.project:
-                    raise ValidationError("Subject and Site must belong to the same project")
+                    raise ValidationError(
+                        "Subject and Site must belong to the same project"
+                    )
+
         if hasattr(self, 'visit'):
             if self.visit is not None:
                 if self.subject.project != self.visit.project:
-                    raise ValidationError("Subject and Visit must belong to the same project")
+                    raise ValidationError(
+                        "Subject and Visit must belong to the same project"
+                    )
 
-        # Check if the project already has this file, if so delete the temp file and raise ValidationError
+        # Check if the project already has this file,
+        # if so delete the temp file and raise ValidationError
         self.sha1 = file_hash.hexdigest()
         other_sha_values_in_project = Sample.objects.filter(
-            subject__project=self.subject.project).exclude(id=self.id).values_list('sha1', flat=True)
+            subject__project=self.subject.project).exclude(
+                id=self.id).values_list('sha1', flat=True)
         if self.sha1 in other_sha_values_in_project:
             if hasattr(self.sample_file.file, 'temporary_file_path'):
                 temp_file_path = self.sample_file.file.temporary_file_path()
-                os.unlink(temp_file_path)  # TODO: check if this generate an IOError if Django tries to delete
+                os.unlink(temp_file_path)
+                # TODO: check if this generates an IOError when Django deletes
 
-            raise ValidationError("An FCS file with this SHA-1 hash already exists for this Project.")
+            raise ValidationError(
+                "An FCS file with this SHA-1 hash exists in this Project."
+            )
 
         if self.site is not None and self.site.project_id != self.subject.project_id:
             raise ValidationError("Site chosen is not in this Project")
@@ -579,15 +716,25 @@ class Sample(ProtectedModel):
         # Verify the file is an FCS file
         if hasattr(self.sample_file.file, 'temporary_file_path'):
             try:
-                fcm_obj = fcm.loadFCS(self.sample_file.file.temporary_file_path(), transform=None, auto_comp=False)
+                fcm_obj = fcm.loadFCS(
+                    self.sample_file.file.temporary_file_path(),
+                    transform=None,
+                    auto_comp=False)
             except:
-                raise ValidationError("Chosen file does not appear to be an FCS file.")
+                raise ValidationError(
+                    "Chosen file does not appear to be an FCS file."
+                )
         else:
             self.sample_file.seek(0)
             try:
-                fcm_obj = fcm.loadFCS(io.BytesIO(self.sample_file.read()), transform=None, auto_comp=False)
+                fcm_obj = fcm.loadFCS(io.BytesIO(
+                    self.sample_file.read()),
+                    transform=None,
+                    auto_comp=False)
             except:
-                raise ValidationError("Chosen file does not appear to be an FCS file.")
+                raise ValidationError(
+                    "Chosen file does not appear to be an FCS file."
+                )
 
         # Start collecting channel info even though no Panel is associated yet
         # Note: the SampleParameterMap instances are saved in overridden save
@@ -597,7 +744,9 @@ class Sample(ProtectedModel):
 
         if 'par' in sample_text_segment:
             if not sample_text_segment['par'].isdigit():
-                raise ValidationError("FCS file reports non-numeric parameter count")
+                raise ValidationError(
+                    "FCS file reports non-numeric parameter count"
+                )
         else:
             raise ValidationError("No parameters found in FCS file")
 
@@ -617,8 +766,10 @@ class Sample(ProtectedModel):
     def save(self, *args, **kwargs):
         super(Sample, self).save(*args, **kwargs)
 
-        # Save all the parameters as SampleParameterMap instances if we have _sample_parameters
-        # Check if sample has any parameters, could happen if someone 'edits' an existing sample
+        # Save all the parameters as SampleParameterMap instances if
+        # we have _sample_parameters
+        # Check if sample has any parameters, could happen if
+        # someone 'edits' an existing sample
         if hasattr(self, '_sample_parameters') and self.sampleparametermap_set.count() == 0:
             for key in self._sample_parameters:
                 spm = SampleParameterMap()
@@ -638,15 +789,25 @@ class Sample(ProtectedModel):
 class SampleParameterMap(ProtectedModel):
     sample = models.ForeignKey(Sample)
 
-    # The parameter and value_type may not be known on initial import, thus null, blank = True
+    # The parameter and value_type may not be known on initial import,
+    # thus null, blank = True
     parameter = models.ForeignKey(Parameter, null=True, blank=True)
     value_type = models.ForeignKey(ParameterValueType, null=True, blank=True)
 
-    # fcs_text should match the FCS required keyword $PnN, the short name for parameter n.
-    fcs_text = models.CharField("FCS PnN", max_length=32, null=False, blank=False)
+    # fcs_text should match the FCS required keyword $PnN,
+    # the short name for parameter n.
+    fcs_text = models.CharField(
+        "FCS PnN",
+        max_length=32,
+        null=False,
+        blank=False)
 
     # fcs_opt_text matches the optional FCS keyword $PnS
-    fcs_opt_text = models.CharField("FCS PnS", max_length=32, null=True, blank=True)
+    fcs_opt_text = models.CharField(
+        "FCS PnS",
+        max_length=32,
+        null=True,
+        blank=True)
 
     # fcs_number represents the parameter number in the FCS file
     # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
@@ -657,7 +818,10 @@ class SampleParameterMap(ProtectedModel):
         Returns the parameter name with value type, or empty string if none
         """
         if self.parameter and self.value_type:
-            return '%s-%s' % (self.parameter.parameter_short_name, self.value_type.value_type_short_name)
+            return '%s-%s' % (
+                self.parameter.parameter_short_name,
+                self.value_type.value_type_short_name
+            )
         else:
             return ''
 
@@ -679,7 +843,10 @@ def compensation_file_path(instance, filename):
     project_id = instance.site.project_id
     site_id = instance.site_id
 
-    upload_dir = join([str(project_id), 'compensation', str(site_id), str(filename)], "/")
+    upload_dir = join(
+        [str(project_id), 'compensation', str(site_id), str(filename)],
+        "/"
+    )
     upload_dir = join([MEDIA_ROOT, upload_dir], '')
 
     return upload_dir
@@ -687,9 +854,20 @@ def compensation_file_path(instance, filename):
 
 class Compensation(ProtectedModel):
     site = models.ForeignKey(Site)
-    compensation_file = models.FileField(upload_to=compensation_file_path, null=False, blank=False)
-    original_filename = models.CharField(unique=False, null=False, blank=False, editable=False, max_length=256)
-    matrix_text = models.TextField(null=False, blank=False, editable=False)
+    compensation_file = models.FileField(
+        upload_to=compensation_file_path,
+        null=False,
+        blank=False)
+    original_filename = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        editable=False,
+        max_length=256)
+    matrix_text = models.TextField(
+        null=False,
+        blank=False,
+        editable=False)
 
     def has_view_permission(self, user):
 
@@ -703,7 +881,7 @@ class Compensation(ProtectedModel):
         """
         Overriding clean to do the following:
             - Verify specified site exists (site is required)
-            - Save the original file name, since it may already exist on our side.
+            - Save original file name, it may already exist on our side.
             - Save the matrix text
         """
 
@@ -711,10 +889,12 @@ class Compensation(ProtectedModel):
             Site.objects.get(id=self.site_id)
             self.original_filename = self.compensation_file.name.split('/')[-1]
         except ObjectDoesNotExist:
-            return  # site and compensation file are required...will get caught by Form.is_valid()
+            # site & compensation file are required...
+            # will get caught by Form.is_valid()
+            return
 
-        # get the matrix, a bit funky b/c the files may have \r or \n line termination,
-        # we'll save the matrix_text with \n line terminators
+        # get the matrix, a bit funky b/c the files may have \r or \n line
+        # termination. we'll save the matrix_text with \n line terminators
         self.compensation_file.seek(0)
         text = self.compensation_file.read()
         self.matrix_text = '\n'.join(text.splitlines())
@@ -733,4 +913,6 @@ class SampleCompensationMap(ProtectedModel):
         """
 
         if self.sample.site != self.compensation.site:
-            raise ValidationError("Compensation matrix must belong to the same site as the sample.")
+            raise ValidationError(
+                "Compensation matrix must belong to the same site as the sample."
+            )
