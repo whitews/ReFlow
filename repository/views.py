@@ -109,6 +109,81 @@ def edit_antibody(request, antibody_id):
 
 
 @login_required
+def view_fluorochromes(request):
+
+    fluorochromes = Fluorochrome.objects.all().values(
+        'id',
+        'fluorochrome_short_name',
+        'fluorochrome_name',
+        'fluorochrome_description',
+    )
+
+    pf_maps = ParameterFluorochromeMap.objects.filter(
+        fluorochrome_id__in=[i['id'] for i in fluorochromes]).values(
+            'id',
+            'fluorochrome_id',
+            'parameter__parameter_short_name',
+            'parameter__parameter_type',
+    )
+
+    for fluorochrome in fluorochromes:
+        fluorochrome['parameters'] = [
+            i for i in pf_maps if i['fluorochrome_id'] == fluorochrome['id']
+        ]
+
+    return render_to_response(
+        'view_fluorochromes.html',
+        {
+            'fluorochromes': fluorochromes,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def add_fluorochrome(request):
+    if request.method == 'POST':
+        form = FluorochromeForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_fluorochromes'))
+    else:
+        form = FluorochromeForm()
+
+    return render_to_response(
+        'add_fluorochrome.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def edit_fluorochrome(request, fluorochrome_id):
+    fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
+
+    if request.method == 'POST':
+        form = FluorochromeForm(request.POST, instance=fluorochrome)
+
+        if form.is_valid():
+            fluorochrome = form.save()
+            return HttpResponseRedirect(reverse('view_fluorochromes'))
+    else:
+        form = FluorochromeForm(instance=fluorochrome)
+
+    return render_to_response(
+        'edit_fluorochrome.html',
+        {
+            'fluorochrome': fluorochrome,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)

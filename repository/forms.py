@@ -15,6 +15,11 @@ class AntibodyForm(ModelForm):
         model = Antibody
 
 
+class FluorochromeForm(ModelForm):
+    class Meta:
+        model = Fluorochrome
+
+
 class UserSelectForm(Form):
     user = ModelChoiceField(label='User', queryset=User.objects.order_by('username'))
 

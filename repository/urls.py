@@ -39,9 +39,14 @@ urlpatterns += patterns('rest_framework',
 # Regular web routes
 urlpatterns += patterns('repository.views',
     url(r'^$', 'home', name='home'),
+
     url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
     url(r'^antibodies/add/$', 'add_antibody', name='add_antibody'),
     url(r'^antibodies/(?P<antibody_id>\d+)/edit/$', 'edit_antibody', name='edit_antibody'),
+
+    url(r'^fluorochromes/$', 'view_fluorochromes', name='view_fluorochromes'),
+    url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
+    url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'edit_fluorochrome', name='edit_fluorochrome'),
 
     url(r'^project/(?P<project_id>\d+)$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),

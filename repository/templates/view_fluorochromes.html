@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
+{% endblock %}
+
+{% block toes %}
+<script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
+
+<script>
+$(document).ready(function()
+{
+    $(".show-all").click(function()
+    {
+        $('.params').show(250);
+        return false;
+    });
+
+    $(".hide-all").click(function()
+    {
+        $('.params').hide(250);
+        return false;
+    });
+
+    $(".toggle-closest").click(function()
+    {
+        $(this).siblings('div.params').toggle(250);
+        return false;
+    });
+
+    return false;
+});
+
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="row lead">
+    <div class="pull-right">
+      Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes|length }}</span>
+    </div>
+  </div>
+
+  {% if fluorochromes %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+          <th>Antibody ID</th>
+          <th>Abbreviation</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>
+              Parameters Built From Antibody
+              <div class="pull-right">
+                <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+              </div>
+          </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fluorochrome in fluorochromes %}
+      <tr>
+        <td class="middle">
+          {{ fluorochrome.id }}
+          {% if user.is_superuser %}
+          <div class="pull-right align-middle">
+            <a rel="tooltip" href="{% url 'edit_fluorochrome' fluorochrome.id %}" data-original-title="Edit Antibody" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+            </a>
+          </div>
+          {% endif %}
+        </td>
+        <td class="middle">{{ fluorochrome.fluorochrome_short_name }}</td>
+        <td class="middle">{{ fluorochrome.fluorochrome_name }}</td>
+        <td class="middle">{{ fluorochrome.fluorochrome_description|default_if_none:'' }}</td>
+
+        <td style="width: 40%" class="middle">
+
+          {% if fluorochrome.parameters.count > 0 %}
+
+          <a href="#" class="pull-right toggle-closest">Show/Hide</a>
+          <div class="hide params">
+              {% for parameter in fluorochrome.parameters|dictsort:"parameter__parameter_short_name" %}
+                {{ parameter.parameter__parameter_short_name }}<br/>
+              {% endfor %}
+          </div>
+
+          {% endif %}
+
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No fluorochromes have been entered in this web site.</p>
+  {% endif %}
+  {% if user.is_superuser %}
+  <div class="pull-right">
+    <a class="btn btn-success btn-small" href="{% url 'add_fluorochrome' %}">
+      <i class="icon-plus icon-white"></i> Add Fluorochrome
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
