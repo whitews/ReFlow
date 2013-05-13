@@ -40,6 +40,7 @@ urlpatterns += patterns('rest_framework',
 urlpatterns += patterns('repository.views',
     url(r'^$', 'home', name='home'),
     url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
+    url(r'^antibodies/add/$', 'add_antibody', name='add_antibody'),
 
     url(r'^project/(?P<project_id>\d+)$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),

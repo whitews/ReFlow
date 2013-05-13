@@ -1,6 +1,6 @@
 from operator import attrgetter
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -60,6 +60,26 @@ def view_antibodies(request):
         'view_antibodies.html',
         {
             'antibodies': antibodies,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def add_antibody(request):
+    if request.method == 'POST':
+        form = AntibodyForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_antibodies'))
+    else:
+        form = AntibodyForm()
+
+    return render_to_response(
+        'add_antibody.html',
+        {
+            'form': form,
         },
         context_instance=RequestContext(request)
     )

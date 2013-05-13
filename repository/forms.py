@@ -10,6 +10,11 @@ class ProjectForm(ModelForm):
         model = Project
 
 
+class AntibodyForm(ModelForm):
+    class Meta:
+        model = Antibody
+
+
 class UserSelectForm(Form):
     user = ModelChoiceField(label='User', queryset=User.objects.order_by('username'))
 

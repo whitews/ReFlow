@@ -59,16 +59,7 @@
       <tbody>
       <tr>
         <td class="center">
-                  <span class="lead"><a
-                    href="{% url 'view_antibodies' %}">Antibody List
-                    </a></span>
-          {% if user.is_superuser %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="#">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
-          {% endif %}
+          <span class="lead"><a href="{% url 'view_antibodies' %}">Antibody List</a></span>
         </td>
       </tr>
     </table>

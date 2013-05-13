@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4">Create a New Antibody</div>
+    </div>
+    <br/>
+      <form class="form-horizontal" action="{% url 'add_antibody' %}" method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="control-group warning">
+          <ul>
+            {% for field in form %}
+              {% if field.errors %}
+                <span class="help-inline">{{ field.label }}: {{ field.errors|striptags }}</span>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+          <div class="control-group">
+            <label class="control-label">{{ field.label }}</label>
+            <div class="controls">
+              {{ field }}
+              {% if field.errors %}
+              <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+        <div class="control-group">
+          <div class="controls">
+            <button class="btn btn-small btn-primary" type="submit">Save</button>
+          </div>
+        </div>
+      </form>
+  </div>
+{% endblock %}
