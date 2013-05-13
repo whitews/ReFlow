@@ -38,7 +38,7 @@ urlpatterns += patterns('rest_framework',
 
 # Regular web routes
 urlpatterns += patterns('repository.views',
-    url(r'^$', 'view_projects', name='home'),
+    url(r'^$', 'home', name='home'),
     url(r'^project/(?P<project_id>\d+)$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),
     url(r'^project/(?P<project_id>\d+)/edit/$', 'edit_project', name='edit_project'),

@@ -20,12 +20,12 @@ from repository.utils import apply_panel_to_sample
 
 
 @login_required
-def view_projects(request):
+def home(request):
 
     projects = Project.objects.get_projects_user_can_view(request.user)
 
     return render_to_response(
-        'view_projects.html',
+        'home.html',
         {
             'projects': sorted(projects, key=attrgetter('project_name')),
         },
