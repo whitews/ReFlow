@@ -184,6 +184,111 @@ def edit_fluorochrome(request, fluorochrome_id):
 
 
 @login_required
+def view_parameters(request):
+
+    parameters = Parameter.objects.all()
+
+    return render_to_response(
+        'view_parameters.html',
+        {
+            'parameters': parameters,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def add_parameter(request):
+    if request.method == 'POST':
+        form = ParameterForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterForm()
+
+    return render_to_response(
+        'add_parameter.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def associate_antibody_to_parameter(request, parameter_id):
+    parameter = get_object_or_404(Parameter, pk=parameter_id)
+    pa_map = ParameterAntibodyMap(parameter_id=parameter_id)
+
+    if request.method == 'POST':
+        form = ParameterAntibodyMapForm(request.POST, instance=pa_map)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterAntibodyMapForm(instance=pa_map)
+
+    return render_to_response(
+        'associate_antibody_to_parameter.html',
+        {
+            'parameter': parameter,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def associate_fluorochrome_to_parameter(request, parameter_id):
+    parameter = get_object_or_404(Parameter, pk=parameter_id)
+    pf_map = ParameterFluorochromeMap(parameter_id=parameter_id)
+
+    if request.method == 'POST':
+        form = ParameterFluorochromeMapForm(request.POST, instance=pf_map)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterFluorochromeMapForm(instance=pf_map)
+
+    return render_to_response(
+        'associate_fluorochrome_to_parameter.html',
+        {
+            'parameter': parameter,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def edit_parameter(request, parameter_id):
+    parameter = get_object_or_404(Fluorochrome, pk=parameter_id)
+
+    if request.method == 'POST':
+        form = ParameterForm(request.POST, instance=parameter)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterForm(instance=parameter)
+
+    return render_to_response(
+        'edit_parameter.html',
+        {
+            'parameter': parameter,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)

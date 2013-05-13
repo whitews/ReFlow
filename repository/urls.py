@@ -48,6 +48,12 @@ urlpatterns += patterns('repository.views',
     url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
     url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'edit_fluorochrome', name='edit_fluorochrome'),
 
+    url(r'^parameters/$', 'view_parameters', name='view_parameters'),
+    url(r'^parameters/add/$', 'add_parameter', name='add_parameter'),
+    url(r'^parameters/(?P<parameter_id>\d+)/edit/$', 'edit_parameter', name='edit_parameter'),
+    url(r'^parameters/(?P<parameter_id>\d+)/select_antibody/$', 'associate_antibody_to_parameter', name='associate_antibody_to_parameter'),
+    url(r'^parameters/(?P<parameter_id>\d+)/select_fluorochrome/$', 'associate_fluorochrome_to_parameter', name='associate_fluorochrome_to_parameter'),
+
     url(r'^project/(?P<project_id>\d+)$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),
     url(r'^project/(?P<project_id>\d+)/edit/$', 'edit_project', name='edit_project'),

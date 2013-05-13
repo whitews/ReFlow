@@ -20,6 +20,22 @@ class FluorochromeForm(ModelForm):
         model = Fluorochrome
 
 
+class ParameterForm(ModelForm):
+    class Meta:
+        model = Parameter
+
+
+class ParameterAntibodyMapForm(ModelForm):
+    class Meta:
+        model = ParameterAntibodyMap
+        exclude = ('parameter',)
+
+
+class ParameterFluorochromeMapForm(ModelForm):
+    class Meta:
+        model = ParameterFluorochromeMap
+
+
 class UserSelectForm(Form):
     user = ModelChoiceField(label='User', queryset=User.objects.order_by('username'))
 
@@ -30,10 +46,14 @@ class UserSelectForm(Form):
         # now it's safe to call the parent init
         super(UserSelectForm, self).__init__(*args, **kwargs)
 
-        # finally, the reason we're here...make sure only the project's sites are the available choices
+        # finally, the reason we're here...
+        # make sure only the project's sites are the available choices
         if project_id:
             sites = Site.objects.filter(project__id=project_id).order_by('site_name')
-            self.fields['site'] = ModelChoiceField(sites, required=False, empty_label='Project Level - All Sites')
+            self.fields['site'] = ModelChoiceField(
+                sites,
+                required=False,
+                empty_label='Project Level - All Sites')
 
 
 class SiteForm(ModelForm):
@@ -59,7 +79,8 @@ class PanelForm(ModelForm):
         # now it's safe to call the parent init
         super(PanelForm, self).__init__(*args, **kwargs)
 
-        # finally, the reason we're here...make sure only the project's sites are the available choices
+        # finally, the reason we're here...
+        # make sure only the project's sites are the available choices
         if project_id:
             sites = Site.objects.filter(project__id=project_id).order_by('site_name')
             if not sites:
@@ -117,7 +138,8 @@ class SampleForm(ModelForm):
         # now it's safe to call the parent init
         super(SampleForm, self).__init__(*args, **kwargs)
 
-        # finally, make sure only project's subjects, sites, and visit types are the available choices
+        # finally, make sure only project's subjects, sites, and visit types
+        # are the available choices
         if project_id:
             subjects = Subject.objects.filter(project__id=project_id).order_by('subject_id')
             self.fields['subject'] = ModelChoiceField(subjects)

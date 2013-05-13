@@ -463,6 +463,12 @@ class ParameterAntibodyMap(models.Model):
     parameter = models.ForeignKey(Parameter)
     antibody = models.ForeignKey(Antibody)
 
+    # TODO: override clean to prevent duplicate Ab's for a parameter...
+    # unique_together doesn't work for forms with the parameter excluded
+
+    class Meta:
+            unique_together = (('parameter', 'antibody'),)
+
     def __unicode__(self):
         return u'%s: %s' % (self.parameter, self.antibody)
 
