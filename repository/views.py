@@ -85,6 +85,29 @@ def add_antibody(request):
     )
 
 
+@user_passes_test(lambda user: user.is_superuser)
+def edit_antibody(request, antibody_id):
+    antibody = get_object_or_404(Antibody, pk=antibody_id)
+
+    if request.method == 'POST':
+        form = AntibodyForm(request.POST, instance=antibody)
+
+        if form.is_valid():
+            antibody = form.save()
+            return HttpResponseRedirect(reverse('view_antibodies'))
+    else:
+        form = AntibodyForm(instance=antibody)
+
+    return render_to_response(
+        'edit_antibody.html',
+        {
+            'antibody': antibody,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
 @login_required
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)

@@ -66,7 +66,7 @@ $(document).ready(function()
           {{ antibody.id }}
           {% if user.is_superuser %}
           <div class="pull-right align-middle">
-            <a rel="tooltip" href="#" data-original-title="Edit Antibody" data-placement="bottom">
+            <a rel="tooltip" href="{% url 'edit_antibody' antibody.id %}" data-original-title="Edit Antibody" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
             </a>
           </div>
