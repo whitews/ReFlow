@@ -34,6 +34,38 @@ def home(request):
 
 
 @login_required
+def view_antibodies(request):
+
+    antibodies = Antibody.objects.all().values(
+        'id',
+        'antibody_short_name',
+        'antibody_name',
+        'antibody_description',
+    )
+
+    pa_maps = ParameterAntibodyMap.objects.filter(
+        antibody_id__in=[i['id'] for i in antibodies]).values(
+            'id',
+            'antibody_id',
+            'parameter__parameter_short_name',
+            'parameter__parameter_type',
+    )
+
+    for antibody in antibodies:
+        antibody['parameters'] = [
+            i for i in pa_maps if i['antibody_id'] == antibody['id']
+        ]
+
+    return render_to_response(
+        'view_antibodies.html',
+        {
+            'antibodies': antibodies,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)

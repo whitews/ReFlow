@@ -52,5 +52,26 @@
     {% else %}
     <p>You do not belong to any projects. <a href="{% url 'add_project' %}">Create a new project</a></p>
     {% endif %}
+
+    <br/>
+
+    <table class="table table-bordered table-striped">
+      <tbody>
+      <tr>
+        <td class="center">
+                  <span class="lead"><a
+                    href="{% url 'view_antibodies' %}">Antibody List
+                    </a></span>
+          {% if user.is_superuser %}
+            <div class="pull-right">
+              <a class="btn btn-success btn-small" href="#">
+                <i class="icon-plus icon-white"></i>
+              </a>
+            </div>
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+
   </div>
 {% endblock %}
