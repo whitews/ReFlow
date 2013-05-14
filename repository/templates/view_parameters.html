@@ -39,11 +39,13 @@
 
               {% for pa_map in parameter.parameterantibodymap_set.all %}
                 {{ pa_map.antibody.antibody_short_name }}
+                {% if user.is_superuser %}
                 <span class="pull-right">
                   <a class="remove_parameter_antibody" rel="tooltip" href="{% url 'remove_parameter_antibody' pa_map.id %}" data-original-title="Remove Antibody" data-placement="right">
                     <i style="opacity: 0.4" class="icon-remove align-middle"></i>
                   </a>
                 </span>
+                {% endif %}
                 <br/>
               {% endfor %}
 
@@ -66,11 +68,13 @@
           <div>
               {% for pf_map in parameter.parameterfluorochromemap_set.all %}
                 {{ pf_map.fluorochrome.fluorochrome_short_name }}
+                {% if user.is_superuser %}
                 <span class="pull-right">
                   <a class="remove_parameter_fluorochrome" rel="tooltip" href="{% url 'remove_parameter_fluorochrome' pf_map.id %}" data-original-title="Remove Fluorochrome" data-placement="left">
                     <i style="opacity: 0.4" class="icon-remove align-middle"></i>
                   </a>
                 </span>
+                {% endif %}
                 <br/>
               {% endfor %}
           </div>

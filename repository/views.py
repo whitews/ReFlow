@@ -11,12 +11,13 @@ from django.template import RequestContext
 from django.utils import simplejson
 from django.forms.models import inlineformset_factory
 
-from guardian.shortcuts import assign_perm, get_users_with_perms
+from guardian.shortcuts import assign_perm
 from guardian.forms import UserObjectPermissionsForm
 
 from repository.models import *
 from repository.forms import *
 from repository.utils import apply_panel_to_sample
+from reflow import settings
 
 
 @login_required

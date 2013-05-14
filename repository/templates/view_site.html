@@ -81,7 +81,7 @@ $(document).ready(function()
           <th>Sample ID</th>
           <th>File Name</th>
           <th>Data</th>
-          <th>Site</th>
+          <th>Subject</th>
           <th>Visit</th>
           <th>
               Parameters
@@ -111,7 +111,7 @@ $(document).ready(function()
             <a href="{% url 'sample_data' sample.id %}">CSV</a><br/>
             <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
         </td>
-        <td class="middle">{{ sample.site__site_name }}</td>
+        <td class="middle">{{ sample.subject__subject_id }}</td>
         <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
 
         <td style="width: 60%" class="middle">
