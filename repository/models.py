@@ -463,11 +463,21 @@ class ParameterAntibodyMap(models.Model):
     parameter = models.ForeignKey(Parameter)
     antibody = models.ForeignKey(Antibody)
 
-    # TODO: override clean to prevent duplicate Ab's for a parameter...
+    # override clean to prevent duplicate Ab's for a parameter...
     # unique_together doesn't work for forms with the parameter excluded
+    def clean(self):
+        """
+        Verify the parameter & antibody combo doesn't already exist
+        """
 
-    class Meta:
-            unique_together = (('parameter', 'antibody'),)
+        qs = ParameterAntibodyMap.objects.filter(
+            parameter=self.parameter,
+            antibody=self.antibody)
+
+        if qs.exists():
+            raise ValidationError(
+                "This antibody is already included in this parameter."
+            )
 
     def __unicode__(self):
         return u'%s: %s' % (self.parameter, self.antibody)
@@ -493,6 +503,25 @@ class Fluorochrome(models.Model):
 class ParameterFluorochromeMap(models.Model):
     parameter = models.ForeignKey(Parameter)
     fluorochrome = models.ForeignKey(Fluorochrome)
+
+    # override clean to prevent duplicate Fl's for a parameter...
+    # unique_together doesn't work for forms with the parameter excluded
+    def clean(self):
+        """
+        Verify the parameter & fluorochrome combo doesn't already exist
+        """
+
+        qs = ParameterFluorochromeMap.objects.filter(
+            parameter=self.parameter,
+            fluorochrome=self.fluorochrome)
+
+        if qs.exists():
+            raise ValidationError(
+                "This fluorochrome is already included in this parameter."
+            )
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.parameter, self.antibody)
 
     def __unicode__(self):
         return u'%s: %s' % (self.parameter, self.fluorochrome)
