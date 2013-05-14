@@ -267,7 +267,7 @@ def associate_fluorochrome_to_parameter(request, parameter_id):
 
 @user_passes_test(lambda user: user.is_superuser)
 def edit_parameter(request, parameter_id):
-    parameter = get_object_or_404(Fluorochrome, pk=parameter_id)
+    parameter = get_object_or_404(Parameter, pk=parameter_id)
 
     if request.method == 'POST':
         form = ParameterForm(request.POST, instance=parameter)
