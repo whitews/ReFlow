@@ -242,6 +242,15 @@ def associate_antibody_to_parameter(request, parameter_id):
 
 
 @user_passes_test(lambda user: user.is_superuser)
+def remove_parameter_antibody(request, pa_map_id):
+    pa_map = get_object_or_404(ParameterAntibodyMap, pk=pa_map_id)
+
+    pa_map.delete()
+
+    return HttpResponseRedirect(reverse('view_parameters',))
+
+
+@user_passes_test(lambda user: user.is_superuser)
 def associate_fluorochrome_to_parameter(request, parameter_id):
     parameter = get_object_or_404(Parameter, pk=parameter_id)
     pf_map = ParameterFluorochromeMap(parameter_id=parameter_id)
@@ -263,6 +272,15 @@ def associate_fluorochrome_to_parameter(request, parameter_id):
         },
         context_instance=RequestContext(request)
     )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def remove_parameter_fluorochrome(request, pf_map_id):
+    pf_map = get_object_or_404(ParameterFluorochromeMap, pk=pf_map_id)
+
+    pf_map.delete()
+
+    return HttpResponseRedirect(reverse('view_parameters',))
 
 
 @user_passes_test(lambda user: user.is_superuser)
