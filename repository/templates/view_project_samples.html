@@ -72,7 +72,6 @@ $(document).ready(function()
       <tr>
           <th>Sample ID</th>
           <th>File Name</th>
-          <th>Data</th>
           <th>Subject</th>
           <th>Site</th>
           <th>Visit</th>
@@ -100,10 +99,6 @@ $(document).ready(function()
         <td class="middle">
           <a class="no-wrap" href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a>
         </td>
-        <td class="middle">
-          <a href="{% url 'sample_data' sample.id %}">CSV</a><br/>
-          <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
-        </td>
         <td class="middle">{{ sample.subject__subject_id }}</td>
         <td class="middle">{{ sample.site__site_name }}</td>
         <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
@@ -113,6 +108,10 @@ $(document).ready(function()
           {% if sample.parameters.count > 0 %}
 
           <a href="#" class="toggle-closest">Show/Hide</a>
+          <div class="pull-right">
+            <a href="{% url 'sample_data' sample.id %}">CSV</a> |
+            <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
+          </div>
           <table class="table table-bordered table-hover hide params">
             <thead>
               <tr>
