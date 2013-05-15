@@ -90,15 +90,20 @@
               <tr>
                 <td colspan="8">
                   Select a site sample to associate with this compensation matrix.<br/>
-                  <a class="select_panel btn btn-success btn-small" href="#">
+                  <a class="btn btn-success btn-small" href="#">
                     <i class="icon-plus icon-white"></i> Select Sample
                   </a>
                 </td>
               </tr>
             </tbody>
           </table>
-
+          {% else %}
+          Select a site sample to associate with this compensation matrix.<br/>
+                  <a class="btn btn-success btn-small" href="#">
+                    <i class="icon-plus icon-white"></i> Select Sample
+                  </a>
           {% endif %}
+
         </td>
       </tr>
       {% endfor %}

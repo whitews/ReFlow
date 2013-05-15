@@ -67,6 +67,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/sites/$', 'view_sites', name='project_sites'),
     url(r'^site/(?P<site_id>\d+)$', 'view_site', name='view_site'),
+    url(r'^site/(?P<site_id>\d+)/uncategorized/$', 'view_site_uncategorized_samples', name='view_site_uncategorized_samples'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
     url(r'^project/(?P<project_id>\d+)/sites/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
@@ -91,7 +92,6 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/samples/add/$', 'add_sample', name='add_sample'),
     url(r'^subject/(?P<subject_id>\d+)/samples/add/$', 'add_subject_sample', name='add_subject_sample'),
     url(r'^site/(?P<site_id>\d+)/samples/add/$', 'add_site_sample', name='add_site_sample'),
-
 
     url(r'^project/(?P<project_id>\d+)/samples/$', 'view_samples', name='project_samples'),
     url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),

@@ -76,8 +76,8 @@ $(document).ready(function()
     <thead>
       <tr>
         <th colspan="5" class="center">
-          <h4>Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4>
-          <a href="{% url 'view_site_uncategorized_samples' site.id %}">Show Non-categorized Samples</a>
+          <h4>Non-categorized Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4>
+          <a href="{% url 'view_site' site.id %}">Show All Samples</a>
         </th>
       </tr>
       <tr>
@@ -86,10 +86,10 @@ $(document).ready(function()
           <th>Subject</th>
           <th>Visit</th>
           <th>
-            Parameters
-            <div class="pull-right">
-              <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-            </div>
+              Parameters
+              <div class="pull-right">
+                <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+              </div>
           </th>
       </tr>
     </thead>
@@ -155,7 +155,7 @@ $(document).ready(function()
                     <i class="icon-plus icon-white"></i> Select Panel
                   </a>
                   <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
-                    <i class="icon-pencil icon-white"></i> Create Panel from Sample
+                      <i class="icon-pencil icon-white"></i> Create Panel from Sample
                   </a>
                 </td>
               </tr>
