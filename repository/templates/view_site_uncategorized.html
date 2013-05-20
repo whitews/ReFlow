@@ -72,15 +72,17 @@ $(document).ready(function()
   </div>
 
   {% if samples %}
+  <form>
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th colspan="5" class="center">
+        <th colspan="6" class="center">
           <h4>Non-categorized Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4>
           <a href="{% url 'view_site' site.id %}">Show All Samples</a>
         </th>
       </tr>
       <tr>
+          <th></th>
           <th>Sample ID</th>
           <th>File Name</th>
           <th>Subject</th>
@@ -96,6 +98,9 @@ $(document).ready(function()
     <tbody>
       {% for sample in samples %}
       <tr>
+        <td>
+          <input type="checkbox" name="select_sample" value="{{ sample.id }}">
+        </td>
         <td class="middle">
           {{ sample.id }}
           {% if sample.site__id in user_modify_sites or can_modify_project_data %}
@@ -171,7 +176,7 @@ $(document).ready(function()
     </tbody>
   </table>
   {% else %}
-  <p>Site has no flow cytometry samples.</p>
+  <p>Fantastic! Looks like all samples have been categorized for this site.</p>
   {% endif %}
   {% if can_add_project_data or user_add_sites.count > 0 %}
   <div class="pull-right">
@@ -179,6 +184,7 @@ $(document).ready(function()
       <i class="icon-plus icon-white"></i> Add Sample
     </a>
   </div>
+  </form>
   {% endif %}
 </div>
 {% endblock %}

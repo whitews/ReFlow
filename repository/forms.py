@@ -34,6 +34,7 @@ class ParameterAntibodyMapForm(ModelForm):
 class ParameterFluorochromeMapForm(ModelForm):
     class Meta:
         model = ParameterFluorochromeMap
+        exclude = ('parameter',)
 
 
 class UserSelectForm(Form):
