@@ -34,6 +34,7 @@ def api_root(request, format=None):
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
         'samples': reverse('sample-list', request=request),
+        'uncategorized_samples': reverse('uncat-sample-list', request=request),
         'sites': reverse('site-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
@@ -389,6 +390,57 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
                 return Response(data={'__all__': e.messages}, status=400)
 
         return Response(data={'__all__': 'Bad request'}, status=400)
+
+
+class UncategorizedSampleList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of samples.
+    """
+
+    model = Sample
+    serializer_class = SampleSerializer
+    filter_fields = ('subject', 'site', 'visit', 'subject__project', 'original_filename')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to filter on the SampleParameterMap property 'name'.
+        If no name is provided, all samples are returned.
+        All results are restricted to projects to which the user belongs.
+        """
+
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
+
+        # first, filter by user's sites
+        uncat_spm = SampleParameterMap.objects.filter(parameter=None, sample__site__in=user_sites)
+
+        # Get the distinct sample ID as a list
+        uncat_sample_ids = uncat_spm.values_list('sample__id').distinct()
+
+        # filter the queryset by the uncategorized sample ID list
+        queryset = Sample.objects.filter(id__in=uncat_sample_ids)
+
+        # Value may have multiple names separated by commas
+        name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
+
+        if name_value is None:
+            return queryset
+
+        # The name property is just a concatenation of 2 related fields:
+        #  - parameter__parameter_short_name
+        #  - value_type__value_type_short_name (single character for H, A, W, T)
+        # they are joined by a hyphen
+        names = name_value.split(',')
+
+        for name in names:
+            parameter = name[0:-2]
+            value_type = name[-1]
+
+            queryset = queryset.filter(
+                sampleparametermap__parameter__parameter_short_name=parameter,
+                sampleparametermap__value_type__value_type_short_name=value_type,
+            ).distinct()
+
+        return queryset
 
 
 class CompensationList(LoginRequiredMixin, generics.ListAPIView):
