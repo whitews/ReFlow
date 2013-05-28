@@ -11,6 +11,7 @@ import django_filters
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.db.models import Count
 
 from repository.models import *
 from repository.serializers import *
@@ -420,24 +421,20 @@ class UncategorizedSampleList(LoginRequiredMixin, generics.ListAPIView):
         queryset = Sample.objects.filter(id__in=uncat_sample_ids)
 
         # Value may have multiple names separated by commas
-        name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
+        fcs_text_value = self.request.QUERY_PARAMS.get('fcs_text', None)
 
-        if name_value is None:
+        if fcs_text_value is None:
             return queryset
 
         # The name property is just a concatenation of 2 related fields:
         #  - parameter__parameter_short_name
         #  - value_type__value_type_short_name (single character for H, A, W, T)
         # they are joined by a hyphen
-        names = name_value.split(',')
+        fcs_pnn_names = fcs_text_value.split(',')
 
-        for name in names:
-            parameter = name[0:-2]
-            value_type = name[-1]
-
+        for name in fcs_pnn_names:
             queryset = queryset.filter(
-                sampleparametermap__parameter__parameter_short_name=parameter,
-                sampleparametermap__value_type__value_type_short_name=value_type,
+                sampleparametermap__fcs_text=name,
             ).distinct()
 
         return queryset
