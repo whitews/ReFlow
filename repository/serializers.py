@@ -126,6 +126,7 @@ class SampleCompensationPOSTSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
+    parameter_count = serializers.IntegerField(source='sampleparametermap_set.count', read_only=True)
     sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
@@ -142,6 +143,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'project',
             'original_filename',
             'sha1',
+            'parameter_count',
             'sampleparameters',
             'compensations'
         )

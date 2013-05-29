@@ -301,29 +301,35 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
-        # filter on user's projects
-        queryset = Sample.objects.filter(site__in=user_sites)
+        # Value may have multiple names separated by commas
+        param_count_value = self.request.QUERY_PARAMS.get('parameter_count', None)
+        if param_count_value is not None and param_count_value.isdigit():
+            queryset = Sample.objects\
+                            .filter(site__in=user_sites)\
+                            .annotate(parameter_count=Count('sampleparametermap'))\
+                            .filter(parameter_count=param_count_value)
+        else:
+            # filter on user's projects
+            queryset = Sample.objects.filter(site__in=user_sites)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
 
-        if name_value is None:
-            return queryset
+        if name_value is not None:
+            # The name property is just a concatenation of 2 related fields:
+            #  - parameter__parameter_short_name
+            #  - value_type__value_type_short_name (single character for H, A, W, T)
+            # they are joined by a hyphen
+            names = name_value.split(',')
 
-        # The name property is just a concatenation of 2 related fields:
-        #  - parameter__parameter_short_name
-        #  - value_type__value_type_short_name (single character for H, A, W, T)
-        # they are joined by a hyphen
-        names = name_value.split(',')
+            for name in names:
+                parameter = name[0:-2]
+                value_type = name[-1]
 
-        for name in names:
-            parameter = name[0:-2]
-            value_type = name[-1]
-
-            queryset = queryset.filter(
-                sampleparametermap__parameter__parameter_short_name=parameter,
-                sampleparametermap__value_type__value_type_short_name=value_type,
-            ).distinct()
+                queryset = queryset.filter(
+                    sampleparametermap__parameter__parameter_short_name=parameter,
+                    sampleparametermap__value_type__value_type_short_name=value_type,
+                ).distinct()
 
         return queryset
 
@@ -417,8 +423,15 @@ class UncategorizedSampleList(LoginRequiredMixin, generics.ListAPIView):
         # Get the distinct sample ID as a list
         uncat_sample_ids = uncat_spm.values_list('sample__id').distinct()
 
-        # filter the queryset by the uncategorized sample ID list
-        queryset = Sample.objects.filter(id__in=uncat_sample_ids)
+        param_count_value = self.request.QUERY_PARAMS.get('parameter_count', None)
+        if param_count_value is not None and param_count_value.isdigit():
+            queryset = Sample.objects\
+                            .filter(id__in=uncat_sample_ids)\
+                            .annotate(parameter_count=Count('sampleparametermap'))\
+                            .filter(parameter_count=param_count_value)
+        else:
+            # filter the queryset by the uncategorized sample ID list
+            queryset = Sample.objects.filter(id__in=uncat_sample_ids)
 
         # Value may have multiple names separated by commas
         fcs_text_value = self.request.QUERY_PARAMS.get('fcs_text', None)
