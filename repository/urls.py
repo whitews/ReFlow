@@ -89,6 +89,10 @@ urlpatterns += patterns('repository.views',
     url(r'^panel/(?P<panel_id>\d+)/edit/$', 'edit_panel', name='edit_panel'),
     url(r'^parameter/(?P<panel_parameter_id>\d+)/remove/$', 'remove_panel_parameter', name='remove_panel_parameter'),
 
+    url(r'^project/(?P<project_id>\d+)/subject_groups/$', 'view_subject_groups', name='subject_groups'),
+    url(r'^project/(?P<project_id>\d+)/subject_groups/add/$', 'add_subject_group', name='add_subject_group'),
+    url(r'^project/(?P<project_id>\d+)/subject_groups/(?P<subject_group_id>\d+)/edit/$', 'edit_subject_group', name='edit_subject_group'),
+
     url(r'^project/(?P<project_id>\d+)/subjects/$', 'view_subjects', name='project_subjects'),
     url(r'^subject/(?P<subject_id>\d+)$', 'view_subject', name='view_subject'),
     url(r'^project/(?P<project_id>\d+)/subjects/add/$', 'add_subject', name='add_subject'),

@@ -123,6 +123,12 @@ class PanelParameterMapForm(ModelForm):
         exclude = ('panel',)
 
 
+class SubjectGroupForm(ModelForm):
+    class Meta:
+        model = SubjectGroup
+        exclude = ('project',)
+
+
 class SubjectForm(ModelForm):
     class Meta:
         model = Subject
