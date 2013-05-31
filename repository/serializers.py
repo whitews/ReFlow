@@ -34,7 +34,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
-        fields = ('id', 'url', 'subject_id', 'project')
+        fields = ('id', 'url', 'subject_id', 'subject_group', 'project',)
 
 
 class ParameterAntibodySerializer(serializers.ModelSerializer):
@@ -139,6 +139,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'url',
             'visit',
             'subject',
+            'sample_group',
             'site',
             'project',
             'original_filename',
@@ -172,7 +173,7 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
         fields = (
-            'id', 'url', 'visit', 'subject',
+            'id', 'url', 'visit', 'subject', 'sample_group',
             'site', 'project', 'original_filename',
             'sampleparameters', 'sample_file'
         )
