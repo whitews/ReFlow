@@ -82,6 +82,18 @@
         </tr>
         <tr>
           <td class="center">
+            <span class="lead"><a href="{% url 'sample_groups' project.id %}">Sample Groups</a></span>
+            {% if can_add_project_data %}
+            <div class="pull-right">
+              <a class="btn btn-success btn-small" href="{% url 'add_sample_group' project.id %}">
+                <i class="icon-plus icon-white"></i>
+              </a>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="center">
             <span class="lead"><a href="{% url 'project_samples' project.id %}">Samples</a></span>
             {% if can_add_project_data %}
             <div class="pull-right">

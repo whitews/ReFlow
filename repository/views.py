@@ -1430,6 +1430,86 @@ def edit_subject(request, project_id, subject_id):
 
 
 @login_required
+def view_sample_groups(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+
+    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
+        raise PermissionDenied
+
+    sample_groups = SampleGroup.objects.filter(project=project).order_by('group_name')
+
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+
+    return render_to_response(
+        'view_sample_groups.html',
+        {
+            'project': project,
+            'sample_groups': sample_groups,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def add_sample_group(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_add_permission(request.user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        sample_group = SampleGroup(project=project)
+        form = SampleGroupForm(request.POST, instance=sample_group)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('sample_groups', args=project_id))
+    else:
+        form = SampleGroupForm()
+
+    return render_to_response(
+        'add_sample_group.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def edit_sample_group(request, project_id, sample_group_id):
+    sample_group = get_object_or_404(SampleGroup, pk=sample_group_id, project_id=project_id)
+
+    if not sample_group.project.has_modify_permission(request.user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        form = SampleGroupForm(request.POST, instance=sample_group)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse(
+                'sample_groups',
+                args=str(sample_group.project_id)))
+    else:
+        form = SampleGroupForm(instance=sample_group)
+
+    return render_to_response(
+        'edit_sample_group.html',
+        {
+            'form': form,
+            'sample_group': sample_group,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def add_sample(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_sites = Site.objects.get_sites_user_can_add(request.user, project)

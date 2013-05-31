@@ -149,6 +149,13 @@ class SubjectForm(ModelForm):
             subject_groups = SubjectGroup.objects.filter(project__id=project_id)
             self.fields['subject_group'] = ModelChoiceField(subject_groups)
 
+
+class SampleGroupForm(ModelForm):
+    class Meta:
+        model = SampleGroup
+        exclude = ('project',)
+
+
 class SampleForm(ModelForm):
     class Meta:
         model = Sample

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+    <div class="container">
+        <div class="row lead">
+            <div class="span4">
+                <a href="{% url 'view_project' sample_group.project.id %}">{{ sample_group.project.project_name }}</a>
+            </div>
+            <div class="pull-right">Edit Sample Group: {{ sample_group.group_name }}</div>
+        </div>
+        <br/>
+        <form class="form-horizontal" action="{% url 'edit_sample_group' sample_group.project_id sample_group.id %}" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="control-group text-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="control-group">
+                    <label class="control-label">{{ field.label }}</label>
+                    <div class="controls">
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-small btn-primary" type="submit">Save Edits</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

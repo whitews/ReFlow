@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+    <div class="container">
+        <div class="row lead">
+            <div class="span4">
+                <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
+            </div>
+            <div class="pull-right">Sample Groups <span class="badge badge-inverse align-top">{{ visit_types.count }}</span></div>
+        </div>
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>Group Name</th>
+                <th>Group Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for group in sample_groups %}
+                <tr>
+                    <td>
+                      {{ group.group_name }}
+                      {% if can_modify_project_data %}
+                      <span class="pull-right">
+                        <a rel="tooltip" href="{% url 'edit_sample_group' group.project_id group.id %}" data-original-title="Edit Sample Group" data-placement="left">
+                          <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+                        </a>
+                      </span>
+                      {% endif %}
+                    </td>
+                    <td>{{ group.group_description }} </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if can_add_project_data %}
+        <div class="pull-right">
+            <a class="btn btn-success btn-small" href="{% url 'add_sample_group' project.id %}">
+                <i class="icon-plus icon-white"></i> Add Sample Group
+            </a>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
