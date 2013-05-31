@@ -57,6 +57,10 @@ urlpatterns += patterns('repository.views',
     url(r'^parameters/remove_antibody/(?P<pa_map_id>\d+)/$', 'remove_parameter_antibody', name='remove_parameter_antibody'),
     url(r'^parameters/remove_fluorochrome/(?P<pf_map_id>\d+)/$', 'remove_parameter_fluorochrome', name='remove_parameter_fluorochrome'),
 
+    url(r'^specimens/$', 'view_specimens', name='view_specimens'),
+    url(r'^specimens/add/$', 'add_specimen', name='add_specimen'),
+    url(r'^specimens/(?P<specimen_id>\d+)/edit/$', 'edit_specimen', name='edit_specimen'),
+
     url(r'^project/(?P<project_id>\d+)$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),
     url(r'^project/(?P<project_id>\d+)/edit/$', 'edit_project', name='edit_project'),

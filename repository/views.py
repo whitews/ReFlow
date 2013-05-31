@@ -308,6 +308,66 @@ def edit_parameter(request, parameter_id):
 
 
 @login_required
+def view_specimens(request):
+
+    specimens = Specimen.objects.all().values(
+        'id',
+        'specimen_name',
+        'specimen_description',
+    )
+
+    return render_to_response(
+        'view_specimens.html',
+        {
+            'specimens': specimens,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@user_passes_test(lambda user: user.is_superuser)
+def add_specimen(request):
+    if request.method == 'POST':
+        form = SpecimenForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_specimens'))
+    else:
+        form = SpecimenForm()
+
+    return render_to_response(
+        'add_specimen.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def edit_specimen(request, specimen_id):
+    specimen = get_object_or_404(Specimen, pk=specimen_id)
+
+    if request.method == 'POST':
+        form = SpecimenForm(request.POST, instance=specimen)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_specimens'))
+    else:
+        form = SpecimenForm(instance=specimen)
+
+    return render_to_response(
+        'edit_specimen.html',
+        {
+            'specimen': specimen,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)

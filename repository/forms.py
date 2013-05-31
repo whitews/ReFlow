@@ -37,6 +37,11 @@ class ParameterFluorochromeMapForm(ModelForm):
         exclude = ('parameter',)
 
 
+class SpecimenForm(ModelForm):
+    class Meta:
+        model = Specimen
+
+
 class UserSelectForm(Form):
     user = ModelChoiceField(label='User', queryset=User.objects.order_by('username'))
 
