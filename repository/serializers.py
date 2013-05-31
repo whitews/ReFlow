@@ -140,6 +140,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'visit',
             'subject',
             'sample_group',
+            'specimen',
             'site',
             'project',
             'original_filename',
@@ -173,7 +174,7 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
         fields = (
-            'id', 'url', 'visit', 'subject', 'sample_group',
+            'id', 'url', 'visit', 'subject', 'sample_group', 'specimen',
             'site', 'project', 'original_filename',
             'sampleparameters', 'sample_file'
         )

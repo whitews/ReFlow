@@ -587,6 +587,7 @@ def view_samples(request, project_id):
             'site__id',
             'visit__visit_type_name',
             'sample_group__group_name',
+            'specimen__specimen_name',
             'original_filename'
         )
     elif user_view_sites.count() > 0:
@@ -598,6 +599,7 @@ def view_samples(request, project_id):
                 'site__id',
                 'visit__visit_type_name',
                 'sample_group__group_name',
+                'specimen__specimen_name',
                 'original_filename'
             )
     else:
@@ -731,6 +733,7 @@ def view_site(request, site_id):
             'site__id',
             'visit__visit_type_name',
             'sample_group__group_name',
+            'specimen__specimen_name',
             'original_filename'
         )
     else:
@@ -790,6 +793,7 @@ def view_site_uncategorized_samples(request, site_id):
             'site__id',
             'visit__visit_type_name',
             'sample_group__group_name',
+            'specimen__specimen_name',
             'original_filename'
         )
     else:
@@ -1328,6 +1332,7 @@ def view_subject(request, subject_id):
             'site__id',
             'visit__visit_type_name',
             'sample_group__group_name',
+            'specimen__specimen_name',
             'original_filename'
         )
     elif user_sites.count() > 0:
@@ -1339,6 +1344,7 @@ def view_subject(request, subject_id):
             'site__id',
             'visit__visit_type_name',
             'sample_group__group_name',
+            'specimen__specimen_name',
             'original_filename'
         )
     else:

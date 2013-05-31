@@ -76,7 +76,7 @@ $(document).ready(function()
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th colspan="7" class="center">
+        <th colspan="8" class="center">
           <h4>Non-categorized Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4>
           <a href="{% url 'view_site' site.id %}">Show All Samples</a>
         </th>
@@ -88,6 +88,7 @@ $(document).ready(function()
           <th>Subject</th>
           <th>Visit</th>
           <th>Sample Group</th>
+          <th>Specimen</th>
           <th>
               Parameters
               <div class="pull-right">
@@ -118,6 +119,7 @@ $(document).ready(function()
         <td class="middle">{{ sample.subject__subject_id }}</td>
         <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
         <td class="middle">{{ sample.sample_group__group_name|default_if_none:'' }}</td>
+        <td class="middle">{{ sample.specimen__specimen_name|default_if_none:'' }}</td>
 
         <td style="width: 60%" class="middle">
 
