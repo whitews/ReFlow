@@ -271,6 +271,20 @@ class Site(ProtectedModel):
         return u'%s' % self.site_name
 
 
+class Specimen(models.Model):
+    specimen_name = models.CharField(
+        max_length=32,
+        null=False,
+        blank=False)
+    specimen_description = models.CharField(
+        max_length=256,
+        null=False,
+        blank=False)
+
+    def __unicode__(self):
+        return u'%s' % self.specimen_name
+
+
 class Panel(ProtectedModel):
     site = models.ForeignKey(Site, null=False, blank=False)
     panel_name = models.CharField(
@@ -627,6 +641,10 @@ class Sample(ProtectedModel):
         ProjectVisitType,
         null=False,
         blank=False)
+    # specimen = models.ForeignKey(
+    #     Specimen,
+    #     null=False,
+    #     blank=False)
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,

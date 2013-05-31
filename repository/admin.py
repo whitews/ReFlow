@@ -3,6 +3,7 @@ from django.contrib import admin
 
 admin.site.register(Antibody)
 admin.site.register(Fluorochrome)
+admin.site.register(Specimen)
 
 admin.site.register(Project)
 admin.site.register(Panel)
