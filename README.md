@@ -20,6 +20,7 @@ __
 * django-extensions 1.0.2
 * django-rest-framework-docs 0.1.3
 * django-debug-toolbar 0.9.4
+* south 0.8.1
 
 Installation
 ----
