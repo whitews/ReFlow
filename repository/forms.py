@@ -128,6 +128,20 @@ class SubjectForm(ModelForm):
         model = Subject
         exclude = ('project',)
 
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # likewise for 'request' arg
+        request = kwargs.pop('request', None)
+
+        # now it's safe to call the parent init
+        super(SubjectForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure only project's subject groups are the available choices
+        if project_id:
+            subject_groups = SubjectGroup.objects.filter(project__id=project_id)
+            self.fields['subject_group'] = ModelChoiceField(subject_groups)
 
 class SampleForm(ModelForm):
     class Meta:

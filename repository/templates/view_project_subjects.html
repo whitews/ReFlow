@@ -15,6 +15,7 @@
     <thead>
       <tr>
         <th>Subject ID</th>
+        <th>Subject Group</th>
         <th>FCS Sample Count</th>
       </tr>
     </thead>
@@ -32,6 +33,9 @@
             </span>
             {% endif %}
           </div>
+        </td>
+        <td>
+          {{ s.subject_group.group_name|default_if_none:'' }}
         </td>
         <td>
             {{ s.sample_set.count }}

@@ -1304,14 +1304,14 @@ def add_subject(request, project_id):
 
     if request.method == 'POST':
         subject = Subject(project=project)
-        form = SubjectForm(request.POST, instance=subject)
+        form = SubjectForm(request.POST, instance=subject, project_id=project_id)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('project_subjects', args=project_id))
 
     else:
-        form = SubjectForm()
+        form = SubjectForm(project_id=project_id)
 
     return render_to_response(
         'add_subject.html',
@@ -1331,13 +1331,13 @@ def edit_subject(request, project_id, subject_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SubjectForm(request.POST, instance=subject)
+        form = SubjectForm(request.POST, instance=subject, project_id=project_id)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=subject_id))
     else:
-        form = SubjectForm(instance=subject)
+        form = SubjectForm(instance=subject, project_id=project_id)
 
     return render_to_response(
         'edit_subject.html',

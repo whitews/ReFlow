@@ -594,6 +594,9 @@ class Subject(ProtectedModel):
         except ObjectDoesNotExist:
             return  # Project is required and will get caught by Form.is_valid()
 
+        if self.subject_group is not None and self.subject_group.project_id != self.project_id:
+            raise ValidationError("Group chosen is not in this Project")
+
         subject_duplicates = Subject.objects.filter(
             subject_id=self.subject_id,
             project=self.project).exclude(
