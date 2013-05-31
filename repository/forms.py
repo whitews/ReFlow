@@ -153,7 +153,6 @@ class SubjectForm(ModelForm):
 class SampleGroupForm(ModelForm):
     class Meta:
         model = SampleGroup
-        exclude = ('project',)
 
 
 class SampleForm(ModelForm):
