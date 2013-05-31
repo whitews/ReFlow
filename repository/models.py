@@ -273,10 +273,12 @@ class Site(ProtectedModel):
 
 class Specimen(models.Model):
     specimen_name = models.CharField(
+        unique=True,
         max_length=32,
         null=False,
         blank=False)
     specimen_description = models.CharField(
+        unique=True,
         max_length=256,
         null=False,
         blank=False)
