@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'django_extensions',
     #'debug_toolbar',
     'guardian',
+    'south',
 )
 
 AUTHENTICATION_BACKENDS = (
