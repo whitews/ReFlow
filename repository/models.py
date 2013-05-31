@@ -543,6 +543,27 @@ class ParameterFluorochromeMap(models.Model):
         return u'%s: %s' % (self.parameter, self.fluorochrome)
 
 
+class SubjectGroup(ProtectedModel):
+    project = models.ForeignKey(Project)
+    group_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    group_description = models.TextField(null=True, blank=True)
+
+    def has_view_permission(self, user):
+        if self.project in Project.objects.get_projects_user_can_view(user):
+            return True
+        return False
+
+    class Meta:
+        unique_together = (('project', 'group_name'),)
+
+    def __unicode__(self):
+        return u'%s (Project: %s)' % (self.group_name, self.project.project_name)
+
+
 class Subject(ProtectedModel):
     project = models.ForeignKey(Project)
     subject_id = models.CharField(
@@ -628,6 +649,28 @@ def fcs_file_path(instance, filename):
     upload_dir = join([MEDIA_ROOT, upload_dir], '')
 
     return upload_dir
+
+
+# SampleGroup is used mainly for grouping samples by stimulation
+class SampleGroup(ProtectedModel):
+    project = models.ForeignKey(Project)
+    group_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    group_description = models.TextField(null=True, blank=True)
+
+    def has_view_permission(self, user):
+        if self.project in Project.objects.get_projects_user_can_view(user):
+            return True
+        return False
+
+    class Meta:
+        unique_together = (('project', 'group_name'),)
+
+    def __unicode__(self):
+        return u'%s (Project: %s)' % (self.group_name, self.project.project_name)
 
 
 class Sample(ProtectedModel):
