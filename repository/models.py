@@ -641,10 +641,10 @@ class Sample(ProtectedModel):
         ProjectVisitType,
         null=False,
         blank=False)
-    # specimen = models.ForeignKey(
-    #     Specimen,
-    #     null=False,
-    #     blank=False)
+    specimen = models.ForeignKey(
+        Specimen,
+        null=False,
+        blank=False)
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,
