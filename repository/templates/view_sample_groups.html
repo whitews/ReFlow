@@ -3,10 +3,9 @@
 {% block body %}
     <div class="container">
         <div class="row lead">
-            <div class="span4">
-                <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
+            <div class="pull-right">
+              Sample Groups <span class="badge badge-inverse align-top">{{ visit_types.count }}</span>
             </div>
-            <div class="pull-right">Sample Groups <span class="badge badge-inverse align-top">{{ visit_types.count }}</span></div>
         </div>
         <table class="table table-bordered table-striped">
             <thead>
@@ -20,9 +19,9 @@
                 <tr>
                     <td>
                       {{ group.group_name }}
-                      {% if can_modify_project_data %}
+                      {% if user.is_superuser %}
                       <span class="pull-right">
-                        <a rel="tooltip" href="{% url 'edit_sample_group' group.project_id group.id %}" data-original-title="Edit Sample Group" data-placement="left">
+                        <a rel="tooltip" href="{% url 'edit_sample_group' group.id %}" data-original-title="Edit Sample Group" data-placement="left">
                           <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
                         </a>
                       </span>
@@ -33,9 +32,9 @@
             {% endfor %}
             </tbody>
         </table>
-        {% if can_add_project_data %}
+        {% if user.is_superuser %}
         <div class="pull-right">
-            <a class="btn btn-success btn-small" href="{% url 'add_sample_group' project.id %}">
+            <a class="btn btn-success btn-small" href="{% url 'add_sample_group' %}">
                 <i class="icon-plus icon-white"></i> Add Sample Group
             </a>
         </div>

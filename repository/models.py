@@ -658,26 +658,17 @@ def fcs_file_path(instance, filename):
     return upload_dir
 
 
-# SampleGroup is used mainly for grouping samples by stimulation
-class SampleGroup(ProtectedModel):
-    project = models.ForeignKey(Project)
+# SampleGroup is used mainly for grouping samples by stimulation (site global)
+class SampleGroup(models.Model):
     group_name = models.CharField(
-        unique=False,
+        unique=True,
         null=False,
         blank=False,
         max_length=128)
     group_description = models.TextField(null=True, blank=True)
 
-    def has_view_permission(self, user):
-        if self.project in Project.objects.get_projects_user_can_view(user):
-            return True
-        return False
-
-    class Meta:
-        unique_together = (('project', 'group_name'),)
-
     def __unicode__(self):
-        return u'%s (Project: %s)' % (self.group_name, self.project.project_name)
+        return u'%s' % self.group_name
 
 
 class Sample(ProtectedModel):

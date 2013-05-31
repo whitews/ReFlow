@@ -3,13 +3,10 @@
 {% block body %}
     <div class="container">
         <div class="row lead">
-            <div class="span4">
-                <a href="{% url 'view_project' sample_group.project.id %}">{{ sample_group.project.project_name }}</a>
-            </div>
             <div class="pull-right">Edit Sample Group: {{ sample_group.group_name }}</div>
         </div>
         <br/>
-        <form class="form-horizontal" action="{% url 'edit_sample_group' sample_group.project_id sample_group.id %}" method="post">
+        <form class="form-horizontal" action="{% url 'edit_sample_group' sample_group.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
                 <div class="control-group text-error">
