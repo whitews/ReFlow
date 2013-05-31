@@ -566,6 +566,10 @@ class SubjectGroup(ProtectedModel):
 
 class Subject(ProtectedModel):
     project = models.ForeignKey(Project)
+    subject_group = models.ForeignKey(
+        SubjectGroup,
+        null=True,
+        blank=True)
     subject_id = models.CharField(
         "Subject ID",
         null=False,
@@ -690,6 +694,10 @@ class Sample(ProtectedModel):
         Specimen,
         null=False,
         blank=False)
+    sample_group = models.ForeignKey(
+        SampleGroup,
+        null=True,
+        blank=True)
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,
