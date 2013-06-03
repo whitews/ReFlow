@@ -288,6 +288,7 @@ class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Specimen
     serializer_class = SpecimenSerializer
+    filter_fields = ('specimen_name',)
 
 
 class ParameterFilter(django_filters.FilterSet):
