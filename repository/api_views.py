@@ -35,9 +35,11 @@ def api_root(request, format=None):
         'specimens': reverse('specimen-list', request=request),
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
+        'sample_groups': reverse('sample-group-list', request=request),
         'samples': reverse('sample-list', request=request),
         'uncategorized_samples': reverse('uncat-sample-list', request=request),
         'sites': reverse('site-list', request=request),
+        'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
     })
@@ -145,6 +147,28 @@ class VisitTypeDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retr
 
     model = ProjectVisitType
     serializer_class = VisitTypeSerializer
+
+
+class SubjectGroupList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of subject groups.
+    """
+
+    model = SubjectGroup
+    serializer_class = SubjectGroupSerializer
+    filter_fields = ('group_name', 'project')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict subject groups to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+
+        # filter on user's projects
+        queryset = SubjectGroup.objects.filter(project__in=user_projects)
+
+        return queryset
 
 
 class SubjectList(LoginRequiredMixin, generics.ListAPIView):
@@ -291,6 +315,16 @@ class ParameterDetail(LoginRequiredMixin, generics.RetrieveAPIView):
 
     model = Parameter
     serializer_class = ParameterSerializer
+
+
+class SampleGroupList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of subject groups.
+    """
+
+    model = SampleGroup
+    serializer_class = SampleGroupSerializer
+    filter_fields = ('group_name',)
 
 
 class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):

@@ -19,6 +19,11 @@ class VisitTypeSerializer(serializers.ModelSerializer):
         fields = ('id', 'url', 'visit_type_name', 'visit_type_description', 'project')
 
 
+class SubjectGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectGroup
+
+
 class SiteSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(source='project')
     url = serializers.HyperlinkedIdentityField(view_name='site-detail')
@@ -86,6 +91,11 @@ class PanelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Panel
         fields = ('id', 'url', 'panel_name', 'site', 'panelparameters')
+
+
+class SampleGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleGroup
 
 
 class SampleParameterSerializer(serializers.ModelSerializer):
