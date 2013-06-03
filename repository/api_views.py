@@ -334,7 +334,14 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = ('subject', 'site', 'visit', 'subject__project', 'original_filename')
+    filter_fields = (
+        'subject',
+        'site',
+        'visit',
+        'sample_group',
+        'subject__project',
+        'original_filename'
+    )
 
     def get_queryset(self):
         """
@@ -378,7 +385,8 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def get_serializer_class(self):
-        # hack to get the POST form to display the file upload field, but avoid it on the GET list
+        # hack to get the POST form to display the file upload field,
+        # but avoid it on the GET list
         if self.request.method == 'GET' and hasattr(self, 'response'):
             return SamplePOSTSerializer
 
@@ -432,8 +440,8 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
                 apply_panel_to_sample(panel, sample)
 
                 # need to re-serialize our sample to get the sampleparameters field updated
-                # we can also use this to use the SampleSerializer instead of the POST one to not give
-                # back the sample_file field containing the file path on the server
+                # we can also use this to use the SampleSerializer instead of the POST one
+                # to not give back the sample_file field containing the file path on the server
                 serializer = SampleSerializer(sample)
 
                 return Response(serializer.data, status=201)
@@ -450,7 +458,14 @@ class UncategorizedSampleList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = ('subject', 'site', 'visit', 'subject__project', 'original_filename')
+    filter_fields = (
+        'subject',
+        'site',
+        'visit',
+        'sample_group',
+        'subject__project',
+        'original_filename'
+    )
 
     def get_queryset(self):
         """
