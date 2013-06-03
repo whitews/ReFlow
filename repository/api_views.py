@@ -32,6 +32,7 @@ def api_root(request, format=None):
     return Response({
         'compensations': reverse('compensation-list', request=request),
         'panels': reverse('panel-list', request=request),
+        'specimens': reverse('specimen-list', request=request),
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
         'samples': reverse('sample-list', request=request),
@@ -254,6 +255,15 @@ class PanelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retrieve
 
     model = Panel
     serializer_class = PanelSerializer
+
+
+class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of specimen types.
+    """
+
+    model = Specimen
+    serializer_class = SpecimenSerializer
 
 
 class ParameterFilter(django_filters.FilterSet):

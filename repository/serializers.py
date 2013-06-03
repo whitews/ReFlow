@@ -37,6 +37,12 @@ class SubjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'url', 'subject_id', 'subject_group', 'project',)
 
 
+class SpecimenSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Specimen
+
+
 class ParameterAntibodySerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='antibody.antibody_short_name', read_only=True)
 
