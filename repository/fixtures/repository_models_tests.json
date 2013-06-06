@@ -1,0 +1,42 @@
+[
+    {
+        "pk": 1,
+        "model": "repository.project",
+        "fields": {
+            "project_desc": "This is a test project.",
+            "project_name": "Project X"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "repository.project",
+        "fields": {
+            "project_desc": "This is Tester's test project.",
+            "project_name": "Project T"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "repository.site",
+        "fields": {
+            "project": 1,
+            "site_name": "Atlantis"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "repository.site",
+        "fields": {
+            "project": 1,
+            "site_name": "Neverland"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "repository.site",
+        "fields": {
+            "project": 2,
+            "site_name": "Oz"
+        }
+    }
+]
