@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load staticfiles %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css" />
+<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
 {% endblock %}
 
 {% block toes %}
-<script src="{{ STATIC_URL }}jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
 
 <script>
 $(document).ready(function()
