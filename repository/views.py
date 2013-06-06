@@ -17,7 +17,11 @@ from guardian.forms import UserObjectPermissionsForm
 from repository.models import *
 from repository.forms import *
 from repository.utils import apply_panel_to_sample
-from reflow import settings
+
+
+@login_required
+def permission_denied(request):
+    raise PermissionDenied
 
 
 @login_required
@@ -66,7 +70,7 @@ def view_antibodies(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def add_antibody(request):
     if request.method == 'POST':
         form = AntibodyForm(request.POST)
@@ -86,7 +90,7 @@ def add_antibody(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def edit_antibody(request, antibody_id):
     antibody = get_object_or_404(Antibody, pk=antibody_id)
 
@@ -141,7 +145,7 @@ def view_fluorochromes(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def add_fluorochrome(request):
     if request.method == 'POST':
         form = FluorochromeForm(request.POST)
@@ -161,7 +165,7 @@ def add_fluorochrome(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def edit_fluorochrome(request, fluorochrome_id):
     fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
 
@@ -198,7 +202,7 @@ def view_parameters(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def add_parameter(request):
     if request.method == 'POST':
         form = ParameterForm(request.POST)
@@ -218,7 +222,7 @@ def add_parameter(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def associate_antibody_to_parameter(request, parameter_id):
     parameter = get_object_or_404(Parameter, pk=parameter_id)
     pa_map = ParameterAntibodyMap(parameter_id=parameter_id)
@@ -242,7 +246,7 @@ def associate_antibody_to_parameter(request, parameter_id):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def remove_parameter_antibody(request, pa_map_id):
     pa_map = get_object_or_404(ParameterAntibodyMap, pk=pa_map_id)
 
@@ -251,7 +255,7 @@ def remove_parameter_antibody(request, pa_map_id):
     return HttpResponseRedirect(reverse('view_parameters',))
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def associate_fluorochrome_to_parameter(request, parameter_id):
     parameter = get_object_or_404(Parameter, pk=parameter_id)
     pf_map = ParameterFluorochromeMap(parameter_id=parameter_id)
@@ -275,7 +279,7 @@ def associate_fluorochrome_to_parameter(request, parameter_id):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def remove_parameter_fluorochrome(request, pf_map_id):
     pf_map = get_object_or_404(ParameterFluorochromeMap, pk=pf_map_id)
 
@@ -284,7 +288,7 @@ def remove_parameter_fluorochrome(request, pf_map_id):
     return HttpResponseRedirect(reverse('view_parameters',))
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def edit_parameter(request, parameter_id):
     parameter = get_object_or_404(Parameter, pk=parameter_id)
 
@@ -324,7 +328,7 @@ def view_specimens(request):
         context_instance=RequestContext(request)
     )
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def add_specimen(request):
     if request.method == 'POST':
         form = SpecimenForm(request.POST)
@@ -344,7 +348,7 @@ def add_specimen(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def edit_specimen(request, specimen_id):
     specimen = get_object_or_404(Specimen, pk=specimen_id)
 
@@ -1454,7 +1458,7 @@ def view_sample_groups(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def add_sample_group(request):
     if request.method == 'POST':
         sample_group = SampleGroup()
@@ -1475,7 +1479,7 @@ def add_sample_group(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser)
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def edit_sample_group(request, sample_group_id):
     sample_group = get_object_or_404(SampleGroup, pk=sample_group_id)
 

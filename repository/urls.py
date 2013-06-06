@@ -42,6 +42,7 @@ urlpatterns += patterns('rest_framework',
 
 # Regular web routes
 urlpatterns += patterns('repository.views',
+    url(r'^403$', 'permission_denied', name='permission-denied'),
     url(r'^$', 'home', name='home'),
 
     url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
