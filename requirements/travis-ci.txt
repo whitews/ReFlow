@@ -1,2 +1,5 @@
 django-guardian
 djangorestframework
+django-rest-framework-docs
+django-extensions
+south
