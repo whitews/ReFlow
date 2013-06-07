@@ -3,6 +3,8 @@ ReFlow
 
 Repository for Flow Cytometry Data
 
+[<img src="https://secure.travis-ci.org/whitews/ReFlow.png?branch=master">](http://travis-ci.org/whitews/ReFlow)
+
 Requirements
 ----
 
