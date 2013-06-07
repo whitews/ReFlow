@@ -37,7 +37,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "reflow.settings")
 # setting points here.
 from django.core.wsgi import get_wsgi_application
 
-import settings
+import settings_sample
 
 if settings.INTERACTIVE_DEBUG:
     class Debugger:
