@@ -1466,7 +1466,7 @@ def add_sample_group(request):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('sample_groups'))
+            return HttpResponseRedirect(reverse('view_sample_groups'))
     else:
         form = SampleGroupForm()
 
@@ -1488,7 +1488,7 @@ def edit_sample_group(request, sample_group_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('sample_groups'))
+            return HttpResponseRedirect(reverse('view_sample_groups'))
     else:
         form = SampleGroupForm(instance=sample_group)
 

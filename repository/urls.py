@@ -42,7 +42,7 @@ urlpatterns += patterns('rest_framework',
 
 # Regular web routes
 urlpatterns += patterns('repository.views',
-    url(r'^403$', 'permission_denied', name='permission-denied'),
+    url(r'^403$', 'permission_denied', name='permission_denied'),
     url(r'^$', 'home', name='home'),
 
     url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
@@ -102,7 +102,7 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/subjects/add/$', 'add_subject', name='add_subject'),
     url(r'^project/(?P<project_id>\d+)/subjects/(?P<subject_id>\d+)/edit/$', 'edit_subject', name='edit_subject'),
 
-    url(r'^sample_groups/$', 'view_sample_groups', name='sample_groups'),
+    url(r'^sample_groups/$', 'view_sample_groups', name='view_sample_groups'),
     url(r'^sample_groups/add/$', 'add_sample_group', name='add_sample_group'),
     url(r'^sample_groups/(?P<sample_group_id>\d+)/edit/$', 'edit_sample_group', name='edit_sample_group'),
 
