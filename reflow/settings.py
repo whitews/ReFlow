@@ -4,7 +4,7 @@
 # Ex. For project 'MyProject' in /home/user/env/:
 #     BASE_DIR = '/home/user/env/MyProject'
 import os
-BASE_DIR = os.environ['HOME'] + '/env/reflow'
+BASE_DIR = os.environ['HOME'] + '/virtualenv/reflow'
 FILE_UPLOAD_TEMP_DIR = '/tmp'
 
 DEBUG = False
