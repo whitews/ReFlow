@@ -1,18 +1,25 @@
 language: python
 
+virtualenv:
+  system_site_packages: true
+
+before_install:
+ - sudo apt-get install -qq python-numpy python-scipy python-matplotlib
+
 python:
   - "2.7"
 
 env:
   - DJANGO=https://github.com/django/django/archive/master.tar.gz
   - DJANGO=django==1.5 --use-mirrors
+  - DJANGO_SETTINGS_MODULE="reflow.settings"
+  - PYTHONPATH="/home/travis/virtualenv/whitews/ReFlow"
 
 install:
   - pip install $DJANGO
   - pip install -r requirements/travis-ci.txt --use-mirrors
 
-script:
-  - coverage run --source manage.py test repository
+script: python manage.py test repository
 
 notifications:
   email: false
