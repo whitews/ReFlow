@@ -1,0 +1,18 @@
+language: python
+
+python:
+  - "2.7"
+
+env:
+  - DJANGO=https://github.com/django/django/archive/master.tar.gz
+  - DJANGO=django==1.5 --use-mirrors
+
+install:
+  - pip install $DJANGO
+  - pip install -r requirements/travis-ci.txt --use-mirrors
+
+script:
+  - coverage run --source manage.py test repository
+
+notifications:
+  email: false
