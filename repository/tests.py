@@ -74,6 +74,9 @@ class RepositoryViewsTest(TestCase):
             msg='%s != %s (View: %s)' % (response.status_code, 403, 'permission_denied'))
 
     def test_non_admin_non_project_web_views(self):
+        """
+        Test non-project views that do not require parameters
+        """
         self.client.login(username='tester', password='tester')
         expected_response_code = 200
 
@@ -85,6 +88,9 @@ class RepositoryViewsTest(TestCase):
                 msg='%s != %s (View: %s)' % (response.status_code, expected_response_code, view))
 
     def test_admin_non_project_web_views(self):
+        """
+        Test admin views that do not require parameters
+        """
         self.client.login(username='tester', password='tester')
         expected_response_code = 403
 
@@ -94,3 +100,22 @@ class RepositoryViewsTest(TestCase):
                 response.status_code,
                 expected_response_code,
                 msg='%s != %s (View: %s)' % (response.status_code, expected_response_code, view))
+
+    def test_antibody_add_edit(self):
+        """
+        Test the creation and modification of Antibody model instances
+        """
+        user = User.objects.get(username='supertester')
+        self.assertIsNotNone(user)
+        login = self.client.login(username=user.username, password='supertester')
+        self.assertTrue(login)
+
+        data_bad_fields = {
+            'not_a_field': 43
+        }
+
+        # Using bad fields shouldn't redirect, should give a 200 to same page
+        response = self.client.post(
+            reverse('add_antibody'),
+            data=data_bad_fields)
+        self.assertEqual(response.status_code, 200)
