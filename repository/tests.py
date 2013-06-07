@@ -29,6 +29,10 @@ __REGULAR_WEB_VIEWS__ = (
 # Admin views not tied to a project and not REST API views
 __ADMIN_WEB_VIEWS__ = (
     'add_antibody',
+    'add_fluorochrome',
+    'add_parameter',
+    'add_specimen',
+    'add_sample_group',
 )
 
 
