@@ -1,5 +1,3 @@
 django-guardian
 djangorestframework
-numpy
-scipy
 matplotlib
