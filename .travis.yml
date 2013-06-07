@@ -12,6 +12,8 @@ python:
 env:
   - DJANGO=https://github.com/django/django/archive/master.tar.gz
   - DJANGO=django==1.5 --use-mirrors
+  - DJANGO_SETTINGS_MODULE="reflow.settings"
+  - PYTHONPATH="/home/travis/virtualenv/whitews/ReFlow"
 
 install:
   - pip install $DJANGO
