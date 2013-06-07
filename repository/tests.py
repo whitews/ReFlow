@@ -1,8 +1,10 @@
 """
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+This file contains tests for the repository app of the ReFlow project.
+To run these tests:
+"python manage.py test repository".
 
-Replace this with more appropriate tests for your application.
+Notes:
+- add new views by their named URL from repository.urls to the appropriate global set
 """
 
 from django.test import TestCase
@@ -12,6 +14,22 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from repository.models import *
+
+# Non-admin non-project specific web views (not REST API views)
+__REGULAR_WEB_VIEWS__ = (
+    'home',
+    'view_antibodies',
+    'view_fluorochromes',
+    'view_parameters',
+    'view_specimens',
+    'add_project',
+    'view_sample_groups',
+)
+
+# Admin views not tied to a project and not REST API views
+__ADMIN_WEB_VIEWS__ = (
+    'add_antibody',
+)
 
 
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
@@ -25,15 +43,17 @@ class RepositoryModelsTest(TestCase):
         """
         self.assertEqual(1 + 1, 2)
 
+
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
 class RepositoryViewsTest(TestCase):
 
     fixtures = ['repository_models_tests.json']
 
     def setUp(self):
-        User.objects.create_user('tester', password='tester')
+        User.objects.create_user('tester', password='tester', email=None)
+        User.objects.create_superuser('supertester', password='supertester', email=None)
 
-    def test_login(self):
+    def test_utility_views(self):
         """
         Test login view
         """
@@ -43,17 +63,30 @@ class RepositoryViewsTest(TestCase):
         bad_login = self.client.login(username="evil_user", password='letmein')
         self.assertFalse(bad_login)
 
-    def test_web_views(self):
+        response = self.client.get(reverse('permission_denied'))
+        self.assertEqual(
+            response.status_code,
+            403,
+            msg='%s != %s (View: %s)' % (response.status_code, 403, 'permission_denied'))
+
+    def test_non_admin_non_project_web_views(self):
         self.client.login(username='tester', password='tester')
+        expected_response_code = 200
 
-        # Test 'home' view
-        response = self.client.get(reverse('home'))
-        self.assertEqual(response.status_code, 200)
+        for view in __REGULAR_WEB_VIEWS__:
+            response = self.client.get(reverse(view))
+            self.assertEqual(
+                response.status_code,
+                expected_response_code,
+                msg='%s != %s (View: %s)' % (response.status_code, expected_response_code, view))
 
-        # Test 'view_antibodies' view
-        response = self.client.get(reverse('view_antibodies'))
-        self.assertEqual(response.status_code, 200)
+    def test_admin_non_project_web_views(self):
+        self.client.login(username='tester', password='tester')
+        expected_response_code = 403
 
-        # Test 'add_antibodies' view, requires superuser so should return 403 response
-        response = self.client.get(reverse('add_antibody'), follow=True)
-        self.assertEqual(response.status_code, 403)
+        for view in __ADMIN_WEB_VIEWS__:
+            response = self.client.get(reverse(view), follow=True)
+            self.assertEqual(
+                response.status_code,
+                expected_response_code,
+                msg='%s != %s (View: %s)' % (response.status_code, expected_response_code, view))
