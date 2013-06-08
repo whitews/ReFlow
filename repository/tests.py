@@ -77,7 +77,9 @@ class RepositoryViewsTest(TestCase):
         """
         Test non-project views that do not require parameters
         """
-        self.client.login(username='tester', password='tester')
+        good_login = self.client.login(username='tester', password='tester')
+        self.assertTrue(good_login)
+
         expected_response_code = 200
 
         for view in __REGULAR_WEB_VIEWS__:
@@ -115,9 +117,9 @@ class RepositoryViewsTest(TestCase):
             'not_a_field': 43
         }
         import os
-        from reflow import settings
+        from reflow import settings_tests
         print os.environ['PWD']
-        print settings.TEMPLATE_DIRS
+        print settings_tests.TEMPLATE_DIRS
         # Using bad fields shouldn't redirect, should give a 200 to same page
         response = self.client.post(
             reverse('add_antibody'),

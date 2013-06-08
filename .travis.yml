@@ -8,6 +8,6 @@ python:
 install:
   - pip install -r requirements/travis-ci.txt --use-mirrors
   - pip install hg+https://code.google.com/p/py-fcm/#egg=fcm
-script: python manage.py test repository
+script: python manage_tests.py test repository
 notifications:
   email: false
