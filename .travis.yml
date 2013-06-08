@@ -1,19 +1,11 @@
 language: python
-
-virtualenv:
-  system_site_packages: true
-
 before_install:
  - sudo apt-get install -qq python-numpy python-scipy python-matplotlib mercurial
-
 python:
   - "2.7"
-
 install:
   - pip install -r requirements/travis-ci.txt --use-mirrors
   - pip install hg+https://code.google.com/p/py-fcm/#egg=fcm
-
 script: python manage.py test repository
-
 notifications:
   email: false
