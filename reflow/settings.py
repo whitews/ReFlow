@@ -149,7 +149,6 @@ INSTALLED_APPS = (
     'django_extensions',
     #'debug_toolbar',
     'guardian',
-    'guardian.tests.testapp',
     'south',
 )
 
