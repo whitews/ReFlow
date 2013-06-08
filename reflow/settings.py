@@ -7,7 +7,7 @@ import os
 BASE_DIR = os.environ['HOME'] + '/build/ReFlow'
 FILE_UPLOAD_TEMP_DIR = '/tmp'
 
-DEBUG = False
+DEBUG = True
 INTERACTIVE_DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
