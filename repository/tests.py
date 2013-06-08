@@ -113,7 +113,10 @@ class RepositoryViewsTest(TestCase):
         data_bad_fields = {
             'not_a_field': 43
         }
-
+        import os
+        from reflow import settings
+        print os.environ['PWD']
+        print settings.TEMPLATE_DIRS
         # Using bad fields shouldn't redirect, should give a 200 to same page
         response = self.client.post(
             reverse('add_antibody'),
