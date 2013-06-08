@@ -81,6 +81,7 @@ class RepositoryViewsTest(TestCase):
         expected_response_code = 200
 
         for view in __REGULAR_WEB_VIEWS__:
+            print view
             response = self.client.get(reverse(view))
             self.assertEqual(
                 response.status_code,
