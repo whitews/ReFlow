@@ -10,10 +10,8 @@ python:
   - "2.7"
 
 install:
-  - pip install $DJANGO
   - pip install -r requirements/travis-ci.txt --use-mirrors
   - pip install hg+https://code.google.com/p/py-fcm/#egg=fcm
-  - pwd
 
 script: python manage.py test repository
 
