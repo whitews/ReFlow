@@ -83,7 +83,6 @@ class RepositoryViewsTest(TestCase):
         expected_response_code = 200
 
         for view in __REGULAR_WEB_VIEWS__:
-            print view
             response = self.client.get(reverse(view))
             self.assertEqual(
                 response.status_code,
@@ -116,10 +115,7 @@ class RepositoryViewsTest(TestCase):
         data_bad_fields = {
             'not_a_field': 43
         }
-        import os
-        from reflow import settings_tests
-        print os.environ['PWD']
-        print settings_tests.TEMPLATE_DIRS
+
         # Using bad fields shouldn't redirect, should give a 200 to same page
         response = self.client.post(
             reverse('add_antibody'),
