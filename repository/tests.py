@@ -14,6 +14,8 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from repository.models import *
+from repository.forms import *
+
 
 # Non-admin non-project specific web views (not REST API views)
 __REGULAR_WEB_VIEWS__ = (
@@ -36,6 +38,11 @@ __ADMIN_WEB_VIEWS__ = (
 )
 
 
+def testSetup():
+    User.objects.create_user('tester', password='tester', email=None)
+    User.objects.create_superuser('supertester', password='supertester', email=None)
+
+
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
 class RepositoryModelsTest(TestCase):
 
@@ -54,8 +61,7 @@ class RepositoryViewsTest(TestCase):
     fixtures = ['repository_models_tests.json']
 
     def setUp(self):
-        User.objects.create_user('tester', password='tester', email=None)
-        User.objects.create_superuser('supertester', password='supertester', email=None)
+        testSetup()
 
     def test_utility_views(self):
         """
@@ -121,3 +127,44 @@ class RepositoryViewsTest(TestCase):
             reverse('add_antibody'),
             data=data_bad_fields)
         self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'antibody_name', "This field is required.")
+
+
+@override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
+class RepositoryFormsTest(TestCase):
+
+    fixtures = ['repository_models_tests.json']
+
+    def setUp(self):
+        testSetup()
+
+    def test_antibody_form(self):
+        """
+        Test Antibody ModelForm
+        """
+
+        bad_form_data = {
+            'not_a_field': 43
+        }
+        good_form_data = {
+            'antibody_name': 'NeuvoAntibody',
+            'antibody_short_name': 'NA',
+        }
+        duplicate_form_data = {
+            'antibody_name': 'NadaAntibody',
+            'antibody_short_name': 'NA',
+        }
+
+        # Using bad data should give an invalid form
+        bad_form = AntibodyForm(data=bad_form_data)
+        self.assertEqual(bad_form.is_valid(), False)
+
+        # And good data is good!
+        good_form = AntibodyForm(data=good_form_data)
+        self.assertEqual(good_form.is_valid(), True)
+        good_form.save()
+
+        # And duplicates ain't allowed
+        duplicate_form = AntibodyForm(data=duplicate_form_data)
+        self.assertEqual(duplicate_form.is_valid(), False)
+
