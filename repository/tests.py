@@ -86,28 +86,58 @@ class RepositoryViewsTest(TestCase):
         good_login = self.client.login(username='tester', password='tester')
         self.assertTrue(good_login)
 
-        expected_response_code = 200
-
         for view in __REGULAR_WEB_VIEWS__:
             response = self.client.get(reverse(view))
             self.assertEqual(
                 response.status_code,
-                expected_response_code,
-                msg='%s != %s (View: %s)' % (response.status_code, expected_response_code, view))
+                200,
+                msg='%s != %s (View: %s)' % (response.status_code, 200, view))
 
     def test_admin_non_project_web_views(self):
         """
         Test admin views that do not require parameters
         """
         self.client.login(username='tester', password='tester')
-        expected_response_code = 403
 
         for view in __ADMIN_WEB_VIEWS__:
             response = self.client.get(reverse(view), follow=True)
             self.assertEqual(
                 response.status_code,
-                expected_response_code,
-                msg='%s != %s (View: %s)' % (response.status_code, expected_response_code, view))
+                403,
+                msg='%s != %s (View: %s)' % (response.status_code, 403, view))
+
+    def test_project_view(self):
+        """
+        Test the creation and modification of Antibody model instances
+        """
+        superuser = User.objects.get(username='supertester')
+        self.assertIsNotNone(superuser)
+        login = self.client.login(username=superuser.username, password='supertester')
+        self.assertTrue(login)
+
+        response = self.client.get(
+            reverse(
+                'view_project',
+                kwargs={'project_id': '1'}),
+            follow=True)
+        self.assertEqual(
+            response.status_code,
+            200)
+        self.client.logout()
+
+        user = User.objects.get(username='tester')
+        self.assertIsNotNone(user)
+        login = self.client.login(username=user.username, password='tester')
+        self.assertTrue(login)
+
+        response = self.client.get(
+            reverse(
+                'view_project',
+                kwargs={'project_id': '1'}),
+            follow=True)
+        self.assertEqual(
+            response.status_code,
+            403)
 
     def test_antibody_add_edit(self):
         """
