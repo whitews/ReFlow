@@ -13,6 +13,9 @@ from django.conf.global_settings import FILE_UPLOAD_TEMP_DIR
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from guardian.shortcuts import assign_perm
+from guardian.forms import UserObjectPermissionsForm
+
 from repository.models import *
 from repository.forms import *
 
@@ -110,6 +113,8 @@ class RepositoryViewsTest(TestCase):
         """
         Test the creation and modification of Antibody model instances
         """
+
+        # Test superuser, has access to all projects
         superuser = User.objects.get(username='supertester')
         self.assertIsNotNone(superuser)
         login = self.client.login(username=superuser.username, password='supertester')
@@ -118,13 +123,14 @@ class RepositoryViewsTest(TestCase):
         response = self.client.get(
             reverse(
                 'view_project',
-                kwargs={'project_id': '1'}),
+                kwargs={'project_id': '2'}),
             follow=True)
         self.assertEqual(
             response.status_code,
             200)
         self.client.logout()
 
+        # Test regular user without permission to view the project
         user = User.objects.get(username='tester')
         self.assertIsNotNone(user)
         login = self.client.login(username=user.username, password='tester')
@@ -133,11 +139,22 @@ class RepositoryViewsTest(TestCase):
         response = self.client.get(
             reverse(
                 'view_project',
-                kwargs={'project_id': '1'}),
+                kwargs={'project_id': '2'}),
             follow=True)
         self.assertEqual(
             response.status_code,
             403)
+
+        # Assign permission to view project and re-test
+        assign_perm('view_project_data', user, Project.objects.get(pk='2'))
+        response = self.client.get(
+            reverse(
+                'view_project',
+                kwargs={'project_id': '2'}),
+            follow=True)
+        self.assertEqual(
+            response.status_code,
+            200)
 
     def test_antibody_add_edit(self):
         """
