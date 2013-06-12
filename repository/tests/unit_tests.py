@@ -1,10 +1,5 @@
 """
-This file contains tests for the repository app of the ReFlow project.
-To run these tests:
-"python manage.py test repository".
-
-Notes:
-- add new views by their named URL from repository.urls to the appropriate global set
+This file contains unit tests for the repository Django app.
 """
 
 from django.test import TestCase
@@ -13,41 +8,17 @@ from django.conf.global_settings import FILE_UPLOAD_TEMP_DIR
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from guardian.shortcuts import assign_perm
-from guardian.forms import UserObjectPermissionsForm
-
 from repository.models import *
 from repository.forms import *
-
-
-# Non-admin non-project specific web views (not REST API views)
-__REGULAR_WEB_VIEWS__ = (
-    'home',
-    'view_antibodies',
-    'view_fluorochromes',
-    'view_parameters',
-    'view_specimens',
-    'add_project',
-    'view_sample_groups',
-)
-
-# Admin views not tied to a project and not REST API views
-__ADMIN_WEB_VIEWS__ = (
-    'add_antibody',
-    'add_fluorochrome',
-    'add_parameter',
-    'add_specimen',
-    'add_sample_group',
-)
+from repository.tests import constants
 
 
 def testSetup():
-    User.objects.create_user('tester', password='tester', email=None)
     User.objects.create_superuser('supertester', password='supertester', email=None)
 
 
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
-class RepositoryModelsTest(TestCase):
+class ModelsUnitTestCase(TestCase):
 
     fixtures = ['repository_models_tests.json']
 
@@ -59,7 +30,7 @@ class RepositoryModelsTest(TestCase):
 
 
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
-class RepositoryViewsTest(TestCase):
+class ViewsUnitTestCase(TestCase):
 
     fixtures = ['repository_models_tests.json']
 
@@ -68,9 +39,9 @@ class RepositoryViewsTest(TestCase):
 
     def test_utility_views(self):
         """
-        Test login view
+        Utility views are login, logout, permission denied, not found, etc.
         """
-        good_login = self.client.login(username='tester', password='tester')
+        good_login = self.client.login(username='supertester', password='supertester')
         self.assertTrue(good_login)
 
         bad_login = self.client.login(username="evil_user", password='letmein')
@@ -86,10 +57,10 @@ class RepositoryViewsTest(TestCase):
         """
         Test non-project views that do not require parameters
         """
-        good_login = self.client.login(username='tester', password='tester')
+        good_login = self.client.login(username='supertester', password='supertester')
         self.assertTrue(good_login)
 
-        for view in __REGULAR_WEB_VIEWS__:
+        for view in constants.REGULAR_WEB_VIEWS:
             response = self.client.get(reverse(view))
             self.assertEqual(
                 response.status_code,
@@ -100,21 +71,16 @@ class RepositoryViewsTest(TestCase):
         """
         Test admin views that do not require parameters
         """
-        self.client.login(username='tester', password='tester')
+        self.client.login(username='supertester', password='supertester')
 
-        for view in __ADMIN_WEB_VIEWS__:
+        for view in constants.ADMIN_WEB_VIEWS:
             response = self.client.get(reverse(view), follow=True)
             self.assertEqual(
                 response.status_code,
-                403,
-                msg='%s != %s (View: %s)' % (response.status_code, 403, view))
+                200,
+                msg='%s != %s (View: %s)' % (response.status_code, 200, view))
 
     def test_project_view(self):
-        """
-        Test the creation and modification of Antibody model instances
-        """
-
-        # Test superuser, has access to all projects
         superuser = User.objects.get(username='supertester')
         self.assertIsNotNone(superuser)
         login = self.client.login(username=superuser.username, password='supertester')
@@ -129,32 +95,6 @@ class RepositoryViewsTest(TestCase):
             response.status_code,
             200)
         self.client.logout()
-
-        # Test regular user without permission to view the project
-        user = User.objects.get(username='tester')
-        self.assertIsNotNone(user)
-        login = self.client.login(username=user.username, password='tester')
-        self.assertTrue(login)
-
-        response = self.client.get(
-            reverse(
-                'view_project',
-                kwargs={'project_id': '2'}),
-            follow=True)
-        self.assertEqual(
-            response.status_code,
-            403)
-
-        # Assign permission to view project and re-test
-        assign_perm('view_project_data', user, Project.objects.get(pk='2'))
-        response = self.client.get(
-            reverse(
-                'view_project',
-                kwargs={'project_id': '2'}),
-            follow=True)
-        self.assertEqual(
-            response.status_code,
-            200)
 
     def test_antibody_add_edit(self):
         """
@@ -178,7 +118,7 @@ class RepositoryViewsTest(TestCase):
 
 
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
-class RepositoryFormsTest(TestCase):
+class FormsUnitTestCase(TestCase):
 
     fixtures = ['repository_models_tests.json']
 
