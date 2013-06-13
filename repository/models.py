@@ -468,6 +468,10 @@ class Antibody(models.Model):
         null=True,
         blank=True)
 
+    def save(self, *args, **kwargs):
+        self.clean_fields()
+        super(Antibody, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return u'%s' % self.antibody_short_name
 

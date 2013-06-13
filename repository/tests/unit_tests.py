@@ -22,11 +22,9 @@ class ModelsUnitTestCase(TestCase):
 
     fixtures = ['repository_models_tests.json']
 
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+    def test_antibody_model(self):
+        antibody = Antibody(antibody_short_name='IL-6')
+        self.assertRaises(ValidationError, antibody.save)
 
 
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
@@ -96,7 +94,7 @@ class ViewsUnitTestCase(TestCase):
             200)
         self.client.logout()
 
-    def test_antibody_add_edit(self):
+    def test_antibody_views(self):
         """
         Test the creation and modification of Antibody model instances
         """
