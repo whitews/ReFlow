@@ -35,10 +35,10 @@ class ModelsUnitTestCase(TestCase):
         self.assertEqual(len(user_projects), 0)
 
     def test_user_has_projects(self):
-        assign_perm('view_project_data', self.test_user, project)
+        assign_perm('view_project_data', self.test_user, self.test_project)
         user_projects = Project.objects.get_projects_user_can_view(self.test_user)
         self.assertEqual(len(user_projects), 1)
-        self.assertEqual(project.id, user_projects[0].id)
+        self.assertEqual(self.test_project.id, user_projects[0].id)
 
     def test_user_has_projects_based_on_site_access(self):
         projectX = Project.objects.get(project_name='Project X')
