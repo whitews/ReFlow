@@ -902,6 +902,9 @@ class SampleSet(ProtectedModel):
         blank=True)
     samples = models.ManyToManyField(Sample)
 
+    class Meta:
+        unique_together = (('project', 'name'),)
+
     def __unicode__(self):
         return u'%s (Project: %s)' % (
             self.name,
