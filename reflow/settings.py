@@ -129,7 +129,8 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     BASE_DIR + '/templates',
     BASE_DIR + '/authenticate/templates',
-    BASE_DIR + '/repository/templates'
+    BASE_DIR + '/repository/templates',
+    BASE_DIR + '/process_manager/templates',
 )
 
 INSTALLED_APPS = (
@@ -150,6 +151,7 @@ INSTALLED_APPS = (
     #'debug_toolbar',
     'guardian',
     'south',
+    'process_manager',
 )
 
 AUTHENTICATION_BACKENDS = (
