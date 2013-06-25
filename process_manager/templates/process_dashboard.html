@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load repository_filters %}
+
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4">
+        Process Dashboard
+      </div>
+    </div>
+
+    {% if processes %}
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan="3" class="center">
+            <h4>Projects <span class="badge badge-inverse align-top">{{ processes|length }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+          <th>Process Name</th>
+          <th>Process Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+      {% for process in processes %}
+        <tr>
+          <td>
+            <a href="{% url 'view_process' process.id %}">{{ process.process_name }}</a>
+          </td>
+          <td>
+            {{ process.process_description }}
+          </td>
+        </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+
+    {% else %}
+    <p>No processes have been defined. <a href="{% url 'add_process' %}">Create a new process</a></p>
+    {% endif %}
+
+  </div>
+{% endblock %}
