@@ -886,6 +886,28 @@ class Sample(ProtectedModel):
             self.sample_file.name.split('/')[-1])
 
 
+class SampleSet(ProtectedModel):
+    """
+    An arbitrary collection of Sample instances within a Project
+    """
+    project = models.ForeignKey(Project)
+    name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        editable=False,
+        max_length=256)
+    description = models.TextField(
+        null=True,
+        blank=True)
+    samples = models.ManyToManyField(Sample)
+
+    def __unicode__(self):
+        return u'%s (Project: %s)' % (
+            self.name,
+            self.subject.project.project_name)
+
+
 class SampleParameterMap(ProtectedModel):
     sample = models.ForeignKey(Sample)
 
