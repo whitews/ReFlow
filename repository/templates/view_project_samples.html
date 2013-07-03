@@ -113,10 +113,6 @@ $(document).ready(function()
           {% if sample.parameters.count > 0 %}
 
           <a href="#" class="toggle-closest">Show/Hide</a>
-          <div class="pull-right">
-            <a href="{% url 'sample_data' sample.id %}">CSV</a> |
-            <a href="{% url 'sample_scatterplot' sample.id %}">Scatterplot</a>
-          </div>
           <table class="table table-bordered table-hover hide params">
             <thead>
               <tr>
