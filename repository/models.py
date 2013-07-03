@@ -718,38 +718,39 @@ class Sample(ProtectedModel):
 
         return False
 
-    def get_data_as_numpy(self):
-        fcs = fcm.loadFCS(self.sample_file.file.name)
-        return fcs.view()
-
-    def get_fcs_data(self):
-        data = self.get_data_as_numpy()
-        header = []
-        if self.sampleparametermap_set.count():
-            params = self.sampleparametermap_set.all()
-            for param in params.order_by('fcs_number'):
-                if param.parameter and param.value_type:
-                    header.append(
-                        '%s-%s' % (
-                            param.parameter.parameter_short_name,
-                            param.value_type.value_type_short_name
-                        )
-                    )
-                else:
-                    header.append('%s' % param.fcs_text)
-
-        # Need a category column for the d3 selection to work
-        data_with_cat = numpy.zeros((data.shape[0], data.shape[1] + 1))
-        data_with_cat[:, :-1] = data
-
-        # need to convert it to csv-style string with header row
-        csv_data = cStringIO.StringIO()
-        csv_data.write(','.join(header) + ',category\n')
-
-        # currently limiting to 100 rows b/c the browser can't handle too much
-        numpy.savetxt(csv_data, data_with_cat[:100, :], fmt='%d', delimiter=',')
-
-        return csv_data.getvalue()
+    # Disabled b/c sample_file may not be local...S3 storage, etc.
+    # def get_data_as_numpy(self):
+    #     fcs = fcm.loadFCS(self.sample_file.file.name)
+    #     return fcs.view()
+    #
+    # def get_fcs_data(self):
+    #     data = self.get_data_as_numpy()
+    #     header = []
+    #     if self.sampleparametermap_set.count():
+    #         params = self.sampleparametermap_set.all()
+    #         for param in params.order_by('fcs_number'):
+    #             if param.parameter and param.value_type:
+    #                 header.append(
+    #                     '%s-%s' % (
+    #                         param.parameter.parameter_short_name,
+    #                         param.value_type.value_type_short_name
+    #                     )
+    #                 )
+    #             else:
+    #                 header.append('%s' % param.fcs_text)
+    #
+    #     # Need a category column for the d3 selection to work
+    #     data_with_cat = numpy.zeros((data.shape[0], data.shape[1] + 1))
+    #     data_with_cat[:, :-1] = data
+    #
+    #     # need to convert it to csv-style string with header row
+    #     csv_data = cStringIO.StringIO()
+    #     csv_data.write(','.join(header) + ',category\n')
+    #
+    #     # currently limiting to 100 rows b/c the browser can't handle too much
+    #     numpy.savetxt(csv_data, data_with_cat[:100, :], fmt='%d', delimiter=',')
+    #
+    #     return csv_data.getvalue()
 
     def clean(self):
         """

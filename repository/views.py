@@ -1677,28 +1677,28 @@ def retrieve_compensation(request, compensation_id):
     response['Content-Disposition'] = 'attachment; filename=%s' % compensation.original_filename
     return response
 
-
-@login_required
-def sample_data(request, sample_id):
-    sample = get_object_or_404(Sample, pk=sample_id)
-
-    if not sample.site.has_view_permission(request.user):
-        raise PermissionDenied
-
-    return HttpResponse(sample.get_fcs_data(), content_type='text/csv')
-
-
-@login_required
-def view_sample_scatterplot(request, sample_id):
-    sample = get_object_or_404(Sample, pk=sample_id)
-
-    if not sample.site.has_view_permission(request.user):
-        raise PermissionDenied
-
-    return render_to_response(
-        'view_sample_scatterplot.html',
-        {
-            'sample': sample,
-        },
-        context_instance=RequestContext(request)
-    )
+# Disabled b/c get_fcs_data() won't work if FCS files are not local
+# @login_required
+# def sample_data(request, sample_id):
+#     sample = get_object_or_404(Sample, pk=sample_id)
+#
+#     if not sample.site.has_view_permission(request.user):
+#         raise PermissionDenied
+#
+#     return HttpResponse(sample.get_fcs_data(), content_type='text/csv')
+#
+#
+# @login_required
+# def view_sample_scatterplot(request, sample_id):
+#     sample = get_object_or_404(Sample, pk=sample_id)
+#
+#     if not sample.site.has_view_permission(request.user):
+#         raise PermissionDenied
+#
+#     return render_to_response(
+#         'view_sample_scatterplot.html',
+#         {
+#             'sample': sample,
+#         },
+#         context_instance=RequestContext(request)
+#     )
