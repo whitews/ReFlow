@@ -652,8 +652,7 @@ def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
     subject_id = instance.subject_id
     
-    upload_dir = join([str(project_id), str(subject_id), str(filename)], "/")
-    upload_dir = join([MEDIA_ROOT, upload_dir], '')
+    upload_dir = join(['ReFlow-data', str(project_id), str(subject_id), str(filename)], "/")
 
     return upload_dir
 
@@ -969,10 +968,9 @@ def compensation_file_path(instance, filename):
     site_id = instance.site_id
 
     upload_dir = join(
-        [str(project_id), 'compensation', str(site_id), str(filename)],
+        ['ReFlow-data', str(project_id), 'compensation', str(site_id), str(filename)],
         "/"
     )
-    upload_dir = join([MEDIA_ROOT, upload_dir], '')
 
     return upload_dir
 
