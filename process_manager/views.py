@@ -81,3 +81,26 @@ def add_process_input(request, process_id):
         },
         context_instance=RequestContext(request)
     )
+
+@user_passes_test(lambda u: u.is_superuser)
+def edit_process_input(request, process_input_id):
+    process_input = get_object_or_404(ProcessInput, pk=process_input_id)
+
+    if request.method == 'POST':
+        form = ProcessInputForm(request.POST, instance=process_input)
+
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse('view_process', args=(process_input.process_id,)))
+    else:
+        form = ProcessInputForm(instance=process_input)
+
+    return render_to_response(
+        'edit_process_input.html',
+        {
+            'process_input': process_input,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )

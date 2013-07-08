@@ -35,7 +35,7 @@
             {{ input.input_name }}
             {% if user.is_superuser %}
             <div class="pull-right align-middle">
-              <a rel="tooltip" href="{% url 'edit_input' input.id %}" data-original-title="Edit Input" data-placement="bottom">
+              <a rel="tooltip" href="{% url 'edit_process_input' input.id %}" data-original-title="Edit Input" data-placement="bottom">
                 <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
             </div>
@@ -43,7 +43,7 @@
           </td>
           <td class="middle">{{ input.input_description|default_if_none:'' }}</td>
           <td class="middle">{{ input.value_type|default_if_none:'' }}</td>
-          <td class="middle">{{ input.default_vale|default_if_none:'' }}</td>
+          <td class="middle">{{ input.default_value|default_if_none:'' }}</td>
         </tr>
         {% endfor %}
       </tbody>
