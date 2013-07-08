@@ -1,6 +1,7 @@
 import datetime
 from string import join
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -65,6 +66,24 @@ class ProcessInput(models.Model):
 
     class Meta:
         unique_together = (('process', 'input_name'),)
+
+    # override clean to prevent duplicate input names for a process input...
+    # unique_together doesn't work for forms with any of the unique together fields excluded
+    def clean(self):
+        """
+        Verify the process & input_name combination is unique
+        """
+
+        qs = ProcessInput.objects.filter(
+            process=self.process,
+            input_name=self.input_name)\
+            .exclude(
+                id=self.id)
+
+        if qs.exists():
+            raise ValidationError(
+                "This input name is already used in this process. Choose a different name."
+            )
 
     def __unicode__(self):
         return u'%s (Process: %s)' % (self.input_name, self.process.process_name,)
