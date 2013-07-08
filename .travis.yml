@@ -8,7 +8,7 @@ python:
 install:
   - pip install -q -r requirements/travis-ci.txt --use-mirrors
   - pip install -q hg+https://code.google.com/p/py-fcm/#egg=fcm
-  - pwd
+  - ln -s reflow/settings_tests.py reflow/settings.py
 script: python manage_tests.py test repository
 notifications:
   email: false
