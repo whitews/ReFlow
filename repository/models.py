@@ -13,8 +13,6 @@ from guardian.models import UserObjectPermission
 import numpy
 import fcm
 
-from reflow.settings import MEDIA_ROOT
-
 
 class ProtectedModel(models.Model):
     class Meta:
