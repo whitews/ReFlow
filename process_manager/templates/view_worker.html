@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4">
+        <a href="{% url 'view_worker' worker.id %}">
+          {{ worker.worker_name }}
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span6">Worker Hostname: {{ worker.worker_hostname }}</div>
+    </div>
+    <div class="row">
+      <div class="span6">Worker Version: {{ worker.worker_version }}</div>
+    </div>
+    <br/>
+
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan="7" class="center">
+            <h4>Registered Processes <span class="badge badge-inverse align-top">{{ worker.workerprocessmap_set.all.count }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+            <th>Process Name</th>
+            <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for wpm in worker.workerprocessmap_set.all %}
+        <tr>
+          <td class="middle">{{ wpm.process.process_name }}</td>
+          <td class="middle">{{ wpm.process.process_description }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if user.is_superuser %}
+    <div class="pull-right">
+      <a class="btn btn-success btn-small" href="{% url 'register_process_to_worker' worker.id %}">
+        <i class="icon-plus icon-white"></i> Register a Process
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+{% endblock %}

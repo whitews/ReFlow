@@ -47,5 +47,46 @@
     <p><a class="btn btn-success btn-small" href="{% url 'add_process' %}"><i class="icon-plus icon-white"></i> Add Process</a></p>
     {% endif %}
 
+    {% if workers %}
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan="3" class="center">
+            <h4>Workers <span class="badge badge-inverse align-top">{{ workers|length }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+          <th>Worker Name</th>
+          <th>Worker Hostname</th>
+          <th>Worker Version</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+      {% for worker in workers %}
+        <tr>
+          <td>
+            <a href="{% url 'view_worker' worker.id %}">{{ worker.worker_name }}</a>
+          </td>
+          <td>
+            {{ worker.worker_hostname }}
+          </td>
+          <td>
+            {{ worker.worker_version }}
+          </td>
+        </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+
+    {% else %}
+    <p>No workers have been defined.</p>
+    {% endif %}
+    {% if user.is_superuser %}
+    <p><a class="btn btn-success btn-small" href="{% url 'add_worker' %}"><i class="icon-plus icon-white"></i> Add Worker</a></p>
+    {% endif %}
+
   </div>
 {% endblock %}

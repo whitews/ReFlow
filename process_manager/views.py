@@ -14,11 +14,13 @@ from process_manager.forms import *
 def process_dashboard(request):
 
     processes = Process.objects.all()
+    workers = Worker.objects.all()
 
     return render_to_response(
         'process_dashboard.html',
         {
             'processes': sorted(processes, key=attrgetter('process_name')),
+            'workers': sorted(workers, key=attrgetter('worker_name')),
         },
         context_instance=RequestContext(request)
     )
@@ -100,6 +102,65 @@ def edit_process_input(request, process_input_id):
         'edit_process_input.html',
         {
             'process_input': process_input,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def view_worker(request, worker_id):
+    worker = get_object_or_404(Worker, pk=worker_id)
+
+    return render_to_response(
+        'view_worker.html',
+        {
+            'worker': worker,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def add_worker(request):
+    if request.method == 'POST':
+        form = WorkerForm(request.POST)
+
+        if form.is_valid():
+            worker = form.save()
+
+            return HttpResponseRedirect(reverse('view_worker', args=(worker.id,)))
+    else:
+        form = WorkerForm()
+
+    return render_to_response(
+        'add_worker.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def register_process_to_worker(request, worker_id):
+    worker = get_object_or_404(Worker, pk=worker_id)
+    worker_process_map = WorkerProcessMap(worker_id=worker_id)
+
+    if request.method == 'POST':
+        form = RegisterProcessToWorkerForm(request.POST, instance=worker_process_map)
+
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse('view_worker', args=(worker.id,)))
+    else:
+        form = RegisterProcessToWorkerForm(instance=worker_process_map)
+
+    return render_to_response(
+        'register_process_to_worker.html',
+        {
+            'worker': worker,
             'form': form,
         },
         context_instance=RequestContext(request)
