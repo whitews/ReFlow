@@ -144,6 +144,8 @@ class ProcessRequest(models.Model):
     request_user = models.ForeignKey(User, null=False, blank=False)
     request_date = models.DateTimeField(editable=False)
     completion_date = models.DateTimeField()
+    # optional FK to the worker that is assigned or has completed the request
+    worker = models.ForeignKey(Worker, null=True, blank=True)
 
     STATUS_CHOICES = (
         ('Pending', 'Pending'),
@@ -157,6 +159,21 @@ class ProcessRequest(models.Model):
         null=False,
         blank=False,
         choices=STATUS_CHOICES)
+
+    def is_assignable(self):
+        """
+        Returns True if all input values are given and status is Pending
+        """
+        if self.status != 'Pending':
+            return False
+
+        possible_input_id_list = self.process.processinput_set.all().values_list('id', flat=True).order_by('id')
+        actual_input_id_list = self.processrequestinputvalue_set.all().values_list('process_input_id', flat=True).order_by('process_input_id')
+
+        if possible_input_id_list != actual_input_id_list:
+            return False
+
+        return True
 
     def save(self, *args, **kwargs):
         if not self.id:
