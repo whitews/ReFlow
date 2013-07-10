@@ -906,7 +906,7 @@ class SampleSet(ProtectedModel):
     def __unicode__(self):
         return u'%s (Project: %s)' % (
             self.name,
-            self.subject.project.project_name)
+            self.project.project_name)
 
 
 class SampleParameterMap(ProtectedModel):
