@@ -909,6 +909,23 @@ class SampleSet(ProtectedModel):
             self.project.project_name)
 
 
+def validate_samples(sender, **kwargs):
+    """
+    Verify all the samples belong to the self.project
+    """
+    print kwargs
+    sample_set = kwargs['instance']
+
+    for sample in sample_set.samples.all():
+        print 'cleaning sample set'
+        if sample_set.project != sample.subject.project:
+            raise ValidationError(
+                "Samples must belong to the specified project."
+            )
+
+models.signals.m2m_changed.connect(validate_samples, sender=SampleSet.samples.through)
+
+
 class SampleParameterMap(ProtectedModel):
     sample = models.ForeignKey(Sample)
 
