@@ -915,13 +915,22 @@ def validate_samples(sender, **kwargs):
     """
     print kwargs
     sample_set = kwargs['instance']
+    action = kwargs['action']
+    pk_set = kwargs['pk_set']
 
-    for sample in sample_set.samples.all():
-        print 'cleaning sample set'
-        if sample_set.project != sample.subject.project:
-            raise ValidationError(
-                "Samples must belong to the specified project."
-            )
+    if action == 'pre_add':
+        try:
+            samples_to_add = Sample.objects.filter(pk__in=pk_set)
+        except:
+            raise ValidationError("Could not find specified samples. Check that they exist.")
+
+        for sample in samples_to_add:
+            print "Sample Set Project: ", sample_set.project_id
+            print "Sample Project: ", sample.subject.project_id
+            if sample_set.project_id != sample.subject.project_id:
+                raise ValidationError(
+                    "Samples must belong to the specified project."
+                )
 
 models.signals.m2m_changed.connect(validate_samples, sender=SampleSet.samples.through)
 
