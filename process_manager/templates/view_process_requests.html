@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block body %}
+  <div class="container">
+    <div class="row lead">
+      <div class="span4">
+        Process Requests
+      </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan="6" class="center">
+            <h4>Process Requests <span class="badge badge-inverse align-top">{{ requests.count }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+            <th>Process Name</th>
+            <th>Request Date</th>
+            <th>Requesting User</th>
+            <th>Sample Set</th>
+            <th>Status</th>
+            <th>Completion Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for request in requests %}
+        <tr>
+          <td class="middle">{{ request.process.process_name }}</td>
+          <td class="middle">{{ request.request_date }}</td>
+          <td class="middle">{{ request.request_user }}</td>
+          <td class="middle">{{ request.sample_set.name }}</td>
+          <td class="middle">{{ request.status }}</td>
+          <td class="middle">{{ request.completion_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+{% endblock %}

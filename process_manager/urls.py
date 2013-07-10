@@ -11,4 +11,5 @@ urlpatterns = patterns('process_manager.views',
     url(r'^process_manager/worker/(?P<worker_id>\d+)/$', 'view_worker', name='view_worker'),
     url(r'^process_manager/worker/add/$', 'add_worker', name='add_worker'),
     url(r'^process_manager/worker/(?P<worker_id>\d+)/register_process$', 'register_process_to_worker', name='register_process_to_worker'),
+    url(r'^process_manager/process_requests/$', 'process_requests', name='process_requests'),
 )

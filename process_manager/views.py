@@ -9,6 +9,7 @@ from django.template import RequestContext
 from process_manager.models import *
 from process_manager.forms import *
 
+from repository.models import Project
 
 @login_required
 def process_dashboard(request):
@@ -162,6 +163,20 @@ def register_process_to_worker(request, worker_id):
         {
             'worker': worker,
             'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def process_requests(request):
+    requests = ProcessRequest.objects.filter(
+        sample_set__project__in=Project.objects.get_projects_user_can_view(request.user))
+
+    return render_to_response(
+        'view_process_requests.html',
+        {
+            'requests': requests,
         },
         context_instance=RequestContext(request)
     )
