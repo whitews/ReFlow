@@ -6047,3 +6047,18 @@ th.center {
 .no-wrap {
   white-space: nowrap;
 }
+/* ----------  Checkbox Lists in Forms   START---------- */
+.control-group ul {
+  width: auto;
+  list-style: none;
+  padding-top: 5px;
+  margin-left: 5px;
+}
+.control-group ul li label {
+  width: auto !important;
+  display: inline;
+}
+.control-group ul li label input {
+  margin: 0;
+}
+/* ----------  Checkbox List Items   START---------- */
