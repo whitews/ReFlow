@@ -1677,6 +1677,51 @@ def retrieve_compensation(request, compensation_id):
     response['Content-Disposition'] = 'attachment; filename=%s' % compensation.original_filename
     return response
 
+
+@login_required
+def view_sample_sets(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_view_permission(request.user):
+        raise PermissionDenied
+
+    sample_sets = SampleSet.objects.filter(project=project)
+
+    return render_to_response(
+        'view_sample_sets.html',
+        {
+            'project': project,
+            'sample_sets': sample_sets,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def add_sample_set(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_add_permission(request.user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        form = SampleSetForm(request.POST, project_id=project_id)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_sample_sets', args=project_id))
+    else:
+        form = SampleSetForm(project_id=project_id)
+
+    return render_to_response(
+        'add_sample_set.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
 # Disabled b/c get_fcs_data() won't work if FCS files are not local
 # @login_required
 # def sample_data(request, sample_id):

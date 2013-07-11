@@ -104,6 +104,18 @@
             {% endif %}
           </td>
         </tr>
+        {% if can_add_project_data %}
+        <tr>
+          <td class="center">
+            <span class="lead"><a href="{% url 'view_sample_sets' project.id %}">Sample Sets</a></span>
+            <div class="pull-right">
+              <a class="btn btn-success btn-small" href="{% url 'add_sample_set' project.id %}">
+                <i class="icon-plus icon-white"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
         {% if can_manage_project_users %}
         <tr>
           <td class="center">

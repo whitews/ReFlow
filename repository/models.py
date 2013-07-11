@@ -889,11 +889,12 @@ class SampleSet(ProtectedModel):
     An arbitrary collection of Sample instances within a Project
     """
     project = models.ForeignKey(Project)
+
+    # Maybe name should be non-editable and auto-generated based on date/user combo???
     name = models.CharField(
         unique=False,
         null=False,
         blank=False,
-        editable=False,
         max_length=256)
     description = models.TextField(
         null=True,
