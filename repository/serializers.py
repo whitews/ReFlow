@@ -147,6 +147,10 @@ class SampleSerializer(serializers.ModelSerializer):
     compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
     project = serializers.IntegerField(source='subject.project_id', read_only=True)
+    subject_id = serializers.CharField(source='subject.subject_id', read_only=True)
+    site_name = serializers.CharField(source='site.site_name', read_only=True)
+    visit_name = serializers.CharField(source='visit.visit_type_name', read_only=True)
+    specimen_name = serializers.CharField(source='specimen.specimen_name', read_only=True)
 
     class Meta:
         model = Sample
@@ -154,10 +158,14 @@ class SampleSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'visit',
+            'visit_name',
             'subject',
+            'subject_id',
             'sample_group',
             'specimen',
+            'specimen_name',
             'site',
+            'site_name',
             'project',
             'original_filename',
             'sha1',

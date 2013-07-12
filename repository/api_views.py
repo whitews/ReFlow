@@ -353,7 +353,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
-        # Value may have multiple names separated by commas
+        # Custom filter for specifying the exact count of parameters in a Sample
         param_count_value = self.request.QUERY_PARAMS.get('parameter_count', None)
         if param_count_value is not None and param_count_value.isdigit():
             queryset = Sample.objects\
@@ -364,7 +364,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
             # filter on user's projects
             queryset = Sample.objects.filter(site__in=user_sites)
 
-        # Value may have multiple names separated by commas
+        # 'parameter_names' may have multiple values separated by commas
         name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
 
         if name_value is not None:
