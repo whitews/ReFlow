@@ -8,6 +8,7 @@
     <title>{{ header_title }}</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
     {% block extra_head %}{% endblock %}
   </head>
@@ -66,6 +67,7 @@
     </div>
     <!-- Javascript at the end of the document so pages load faster -->
     <script type="text/javascript" src="{% static 'bootstrap/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
     <script type='text/javascript'>
         $(document).ready(function()
