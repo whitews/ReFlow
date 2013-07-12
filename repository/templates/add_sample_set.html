@@ -1,6 +1,66 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% block toes %}
+
+<script>
+  function query_samples(site_list, subject_list, visit_type_list) {
+    $.ajax({
+      type: "GET",
+      url: "{% url 'sample-list' %}",
+      dataType: "json",
+      data: {
+        site_list: site_list,
+        subject_list: subject_list,
+        visit_type_list: visit_type_list
+      },
+      success: function(json) {
+        $("#sample_results").empty()
+        $("#sample_results").append(
+          '<table id="results_table" class="table table-bordered table-striped">' +
+          '<thead>' +
+          '<tr><th colspan="5" class="center"><h4>Query Results</h4></th></tr>' +
+          '<tr><th>File</th><th>Subject</th><th>Site</th><th>Visit</th><th>Specimen</th></tr>' +
+          '</thead>'
+        );
+
+
+        json.results.forEach(function(r) {
+          $("#results_table").append(
+            '<tr>' +
+            '<td>'+ r.original_filename + '</td>' +
+            '<td>'+ r.subject_id + '</td>' +
+            '<td>'+ r.site_name + '</td>' +
+            '<td>'+ r.visit_name + '</td>' +
+            '<td>'+ r.specimen_name + '</td>' +
+            '</tr>'
+          );
+        });
+
+        $("#sample_results").append('</table>');
+      },
+      error: function(response) {
+        $("#dialog").text(response.responseText);
+        $("#dialog").dialog({
+          title: "Error",
+          autoOpen: false
+        });
+        $("#dialog").dialog("open");
+      }
+    });
+  }
+  function addClickHandlers() {
+    $("#query").click( function() {
+      query_samples($(this).closest("tr").attr("id"));
+    });
+  }
+  $(document).ready(addClickHandlers);
+</script>
+{% endblock %}
 {% block body %}
+    <div id="dialog">
+      <p></p>
+    </div>
+
     <div class="container">
         <div class="row lead">
           <div class="span4">
@@ -17,24 +77,79 @@
                 </div>
             {% endif %}
 
-            {% for field in form %}
-                <div class="control-group">
-                    <label class="control-label">{{ field.label }}</label>
-                    <div class="controls">
+            <div class="control-group">
+                <label class="control-label">{{ form.name.label }}</label>
+                <div class="controls">
 
-                        {{ field }}
+                    {{ form.name }}
 
-                        {% if field.errors %}
-                            <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-                        {% endif %}
-                    </div>
+                    {% if form.name.errors %}
+                        <span class="align-middle text-warning">&nbsp;{{ form.name.errors|striptags }}</span>
+                    {% endif %}
                 </div>
-            {% endfor %}
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ form.description.label }}</label>
+                <div class="controls">
+
+                    {{ form.description }}
+
+                    {% if form.description.errors %}
+                        <span class="align-middle text-warning">&nbsp;{{ form.description.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ form.sites.label }}</label>
+                <div class="controls">
+
+                    {{ form.sites }}
+
+                    {% if form.sites.errors %}
+                        <span class="align-middle text-warning">&nbsp;{{ form.sites.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ form.subjects.label }}</label>
+                <div class="controls">
+
+                    {{ form.subjects }}
+
+                    {% if form.subjects.errors %}
+                        <span class="align-middle text-warning">&nbsp;{{ form.subjects.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ form.visit_types.label }}</label>
+                <div class="controls">
+
+                    {{ form.visit_types }}
+
+                    {% if form.visit_types.errors %}
+                        <span class="align-middle text-warning">&nbsp;{{ form.visit_types.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ form.specimens.label }}</label>
+                <div class="controls">
+
+                    {{ form.specimens }}
+
+                    {% if form.specimens.errors %}
+                        <span class="align-middle text-warning">&nbsp;{{ form.specimens.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
             <div class="control-group">
                 <div class="controls">
+                    <button id="query" class="btn btn-small btn-success" type="button">Query</button>
                     <button class="btn btn-small btn-primary" type="submit">Save</button>
                 </div>
             </div>
         </form>
+        <div id="sample_results"></div>
     </div>
 {% endblock %}
