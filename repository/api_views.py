@@ -36,6 +36,7 @@ def api_root(request, format=None):
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
         'sample_groups': reverse('sample-group-list', request=request),
+        'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'uncategorized_samples': reverse('uncat-sample-list', request=request),
         'sites': reverse('site-list', request=request),
@@ -328,21 +329,61 @@ class SampleGroupList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = ('group_name',)
 
 
-class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
+class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = Sample
+    serializer_class = SamplePOSTSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        Also removing the 'sample_file' field since it has the server path.
+        """
+        site = Site.objects.get(id=request.DATA['site'])
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        response = super(CreateSampleList, self).post(request, *args, **kwargs)
+        if hasattr(response, 'data'):
+            if 'sample_file' in response.data:
+                response.data.pop('sample_file')
+        return response
+
+
+class SampleFilter(django_filters.FilterSet):
+    subject__project = django_filters.ModelMultipleChoiceFilter(queryset=Project.objects.all())
+    site = django_filters.ModelMultipleChoiceFilter(queryset=Site.objects.all())
+    subject = django_filters.ModelMultipleChoiceFilter(queryset=Subject.objects.all())
+    visit = django_filters.ModelMultipleChoiceFilter(queryset=ProjectVisitType.objects.all())
+    sample_group = django_filters.ModelMultipleChoiceFilter(queryset=SampleGroup.objects.all())
+    specimen = django_filters.ModelMultipleChoiceFilter(queryset=Specimen.objects.all())
+    original_filename = django_filters.CharFilter(lookup_type="icontains")
+    parameter = django_filters.MultipleChoiceFilter()
+
+    class Meta:
+        model = Sample
+        fields = [
+            'subject__project',
+            'site',
+            'subject',
+            'visit',
+            'sample_group',
+            'specimen',
+            'original_filename'
+        ]
+
+
+class SampleList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of samples.
     """
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = (
-        'subject',
-        'site',
-        'visit',
-        'sample_group',
-        'subject__project',
-        'original_filename'
-    )
+    filter_class = SampleFilter
 
     def get_queryset(self):
         """
@@ -364,48 +405,24 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
             # filter on user's projects
             queryset = Sample.objects.filter(site__in=user_sites)
 
-        # 'parameter_names' may have multiple values separated by commas
-        name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
+        # 'parameter' may be repeated, so get as list
+        parameters = self.request.QUERY_PARAMS.getlist('parameter')
 
-        if name_value is not None:
-            # The name property is just a concatenation of 2 related fields:
-            #  - parameter__parameter_short_name
-            #  - value_type__value_type_short_name (single character for H, A, W, T)
-            # they are joined by a hyphen
-            names = name_value.split(',')
+        # The name property is just a concatenation of 2 related fields:
+        #  - parameter__parameter_short_name
+        #  - value_type__value_type_short_name (single character for H, A, W, T)
+        # they are joined by a hyphen
 
-            for name in names:
-                parameter = name[0:-2]
-                value_type = name[-1]
+        for value in parameters:
+            parameter = value[0:-2]
+            value_type = value[-1]
 
-                queryset = queryset.filter(
-                    sampleparametermap__parameter__parameter_short_name=parameter,
-                    sampleparametermap__value_type__value_type_short_name=value_type,
-                ).distinct()
+            queryset = queryset.filter(
+                sampleparametermap__parameter__parameter_short_name=parameter,
+                sampleparametermap__value_type__value_type_short_name=value_type,
+            ).distinct()
 
         return queryset
-
-    def get_serializer_class(self):
-        # hack to get the POST form to display the file upload field,
-        # but avoid it on the GET list
-        if self.request.method == 'GET' and hasattr(self, 'response'):
-            return SamplePOSTSerializer
-
-        if self.request.method == 'POST':
-            return SamplePOSTSerializer
-
-        return super(SampleList, self).get_serializer_class()
-
-    def post(self, request, *args, **kwargs):
-        site = Site.objects.get(id=request.DATA['site'])
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
-
-        response = super(SampleList, self).post(request, *args, **kwargs)
-        if hasattr(response, 'data'):
-            if 'sample_file' in response.data:
-                response.data.pop('sample_file')
-        return response
 
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
