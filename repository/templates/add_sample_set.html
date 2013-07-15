@@ -3,16 +3,36 @@
 {% block toes %}
 
 <script>
-  function query_samples(site_list, subject_list, visit_type_list) {
+  function query_samples() {
+
+    var query_strings = []
+    query_strings[0] = "?subject__project={{ project.id }}";
+
+    var form_params = $('#sample-set-form').serializeArray();
+
+    form_params.forEach(function(param) {
+      switch (param.name) {
+        case 'sites':
+          query_strings.push("site="+param.value);
+          break;
+        case 'subjects':
+          query_strings.push("subject="+param.value);
+          break;
+        case 'visits':
+          query_strings.push("visit="+param.value);
+          break;
+        case 'specimens':
+          query_strings.push("specimen="+param.value);
+          break;
+      }
+    });
+
+    console.log(query_strings)
+
     $.ajax({
       type: "GET",
-      url: "{% url 'sample-list' %}",
+      url: "{% url 'sample-list' %}" + query_strings.join("&"),
       dataType: "json",
-      data: {
-        site_list: site_list,
-        subject_list: subject_list,
-        visit_type_list: visit_type_list
-      },
       success: function(json) {
         $("#sample_results").empty()
         $("#sample_results").append(
@@ -69,7 +89,7 @@
           <div class="pull-right">Create Sample Set</div>
         </div>
         <br/>
-        <form class="form-horizontal" action="{% url 'add_sample_set' project.id %}" method="post">
+        <form id="sample-set-form" class="form-horizontal" action="{% url 'add_sample_set' project.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
                 <div class="control-group text-error">
