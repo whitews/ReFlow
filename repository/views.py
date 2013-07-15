@@ -1596,6 +1596,7 @@ def edit_sample(request, sample_id):
 
         if form.is_valid():
             form.save()
+            # TODO: should this go to view_subject? or view_samples?
             return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject_id)))
     else:
         form = SampleEditForm(
