@@ -10,7 +10,7 @@
     </div>
   </div>
 
-  {% if samples_sets %}
+  {% if samples_sets|length > 0 %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
@@ -25,11 +25,9 @@
       <tr>
         <td class="middle">
           {{ set.id }}
-          <div class="pull-right align-middle">
-            <a rel="tooltip" href="{% url 'view_sample_set' set.id %}" data-original-title="View Set" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-            </a>
-          </div>
+          <a class="align-middle pull-right" rel="tooltip" href="#" data-original-title="View Set" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+          </a>
         </td>
         <td class="middle">{{ set.name }}</td>
         <td class="middle">{{ set.description }}</td>
