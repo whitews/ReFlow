@@ -904,6 +904,20 @@ class SampleSet(ProtectedModel):
     class Meta:
         unique_together = (('project', 'name'),)
 
+    def clean(self):
+        """
+        Verify the project & name combo doesn't already exist
+        """
+
+        qs = SampleSet.objects.filter(
+            project=self.project,
+            name=self.name)
+
+        if qs.exists():
+            raise ValidationError(
+                "A sample set with this name already exists in this project."
+            )
+
     def __unicode__(self):
         return u'%s (Project: %s)' % (
             self.name,

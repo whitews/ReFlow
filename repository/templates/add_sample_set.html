@@ -3,6 +3,21 @@
 {% block toes %}
 
 <script>
+  $("#sample-set-form").submit(function() {
+    var sample_list = $("input[type=hidden][name='samples']")
+
+    if (sample_list.length < 1) {
+      $("#dialog").text("A set must contain at least one sample.");
+      $("#dialog").dialog({
+        title: "Error",
+        autoOpen: false
+      });
+      $("#dialog").dialog("open");
+      return false;
+    }
+    return true;
+  });
+
   function query_samples() {
 
     var query_strings = []
@@ -27,8 +42,6 @@
       }
     });
 
-    console.log(query_strings)
-
     $.ajax({
       type: "GET",
       url: "{% url 'sample-list' %}" + query_strings.join("&"),
@@ -43,17 +56,23 @@
           '</thead>'
         );
 
-
         json.results.forEach(function(r) {
           $("#results_table").append(
             '<tr>' +
-            '<td>'+ r.original_filename + '</td>' +
+            '<td>'+ r.original_filename +
+            "<input type='hidden' name='samples' value='" + r.id +"' />" +
+            '<i style="opacity: 0.4; cursor: pointer" class="remove-sample icon-remove align-middle pull-right"></i>' +
+            '</td>' +
             '<td>'+ r.subject_id + '</td>' +
             '<td>'+ r.site_name + '</td>' +
             '<td>'+ r.visit_name + '</td>' +
             '<td>'+ r.specimen_name + '</td>' +
             '</tr>'
           );
+        });
+
+        $(".remove-sample").click( function() {
+          $(this).closest("tr").remove();
         });
 
         $("#sample_results").append('</table>');
@@ -70,7 +89,7 @@
   }
   function addClickHandlers() {
     $("#query").click( function() {
-      query_samples($(this).closest("tr").attr("id"));
+      query_samples();
     });
   }
   $(document).ready(addClickHandlers);
@@ -169,7 +188,8 @@
                     <button class="btn btn-small btn-primary" type="submit">Save</button>
                 </div>
             </div>
+
+            <div id="sample_results"></div>
         </form>
-        <div id="sample_results"></div>
     </div>
 {% endblock %}

@@ -279,13 +279,13 @@ class CompensationForm(forms.ModelForm):
         if project_id:
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = ModelChoiceField(sites)
+            self.fields['site'] = forms.ModelChoiceField(sites)
 
 
 class SampleSetForm(forms.ModelForm):
     class Meta:
         model = SampleSet
-        exclude = ('project', 'samples')
+        exclude = ('project',)
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -297,33 +297,47 @@ class SampleSetForm(forms.ModelForm):
         # finally, make sure the available choices belong to the project
         if project_id:
             sites = Site.objects.filter(project_id=project_id)
-            self.fields['sites'] = forms.ModelChoiceField(
+            self.fields['sites'] = forms.ModelMultipleChoiceField(
                 sites,
-                required=True,
-                empty_label=None,
+                required=False,
                 widget=forms.widgets.CheckboxSelectMultiple()
             )
 
             subjects = Subject.objects.filter(project_id=project_id)
-            self.fields['subjects'] = forms.ModelChoiceField(
+            self.fields['subjects'] = forms.ModelMultipleChoiceField(
                 subjects,
-                required=True,
-                empty_label=None,
+                required=False,
                 widget=forms.widgets.CheckboxSelectMultiple()
             )
 
             visit_types = ProjectVisitType.objects.filter(project_id=project_id)
-            self.fields['visit_types'] = forms.ModelChoiceField(
+            self.fields['visit_types'] = forms.ModelMultipleChoiceField(
                 visit_types,
-                required=True,
-                empty_label=None,
+                required=False,
                 widget=forms.widgets.CheckboxSelectMultiple()
             )
 
             specimens = Specimen.objects.all()
-            self.fields['specimens'] = forms.ModelChoiceField(
+            self.fields['specimens'] = forms.ModelMultipleChoiceField(
                 specimens,
                 required=False,
-                empty_label=None,
                 widget=forms.widgets.CheckboxSelectMultiple()
             )
+
+    def clean(self):
+        """
+        Validate all samples belong to the same project, and that
+        at least one sample is included in the set.
+        """
+        if not self.cleaned_data.has_key('samples'):
+            raise ValidationError("There must be at least one sample in a set.")
+
+        samples = self.cleaned_data['samples']
+        matching_count = samples.filter(subject__project_id=self.instance.project_id).count()
+        
+        if samples.count() < 1:
+            raise ValidationError("A set must contain at least one sample.")
+        elif samples.count() != matching_count:
+            raise ValidationError("A set must contain samples from the same project.")
+
+        return self.cleaned_data #never forget this! ;o)

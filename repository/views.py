@@ -1706,7 +1706,14 @@ def add_sample_set(request, project_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SampleSetForm(request.POST, project_id=project_id)
+        # SampleSet has to exist before we can add samples to it,
+        # but we need to check that the sample IDs provided all
+        # belong to the same project
+        sample_set = SampleSet(project=project)
+        form = SampleSetForm(
+            request.POST,
+            instance=sample_set,
+            project_id=project_id)
 
         if form.is_valid():
             form.save()
