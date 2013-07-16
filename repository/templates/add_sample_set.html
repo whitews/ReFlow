@@ -183,6 +183,17 @@
                 </div>
             </div>
             <div class="control-group">
+                <label class="control-label">{{ form.specimens.label }}</label>
+                <div class="controls">
+
+                    {{ form.parameters }}
+
+                    {% if form.parameters.errors %}
+                        <span class="align-middle text-warning">&nbsp;{{ form.parameters.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="control-group">
                 <div class="controls">
                     <button id="query" class="btn btn-small btn-success" type="button">Query</button>
                     <button class="btn btn-small btn-primary" type="submit">Save</button>
