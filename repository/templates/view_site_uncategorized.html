@@ -65,7 +65,7 @@ $(document).ready(function()
     <div class="pull-right">
       Site: {{ site.site_name }}
       {% if can_modify_project_data %}
-      <a rel="tooltip" href="{% url 'edit_site' site.project_id site.id %}" data-original-title="Edit Site" data-placement="bottom">
+      <a rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit Site" data-placement="bottom">
         <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
       </a>
       {% endif %}

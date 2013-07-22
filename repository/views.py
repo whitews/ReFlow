@@ -697,8 +697,8 @@ def add_site(request, project_id):
 
 
 @login_required
-def edit_site(request, project_id, site_id):
-    site = get_object_or_404(Site, pk=site_id, project_id=project_id)
+def edit_site(request, site_id):
+    site = get_object_or_404(Site, pk=site_id)
 
     if not site.project.has_modify_permission(request.user):
         raise PermissionDenied
