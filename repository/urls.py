@@ -75,7 +75,7 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_project_user', name='manage_project_user'),
     url(r'^site/(?P<site_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_site_user', name='manage_site_user'),
 
-    url(r'^project/(?P<project_id>\d+)/sites/$', 'view_sites', name='project_sites'),
+    url(r'^project/(?P<project_id>\d+)/sites/$', 'view_project_sites', name='view_project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
     url(r'^site/(?P<site_id>\d+)$', 'view_site', name='view_site'),
     url(r'^site/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
@@ -118,7 +118,7 @@ urlpatterns += patterns('repository.views',
     url(r'^sample/(?P<sample_id>\d+)/create_panel/$', 'create_panel_from_sample', name='create_panel_from_sample'),
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample', name='retrieve_sample'),
 
-    url(r'^project/(?P<project_id>\d+)/sample_sets/$', 'view_sample_sets', name='view_sample_sets'),
+    url(r'^project/(?P<project_id>\d+)/sample_sets/$', 'view_project_sample_sets', name='view_project_sample_sets'),
     url(r'^project/(?P<project_id>\d+)/sample_sets/add/$', 'add_sample_set', name='add_sample_set'),
     url(r'^sample_set/(?P<sample_set_id>\d+)/$', 'view_sample_set', name='view_sample_set'),
 

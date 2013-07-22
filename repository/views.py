@@ -645,7 +645,7 @@ def view_samples(request, project_id):
 
 
 @login_required
-def view_sites(request, project_id):
+def view_project_sites(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     sites = Site.objects.get_sites_user_can_view(request.user, project=project)
@@ -1680,7 +1680,7 @@ def retrieve_compensation(request, compensation_id):
 
 
 @login_required
-def view_sample_sets(request, project_id):
+def view_project_sample_sets(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     if not project.has_view_permission(request.user):
@@ -1689,7 +1689,7 @@ def view_sample_sets(request, project_id):
     sample_sets = SampleSet.objects.filter(project=project)
 
     return render_to_response(
-        'view_sample_sets.html',
+        'view_project_sample_sets.html',
         {
             'project': project,
             'sample_sets': sample_sets,

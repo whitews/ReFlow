@@ -42,7 +42,7 @@
         </tr>
         <tr>
           <td class="center">
-            <span class="lead"><a href="{% url 'project_sites' project.id %}">Sites</a></span>
+            <span class="lead"><a href="{% url 'view_project_sites' project.id %}">Sites</a></span>
             {% if can_add_project_data %}
             <a class="pull-right btn btn-success btn-small" href="{% url 'add_site' project.id %}">
               <i class="icon-plus icon-white"></i>
@@ -93,7 +93,7 @@
         {% if can_add_project_data %}
         <tr>
           <td class="center">
-            <span class="lead"><a href="{% url 'view_sample_sets' project.id %}">Sample Sets</a></span>
+            <span class="lead"><a href="{% url 'view_project_sample_sets' project.id %}">Sample Sets</a></span>
             <a class="pull-right btn btn-success btn-small" href="{% url 'add_sample_set' project.id %}">
               <i class="icon-plus icon-white"></i>
             </a>
