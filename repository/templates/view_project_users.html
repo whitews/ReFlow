@@ -49,12 +49,11 @@
       </tbody>
     </table>
     {% if can_manage_project_users %}
-      <tr>
-        <div class="pull-right">
-          <a class="btn btn-success btn-small" href="{% url 'add_user_permissions' project.id %}">
-            <i class="icon-plus icon-white"></i> Add User
-          </a>
-        </div>
+    <div class="pull-right">
+      <a class="btn btn-success btn-small" href="{% url 'add_user_permissions' project.id %}">
+        <i class="icon-plus icon-white"></i> Add User
+      </a>
+    </div>
     {% endif %}
   </div>
 {% endblock %}

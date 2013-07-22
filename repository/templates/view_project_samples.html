@@ -80,9 +80,9 @@ $(document).ready(function()
           <th>Specimen</th>
           <th>
               Parameters
-              <div class="pull-right">
+              <span class="pull-right">
                 <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-              </div>
+              </span>
           </th>
       </tr>
     </thead>
@@ -92,11 +92,9 @@ $(document).ready(function()
         <td class="middle">
           {{ sample.id }}
           {% if sample.site__id in user_modify_sites or can_modify_project_data %}
-          <div class="pull-right align-middle">
-            <a rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-            </a>
-          </div>
+          <a class="pull-right" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+          </a>
           {% endif %}
         </td>
         <td class="middle">
