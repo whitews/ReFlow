@@ -24,11 +24,9 @@
           <td class="center">
             <span class="lead"><a href="{% url 'project_visit_types' project.id %}">Visit Types</a></span>
             {% if can_add_project_data %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_visit_type' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_visit_type' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
             {% endif %}
           </td>
         </tr>
@@ -36,11 +34,9 @@
           <td class="center">
             <span class="lead"><a href="{% url 'project_panels' project.id %}">Panels</a></span>
             {% if can_add_project_data %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_panel' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_panel' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
             {% endif %}
           </td>
         </tr>
@@ -48,11 +44,9 @@
           <td class="center">
             <span class="lead"><a href="{% url 'project_sites' project.id %}">Sites</a></span>
             {% if can_add_project_data %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_site' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_site' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
             {% endif %}
           </td>
         </tr>
@@ -60,11 +54,9 @@
           <td class="center">
             <span class="lead"><a href="{% url 'subject_groups' project.id %}">Subject Groups</a></span>
             {% if can_add_project_data %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_subject_group' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_subject_group' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
             {% endif %}
           </td>
         </tr>
@@ -72,11 +64,9 @@
           <td class="center">
             <span class="lead"><a href="{% url 'project_subjects' project.id %}">Subjects</a></span>
             {% if can_add_project_data %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_subject' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_subject' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
             {% endif %}
           </td>
         </tr>
@@ -84,11 +74,9 @@
           <td class="center">
             <span class="lead"><a href="{% url 'project_samples' project.id %}">Samples</a></span>
             {% if can_add_project_data %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_sample' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_sample' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
             {% endif %}
           </td>
         </tr>
@@ -96,11 +84,9 @@
           <td class="center">
             <span class="lead"><a href="{% url 'project_compensations' project.id %}">Compensation Matrices</a></span>
             {% if can_add_project_data %}
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_compensation' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_compensation' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
             {% endif %}
           </td>
         </tr>
@@ -108,11 +94,9 @@
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'view_sample_sets' project.id %}">Sample Sets</a></span>
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_sample_set' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_sample_set' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
           </td>
         </tr>
         {% endif %}
@@ -120,11 +104,9 @@
         <tr>
           <td class="center">
             <span class="lead"><a href="{% url 'view_project_users' project.id %}">Users</a></span>
-            <div class="pull-right">
-              <a class="btn btn-success btn-small" href="{% url 'add_user_permissions' project.id %}">
-                <i class="icon-plus icon-white"></i>
-              </a>
-            </div>
+            <a class="pull-right btn btn-success btn-small" href="{% url 'add_user_permissions' project.id %}">
+              <i class="icon-plus icon-white"></i>
+            </a>
           </td>
         </tr>
         {% endif %}
