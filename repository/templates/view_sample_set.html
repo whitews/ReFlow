@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+
+{% block toes %}
+
+<script>
+$(document).ready(function()
+{
+    $(".show-all").click(function()
+    {
+        $('.params').show(250);
+        return false;
+    });
+
+    $(".hide-all").click(function()
+    {
+        $('.params').hide(250);
+        return false;
+    });
+
+    $(".toggle-closest").click(function()
+    {
+        $(this).siblings('table.params').toggle(250);
+        return false;
+    });
+
+    return false;
+});
+
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="row lead">
+    <div class="span4">
+      <a href="{% url 'view_project' project.id %}">
+        {{ project.project_name }}
+      </a>
+    </div>
+    <div class="pull-right">
+      Sample Set: {{ sample_set.name }}
+      {% if can_modify_project_data %}
+      <a rel="tooltip" href="#" data-original-title="Edit Set" data-placement="bottom">
+        <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if samples %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th colspan="7" class="center">
+          <h4>Flow Cytometry Samples <span class="badge badge-inverse align-top">{{ samples.count }}</span></h4>
+        </th>
+      </tr>
+      <tr>
+          <th>Sample ID</th>
+          <th>File Name</th>
+          <th>Subject</th>
+          <th>Visit</th>
+          <th>Sample Group</th>
+          <th>Specimen</th>
+          <th>
+            Parameters
+            <div class="pull-right">
+              <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+            </div>
+          </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sample in samples %}
+      <tr>
+        <td class="middle">
+          {{ sample.id }}
+        </td>
+        <td class="middle">
+          <a href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a><br/>
+        </td>
+        <td class="middle">{{ sample.subject__subject_id }}</td>
+        <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
+        <td class="middle">{{ sample.sample_group__group_name|default_if_none:'' }}</td>
+        <td class="middle">{{ sample.specimen__specimen_name|default_if_none:'' }}</td>
+
+        <td style="width: 60%" class="middle">
+
+          {% if sample.parameters.count > 0 %}
+
+          <a href="#" class="toggle-closest">Show/Hide</a>
+          <table class="table table-bordered table-hover hide params">
+            <thead>
+              <tr>
+                <th>FCS Number</th>
+                <th>FCS PnN</th>
+                <th>FCS PnS</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sp_map in sample.parameters|dictsort:"fcs_number" %}
+              <tr>
+                <td>
+                  {{ sp_map.fcs_number }}
+                </td>
+                <td>
+                  {{ sp_map.fcs_text }}
+                </td>
+                <td>
+                  {{ sp_map.fcs_opt_text }}
+                </td>
+                <td>
+                  {{ sp_map.parameter__parameter_short_name|default_if_none:'' }}-{{ sp_map.value_type__value_type_short_name|default_if_none:'' }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          {% endif %}
+
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Sample set has no flow cytometry samples. This shouldn't happen. </p>
+  {% endif %}
+</div>
+{% endblock %}

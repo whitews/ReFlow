@@ -1730,6 +1730,55 @@ def add_sample_set(request, project_id):
         context_instance=RequestContext(request)
     )
 
+
+@login_required
+def view_sample_set(request, sample_set_id):
+    sample_set = get_object_or_404(SampleSet, pk=sample_set_id)
+    project = sample_set.project
+
+    # user must have project view permission to see sample sets
+    if not project.has_view_permission(request.user):
+        raise PermissionDenied
+
+    samples = sample_set.samples.values(
+        'id',
+        'subject__subject_id',
+        'site__site_name',
+        'site__id',
+        'visit__visit_type_name',
+        'sample_group__group_name',
+        'specimen__specimen_name',
+        'original_filename'
+    )
+
+    spm_maps = SampleParameterMap.objects.filter(
+        sample_id__in=[i['id'] for i in samples]).values(
+            'id',
+            'sample_id',
+            'fcs_number',
+            'fcs_text',
+            'fcs_opt_text',
+            'parameter__parameter_short_name',
+            'value_type__value_type_short_name',
+        )
+
+    # this is done to avoid hitting the database too hard in templates
+    for sample in samples:
+        sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
+
+    can_modify_project_data = project.has_modify_permission(request.user)
+
+    return render_to_response(
+        'view_sample_set.html',
+        {
+            'project': project,
+            'sample_set': sample_set,
+            'samples': samples,
+            'can_modify_project_data': can_modify_project_data,
+        },
+        context_instance=RequestContext(request)
+    )
+
 # Disabled b/c get_fcs_data() won't work if FCS files are not local
 # @login_required
 # def sample_data(request, sample_id):
