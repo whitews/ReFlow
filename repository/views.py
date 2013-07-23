@@ -12,7 +12,6 @@ from django.utils import simplejson
 from django.forms.models import inlineformset_factory
 
 from guardian.shortcuts import assign_perm
-from guardian.forms import UserObjectPermissionsForm
 
 from repository.models import *
 from repository.forms import *
@@ -503,12 +502,12 @@ def add_user_permissions(request, project_id):
 @login_required
 def manage_project_user(request, project_id, user_id):
     project = get_object_or_404(Project, pk=project_id)
-    project_user = get_object_or_404(User, pk=user_id)
+    user = get_object_or_404(User, pk=user_id)
 
     if not project.has_user_management_permission(request.user):
         raise PermissionDenied
 
-    form = UserObjectPermissionsForm(project_user, project, request.POST or None)
+    form = CustomUserObjectPermissionForm(user, project, request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
         form.save_obj_perms()
@@ -518,7 +517,7 @@ def manage_project_user(request, project_id, user_id):
         'manage_project_user.html',
         {
             'project': project,
-            'project_user': project_user,
+            'project_user': user,
             'form': form,
         },
         context_instance=RequestContext(request)
@@ -533,7 +532,7 @@ def manage_site_user(request, site_id, user_id):
     if not site.project.has_user_management_permission(request.user) or site.has_user_management_permission(request.user):
         raise PermissionDenied
 
-    form = UserObjectPermissionsForm(user, site, request.POST or None)
+    form = CustomUserObjectPermissionForm(user, site, request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
         form.save_obj_perms()

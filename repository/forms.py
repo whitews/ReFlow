@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from guardian.forms import UserObjectPermissionsForm
 
 from repository.models import *
 
@@ -8,6 +9,16 @@ from repository.models import *
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
+
+
+class CustomUserObjectPermissionForm(UserObjectPermissionsForm):
+    """
+    Subclass guardian's UserObjectPermissionsForm to exclude
+    Django's default model permissions.
+    """
+    def get_obj_perms_field_choices(self):
+        choices = super(CustomUserObjectPermissionForm, self).get_obj_perms_field_choices()
+        return list(set(choices).intersection(self.obj._meta.permissions))
 
 
 class AntibodyForm(forms.ModelForm):
