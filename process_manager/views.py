@@ -180,3 +180,30 @@ def process_requests(request):
         },
         context_instance=RequestContext(request)
     )
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def create_process_request(request, process_id):
+    process = get_object_or_404(Process, pk=process_id)
+    process_request = ProcessRequest(
+        process=process,
+        request_user=request.user)
+
+    if request.method == 'POST':
+        form = ProcessRequestForm(request.POST, instance=process_request)
+
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse('process_requests'))
+    else:
+        form = ProcessRequestForm(instance=process_request)
+
+    return render_to_response(
+        'create_process_request.html',
+        {
+            'process': process,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )

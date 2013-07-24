@@ -32,7 +32,7 @@
           <td class="middle">{{ request.request_user }}</td>
           <td class="middle">{{ request.sample_set.name }}</td>
           <td class="middle">{{ request.status }}</td>
-          <td class="middle">{{ request.completion_date }}</td>
+          <td class="middle">{{ request.completion_date|default_if_none:"Not Complete" }}</td>
         </tr>
         {% endfor %}
       </tbody>
