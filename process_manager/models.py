@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 
+from rest_framework.authtoken.models import Token
+
 from repository.models import SampleSet
 from reflow.settings import MEDIA_ROOT
 
@@ -94,6 +96,7 @@ class Worker(models.Model):
     The model representation of a client-side worker. A worker should be registered
     as capable of performing a Process via the WorkerProcessMap.
     """
+    user = models.OneToOneField(User, null=False, blank=False, editable=False)
     worker_name = models.CharField(
         "Worker Name",
         unique=True,
@@ -114,6 +117,16 @@ class Worker(models.Model):
         null=False,
         blank=False,
         max_length=256)
+
+    def save(self, *args, **kwargs):
+        if not User.objects.filter(username=self.worker_name).exists():
+            # ok to create user, and w/o password since it will not allow login
+            user = User.objects.create_user(username=self.worker_name)
+            # create auth token for REST API usage
+            Token.objects.create(user=user)
+            # associate worker to new user
+            self.user = user
+        super(Worker, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'%s' % (self.worker_name,)
@@ -141,9 +154,9 @@ class ProcessRequest(models.Model):
     process = models.ForeignKey(Process)
     # optional foreign key to a data set
     sample_set = models.ForeignKey(SampleSet, null=True, blank=True)
-    request_user = models.ForeignKey(User, null=False, blank=False)
-    request_date = models.DateTimeField(editable=False)
-    completion_date = models.DateTimeField()
+    request_user = models.ForeignKey(User, null=False, blank=False, editable=False)
+    request_date = models.DateTimeField(editable=False, auto_now_add=True)
+    completion_date = models.DateTimeField(null=True, blank=True, editable=False)
     # optional FK to the worker that is assigned or has completed the request
     worker = models.ForeignKey(Worker, null=True, blank=True)
 
