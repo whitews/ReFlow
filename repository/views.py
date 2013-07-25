@@ -1716,7 +1716,7 @@ def add_sample_set(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_sample_sets', args=project_id))
+            return HttpResponseRedirect(reverse('view_project_sample_sets', args=project_id))
     else:
         form = SampleSetForm(project_id=project_id)
 
