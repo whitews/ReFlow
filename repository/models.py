@@ -39,10 +39,14 @@ class ProjectManager(models.Manager):
         Do NOT use this method to determine whether a user has access to a
         particular project resource.
         """
-        projects = get_objects_for_user(
-            user,
-            'view_project_data',
-            klass=Project)
+        if hasattr(user, 'worker'):
+            # Workers need to be able to view all data
+            projects = Project.objects.all()
+        else:
+            projects = get_objects_for_user(
+                user,
+                'view_project_data',
+                klass=Project)
         sites = get_objects_for_user(user, 'view_site_data', klass=Site)
         site_projects = Project.objects\
             .filter(id__in=[i.project_id for i in sites])\
@@ -76,6 +80,9 @@ class Project(ProtectedModel):
 
     def has_view_permission(self, user):
         if user.has_perm('view_project_data', self):
+            return True
+        elif hasattr(user, 'worker'):
+            # Workers need to be able to retrieve samples
             return True
         return False
 
@@ -137,8 +144,7 @@ class SiteManager(models.Manager):
             project_list = Project.objects.get_projects_user_can_view(user)
             project_id_list = []
             for p in project_list:
-                if p.has_view_permission(user):
-                    project_id_list.append(p.id)
+                project_id_list.append(p.id)
             project_view_sites = Site.objects.filter(
                 project_id__in=project_id_list)
             view_sites = get_objects_for_user(
