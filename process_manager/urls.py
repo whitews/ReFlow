@@ -1,8 +1,18 @@
 from django.conf.urls import patterns, url
 
+from process_manager.api_views import *
+
+# API routes
+urlpatterns = patterns('process_manager.api_views',
+    url(r'^api/process_manager/$', 'process_manager_api_root'),
+    url(r'^api/process_manager/processes/$', ProcessList.as_view(), name='process-list'),
+    url(r'^api/process_manager/workers/$', WorkerList.as_view(), name='worker-list'),
+    url(r'^api/process_manager/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),
+)
+
 
 # Regular web routes
-urlpatterns = patterns('process_manager.views',
+urlpatterns += patterns('process_manager.views',
     url(r'^process_manager/$', 'process_dashboard', name='process_dashboard'),
     url(r'^process_manager/process/(?P<process_id>\d+)/$', 'view_process', name='view_process'),
     url(r'^process_manager/process/add/$', 'add_process', name='add_process'),
