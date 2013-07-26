@@ -4,7 +4,7 @@ from process_manager.api_views import *
 
 # API routes
 urlpatterns = patterns('process_manager.api_views',
-    url(r'^api/process_manager/$', 'process_manager_api_root'),
+    url(r'^api/process_manager/$', 'process_manager_api_root', name='process-manager-api-root'),
     url(r'^api/process_manager/processes/$', ProcessList.as_view(), name='process-list'),
     url(r'^api/process_manager/workers/$', WorkerList.as_view(), name='worker-list'),
     url(r'^api/process_manager/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),

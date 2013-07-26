@@ -24,7 +24,7 @@ from repository.utils import apply_panel_to_sample
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
-def api_root(request, format=None):
+def repository_api_root(request, format=None):
     """
     The entry endpoint of our API.
     """
