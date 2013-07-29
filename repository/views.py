@@ -681,7 +681,7 @@ def add_site(request, project_id):
         if form.is_valid():
             form.save()
 
-            return HttpResponseRedirect(reverse('project_sites', args=project_id))
+            return HttpResponseRedirect(reverse('view_project_sites', args=project_id))
     else:
         form = SiteForm()
 
