@@ -1430,7 +1430,7 @@ def edit_subject(request, project_id, subject_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=subject_id))
+            return HttpResponseRedirect(reverse('view_subject', args=(subject_id,)))
     else:
         form = SubjectForm(instance=subject, project_id=project_id)
 
@@ -1596,7 +1596,7 @@ def edit_sample(request, sample_id):
         if form.is_valid():
             form.save()
             # TODO: should this go to view_subject? or view_samples?
-            return HttpResponseRedirect(reverse('view_subject', args=str(sample.subject_id)))
+            return HttpResponseRedirect(reverse('view_subject', args=(sample.subject_id,)))
     else:
         form = SampleEditForm(
             instance=sample,
