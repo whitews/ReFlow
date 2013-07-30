@@ -707,7 +707,7 @@ def edit_site(request, site_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_sites', args=str(site.project_id)))
+            return HttpResponseRedirect(reverse('view_project_sites', args=str(site.project_id)))
     else:
         form = SiteForm(instance=site)
 
