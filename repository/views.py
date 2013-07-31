@@ -681,7 +681,7 @@ def add_site(request, project_id):
         if form.is_valid():
             form.save()
 
-            return HttpResponseRedirect(reverse('view_project_sites', args=project_id))
+            return HttpResponseRedirect(reverse('view_project_sites', args=(project_id,)))
     else:
         form = SiteForm()
 
@@ -707,7 +707,7 @@ def edit_site(request, site_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project_sites', args=str(site.project_id)))
+            return HttpResponseRedirect(reverse('view_project_sites', args=(site.project_id,)))
     else:
         form = SiteForm(instance=site)
 
@@ -896,7 +896,7 @@ def add_compensation(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_compensations', args=project_id))
+            return HttpResponseRedirect(reverse('project_compensations', args=(project_id,)))
     else:
         form = CompensationForm(project_id=project_id, request=request)
 
@@ -927,7 +927,7 @@ def add_site_compensation(request, site_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_site', args=site_id))
+            return HttpResponseRedirect(reverse('view_site', args=(site_id,)))
     else:
         form = CompensationForm(request=request)
 
@@ -979,7 +979,7 @@ def add_visit_type(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_visit_types', args=project_id))
+            return HttpResponseRedirect(reverse('project_visit_types', args=(project_id,)))
     else:
         form = ProjectVisitTypeForm()
 
@@ -1007,7 +1007,7 @@ def edit_visit_type(request, project_id, visit_type_id):
             form.save()
             return HttpResponseRedirect(reverse(
                 'project_visit_types',
-                args=str(visit_type.project_id)))
+                args=(visit_type.project_id,)))
     else:
         form = ProjectVisitTypeForm(instance=visit_type)
 
@@ -1037,7 +1037,7 @@ def view_project_panels(request, project_id):
                 form.save()
                 return HttpResponseRedirect(reverse(
                     'project_panels',
-                    args=str(panel.site.project_id)))
+                    args=(panel.site.project_id,)))
             else:
                 json = simplejson.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
@@ -1113,7 +1113,7 @@ def add_panel(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_panels', args=project_id))
+            return HttpResponseRedirect(reverse('project_panels', args=(project_id,)))
 
     elif not project.site_set.exists():
         messages.warning(
@@ -1148,7 +1148,7 @@ def edit_panel(request, panel_id):
             form.save()
             return HttpResponseRedirect(reverse(
                 'project_panels',
-                args=str(panel.site.project_id)))
+                args=(panel.site.project_id,)))
     else:
         form = PanelEditForm(instance=panel)
 
@@ -1172,7 +1172,7 @@ def remove_panel_parameter(request, panel_parameter_id):
     project = ppm.panel.site.project
     ppm.delete()
 
-    return HttpResponseRedirect(reverse('project_panels', args=str(project.id)))
+    return HttpResponseRedirect(reverse('project_panels', args=(project.id,)))
 
 
 @login_required
@@ -1204,7 +1204,7 @@ def create_panel_from_sample(request, sample_id):
 
                 return HttpResponseRedirect(reverse(
                     'project_panels',
-                    args=str(sample.subject.project_id)))
+                    args=(sample.subject.project_id,)))
 
     else:
         # need to check if the sample is associated with a site,
@@ -1277,7 +1277,7 @@ def add_subject_group(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('subject_groups', args=project_id))
+            return HttpResponseRedirect(reverse('subject_groups', args=(project_id,)))
     else:
         form = SubjectGroupForm()
 
@@ -1305,7 +1305,7 @@ def edit_subject_group(request, project_id, subject_group_id):
             form.save()
             return HttpResponseRedirect(reverse(
                 'subject_groups',
-                args=str(subject_group.project_id)))
+                args=(subject_group.project_id,)))
     else:
         form = SubjectGroupForm(instance=subject_group)
 
@@ -1403,7 +1403,7 @@ def add_subject(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_subjects', args=project_id))
+            return HttpResponseRedirect(reverse('project_subjects', args=(project_id,)))
 
     else:
         form = SubjectForm(project_id=project_id)
@@ -1514,7 +1514,7 @@ def add_sample(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_samples', args=project_id))
+            return HttpResponseRedirect(reverse('project_samples', args=(project_id,)))
     else:
         form = SampleForm(project_id=project_id, request=request)
 
@@ -1542,7 +1542,7 @@ def add_subject_sample(request, subject_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=subject_id))
+            return HttpResponseRedirect(reverse('view_subject', args=(subject_id,)))
     else:
         form = SampleSubjectForm(project_id=subject.project_id, request=request)
 
@@ -1569,7 +1569,7 @@ def add_site_sample(request, site_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_site', args=site_id))
+            return HttpResponseRedirect(reverse('view_site', args=(site_id,)))
     else:
         form = SampleSiteForm(project_id=site.project_id, request=request)
 
@@ -1642,7 +1642,7 @@ def select_panel(request, sample_id):
             else:
                 return HttpResponseRedirect(reverse(
                     'view_subject',
-                    args=str(sample.subject_id)))
+                    args=(sample.subject_id,)))
 
     return render_to_response(
         'select_panel.html',
@@ -1716,7 +1716,7 @@ def add_sample_set(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project_sample_sets', args=project_id))
+            return HttpResponseRedirect(reverse('view_project_sample_sets', args=(project_id,)))
     else:
         form = SampleSetForm(project_id=project_id)
 
