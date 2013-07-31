@@ -20,7 +20,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for parameter in parameters %}
+      {% for parameter in parameters|dictsort:"parameter_short_name" %}
       <tr>
         <td class="middle">
           {{ parameter.id }}

@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for specimen in specimens %}
+      {% for specimen in specimens|dictsort:"specimen_name" %}
       <tr>
         <td class="middle">
           {{ specimen.id }}

@@ -61,7 +61,7 @@ $(document).ready(function()
       </tr>
     </thead>
     <tbody>
-      {% for antibody in antibodies %}
+      {% for antibody in antibodies|dictsort:"antibody_short_name" %}
       <tr>
         <td class="middle">
           {{ antibody.id }}

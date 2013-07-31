@@ -61,7 +61,7 @@ $(document).ready(function()
       </tr>
     </thead>
     <tbody>
-      {% for fluorochrome in fluorochromes %}
+      {% for fluorochrome in fluorochromes|dictsort:"fluorochrome_short_name" %}
       <tr>
         <td class="middle">
           {{ fluorochrome.id }}
