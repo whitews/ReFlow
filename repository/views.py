@@ -911,37 +911,6 @@ def add_compensation(request, project_id):
 
 
 @login_required
-def add_site_compensation(request, site_id):
-    site = get_object_or_404(Subject, pk=site_id)
-
-    if not site.has_add_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        compensation = Compensation(site=site)
-        form = CompensationForm(
-            request.POST,
-            request.FILES,
-            instance=compensation,
-            request=request)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_site', args=(site_id,)))
-    else:
-        form = CompensationForm(request=request)
-
-    return render_to_response(
-        'add_compensation.html',
-        {
-            'form': form,
-            'project': site.project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def view_visit_types(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)

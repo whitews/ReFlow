@@ -79,7 +79,6 @@ urlpatterns += patterns('repository.views',
     url(r'^site/(?P<site_id>\d+)/uncategorized/$', 'view_site_uncategorized_samples', name='view_site_uncategorized_samples'),
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
-    url(r'^site/(?P<site_id>\d+)/compensations/add/$', 'add_site_compensation', name='add_site_compensation'),
     url(r'^download/compensation/(?P<compensation_id>\d+)$', 'retrieve_compensation', name='retrieve_compensation'),
 
     url(r'^project/(?P<project_id>\d+)/visit_types/$', 'view_visit_types', name='project_visit_types'),
