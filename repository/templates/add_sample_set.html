@@ -21,7 +21,8 @@
   function query_samples() {
 
     var query_strings = []
-    query_strings[0] = "?subject__project={{ project.id }}";
+    query_strings[0] = "?paginate_by=0";
+    query_strings[1] = "subject__project={{ project.id }}";
 
     var form_params = $('#sample-set-form').serializeArray();
 
@@ -59,7 +60,7 @@
           '</thead>'
         );
 
-        json.results.forEach(function(r) {
+        json.forEach(function(r) {
           $("#results_table").append(
             '<tr>' +
             '<td>'+ r.original_filename +
