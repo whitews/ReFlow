@@ -1158,7 +1158,6 @@ def create_panel_from_sample(request, sample_id):
         extra=sample.sampleparametermap_set.count(),
         can_delete=False,
     )
-    parameter_formset = None
 
     if request.method == 'POST':
         panel_form = PanelFromSampleForm(request.POST, instance=Panel(site=sample.site))
