@@ -1174,6 +1174,8 @@ def create_panel_from_sample(request, sample_id):
                 return HttpResponseRedirect(reverse(
                     'project_panels',
                     args=(sample.subject.project_id,)))
+        else:
+            parameter_formset = ParameterFormSet(request.POST, instance=Panel(site=sample.site))
 
     else:
         # need to check if the sample is associated with a site,
