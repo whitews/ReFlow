@@ -480,14 +480,15 @@ def add_user_permissions(request, project_id):
     form = UserSelectForm(request.POST or None, project_id=project_id)
 
     if request.method == 'POST' and form.is_valid():
+        # is_valid calls clean so user should exist, the id is now in cleaned_data
         if request.POST['site']:
             return HttpResponseRedirect(reverse(
                 'manage_site_user',
-                args=(request.POST['site'], request.POST['user'])))
+                args=(request.POST['site'], form.cleaned_data['user'])))
         else:
             return HttpResponseRedirect(reverse(
                 'manage_project_user',
-                args=(project.id, request.POST['user'])))
+                args=(project.id, form.cleaned_data['user'])))
 
     return render_to_response(
         'add_user_permissions.html',

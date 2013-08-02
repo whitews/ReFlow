@@ -54,7 +54,7 @@ class SpecimenForm(forms.ModelForm):
 
 
 class UserSelectForm(forms.Form):
-    user = forms.ModelChoiceField(label='User', queryset=User.objects.order_by('username'))
+    username = forms.CharField(label='Username')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -71,6 +71,22 @@ class UserSelectForm(forms.Form):
                 sites,
                 required=False,
                 empty_label='Project Level - All Sites')
+
+    def clean(self):
+        """
+        Validate user exists.
+        """
+        if not self.cleaned_data.has_key('username'):
+            raise ValidationError("No user specified.")
+
+        try:
+            user = User.objects.get(username=self.cleaned_data['username'])
+        except ObjectDoesNotExist:
+            raise ValidationError("User does not exist.")
+
+        self.cleaned_data['user'] = user.id
+
+        return self.cleaned_data #never forget this! ;o)
 
 
 class SiteForm(forms.ModelForm):
