@@ -8,6 +8,8 @@ urlpatterns = patterns('process_manager.api_views',
     url(r'^api/process_manager/processes/$', ProcessList.as_view(), name='process-list'),
     url(r'^api/process_manager/workers/$', WorkerList.as_view(), name='worker-list'),
     url(r'^api/process_manager/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),
+    url(r'^api/process_manager/viable_process_requests/$', ViableProcessRequestList.as_view(), name='viable-process-request-list'),
+
 )
 
 

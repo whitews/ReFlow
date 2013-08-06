@@ -28,6 +28,7 @@ def process_manager_api_root(request, format=None):
         'processes': reverse('process-list', request=request),
         'workers': reverse('worker-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'viable_process_requests': reverse('viable-process-request-list', request=request),
     })
 
 
@@ -80,3 +81,32 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
     filter_fields = ('process', 'worker', 'request_user')
+
+
+class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of process requests for which a Worker can request
+    assignment.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
+    filter_fields = ('process', 'worker', 'request_user')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to filter process requests to those with a 'Pending' status
+        and those compatible with the calling worker. Regular users receive zero results.
+        """
+
+        if not hasattr(self.request.user, 'worker'):
+            return ProcessRequest.objects.none()
+
+        worker = Worker.objects.get(user=self.request.user)
+        viable_process_id_list = worker.workerprocessmap_set.all().values_list('process_id', flat=True)
+
+        # filter requests against these process IDs
+        queryset = ProcessRequest.objects.filter(
+            process_id__in=viable_process_id_list,
+            status = 'Pending')
+        return queryset
