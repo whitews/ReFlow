@@ -14,7 +14,8 @@
     <thead>
       <tr>
         <th>Parameter ID</th>
-        <th>Abbreviation</th>
+        <th>Parameter Type</th>
+        <th>Name</th>
         <th>Antibodies</th>
         <th>Fluorochromes</th>
       </tr>
@@ -30,6 +31,7 @@
           </a>
           {% endif %}
         </td>
+        <td class="middle">{{ parameter.get_parameter_type_display }}</td>
         <td class="middle">{{ parameter.parameter_short_name }}</td>
         <td class="middle">
           <div>
