@@ -1,4 +1,5 @@
-from django.forms import Form, ModelForm
+from django import forms
+from django.forms import ModelForm
 
 from process_manager.models import *
 
@@ -29,3 +30,9 @@ class ProcessRequestForm(ModelForm):
     class Meta:
         model = ProcessRequest
         exclude = ('process', 'request_user', 'completion_date', 'worker', 'status')
+
+
+class ProcessRequestInputValueForm(ModelForm):
+    class Meta:
+        model = ProcessRequestInputValue
+        exclude = ('process_request',)

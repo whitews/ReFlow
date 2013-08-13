@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.forms.models import inlineformset_factory
 
 from process_manager.models import *
 from process_manager.forms import *
@@ -189,21 +190,46 @@ def create_process_request(request, process_id):
         process=process,
         request_user=request.user)
 
+    PRInputValueFormSet = inlineformset_factory(
+        ProcessRequest,
+        ProcessRequestInputValue,
+        form=ProcessRequestInputValueForm,
+        extra=process.processinput_set.count(),
+        can_delete=False,
+    )
+
     if request.method == 'POST':
         form = ProcessRequestForm(request.POST, instance=process_request)
 
         if form.is_valid():
-            form.save()
+            valid_request = form.save(commit=False)
+            formset = PRInputValueFormSet(request.POST, instance=valid_request)
 
-            return HttpResponseRedirect(reverse('process_requests'))
+            if formset.is_valid():
+                valid_request.save()
+                formset.save()
+
+                return HttpResponseRedirect(reverse('process_requests'))
+        else:
+            formset = PRInputValueFormSet(request.POST, instance=process_request)
     else:
         form = ProcessRequestForm(instance=process_request)
+
+        initial_data = list()
+
+        for process_input in process.processinput_set.all():
+            initial_data.append({'process_input': process_input})
+
+        formset = PRInputValueFormSet(
+            instance=process_request,
+            initial=initial_data)
 
     return render_to_response(
         'create_process_request.html',
         {
             'process': process,
             'form': form,
+            'formset': formset,
         },
         context_instance=RequestContext(request)
     )

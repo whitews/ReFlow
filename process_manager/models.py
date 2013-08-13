@@ -152,8 +152,7 @@ class ProcessRequest(models.Model):
     An formal request for a Process to be executed on a SampleSet (collection of Samples).
     """
     process = models.ForeignKey(Process)
-    # optional foreign key to a data set
-    sample_set = models.ForeignKey(SampleSet, null=True, blank=True)
+    sample_set = models.ForeignKey(SampleSet, null=False, blank=False)
     request_user = models.ForeignKey(User, null=False, blank=False, editable=False)
     request_date = models.DateTimeField(editable=False, auto_now_add=True)
     completion_date = models.DateTimeField(null=True, blank=True, editable=False)
