@@ -33,6 +33,11 @@ class ProcessRequestForm(ModelForm):
 
 
 class ProcessRequestInputValueForm(ModelForm):
+    value_label = forms.CharField(widget=forms.HiddenInput())
+    process_input = forms.ModelChoiceField(
+        queryset=ProcessInput.objects.all(),
+        widget=forms.HiddenInput())
+
     class Meta:
         model = ProcessRequestInputValue
         exclude = ('process_request',)

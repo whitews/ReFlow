@@ -32,22 +32,31 @@
       <h4>Inputs:</h4>
 
         {% for input_form in formset %}
+          {% for hidden_field in input_form.hidden_fields %}
+            {% if hidden_field.name == 'process_input' %}
+              {{ hidden_field.as_hidden }}
+            {% elif hidden_field.name == 'value_label' %}
 
-          {% for field in input_form.visible_fields %}
+              {{ hidden_field.as_hidden }}
 
-          <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
+              <div class="control-group">
+
+              <label class="control-label">
+                {{ hidden_field.value }}
+              </label>
+
+            {% endif %}
+          {% endfor %}
+
             <div class="controls">
 
-              {{ field }}
+              {{ input_form.value }}
 
-              {% if field.errors %}
-              <span class="help-inline">{{ field.errors|striptags }}</span>
+              {% if input_form.value.errors %}
+              <span class="help-inline">{{ input_form.value.errors|striptags }}</span>
               {% endif %}
             </div>
           </div>
-
-          {% endfor %}
 
           <hr/>
           

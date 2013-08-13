@@ -218,7 +218,13 @@ def create_process_request(request, process_id):
         initial_data = list()
 
         for process_input in process.processinput_set.all():
-            initial_data.append({'process_input': process_input})
+            # note that 'value_label' is
+            # used for the 'value' field's label
+            initial_data.append(
+                {
+                    'process_input': process_input,
+                    'value_label': process_input.input_name
+                })
 
         formset = PRInputValueFormSet(
             instance=process_request,
