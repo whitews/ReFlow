@@ -6,16 +6,12 @@
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
     {% breadcrumb_url process.process_name 'view_process' process.id %}
-    {% breadcrumb "New Process Request" %}
+    {% breadcrumb "Submit Process Request" %}
   </ul>
 {% endblock %}
 
 {% block body %}
   <div class="container">
-    <span class="row lead">
-      <div class="pull-right">New Process Request: {{ process.process_name }}</div>
-    </span>
-    <br/>
     <form class="form-horizontal" action="{% url 'create_process_request' process.id %}" method="post">
       {% csrf_token %}
 

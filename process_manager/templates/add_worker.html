@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb "Add Worker" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">Create a New Worker</div>
-    </div>
-    <br/>
       <form class="form-horizontal" action="{% url 'add_worker' %}" method="post">
         {% csrf_token %}
 

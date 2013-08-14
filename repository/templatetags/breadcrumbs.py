@@ -63,7 +63,16 @@ class BreadcrumbNode(Node):
         self.vars = map(Variable, variables)
 
     def render(self, context):
-        title = self.vars[0].var.strip("'").strip('"')
+        title = self.vars[0]
+
+        if title.var.find("'") == -1 and title.var.find('"') == -1:
+            try:
+                title = title.resolve(context)
+            except:
+                title = ''
+        else:
+            title = title.var.strip("'").strip('"')
+            title = smart_unicode(title)
 
         url = None
 
