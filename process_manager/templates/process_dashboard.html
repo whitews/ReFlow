@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load url from future %}
-{% load repository_filters %}
-
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Process Dashboard' %}
+  </ul>
+{% endblock %}
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">
-        Process Dashboard
-      </div>
-    </div>
 
     {% if processes %}
     <table class="table table-bordered table-striped">
@@ -49,7 +49,10 @@
     <p>No processes have been defined.</p>
     {% endif %}
     {% if user.is_superuser %}
-    <p><a class="btn btn-success btn-small" href="{% url 'add_process' %}"><i class="icon-plus icon-white"></i> Add Process</a></p>
+    <p>
+      <a class="btn btn-success btn-small" href="{% url 'add_process' %}"><i class="icon-plus icon-white"></i> Add Process</a>
+    </p>
+    <br/>
     {% endif %}
 
     {% if workers %}
@@ -96,7 +99,10 @@
     <p>No workers have been defined.</p>
     {% endif %}
     {% if user.is_superuser %}
-    <p><a class="btn btn-success btn-small" href="{% url 'add_worker' %}"><i class="icon-plus icon-white"></i> Add Worker</a></p>
+    <p>
+      <a class="btn btn-success btn-small" href="{% url 'add_worker' %}"><i class="icon-plus icon-white"></i> Add Worker</a>
+    </p>
+    <br/>
     {% endif %}
 
     <table class="table table-bordered table-striped">

@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb_url process.process_name 'view_process' process.id %}
+    {% breadcrumb "New Process Request" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="pull-left">{{ process.process_name }}</div>
-      <div class="pull-right">Create a New Process Request</div>
-    </div>
+    <span class="row lead">
+      <div class="pull-right">New Process Request: {{ process.process_name }}</div>
+    </span>
     <br/>
     <form class="form-horizontal" action="{% url 'create_process_request' process.id %}" method="post">
       {% csrf_token %}
 
       {{ form.non_field_errors }}
-      <div class="control-group">
-        <label class="control-label">Process: </label>
-        <div class="controls">
-          {{ process.process_name }}
-        </div>
-      </div>
+
       {% for field in form %}
       <div class="control-group">
         <label class="control-label">{{ field.label }}</label>
