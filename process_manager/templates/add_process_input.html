@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb_url process.process_name 'view_process' process.id %}
+    {% breadcrumb "Add Process Input" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="pull-left">{{ process.process_name }}</div>
-      <div class="pull-right">Add a New Process Input</div>
-    </div>
-    <br/>
       <form class="form-horizontal" action="{% url 'add_process_input' process.id %}" method="post">
         {% csrf_token %}
 

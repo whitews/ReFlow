@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb_url worker.worker_name 'view_worker' worker.id %}
+    {% breadcrumb "Register a Process" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span6">{{ worker.worker_name }}</div>
-      <div class="pull-right">Register a Process</div>
-    </div>
-    <br/>
       <form class="form-horizontal" action="{% url 'register_process_to_worker' worker.id %}" method="post">
         {% csrf_token %}
 

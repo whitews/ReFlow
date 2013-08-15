@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load repository_filters %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb 'Home' %}
+  </ul>
+{% endblock %}
 
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">
-        Home
-      </div>
-    </div>
 
     {% if projects %}
     <table class="table table-bordered table-striped">
