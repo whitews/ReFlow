@@ -146,6 +146,26 @@ class WorkerProcessMap(models.Model):
     def __unicode__(self):
         return u'%s-%s' % (self.worker.worker_name, self.process.process_name)
 
+    # override to raise ValidationError for duplicate worker/process combos
+    # unique_together doesn't work for forms with any of the unique together fields excluded
+    def clean(self):
+        """
+        Verify the worker & process combination is unique
+        """
+
+        qs = WorkerProcessMap.objects.filter(
+            worker=self.worker,
+            process=self.process,)\
+            .exclude(
+                id=self.id)
+
+        if qs.exists():
+            raise ValidationError(
+                "This process is already registered to this worker."
+            )
+
+    def __unicode__(self):
+        return u'%s (Process: %s)' % (self.input_name, self.process.process_name,)
 
 class ProcessRequest(models.Model):
     """
