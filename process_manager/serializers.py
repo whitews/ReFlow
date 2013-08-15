@@ -19,7 +19,8 @@ class WorkerSerializer(serializers.ModelSerializer):
 
 
 class ProcessRequestSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='process-request-detail')
 
     class Meta:
         model = ProcessRequest
-        fields = ('id', 'process', 'worker', 'request_user', 'request_date', 'status', 'completion_date')
+        fields = ('id', 'url', 'process', 'worker', 'request_user', 'request_date', 'status', 'completion_date')

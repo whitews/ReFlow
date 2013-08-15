@@ -47,7 +47,7 @@ class PermissionRequiredMixin(object):
     """
 
     def get_object(self, *args, **kwargs):
-        if self.request.user.is_superuser() or hasattr(self.request.user, 'worker'):
+        if self.request.user.is_superuser or hasattr(self.request.user, 'worker'):
             return super(PermissionRequiredMixin, self).get_object(*args, **kwargs)
         else:
             return PermissionDenied
@@ -110,3 +110,12 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
             process_id__in=viable_process_id_list,
             status = 'Pending')
         return queryset
+
+
+class ProcessRequestDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single process request.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
