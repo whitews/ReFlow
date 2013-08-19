@@ -5985,7 +5985,12 @@ body > #wrap {height: auto; min-height: 100%;}
   font-size: 11px;
 }
 /* ----------  Sticky footer END---------- */
-/* ----------  Table stuff START---------- */
+/* ----------  Custom Table stuff START---------- */
+table.key-value, td {
+  padding: 5px;
+  text-align: left;
+}
+
 td.middle {
   vertical-align: middle;
 }

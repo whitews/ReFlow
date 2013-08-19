@@ -239,3 +239,16 @@ def create_process_request(request, process_id):
         },
         context_instance=RequestContext(request)
     )
+
+
+@login_required
+def view_process_request(request, process_request_id):
+    process_request = get_object_or_404(ProcessRequest, pk=process_request_id)
+
+    return render_to_response(
+        'view_process_request.html',
+        {
+            'process_request': process_request,
+        },
+        context_instance=RequestContext(request)
+    )
