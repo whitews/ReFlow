@@ -119,3 +119,50 @@ class ProcessRequestDetail(LoginRequiredMixin, PermissionRequiredMixin, generics
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
+
+
+class ProcessRequestAssignmentUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.UpdateAPIView):
+    """
+    API endpoint for requesting assignment for a ProcessRequest.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequest
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Override patch for validation:
+          - ensure user is a Worker
+          - Worker must be registered to the ProcessRequest's Process
+          - ProcessRequest must not already be assigned
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                process_request = ProcessRequest.objects.get(id=kwargs['pk'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            try:
+                WorkerProcessMap.objects.get(worker=worker, process=process_request.process)
+            except:
+                raise PermissionDenied
+
+            # check if ProcessRequest is already assigned
+            if process_request.worker is not None:
+                return Response(data={'detail': 'Request is already assigned'}, status=400)
+
+            # if we get here, the worker is bonafide! "He's a suitor!"
+            try:
+                # now try to save the ProcessRequest
+                process_request.worker = worker
+                process_request.save()
+
+                # serialize the updated ProcessRequest
+                serializer = ProcessRequestSerializer(process_request)
+
+                return Response(serializer.data, status=201)
+            except ValidationError as e:
+                return Response(data={'detail': e.messages}, status=400)
+
+        return Response(data={'detail': 'Bad request'}, status=400)

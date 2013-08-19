@@ -164,8 +164,6 @@ class WorkerProcessMap(models.Model):
                 "This process is already registered to this worker."
             )
 
-    def __unicode__(self):
-        return u'%s (Process: %s)' % (self.input_name, self.process.process_name,)
 
 class ProcessRequest(models.Model):
     """
@@ -211,6 +209,14 @@ class ProcessRequest(models.Model):
         if not self.id:
             self.request_date = datetime.datetime.now()
             self.status = 'Pending'
+        if self.worker:
+            # verify worker is allowed to take assignment
+            try:
+                WorkerProcessMap.objects.get(worker=self.worker, process=self.process)
+            except:
+                raise ValidationError("Process request cannot be assigned to specified worker.")
+            # change status to 'Working'
+            self.status = 'Working'
         super(ProcessRequest, self).save(*args, **kwargs)
 
     def __unicode__(self):

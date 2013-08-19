@@ -10,7 +10,7 @@ urlpatterns = patterns('process_manager.api_views',
     url(r'^api/process_manager/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),
     url(r'^api/process_manager/viable_process_requests/$', ViableProcessRequestList.as_view(), name='viable-process-request-list'),
     url(r'^api/process_manager/process_requests/(?P<pk>\d+)/$', ProcessRequestDetail.as_view(), name='process-request-detail'),
-
+    url(r'^api/process_manager/process_requests/(?P<pk>\d+)/request_assignment/$', ProcessRequestAssignmentUpdate.as_view(), name='process-request-assignment'),
 )
 
 
