@@ -38,6 +38,7 @@ def repository_api_root(request, format=None):
         'sample_groups': reverse('sample-group-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
+        'sample-sets': reverse('sample-set-list', request=request),
         'uncategorized_samples': reverse('uncat-sample-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
@@ -574,3 +575,33 @@ class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, gene
             raise PermissionDenied
 
         return super(SampleCompensationCreate, self).post(request, *args, **kwargs)
+
+
+class SampleSetList(LoginRequiredMixin, PermissionRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list sample sets.
+    """
+
+    model = SampleSet
+    serializer_class = SampleSetListSerializer
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict sample sets to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+
+        # filter on user's projects
+        queryset = SampleSet.objects.filter(project__in=user_projects)
+
+        return queryset
+
+
+class SampleSetDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a sample set.
+    """
+
+    model = SampleSet
+    serializer_class = SampleSetSerializer

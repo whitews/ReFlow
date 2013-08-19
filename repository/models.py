@@ -910,6 +910,15 @@ class SampleSet(ProtectedModel):
     class Meta:
         unique_together = (('project', 'name'),)
 
+    def has_view_permission(self, user):
+        """
+        User must have project permissions to view sample sets
+        """
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
     def clean(self):
         """
         Verify the project & name combo doesn't already exist
