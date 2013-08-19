@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
@@ -10,7 +10,7 @@ import django_filters
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotModified
 
 from process_manager.models import *
 from process_manager.serializers import *
@@ -30,6 +30,20 @@ def process_manager_api_root(request, format=None):
         'process_requests': reverse('process-request-list', request=request),
         'viable_process_requests': reverse('viable-process-request-list', request=request),
     })
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated, IsAdminUser))
+def revoke_process_request_assignment(request, pk):
+    pr = get_object_or_404(ProcessRequest, pk=pk)
+    pr.worker = None
+    try:
+        pr.save()
+    except:
+        return HttpResponseNotModified()
+
+    return HttpResponse(status=200)
 
 
 class LoginRequiredMixin(object):

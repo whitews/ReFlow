@@ -11,6 +11,41 @@
   </ul>
 {% endblock %}
 
+{% block toes %}
+
+<script>
+function revoke_assignment()
+{
+    $.ajax(
+    {
+        type: "GET",
+        url: "{% url 'revoke-process-request-assignment' process_request.id %}",
+        statusCode: {
+            200: function () {
+                $('#worker').hide();
+            },
+            304: function () {
+                $('#error_message').empty();
+                $('#error_message').append('<span class=\"text-warning\">Revoking assignment failed.</span>');
+            }
+        },
+        error: function(xhr, status, error) {
+            $('#error_message').empty();
+            var obj = JSON.parse(xhr.responseText);
+
+            $.each(obj, function (i, value)
+            {
+                $('#error_message').append('<p class=\"text-warning\">' + value + '</p>');
+            });
+
+        }
+    });
+    return false;
+}
+
+</script>
+{% endblock %}
+
 {% block body %}
   <div class="container">
     <table class="key-value">
@@ -41,7 +76,16 @@
 
       <tr>
         <td>Worker:</td>
-        <td>{{ process_request.worker.worker_name|default_if_none:'Not assigned' }}</td>
+        <td>
+          <span id="worker">{{ process_request.worker.worker_name|default_if_none:'' }}
+          {% if user.is_superuser and process_request.worker.worker_name != None %}
+            <a rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+              <i style="opacity: 0.4;margin: 0 10px;" class="icon-remove align-middle"></i>
+            </a>
+          {% endif %}
+          <span id="error_message"></span>
+          </span>
+        </td>
       </tr>
 
       <tr>

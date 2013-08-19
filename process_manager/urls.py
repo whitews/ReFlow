@@ -11,6 +11,7 @@ urlpatterns = patterns('process_manager.api_views',
     url(r'^api/process_manager/viable_process_requests/$', ViableProcessRequestList.as_view(), name='viable-process-request-list'),
     url(r'^api/process_manager/process_requests/(?P<pk>\d+)/$', ProcessRequestDetail.as_view(), name='process-request-detail'),
     url(r'^api/process_manager/process_requests/(?P<pk>\d+)/request_assignment/$', ProcessRequestAssignmentUpdate.as_view(), name='process-request-assignment'),
+    url(r'^api/process_manager/process_requests/(?P<pk>\d+)/revoke_assignment/$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
 )
 
 
