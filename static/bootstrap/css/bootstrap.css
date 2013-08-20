@@ -5969,7 +5969,7 @@ html, body, #wrap {
 body > #wrap {height: auto; min-height: 100%;}
 
 #main {
-  padding-top: 120px;
+  padding-top: 20px;
   padding-bottom: 64px;
 }
 
