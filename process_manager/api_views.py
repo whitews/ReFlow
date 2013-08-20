@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import authentication_classes, permission_classes
@@ -6,11 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 
-import django_filters
-
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, HttpResponseNotModified
 
 from process_manager.models import *
 from process_manager.serializers import *
@@ -41,9 +39,26 @@ def revoke_process_request_assignment(request, pk):
     try:
         pr.save()
     except:
-        return HttpResponseNotModified()
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
 
-    return HttpResponse(status=200)
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def verify_process_request_assignment(request, pk):
+    """
+    Tests whether the requesting user (worker) is assigned to the
+    specified ProcessRequest
+    """
+    pr = get_object_or_404(ProcessRequest, pk=pk)
+    data = {'assignment': False}
+    if pr.worker is not None and hasattr(request.user, 'worker'):
+        if pr.worker == Worker.objects.get(user = request.user):
+            data['assignment'] = True
+
+    return Response(status=status.HTTP_200_OK, data=data)
 
 
 class LoginRequiredMixin(object):
