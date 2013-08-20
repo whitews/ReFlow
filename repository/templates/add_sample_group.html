@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Sample Groups' 'view_sample_groups' %}
+    {% breadcrumb "Add Sample Group" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
     <div class="container">
-        <div class="row lead">
-            <div class="pull-right">Add Sample Group</div>
-        </div>
-        <br/>
         <form class="form-horizontal" action="{% url 'add_sample_group' %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
