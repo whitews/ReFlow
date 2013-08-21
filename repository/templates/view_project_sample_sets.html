@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Sample Sets' %}
+  </ul>
+{% endblock %}
 
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">
-      Sample Sets <span class="badge badge-inverse align-top">{{ sample_sets|length }}</span>
-    </div>
-  </div>
 
   {% if samples_sets|length > 0 %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="4" class="center">
+          <h4>Sample Sets <span class="badge badge-inverse align-top">{{ sample_sets|length }}</span></h4>
+        </th>
+      </tr>
       <tr>
         <th>Set ID</th>
         <th>Name</th>
@@ -29,11 +33,8 @@
       <tr>
         <td class="middle">
           {{ set.id }}
-          <a class="align-middle pull-right" rel="tooltip" href="{% url 'view_sample_set' set.id %}" data-original-title="View Set" data-placement="bottom">
-            <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-          </a>
         </td>
-        <td class="middle">{{ set.name }}</td>
+        <td class="middle"><a href="{% url 'view_sample_set' set.id %}">{{ set.name }}</a></td>
         <td class="middle">{{ set.description }}</td>
         <td class="middle">{{ set.samples.all.count }}</td>
       </tr>

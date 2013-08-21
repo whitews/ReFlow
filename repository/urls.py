@@ -99,7 +99,7 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/subjects/$', 'view_subjects', name='project_subjects'),
     url(r'^subject/(?P<subject_id>\d+)/$', 'view_subject', name='view_subject'),
     url(r'^project/(?P<project_id>\d+)/subjects/add/$', 'add_subject', name='add_subject'),
-    url(r'^project/(?P<project_id>\d+)/subjects/(?P<subject_id>\d+)/edit/$', 'edit_subject', name='edit_subject'),
+    url(r'^subject/(?P<subject_id>\d+)/edit/$', 'edit_subject', name='edit_subject'),
 
     url(r'^sample_groups/$', 'view_sample_groups', name='view_sample_groups'),
     url(r'^sample_groups/add/$', 'add_sample_group', name='add_sample_group'),

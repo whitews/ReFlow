@@ -1390,20 +1390,20 @@ def add_subject(request, project_id):
 
 
 @login_required
-def edit_subject(request, project_id, subject_id):
-    subject = get_object_or_404(Subject, pk=subject_id, project_id=project_id)
+def edit_subject(request, subject_id):
+    subject = get_object_or_404(Subject, pk=subject_id)
 
     if not subject.project.has_modify_permission(request.user):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SubjectForm(request.POST, instance=subject, project_id=project_id)
+        form = SubjectForm(request.POST, instance=subject, project_id=subject.project_id)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('view_subject', args=(subject_id,)))
     else:
-        form = SubjectForm(instance=subject, project_id=project_id)
+        form = SubjectForm(instance=subject, project_id=subject.project_id)
 
     return render_to_response(
         'edit_subject.html',
@@ -1744,7 +1744,6 @@ def view_sample_set(request, sample_set_id):
     return render_to_response(
         'view_sample_set.html',
         {
-            'project': project,
             'sample_set': sample_set,
             'samples': samples,
             'can_modify_project_data': can_modify_project_data,

@@ -1,23 +1,38 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb project.project_name %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">
-        <a href="{% url 'view_project' project.id %}">
+    <table class="key-value">
+      <tr>
+        <td>Project Name:</td>
+        <td class="align-left">
           {{ project.project_name }}
-        </a>
-        {% if can_modify_project_data %}
-        <a rel="tooltip" href="{% url 'edit_project' project.id %}" data-original-title="Edit Project" data-placement="right">
-          <i style="opacity: 0.4; margin-left: 10px" class="icon-th-list align-middle"></i>
-        </a>
-        {% endif %}
-      </div>
-    </div>
-    <div class="row">
-      <div class="span6">Project Description: {{ project.project_desc|default_if_none:'' }}</div>
-    </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Project Description:</td>
+        <td>{{ project.project_desc|default_if_none:'' }}</td>
+      </tr>
+      {% if can_modify_project_data %}
+      <tr>
+        <td colspan="2">
+          <a href="{% url 'edit_project' project.id %}">Edit Project</a>
+        </td>
+      </tr>
+      {% endif %}
+    </table>
+
     <br/>
+
     <table class="table table-bordered table-striped">
       <tbody>
         <tr>

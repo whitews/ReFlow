@@ -36,17 +36,26 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Fluorochromes' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="pull-right">
-      Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes|length }}</span>
-    </div>
-  </div>
 
   {% if fluorochromes %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="5" class="center">
+          <h4>Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes|length }}</span></h4>
+        </th>
+      </tr>
       <tr>
           <th>Antibody ID</th>
           <th>Abbreviation</th>

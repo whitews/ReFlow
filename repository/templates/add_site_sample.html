@@ -14,11 +14,6 @@
 
 {% block body %}
     <div class="container">
-        <div class="row lead">
-          <div class="span4">Site: <a href="{% url 'view_site' site.id %}">{{ site.site_name }}</a></div>
-          <div class="pull-right">Add Sample</div>
-        </div>
-        <br/>
         <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_site_sample' site.id %}" method="post">
             {% csrf_token %}
 

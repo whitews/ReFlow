@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -54,23 +55,34 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url "Sites" 'view_project_sites' project.id %}
+    {% breadcrumb site.site_name %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">
-      Site: {{ site.site_name }}
-      {% if can_modify_project_data %}
-      <a rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit Site" data-placement="bottom">
-        <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-      </a>
-      {% endif %}
-    </div>
-  </div>
+  <table class="key-value">
+    <tr>
+      <td>Site Name:</td>
+      <td class="align-left">
+        {{ site.site_name }}
+      </td>
+    </tr>
+    {% if can_modify_project_data %}
+    <tr>
+      <td colspan="2">
+        <a href="{% url 'edit_site' site.id %}">Edit Site</a>
+      </td>
+    </tr>
+    {% endif %}
+  </table>
+
+  <br/>
 
   {% if samples %}
   <table class="table table-bordered table-striped">

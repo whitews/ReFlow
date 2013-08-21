@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block toes %}
 
@@ -31,23 +32,31 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url sample_set.project.project_name 'view_project' sample_set.project.id %}
+    {% breadcrumb_url "Sample Sets" 'view_project_sample_sets' sample_set.project.id %}
+    {% breadcrumb sample_set.name %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">
-      Sample Set: {{ sample_set.name }}
-      {% if can_modify_project_data %}
-      <a rel="tooltip" href="#" data-original-title="Edit Set" data-placement="bottom">
-        <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-      </a>
-      {% endif %}
-    </div>
-  </div>
+    <table class="key-value">
+      <tr>
+        <td>Name:</td>
+        <td class="align-left">
+          {{ sample_set.name }}
+        </td>
+      </tr>
+      <tr>
+        <td>Description:</td>
+        <td>{{ sample_set.description|default_if_none:'' }}</td>
+      </tr>
+    </table>
+
+    <br/>
 
   {% if samples %}
   <table class="table table-bordered table-striped">
@@ -58,18 +67,18 @@ $(document).ready(function()
         </th>
       </tr>
       <tr>
-          <th>Sample ID</th>
-          <th>File Name</th>
-          <th>Subject</th>
-          <th>Visit</th>
-          <th>Sample Group</th>
-          <th>Specimen</th>
-          <th>
-            Parameters
-            <span class="pull-right">
-              <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-            </span>
-          </th>
+        <th>Sample ID</th>
+        <th>File Name</th>
+        <th>Subject</th>
+        <th>Visit</th>
+        <th>Sample Group</th>
+        <th>Specimen</th>
+        <th>
+          Parameters
+          <span class="pull-right">
+            <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+          </span>
+        </th>
       </tr>
     </thead>
     <tbody>

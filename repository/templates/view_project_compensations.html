@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -28,20 +29,25 @@
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Compensation Matrices' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">Compensation Matrices <span class="badge badge-inverse align-top">{{ compensations|length }}</span></div>
-  </div>
 
   {% if compensations %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="5" class="center">
+          <h4>Compensation Matrices <span class="badge badge-inverse align-top">{{ compensations|length }}</span></h4>
+        </th>
+      </tr>
       <tr>
         <th>Compensation ID</th>
         <th>Site</th>

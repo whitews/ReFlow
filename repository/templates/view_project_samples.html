@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -54,22 +55,25 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Samples' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">
-      Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span>
-    </div>
-  </div>
 
   {% if samples %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="8" class="center">
+          <h4>Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></h4>
+        </th>
+      </tr>
       <tr>
           <th>Sample ID</th>
           <th>File Name</th>

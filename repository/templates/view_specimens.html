@@ -1,21 +1,29 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Specimens' %}
+  </ul>
+{% endblock %}
 
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="pull-right">
-      Specimens <span class="badge badge-inverse align-top">{{ specimens|length }}</span>
-    </div>
-  </div>
 
   {% if specimens %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-          <th>Specimen ID</th>
-          <th>Name</th>
-          <th>Description</th>
+        <th colspan="3" class="center">
+          <h4>Specimens <span class="badge badge-inverse align-top">{{ specimens|length }}</span></h4>
+        </th>
+      </tr>
+      <tr>
+        <th>Specimen ID</th>
+        <th>Name</th>
+        <th>Description</th>
       </tr>
     </thead>
     <tbody>

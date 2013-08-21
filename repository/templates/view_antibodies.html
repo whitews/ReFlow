@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -36,17 +37,24 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Antibodies' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="pull-right">
-      Antibodies <span class="badge badge-inverse align-top">{{ antibodies|length }}</span>
-    </div>
-  </div>
 
   {% if antibodies %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="5" class="center">
+          <h4>Antibodies <span class="badge badge-inverse align-top">{{ antibodies|length }}</span></h4>
+        </th>
+      </tr>
       <tr>
           <th>Antibody ID</th>
           <th>Abbreviation</th>

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -91,19 +92,25 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Panels' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div id="error_dialog"></div>
 
-
   <div class="container">
-    <div class="row lead">
-      <div class="span4">
-        <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
-      </div>
-      <div class="pull-right">Panels <span class="badge badge-inverse align-top">{{ panels.count }}</span></div>
-    </div>
     <table class="table table-bordered table-striped">
       <thead>
+        <tr>
+          <th colspan="3" class="center">
+            <h4>Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
+          </th>
+        </tr>
         <tr>
           <th>Panel</th>
           <th>Site</th>
@@ -136,7 +143,7 @@ $(document).ready(function()
           <td>{{ panel.site__site_name }}</td>
           <td width="75%">
             <a href="#" class="toggle-closest">Show/Hide</a>
-            <div class="show params">
+            <div class="hide params">
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
