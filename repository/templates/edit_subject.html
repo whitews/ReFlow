@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url subject.project.project_name 'view_project' subject.project.id %}
+    {% breadcrumb_url 'Subjects' 'project_subjects' subject.project.id %}
+    {% breadcrumb_url subject.subject_id 'view_subject' subject.id %}
+    {% breadcrumb "Edit Subject" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
     <div class="container">
-        <div class="row lead">
-            <div class="span4">
-              <a href="{% url 'view_project' subject.project.id %}">{{ subject.project.project_name }}</a>
-            </div>
-            <div class="pull-right">Edit Subject: {{ subject.subject_id }}</div>
-        </div>
-        <br/>
         <form class="form-horizontal" action="{% url 'edit_subject' subject.project_id subject.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
