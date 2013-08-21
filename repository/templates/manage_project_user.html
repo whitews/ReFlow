@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url 'Users' 'view_project_users' project.id %}
+    {% breadcrumb project_user.username %}
+    {% breadcrumb "Manage Project Permissions" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
     <div class="container">
-        <div class="row lead">
-            <div class="span4">
-              <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
-            </div>
-            <div class="pull-right">Manage Project Permissions</div>
-        </div>
-        <br/>
-        <div class="row lead">
-            <div class="span1">
-              User:
-            </div>
-            <div class="span2">{{ project_user }}</div>
-        </div>
         <form class="form-horizontal" action="{% url 'manage_project_user' project.id project_user.id %}" method="post">
             {% csrf_token %}
             {{ form.non_field_errors }}
