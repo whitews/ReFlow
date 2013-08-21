@@ -265,7 +265,7 @@ class SampleSiteForm(forms.ModelForm):
 class SampleEditForm(forms.ModelForm):
     class Meta:
         model = Sample
-        exclude = ('subject', 'original_filename', 'sample_file', 'sha1')
+        exclude = ('original_filename', 'sample_file', 'sha1')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it

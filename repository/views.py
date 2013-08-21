@@ -1567,6 +1567,9 @@ def edit_sample(request, sample_id):
         if form.is_valid():
             form.save()
             # TODO: should this go to view_subject? or view_samples?
+            #       This will route to view_samples once view_samples is
+            #       updated w/AJAX query to limit the samples instead of
+            #       returning all samples (which is too expensive)
             return HttpResponseRedirect(reverse('view_subject', args=(sample.subject_id,)))
     else:
         form = SampleEditForm(
