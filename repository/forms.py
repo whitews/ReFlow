@@ -16,6 +16,12 @@ class CustomUserObjectPermissionForm(UserObjectPermissionsForm):
     Subclass guardian's UserObjectPermissionsForm to exclude
     Django's default model permissions.
     """
+    def get_obj_perms_field_widget(self):
+        """
+        Override to select a CheckboxSelectMultiple (default is SelectMultiple).
+        """
+        return forms.CheckboxSelectMultiple
+
     def get_obj_perms_field_choices(self):
         choices = super(CustomUserObjectPermissionForm, self).get_obj_perms_field_choices()
         return list(set(choices).intersection(self.obj._meta.permissions))
