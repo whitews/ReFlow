@@ -151,7 +151,7 @@ class ProcessRequestDetail(LoginRequiredMixin, PermissionRequiredMixin, generics
     """
 
     model = ProcessRequest
-    serializer_class = ProcessRequestSerializer
+    serializer_class = ProcessRequestDetailSerializer
 
 
 class ProcessRequestAssignmentUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.UpdateAPIView):
