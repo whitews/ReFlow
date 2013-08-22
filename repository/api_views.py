@@ -584,6 +584,7 @@ class SampleSetList(LoginRequiredMixin, PermissionRequiredMixin, generics.ListAP
 
     model = SampleSet
     serializer_class = SampleSetListSerializer
+    filter_fields = ('name', 'project')
 
     def get_queryset(self):
         """
