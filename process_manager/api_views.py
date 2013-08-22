@@ -35,6 +35,9 @@ def process_manager_api_root(request, format=None):
 @permission_classes((IsAuthenticated, IsAdminUser))
 def revoke_process_request_assignment(request, pk):
     pr = get_object_or_404(ProcessRequest, pk=pk)
+    if not pr.worker:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
     pr.worker = None
     pr.status = "Pending"
     try:
@@ -42,7 +45,7 @@ def revoke_process_request_assignment(request, pk):
     except:
         return Response(status=status.HTTP_304_NOT_MODIFIED)
 
-    return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_200_OK, data={})
 
 
 @api_view(['GET'])
@@ -56,7 +59,7 @@ def verify_process_request_assignment(request, pk):
     pr = get_object_or_404(ProcessRequest, pk=pk)
     data = {'assignment': False}
     if pr.worker is not None and hasattr(request.user, 'worker'):
-        if pr.worker == Worker.objects.get(user = request.user):
+        if pr.worker == Worker.objects.get(user=request.user):
             data['assignment'] = True
 
     return Response(status=status.HTTP_200_OK, data=data)
