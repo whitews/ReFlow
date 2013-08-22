@@ -36,6 +36,7 @@ def process_manager_api_root(request, format=None):
 def revoke_process_request_assignment(request, pk):
     pr = get_object_or_404(ProcessRequest, pk=pk)
     pr.worker = None
+    pr.status = "Pending"
     try:
         pr.save()
     except:
