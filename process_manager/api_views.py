@@ -31,6 +31,20 @@ def process_manager_api_root(request, format=None):
 
 
 @api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def verify_worker(request):
+    """
+    Tests whether the requesting user is a Worker
+    """
+    data = {'worker': False}
+    if hasattr(request.user, 'worker'):
+        data['worker'] = True
+
+    return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated, IsAdminUser))
 def revoke_process_request_assignment(request, pk):
@@ -49,7 +63,7 @@ def revoke_process_request_assignment(request, pk):
 
 
 @api_view(['GET'])
-@authentication_classes((SessionAuthentication, TokenAuthentication))
+@authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 def verify_process_request_assignment(request, pk):
     """
