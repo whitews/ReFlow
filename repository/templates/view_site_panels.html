@@ -95,8 +95,10 @@ $(document).ready(function()
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url project.project_name 'view_project' project.id %}
-    {% breadcrumb 'Panels' %}
+    {% breadcrumb_url site.project.project_name 'view_project' site.project.id %}
+    {% breadcrumb_url 'Sites' 'view_project_sites' site.project.id %}
+    {% breadcrumb_url site.site_name 'view_site' site.id %}
+    {% breadcrumb 'Site Panels' %}
   </ul>
 {% endblock %}
 
@@ -108,7 +110,7 @@ $(document).ready(function()
       <thead>
         <tr>
           <th colspan="3" class="center">
-            <h4>Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
+            <h4>Site Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
           </th>
         </tr>
         <tr>
@@ -133,7 +135,7 @@ $(document).ready(function()
                   <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
               </a>
               {% endif %}
-              {% if can_modify_project_data or user_modify_sites.count > 0 %}
+              {% if can_modify_site_data %}
               <a rel="tooltip" href="{% url 'edit_panel' panel.id %}" data-original-title="Edit Panel" data-placement="left">
                   <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
@@ -158,7 +160,7 @@ $(document).ready(function()
                   <tr>
                     <td width="33%">
                       {{ ppm.parameter__parameter_short_name }}
-                      {% if can_modify_project_data or user_modify_sites.count > 0 %}
+                      {% if can_modify_site_data %}
                       <span class="pull-right">
                         <a class="remove_parameter" rel="tooltip" href="{% url 'remove_panel_parameter' ppm.id %}" data-original-title="Remove Parameter" data-placement="right">
                           <i style="opacity: 0.4" class="icon-remove align-middle"></i>
@@ -177,10 +179,10 @@ $(document).ready(function()
                     </td>
                   </tr>
                   {% endfor %}
-                  {% if can_add_project_data or user_add_sites.count > 0 %}
+                  {% if can_add_site_data %}
                   <tr class="hide add_parameter_row">
                     <td>
-                      <form class="add_parameter_form" style="margin: 0; padding: 0" action="{% url 'project_panels' project.id %}" method="post">
+                      <form class="add_parameter_form" style="margin: 0; padding: 0" action="{% url 'view_site_panels' site.id %}" method="post">
                       {% csrf_token %}
                       <input type="hidden" name="panel" value="{{ panel.id }}">
                       {{ form.parameter }}
@@ -202,7 +204,7 @@ $(document).ready(function()
               {% if panel.parameters.count == 0 %}
               <p>No parameters have been associated with this panel.</p>
               {% endif %}
-              {% if can_add_project_data or user_add_sites.count > 0 %}
+              {% if can_add_site_data %}
               <a class="add_parameter btn btn-success btn-mini" href="#">
                 <i class="icon-plus icon-white"></i> Add Parameter
               </a>
@@ -210,7 +212,6 @@ $(document).ready(function()
                 <div class="controls">
                     <button id="save_parameter_button" class="btn btn-small btn-primary" type="submit">Save</button>
                     <a class="cancel btn btn-small btn-warning">Cancel</a>
-                    <span style="font-size: 12px">Can't find a parameter? <a href="#">Create one</a></span>
                 </div>
               </div>
               </form>
@@ -221,10 +222,10 @@ $(document).ready(function()
         {% endfor %}
       </tbody>
     </table>
-    {% if can_add_project_data or user_add_sites.count > 0 %}
+    {% if can_add_site_data %}
     <div class="pull-right">
-      <a class="btn btn-success btn-small" href="{% url 'add_panel' project.id %}">
-        <i class="icon-plus icon-white"></i> Add Panel
+      <a class="btn btn-success btn-small" href="{% url 'add_site_panel' site.id %}">
+        <i class="icon-plus icon-white"></i> Add Site Panel
       </a>
     </div>
     {% endif %}

@@ -47,16 +47,6 @@
         </tr>
         <tr>
           <td class="center">
-            <span class="lead"><a href="{% url 'project_panels' project.id %}">Panels</a></span>
-            {% if can_add_project_data %}
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_panel' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td class="center">
             <span class="lead"><a href="{% url 'view_project_sites' project.id %}">Sites</a></span>
             {% if can_add_project_data %}
             <a class="pull-right btn btn-success btn-small" href="{% url 'add_site' project.id %}">

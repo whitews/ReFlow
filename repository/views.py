@@ -779,67 +779,6 @@ def view_site(request, site_id):
         context_instance=RequestContext(request)
     )
 
-
-@login_required
-def view_site_uncategorized_samples(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
-    project = site.project
-
-    # get user's sites based on their site_view_permission,
-    # unless they have full project view permission
-    if project.has_view_permission(request.user) or site.has_view_permission(request.user):
-        uncat_spm = SampleParameterMap.objects.filter(parameter=None, sample__site_id=site_id)
-        uncat_sample_ids = uncat_spm.values_list('sample__id').distinct()
-        samples = Sample.objects.filter(id__in=uncat_sample_ids).values(
-            'id',
-            'subject__subject_id',
-            'site__site_name',
-            'site__id',
-            'visit__visit_type_name',
-            'sample_group__group_name',
-            'specimen__specimen_name',
-            'original_filename'
-        )
-    else:
-        raise PermissionDenied
-
-    spm_maps = SampleParameterMap.objects.filter(
-        sample_id__in=[i['id'] for i in samples]).values(
-            'id',
-            'sample_id',
-            'fcs_number',
-            'fcs_text',
-            'fcs_opt_text',
-            'parameter__parameter_short_name',
-            'value_type__value_type_short_name',
-        )
-
-    # this is done to avoid hitting the database too hard in templates
-    for sample in samples:
-        sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
-
-    can_add_project_data = project.has_add_permission(request.user)
-    can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(
-        request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(
-        request.user, project).values_list('id', flat=True)
-
-    return render_to_response(
-        'view_site_uncategorized.html',
-        {
-            'project': project,
-            'site': site,
-            'samples': samples,
-            'can_add_project_data': can_add_project_data,
-            'can_modify_project_data': can_modify_project_data,
-            'user_add_sites': user_add_sites,
-            'user_modify_sites': user_modify_sites
-        },
-        context_instance=RequestContext(request)
-    )
-
-
 @login_required
 def view_compensations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
@@ -992,48 +931,35 @@ def edit_visit_type(request, project_id, visit_type_id):
 
 
 @login_required
-def view_project_panels(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-    user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+def view_site_panels(request, site_id):
+    site = get_object_or_404(Site, pk=site_id)
+    if not site.has_view_permission(request.user):
+        raise PermissionDenied
 
     if request.method == 'POST':
         if 'panel' in request.POST:
 
-            panel = get_object_or_404(Panel, pk=request.POST['panel'])
-            ppm = PanelParameterMap(panel=panel)
-            form = PanelParameterMapForm(request.POST, instance=ppm)
+            panel = get_object_or_404(SitePanel, pk=request.POST['panel'])
+            ppm = SitePanelParameterMap(panel=panel)
+            form = SitePanelParameterMapForm(request.POST, instance=ppm)
 
             if form.is_valid():
                 form.save()
                 return HttpResponseRedirect(reverse(
-                    'project_panels',
-                    args=(panel.site.project_id,)))
+                    'view_site_panels',
+                    args=(site_id,)))
             else:
                 errors_json = json.dumps(form.errors)
                 return HttpResponseBadRequest(errors_json, mimetype='application/json')
 
-    # get user's panels based on their site_view_permission,
-    # unless they have full project view permission
-    if project.has_view_permission(request.user):
-        panels = Panel.objects.filter(site__project=project).values(
-            'id',
-            'panel_name',
-            'panel_description',
-            'site__site_name',
-            'site__id'
-        )
-    elif user_view_sites.count() > 0:
-        panels = Panel.objects.filter(site__project=project, site__in=user_view_sites).values(
-            'id',
-            'panel_name',
-            'panel_description',
-            'site__site_name',
-            'site__id'
-        )
-    else:
-        raise PermissionDenied
-
-    ppm_maps = PanelParameterMap.objects.filter(panel_id__in=[i['id'] for i in panels]).values(
+    panels = SitePanel.objects.filter(site=site).values(
+        'id',
+        'panel_name',
+        'panel_description',
+        'site__site_name',
+        'site__id'
+    )
+    ppm_maps = SitePanelParameterMap.objects.filter(panel_id__in=[i['id'] for i in panels]).values(
         'id',
         'panel_id',
         'fcs_text',
@@ -1046,60 +972,46 @@ def view_project_panels(request, project_id):
         panel['parameters'] = [i for i in ppm_maps if i['panel_id'] == panel['id']]
 
     # for adding new parameters to panels
-    form = PanelParameterMapForm()
+    form = SitePanelParameterMapForm()
 
-    can_add_project_data = project.has_add_permission(request.user)
-    can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(
-        request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(
-        request.user, project).values_list('id', flat=True)
+    can_add_site_data = site.has_add_permission(request.user)
+    can_modify_site_data = site.has_modify_permission(request.user)
 
     return render_to_response(
-        'view_project_panels.html',
+        'view_site_panels.html',
         {
-            'project': project,
+            'site': site,
             'panels': panels,
             'form': form,
-            'can_add_project_data': can_add_project_data,
-            'can_modify_project_data': can_modify_project_data,
-            'user_add_sites': user_add_sites,
-            'user_modify_sites': user_modify_sites
+            'can_add_site_data': can_add_site_data,
+            'can_modify_site_data': can_modify_site_data,
         },
         context_instance=RequestContext(request)
     )
 
 
 @login_required
-def add_panel(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_add(request.user, project)
+def add_site_panel(request, site_id):
+    site = get_object_or_404(Site, pk=site_id)
 
-    if not (project.has_add_permission(request.user) or user_sites.count() > 0):
+    if not (site.has_add_permission(request.user)):
         raise PermissionDenied
 
-    # need to check if the project has any sites, since panels have a required site relation
-    if request.method == 'POST' and project.site_set.exists():
-        form = PanelForm(request.POST, project_id=project_id)
+    if request.method == 'POST':
+        form = SitePanelForm(request.POST, instance=SitePanel(site=site))
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_panels', args=(project_id,)))
-
-    elif not project.site_set.exists():
-        messages.warning(
-            request,
-            'This project has no sites. A panel must be associated with a specific site.')
-        return HttpResponseRedirect(reverse('warning_page',))
+            return HttpResponseRedirect(reverse('view_site_panels', args=(site_id,)))
 
     else:
-        form = PanelForm(project_id=project_id)
+        form = SitePanelForm()
 
     return render_to_response(
-        'add_panel.html',
+        'add_site_panel.html',
         {
             'form': form,
-            'project': project,
+            'site': site,
         },
         context_instance=RequestContext(request)
     )
@@ -1107,13 +1019,13 @@ def add_panel(request, project_id):
 
 @login_required
 def edit_panel(request, panel_id):
-    panel = get_object_or_404(Panel, pk=panel_id)
+    panel = get_object_or_404(SitePanel, pk=panel_id)
 
     if not panel.site.has_modify_permission(request.user):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = PanelEditForm(request.POST, instance=panel)
+        form = SitePanelEditForm(request.POST, instance=panel)
 
         if form.is_valid():
             form.save()
@@ -1121,7 +1033,7 @@ def edit_panel(request, panel_id):
                 'project_panels',
                 args=(panel.site.project_id,)))
     else:
-        form = PanelEditForm(instance=panel)
+        form = SitePanelEditForm(instance=panel)
 
     return render_to_response(
         'edit_panel.html',
@@ -1135,7 +1047,7 @@ def edit_panel(request, panel_id):
 
 @login_required
 def remove_panel_parameter(request, panel_parameter_id):
-    ppm = get_object_or_404(PanelParameterMap, pk=panel_parameter_id)
+    ppm = get_object_or_404(SitePanelParameterMap, pk=panel_parameter_id)
 
     if not ppm.panel.site.has_modify_permission(request.user):
         raise PermissionDenied
@@ -1154,15 +1066,15 @@ def create_panel_from_sample(request, sample_id):
         raise PermissionDenied
 
     ParameterFormSet = inlineformset_factory(
-        Panel,
-        PanelParameterMap,
-        form=PanelParameterMapFromSampleForm,
+        SitePanel,
+        SitePanelParameterMap,
+        form=SitePanelParameterMapFromSampleForm,
         extra=sample.sampleparametermap_set.count(),
         can_delete=False,
     )
 
     if request.method == 'POST':
-        panel_form = PanelFromSampleForm(request.POST, instance=Panel(site=sample.site))
+        panel_form = SitePanelFromSampleForm(request.POST, instance=SitePanel(site=sample.site))
 
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
@@ -1176,14 +1088,14 @@ def create_panel_from_sample(request, sample_id):
                     'project_panels',
                     args=(sample.subject.project_id,)))
         else:
-            parameter_formset = ParameterFormSet(request.POST, instance=Panel(site=sample.site))
+            parameter_formset = ParameterFormSet(request.POST, instance=SitePanel(site=sample.site))
 
     else:
         # need to check if the sample is associated with a site,
         # since panels have a required site relation
         if sample.site:
-            panel = Panel(site=sample.site, panel_name=sample.original_filename)
-            panel_form = PanelFromSampleForm(instance=panel)
+            panel = SitePanel(site=sample.site, panel_name=sample.original_filename)
+            panel_form = SitePanelFromSampleForm(instance=panel)
 
             initial_param_data = list()
             for param in sample.sampleparametermap_set.all().order_by('fcs_text'):
@@ -1595,13 +1507,13 @@ def select_panel(request, sample_id):
     if not sample.site.has_add_permission(request.user):
         raise PermissionDenied
 
-    site_panels = Panel.objects.filter(site=sample.site)
+    site_panels = SitePanel.objects.filter(site=sample.site)
 
     if request.method == 'POST':
         if 'panel' in request.POST:
 
             # Get the user selection
-            selected_panel = get_object_or_404(Panel, pk=request.POST['panel'])
+            selected_panel = get_object_or_404(SitePanel, pk=request.POST['panel'])
 
             try:
                 status = apply_panel_to_sample(selected_panel, sample)
@@ -1623,7 +1535,7 @@ def select_panel(request, sample_id):
         'select_panel.html',
         {
             'sample': sample,
-            'site_panels': site_panels,
+            'view_site_panels': site_panels,
         },
         context_instance=RequestContext(request)
     )

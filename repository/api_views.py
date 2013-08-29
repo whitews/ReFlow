@@ -231,13 +231,13 @@ class SiteDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveA
     serializer_class = SiteSerializer
 
 
-class PanelList(LoginRequiredMixin, generics.ListAPIView):
+class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of panels.
     """
 
-    model = Panel
-    serializer_class = PanelSerializer
+    model = SitePanel
+    serializer_class = SitePanelSerializer
     filter_fields = ('panel_name', 'site', 'site__project')
 
     def get_queryset(self):
@@ -248,7 +248,7 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = Panel.objects.filter(site__in=user_sites)
+        queryset = SitePanel.objects.filter(site__in=user_sites)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('name', None)
@@ -274,13 +274,13 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class PanelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SitePanelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
 
-    model = Panel
-    serializer_class = PanelSerializer
+    model = SitePanel
+    serializer_class = SitePanelSerializer
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
@@ -446,7 +446,7 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
     def patch(self, request, *args, **kwargs):
         if 'panel' in request.DATA:
             try:
-                panel = Panel.objects.get(id=request.DATA['panel'])
+                panel = SitePanel.objects.get(id=request.DATA['panel'])
                 sample = Sample.objects.get(id=kwargs['pk'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)

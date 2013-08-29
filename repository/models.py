@@ -119,7 +119,7 @@ class Project(ProtectedModel):
         return ProjectVisitType.objects.filter(project=self).count()
 
     def get_panel_count(self):
-        return Panel.objects.filter(site__project=self).count()
+        return SitePanel.objects.filter(site__project=self).count()
 
     def get_subject_count(self):
         return Subject.objects.filter(project=self).count()
@@ -291,7 +291,7 @@ class Specimen(models.Model):
         return u'%s' % self.specimen_name
 
 
-class Panel(ProtectedModel):
+class SitePanel(ProtectedModel):
     site = models.ForeignKey(Site, null=False, blank=False)
     panel_name = models.CharField(
         unique=False,
@@ -299,10 +299,10 @@ class Panel(ProtectedModel):
         blank=False,
         max_length=128)
     panel_description = models.TextField(
-        "Panel Description",
+        "Site Panel Description",
         null=True,
         blank=True,
-        help_text="A short description of the panel")
+        help_text="A short description of the site panel")
 
     def has_view_permission(self, user):
 
@@ -327,7 +327,7 @@ class Panel(ProtectedModel):
         except ObjectDoesNotExist:
             return  # Site is required and will get caught by Form.is_valid()
 
-        duplicates = Panel.objects.filter(
+        duplicates = SitePanel.objects.filter(
             panel_name=self.panel_name,
             site=self.site).exclude(
                 id=self.id)
@@ -382,8 +382,8 @@ class ParameterValueType(models.Model):
         return u'%s' % self.value_type_short_name
 
 
-class PanelParameterMap(ProtectedModel):
-    panel = models.ForeignKey(Panel)
+class SitePanelParameterMap(ProtectedModel):
+    panel = models.ForeignKey(SitePanel)
     parameter = models.ForeignKey(Parameter)
     value_type = models.ForeignKey(ParameterValueType)
     # fcs_text should match the FCS required keyword $PnN,
@@ -435,7 +435,7 @@ class PanelParameterMap(ProtectedModel):
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
-        ppm_duplicates = PanelParameterMap.objects.filter(
+        ppm_duplicates = SitePanelParameterMap.objects.filter(
             panel=self.panel,
             parameter=self.parameter,
             value_type=self.value_type).exclude(id=self.id)
@@ -445,7 +445,7 @@ class PanelParameterMap(ProtectedModel):
                 "This combination already exists in this panel"
             )
 
-        panel_fcs_text_duplicates = PanelParameterMap.objects.filter(
+        panel_fcs_text_duplicates = SitePanelParameterMap.objects.filter(
             panel=self.panel,
             fcs_text=self.fcs_text).exclude(id=self.id)
 
@@ -846,7 +846,7 @@ class Sample(ProtectedModel):
                     "Chosen file does not appear to be an FCS file."
                 )
 
-        # Start collecting channel info even though no Panel is associated yet
+        # Start collecting channel info even though we don't know the parameter
         # Note: the SampleParameterMap instances are saved in overridden save
 
         # Read the FCS text segment and get the number of parameters

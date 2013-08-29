@@ -107,50 +107,30 @@ class ProjectVisitTypeForm(forms.ModelForm):
         exclude = ('project',)
 
 
-class PanelForm(forms.ModelForm):
+class SitePanelForm(forms.ModelForm):
     class Meta:
-        model = Panel
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # now it's safe to call the parent init
-        super(PanelForm, self).__init__(*args, **kwargs)
-
-        # finally, the reason we're here...
-        # make sure only the project's sites are the available choices
-        if project_id:
-            sites = Site.objects.filter(project__id=project_id).order_by('site_name')
-            if not sites:
-                raise ValidationError('Error creating panel. There are no sites for this project. A panel must belong to a project site.')
-            self.fields['site'] = forms.ModelChoiceField(sites)
-
-
-class PanelEditForm(forms.ModelForm):
-    class Meta:
-        model = Panel
+        model = SitePanel
         exclude = ('site',)  # don't allow editing of the site for an existing panel
 
 
-# yes it's the same as PanelEditForm, but the class names provide context
-class PanelFromSampleForm(forms.ModelForm):
+# yes it's the same as SitePanelEditForm, but the class names provide context
+class SitePanelFromSampleForm(forms.ModelForm):
     class Meta:
-        model = Panel
+        model = SitePanel
         exclude = ('site',)
 
 
-class PanelParameterMapFromSampleForm(forms.ModelForm):
+class SitePanelParameterMapFromSampleForm(forms.ModelForm):
     parameter = forms.ModelChoiceField(queryset=Parameter.objects.order_by('parameter_short_name'))
 
     class Meta:
-        model = PanelParameterMap
+        model = SitePanelParameterMap
         fields = ('fcs_text', 'fcs_opt_text', 'parameter', 'value_type')
 
 
-class PanelParameterMapForm(forms.ModelForm):
+class SitePanelParameterMapForm(forms.ModelForm):
     class Meta:
-        model = PanelParameterMap
+        model = SitePanelParameterMap
         fields = ('fcs_text', 'fcs_opt_text', 'parameter', 'value_type')
         exclude = ('panel',)
 

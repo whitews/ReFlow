@@ -16,7 +16,7 @@ $(document).ready(function()
     var select_panel_dialog = $("<div></div>").dialog(
     {
         autoOpen: false,
-        title: 'Select a Panel',
+        title: 'Select a Site Panel',
         modal: false,
         position: 'center',
         height: 350,
@@ -146,10 +146,10 @@ $(document).ready(function()
                 <td colspan="4">
                   Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
                   <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-                    <i class="icon-plus icon-white"></i> Select Panel
+                    <i class="icon-plus icon-white"></i> Select Site Panel
                   </a>
                   <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
-                      <i class="icon-pencil icon-white"></i> Create Panel from Sample
+                      <i class="icon-pencil icon-white"></i> Create a Site Panel from Sample
                   </a>
                 </td>
               </tr>

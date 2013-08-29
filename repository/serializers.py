@@ -74,22 +74,22 @@ class ParameterSerializer(serializers.ModelSerializer):
         fields = ('id', 'url', 'parameter_short_name', 'parameter_type', 'antibodies', 'fluorochromes')
 
 
-class PanelParameterSerializer(serializers.ModelSerializer):
+class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
 
     class Meta:
-        model = PanelParameterMap
+        model = SitePanelParameterMap
         fields = ('id', 'fcs_text', 'name')
         depth = 1
 
 
-class PanelSerializer(serializers.ModelSerializer):
+class SitePanelSerializer(serializers.ModelSerializer):
     site = SiteSerializer(source='site')
-    panelparameters = PanelParameterSerializer(source='panelparametermap_set')
+    panelparameters = SitePanelParameterSerializer(source='panelparametermap_set')
     url = serializers.HyperlinkedIdentityField(view_name='panel-detail')
 
     class Meta:
-        model = Panel
+        model = SitePanel
         fields = ('id', 'url', 'panel_name', 'site', 'panelparameters')
 
 

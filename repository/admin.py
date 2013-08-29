@@ -23,7 +23,7 @@ class SiteAdmin(GuardedModelAdmin):
 admin.site.register(Site, SiteAdmin)
 
 
-admin.site.register(Panel)
+admin.site.register(SitePanel)
 admin.site.register(Parameter)
 admin.site.register(ParameterValueType)
 
@@ -33,7 +33,7 @@ admin.site.register(Subject)
 
 admin.site.register(ParameterAntibodyMap)
 admin.site.register(ParameterFluorochromeMap)
-admin.site.register(PanelParameterMap)
+admin.site.register(SitePanelParameterMap)
 
 admin.site.register(SampleGroup)
 admin.site.register(Sample)

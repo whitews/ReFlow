@@ -23,7 +23,7 @@
               <tr>
                 <th>Site</th>
                 <th>FCS Sample Count</th>
-                <th>Panels</th>
+                <th>Site Panels</th>
                 <th>Compensation Matrices</th>
               </tr>
             </thead>
@@ -44,7 +44,7 @@
                         {{ site.sample_set.count }}
                     </td>
                     <td>
-                        {% for panel in site.panel_set.all %}
+                        {% for panel in site.sitepanel_set.all %}
                           {{ panel.panel_name }}<br/>
                         {% endfor %}
                     </td>

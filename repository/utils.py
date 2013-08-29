@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 def apply_panel_to_sample(panel, sample):
     """
     Updates SampleParameterMap instances for provided Sample matching the
-    Parameters in the provided Panel.
+    Parameters in the provided SitePanel.
     Note that the panel and sample provided must have the same parent site and
     the sample must have existing SampleParameterMap relations
     (created when Sample was saved).
@@ -12,7 +12,7 @@ def apply_panel_to_sample(panel, sample):
     Returns 0 status if successful
 
     sample - The Sample instance for which the SampleParameterMaps will be created
-    panel - The Panel instance providing the parameters to apply to the sample
+    panel - The SitePanel instance providing the parameters to apply to the sample
     """
 
     if panel.site != sample.site:
@@ -24,7 +24,7 @@ def apply_panel_to_sample(panel, sample):
     panel_parameters = panel.panelparametermap_set.all()
 
     if sample_parameters.count() != panel_parameters.count():
-        raise ValidationError("Sample parameters not equal to Panel parameters")
+        raise ValidationError("Sample parameters not equal to Site Panel parameters")
 
     for sample_param in sample_parameters:
         if sample_param.parameter or sample_param.value_type:
@@ -36,7 +36,7 @@ def apply_panel_to_sample(panel, sample):
                 fcs_text=sample_param.fcs_text,
                 fcs_opt_text=sample_param.fcs_opt_text)
         except:
-            raise ValidationError("Panel doesn't match Sample parameters")
+            raise ValidationError("Site Panel doesn't match Sample parameters")
 
         # ok, we've got a match, now verify the fcs_opt_text matches
         sample_param.parameter = panel_param.parameter
