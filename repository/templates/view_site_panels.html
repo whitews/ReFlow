@@ -136,7 +136,7 @@ $(document).ready(function()
               </a>
               {% endif %}
               {% if can_modify_site_data %}
-              <a rel="tooltip" href="{% url 'edit_panel' panel.id %}" data-original-title="Edit Panel" data-placement="left">
+              <a rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit Site Panel" data-placement="left">
                   <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
               </a>
               {% endif %}

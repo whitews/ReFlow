@@ -959,9 +959,9 @@ def view_site_panels(request, site_id):
         'site__site_name',
         'site__id'
     )
-    ppm_maps = SitePanelParameterMap.objects.filter(panel_id__in=[i['id'] for i in panels]).values(
+    ppm_maps = SitePanelParameterMap.objects.filter(site_panel_id__in=[i['id'] for i in panels]).values(
         'id',
-        'panel_id',
+        'site_panel_id',
         'fcs_text',
         'fcs_opt_text',
         'parameter__parameter_short_name',
@@ -1036,7 +1036,7 @@ def edit_site_panel(request, panel_id):
         form = SitePanelForm(instance=panel)
 
     return render_to_response(
-        'edit_panel.html',
+        'edit_site_panel.html',
         {
             'form': form,
             'panel': panel,
