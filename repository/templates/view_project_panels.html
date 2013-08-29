@@ -150,6 +150,7 @@ $(document).ready(function()
                     <th>Name</th>
                     <th>Value Type</th>
                     <th>FCS Text <a rel="tooltip" class="pull-right label label-inverse" data-original-title="Exact text from the FCS $PnN field" data-placement="left">?</a></th>
+                    <th>FCS Optional Text <a rel="tooltip" class="pull-right label label-inverse" data-original-title="Exact text from the FCS $PnS field" data-placement="left">?</a></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -171,6 +172,9 @@ $(document).ready(function()
                     <td>
                         {{ ppm.fcs_text }}
                     </td>
+                    <td>
+                        {{ ppm.fcs_opt_text }}
+                    </td>
                   </tr>
                   {% endfor %}
                   {% if can_add_project_data or user_add_sites.count > 0 %}
@@ -186,6 +190,9 @@ $(document).ready(function()
                     </td>
                     <td>
                       {{ form.fcs_text }}
+                    </td>
+                    <td>
+                      {{ form.fcs_opt_text }}
                     </td>
                   </tr>
                   {% endif %}

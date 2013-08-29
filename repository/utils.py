@@ -3,9 +3,11 @@ from django.core.exceptions import ValidationError
 
 def apply_panel_to_sample(panel, sample):
     """
-    Creates SampleParameterMap instances for provided Sample matching the Parameters in the provided Panel.
+    Updates SampleParameterMap instances for provided Sample matching the
+    Parameters in the provided Panel.
     Note that the panel and sample provided must have the same parent site and
-    the sample must have existing SampleParameterMap relations (created when Sample was saved).
+    the sample must have existing SampleParameterMap relations
+    (created when Sample was saved).
 
     Returns 0 status if successful
 
@@ -28,12 +30,15 @@ def apply_panel_to_sample(panel, sample):
         if sample_param.parameter or sample_param.value_type:
             raise ValidationError("Sample parameter is already specified")
 
-        # Verify sample parameter text matches a parameter in selected panel
         try:
-            panel_param = panel_parameters.get(fcs_text=sample_param.fcs_text)
+            # Verify sample parameter text matches a parameter in selected panel
+            panel_param = panel_parameters.get(
+                fcs_text=sample_param.fcs_text,
+                fcs_opt_text=sample_param.fcs_opt_text)
         except:
             raise ValidationError("Panel doesn't match Sample parameters")
 
+        # ok, we've got a match, now verify the fcs_opt_text matches
         sample_param.parameter = panel_param.parameter
         sample_param.value_type = panel_param.value_type
 

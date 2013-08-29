@@ -141,7 +141,6 @@ class PanelFromSampleForm(forms.ModelForm):
 
 
 class PanelParameterMapFromSampleForm(forms.ModelForm):
-    fcs_opt_text = forms.CharField(required=False)
     parameter = forms.ModelChoiceField(queryset=Parameter.objects.order_by('parameter_short_name'))
 
     class Meta:
@@ -152,7 +151,7 @@ class PanelParameterMapFromSampleForm(forms.ModelForm):
 class PanelParameterMapForm(forms.ModelForm):
     class Meta:
         model = PanelParameterMap
-        fields = ('fcs_text', 'parameter', 'value_type')
+        fields = ('fcs_text', 'fcs_opt_text', 'parameter', 'value_type')
         exclude = ('panel',)
 
 

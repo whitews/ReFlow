@@ -1009,8 +1009,8 @@ def view_project_panels(request, project_id):
                     'project_panels',
                     args=(panel.site.project_id,)))
             else:
-                json = json.dumps(form.errors)
-                return HttpResponseBadRequest(json, mimetype='application/json')
+                errors_json = json.dumps(form.errors)
+                return HttpResponseBadRequest(errors_json, mimetype='application/json')
 
     # get user's panels based on their site_view_permission,
     # unless they have full project view permission
@@ -1611,8 +1611,8 @@ def select_panel(request, sample_id):
             # but might be an array of errors
             if status != 0:
                 if isinstance(status, list):
-                    json = json.dumps(status)
-                    return HttpResponseBadRequest(json, mimetype='application/json')
+                    errors_json = json.dumps(status)
+                    return HttpResponseBadRequest(errors_json, mimetype='application/json')
             else:
                 return HttpResponseRedirect(reverse(
                     'view_subject',

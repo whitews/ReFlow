@@ -394,6 +394,12 @@ class PanelParameterMap(ProtectedModel):
         null=False,
         blank=False)
 
+    fcs_opt_text = models.CharField(
+        "FCS Optional Text",
+        max_length=32,
+        null=True,
+        blank=True)
+
     def _get_name(self):
         """
         Returns the parameter name with value type.
