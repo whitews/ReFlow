@@ -1018,14 +1018,14 @@ def add_site_panel(request, site_id):
 
 
 @login_required
-def edit_panel(request, panel_id):
+def edit_site_panel(request, panel_id):
     panel = get_object_or_404(SitePanel, pk=panel_id)
 
     if not panel.site.has_modify_permission(request.user):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SitePanelEditForm(request.POST, instance=panel)
+        form = SitePanelForm(request.POST, instance=panel)
 
         if form.is_valid():
             form.save()
@@ -1033,7 +1033,7 @@ def edit_panel(request, panel_id):
                 'project_panels',
                 args=(panel.site.project_id,)))
     else:
-        form = SitePanelEditForm(instance=panel)
+        form = SitePanelForm(instance=panel)
 
     return render_to_response(
         'edit_panel.html',
@@ -1049,10 +1049,10 @@ def edit_panel(request, panel_id):
 def remove_panel_parameter(request, panel_parameter_id):
     ppm = get_object_or_404(SitePanelParameterMap, pk=panel_parameter_id)
 
-    if not ppm.panel.site.has_modify_permission(request.user):
+    if not ppm.site_panel.site.has_modify_permission(request.user):
         raise PermissionDenied
 
-    project = ppm.panel.site.project
+    project = ppm.site_panel.site.project
     ppm.delete()
 
     return HttpResponseRedirect(reverse('project_panels', args=(project.id,)))

@@ -85,12 +85,12 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
 
 class SitePanelSerializer(serializers.ModelSerializer):
     site = SiteSerializer(source='site')
-    panelparameters = SitePanelParameterSerializer(source='panelparametermap_set')
-    url = serializers.HyperlinkedIdentityField(view_name='panel-detail')
+    parameters = SitePanelParameterSerializer(source='sitepanelparametermap_set')
+    url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
 
     class Meta:
         model = SitePanel
-        fields = ('id', 'url', 'panel_name', 'site', 'panelparameters')
+        fields = ('id', 'url', 'panel_name', 'site', 'parameters')
 
 
 class SampleGroupSerializer(serializers.ModelSerializer):

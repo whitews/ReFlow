@@ -383,7 +383,7 @@ class ParameterValueType(models.Model):
 
 
 class SitePanelParameterMap(ProtectedModel):
-    panel = models.ForeignKey(SitePanel)
+    site_panel = models.ForeignKey(SitePanel)
     parameter = models.ForeignKey(Parameter)
     value_type = models.ForeignKey(ParameterValueType)
     # fcs_text should match the FCS required keyword $PnN,
@@ -421,8 +421,8 @@ class SitePanelParameterMap(ProtectedModel):
 
         # first check that there are no empty values
         error_message = []
-        if not hasattr(self, 'panel'):
-            error_message.append("Panel is required")
+        if not hasattr(self, 'site_panel'):
+            error_message.append("Site Panel is required")
         if not hasattr(self, 'parameter'):
             error_message.append("Parameter is required")
         if not hasattr(self, 'value_type'):
@@ -436,7 +436,7 @@ class SitePanelParameterMap(ProtectedModel):
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
         ppm_duplicates = SitePanelParameterMap.objects.filter(
-            panel=self.panel,
+            panel=self.site_panel,
             parameter=self.parameter,
             value_type=self.value_type).exclude(id=self.id)
 
@@ -446,7 +446,7 @@ class SitePanelParameterMap(ProtectedModel):
             )
 
         panel_fcs_text_duplicates = SitePanelParameterMap.objects.filter(
-            panel=self.panel,
+            panel=self.site_panel,
             fcs_text=self.fcs_text).exclude(id=self.id)
 
         if panel_fcs_text_duplicates.count() > 0:
@@ -457,7 +457,7 @@ class SitePanelParameterMap(ProtectedModel):
 
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s-%s' % (
-            self.panel,
+            self.site_panel,
             self.parameter,
             self.value_type
         )

@@ -31,7 +31,7 @@ def repository_api_root(request, format=None):
 
     return Response({
         'compensations': reverse('compensation-list', request=request),
-        'panels': reverse('panel-list', request=request),
+        'site-panels': reverse('site-panel-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
@@ -446,7 +446,7 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
     def patch(self, request, *args, **kwargs):
         if 'panel' in request.DATA:
             try:
-                panel = SitePanel.objects.get(id=request.DATA['panel'])
+                site_panel = SitePanel.objects.get(id=request.DATA['panel'])
                 sample = Sample.objects.get(id=kwargs['pk'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
@@ -456,7 +456,7 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
 
             try:
                 # now try to apply panel parameters to the sample's parameters
-                apply_panel_to_sample(panel, sample)
+                apply_panel_to_sample(site_panel, sample)
 
                 # need to re-serialize our sample to get the sampleparameters field updated
                 # we can also use this to use the SampleSerializer instead of the POST one

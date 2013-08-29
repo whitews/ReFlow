@@ -132,7 +132,7 @@ class SitePanelParameterMapForm(forms.ModelForm):
     class Meta:
         model = SitePanelParameterMap
         fields = ('fcs_text', 'fcs_opt_text', 'parameter', 'value_type')
-        exclude = ('panel',)
+        exclude = ('site_panel',)
 
 
 class SubjectGroupForm(forms.ModelForm):
