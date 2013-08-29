@@ -1,4 +1,5 @@
 from operator import attrgetter
+import json
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -8,7 +9,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.utils import simplejson
 from django.forms.models import inlineformset_factory
 
 from guardian.shortcuts import assign_perm
@@ -1009,7 +1009,7 @@ def view_project_panels(request, project_id):
                     'project_panels',
                     args=(panel.site.project_id,)))
             else:
-                json = simplejson.dumps(form.errors)
+                json = json.dumps(form.errors)
                 return HttpResponseBadRequest(json, mimetype='application/json')
 
     # get user's panels based on their site_view_permission,
@@ -1611,7 +1611,7 @@ def select_panel(request, sample_id):
             # but might be an array of errors
             if status != 0:
                 if isinstance(status, list):
-                    json = simplejson.dumps(status)
+                    json = json.dumps(status)
                     return HttpResponseBadRequest(json, mimetype='application/json')
             else:
                 return HttpResponseRedirect(reverse(
