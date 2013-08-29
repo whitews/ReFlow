@@ -1037,6 +1037,7 @@ def view_project_panels(request, project_id):
         'id',
         'panel_id',
         'fcs_text',
+        'fcs_opt_text',
         'parameter__parameter_short_name',
         'value_type__value_type_name',
     )
