@@ -43,6 +43,7 @@ urlpatterns = patterns('repository.api_views',
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
     url(r'^$', 'home', name='home'),
+    url(r'^reflow_admin/$', 'admin', name='admin'),
 
     url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
     url(r'^antibodies/add/$', 'add_antibody', name='add_antibody'),

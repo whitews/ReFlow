@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load repository_filters %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Admin' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+
+    <h4>Projects</h4>
+    <ul>
+      <li>
+        <a href="{% url 'add_project' %}">Add</a>
+      </li>
+    </ul>
+
+    <h4>Specimens</h4>
+    <ul>
+      <li>
+        <a href="{% url 'view_specimens' %}">View</a>
+      </li>
+      <li>
+        <a href="{% url 'add_specimen' %}">Add</a>
+      </li>
+    </ul>
+
+    <h4>Antibodies</h4>
+    <ul>
+      <li>
+        <a href="{% url 'view_antibodies' %}">View</a>
+      </li>
+      <li>
+        <a href="{% url 'add_antibody' %}">Add</a>
+      </li>
+    </ul>
+
+    <h4>Fluorochromes</h4>
+    <ul>
+      <li>
+        <a href="{% url 'view_fluorochromes' %}">View</a>
+      </li>
+      <li>
+        <a href="{% url 'add_fluorochrome' %}">Add</a>
+      </li>
+    </ul>
+
+    <h4>Staining</h4>
+    <ul>
+      <li>
+        <a href="{% url 'view_sample_groups' %}">View</a>
+      </li>
+      <li>
+        <a href="{% url 'add_sample_group' %}">Add</a>
+      </li>
+    </ul>
+
+    <h4>Process Manager</h4>
+    <ul>
+      <li>
+        <a href="{% url 'process_dashboard' %}">Dashboard</a>
+      </li>
+    </ul>
+
+  </div>
+{% endblock %}

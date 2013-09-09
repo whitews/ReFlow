@@ -37,6 +37,15 @@ def home(request):
     )
 
 
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def admin(request):
+    return render_to_response(
+        'admin.html',
+        {},
+        context_instance=RequestContext(request)
+    )
+
+
 @login_required
 def view_antibodies(request):
 
@@ -394,7 +403,7 @@ def view_project(request, project_id):
     )
 
 
-@login_required
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def add_project(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST)
