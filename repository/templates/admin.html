@@ -12,60 +12,60 @@
 
 {% block body %}
   <div class="container">
+  <div class="well">
+    <div class="row-fluid">
+      <div class="span5">
+        <h4>Projects</h4>
+          <a href="{% url 'add_project' %}">Add Project</a>
+      </div>
+    </div>
+  </div>
+  <div class="well">
+    <div class="row-fluid">
+      <div class="span5">
+        <h4>Specimens</h4>
 
-    <h4>Projects</h4>
-    <ul>
-      <li>
-        <a href="{% url 'add_project' %}">Add</a>
-      </li>
-    </ul>
+            <a href="{% url 'view_specimens' %}">View</a><br/>
+            <a href="{% url 'add_specimen' %}">Add</a><br/>
 
-    <h4>Specimens</h4>
-    <ul>
-      <li>
-        <a href="{% url 'view_specimens' %}">View</a>
-      </li>
-      <li>
-        <a href="{% url 'add_specimen' %}">Add</a>
-      </li>
-    </ul>
+      </div>
+      <div class="span5">
+        <h4>Staining</h4>
 
-    <h4>Antibodies</h4>
-    <ul>
-      <li>
-        <a href="{% url 'view_antibodies' %}">View</a>
-      </li>
-      <li>
-        <a href="{% url 'add_antibody' %}">Add</a>
-      </li>
-    </ul>
+            <a href="{% url 'view_sample_groups' %}">View</a><br/>
+            <a href="{% url 'add_sample_group' %}">Add Specimen</a><br/>
 
-    <h4>Fluorochromes</h4>
-    <ul>
-      <li>
-        <a href="{% url 'view_fluorochromes' %}">View</a>
-      </li>
-      <li>
-        <a href="{% url 'add_fluorochrome' %}">Add</a>
-      </li>
-    </ul>
+      </div>
+    </div>
+  </div>
+  <div class="well">
+    <div class="row-fluid">
+      <div class="span5">
+        <h4>Antibodies</h4>
 
-    <h4>Staining</h4>
-    <ul>
-      <li>
-        <a href="{% url 'view_sample_groups' %}">View</a>
-      </li>
-      <li>
-        <a href="{% url 'add_sample_group' %}">Add</a>
-      </li>
-    </ul>
+            <a href="{% url 'view_antibodies' %}">View</a><br/>
+            <a href="{% url 'add_antibody' %}">Add Antibody</a><br/>
 
-    <h4>Process Manager</h4>
-    <ul>
-      <li>
-        <a href="{% url 'process_dashboard' %}">Dashboard</a>
-      </li>
-    </ul>
+      </div>
+      <div class="span5">
+        <h4>Fluorochromes</h4>
 
+            <a href="{% url 'view_fluorochromes' %}">View</a><br/>
+            <a href="{% url 'add_fluorochrome' %}">Add Fluorochrome</a><br/>
+
+      </div>
+    </div>
+  </div>
+  <div class="well">
+    <div class="row-fluid">
+
+      <div class="span5">
+        <h4>Process Manager</h4>
+
+            <a href="{% url 'process_dashboard' %}">Dashboard</a><br/>
+
+      </div>
+    </div>
+  </div>
   </div>
 {% endblock %}

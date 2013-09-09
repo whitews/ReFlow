@@ -11,111 +11,38 @@
 
 {% block body %}
   <div class="container">
-    <table class="key-value">
-      <tr>
-        <td>Project Name:</td>
-        <td class="align-left">
-          {{ project.project_name }}
-        </td>
-      </tr>
-      <tr>
-        <td>Project Description:</td>
-        <td>{{ project.project_desc|default_if_none:'' }}</td>
-      </tr>
-      {% if can_modify_project_data %}
-      <tr>
-        <td colspan="2">
-          <a href="{% url 'edit_project' project.id %}">Edit Project</a>
-        </td>
-      </tr>
-      {% endif %}
-    </table>
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="center" colspan="2">
+            <div style="position:relative">
+            <h4>{{ project.project_name }}</h4>
 
-    <br/>
+              <div style="position:absolute; right:0;top:0;">
+              {% if can_modify_project_data %}
+                <a class="btn btn btn-small" href="{% url 'edit_project' project.id %}">Edit Project</a>
+              {% endif %}
+              {% if can_manage_project_users %}
+                <a class="btn btn btn-small"  href="{% url 'view_project_users' project.id %}">Manage Users</a>
+              {% endif %}
 
-    <table class="table table-bordered table-striped">
-      <tbody>
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'project_visit_types' project.id %}">Visit Types</a></span>
-            {% if can_add_project_data %}
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_visit_type' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-            {% endif %}
-          </td>
+              </div>
+            </div>
+          </th>
         </tr>
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'view_project_sites' project.id %}">Sites</a></span>
-            {% if can_add_project_data %}
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_site' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'subject_groups' project.id %}">Subject Groups</a></span>
-            {% if can_add_project_data %}
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_subject_group' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'project_subjects' project.id %}">Subjects</a></span>
-            {% if can_add_project_data %}
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_subject' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'project_samples' project.id %}">Samples</a></span>
-            {% if can_add_project_data %}
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_sample' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'project_compensations' project.id %}">Compensation Matrices</a></span>
-            {% if can_add_project_data %}
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_compensation' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-            {% endif %}
-          </td>
-        </tr>
-        {% if can_add_project_data %}
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'view_project_sample_sets' project.id %}">Sample Sets</a></span>
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_sample_set' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-          </td>
-        </tr>
-        {% endif %}
-        {% if can_manage_project_users %}
-        <tr>
-          <td class="center">
-            <span class="lead"><a href="{% url 'view_project_users' project.id %}">Users</a></span>
-            <a class="pull-right btn btn-success btn-small" href="{% url 'add_user_permissions' project.id %}">
-              <i class="icon-plus icon-white"></i>
-            </a>
-          </td>
-        </tr>
-        {% endif %}
-      </tbody>
+      </thead>
+      <tr>
+        <td colspan="2">{{ project.project_desc|default_if_none:'' }}</td>
+      </tr>
     </table>
+  <div class="well">
+    <p><a href="{% url 'project_visit_types' project.id %}">Visit Types</a></p>
+    <p><a href="{% url 'view_project_sites' project.id %}">Sites</a></p>
+    <p><a href="{% url 'subject_groups' project.id %}">Subject Groups</a></p>
+    <p><a href="{% url 'project_subjects' project.id %}">Subjects</a></p>
+    <p><a href="{% url 'project_samples' project.id %}">Samples</a></p>
+    <p><a href="{% url 'project_compensations' project.id %}">Compensation Matrices</a></p>
+    <p><a href="{% url 'view_project_sample_sets' project.id %}">Sample Sets</a></p>
   </div>
+</div>
 {% endblock %}

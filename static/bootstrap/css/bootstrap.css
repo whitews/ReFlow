@@ -5974,7 +5974,7 @@ th.header {
 .no-wrap {
   white-space: nowrap;
 }
-/* ----------  Checkbox Lists in Forms   START---------- */
+/* ----------  Checkbox Lists in Forms  START---------- */
 .control-group ul {
   width: auto;
   list-style: none;
@@ -5988,4 +5988,10 @@ th.header {
 .control-group ul li label input {
   margin: 0;
 }
-/* ----------  Checkbox List Items   START---------- */
+/* ----------  Checkbox Lists in Forms    END---------- */
+/* ----------  well text START---------- */
+.well p {
+  font-size: 16px;
+  font-weight: 200;
+  line-height: 150%;
+}
