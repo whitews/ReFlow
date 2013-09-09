@@ -1,0 +1,106 @@
+[
+{
+    "pk": 1, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Epstein-Barr Virus", 
+        "group_name": "EBV"
+    }
+},
+{
+    "pk": 3, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Cytomegalovirus Pp65", 
+        "group_name": "CMV_pp65"
+    }
+},
+{
+    "pk": 4, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Cytomegalovirus IE1", 
+        "group_name": "CMV_IE1"
+    }
+},
+{
+    "pk": 5, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Staphylococcus enterotoxin B", 
+        "group_name": "SEB"
+    }
+},
+{
+    "pk": 6, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "", 
+        "group_name": "CoStim"
+    }
+},
+{
+    "pk": 7, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "", 
+        "group_name": "Allo_Stim"
+    }
+},
+{
+    "pk": 8, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "", 
+        "group_name": "Allo_UnStim"
+    }
+},
+{
+    "pk": 9, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Cytomegalovirus + Epstein-Barr Virus + Influenza", 
+        "group_name": "CEF"
+    }
+},
+{
+    "pk": 10, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Fluorescence minus one", 
+        "group_name": "FMO"
+    }
+},
+{
+    "pk": 11, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Full Stain", 
+        "group_name": "FS"
+    }
+},
+{
+    "pk": 12, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Isotype", 
+        "group_name": "Iso"
+    }
+},
+{
+    "pk": 13, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "", 
+        "group_name": "CD3_CD28"
+    }
+},
+{
+    "pk": 14, 
+    "model": "repository.samplegroup", 
+    "fields": {
+        "group_description": "Testing", 
+        "group_name": "CTest01"
+    }
+}
+]

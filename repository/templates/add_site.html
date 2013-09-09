@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url 'Sites' 'view_project_sites' project.id %}
+    {% breadcrumb "Add Site" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
     <div class="container">
-        <div class="row lead">
-          <div class="span4">
-            <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
-          </div>
-          <div class="pull-right">Add Site</div>
-        </div>
-        <br/>
         <form class="form-horizontal" action="{% url 'add_site' project.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}

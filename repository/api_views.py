@@ -24,19 +24,21 @@ from repository.utils import apply_panel_to_sample
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
-def api_root(request, format=None):
+def repository_api_root(request, format=None):
     """
     The entry endpoint of our API.
     """
 
     return Response({
         'compensations': reverse('compensation-list', request=request),
-        'panels': reverse('panel-list', request=request),
+        'site-panels': reverse('site-panel-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'parameters': reverse('parameter-list', request=request),
         'projects': reverse('project-list', request=request),
         'sample_groups': reverse('sample-group-list', request=request),
+        'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
+        'sample-sets': reverse('sample-set-list', request=request),
         'uncategorized_samples': reverse('uncat-sample-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
@@ -229,13 +231,13 @@ class SiteDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveA
     serializer_class = SiteSerializer
 
 
-class PanelList(LoginRequiredMixin, generics.ListAPIView):
+class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of panels.
     """
 
-    model = Panel
-    serializer_class = PanelSerializer
+    model = SitePanel
+    serializer_class = SitePanelSerializer
     filter_fields = ('panel_name', 'site', 'site__project')
 
     def get_queryset(self):
@@ -246,7 +248,7 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = Panel.objects.filter(site__in=user_sites)
+        queryset = SitePanel.objects.filter(site__in=user_sites)
 
         # Value may have multiple names separated by commas
         name_value = self.request.QUERY_PARAMS.get('name', None)
@@ -272,13 +274,13 @@ class PanelList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class PanelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SitePanelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
 
-    model = Panel
-    serializer_class = PanelSerializer
+    model = SitePanel
+    serializer_class = SitePanelSerializer
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
@@ -328,21 +330,61 @@ class SampleGroupList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = ('group_name',)
 
 
-class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
+class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = Sample
+    serializer_class = SamplePOSTSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        Also removing the 'sample_file' field since it has the server path.
+        """
+        site = Site.objects.get(id=request.DATA['site'])
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        response = super(CreateSampleList, self).post(request, *args, **kwargs)
+        if hasattr(response, 'data'):
+            if 'sample_file' in response.data:
+                response.data.pop('sample_file')
+        return response
+
+
+class SampleFilter(django_filters.FilterSet):
+    subject__project = django_filters.ModelMultipleChoiceFilter(queryset=Project.objects.all())
+    site = django_filters.ModelMultipleChoiceFilter(queryset=Site.objects.all())
+    subject = django_filters.ModelMultipleChoiceFilter(queryset=Subject.objects.all())
+    visit = django_filters.ModelMultipleChoiceFilter(queryset=ProjectVisitType.objects.all())
+    sample_group = django_filters.ModelMultipleChoiceFilter(queryset=SampleGroup.objects.all())
+    specimen = django_filters.ModelMultipleChoiceFilter(queryset=Specimen.objects.all())
+    original_filename = django_filters.CharFilter(lookup_type="icontains")
+    parameter = django_filters.MultipleChoiceFilter()
+
+    class Meta:
+        model = Sample
+        fields = [
+            'subject__project',
+            'site',
+            'subject',
+            'visit',
+            'sample_group',
+            'specimen',
+            'original_filename'
+        ]
+
+
+class SampleList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of samples.
     """
 
     model = Sample
     serializer_class = SampleSerializer
-    filter_fields = (
-        'subject',
-        'site',
-        'visit',
-        'sample_group',
-        'subject__project',
-        'original_filename'
-    )
+    filter_class = SampleFilter
 
     def get_queryset(self):
         """
@@ -353,7 +395,7 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
-        # Value may have multiple names separated by commas
+        # Custom filter for specifying the exact count of parameters in a Sample
         param_count_value = self.request.QUERY_PARAMS.get('parameter_count', None)
         if param_count_value is not None and param_count_value.isdigit():
             queryset = Sample.objects\
@@ -364,48 +406,24 @@ class SampleList(LoginRequiredMixin, generics.ListCreateAPIView):
             # filter on user's projects
             queryset = Sample.objects.filter(site__in=user_sites)
 
-        # Value may have multiple names separated by commas
-        name_value = self.request.QUERY_PARAMS.get('parameter_names', None)
+        # 'parameter' may be repeated, so get as list
+        parameters = self.request.QUERY_PARAMS.getlist('parameter')
 
-        if name_value is not None:
-            # The name property is just a concatenation of 2 related fields:
-            #  - parameter__parameter_short_name
-            #  - value_type__value_type_short_name (single character for H, A, W, T)
-            # they are joined by a hyphen
-            names = name_value.split(',')
+        # The name property is just a concatenation of 2 related fields:
+        #  - parameter__parameter_short_name
+        #  - value_type__value_type_short_name (single character for H, A, W, T)
+        # they are joined by a hyphen
 
-            for name in names:
-                parameter = name[0:-2]
-                value_type = name[-1]
+        for value in parameters:
+            parameter = value[0:-2]
+            value_type = value[-1]
 
-                queryset = queryset.filter(
-                    sampleparametermap__parameter__parameter_short_name=parameter,
-                    sampleparametermap__value_type__value_type_short_name=value_type,
-                ).distinct()
+            queryset = queryset.filter(
+                sampleparametermap__parameter__parameter_short_name=parameter,
+                sampleparametermap__value_type__value_type_short_name=value_type,
+            ).distinct()
 
         return queryset
-
-    def get_serializer_class(self):
-        # hack to get the POST form to display the file upload field,
-        # but avoid it on the GET list
-        if self.request.method == 'GET' and hasattr(self, 'response'):
-            return SamplePOSTSerializer
-
-        if self.request.method == 'POST':
-            return SamplePOSTSerializer
-
-        return super(SampleList, self).get_serializer_class()
-
-    def post(self, request, *args, **kwargs):
-        site = Site.objects.get(id=request.DATA['site'])
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
-
-        response = super(SampleList, self).post(request, *args, **kwargs)
-        if hasattr(response, 'data'):
-            if 'sample_file' in response.data:
-                response.data.pop('sample_file')
-        return response
 
 
 class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
@@ -428,7 +446,7 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
     def patch(self, request, *args, **kwargs):
         if 'panel' in request.DATA:
             try:
-                panel = Panel.objects.get(id=request.DATA['panel'])
+                site_panel = SitePanel.objects.get(id=request.DATA['panel'])
                 sample = Sample.objects.get(id=kwargs['pk'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
@@ -438,7 +456,7 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
 
             try:
                 # now try to apply panel parameters to the sample's parameters
-                apply_panel_to_sample(panel, sample)
+                apply_panel_to_sample(site_panel, sample)
 
                 # need to re-serialize our sample to get the sampleparameters field updated
                 # we can also use this to use the SampleSerializer instead of the POST one
@@ -557,3 +575,34 @@ class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, gene
             raise PermissionDenied
 
         return super(SampleCompensationCreate, self).post(request, *args, **kwargs)
+
+
+class SampleSetList(LoginRequiredMixin, PermissionRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list sample sets.
+    """
+
+    model = SampleSet
+    serializer_class = SampleSetListSerializer
+    filter_fields = ('name', 'project')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict sample sets to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+
+        # filter on user's projects
+        queryset = SampleSet.objects.filter(project__in=user_projects)
+
+        return queryset
+
+
+class SampleSetDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a sample set.
+    """
+
+    model = SampleSet
+    serializer_class = SampleSetSerializer

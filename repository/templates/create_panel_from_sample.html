@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url sample.site.project.project_name 'view_project' sample.site.project.id %}
+    {% breadcrumb_url 'Samples' 'project_samples' sample.site.project.id %}
+    {% breadcrumb sample.original_filename %}
+    {% breadcrumb "Create Site Panel from Sample" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-        <div class="span4">
-            <a href="{% url 'view_project' sample.site.project_id %}">{{ sample.site.project.project_name }}</a>
-        </div>
-        <div class="pull-right">
-            Add Panel from Sample ({{ sample.original_filename }})
-        </div>
-    </div>
-    <br/>
       <form class="form-horizontal" action="{% url 'create_panel_from_sample' sample.id %}" method="post">
         {% csrf_token %}
           {% if panel_form.non_field_errors %}

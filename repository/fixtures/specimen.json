@@ -1,0 +1,42 @@
+[
+{
+    "pk": 1, 
+    "model": "repository.specimen", 
+    "fields": {
+        "specimen_description": "Peripheral Blood Mononuclear Cells", 
+        "specimen_name": "PBMC"
+    }
+},
+{
+    "pk": 2, 
+    "model": "repository.specimen", 
+    "fields": {
+        "specimen_description": "Bronchoalveolar Lavage", 
+        "specimen_name": "BAL"
+    }
+},
+{
+    "pk": 3, 
+    "model": "repository.specimen", 
+    "fields": {
+        "specimen_description": "Whole Blood", 
+        "specimen_name": "WB"
+    }
+},
+{
+    "pk": 4, 
+    "model": "repository.specimen", 
+    "fields": {
+        "specimen_description": "Bone Marrow", 
+        "specimen_name": "BM"
+    }
+},
+{
+    "pk": 7, 
+    "model": "repository.specimen", 
+    "fields": {
+        "specimen_description": "Lymph Node Cells", 
+        "specimen_name": "LNC"
+    }
+}
+]

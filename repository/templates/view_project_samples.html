@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -15,7 +16,7 @@ $(document).ready(function()
     var select_panel_dialog = $("<div></div>").dialog(
     {
         autoOpen: false,
-        title: 'Select a Panel',
+        title: 'Select a Site Panel',
         modal: false,
         position: 'center',
         height: 350,
@@ -54,22 +55,25 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Samples' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">
-      Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span>
-    </div>
-  </div>
 
   {% if samples %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="8" class="center">
+          <h4>Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></h4>
+        </th>
+      </tr>
       <tr>
           <th>Sample ID</th>
           <th>File Name</th>
@@ -80,9 +84,9 @@ $(document).ready(function()
           <th>Specimen</th>
           <th>
               Parameters
-              <div class="pull-right">
+              <span class="pull-right">
                 <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-              </div>
+              </span>
           </th>
       </tr>
     </thead>
@@ -92,11 +96,9 @@ $(document).ready(function()
         <td class="middle">
           {{ sample.id }}
           {% if sample.site__id in user_modify_sites or can_modify_project_data %}
-          <div class="pull-right align-middle">
-            <a rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-            </a>
-          </div>
+          <a class="pull-right" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+          </a>
           {% endif %}
         </td>
         <td class="middle">
@@ -144,10 +146,10 @@ $(document).ready(function()
                 <td colspan="4">
                   Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
                   <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-                    <i class="icon-plus icon-white"></i> Select Panel
+                    <i class="icon-plus icon-white"></i> Select Site Panel
                   </a>
                   <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
-                      <i class="icon-pencil icon-white"></i> Create Panel from Sample
+                      <i class="icon-pencil icon-white"></i> Create a Site Panel from Sample
                   </a>
                 </td>
               </tr>

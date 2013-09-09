@@ -1,12 +1,19 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url sample.site.project.project_name 'view_project' sample.site.project.id %}
+    {% breadcrumb_url 'Samples' 'project_samples' sample.site.project.id %}
+    {% breadcrumb sample.original_filename %}
+    {% breadcrumb "Edit Sample" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">Subject: <a href="{% url 'view_subject' sample.subject_id %}">{{ sample.subject.subject_id }}</a></div>
-      <div class="pull-right">Edit Sample</div>
-    </div>
-    <br/>
     <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'edit_sample' sample.id %}" method="post">
       {% csrf_token %}
 

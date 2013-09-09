@@ -13,8 +13,6 @@ from guardian.models import UserObjectPermission
 import numpy
 import fcm
 
-from reflow.settings import MEDIA_ROOT
-
 
 class ProtectedModel(models.Model):
     class Meta:
@@ -41,10 +39,14 @@ class ProjectManager(models.Manager):
         Do NOT use this method to determine whether a user has access to a
         particular project resource.
         """
-        projects = get_objects_for_user(
-            user,
-            'view_project_data',
-            klass=Project)
+        if hasattr(user, 'worker'):
+            # Workers need to be able to view all data
+            projects = Project.objects.all()
+        else:
+            projects = get_objects_for_user(
+                user,
+                'view_project_data',
+                klass=Project)
         sites = get_objects_for_user(user, 'view_site_data', klass=Site)
         site_projects = Project.objects\
             .filter(id__in=[i.project_id for i in sites])\
@@ -78,6 +80,9 @@ class Project(ProtectedModel):
 
     def has_view_permission(self, user):
         if user.has_perm('view_project_data', self):
+            return True
+        elif hasattr(user, 'worker'):
+            # Workers need to be able to retrieve samples
             return True
         return False
 
@@ -114,7 +119,7 @@ class Project(ProtectedModel):
         return ProjectVisitType.objects.filter(project=self).count()
 
     def get_panel_count(self):
-        return Panel.objects.filter(site__project=self).count()
+        return SitePanel.objects.filter(site__project=self).count()
 
     def get_subject_count(self):
         return Subject.objects.filter(project=self).count()
@@ -139,8 +144,7 @@ class SiteManager(models.Manager):
             project_list = Project.objects.get_projects_user_can_view(user)
             project_id_list = []
             for p in project_list:
-                if p.has_view_permission(user):
-                    project_id_list.append(p.id)
+                project_id_list.append(p.id)
             project_view_sites = Site.objects.filter(
                 project_id__in=project_id_list)
             view_sites = get_objects_for_user(
@@ -287,58 +291,6 @@ class Specimen(models.Model):
         return u'%s' % self.specimen_name
 
 
-class Panel(ProtectedModel):
-    site = models.ForeignKey(Site, null=False, blank=False)
-    panel_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-    panel_description = models.TextField(
-        "Panel Description",
-        null=True,
-        blank=True,
-        help_text="A short description of the panel")
-
-    def has_view_permission(self, user):
-
-        if user.has_perm('view_project_data', self.site.project):
-            return True
-        elif self.site is not None:
-            if user.has_perm('view_site_data', self.site):
-                return True
-
-        return False
-
-    def clean(self):
-        """
-        Check for duplicate panel names within a project site.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count panels with matching panel_name and parent site,
-        # which don't have this pk
-        try:
-            Site.objects.get(id=self.site_id)
-        except ObjectDoesNotExist:
-            return  # Site is required and will get caught by Form.is_valid()
-
-        duplicates = Panel.objects.filter(
-            panel_name=self.panel_name,
-            site=self.site).exclude(
-                id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "A panel with this name already exists in this site."
-            )
-
-    def __unicode__(self):
-        return u'%s (Project: %s, Site: %s)' % (
-            self.panel_name,
-            self.site.project.project_name,
-            self.site.site_name)
-
-
 class Parameter(models.Model):
     parameter_short_name = models.CharField(
         unique=True,
@@ -376,81 +328,6 @@ class ParameterValueType(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.value_type_short_name
-
-
-class PanelParameterMap(ProtectedModel):
-    panel = models.ForeignKey(Panel)
-    parameter = models.ForeignKey(Parameter)
-    value_type = models.ForeignKey(ParameterValueType)
-    # fcs_text should match the FCS required keyword $PnN,
-    # the short name for parameter n.
-    fcs_text = models.CharField(
-        "FCS Text",
-        max_length=32,
-        null=False,
-        blank=False)
-
-    def _get_name(self):
-        """
-        Returns the parameter name with value type.
-        """
-        return '%s-%s' % (
-            self.parameter.parameter_short_name,
-            self.value_type.value_type_short_name)
-
-    name = property(_get_name)
-
-    class Meta:
-        ordering = ['fcs_text']
-
-    def clean(self):
-        """
-        Check for duplicate parameter/value_type combos in a panel.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # first check that there are no empty values
-        error_message = []
-        if not hasattr(self, 'panel'):
-            error_message.append("Panel is required")
-        if not hasattr(self, 'parameter'):
-            error_message.append("Parameter is required")
-        if not hasattr(self, 'value_type'):
-            error_message.append("Value type is required")
-        if not hasattr(self, 'fcs_text'):
-            error_message.append("FCS Text is required")
-
-        if len(error_message) > 0:
-            raise ValidationError(error_message)
-
-        # count panel mappings with matching parameter and value_type,
-        # which don't have this pk
-        ppm_duplicates = PanelParameterMap.objects.filter(
-            panel=self.panel,
-            parameter=self.parameter,
-            value_type=self.value_type).exclude(id=self.id)
-
-        if ppm_duplicates.count() > 0:
-            raise ValidationError(
-                "This combination already exists in this panel"
-            )
-
-        panel_fcs_text_duplicates = PanelParameterMap.objects.filter(
-            panel=self.panel,
-            fcs_text=self.fcs_text).exclude(id=self.id)
-
-        if panel_fcs_text_duplicates.count() > 0:
-            raise ValidationError("A panel cannot have duplicate FCS text")
-
-        if self.fcs_text == '':
-            raise ValidationError("FCS Text is required")
-
-    def __unicode__(self):
-        return u'Panel: %s, Parameter: %s-%s' % (
-            self.panel,
-            self.parameter,
-            self.value_type
-        )
 
 
 class Antibody(models.Model):
@@ -541,6 +418,251 @@ class ParameterFluorochromeMap(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.parameter, self.fluorochrome)
+
+
+class ProjectPanel(ProtectedModel):
+    project = models.ForeignKey(Project, null=False, blank=False)
+    panel_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    panel_description = models.TextField(
+        "Project Panel Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the project panel")
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def clean(self):
+        """
+        Check for duplicate panel names within a project.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # count panels with matching panel_name and parent project,
+        # which don't have this pk
+        try:
+            Project.objects.get(id=self.project_id)
+        except ObjectDoesNotExist:
+            return  # Project is required and will get caught by Form.is_valid()
+
+        duplicates = ProjectPanel.objects.filter(
+            panel_name=self.panel_name,
+            project=self.project).exclude(
+                id=self.id)
+        if duplicates.count() > 0:
+            raise ValidationError(
+                "A panel with this name already exists in this project."
+            )
+
+    def __unicode__(self):
+        return u'%s (Project: %s)' % (
+            self.panel_name,
+            self.project.project_name)
+
+
+class ProjectPanelParameterMap(ProtectedModel):
+    project_panel = models.ForeignKey(ProjectPanel)
+    parameter = models.ForeignKey(Parameter)
+    value_type = models.ForeignKey(ParameterValueType)
+
+    def _get_name(self):
+        """
+        Returns the parameter name with value type.
+        """
+        return '%s-%s' % (
+            self.parameter.parameter_short_name,
+            self.value_type.value_type_short_name)
+
+    name = property(_get_name)
+
+    class Meta:
+        ordering = ['parameter']
+
+    def clean(self):
+        """
+        Check for duplicate parameter/value_type combos in a panel.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # first check that there are no empty values
+        error_message = []
+        if not hasattr(self, 'project_panel'):
+            error_message.append("Project Panel is required")
+        if not hasattr(self, 'parameter'):
+            error_message.append("Parameter is required")
+        if not hasattr(self, 'value_type'):
+            error_message.append("Value type is required")
+
+        if len(error_message) > 0:
+            raise ValidationError(error_message)
+
+        # count panel mappings with matching parameter and value_type,
+        # which don't have this pk
+        ppm_duplicates = ProjectPanelParameterMap.objects.filter(
+            project_panel=self.project_panel,
+            parameter=self.parameter,
+            value_type=self.value_type).exclude(id=self.id)
+
+        if ppm_duplicates.count() > 0:
+            raise ValidationError(
+                "Parameter & value type combination already exists in this panel"
+            )
+
+    def __unicode__(self):
+        return u'Panel: %s, Parameter: %s-%s' % (
+            self.project_panel,
+            self.parameter,
+            self.value_type
+        )
+
+
+class SitePanel(ProtectedModel):
+    # a SitePanel must be "based" off of a ProjectPanel
+    # and is required to have at least the parameters specified in the
+    # its ProjectPanel
+    project_panel = models.ForeignKey(ProjectPanel, null=False, blank=False)
+    site = models.ForeignKey(Site, null=False, blank=False)
+    panel_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    panel_description = models.TextField(
+        "Site Panel Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the site panel")
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.site.project):
+            return True
+        elif self.site is not None:
+            if user.has_perm('view_site_data', self.site):
+                return True
+
+        return False
+
+    def clean(self):
+        """
+        Check for duplicate panel names within a project site.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # count panels with matching panel_name and parent site,
+        # which don't have this pk
+        try:
+            Site.objects.get(id=self.site_id)
+        except ObjectDoesNotExist:
+            return  # Site is required and will get caught by Form.is_valid()
+
+        duplicates = SitePanel.objects.filter(
+            panel_name=self.panel_name,
+            site=self.site).exclude(
+                id=self.id)
+        if duplicates.count() > 0:
+            raise ValidationError(
+                "A panel with this name already exists in this site."
+            )
+
+        # project panel must be in the same project as the site
+        if self.site.project_id != self.project_panel.project_id:
+            raise ValidationError("Project Panel chosen is not in site's project.")
+
+    def __unicode__(self):
+        return u'%s (Project: %s, Site: %s)' % (
+            self.panel_name,
+            self.site.project.project_name,
+            self.site.site_name)
+
+
+class SitePanelParameterMap(ProtectedModel):
+    site_panel = models.ForeignKey(SitePanel)
+    parameter = models.ForeignKey(Parameter)
+    value_type = models.ForeignKey(ParameterValueType)
+    # fcs_text should match the FCS required keyword $PnN,
+    # the short name for parameter n.
+    fcs_text = models.CharField(
+        "FCS Text",
+        max_length=32,
+        null=False,
+        blank=False)
+
+    fcs_opt_text = models.CharField(
+        "FCS Optional Text",
+        max_length=32,
+        null=True,
+        blank=True)
+
+    def _get_name(self):
+        """
+        Returns the parameter name with value type.
+        """
+        return '%s-%s' % (
+            self.parameter.parameter_short_name,
+            self.value_type.value_type_short_name)
+
+    name = property(_get_name)
+
+    class Meta:
+        ordering = ['fcs_text']
+
+    def clean(self):
+        """
+        Check for duplicate parameter/value_type combos in a panel.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # first check that there are no empty values
+        error_message = []
+        if not hasattr(self, 'site_panel'):
+            error_message.append("Site Panel is required")
+        if not hasattr(self, 'parameter'):
+            error_message.append("Parameter is required")
+        if not hasattr(self, 'value_type'):
+            error_message.append("Value type is required")
+        if not hasattr(self, 'fcs_text'):
+            error_message.append("FCS Text is required")
+
+        if len(error_message) > 0:
+            raise ValidationError(error_message)
+
+        # count panel mappings with matching parameter and value_type,
+        # which don't have this pk
+        ppm_duplicates = SitePanelParameterMap.objects.filter(
+            site_panel=self.site_panel,
+            parameter=self.parameter,
+            value_type=self.value_type).exclude(id=self.id)
+
+        if ppm_duplicates.count() > 0:
+            raise ValidationError(
+                "This combination already exists in this panel"
+            )
+
+        panel_fcs_text_duplicates = SitePanelParameterMap.objects.filter(
+            site_panel=self.site_panel,
+            fcs_text=self.fcs_text).exclude(id=self.id)
+
+        if panel_fcs_text_duplicates.count() > 0:
+            raise ValidationError("A site panel cannot have duplicate FCS text")
+
+        if self.fcs_text == '':
+            raise ValidationError("FCS Text is required")
+
+    def __unicode__(self):
+        return u'Panel: %s, Parameter: %s-%s' % (
+            self.site_panel,
+            self.parameter,
+            self.value_type
+        )
 
 
 class SubjectGroup(ProtectedModel):
@@ -836,7 +958,7 @@ class Sample(ProtectedModel):
                     "Chosen file does not appear to be an FCS file."
                 )
 
-        # Start collecting channel info even though no Panel is associated yet
+        # Start collecting channel info even though we don't know the parameter
         # Note: the SampleParameterMap instances are saved in overridden save
 
         # Read the FCS text segment and get the number of parameters
@@ -884,6 +1006,81 @@ class Sample(ProtectedModel):
             self.subject.project.project_name,
             self.subject.subject_id,
             self.sample_file.name.split('/')[-1])
+
+
+class SampleSet(ProtectedModel):
+    """
+    An arbitrary collection of Sample instances within a Project
+    """
+    project = models.ForeignKey(Project)
+
+    # Maybe name should be non-editable and auto-generated based on date/user combo???
+    name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=256)
+    description = models.TextField(
+        null=True,
+        blank=True)
+    samples = models.ManyToManyField(Sample)
+
+    class Meta:
+        unique_together = (('project', 'name'),)
+
+    def has_view_permission(self, user):
+        """
+        User must have project permissions to view sample sets
+        """
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def clean(self):
+        """
+        Verify the project & name combo doesn't already exist
+        """
+
+        qs = SampleSet.objects.filter(
+            project=self.project,
+            name=self.name)
+
+        if qs.exists():
+            raise ValidationError(
+                "A sample set with this name already exists in this project."
+            )
+
+    def __unicode__(self):
+        return u'%s (Project: %s)' % (
+            self.name,
+            self.project.project_name)
+
+
+def validate_samples(sender, **kwargs):
+    """
+    Verify all the samples belong to the self.project
+    """
+    print kwargs
+    sample_set = kwargs['instance']
+    action = kwargs['action']
+    pk_set = kwargs['pk_set']
+
+    if action == 'pre_add':
+        try:
+            samples_to_add = Sample.objects.filter(pk__in=pk_set)
+        except:
+            raise ValidationError("Could not find specified samples. Check that they exist.")
+
+        for sample in samples_to_add:
+            print "Sample Set Project: ", sample_set.project_id
+            print "Sample Project: ", sample.subject.project_id
+            if sample_set.project_id != sample.subject.project_id:
+                raise ValidationError(
+                    "Samples must belong to the specified project."
+                )
+
+models.signals.m2m_changed.connect(validate_samples, sender=SampleSet.samples.through)
 
 
 class SampleParameterMap(ProtectedModel):

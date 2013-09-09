@@ -36,17 +36,26 @@ $(document).ready(function()
 </script>
 {% endblock %}
 
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Fluorochromes' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="pull-right">
-      Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes|length }}</span>
-    </div>
-  </div>
 
   {% if fluorochromes %}
   <table class="table table-bordered table-striped">
     <thead>
+      <tr>
+        <th colspan="5" class="center">
+          <h4>Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes|length }}</span></h4>
+        </th>
+      </tr>
       <tr>
           <th>Antibody ID</th>
           <th>Abbreviation</th>
@@ -54,23 +63,21 @@ $(document).ready(function()
           <th>Description</th>
           <th>
               Parameters Built From Antibody
-              <div class="pull-right">
+              <span class="pull-right">
                 <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-              </div>
+              </span>
           </th>
       </tr>
     </thead>
     <tbody>
-      {% for fluorochrome in fluorochromes %}
+      {% for fluorochrome in fluorochromes|dictsort:"fluorochrome_short_name" %}
       <tr>
         <td class="middle">
           {{ fluorochrome.id }}
           {% if user.is_superuser %}
-          <div class="pull-right align-middle">
-            <a rel="tooltip" href="{% url 'edit_fluorochrome' fluorochrome.id %}" data-original-title="Edit Antibody" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-            </a>
-          </div>
+          <a class="pull-right" rel="tooltip" href="{% url 'edit_fluorochrome' fluorochrome.id %}" data-original-title="Edit Antibody" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+          </a>
           {% endif %}
         </td>
         <td class="middle">{{ fluorochrome.fluorochrome_short_name }}</td>

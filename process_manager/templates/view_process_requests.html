@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb 'Process Requests' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan="8" class="center">
+            <h4>Process Requests <span class="badge badge-inverse align-top">{{ requests.count }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+            <th>Process Request ID</th>
+            <th>Process Name</th>
+            <th>Request Date</th>
+            <th>Requesting User</th>
+            <th>Sample Set</th>
+            <th>Status</th>
+            <th>Worker</th>
+            <th>Completion Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for request in requests %}
+        <tr>
+          <td class="middle">
+            {{ request.id }}
+            <span class="pull-right align-middle">
+              <a rel="tooltip" href="{% url 'view_process_request' request.id %}" data-original-title="View Process Request" data-placement="bottom">
+                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+              </a>
+            </span>
+          </td>
+          <td class="middle">{{ request.process.process_name }}</td>
+          <td class="middle">{{ request.request_date }}</td>
+          <td class="middle">{{ request.request_user }}</td>
+          <td class="middle">{{ request.sample_set.name }}</td>
+          <td class="middle">{{ request.status }}</td>
+          <td class="middle">{{ request.worker.worker_name|default_if_none:"" }}</td>
+          <td class="middle">{{ request.completion_date|default_if_none:"Not Complete" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+{% endblock %}

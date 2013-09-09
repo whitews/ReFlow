@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Fluorochromes' 'view_fluorochromes' %}
+    {% breadcrumb fluorochrome.fluorochrome_short_name %}
+    {% breadcrumb "Edit Fluorochrome" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">
-        <a href="{% url 'view_fluorochromes' %}">Fluorochromes</a>
-      </div>
-      <div class="pull-right">Edit</div>
-    </div>
-    <br/>
       <form class="form-horizontal" action="{% url 'edit_fluorochrome' fluorochrome.id %}" method="post">
         {% csrf_token %}
 

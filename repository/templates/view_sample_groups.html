@@ -1,43 +1,52 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Sample Groups' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
-    <div class="container">
-        <div class="row lead">
-            <div class="pull-right">
-              Sample Groups <span class="badge badge-inverse align-top">{{ visit_types.count }}</span>
-            </div>
-        </div>
-        <table class="table table-bordered table-striped">
-            <thead>
-            <tr>
-                <th>Group Name</th>
-                <th>Group Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for group in sample_groups %}
-                <tr>
-                    <td>
-                      {{ group.group_name }}
-                      {% if user.is_superuser %}
-                      <span class="pull-right">
-                        <a rel="tooltip" href="{% url 'edit_sample_group' group.id %}" data-original-title="Edit Sample Group" data-placement="left">
-                          <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-                        </a>
-                      </span>
-                      {% endif %}
-                    </td>
-                    <td>{{ group.group_description }} </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% if user.is_superuser %}
-        <div class="pull-right">
-            <a class="btn btn-success btn-small" href="{% url 'add_sample_group' %}">
-                <i class="icon-plus icon-white"></i> Add Sample Group
-            </a>
-        </div>
-        {% endif %}
+  <div class="container">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan="2" class="center">
+            <h4>Sample Groups <span class="badge badge-inverse align-top">{{ sample_groups|length }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+          <th>Group Name</th>
+          <th>Group Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for group in sample_groups %}
+        <tr>
+          <td>
+            {{ group.group_name }}
+            {% if user.is_superuser %}
+            <span class="pull-right">
+              <a rel="tooltip" href="{% url 'edit_sample_group' group.id %}" data-original-title="Edit Sample Group" data-placement="left">
+                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+              </a>
+            </span>
+            {% endif %}
+          </td>
+          <td>{{ group.group_description }} </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if user.is_superuser %}
+    <div class="pull-right">
+      <a class="btn btn-success btn-small" href="{% url 'add_sample_group' %}">
+        <i class="icon-plus icon-white"></i> Add Sample Group
+      </a>
     </div>
+    {% endif %}
+  </div>
 {% endblock %}

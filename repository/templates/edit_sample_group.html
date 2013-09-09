@@ -1,11 +1,18 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Sample Groups' 'view_sample_groups' %}
+    {% breadcrumb sample_group.group_name %}
+    {% breadcrumb "Edit Sample Group" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
     <div class="container">
-        <div class="row lead">
-            <div class="pull-right">Edit Sample Group: {{ sample_group.group_name }}</div>
-        </div>
-        <br/>
         <form class="form-horizontal" action="{% url 'edit_sample_group' sample_group.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}

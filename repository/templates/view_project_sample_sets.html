@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Sample Sets' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+
+  {% if samples_sets|length > 0 %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th colspan="4" class="center">
+          <h4>Sample Sets <span class="badge badge-inverse align-top">{{ sample_sets|length }}</span></h4>
+        </th>
+      </tr>
+      <tr>
+        <th>Set ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Sample Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for set in sample_sets %}
+      <tr>
+        <td class="middle">
+          {{ set.id }}
+        </td>
+        <td class="middle"><a href="{% url 'view_sample_set' set.id %}">{{ set.name }}</a></td>
+        <td class="middle">{{ set.description }}</td>
+        <td class="middle">{{ set.samples.all.count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No sample sets have been created for this project.</p>
+  {% endif %}
+  <div class="pull-right">
+    <a class="btn btn-success btn-small" href="{% url 'add_sample_set' project.id %}">
+      <i class="icon-plus icon-white"></i> Create a New Set
+    </a>
+  </div>
+</div>
+{% endblock %}
