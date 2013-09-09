@@ -20,25 +20,13 @@
         <div class="navbar-inner">
           <div class="container">
             <div class="brand">
-              <a href="{% url 'home' %}">
-                <img class="inline" height="24" src="{% static 'reflow_text.png' %}">
-              </a>
-              flow cytometry repository
+              <img class="inline" src="{% static 'reflow_40.png' %}">
             </div>
             <ul class="nav pull-right">
-              <li class="dropdown">
-                <a class="dropdown-toggle"
-                   data-toggle="dropdown"
-                   href="#">
-                    {{ user.username }}
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="{% url 'add_project' %}">Add Project</a></li>
-                    <li class="divider"></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                </ul>
+              <li>
+                <a href="#">{{ user.username }}</a>
               </li>
+              <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
           </div>
         </div>
