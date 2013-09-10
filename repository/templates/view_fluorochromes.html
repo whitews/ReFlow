@@ -8,31 +8,25 @@
 
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
-$(document).ready(function()
-{
-    $(".show-all").click(function()
-    {
-        $('.params').show(250);
-        return false;
-    });
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[0,0]],
+    headers: {
+      0: { sorter: false},
+      4: {sorter:false},
 
-    $(".hide-all").click(function()
-    {
-        $('.params').hide(250);
-        return false;
-    });
-
-    $(".toggle-closest").click(function()
-    {
-        $(this).siblings('div.params').toggle(250);
-        return false;
-    });
-
-    return false;
+      {% if user.is_superuser %}
+      1: {sorter: false},
+      5: {sorter: false},
+      {% else %}
+      3: {sorter: false},
+      {% endif %}
+    }
+  });
 });
-
 </script>
 {% endblock %}
 
@@ -41,6 +35,9 @@ $(document).ready(function()
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
+    {% if user.is_superuser %}
+    {% breadcrumb_url 'Admin' 'admin' %}
+    {% endif %}
     {% breadcrumb 'Fluorochromes' %}
   </ul>
 {% endblock %}
@@ -48,69 +45,48 @@ $(document).ready(function()
 {% block body %}
 <div class="container">
 
-  {% if fluorochromes %}
-  <table class="table table-bordered table-striped">
+  <table id="data-table" class="table table-hover">
     <thead>
       <tr>
         <th colspan="5" class="center">
-          <h4>Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes|length }}</span></h4>
+          <div style="position:relative">
+            <h4>Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes|length }}</span></h4>
+
+            <div style="position:absolute; right:0;top:0;">
+              {% if user.is_superuser %}
+                <a class="btn btn btn-small" href="{% url 'add_fluorochrome' %}">Add Fluorochrome</a>
+              {% endif %}
+            </div>
+
+          </div>
         </th>
       </tr>
       <tr>
-          <th>Antibody ID</th>
-          <th>Abbreviation</th>
-          <th>Name</th>
-          <th>Description</th>
-          <th>
-              Parameters Built From Antibody
-              <span class="pull-right">
-                <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-              </span>
-          </th>
+        {% if user.is_superuser %}
+        <th></th>
+        {% endif %}
+        <th>Abbreviation</th>
+        <th>Name</th>
+        <th>Description</th>
       </tr>
     </thead>
     <tbody>
       {% for fluorochrome in fluorochromes|dictsort:"fluorochrome_short_name" %}
       <tr>
+        {% if user.is_superuser %}
         <td class="middle">
-          {{ fluorochrome.id }}
-          {% if user.is_superuser %}
-          <a class="pull-right" rel="tooltip" href="{% url 'edit_fluorochrome' fluorochrome.id %}" data-original-title="Edit Antibody" data-placement="bottom">
-            <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+          <a rel="tooltip" href="{% url 'edit_fluorochrome' fluorochrome.id %}" data-original-title="Edit" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
           </a>
-          {% endif %}
         </td>
+        {% endif %}
         <td class="middle">{{ fluorochrome.fluorochrome_short_name }}</td>
         <td class="middle">{{ fluorochrome.fluorochrome_name }}</td>
         <td class="middle">{{ fluorochrome.fluorochrome_description|default_if_none:'' }}</td>
 
-        <td style="width: 40%" class="middle">
-
-          {% if fluorochrome.parameters.count > 0 %}
-
-          <a href="#" class="pull-right toggle-closest">Show/Hide</a>
-          <div class="hide params">
-              {% for parameter in fluorochrome.parameters|dictsort:"parameter__parameter_short_name" %}
-                {{ parameter.parameter__parameter_short_name }}<br/>
-              {% endfor %}
-          </div>
-
-          {% endif %}
-
-        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  {% else %}
-  <p>No fluorochromes have been entered in this web site.</p>
-  {% endif %}
-  {% if user.is_superuser %}
-  <div class="pull-right">
-    <a class="btn btn-success btn-small" href="{% url 'add_fluorochrome' %}">
-      <i class="icon-plus icon-white"></i> Add Fluorochrome
-    </a>
-  </div>
-  {% endif %}
 </div>
 {% endblock %}

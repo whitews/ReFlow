@@ -16,16 +16,15 @@
         <tr>
           <th class="center" colspan="2">
             <div style="position:relative">
-            <h4>{{ project.project_name }}</h4>
+              <h4>{{ project.project_name }}</h4>
 
               <div style="position:absolute; right:0;top:0;">
-              {% if can_modify_project_data %}
-                <a class="btn btn btn-small" href="{% url 'edit_project' project.id %}">Edit Project</a>
-              {% endif %}
-              {% if can_manage_project_users %}
-                <a class="btn btn btn-small"  href="{% url 'view_project_users' project.id %}">Manage Users</a>
-              {% endif %}
-
+                {% if can_modify_project_data %}
+                  <a class="btn btn btn-small" href="{% url 'edit_project' project.id %}">Edit Project</a>
+                {% endif %}
+                {% if can_manage_project_users %}
+                  <a class="btn btn btn-small"  href="{% url 'view_project_users' project.id %}">Manage Users</a>
+                {% endif %}
               </div>
             </div>
           </th>

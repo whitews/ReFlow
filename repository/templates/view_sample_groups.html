@@ -1,52 +1,83 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load staticfiles %}
 {% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[0,0]],
+    headers: {
+      0: { sorter: false},
+      3: {sorter:false},
+
+      {% if user.is_superuser %}
+      1: {sorter: false},
+      {% else %}
+      2: {sorter: false},
+      {% endif %}
+    }
+  });
+});
+</script>
+{% endblock %}
 
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb 'Sample Groups' %}
+    {% if user.is_superuser %}
+    {% breadcrumb_url 'Admin' 'admin' %}
+    {% endif %}
+    {% breadcrumb 'Stimulations' %}
   </ul>
 {% endblock %}
 
 {% block body %}
   <div class="container">
-    <table class="table table-bordered table-striped">
+    <table id="data-table" class="table table-hover">
       <thead>
         <tr>
-          <th colspan="2" class="center">
-            <h4>Sample Groups <span class="badge badge-inverse align-top">{{ sample_groups|length }}</span></h4>
+          <th colspan="10" class="center">
+            <div style="position:relative">
+              <h4>Stimulations <span class="badge badge-inverse align-top">{{ sample_groups|length }}</span></h4>
+
+              <div style="position:absolute; right:0;top:0;">
+              {% if user.is_superuser %}
+                <a class="btn btn btn-small" href="{% url 'add_sample_group' %}">Add Stimulation</a>
+              {% endif %}
+            </div>
+            </div>
           </th>
         </tr>
         <tr>
-          <th>Group Name</th>
-          <th>Group Description</th>
+          {% if user.is_superuser %}
+          <th></th>
+          {% endif %}
+          <th>Name</th>
+          <th>Description</th>
         </tr>
       </thead>
       <tbody>
       {% for group in sample_groups %}
         <tr>
+          {% if user.is_superuser %}
+          <td>
+            <a rel="tooltip" href="{% url 'edit_sample_group' group.id %}" data-original-title="Edit" data-placement="left">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+          </td>
+          {% endif %}
           <td>
             {{ group.group_name }}
-            {% if user.is_superuser %}
-            <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_sample_group' group.id %}" data-original-title="Edit Sample Group" data-placement="left">
-                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-              </a>
-            </span>
-            {% endif %}
           </td>
           <td>{{ group.group_description }} </td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
-    {% if user.is_superuser %}
-    <div class="pull-right">
-      <a class="btn btn-success btn-small" href="{% url 'add_sample_group' %}">
-        <i class="icon-plus icon-white"></i> Add Sample Group
-      </a>
-    </div>
-    {% endif %}
   </div>
 {% endblock %}
