@@ -14,26 +14,26 @@
 
 {% block body %}
 <div class="container">
-  <table class="key-value">
-    <tr>
-      <td>Site Name:</td>
-      <td class="align-left">
-        {{ site.site_name }}
-      </td>
-    </tr>
-    {% if can_modify_project_data %}
-    <tr>
-      <td colspan="2">
-        <a href="{% url 'edit_site' site.id %}">Edit Site</a>
-      </td>
-    </tr>
-    {% endif %}
-    <tr>
-      <td colspan="2">
-        <a href="{% url 'view_site_panels' site.id %}">View Site Panels</a>
-      </td>
-    </tr>
-  </table>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th class="center" colspan="10">
+          <div style="position:relative">
+            <h4>Site: {{ site.site_name }}</h4>
 
+            {% if can_modify_project_data %}
+            <div style="position:absolute; right:0;top:0;">
+              <a class="btn btn-small" href="{% url 'edit_site' site.id %}">Edit Site</a>
+            </div>
+            {% endif %}
+
+          </div>
+        </th>
+      </tr>
+    </thead>
+  </table>
+  <div class="well">
+    <p><a href="{% url 'view_site_panels' site.id %}">View Site Panels</a></p>
+  </div>
 </div>
 {% endblock %}

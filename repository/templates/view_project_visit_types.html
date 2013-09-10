@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load staticfiles %}
 {% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[0,0]],
+    headers: {
+      0: { sorter: false},
+    }
+  });
+});
+</script>
+{% endblock %}
 
 {% block breadcrumbs %}
   <ul class="breadcrumb">
@@ -12,11 +29,21 @@
 
 {% block body %}
   <div class="container">
-    <table class="table table-bordered table-striped">
+    <table id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="2" class="center">
-            <h4>Visit Types <span class="badge badge-inverse align-top">{{ visit_types|length }}</span></h4>
+            <div style="position:relative">
+              <h4>Visit Types <span class="badge badge-inverse align-top">{{ visit_types|length }}</span></h4>
+
+              {% if can_add_project_data %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'add_visit_type' project.id %}">
+                  Add Visit Type
+                </a>
+              </div>
+              {% endif %}
+            </div>
           </th>
         </tr>
         <tr>
@@ -32,7 +59,7 @@
             {% if can_modify_project_data %}
             <span class="pull-right">
               <a rel="tooltip" href="{% url 'edit_visit_type' visit_type.project_id visit_type.id %}" data-original-title="Edit Visit Type" data-placement="left">
-                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
               </a>
             </span>
             {% endif %}
@@ -42,12 +69,5 @@
       {% endfor %}
       </tbody>
     </table>
-    {% if can_add_project_data %}
-    <div class="pull-right">
-      <a class="btn btn-success btn-small" href="{% url 'add_visit_type' project.id %}">
-        <i class="icon-plus icon-white"></i> Add Visit Type
-      </a>
-    </div>
-    {% endif %}
   </div>
 {% endblock %}

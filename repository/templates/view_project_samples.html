@@ -9,6 +9,21 @@
 
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("#data-table").tablesorter({
+    selectorHeaders: '> thead > tr > th',
+    sortList: [[0,0]],
+    headers: {
+      0: { sorter: false},
+      2: { sorter: false},
+      8: { sorter: false},
+    }
+  });
+});
+</script>
 
 <script>
 $(document).ready(function()
@@ -67,7 +82,7 @@ $(document).ready(function()
 <div class="container">
 
   {% if samples %}
-  <table class="table table-bordered table-striped">
+  <table id="data-table" class="table table-hover">
     <thead>
       <tr>
         <th colspan="8" class="center">
@@ -75,8 +90,8 @@ $(document).ready(function()
         </th>
       </tr>
       <tr>
-          <th>Sample ID</th>
           <th>File Name</th>
+          <th></th>
           <th>Subject</th>
           <th>Site</th>
           <th>Visit</th>
@@ -94,15 +109,14 @@ $(document).ready(function()
       {% for sample in samples %}
       <tr>
         <td class="middle">
-          {{ sample.id }}
+          <a class="no-wrap" href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a>
+        </td>
+        <td>
           {% if sample.site__id in user_modify_sites or can_modify_project_data %}
           <a class="pull-right" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
-            <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+            <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
           </a>
           {% endif %}
-        </td>
-        <td class="middle">
-          <a class="no-wrap" href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a>
         </td>
         <td class="middle">{{ sample.subject__subject_id }}</td>
         <td class="middle">{{ sample.site__site_name }}</td>
@@ -115,7 +129,7 @@ $(document).ready(function()
           {% if sample.parameters.count > 0 %}
 
           <a href="#" class="toggle-closest">Show/Hide</a>
-          <table class="table table-bordered table-hover hide params">
+          <table class="table hide params">
             <thead>
               <tr>
                 <th>FCS Number</th>
@@ -141,19 +155,6 @@ $(document).ready(function()
                 </td>
               </tr>
               {% endfor %}
-              {% if sample.site__id in user_add_sites or can_add_project_data %}
-              <tr>
-                <td colspan="4">
-                  Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
-                  <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-                    <i class="icon-plus icon-white"></i> Select Site Panel
-                  </a>
-                  <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
-                      <i class="icon-pencil icon-white"></i> Create a Site Panel from Sample
-                  </a>
-                </td>
-              </tr>
-              {% endif %}
             </tbody>
           </table>
 

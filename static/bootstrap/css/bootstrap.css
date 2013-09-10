@@ -5920,6 +5920,10 @@ th.header {
     background-position: center left;
     padding-left: 20px;
 }
+
+.params tbody tr:hover td {
+  background-color: #ddd;
+}
 /* ----------  Table stuff   END---------- */
 /* ----------  Login stuff START---------- */
 .form-signin {
