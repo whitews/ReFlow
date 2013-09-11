@@ -48,7 +48,7 @@ $(function() {
         </th>
       </tr>
       <tr>
-        <th>Subject ID</th>
+        <th>Subject Code</th>
         <th>Subject Group</th>
         <th>FCS Sample Count</th>
       </tr>
@@ -58,7 +58,7 @@ $(function() {
       <tr>
         <td>
           <div>
-            {{ s.subject_id }}
+            {{ s.subject_code }}
             {% if can_modify_project_data %}
             <span class="pull-right">
               <a rel="tooltip" href="{% url 'edit_subject' s.id %}" data-original-title="Edit" data-placement="left">

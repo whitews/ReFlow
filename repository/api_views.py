@@ -125,7 +125,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
     API endpoint representing a list of panels.
     """
 
-    model = ProjectVisitType
+    model = VisitType
     serializer_class = VisitTypeSerializer
     filter_fields = ('visit_type_name', 'project')
 
@@ -147,7 +147,7 @@ class VisitTypeDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retr
     API endpoint representing a single project.
     """
 
-    model = ProjectVisitType
+    model = VisitType
     serializer_class = VisitTypeSerializer
 
 
@@ -293,41 +293,40 @@ class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = ('specimen_name',)
 
 
-class ParameterFilter(django_filters.FilterSet):
-    name_contains = django_filters.CharFilter(name='parameter_short_name', lookup_type='contains')
+class ProjectPanelParameterFilter(django_filters.FilterSet):
 
     class Meta:
-        model = Parameter
-        fields = ['parameter_short_name', 'parameter_type', 'name_contains']
+        model = ProjectPanelParameter
+        fields = ['parameter_type']
 
 
-class ParameterList(LoginRequiredMixin, generics.ListAPIView):
+class ProjectPanelParameterList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of parameters.
     """
 
-    model = Parameter
-    serializer_class = ParameterSerializer
-    filter_class = ParameterFilter
+    model = ProjectPanelParameter
+    serializer_class = ProjectPanelParameterSerializer
+    filter_class = ProjectPanelParameterFilter
 
 
-class ParameterDetail(LoginRequiredMixin, generics.RetrieveAPIView):
+class ProjectPanelParameterDetail(LoginRequiredMixin, generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
 
-    model = Parameter
-    serializer_class = ParameterSerializer
+    model = ProjectPanelParameter
+    serializer_class = ProjectPanelParameterSerializer
 
 
-class SampleGroupList(LoginRequiredMixin, generics.ListAPIView):
+class StimulationList(LoginRequiredMixin, generics.ListAPIView):
     """
-    API endpoint representing a list of subject groups.
+    API endpoint representing a list of stimulations.
     """
 
-    model = SampleGroup
-    serializer_class = SampleGroupSerializer
-    filter_fields = ('group_name',)
+    model = Stimulation
+    serializer_class = StimulationSerializer
+    filter_fields = ('stimulation_name',)
 
 
 class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
@@ -356,10 +355,10 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 class SampleFilter(django_filters.FilterSet):
     subject__project = django_filters.ModelMultipleChoiceFilter(queryset=Project.objects.all())
-    site = django_filters.ModelMultipleChoiceFilter(queryset=Site.objects.all())
+    site_panel = django_filters.ModelMultipleChoiceFilter(queryset=SitePanel.objects.all())
     subject = django_filters.ModelMultipleChoiceFilter(queryset=Subject.objects.all())
-    visit = django_filters.ModelMultipleChoiceFilter(queryset=ProjectVisitType.objects.all())
-    sample_group = django_filters.ModelMultipleChoiceFilter(queryset=SampleGroup.objects.all())
+    visit = django_filters.ModelMultipleChoiceFilter(queryset=VisitType.objects.all())
+    stimulation = django_filters.ModelMultipleChoiceFilter(queryset=Stimulation.objects.all())
     specimen = django_filters.ModelMultipleChoiceFilter(queryset=Specimen.objects.all())
     original_filename = django_filters.CharFilter(lookup_type="icontains")
     parameter = django_filters.MultipleChoiceFilter()
@@ -368,10 +367,10 @@ class SampleFilter(django_filters.FilterSet):
         model = Sample
         fields = [
             'subject__project',
-            'site',
+            'site_panel',
             'subject',
             'visit',
-            'sample_group',
+            'stimulation',
             'specimen',
             'original_filename'
         ]

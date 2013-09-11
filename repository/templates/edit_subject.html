@@ -6,8 +6,8 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url subject.project.project_name 'view_project' subject.project.id %}
-    {% breadcrumb_url 'Subjects' 'project_subjects' subject.project.id %}
-    {% breadcrumb_url subject.subject_id 'view_subject' subject.id %}
+    {% breadcrumb_url 'Subjects' 'view_subjects' subject.project.id %}
+    {% breadcrumb subject.subject_code %}
     {% breadcrumb "Edit Subject" %}
   </ul>
 {% endblock %}

@@ -1,5 +1,4 @@
 from string import join
-import cStringIO
 import hashlib
 import io
 
@@ -10,7 +9,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms
 from guardian.models import UserObjectPermission
-import numpy
 import fcm
 
 
@@ -29,6 +27,117 @@ class ProtectedModel(models.Model):
 
     def has_user_management_permission(self, user):
         return False
+
+
+##################################
+### Non-project related models ###
+##################################
+
+
+class Specimen(models.Model):
+    specimen_name = models.CharField(
+        unique=True,
+        max_length=32,
+        null=False,
+        blank=False)
+    specimen_description = models.CharField(
+        unique=True,
+        max_length=256,
+        null=False,
+        blank=False)
+
+    def __unicode__(self):
+        return u'%s' % self.specimen_name
+
+
+class Staining(models.Model):
+    staining_name = models.CharField(
+        unique=True,
+        max_length=32,
+        null=False,
+        blank=False)
+    staining_description = models.CharField(
+        unique=True,
+        max_length=256,
+        null=False,
+        blank=False)
+
+    def __unicode__(self):
+        return u'%s' % self.staining_name
+
+
+class Antibody(models.Model):
+    antibody_name = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128)
+    antibody_short_name = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=32)
+    antibody_description = models.TextField(
+        null=True,
+        blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.antibody_short_name
+
+    class Meta:
+        verbose_name_plural = 'Antibodies'
+
+
+class Fluorochrome(models.Model):
+    fluorochrome_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    fluorochrome_short_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=32)
+    fluorochrome_description = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.fluorochrome_short_name
+
+
+class ParameterType(models.Model):
+    parameter_type_name = models.CharField(
+        unique=True,
+        max_length=32,
+        null=False,
+        blank=False)
+    parameter_type_abbreviation = models.CharField(
+        unique=True,
+        max_length=8,
+        null=False,
+        blank=False)
+
+    def __unicode__(self):
+        return u'%s' % self.parameter_type_abbreviation
+
+
+class ParameterValueType(models.Model):
+    value_type_name = models.CharField(
+        max_length=32,
+        null=False,
+        blank=False)
+    value_type_abbreviation = models.CharField(
+        max_length=2,
+        null=False,
+        blank=False)
+
+    def __unicode__(self):
+        return u'%s' % self.value_type_short_name
+
+
+##############################
+### Project related models ###
+##############################
 
 
 class ProjectManager(models.Manager):
@@ -116,7 +225,7 @@ class Project(ProtectedModel):
             object_pk=self.id)
 
     def get_visit_type_count(self):
-        return ProjectVisitType.objects.filter(project=self).count()
+        return VisitType.objects.filter(project=self).count()
 
     def get_panel_count(self):
         return SitePanel.objects.filter(site__project=self).count()
@@ -132,6 +241,155 @@ class Project(ProtectedModel):
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
+
+
+class Stimulation(models.Model):
+    project = models.ForeignKey(Project)
+    stimulation_name = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128)
+    stimulation_description = models.TextField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.stimulation_name
+
+
+class ProjectPanel(ProtectedModel):
+    project = models.ForeignKey(Project, null=False, blank=False)
+    panel_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    panel_description = models.TextField(
+        "Project Panel Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the project panel")
+    stimulation = models.ForeignKey(Stimulation)
+    staining = models.ForeignKey(Staining)
+    parent_panel = models.ForeignKey("self")
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def clean(self):
+        """
+        Check for duplicate panel names within a project.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # count panels with matching panel_name and parent project,
+        # which don't have this pk
+        try:
+            Project.objects.get(id=self.project_id)
+        except ObjectDoesNotExist:
+            return  # Project is required and will get caught by Form.is_valid()
+
+        duplicates = ProjectPanel.objects.filter(
+            panel_name=self.panel_name,
+            project=self.project).exclude(
+                id=self.id)
+        if duplicates.count() > 0:
+            raise ValidationError(
+                "A panel with this name already exists in this project."
+            )
+
+    def __unicode__(self):
+        return u'%s (Project: %s)' % (
+            self.panel_name,
+            self.project.project_name)
+
+
+class ProjectPanelParameter(ProtectedModel):
+    project_panel = models.ForeignKey(ProjectPanel)
+    parameter_type = models.ForeignKey(ParameterType)
+    parameter_value_type = models.ForeignKey(ParameterValueType)
+    fluorochrome = models.ForeignKey(
+        Fluorochrome,
+        null=True,
+        blank=True)
+
+    def _get_name(self):
+        """
+        Returns the parameter name with value type.
+        """
+        return '%s-%s' % (
+            self.parameter_type.parameter_type_abbreviation,
+            self.parameter_value_type.value_type_abbreviation)
+
+    name = property(_get_name)
+
+    class Meta:
+        ordering = ['parameter_type', 'parameter_value_type']
+
+    def clean(self):
+        """
+        Check for duplicate parameter/value_type combos in a panel.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # first check that there are no empty values
+        error_message = []
+        if not hasattr(self, 'project_panel'):
+            error_message.append("Project Panel is required")
+        if not hasattr(self, 'paramete_type'):
+            error_message.append("Parameter type is required")
+        if not hasattr(self, 'parameter_value_type'):
+            error_message.append("Value type is required")
+
+        if len(error_message) > 0:
+            raise ValidationError(error_message)
+
+        # count panel mappings with matching parameter and value_type,
+        # which don't have this pk
+        # TODO: update duplicate check in ProjectPanelParameter
+        ppm_duplicates = ProjectPanelParameter.objects.filter(
+            project_panel=self.project_panel,
+            ### MORE STUFF HERE
+            parameter_value_type=self.parameter_value_type).exclude(id=self.id)
+
+        if ppm_duplicates.count() > 0:
+            raise ValidationError(
+                "This combination already exists in this panel"
+            )
+
+    def __unicode__(self):
+        return u'Panel: %s, Parameter: %s-%s' % (
+            self.project_panel,
+            self.parameter,
+            self.value_type
+        )
+
+
+class ProjectPanelParameterAntibody(models.Model):
+    project_panel_parameter = models.ForeignKey(ProjectPanelParameter)
+    antibody = models.ForeignKey(Antibody)
+
+    # override clean to prevent duplicate Ab's for a parameter...
+    # unique_together doesn't work for forms with the parameter excluded
+    def clean(self):
+        """
+        Verify the parameter & antibody combo doesn't already exist
+        """
+
+        qs = ProjectPanelParameterAntibody.objects.filter(
+            project_panel_parameter=self.project_panel_parameter,
+            antibody=self.antibody)
+
+        if qs.exists():
+            raise ValidationError(
+                "This antibody is already included in this parameter."
+            )
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.project_panel_parameter, self.antibody)
 
 
 class SiteManager(models.Manager):
@@ -275,268 +533,14 @@ class Site(ProtectedModel):
         return u'%s' % self.site_name
 
 
-class Specimen(models.Model):
-    specimen_name = models.CharField(
-        unique=True,
-        max_length=32,
-        null=False,
-        blank=False)
-    specimen_description = models.CharField(
-        unique=True,
-        max_length=256,
-        null=False,
-        blank=False)
-
-    def __unicode__(self):
-        return u'%s' % self.specimen_name
-
-
-class Parameter(models.Model):
-    parameter_short_name = models.CharField(
-        unique=True,
-        max_length=32,
-        null=False,
-        blank=False)
-
-    PARAMETER_TYPE_CHOICES = (
-        ('FS', 'Forward Scatter'),
-        ('SS', 'Side Scatter'),
-        ('FL', 'Fluoroscence'),
-        ('TM', 'Time'),
-        ('UN', 'Unknown'),
-    )
-
-    parameter_type = models.CharField(
-        max_length=32,
-        null=False,
-        blank=False,
-        choices=PARAMETER_TYPE_CHOICES)
-
-    def __unicode__(self):
-        return u'%s' % self.parameter_short_name
-
-
-class ParameterValueType(models.Model):
-    value_type_name = models.CharField(
-        max_length=32,
-        null=False,
-        blank=False)
-    value_type_short_name = models.CharField(
-        max_length=2,
-        null=False,
-        blank=False)
-
-    def __unicode__(self):
-        return u'%s' % self.value_type_short_name
-
-
-class Antibody(models.Model):
-    antibody_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128)
-    antibody_short_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=32)
-    antibody_description = models.TextField(
-        null=True,
-        blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.antibody_short_name
-
-    class Meta:
-        verbose_name_plural = 'Antibodies'
-
-
-class ParameterAntibodyMap(models.Model):
-    parameter = models.ForeignKey(Parameter)
-    antibody = models.ForeignKey(Antibody)
-
-    # override clean to prevent duplicate Ab's for a parameter...
-    # unique_together doesn't work for forms with the parameter excluded
-    def clean(self):
-        """
-        Verify the parameter & antibody combo doesn't already exist
-        """
-
-        qs = ParameterAntibodyMap.objects.filter(
-            parameter=self.parameter,
-            antibody=self.antibody)
-
-        if qs.exists():
-            raise ValidationError(
-                "This antibody is already included in this parameter."
-            )
-
-    def __unicode__(self):
-        return u'%s: %s' % (self.parameter, self.antibody)
-
-
-class Fluorochrome(models.Model):
-    fluorochrome_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-    fluorochrome_short_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=32)
-    fluorochrome_description = models.TextField(null=True, blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.fluorochrome_short_name
-
-
-class ParameterFluorochromeMap(models.Model):
-    parameter = models.ForeignKey(Parameter)
-    fluorochrome = models.ForeignKey(Fluorochrome)
-
-    # override clean to prevent duplicate Fl's for a parameter...
-    # unique_together doesn't work for forms with the parameter excluded
-    def clean(self):
-        """
-        Verify the parameter & fluorochrome combo doesn't already exist
-        """
-
-        qs = ParameterFluorochromeMap.objects.filter(
-            parameter=self.parameter,
-            fluorochrome=self.fluorochrome)
-
-        if qs.exists():
-            raise ValidationError(
-                "This fluorochrome is already included in this parameter."
-            )
-
-    def __unicode__(self):
-        return u'%s: %s' % (self.parameter, self.antibody)
-
-    def __unicode__(self):
-        return u'%s: %s' % (self.parameter, self.fluorochrome)
-
-
-class ProjectPanel(ProtectedModel):
-    project = models.ForeignKey(Project, null=False, blank=False)
-    panel_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-    panel_description = models.TextField(
-        "Project Panel Description",
-        null=True,
-        blank=True,
-        help_text="A short description of the project panel")
-
-    def has_view_permission(self, user):
-
-        if user.has_perm('view_project_data', self.project):
-            return True
-
-        return False
-
-    def clean(self):
-        """
-        Check for duplicate panel names within a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count panels with matching panel_name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        duplicates = ProjectPanel.objects.filter(
-            panel_name=self.panel_name,
-            project=self.project).exclude(
-                id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "A panel with this name already exists in this project."
-            )
-
-    def __unicode__(self):
-        return u'%s (Project: %s)' % (
-            self.panel_name,
-            self.project.project_name)
-
-
-class ProjectPanelParameterMap(ProtectedModel):
-    project_panel = models.ForeignKey(ProjectPanel)
-    parameter = models.ForeignKey(Parameter)
-    value_type = models.ForeignKey(ParameterValueType)
-
-    def _get_name(self):
-        """
-        Returns the parameter name with value type.
-        """
-        return '%s-%s' % (
-            self.parameter.parameter_short_name,
-            self.value_type.value_type_short_name)
-
-    name = property(_get_name)
-
-    class Meta:
-        ordering = ['parameter']
-
-    def clean(self):
-        """
-        Check for duplicate parameter/value_type combos in a panel.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # first check that there are no empty values
-        error_message = []
-        if not hasattr(self, 'project_panel'):
-            error_message.append("Project Panel is required")
-        if not hasattr(self, 'parameter'):
-            error_message.append("Parameter is required")
-        if not hasattr(self, 'value_type'):
-            error_message.append("Value type is required")
-
-        if len(error_message) > 0:
-            raise ValidationError(error_message)
-
-        # count panel mappings with matching parameter and value_type,
-        # which don't have this pk
-        ppm_duplicates = ProjectPanelParameterMap.objects.filter(
-            project_panel=self.project_panel,
-            parameter=self.parameter,
-            value_type=self.value_type).exclude(id=self.id)
-
-        if ppm_duplicates.count() > 0:
-            raise ValidationError(
-                "Parameter & value type combination already exists in this panel"
-            )
-
-    def __unicode__(self):
-        return u'Panel: %s, Parameter: %s-%s' % (
-            self.project_panel,
-            self.parameter,
-            self.value_type
-        )
-
-
 class SitePanel(ProtectedModel):
     # a SitePanel must be "based" off of a ProjectPanel
     # and is required to have at least the parameters specified in the
     # its ProjectPanel
     project_panel = models.ForeignKey(ProjectPanel, null=False, blank=False)
     site = models.ForeignKey(Site, null=False, blank=False)
-    panel_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-    panel_description = models.TextField(
-        "Site Panel Description",
+    site_panel_comments = models.TextField(
+        "Site Panel Comments",
         null=True,
         blank=True,
         help_text="A short description of the site panel")
@@ -553,11 +557,11 @@ class SitePanel(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate panel names within a project site.
+        Check for duplicate site panels for a project panel within one site.
         Returns ValidationError if any duplicates are found.
         """
 
-        # count panels with matching panel_name and parent site,
+        # count panels with parent project panel_name and parent site,
         # which don't have this pk
         try:
             Site.objects.get(id=self.site_id)
@@ -565,30 +569,35 @@ class SitePanel(ProtectedModel):
             return  # Site is required and will get caught by Form.is_valid()
 
         duplicates = SitePanel.objects.filter(
-            panel_name=self.panel_name,
+            project_panel__panel_name=self.project_panel.panel_name,
             site=self.site).exclude(
                 id=self.id)
         if duplicates.count() > 0:
             raise ValidationError(
-                "A panel with this name already exists in this site."
+                "A site panel for this project panel already exists in this site."
             )
 
         # project panel must be in the same project as the site
         if self.site.project_id != self.project_panel.project_id:
-            raise ValidationError("Project Panel chosen is not in site's project.")
+            raise ValidationError("Chosen project panel is not in site's project.")
 
     def __unicode__(self):
-        return u'%s (Project: %s, Site: %s)' % (
-            self.panel_name,
-            self.site.project.project_name,
+        return u'%s (Site: %s)' % (
+            self.project_panel.panel_name,
             self.site.site_name)
 
 
-class SitePanelParameterMap(ProtectedModel):
+class SitePanelParameter(ProtectedModel):
     site_panel = models.ForeignKey(SitePanel)
-    parameter = models.ForeignKey(Parameter)
-    value_type = models.ForeignKey(ParameterValueType)
-    # fcs_text should match the FCS required keyword $PnN,
+    parameter_type = models.ForeignKey(ParameterType)
+    parameter_value_type = models.ForeignKey(ParameterValueType)
+    dump_channel = models.BooleanField(default=False)
+    fluorochrome = models.ForeignKey(
+        Fluorochrome,
+        null=True,
+        blank=True)
+
+    # fcs_text must match the FCS required keyword $PnN,
     # the short name for parameter n.
     fcs_text = models.CharField(
         "FCS Text",
@@ -596,24 +605,30 @@ class SitePanelParameterMap(ProtectedModel):
         null=False,
         blank=False)
 
+    # fcs_opt_text matches the optional FCS keyword $PnS
     fcs_opt_text = models.CharField(
         "FCS Optional Text",
         max_length=32,
         null=True,
         blank=True)
 
+    # fcs_number represents the parameter number in the FCS file
+    # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
+    fcs_number = models.IntegerField()
+
     def _get_name(self):
         """
         Returns the parameter name with value type.
         """
-        return '%s-%s' % (
-            self.parameter.parameter_short_name,
-            self.value_type.value_type_short_name)
+        return '%s: %s-%s' % (
+            self.fcs_number,
+            self.parameter_type.parameter_type_abbreviation,
+            self.parameter_value_type.value_type_abbreviation)
 
     name = property(_get_name)
 
     class Meta:
-        ordering = ['fcs_text']
+        ordering = ['fcs_number']
 
     def clean(self):
         """
@@ -625,29 +640,33 @@ class SitePanelParameterMap(ProtectedModel):
         error_message = []
         if not hasattr(self, 'site_panel'):
             error_message.append("Site Panel is required")
-        if not hasattr(self, 'parameter'):
-            error_message.append("Parameter is required")
-        if not hasattr(self, 'value_type'):
+        if not hasattr(self, 'parameter_type'):
+            error_message.append("Parameter type is required")
+        if not hasattr(self, 'parameter_value_type'):
             error_message.append("Value type is required")
         if not hasattr(self, 'fcs_text'):
             error_message.append("FCS Text is required")
+        if not hasattr(self, 'fcs_number'):
+            error_message.append("FCS channel number is required")
 
         if len(error_message) > 0:
             raise ValidationError(error_message)
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
-        ppm_duplicates = SitePanelParameterMap.objects.filter(
+        # TODO: need better site panel parameter duplicate checking
+        spp_duplicates = SitePanelParameter.objects.filter(
             site_panel=self.site_panel,
-            parameter=self.parameter,
-            value_type=self.value_type).exclude(id=self.id)
+            ### More stuff here
+            parameter_type=self.parameter_type,
+            parameter_value_type=self.parameter_value_type).exclude(id=self.id)
 
-        if ppm_duplicates.count() > 0:
+        if spp_duplicates.count() > 0:
             raise ValidationError(
                 "This combination already exists in this panel"
             )
 
-        panel_fcs_text_duplicates = SitePanelParameterMap.objects.filter(
+        panel_fcs_text_duplicates = SitePanelParameter.objects.filter(
             site_panel=self.site_panel,
             fcs_text=self.fcs_text).exclude(id=self.id)
 
@@ -658,11 +677,36 @@ class SitePanelParameterMap(ProtectedModel):
             raise ValidationError("FCS Text is required")
 
     def __unicode__(self):
-        return u'Panel: %s, Parameter: %s-%s' % (
+        return u'%s, %s: %s-%s' % (
             self.site_panel,
-            self.parameter,
-            self.value_type
+            self.fcs_number,
+            self.parameter_type,
+            self.parameter_value_type
         )
+
+
+class SitePanelParameterAntibody(models.Model):
+    site_panel_parameter = models.ForeignKey(SitePanelParameter)
+    antibody = models.ForeignKey(Antibody)
+
+    # override clean to prevent duplicate Ab's for a parameter...
+    # unique_together doesn't work for forms with the parameter excluded
+    def clean(self):
+        """
+        Verify the parameter & antibody combo doesn't already exist
+        """
+
+        qs = SitePanelParameterAntibody.objects.filter(
+            site_panel_parameter=self.site_panel_parameter,
+            antibody=self.antibody)
+
+        if qs.exists():
+            raise ValidationError(
+                "This antibody is already included in this parameter."
+            )
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.site_panel_parameter, self.antibody)
 
 
 class SubjectGroup(ProtectedModel):
@@ -683,7 +727,8 @@ class SubjectGroup(ProtectedModel):
         unique_together = (('project', 'group_name'),)
 
     def __unicode__(self):
-        return u'%s (Project: %s)' % (self.group_name, self.project.project_name)
+        return u'%s (Project: %s)' % \
+            (self.group_name, self.project.project_name)
 
 
 class Subject(ProtectedModel):
@@ -692,8 +737,8 @@ class Subject(ProtectedModel):
         SubjectGroup,
         null=True,
         blank=True)
-    subject_id = models.CharField(
-        "Subject ID",
+    subject_code = models.CharField(
+        "Subject Code",
         null=False,
         blank=False,
         max_length=128)
@@ -705,11 +750,11 @@ class Subject(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate subject ID in a project.
+        Check for duplicate subject code in a project.
         Returns ValidationError if any duplicates are found.
         """
 
-        # count subjects with matching subject_id and parent project,
+        # count subjects with matching subject_code and parent project,
         # which don't have this pk
         try:
             Project.objects.get(id=self.project_id)
@@ -720,19 +765,20 @@ class Subject(ProtectedModel):
             raise ValidationError("Group chosen is not in this Project")
 
         subject_duplicates = Subject.objects.filter(
-            subject_id=self.subject_id,
+            subject_code=self.subject_code,
             project=self.project).exclude(
                 id=self.id)
         if subject_duplicates.count() > 0:
             raise ValidationError(
-                "Subject ID already exists in this project."
+                "Subject code already exists in this project."
             )
 
     def __unicode__(self):
-        return u'%s' % self.subject_id
+        return u'%s' % self.subject_code
 
 
-class ProjectVisitType(ProtectedModel):
+# TODO: change to TimePoint ???
+class VisitType(ProtectedModel):
     project = models.ForeignKey(Project)
     visit_type_name = models.CharField(
         unique=False,
@@ -759,7 +805,7 @@ class ProjectVisitType(ProtectedModel):
         except ObjectDoesNotExist:
             return  # Project is required and will get caught by Form.is_valid()
 
-        duplicates = ProjectVisitType.objects.filter(
+        duplicates = VisitType.objects.filter(
             visit_type_name=self.visit_type_name,
             project=self.project).exclude(
                 id=self.id)
@@ -774,22 +820,14 @@ def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
     subject_id = instance.subject_id
     
-    upload_dir = join(['ReFlow-data', str(project_id), str(subject_id), str(filename)], "/")
+    upload_dir = join([
+        'ReFlow-data',
+        str(project_id),
+        str(subject_id),
+        str(filename)],
+        "/")
 
     return upload_dir
-
-
-# SampleGroup is used mainly for grouping samples by stimulation (site global)
-class SampleGroup(models.Model):
-    group_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128)
-    group_description = models.TextField(null=True, blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.group_name
 
 
 class Sample(ProtectedModel):
@@ -797,22 +835,18 @@ class Sample(ProtectedModel):
         Subject,
         null=False,
         blank=False)
-    site = models.ForeignKey(
-        Site,
-        null=False,
-        blank=False)
     visit = models.ForeignKey(
-        ProjectVisitType,
+        VisitType,
         null=False,
         blank=False)
     specimen = models.ForeignKey(
         Specimen,
         null=False,
         blank=False)
-    sample_group = models.ForeignKey(
-        SampleGroup,
-        null=True,
-        blank=True)
+    site_panel = models.ForeignKey(
+        SitePanel,
+        null=False,
+        blank=False)
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,
@@ -839,40 +873,6 @@ class Sample(ProtectedModel):
                 return True
 
         return False
-
-    # Disabled b/c sample_file may not be local...S3 storage, etc.
-    # def get_data_as_numpy(self):
-    #     fcs = fcm.loadFCS(self.sample_file.file.name)
-    #     return fcs.view()
-    #
-    # def get_fcs_data(self):
-    #     data = self.get_data_as_numpy()
-    #     header = []
-    #     if self.sampleparametermap_set.count():
-    #         params = self.sampleparametermap_set.all()
-    #         for param in params.order_by('fcs_number'):
-    #             if param.parameter and param.value_type:
-    #                 header.append(
-    #                     '%s-%s' % (
-    #                         param.parameter.parameter_short_name,
-    #                         param.value_type.value_type_short_name
-    #                     )
-    #                 )
-    #             else:
-    #                 header.append('%s' % param.fcs_text)
-    #
-    #     # Need a category column for the d3 selection to work
-    #     data_with_cat = numpy.zeros((data.shape[0], data.shape[1] + 1))
-    #     data_with_cat[:, :-1] = data
-    #
-    #     # need to convert it to csv-style string with header row
-    #     csv_data = cStringIO.StringIO()
-    #     csv_data.write(','.join(header) + ',category\n')
-    #
-    #     # currently limiting to 100 rows b/c the browser can't handle too much
-    #     numpy.savetxt(csv_data, data_with_cat[:100, :], fmt='%d', delimiter=',')
-    #
-    #     return csv_data.getvalue()
 
     def clean(self):
         """
@@ -985,22 +985,6 @@ class Sample(ProtectedModel):
 
         self._sample_parameters = sample_parameters
 
-    def save(self, *args, **kwargs):
-        super(Sample, self).save(*args, **kwargs)
-
-        # Save all the parameters as SampleParameterMap instances if
-        # we have _sample_parameters
-        # Check if sample has any parameters, could happen if
-        # someone 'edits' an existing sample
-        if hasattr(self, '_sample_parameters') and self.sampleparametermap_set.count() == 0:
-            for key in self._sample_parameters:
-                spm = SampleParameterMap()
-                spm.sample = self
-                spm.fcs_number = key
-                spm.fcs_text = self._sample_parameters[key].get('n')
-                spm.fcs_opt_text = self._sample_parameters[key].get('s', '')
-                spm.save()
-
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
             self.subject.project.project_name,
@@ -1014,7 +998,7 @@ class SampleSet(ProtectedModel):
     """
     project = models.ForeignKey(Project)
 
-    # Maybe name should be non-editable and auto-generated based on date/user combo???
+    # Make non-editable and auto-generated based on date/user combo???
     name = models.CharField(
         unique=False,
         null=False,
@@ -1070,7 +1054,8 @@ def validate_samples(sender, **kwargs):
         try:
             samples_to_add = Sample.objects.filter(pk__in=pk_set)
         except:
-            raise ValidationError("Could not find specified samples. Check that they exist.")
+            raise ValidationError(
+                "Could not find specified samples. Check that they exist.")
 
         for sample in samples_to_add:
             print "Sample Set Project: ", sample_set.project_id
@@ -1083,65 +1068,17 @@ def validate_samples(sender, **kwargs):
 models.signals.m2m_changed.connect(validate_samples, sender=SampleSet.samples.through)
 
 
-class SampleParameterMap(ProtectedModel):
-    sample = models.ForeignKey(Sample)
-
-    # The parameter and value_type may not be known on initial import,
-    # thus null, blank = True
-    parameter = models.ForeignKey(Parameter, null=True, blank=True)
-    value_type = models.ForeignKey(ParameterValueType, null=True, blank=True)
-
-    # fcs_text should match the FCS required keyword $PnN,
-    # the short name for parameter n.
-    fcs_text = models.CharField(
-        "FCS PnN",
-        max_length=32,
-        null=False,
-        blank=False)
-
-    # fcs_opt_text matches the optional FCS keyword $PnS
-    fcs_opt_text = models.CharField(
-        "FCS PnS",
-        max_length=32,
-        null=True,
-        blank=True)
-
-    # fcs_number represents the parameter number in the FCS file
-    # Ex. If the fcs_number == 3, then fcs_text should be in P3N.
-    fcs_number = models.IntegerField()
-
-    def _get_name(self):
-        """
-        Returns the parameter name with value type, or empty string if none
-        """
-        if self.parameter and self.value_type:
-            return '%s-%s' % (
-                self.parameter.parameter_short_name,
-                self.value_type.value_type_short_name
-            )
-        else:
-            return ''
-
-    name = property(_get_name)
-
-    class Meta:
-        unique_together = (('sample', 'fcs_text'),)
-
-    def __unicode__(self):
-            return u'SampleID: %s, Parameter: %s-%s, Number: %s, Text: %s' % (
-                self.sample_id,
-                self.parameter,
-                self.value_type,
-                self.fcs_number,
-                self.fcs_text)
-
-
 def compensation_file_path(instance, filename):
     project_id = instance.site.project_id
     site_id = instance.site_id
 
     upload_dir = join(
-        ['ReFlow-data', str(project_id), 'compensation', str(site_id), str(filename)],
+        [
+            'ReFlow-data',
+            str(project_id),
+            'compensation',
+            str(site_id),
+            str(filename)],
         "/"
     )
 

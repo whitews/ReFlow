@@ -568,7 +568,7 @@ def view_subjects(request, project_id):
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
 
-    subjects = Subject.objects.filter(project=project).order_by('subject_id')
+    subjects = Subject.objects.filter(project=project).order_by('subject_code')
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -595,11 +595,9 @@ def view_samples(request, project_id):
     if project.has_view_permission(request.user):
         samples = Sample.objects.filter(subject__project=project).values(
             'id',
-            'subject__subject_id',
-            'site__site_name',
-            'site__id',
+            'subject__subject_code',
+            'site_panel__id',
             'visit__visit_type_name',
-            'sample_group__group_name',
             'specimen__specimen_name',
             'original_filename'
         )
@@ -618,19 +616,20 @@ def view_samples(request, project_id):
     else:
         raise PermissionDenied
 
-    spm_maps = SampleParameterMap.objects.filter(
-        sample_id__in=[i['id'] for i in samples]).values(
-            'id',
-            'sample_id',
-            'fcs_number',
-            'fcs_text',
-            'fcs_opt_text',
-            'parameter__parameter_short_name',
-            'value_type__value_type_short_name',
-        )
-
-    for sample in samples:
-        sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
+    # TODO: fix sample param lookup, use distinct site panels???
+    # spm_maps = SampleParameterMap.objects.filter(
+    #     sample_id__in=[i['id'] for i in samples]).values(
+    #         'id',
+    #         'sample_id',
+    #         'fcs_number',
+    #         'fcs_text',
+    #         'fcs_opt_text',
+    #         'parameter__parameter_short_name',
+    #         'value_type__value_type_short_name',
+    #     )
+    #
+    # for sample in samples:
+    #     sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -739,33 +738,33 @@ def view_site(request, site_id):
     # get user's sites based on their site_view_permission,
     # unless they have full project view permission
     if project.has_view_permission(request.user) or site.has_view_permission(request.user):
-        samples = Sample.objects.filter(site=site).values(
+        samples = Sample.objects.filter(site_panel__site=site).values(
             'id',
-            'subject__subject_id',
-            'site__site_name',
-            'site__id',
+            'subject__subject_code',
+            'site_panel__site__site_name',
+            'site_panel__site_id',
             'visit__visit_type_name',
-            'sample_group__group_name',
             'specimen__specimen_name',
             'original_filename'
         )
     else:
         raise PermissionDenied
 
-    spm_maps = SampleParameterMap.objects.filter(
-        sample_id__in=[i['id'] for i in samples]).values(
-            'id',
-            'sample_id',
-            'fcs_number',
-            'fcs_text',
-            'fcs_opt_text',
-            'parameter__parameter_short_name',
-            'value_type__value_type_short_name',
-        )
+    # TODO: rework to get site panel parameters,
+    # maybe use distinct list of site panel IDs???
+    # sample_parameters = SitePanelParameter.objects.filter(
+    #     sample_id__in=[i['id'] for i in samples]).values(
+    #         'id',
+    #         'sample_id',
+    #         'fcs_number',
+    #         'fcs_text',
+    #         'fcs_opt_text',
+    #         'parameter_value_type__value_type_abbreviation',
+    #     )
 
-    # this is done to avoid hitting the database too hard in templates
-    for sample in samples:
-        sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
+    # # this is done to avoid hitting the database too hard in templates
+    # for sample in samples:
+    #     sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -867,7 +866,7 @@ def view_visit_types(request, project_id):
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
 
-    visit_types = ProjectVisitType.objects.filter(project=project).order_by('visit_type_name')
+    visit_types = VisitType.objects.filter(project=project).order_by('visit_type_name')
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -892,14 +891,14 @@ def add_visit_type(request, project_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        visit_type = ProjectVisitType(project=project)
-        form = ProjectVisitTypeForm(request.POST, instance=visit_type)
+        visit_type = VisitType(project=project)
+        form = VisitTypeForm(request.POST, instance=visit_type)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('project_visit_types', args=(project_id,)))
     else:
-        form = ProjectVisitTypeForm()
+        form = VisitTypeForm()
 
     return render_to_response(
         'add_visit_type.html',
@@ -913,13 +912,13 @@ def add_visit_type(request, project_id):
 
 @login_required
 def edit_visit_type(request, project_id, visit_type_id):
-    visit_type = get_object_or_404(ProjectVisitType, pk=visit_type_id, project_id=project_id)
+    visit_type = get_object_or_404(VisitType, pk=visit_type_id, project_id=project_id)
 
     if not visit_type.project.has_modify_permission(request.user):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = ProjectVisitTypeForm(request.POST, instance=visit_type)
+        form = VisitTypeForm(request.POST, instance=visit_type)
 
         if form.is_valid():
             form.save()
@@ -927,7 +926,7 @@ def edit_visit_type(request, project_id, visit_type_id):
                 'project_visit_types',
                 args=(visit_type.project_id,)))
     else:
-        form = ProjectVisitTypeForm(instance=visit_type)
+        form = VisitTypeForm(instance=visit_type)
 
     return render_to_response(
         'edit_visit_type.html',
@@ -1225,7 +1224,7 @@ def add_subject(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_subjects', args=(project_id,)))
+            return HttpResponseRedirect(reverse('view_subjects', args=(project_id,)))
 
     else:
         form = SubjectForm(project_id=project_id)
@@ -1248,11 +1247,11 @@ def edit_subject(request, subject_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SubjectForm(request.POST, instance=subject, project_id=subject.project_id)
+        form = SubjectForm(request.POST, instance=subject, project_id=subject.subject_group.project_id)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=(subject_id,)))
+            return HttpResponseRedirect(reverse('view_subjects', args=(subject.subject_group.project_id,)))
     else:
         form = SubjectForm(instance=subject, project_id=subject.project_id)
 

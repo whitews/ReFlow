@@ -37,21 +37,15 @@ class FluorochromeForm(forms.ModelForm):
         model = Fluorochrome
 
 
-class ParameterForm(forms.ModelForm):
+class ProjectPanelParameterForm(forms.ModelForm):
     class Meta:
-        model = Parameter
+        model = ProjectPanelParameter
 
 
 class ParameterAntibodyMapForm(forms.ModelForm):
     class Meta:
-        model = ParameterAntibodyMap
-        exclude = ('parameter',)
-
-
-class ParameterFluorochromeMapForm(forms.ModelForm):
-    class Meta:
-        model = ParameterFluorochromeMap
-        exclude = ('parameter',)
+        model = ProjectPanelParameterAntibody
+        exclude = ('project_parameter',)
 
 
 class SpecimenForm(forms.ModelForm):
@@ -101,9 +95,9 @@ class SiteForm(forms.ModelForm):
         exclude = ('project',)
 
 
-class ProjectVisitTypeForm(forms.ModelForm):
+class VisitTypeForm(forms.ModelForm):
     class Meta:
-        model = ProjectVisitType
+        model = VisitType
         exclude = ('project',)
 
 
@@ -121,17 +115,16 @@ class SitePanelFromSampleForm(forms.ModelForm):
 
 
 class SitePanelParameterMapFromSampleForm(forms.ModelForm):
-    parameter = forms.ModelChoiceField(queryset=Parameter.objects.order_by('parameter_short_name'))
 
     class Meta:
-        model = SitePanelParameterMap
-        fields = ('fcs_text', 'fcs_opt_text', 'parameter', 'value_type')
+        model = SitePanelParameter
+        fields = ('fcs_text', 'fcs_opt_text', 'parameter_value_type')
 
 
 class SitePanelParameterMapForm(forms.ModelForm):
     class Meta:
-        model = SitePanelParameterMap
-        fields = ('fcs_text', 'fcs_opt_text', 'parameter', 'value_type')
+        model = SitePanelParameter
+        fields = ('fcs_text', 'fcs_opt_text', 'parameter_value_type')
         exclude = ('site_panel',)
 
 
@@ -162,9 +155,9 @@ class SubjectForm(forms.ModelForm):
             self.fields['subject_group'] = forms.ModelChoiceField(subject_groups)
 
 
-class SampleGroupForm(forms.ModelForm):
+class StimulationForm(forms.ModelForm):
     class Meta:
-        model = SampleGroup
+        model = Stimulation
 
 
 class SampleForm(forms.ModelForm):
