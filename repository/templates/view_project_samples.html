@@ -15,10 +15,10 @@
 $(function() {
   $("#data-table").tablesorter({
     selectorHeaders: '> thead > tr > th',
-    sortList: [[0,0]],
+    sortList: [[2,0]],
     headers: {
       0: { sorter: false},
-      2: { sorter: false},
+      1: { sorter: false},
       8: { sorter: false},
     }
   });
@@ -81,24 +81,32 @@ $(document).ready(function()
 {% block body %}
 <div class="container">
 
-  {% if samples %}
   <table id="data-table" class="table table-hover">
     <thead>
       <tr>
         <th colspan="8" class="center">
-          <h4>Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></h4>
+          <div style="position:relative">
+            <h4>Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></h4>
+
+            {% if can_add_project_data or user_add_sites.count > 0 %}
+            <div style="position:absolute; right:0;top:0;">
+              <a class="btn btn-small" href="{% url 'add_sample' project.id %}">
+                Add Sample
+              </a>
+            </div>
+            {% endif %}
+          </div>
         </th>
       </tr>
       <tr>
-          <th>File Name</th>
           <th></th>
-          <th>Subject</th>
+          <th>File Name</th>
           <th>Site</th>
+          <th>Subject</th>
           <th>Visit</th>
-          <th>Sample Group</th>
           <th>Specimen</th>
           <th>
-              Parameters
+              Panel
               <span class="pull-right">
                 <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
               </span>
@@ -108,20 +116,23 @@ $(document).ready(function()
     <tbody>
       {% for sample in samples %}
       <tr>
-        <td class="middle">
-          <a class="no-wrap" href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a>
-        </td>
-        <td>
+        <td class="no-wrap middle">
+
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_sample' sample.id %}" data-original-title="Download FCS File" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
+          </a>
           {% if sample.site__id in user_modify_sites or can_modify_project_data %}
-          <a class="pull-right" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
           </a>
           {% endif %}
         </td>
-        <td class="middle">{{ sample.subject__subject_id }}</td>
+        <td class="no-wrap middle">
+          {{ sample.original_filename }}
+        </td>
         <td class="middle">{{ sample.site__site_name }}</td>
+        <td class="middle">{{ sample.subject__subject_id }}</td>
         <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
-        <td class="middle">{{ sample.sample_group__group_name }}</td>
         <td class="middle">{{ sample.specimen__specimen_name }}</td>
 
         <td style="width: 50%" class="middle">
@@ -165,15 +176,5 @@ $(document).ready(function()
       {% endfor %}
     </tbody>
   </table>
-  {% else %}
-  <p>Project has no flow cytometry samples.</p>
-  {% endif %}
-  {% if can_add_project_data or user_add_sites.count > 0 %}
-  <div class="pull-right">
-    <a class="btn btn-success btn-small" href="{% url 'add_sample' project.id %}">
-      <i class="icon-plus icon-white"></i> Add Sample
-    </a>
-  </div>
-  {% endif %}
 </div>
 {% endblock %}

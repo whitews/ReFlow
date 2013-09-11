@@ -116,7 +116,6 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/sample_sets/$', 'view_project_sample_sets', name='view_project_sample_sets'),
     url(r'^project/(?P<project_id>\d+)/sample_sets/add/$', 'add_sample_set', name='add_sample_set'),
-    url(r'^sample_set/(?P<sample_set_id>\d+)/$', 'view_sample_set', name='view_sample_set'),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 )
