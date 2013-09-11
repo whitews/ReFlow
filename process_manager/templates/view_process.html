@@ -17,11 +17,21 @@
     </div>
     <br/>
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-hover">
       <thead>
         <tr>
           <th colspan="4" class="center">
-            <h4>Process Inputs <span class="badge badge-inverse align-top">{{ process.processinput_set.all.count }}</span></h4>
+            <div style="position:relative">
+              <h4>Process Inputs <span class="badge badge-inverse align-top">{{ process.processinput_set.all.count }}</span></h4>
+
+              {% if user.is_superuser %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'add_process_input' process.id %}">
+                  Add Input
+                </a>
+              </div>
+              {% endif %}
+            </div>
           </th>
         </tr>
         <tr>
@@ -37,11 +47,11 @@
           <td class="middle">
             {{ input.input_name }}
             {% if user.is_superuser %}
-            <div class="pull-right align-middle">
+            <span class="pull-right align-middle">
               <a rel="tooltip" href="{% url 'edit_process_input' input.id %}" data-original-title="Edit Input" data-placement="bottom">
-                <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
               </a>
-            </div>
+            </span>
             {% endif %}
           </td>
           <td class="middle">{{ input.input_description|default_if_none:'' }}</td>
@@ -51,13 +61,5 @@
         {% endfor %}
       </tbody>
     </table>
-    {% if user.is_superuser %}
-    <div class="pull-right">
-      <a class="btn btn-success btn-small" href="{% url 'add_process_input' process.id %}">
-        <i class="icon-plus icon-white"></i> Add Input
-      </a>
-    </div>
-    {% endif %}
-
   </div>
 {% endblock %}

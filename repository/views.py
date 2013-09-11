@@ -1336,7 +1336,7 @@ def add_sample(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_samples', args=(project_id,)))
+            return HttpResponseRedirect(reverse('view_project_samples', args=(project_id,)))
     else:
         form = SampleForm(project_id=project_id, request=request)
 
@@ -1417,11 +1417,7 @@ def edit_sample(request, sample_id):
 
         if form.is_valid():
             form.save()
-            # TODO: should this go to view_subject? or view_samples?
-            #       This will route to view_samples once view_samples is
-            #       updated w/AJAX query to limit the samples instead of
-            #       returning all samples (which is too expensive)
-            return HttpResponseRedirect(reverse('view_subject', args=(sample.subject_id,)))
+            return HttpResponseRedirect(reverse('view_project_samples', args=(sample.visit.project_id,)))
     else:
         form = SampleEditForm(
             instance=sample,

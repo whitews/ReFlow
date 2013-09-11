@@ -20,11 +20,21 @@
     </div>
     <br/>
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-hover">
       <thead>
         <tr>
           <th colspan="2" class="center">
-            <h4>Registered Processes <span class="badge badge-inverse align-top">{{ worker.workerprocessmap_set.all.count }}</span></h4>
+            <div style="position:relative">
+              <h4>Registered Processes <span class="badge badge-inverse align-top">{{ worker.workerprocessmap_set.all.count }}</span></h4>
+
+              {% if user.is_superuser %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'register_process_to_worker' worker.id %}">
+                  Register a Process
+                </a>
+              </div>
+              {% endif %}
+            </div>
           </th>
         </tr>
         <tr>
@@ -41,13 +51,5 @@
         {% endfor %}
       </tbody>
     </table>
-    {% if user.is_superuser %}
-    <div class="pull-right">
-      <a class="btn btn-success btn-small" href="{% url 'register_process_to_worker' worker.id %}">
-        <i class="icon-plus icon-white"></i> Register a Process
-      </a>
-    </div>
-    {% endif %}
-
   </div>
 {% endblock %}

@@ -58,6 +58,13 @@ $(function() {
       <tr>
         <td class="middle">
           <a href="{% url 'view_site' site.id %}">{{ site.site_name }}</a>
+          {% if can_modify_project_data %}
+            <span class="pull-right">
+              <a rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit" data-placement="bottom">
+                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+              </a>
+            </span>
+          {% endif %}
         </td>
         <td class="middle">
           {{ site.sample_set.count }}

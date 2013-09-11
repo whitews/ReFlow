@@ -9,6 +9,19 @@
 
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[0,0]],
+    headers: {
+      0: { sorter: false},
+      3: { sorter: false},
+    }
+  });
+});
+</script>
 
 <script>
 $(document).ready(function()
@@ -106,15 +119,25 @@ $(document).ready(function()
 <div id="error_dialog"></div>
 
   <div class="container">
-    <table class="table table-bordered table-striped">
+    <table id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="3" class="center">
-            <h4>Site Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
+            <div style="position:relative">
+              <h4>Site Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
+
+              {% if can_add_site_data %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'add_site_panel' site.id %}">
+                  Add Site Panel
+                </a>
+              </div>
+              {% endif %}
+            </div>
           </th>
         </tr>
         <tr>
-          <th>Panel</th>
+          <th>Panel Name</th>
           <th>Site</th>
           <th>
             Parameters
@@ -136,8 +159,8 @@ $(document).ready(function()
               </a>
               {% endif %}
               {% if can_modify_site_data %}
-              <a rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit Site Panel" data-placement="left">
-                  <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
+              <a rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit" data-placement="left">
+                  <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
               </a>
               {% endif %}
             </span>
@@ -222,12 +245,5 @@ $(document).ready(function()
         {% endfor %}
       </tbody>
     </table>
-    {% if can_add_site_data %}
-    <div class="pull-right">
-      <a class="btn btn-success btn-small" href="{% url 'add_site_panel' site.id %}">
-        <i class="icon-plus icon-white"></i> Add Site Panel
-      </a>
-    </div>
-    {% endif %}
   </div>
 {% endblock %}

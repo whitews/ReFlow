@@ -17,12 +17,15 @@ def process_dashboard(request):
 
     processes = Process.objects.all()
     workers = Worker.objects.all()
+    requests = ProcessRequest.objects.filter(
+        sample_set__project__in=Project.objects.get_projects_user_can_view(request.user))
 
     return render_to_response(
         'process_dashboard.html',
         {
             'processes': sorted(processes, key=attrgetter('process_name')),
             'workers': sorted(workers, key=attrgetter('worker_name')),
+            'requests': requests,
         },
         context_instance=RequestContext(request)
     )
@@ -168,21 +171,6 @@ def register_process_to_worker(request, worker_id):
         context_instance=RequestContext(request)
     )
 
-
-@login_required
-def process_requests(request):
-    requests = ProcessRequest.objects.filter(
-        sample_set__project__in=Project.objects.get_projects_user_can_view(request.user))
-
-    return render_to_response(
-        'view_process_requests.html',
-        {
-            'requests': requests,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
 @user_passes_test(lambda u: u.is_superuser)
 def create_process_request(request, process_id):
     process = get_object_or_404(Process, pk=process_id)
@@ -209,7 +197,7 @@ def create_process_request(request, process_id):
                 valid_request.save()
                 formset.save()
 
-                return HttpResponseRedirect(reverse('process_requests'))
+                return HttpResponseRedirect(reverse('process_dashboard'))
         else:
             formset = PRInputValueFormSet(request.POST, instance=process_request)
     else:

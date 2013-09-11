@@ -6,7 +6,6 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
-    {% breadcrumb_url 'Process Requests' 'process_requests' %}
     {% breadcrumb process_request.process.process_name %}
   </ul>
 {% endblock %}
@@ -77,13 +76,14 @@ function revoke_assignment()
       <tr>
         <td>Worker:</td>
         <td>
-          <span id="worker">{{ process_request.worker.worker_name|default_if_none:'' }}
-          {% if user.is_superuser and process_request.worker.worker_name != None %}
-            <a rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
-              <i style="opacity: 0.4;margin: 0 10px;" class="icon-remove align-middle"></i>
-            </a>
-          {% endif %}
-          <span id="error_message"></span>
+          <span id="worker">
+            {{ process_request.worker.worker_name|default_if_none:'' }}
+            {% if user.is_superuser and process_request.worker.worker_name != None %}
+              <a class="btn btn-mini" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+                <i style="opacity: 0.4;margin: 0 10px;" class="icon-remove align-middle"></i>
+              </a>
+            {% endif %}
+            <span id="error_message"></span>
           </span>
         </td>
       </tr>
@@ -96,7 +96,7 @@ function revoke_assignment()
     </table>
     </br>
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-hover">
       <thead>
         <tr>
           <th colspan="4" class="center">

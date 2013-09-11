@@ -108,7 +108,7 @@ urlpatterns += patterns('repository.views',
     url(r'^subject/(?P<subject_id>\d+)/samples/add/$', 'add_subject_sample', name='add_subject_sample'),
     url(r'^site/(?P<site_id>\d+)/samples/add/$', 'add_site_sample', name='add_site_sample'),
 
-    url(r'^project/(?P<project_id>\d+)/samples/$', 'view_samples', name='project_samples'),
+    url(r'^project/(?P<project_id>\d+)/samples/$', 'view_samples', name='view_project_samples'),
     url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
     url(r'^sample/(?P<sample_id>\d+)/select_panel/$', 'select_panel', name='select_panel'),
     url(r'^sample/(?P<sample_id>\d+)/create_panel/$', 'create_panel_from_sample', name='create_panel_from_sample'),
