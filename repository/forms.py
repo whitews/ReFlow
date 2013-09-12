@@ -337,18 +337,19 @@ class SampleSetForm(forms.ModelForm):
 
             # and now some foo to get the distinct list of parameter+value_type
             # from all categorized samples in the project.
-            spm = SampleParameterMap.objects.filter(sample__subject__project_id=project_id)
-            unique_param_combos = spm.values('parameter__parameter_short_name','value_type__value_type_short_name')\
-                .exclude(parameter=None)\
+            spp = SitePanelParameter.objects.filter(site_panel__project_panel__project_id=project_id)
+            unique_param_combos = spp.values(
+                    'parameter_type__parameter_type_abbreviation',
+                    'parameter_value_type__value_type_abbreviation')\
                 .distinct()\
-                .order_by('parameter','value_type')
+                .order_by('parameter_type','parameter_value_type')
             # and combine the param + value type to one string per parameter
             parameter_list = []
             for p in unique_param_combos:
                 parameter_list.append(
                     (
-                        p['parameter__parameter_short_name'] + '-' + p['value_type__value_type_short_name'],
-                        p['parameter__parameter_short_name'] + '-' + p['value_type__value_type_short_name']
+                        p['parameter_type__parameter_type_abbreviation'] + '-' + p['parameter_value_type__value_type_abbreviation'],
+                        p['parameter_type__parameter_type_abbreviation'] + '-' + p['parameter_value_type__value_type_abbreviation']
                     )
                 )
             self.fields['parameters'] = forms.MultipleChoiceField(
