@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import \
+    HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.forms.models import inlineformset_factory
@@ -36,12 +37,134 @@ def home(request):
         context_instance=RequestContext(request)
     )
 
+#########################
+### Non-project views ###
+#########################
+
 
 @user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
 def admin(request):
     return render_to_response(
         'admin.html',
         {},
+        context_instance=RequestContext(request)
+    )
+
+
+
+@login_required
+def view_specimens(request):
+
+    specimens = Specimen.objects.all().values(
+        'id',
+        'specimen_name',
+        'specimen_description',
+    )
+
+    return render_to_response(
+        'view_specimens.html',
+        {
+            'specimens': specimens,
+        },
+        context_instance=RequestContext(request)
+    )
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def add_specimen(request):
+    if request.method == 'POST':
+        form = SpecimenForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_specimens'))
+    else:
+        form = SpecimenForm()
+
+    return render_to_response(
+        'add_specimen.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def edit_specimen(request, specimen_id):
+    specimen = get_object_or_404(Specimen, pk=specimen_id)
+
+    if request.method == 'POST':
+        form = SpecimenForm(request.POST, instance=specimen)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_specimens'))
+    else:
+        form = SpecimenForm(instance=specimen)
+
+    return render_to_response(
+        'edit_specimen.html',
+        {
+            'specimen': specimen,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def view_stains(request):
+    stains = Staining.objects.all().order_by('staining_name')
+
+    return render_to_response(
+        'view_stains.html',
+        {
+            'stains': stains,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def add_stain(request):
+    if request.method == 'POST':
+        stain = Staining()
+        form = StainingForm(request.POST, instance=stain)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_stains'))
+    else:
+        form = StainingForm()
+
+    return render_to_response(
+        'add_stain.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def edit_stain(request, staining_id):
+    stain = get_object_or_404(Staining, pk=staining_id)
+
+    if request.method == 'POST':
+        form = StainingForm(request.POST, instance=stain)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_stains'))
+    else:
+        form = StainingForm(instance=stain)
+
+    return render_to_response(
+        'edit_stain.html',
+        {
+            'form': form,
+            'stain': stain,
+        },
         context_instance=RequestContext(request)
     )
 
@@ -170,173 +293,9 @@ def edit_fluorochrome(request, fluorochrome_id):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def add_parameter(request):
-    if request.method == 'POST':
-        form = ParameterForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterForm()
-
-    return render_to_response(
-        'add_parameter.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def associate_antibody_to_parameter(request, parameter_id):
-    parameter = get_object_or_404(Parameter, pk=parameter_id)
-    pa_map = ParameterAntibodyMap(parameter_id=parameter_id)
-
-    if request.method == 'POST':
-        form = ParameterAntibodyMapForm(request.POST, instance=pa_map)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterAntibodyMapForm(instance=pa_map)
-
-    return render_to_response(
-        'associate_antibody_to_parameter.html',
-        {
-            'parameter': parameter,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def remove_parameter_antibody(request, pa_map_id):
-    pa_map = get_object_or_404(ParameterAntibodyMap, pk=pa_map_id)
-
-    pa_map.delete()
-
-    return HttpResponseRedirect(reverse('view_parameters',))
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def associate_fluorochrome_to_parameter(request, parameter_id):
-    parameter = get_object_or_404(Parameter, pk=parameter_id)
-    pf_map = ParameterFluorochromeMap(parameter_id=parameter_id)
-
-    if request.method == 'POST':
-        form = ParameterFluorochromeMapForm(request.POST, instance=pf_map)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterFluorochromeMapForm(instance=pf_map)
-
-    return render_to_response(
-        'associate_fluorochrome_to_parameter.html',
-        {
-            'parameter': parameter,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def remove_parameter_fluorochrome(request, pf_map_id):
-    pf_map = get_object_or_404(ParameterFluorochromeMap, pk=pf_map_id)
-
-    pf_map.delete()
-
-    return HttpResponseRedirect(reverse('view_parameters',))
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def edit_parameter(request, parameter_id):
-    parameter = get_object_or_404(Parameter, pk=parameter_id)
-
-    if request.method == 'POST':
-        form = ParameterForm(request.POST, instance=parameter)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterForm(instance=parameter)
-
-    return render_to_response(
-        'edit_parameter.html',
-        {
-            'parameter': parameter,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def view_specimens(request):
-
-    specimens = Specimen.objects.all().values(
-        'id',
-        'specimen_name',
-        'specimen_description',
-    )
-
-    return render_to_response(
-        'view_specimens.html',
-        {
-            'specimens': specimens,
-        },
-        context_instance=RequestContext(request)
-    )
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def add_specimen(request):
-    if request.method == 'POST':
-        form = SpecimenForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_specimens'))
-    else:
-        form = SpecimenForm()
-
-    return render_to_response(
-        'add_specimen.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def edit_specimen(request, specimen_id):
-    specimen = get_object_or_404(Specimen, pk=specimen_id)
-
-    if request.method == 'POST':
-        form = SpecimenForm(request.POST, instance=specimen)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_specimens'))
-    else:
-        form = SpecimenForm(instance=specimen)
-
-    return render_to_response(
-        'edit_specimen.html',
-        {
-            'specimen': specimen,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
+##############################
+### Project specific views ###
+##############################
 
 
 @login_required
@@ -513,6 +472,260 @@ def manage_site_user(request, site_id, user_id):
         {
             'site': site,
             'site_user': user,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def view_project_stimulations(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_view_permission(request.user):
+        raise PermissionDenied
+
+    stimulations = Stimulation.objects.filter(project=project)
+
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+
+    return render_to_response(
+        'view_project_stimulations.html',
+        {
+            'project': project,
+            'stimulations': stimulations,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def add_stimulation(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_add_permission(request.user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        stimulation = Stimulation(project=project)
+        form = StimulationForm(request.POST, instance=stimulation)
+
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse('view_project_stimulations', args=(project_id,)))
+    else:
+        form = StimulationForm()
+
+    return render_to_response(
+        'add_project_stimulation.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def edit_stimulation(request, stimulation_id):
+    stimulation = get_object_or_404(Stimulation, pk=stimulation_id)
+
+    if not stimulation.project.has_modify_permission(request.user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        form = StimulationForm(request.POST, instance=stimulation)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_project_stimulations', args=(stimulation.project_id,)))
+    else:
+        form = StimulationForm(instance=stimulation)
+
+    return render_to_response(
+        'edit_project_stimulation.html',
+        {
+            'form': form,
+            'stimulation': stimulation,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+
+@login_required
+def view_project_panels(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    # TODO: hmm, shouldn't any site user have access to view project panels?
+    if not project.has_view_permission(request.user):
+        raise PermissionDenied
+
+    panels = ProjectPanel.objects.filter(project=project).values(
+        'id',
+        'panel_name',
+        'stimulation',
+        'staining'
+    )
+    panel_params = ProjectPanelParameter.objects.filter(project_panel_id__in=[i['id'] for i in panels]).values(
+        'id',
+        'parameter_type__parameter_type_abbreviation',
+        'parameter_value_type__value_type_abbreviation',
+        'fluorochrome',
+    )
+
+    for panel in panels:
+        panel['parameters'] = [i for i in panel_params if i['panel_id'] == panel['id']]
+
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+
+    return render_to_response(
+        'view_project_panels.html',
+        {
+            'project': project,
+            'panels': panels,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def add_project_panel(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not (project.has_add_permission(request.user)):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        form = ProjectPanelForm(request.POST, instance=ProjectPanel(project=project))
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_project_panels', args=(project_id,)))
+
+    else:
+        form = ProjectPanelForm()
+
+    return render_to_response(
+        'add_project_panel.html',
+        {
+            'form': form,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def add_parameter(request):
+    if request.method == 'POST':
+        form = ParameterForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterForm()
+
+    return render_to_response(
+        'add_parameter.html',
+        {
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def associate_antibody_to_parameter(request, parameter_id):
+    parameter = get_object_or_404(Parameter, pk=parameter_id)
+    pa_map = ParameterAntibodyMap(parameter_id=parameter_id)
+
+    if request.method == 'POST':
+        form = ParameterAntibodyMapForm(request.POST, instance=pa_map)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterAntibodyMapForm(instance=pa_map)
+
+    return render_to_response(
+        'associate_antibody_to_parameter.html',
+        {
+            'parameter': parameter,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def remove_parameter_antibody(request, pa_map_id):
+    pa_map = get_object_or_404(ParameterAntibodyMap, pk=pa_map_id)
+
+    pa_map.delete()
+
+    return HttpResponseRedirect(reverse('view_parameters',))
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def associate_fluorochrome_to_parameter(request, parameter_id):
+    parameter = get_object_or_404(Parameter, pk=parameter_id)
+    pf_map = ParameterFluorochromeMap(parameter_id=parameter_id)
+
+    if request.method == 'POST':
+        form = ParameterFluorochromeMapForm(request.POST, instance=pf_map)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterFluorochromeMapForm(instance=pf_map)
+
+    return render_to_response(
+        'associate_fluorochrome_to_parameter.html',
+        {
+            'parameter': parameter,
+            'form': form,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def remove_parameter_fluorochrome(request, pf_map_id):
+    pf_map = get_object_or_404(ParameterFluorochromeMap, pk=pf_map_id)
+
+    pf_map.delete()
+
+    return HttpResponseRedirect(reverse('view_parameters',))
+
+
+@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+def edit_parameter(request, parameter_id):
+    parameter = get_object_or_404(Parameter, pk=parameter_id)
+
+    if request.method == 'POST':
+        form = ParameterForm(request.POST, instance=parameter)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('view_parameters'))
+    else:
+        form = ParameterForm(instance=parameter)
+
+    return render_to_response(
+        'edit_parameter.html',
+        {
+            'parameter': parameter,
             'form': form,
         },
         context_instance=RequestContext(request)
@@ -871,8 +1084,8 @@ def add_visit_type(request, project_id):
 
 
 @login_required
-def edit_visit_type(request, project_id, visit_type_id):
-    visit_type = get_object_or_404(VisitType, pk=visit_type_id, project_id=project_id)
+def edit_visit_type(request, visit_type_id):
+    visit_type = get_object_or_404(VisitType, pk=visit_type_id)
 
     if not visit_type.project.has_modify_permission(request.user):
         raise PermissionDenied
@@ -1219,63 +1432,6 @@ def edit_subject(request, subject_id):
         {
             'form': form,
             'subject': subject,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def view_stains(request):
-    stains = Staining.objects.all().order_by('staining_name')
-
-    return render_to_response(
-        'view_stains.html',
-        {
-            'stains': stains,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def add_stain(request):
-    if request.method == 'POST':
-        stain = Staining()
-        form = StainingForm(request.POST, instance=stain)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_stains'))
-    else:
-        form = StainingForm()
-
-    return render_to_response(
-        'add_stain.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def edit_stain(request, staining_id):
-    stain = get_object_or_404(Staining, pk=staining_id)
-
-    if request.method == 'POST':
-        form = StainingForm(request.POST, instance=stain)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_stains'))
-    else:
-        form = StainingForm(instance=stain)
-
-    return render_to_response(
-        'edit_stain.html',
-        {
-            'form': form,
-            'stain': stain,
         },
         context_instance=RequestContext(request)
     )

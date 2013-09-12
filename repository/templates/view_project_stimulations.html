@@ -23,7 +23,7 @@ $(function() {
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
-    {% breadcrumb 'Visit Types' %}
+    {% breadcrumb 'Stimulations' %}
   </ul>
 {% endblock %}
 
@@ -34,12 +34,12 @@ $(function() {
         <tr>
           <th colspan="2" class="center">
             <div style="position:relative">
-              <h4>Visit Types <span class="badge badge-inverse align-top">{{ visit_types|length }}</span></h4>
+              <h4>Stimulations <span class="badge badge-inverse align-top">{{ stimulations|length }}</span></h4>
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_visit_type' project.id %}">
-                  Add Visit Type
+                <a class="btn btn-small" href="{% url 'add_stimulation' project.id %}">
+                  Add Stimulation
                 </a>
               </div>
               {% endif %}
@@ -47,24 +47,24 @@ $(function() {
           </th>
         </tr>
         <tr>
-          <th>Visit Name</th>
-          <th>Visit Description</th>
+          <th>Name</th>
+          <th>Description</th>
         </tr>
       </thead>
       <tbody>
-      {% for visit_type in visit_types %}
+      {% for stim in stimulations %}
         <tr>
           <td>
-            {{ visit_type.visit_type_name }}
+            {{ stim.stimulation_name }}
             {% if can_modify_project_data %}
             <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_visit_type' visit_type.id %}" data-original-title="Edit Visit Type" data-placement="left">
+              <a rel="tooltip" href="{% url 'edit_stimulation' stim.id %}" data-original-title="Edit Visit Type" data-placement="left">
                 <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
               </a>
             </span>
             {% endif %}
           </td>
-          <td>{{ visit_type.visit_type_description }} </td>
+          <td>{{ stim.stimulation_description }} </td>
         </tr>
       {% endfor %}
       </tbody>

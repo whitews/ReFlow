@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url 'Project Panels' 'view_project_panels' project.id %}
+    {% breadcrumb "Add Project Panel" %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+      <form class="form-horizontal" action="{% url 'add_project_panel' project.id %}" method="post">
+        {% csrf_token %}
+          {% if form.non_field_errors %}
+              <div class="control-group text-error">
+                  {{ form.non_field_errors }}
+              </div>
+          {% endif %}
+
+          {% for field in form %}
+              <div class="control-group">
+                  <label class="control-label">{{ field.label }}</label>
+                  <div class="controls">
+                      {{ field }}
+                      {% if field.errors %}
+                          <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+                      {% endif %}
+                  </div>
+              </div>
+          {% endfor %}
+        <div class="control-group">
+          <div class="controls">
+            <button class="btn btn-small btn-success" type="submit">Save</button>
+          </div>
+        </div>
+      </form>
+  </div>
+{% endblock %}

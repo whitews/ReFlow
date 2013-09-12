@@ -77,6 +77,12 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_project_user', name='manage_project_user'),
     url(r'^site/(?P<site_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_site_user', name='manage_site_user'),
 
+    url(r'^project/(?P<project_id>\d+)/stimulations/$', 'view_project_stimulations', name='view_project_stimulations'),
+    url(r'^project/(?P<project_id>\d+)/stimulations/add$', 'add_stimulation', name='add_stimulation'),
+    url(r'^stimulations/(?P<stimulation_id>\d+)/edit$', 'edit_stimulation', name='edit_stimulation'),
+    url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='view_project_panels'),
+    url(r'^project/(?P<project_id>\d+)/panels/add$', 'add_project_panel', name='add_project_panel'),
+
     url(r'^project/(?P<project_id>\d+)/sites/$', 'view_project_sites', name='view_project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
     url(r'^site/(?P<site_id>\d+)$', 'view_site', name='view_site'),
@@ -88,7 +94,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/visit_types/$', 'view_visit_types', name='project_visit_types'),
     url(r'^project/(?P<project_id>\d+)/visit_types/add/$', 'add_visit_type', name='add_visit_type'),
-    url(r'^project/(?P<project_id>\d+)/visit_types/(?P<visit_type_id>\d+)/edit/$', 'edit_visit_type', name='edit_visit_type'),
+    url(r'^visit_types/(?P<visit_type_id>\d+)/edit/$', 'edit_visit_type', name='edit_visit_type'),
 
     url(r'^site/(?P<site_id>\d+)/panels/$', 'view_site_panels', name='view_site_panels'),
     url(r'^site/(?P<site_id>\d+)/panels/add/$', 'add_site_panel', name='add_site_panel'),

@@ -5,16 +5,15 @@
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url visit_type.project.project_name 'view_project' visit_type.project.id %}
-    {% breadcrumb_url 'Visit Types' 'project_visit_types' visit_type.project.id %}
-    {% breadcrumb visit_type.visit_type_name %}
-    {% breadcrumb "Edit Visit Type" %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url 'Stimulations' 'view_project_stimulations' project.id %}
+    {% breadcrumb "Add Stimulation" %}
   </ul>
 {% endblock %}
 
 {% block body %}
     <div class="container">
-        <form class="form-horizontal" action="{% url 'edit_visit_type' visit_type.id %}" method="post">
+        <form class="form-horizontal" action="{% url 'add_stimulation' project.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
                 <div class="control-group text-error">
@@ -35,7 +34,7 @@
             {% endfor %}
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-small btn-success" type="submit">Save Edits</button>
+                    <button class="btn btn-small btn-success" type="submit">Save</button>
                 </div>
             </div>
         </form>

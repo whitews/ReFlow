@@ -243,7 +243,7 @@ class Project(ProtectedModel):
         return u'Project: %s' % self.project_name
 
 
-class Stimulation(models.Model):
+class Stimulation(ProtectedModel):
     project = models.ForeignKey(Project)
     stimulation_name = models.CharField(
         unique=True,
@@ -251,6 +251,13 @@ class Stimulation(models.Model):
         blank=False,
         max_length=128)
     stimulation_description = models.TextField(null=True, blank=True)
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
 
     def __unicode__(self):
         return u'%s' % self.stimulation_name
@@ -270,7 +277,7 @@ class ProjectPanel(ProtectedModel):
         help_text="A short description of the project panel")
     stimulation = models.ForeignKey(Stimulation)
     staining = models.ForeignKey(Staining)
-    parent_panel = models.ForeignKey("self")
+    parent_panel = models.ForeignKey("self", null=True, blank=True)
 
     def has_view_permission(self, user):
 

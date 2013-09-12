@@ -42,6 +42,12 @@ class FluorochromeForm(forms.ModelForm):
         model = Fluorochrome
 
 
+class ProjectPanelForm(forms.ModelForm):
+    class Meta:
+        model = ProjectPanel
+        exclude = ('project',)  # don't allow changing the parent project
+
+
 class ProjectPanelParameterForm(forms.ModelForm):
     class Meta:
         model = ProjectPanelParameter
@@ -163,6 +169,7 @@ class SubjectForm(forms.ModelForm):
 class StimulationForm(forms.ModelForm):
     class Meta:
         model = Stimulation
+        exclude = ('project',)
 
 
 class SampleForm(forms.ModelForm):
