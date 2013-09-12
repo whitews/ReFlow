@@ -45,6 +45,10 @@ urlpatterns += patterns('repository.views',
     url(r'^$', 'home', name='home'),
     url(r'^reflow_admin/$', 'admin', name='admin'),
 
+    url(r'^staining/$', 'view_stains', name='view_stains'),
+    url(r'^staining/add/$', 'add_stain', name='add_stain'),
+    url(r'^staining/(?P<staining_id>\d+)/edit/$', 'edit_stain', name='edit_stain'),
+
     url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
     url(r'^antibodies/add/$', 'add_antibody', name='add_antibody'),
     url(r'^antibodies/(?P<antibody_id>\d+)/edit/$', 'edit_antibody', name='edit_antibody'),
@@ -53,7 +57,6 @@ urlpatterns += patterns('repository.views',
     url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
     url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'edit_fluorochrome', name='edit_fluorochrome'),
 
-    url(r'^parameters/$', 'view_parameters', name='view_parameters'),
     url(r'^parameters/add/$', 'add_parameter', name='add_parameter'),
     url(r'^parameters/(?P<parameter_id>\d+)/edit/$', 'edit_parameter', name='edit_parameter'),
     url(r'^parameters/(?P<parameter_id>\d+)/select_antibody/$', 'associate_antibody_to_parameter', name='associate_antibody_to_parameter'),
@@ -100,17 +103,12 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/subjects/add/$', 'add_subject', name='add_subject'),
     url(r'^subject/(?P<subject_id>\d+)/edit/$', 'edit_subject', name='edit_subject'),
 
-    url(r'^sample_groups/$', 'view_sample_groups', name='view_sample_groups'),
-    url(r'^sample_groups/add/$', 'add_sample_group', name='add_sample_group'),
-    url(r'^sample_groups/(?P<sample_group_id>\d+)/edit/$', 'edit_sample_group', name='edit_sample_group'),
-
     url(r'^project/(?P<project_id>\d+)/samples/add/$', 'add_sample', name='add_sample'),
     url(r'^subject/(?P<subject_id>\d+)/samples/add/$', 'add_subject_sample', name='add_subject_sample'),
     url(r'^site/(?P<site_id>\d+)/samples/add/$', 'add_site_sample', name='add_site_sample'),
 
     url(r'^project/(?P<project_id>\d+)/samples/$', 'view_samples', name='view_project_samples'),
     url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
-    url(r'^sample/(?P<sample_id>\d+)/select_panel/$', 'select_panel', name='select_panel'),
     url(r'^sample/(?P<sample_id>\d+)/create_panel/$', 'create_panel_from_sample', name='create_panel_from_sample'),
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample', name='retrieve_sample'),
 

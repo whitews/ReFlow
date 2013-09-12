@@ -70,7 +70,7 @@ $(function() {
       </tr>
     </thead>
     <tbody>
-      {% for antibody in antibodies|dictsort:"antibody_short_name" %}
+      {% for antibody in antibodies|dictsort:"antibody_abbreviation" %}
       <tr>
         {% if user.is_superuser %}
         <td class="middle">
@@ -79,7 +79,7 @@ $(function() {
           </a>
         </td>
         {% endif %}
-        <td class="middle">{{ antibody.antibody_short_name }}</td>
+        <td class="middle">{{ antibody.antibody_abbreviation }}</td>
         <td class="middle">{{ antibody.antibody_name }}</td>
         <td class="middle">{{ antibody.antibody_description|default_if_none:'' }}</td>
       </tr>

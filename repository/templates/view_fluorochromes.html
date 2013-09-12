@@ -71,7 +71,7 @@ $(function() {
       </tr>
     </thead>
     <tbody>
-      {% for fluorochrome in fluorochromes|dictsort:"fluorochrome_short_name" %}
+      {% for fluorochrome in fluorochromes|dictsort:"fluorochrome_abbreviation" %}
       <tr>
         {% if user.is_superuser %}
         <td class="middle">
@@ -80,7 +80,7 @@ $(function() {
           </a>
         </td>
         {% endif %}
-        <td class="middle">{{ fluorochrome.fluorochrome_short_name }}</td>
+        <td class="middle">{{ fluorochrome.fluorochrome_abbreviation }}</td>
         <td class="middle">{{ fluorochrome.fluorochrome_name }}</td>
         <td class="middle">{{ fluorochrome.fluorochrome_description|default_if_none:'' }}</td>
 

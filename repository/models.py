@@ -67,42 +67,42 @@ class Staining(models.Model):
 
 
 class Antibody(models.Model):
+    antibody_abbreviation = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=32)
     antibody_name = models.CharField(
         unique=True,
         null=False,
         blank=False,
         max_length=128)
-    antibody_short_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=32)
     antibody_description = models.TextField(
         null=True,
         blank=True)
 
     def __unicode__(self):
-        return u'%s' % self.antibody_short_name
+        return u'%s' % self.antibody_abbreviation
 
     class Meta:
         verbose_name_plural = 'Antibodies'
 
 
 class Fluorochrome(models.Model):
+    fluorochrome_abbreviation = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=32)
     fluorochrome_name = models.CharField(
         unique=False,
         null=False,
         blank=False,
         max_length=128)
-    fluorochrome_short_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=32)
     fluorochrome_description = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
-        return u'%s' % self.fluorochrome_short_name
+        return u'%s' % self.fluorochrome_abbreviation
 
 
 class ParameterType(models.Model):
@@ -727,8 +727,7 @@ class SubjectGroup(ProtectedModel):
         unique_together = (('project', 'group_name'),)
 
     def __unicode__(self):
-        return u'%s (Project: %s)' % \
-            (self.group_name, self.project.project_name)
+        return u'%s' % (self.group_name)
 
 
 class Subject(ProtectedModel):

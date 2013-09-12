@@ -6,6 +6,11 @@ from guardian.forms import UserObjectPermissionsForm
 from repository.models import *
 
 
+class StainingForm(forms.ModelForm):
+    class Meta:
+        model = Staining
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
@@ -178,15 +183,16 @@ class SampleForm(forms.ModelForm):
         # finally, make sure only project's subjects, sites, and visit types
         # are the available choices
         if project_id:
-            subjects = Subject.objects.filter(project__id=project_id).order_by('subject_id')
+            subjects = Subject.objects.filter(project__id=project_id).order_by('subject_code')
             self.fields['subject'] = forms.ModelChoiceField(subjects)
 
             # we also need to limit the sites to those that the user has 'add' permission for
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(sites)
+            site_panels = SitePanel.objects.filter(site__in=sites)
+            self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
-            visit_types = ProjectVisitType.objects.filter(project__id=project_id).order_by('visit_type_name')
+            visit_types = VisitType.objects.filter(project__id=project_id).order_by('visit_type_name')
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
 
 
@@ -315,7 +321,7 @@ class SampleSetForm(forms.ModelForm):
                 widget=forms.widgets.CheckboxSelectMultiple()
             )
 
-            visit_types = ProjectVisitType.objects.filter(project_id=project_id)
+            visit_types = VisitType.objects.filter(project_id=project_id)
             self.fields['visit_types'] = forms.ModelMultipleChoiceField(
                 visit_types,
                 required=False,

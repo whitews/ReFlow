@@ -5,15 +5,15 @@
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url 'Sample Groups' 'view_sample_groups' %}
-    {% breadcrumb sample_group.group_name %}
-    {% breadcrumb "Edit Sample Group" %}
+    {% breadcrumb_url 'Stains' 'view_stains' %}
+    {% breadcrumb stain.staining_name %}
+    {% breadcrumb "Edit Stain" %}
   </ul>
 {% endblock %}
 
 {% block body %}
     <div class="container">
-        <form class="form-horizontal" action="{% url 'edit_sample_group' sample_group.id %}" method="post">
+        <form class="form-horizontal" action="{% url 'edit_stain' stain.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
                 <div class="control-group text-error">
@@ -34,7 +34,7 @@
             {% endfor %}
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-small btn-primary" type="submit">Save Edits</button>
+                    <button class="btn btn-small btn-success" type="submit">Save Edits</button>
                 </div>
             </div>
         </form>

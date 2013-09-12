@@ -49,7 +49,7 @@ class SpecimenSerializer(serializers.ModelSerializer):
 
 
 class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='antibody.antibody_short_name', read_only=True)
+    name = serializers.CharField(source='antibody.antibody_abbreviation', read_only=True)
 
     class Meta:
         model = ProjectPanelParameterAntibody

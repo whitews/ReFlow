@@ -32,7 +32,7 @@ $(function() {
     {% if user.is_superuser %}
     {% breadcrumb_url 'Admin' 'admin' %}
     {% endif %}
-    {% breadcrumb 'Stimulations' %}
+    {% breadcrumb 'Stains' %}
   </ul>
 {% endblock %}
 
@@ -43,11 +43,11 @@ $(function() {
         <tr>
           <th colspan="10" class="center">
             <div style="position:relative">
-              <h4>Stimulations <span class="badge badge-inverse align-top">{{ sample_groups|length }}</span></h4>
+              <h4>Stains <span class="badge badge-inverse align-top">{{ stains|length }}</span></h4>
 
               <div style="position:absolute; right:0;top:0;">
               {% if user.is_superuser %}
-                <a class="btn btn btn-small" href="{% url 'add_sample_group' %}">Add Stimulation</a>
+                <a class="btn btn btn-small" href="{% url 'add_stain' %}">Add Stain</a>
               {% endif %}
             </div>
             </div>
@@ -62,19 +62,19 @@ $(function() {
         </tr>
       </thead>
       <tbody>
-      {% for group in sample_groups %}
+      {% for stain in stains %}
         <tr>
           {% if user.is_superuser %}
           <td>
-            <a rel="tooltip" href="{% url 'edit_sample_group' group.id %}" data-original-title="Edit" data-placement="left">
+            <a rel="tooltip" href="{% url 'edit_stain' stain.id %}" data-original-title="Edit" data-placement="left">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
             </a>
           </td>
           {% endif %}
           <td>
-            {{ group.group_name }}
+            {{ stain.staining_name }}
           </td>
-          <td>{{ group.group_description }} </td>
+          <td>{{ stain.staining_description }} </td>
         </tr>
       {% endfor %}
       </tbody>

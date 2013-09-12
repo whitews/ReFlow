@@ -51,23 +51,10 @@ def view_antibodies(request):
 
     antibodies = Antibody.objects.all().values(
         'id',
-        'antibody_short_name',
+        'antibody_abbreviation',
         'antibody_name',
         'antibody_description',
     )
-
-    pa_maps = ParameterAntibodyMap.objects.filter(
-        antibody_id__in=[i['id'] for i in antibodies]).values(
-            'id',
-            'antibody_id',
-            'parameter__parameter_short_name',
-            'parameter__parameter_type',
-        )
-
-    for antibody in antibodies:
-        antibody['parameters'] = [
-            i for i in pa_maps if i['antibody_id'] == antibody['id']
-        ]
 
     return render_to_response(
         'view_antibodies.html',
@@ -126,23 +113,10 @@ def view_fluorochromes(request):
 
     fluorochromes = Fluorochrome.objects.all().values(
         'id',
-        'fluorochrome_short_name',
+        'fluorochrome_abbreviation',
         'fluorochrome_name',
         'fluorochrome_description',
     )
-
-    pf_maps = ParameterFluorochromeMap.objects.filter(
-        fluorochrome_id__in=[i['id'] for i in fluorochromes]).values(
-            'id',
-            'fluorochrome_id',
-            'parameter__parameter_short_name',
-            'parameter__parameter_type',
-        )
-
-    for fluorochrome in fluorochromes:
-        fluorochrome['parameters'] = [
-            i for i in pf_maps if i['fluorochrome_id'] == fluorochrome['id']
-        ]
 
     return render_to_response(
         'view_fluorochromes.html',
@@ -191,20 +165,6 @@ def edit_fluorochrome(request, fluorochrome_id):
         {
             'fluorochrome': fluorochrome,
             'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def view_parameters(request):
-
-    parameters = Parameter.objects.all()
-
-    return render_to_response(
-        'view_parameters.html',
-        {
-            'parameters': parameters,
         },
         context_instance=RequestContext(request)
     )
@@ -962,18 +922,17 @@ def view_site_panels(request, site_id):
 
     panels = SitePanel.objects.filter(site=site).values(
         'id',
-        'panel_name',
-        'panel_description',
+        'site_panel_comments',
         'site__site_name',
         'site__id'
     )
-    ppm_maps = SitePanelParameterMap.objects.filter(site_panel_id__in=[i['id'] for i in panels]).values(
+    ppm_maps = SitePanelParameter.objects.filter(site_panel_id__in=[i['id'] for i in panels]).values(
         'id',
         'site_panel_id',
         'fcs_text',
         'fcs_opt_text',
-        'parameter__parameter_short_name',
-        'value_type__value_type_name',
+        'parameter_type__parameter_type_name',
+        'parameter_value_type__value_type_name',
     )
 
     for panel in panels:
@@ -1266,32 +1225,32 @@ def edit_subject(request, subject_id):
 
 
 @login_required
-def view_sample_groups(request):
-    sample_groups = SampleGroup.objects.all().order_by('group_name')
+def view_stains(request):
+    stains = Staining.objects.all().order_by('staining_name')
 
     return render_to_response(
-        'view_sample_groups.html',
+        'view_stains.html',
         {
-            'sample_groups': sample_groups,
+            'stains': stains,
         },
         context_instance=RequestContext(request)
     )
 
 
 @user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def add_sample_group(request):
+def add_stain(request):
     if request.method == 'POST':
-        sample_group = SampleGroup()
-        form = SampleGroupForm(request.POST, instance=sample_group)
+        stain = Staining()
+        form = StainingForm(request.POST, instance=stain)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_sample_groups'))
+            return HttpResponseRedirect(reverse('view_stains'))
     else:
-        form = SampleGroupForm()
+        form = StainingForm()
 
     return render_to_response(
-        'add_sample_group.html',
+        'add_stain.html',
         {
             'form': form,
         },
@@ -1300,23 +1259,23 @@ def add_sample_group(request):
 
 
 @user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def edit_sample_group(request, sample_group_id):
-    sample_group = get_object_or_404(SampleGroup, pk=sample_group_id)
+def edit_stain(request, staining_id):
+    stain = get_object_or_404(Staining, pk=staining_id)
 
     if request.method == 'POST':
-        form = SampleGroupForm(request.POST, instance=sample_group)
+        form = StainingForm(request.POST, instance=stain)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_sample_groups'))
+            return HttpResponseRedirect(reverse('view_stains'))
     else:
-        form = SampleGroupForm(instance=sample_group)
+        form = StainingForm(instance=stain)
 
     return render_to_response(
-        'edit_sample_group.html',
+        'edit_stain.html',
         {
             'form': form,
-            'sample_group': sample_group,
+            'stain': stain,
         },
         context_instance=RequestContext(request)
     )
@@ -1428,47 +1387,6 @@ def edit_sample(request, sample_id):
         {
             'form': form,
             'sample': sample,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def select_panel(request, sample_id):
-    sample = get_object_or_404(Sample, pk=sample_id)
-
-    if not sample.site.has_add_permission(request.user):
-        raise PermissionDenied
-
-    site_panels = SitePanel.objects.filter(site=sample.site)
-
-    if request.method == 'POST':
-        if 'panel' in request.POST:
-
-            # Get the user selection
-            selected_panel = get_object_or_404(SitePanel, pk=request.POST['panel'])
-
-            try:
-                status = apply_panel_to_sample(selected_panel, sample)
-            except ValidationError as e:
-                status = e.messages
-
-            # if everything saved ok, then the status should be 0,
-            # but might be an array of errors
-            if status != 0:
-                if isinstance(status, list):
-                    errors_json = json.dumps(status)
-                    return HttpResponseBadRequest(errors_json, mimetype='application/json')
-            else:
-                return HttpResponseRedirect(reverse(
-                    'view_subject',
-                    args=(sample.subject_id,)))
-
-    return render_to_response(
-        'select_panel.html',
-        {
-            'sample': sample,
-            'view_site_panels': site_panels,
         },
         context_instance=RequestContext(request)
     )
