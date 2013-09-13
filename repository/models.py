@@ -132,7 +132,7 @@ class ParameterValueType(models.Model):
         blank=False)
 
     def __unicode__(self):
-        return u'%s' % self.value_type_short_name
+        return u'%s' % self.value_type_abbreviation
 
 
 ##############################
@@ -309,9 +309,7 @@ class ProjectPanel(ProtectedModel):
             )
 
     def __unicode__(self):
-        return u'%s (Project: %s)' % (
-            self.panel_name,
-            self.project.project_name)
+        return u'%s' % self.panel_name
 
 
 class ProjectPanelParameter(ProtectedModel):
@@ -346,7 +344,7 @@ class ProjectPanelParameter(ProtectedModel):
         error_message = []
         if not hasattr(self, 'project_panel'):
             error_message.append("Project Panel is required")
-        if not hasattr(self, 'paramete_type'):
+        if not hasattr(self, 'parameter_type'):
             error_message.append("Parameter type is required")
         if not hasattr(self, 'parameter_value_type'):
             error_message.append("Value type is required")

@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from guardian.forms import UserObjectPermissionsForm
@@ -51,6 +52,33 @@ class ProjectPanelForm(forms.ModelForm):
 class ProjectPanelParameterForm(forms.ModelForm):
     class Meta:
         model = ProjectPanelParameter
+
+
+ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
+    ProjectPanelParameter,
+    ProjectPanelParameterAntibody,
+    extra=1)
+
+
+class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
+    def add_fields(self, form, index):
+        # allow the super class to create the fields as usual
+        super(BaseProjectPanelParameterFormSet, self).add_fields(form, index)
+
+        # created the nested formset
+        try:
+            instance = self.get_queryset()[index]
+            pk_value = instance.pk
+        except IndexError:
+            instance=None
+            pk_value = hash(form.prefix)
+
+        # store the formset in the .nested property
+        data = self.data if self.data and index is not None else None
+        form.nested = [
+            ProjectPanelParameterAntibodyFormSet(data=data,
+                            instance = instance,
+                            prefix = 'ANTIBODY_%s' % pk_value)]
 
 
 class ParameterAntibodyMapForm(forms.ModelForm):

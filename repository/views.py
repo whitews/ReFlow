@@ -568,18 +568,20 @@ def view_project_panels(request, project_id):
     panels = ProjectPanel.objects.filter(project=project).values(
         'id',
         'panel_name',
+        'panel_description',
         'stimulation',
         'staining'
     )
     panel_params = ProjectPanelParameter.objects.filter(project_panel_id__in=[i['id'] for i in panels]).values(
         'id',
+        'project_panel_id',
         'parameter_type__parameter_type_abbreviation',
         'parameter_value_type__value_type_abbreviation',
         'fluorochrome',
     )
 
     for panel in panels:
-        panel['parameters'] = [i for i in panel_params if i['panel_id'] == panel['id']]
+        panel['parameters'] = [i for i in panel_params if i['project_panel_id'] == panel['id']]
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -603,24 +605,74 @@ def add_project_panel(request, project_id):
     if not (project.has_add_permission(request.user)):
         raise PermissionDenied
 
-    if request.method == 'POST':
-        form = ProjectPanelForm(request.POST, instance=ProjectPanel(project=project))
+    ParameterFormSet = inlineformset_factory(
+        ProjectPanel,
+        ProjectPanelParameter,
+        # form=ProjectPanelParameterForm,
+        formset=BaseProjectPanelParameterFormSet,
+        extra=1,
+    )
 
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_project_panels', args=(project_id,)))
+    if request.method == 'POST':
+        panel_form = ProjectPanelForm(request.POST, instance=ProjectPanel(project=project))
+
+        if panel_form.is_valid():
+            panel = panel_form.save(commit=False)
+            parameter_formset = ParameterFormSet(request.POST, instance=panel)
+
+            if parameter_formset.is_valid():
+                panel.save()
+                parameter_formset.save()
+
+                return HttpResponseRedirect(reverse(
+                    'view_project_panels',
+                    args=(project.id,)))
+        else:
+            parameter_formset = ParameterFormSet(request.POST, instance=ProjectPanel(project=project))
 
     else:
-        form = ProjectPanelForm()
+        panel = ProjectPanel(project=project)
+        panel_form = ProjectPanelForm(instance=panel)
+        parameter_formset = ParameterFormSet(instance=panel)
 
     return render_to_response(
         'add_project_panel.html',
         {
-            'form': form,
+            'panel_form': panel_form,
+            'parameter_formset': parameter_formset,
             'project': project,
         },
         context_instance=RequestContext(request)
     )
+
+
+@login_required
+def edit_project_panel(request, panel_id):
+    panel = get_object_or_404(ProjectPanel, pk=panel_id)
+
+    if not panel.project.has_modify_permission(request.user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        form = ProjectPanelForm(request.POST, instance=panel)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse(
+                'view_project_panels',
+                args=(panel.project_id,)))
+    else:
+        form = ProjectPanelForm(instance=panel)
+
+    return render_to_response(
+        'edit_project_panel.html',
+        {
+            'form': form,
+            'panel': panel,
+        },
+        context_instance=RequestContext(request)
+    )
+
 
 
 @user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
@@ -1121,7 +1173,7 @@ def view_site_panels(request, site_id):
         if 'panel' in request.POST:
 
             panel = get_object_or_404(SitePanel, pk=request.POST['panel'])
-            ppm = SitePanelParameterMap(panel=panel)
+            ppm = SitePanelParameter(panel=panel)
             form = SitePanelParameterMapForm(request.POST, instance=ppm)
 
             if form.is_valid():
@@ -1227,7 +1279,7 @@ def edit_site_panel(request, panel_id):
 
 @login_required
 def remove_panel_parameter(request, panel_parameter_id):
-    ppm = get_object_or_404(SitePanelParameterMap, pk=panel_parameter_id)
+    ppm = get_object_or_404(SitePanelParameter, pk=panel_parameter_id)
 
     if not ppm.site_panel.site.has_modify_permission(request.user):
         raise PermissionDenied
@@ -1247,7 +1299,7 @@ def create_panel_from_sample(request, sample_id):
 
     ParameterFormSet = inlineformset_factory(
         SitePanel,
-        SitePanelParameterMap,
+        SitePanelParameter,
         form=SitePanelParameterMapFromSampleForm,
         extra=sample.sampleparametermap_set.count(),
         can_delete=False,
