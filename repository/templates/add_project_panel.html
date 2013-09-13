@@ -1,6 +1,33 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load staticfiles %}
 {% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+
+<script>
+$(".add_antibody").click(function() {
+    // clone last antibody select
+    var new_select = $(this).closest("td").children("select").last().clone();
+    var name = new_select.attr("name");
+    var id = new_select.attr("id");
+
+    // get the TOTAL_FORMS input, increment the form count
+    var total_forms = $(this).closest("td").children("input[id*=TOTAL_FORMS]");
+    total_forms.val((parseInt(total_forms.val())  + 1));
+
+    var m = name.match(/-(\d+)-antibody/);
+    var new_select_id = parseInt(m[1]) + 1;
+    var new_name = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    var new_id = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    new_select.attr({"name": new_name, "id": new_id});
+
+    $(this).closest("td").append("<br/>");
+    $(this).closest("td").append(new_select);
+});
+</script>
+{% endblock %}
 
 {% block breadcrumbs %}
   <ul class="breadcrumb">
@@ -40,10 +67,9 @@
               <th>Type</th>
               <th>Value Type</th>
               <th>Fluorochrome</th>
-              <th>Delete</th>
+              <th>Antibodies</th>
             </tr>
           </thead>
-          <tbody></tbody>
           {% for parameter_form in parameter_formset %}
           <tr>
           {% for field in parameter_form.visible_fields %}
@@ -54,9 +80,13 @@
           {% endfor %}
           {% if parameter_form.nested %}
             <td>
-              {% for antibody_formset in parameter_form.nested %}
-                {{ antibody_formset.as_table }}
-            {% endfor %}
+              {% for nested_formset in parameter_form.nested %}
+                {{ nested_formset.management_form }}
+                {% for nested_form in nested_formset.forms %}
+                  {{ nested_form.antibody }}
+                {% endfor %}
+              {% endfor %}
+              <a href="#" class="add_antibody">Add Another Antibody</a>
             </td>
           {% endif %}
           </tr>

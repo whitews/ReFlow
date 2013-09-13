@@ -57,7 +57,8 @@ class ProjectPanelParameterForm(forms.ModelForm):
 ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
     ProjectPanelParameter,
     ProjectPanelParameterAntibody,
-    extra=1)
+    extra=1,
+    can_delete=False)
 
 
 class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
@@ -65,20 +66,21 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         # allow the super class to create the fields as usual
         super(BaseProjectPanelParameterFormSet, self).add_fields(form, index)
 
-        # created the nested formset
+        # create the nested formset
         try:
             instance = self.get_queryset()[index]
             pk_value = instance.pk
         except IndexError:
             instance=None
-            pk_value = hash(form.prefix)
+            pk_value = form.prefix
 
         # store the formset in the .nested property
         data = self.data if self.data and index is not None else None
         form.nested = [
-            ProjectPanelParameterAntibodyFormSet(data=data,
-                            instance = instance,
-                            prefix = 'ANTIBODY_%s' % pk_value)]
+            ProjectPanelParameterAntibodyFormSet(
+                data=data,
+                instance=instance,
+                prefix=pk_value)]
 
 
 class ParameterAntibodyMapForm(forms.ModelForm):

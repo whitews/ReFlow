@@ -608,9 +608,10 @@ def add_project_panel(request, project_id):
     ParameterFormSet = inlineformset_factory(
         ProjectPanel,
         ProjectPanelParameter,
-        # form=ProjectPanelParameterForm,
+        #form=ProjectPanelParameterForm,
         formset=BaseProjectPanelParameterFormSet,
         extra=1,
+        can_delete=False
     )
 
     if request.method == 'POST':
