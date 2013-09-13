@@ -53,14 +53,19 @@ class Specimen(models.Model):
 class Staining(models.Model):
     staining_name = models.CharField(
         unique=True,
-        max_length=32,
+        max_length=128,
+        null=False,
+        blank=False)
+    staining_abbreviation = models.CharField(
+        unique=True,
+        max_length=16,
         null=False,
         blank=False)
     staining_description = models.CharField(
         unique=True,
         max_length=256,
-        null=False,
-        blank=False)
+        null=True,
+        blank=True)
 
     def __unicode__(self):
         return u'%s' % self.staining_name
@@ -86,6 +91,7 @@ class Antibody(models.Model):
 
     class Meta:
         verbose_name_plural = 'Antibodies'
+        ordering = ['antibody_abbreviation']
 
 
 class Fluorochrome(models.Model):
@@ -104,6 +110,8 @@ class Fluorochrome(models.Model):
     def __unicode__(self):
         return u'%s' % self.fluorochrome_abbreviation
 
+    class Meta:
+        ordering = ['fluorochrome_abbreviation']
 
 class ParameterType(models.Model):
     parameter_type_name = models.CharField(
@@ -118,7 +126,7 @@ class ParameterType(models.Model):
         blank=False)
 
     def __unicode__(self):
-        return u'%s' % self.parameter_type_abbreviation
+        return u'%s' % self.parameter_type_name
 
 
 class ParameterValueType(models.Model):
