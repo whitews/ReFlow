@@ -1,0 +1,26 @@
+[
+  {
+    "pk": 1, 
+    "model": "repository.parametertype", 
+    "fields": {
+      "parameter_type_name": "Forward Scatter",
+      "parameter_type_abbreviation": "FSC"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "repository.parametertype", 
+    "fields": {
+      "parameter_type_name": "Side Scatter",
+      "parameter_type_abbreviation": "SSC"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "repository.parametertype", 
+    "fields": {
+      "parameter_type_name": "Fluorescence",
+      "parameter_type_abbreviation": "FL"
+    }
+  }
+]

@@ -3,7 +3,7 @@
     "pk": 1, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD3", 
+        "antibody_abbreviation": "CD3", 
         "antibody_name": "Cluster of Differentiation 3", 
         "antibody_description": null
     }
@@ -12,7 +12,7 @@
     "pk": 2, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD4", 
+        "antibody_abbreviation": "CD4", 
         "antibody_name": "Cluster of Differentiation 4", 
         "antibody_description": null
     }
@@ -21,7 +21,7 @@
     "pk": 3, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD8", 
+        "antibody_abbreviation": "CD8", 
         "antibody_name": "Cluster of Differentiation 8", 
         "antibody_description": null
     }
@@ -30,7 +30,7 @@
     "pk": 4, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "IL6", 
+        "antibody_abbreviation": "IL6", 
         "antibody_name": "Interleukin-6", 
         "antibody_description": ""
     }
@@ -39,7 +39,7 @@
     "pk": 5, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD45", 
+        "antibody_abbreviation": "CD45", 
         "antibody_name": "Cluster of Differentiation 45", 
         "antibody_description": null
     }
@@ -48,7 +48,7 @@
     "pk": 6, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "NY-ESO-1", 
+        "antibody_abbreviation": "NY-ESO-1", 
         "antibody_name": "New York esophageal squamous cell carcinoma 1", 
         "antibody_description": null
     }
@@ -57,7 +57,7 @@
     "pk": 7, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "IFNg", 
+        "antibody_abbreviation": "IFNg", 
         "antibody_name": "Interferon-gamma", 
         "antibody_description": ""
     }
@@ -66,7 +66,7 @@
     "pk": 8, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "IL2", 
+        "antibody_abbreviation": "IL2", 
         "antibody_name": "Interleukin 2", 
         "antibody_description": ""
     }
@@ -75,7 +75,7 @@
     "pk": 9, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "TNFa", 
+        "antibody_abbreviation": "TNFa", 
         "antibody_name": "Tumor Necrosis Factor alpha", 
         "antibody_description": ""
     }
@@ -84,7 +84,7 @@
     "pk": 11, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD8a", 
+        "antibody_abbreviation": "CD8a", 
         "antibody_name": "Cluster of Differentiation 8a", 
         "antibody_description": ""
     }
@@ -93,7 +93,7 @@
     "pk": 12, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "ProCol1a", 
+        "antibody_abbreviation": "ProCol1a", 
         "antibody_name": "Procollagen 1a", 
         "antibody_description": ""
     }
@@ -102,7 +102,7 @@
     "pk": 13, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD28", 
+        "antibody_abbreviation": "CD28", 
         "antibody_name": "Cluster of Differentiation 28", 
         "antibody_description": ""
     }
@@ -111,7 +111,7 @@
     "pk": 14, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "GranzymeB", 
+        "antibody_abbreviation": "GranzymeB", 
         "antibody_name": "Granzyme B", 
         "antibody_description": ""
     }
@@ -120,7 +120,7 @@
     "pk": 15, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD163", 
+        "antibody_abbreviation": "CD163", 
         "antibody_name": "Cluster of Differentiation 163", 
         "antibody_description": ""
     }
@@ -129,7 +129,7 @@
     "pk": 16, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "HLA-DR", 
+        "antibody_abbreviation": "HLA-DR", 
         "antibody_name": "Human Leukocyte Antigen DR", 
         "antibody_description": ""
     }
@@ -138,7 +138,7 @@
     "pk": 17, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD40", 
+        "antibody_abbreviation": "CD40", 
         "antibody_name": "Cluster of Differentiation 40", 
         "antibody_description": ""
     }
@@ -147,7 +147,7 @@
     "pk": 18, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD258", 
+        "antibody_abbreviation": "CD258", 
         "antibody_name": "Cluster of Differentiation 258", 
         "antibody_description": ""
     }
@@ -156,7 +156,7 @@
     "pk": 19, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD38", 
+        "antibody_abbreviation": "CD38", 
         "antibody_name": "Cluster of Differentiation 38", 
         "antibody_description": ""
     }
@@ -165,7 +165,7 @@
     "pk": 20, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD206", 
+        "antibody_abbreviation": "CD206", 
         "antibody_name": "Cluster of Differentiation 206", 
         "antibody_description": ""
     }
@@ -174,7 +174,7 @@
     "pk": 21, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD33", 
+        "antibody_abbreviation": "CD33", 
         "antibody_name": "Cluster of Differentiation 33", 
         "antibody_description": ""
     }
@@ -183,7 +183,7 @@
     "pk": 22, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD278", 
+        "antibody_abbreviation": "CD278", 
         "antibody_name": "Cluster of Differentiation 278", 
         "antibody_description": ""
     }
@@ -192,7 +192,7 @@
     "pk": 23, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD272", 
+        "antibody_abbreviation": "CD272", 
         "antibody_name": "Cluster of Differentiation 272", 
         "antibody_description": ""
     }
@@ -201,7 +201,7 @@
     "pk": 24, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD152", 
+        "antibody_abbreviation": "CD152", 
         "antibody_name": "Cluster of Differentiation 152", 
         "antibody_description": ""
     }
@@ -210,7 +210,7 @@
     "pk": 25, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "Ki67", 
+        "antibody_abbreviation": "Ki67", 
         "antibody_name": "Ki67", 
         "antibody_description": ""
     }
@@ -219,7 +219,7 @@
     "pk": 26, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD95", 
+        "antibody_abbreviation": "CD95", 
         "antibody_name": "Cluster of Differentiation 95", 
         "antibody_description": ""
     }
@@ -228,7 +228,7 @@
     "pk": 27, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "aCaspase3", 
+        "antibody_abbreviation": "aCaspase3", 
         "antibody_name": "Caspase-3, Active Form", 
         "antibody_description": ""
     }
@@ -237,7 +237,7 @@
     "pk": 28, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "Perforin", 
+        "antibody_abbreviation": "Perforin", 
         "antibody_name": "Perforin", 
         "antibody_description": ""
     }
@@ -246,7 +246,7 @@
     "pk": 29, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD34", 
+        "antibody_abbreviation": "CD34", 
         "antibody_name": "Cluster of Differentiation 34", 
         "antibody_description": ""
     }
@@ -255,7 +255,7 @@
     "pk": 30, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD19", 
+        "antibody_abbreviation": "CD19", 
         "antibody_name": "Cluster of Differentiation 19", 
         "antibody_description": ""
     }
@@ -264,7 +264,7 @@
     "pk": 31, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD16", 
+        "antibody_abbreviation": "CD16", 
         "antibody_name": "Cluster of Differentiation 16", 
         "antibody_description": ""
     }
@@ -273,7 +273,7 @@
     "pk": 32, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD57", 
+        "antibody_abbreviation": "CD57", 
         "antibody_name": "Cluster of Differentiation 57", 
         "antibody_description": ""
     }
@@ -282,7 +282,7 @@
     "pk": 33, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "IL17", 
+        "antibody_abbreviation": "IL17", 
         "antibody_name": "Interleukin 17", 
         "antibody_description": ""
     }
@@ -291,7 +291,7 @@
     "pk": 34, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD14", 
+        "antibody_abbreviation": "CD14", 
         "antibody_name": "Cluster of Differentiation 14", 
         "antibody_description": ""
     }
@@ -300,7 +300,7 @@
     "pk": 35, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD154", 
+        "antibody_abbreviation": "CD154", 
         "antibody_name": "Cluster of Differentiation 154", 
         "antibody_description": ""
     }
@@ -309,7 +309,7 @@
     "pk": 36, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD45RO", 
+        "antibody_abbreviation": "CD45RO", 
         "antibody_name": "Cluster of Differentiation 45 (RO)", 
         "antibody_description": ""
     }
@@ -318,7 +318,7 @@
     "pk": 37, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD27", 
+        "antibody_abbreviation": "CD27", 
         "antibody_name": "Cluster of Differentiation 27", 
         "antibody_description": ""
     }
@@ -327,7 +327,7 @@
     "pk": 38, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD137", 
+        "antibody_abbreviation": "CD137", 
         "antibody_name": "Cluster of Differentiation 137", 
         "antibody_description": ""
     }
@@ -336,7 +336,7 @@
     "pk": 39, 
     "model": "repository.antibody", 
     "fields": {
-        "antibody_short_name": "CD107a", 
+        "antibody_abbreviation": "CD107a", 
         "antibody_name": "Cluster of Differentiation 107a", 
         "antibody_description": ""
     }

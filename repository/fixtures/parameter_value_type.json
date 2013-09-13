@@ -4,7 +4,7 @@
     "model": "repository.parametervaluetype", 
     "fields": {
       "value_type_name": "Area", 
-      "value_type_short_name": "A"
+      "value_type_abbreviation": "A"
     }
   }, 
   {
@@ -12,7 +12,7 @@
     "model": "repository.parametervaluetype", 
     "fields": {
       "value_type_name": "Height", 
-      "value_type_short_name": "H"
+      "value_type_abbreviation": "H"
     }
   }, 
   {
@@ -20,7 +20,7 @@
     "model": "repository.parametervaluetype", 
     "fields": {
       "value_type_name": "Time", 
-      "value_type_short_name": "T"
+      "value_type_abbreviation": "T"
     }
   }, 
   {
@@ -28,7 +28,7 @@
     "model": "repository.parametervaluetype", 
     "fields": {
       "value_type_name": "Width", 
-      "value_type_short_name": "W"
+      "value_type_abbreviation": "W"
     }
   }
 ]
