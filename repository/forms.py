@@ -49,11 +49,6 @@ class ProjectPanelForm(forms.ModelForm):
         exclude = ('project',)  # don't allow changing the parent project
 
 
-class ProjectPanelParameterForm(forms.ModelForm):
-    class Meta:
-        model = ProjectPanelParameter
-
-
 ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
     ProjectPanelParameter,
     ProjectPanelParameterAntibody,
@@ -82,11 +77,21 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 instance=instance,
                 prefix=pk_value)]
 
+    def clean(self):
+        # check for duplicate antibodies in a parameter
+        for form in self.forms:
+            ab_set = set()
+            ab_formset = form.nested[0]
+            for ab_form in ab_formset.forms:
+                ab_set.add(ab_form.data[ab_form.add_prefix('antibody')])
+            if len(ab_set) != len(ab_formset.forms):
+                raise ValidationError("A parameter cannot have duplicate antibodies.")
 
-class ParameterAntibodyMapForm(forms.ModelForm):
-    class Meta:
-        model = ProjectPanelParameterAntibody
-        exclude = ('project_parameter',)
+        # TODO: check for duplicate value type + fluoro combos
+
+        # TODO: check for fluoro or antibodies in scatter channels
+
+        # TODO: check that all fluorescence channels specify a fluoro
 
 
 class SpecimenForm(forms.ModelForm):
