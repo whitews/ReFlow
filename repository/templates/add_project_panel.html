@@ -72,7 +72,7 @@ $("#add_parameter").click(function() {
   <div class="container">
     <form class="form-horizontal" action="{% url 'add_project_panel' project.id %}" method="post">
       {% csrf_token %}
-        {% if panel_form.non_field_errors %}
+        {% if panel_form.non_field_errors or parameter_formset.non_form_errors %}
           <div class="control-group text-error">
             {{ panel_form.non_field_errors }}
             {{ parameter_formset.non_form_errors }}
