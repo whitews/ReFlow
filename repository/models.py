@@ -376,8 +376,8 @@ class ProjectPanelParameter(ProtectedModel):
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s-%s' % (
             self.project_panel,
-            self.parameter,
-            self.value_type
+            self.parameter_type,
+            self.parameter_value_type
         )
 
 
