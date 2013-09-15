@@ -561,27 +561,12 @@ def edit_stimulation(request, stimulation_id):
 def view_project_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    # TODO: hmm, shouldn't any site user have access to view project panels?
-    if not project.has_view_permission(request.user):
+    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+
+    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
 
-    panels = ProjectPanel.objects.filter(project=project).values(
-        'id',
-        'panel_name',
-        'panel_description',
-        'stimulation',
-        'staining'
-    )
-    panel_params = ProjectPanelParameter.objects.filter(project_panel_id__in=[i['id'] for i in panels]).values(
-        'id',
-        'project_panel_id',
-        'parameter_type__parameter_type_abbreviation',
-        'parameter_value_type__value_type_abbreviation',
-        'fluorochrome',
-    )
-
-    for panel in panels:
-        panel['parameters'] = [i for i in panel_params if i['project_panel_id'] == panel['id']]
+    panels = ProjectPanel.objects.filter(project=project)
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -620,10 +605,23 @@ def add_project_panel(request, project_id):
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
             parameter_formset = ParameterFormSet(request.POST, instance=panel)
+            ab_formsets_valid = True
 
-            if parameter_formset.is_valid():
+            for param_form in parameter_formset.forms:
+                if param_form.nested:
+                    if not param_form.nested[0].is_valid():
+                        ab_formsets_valid = False
+
+            if parameter_formset.is_valid() and ab_formsets_valid:
                 panel.save()
-                parameter_formset.save()
+
+                for param_form in parameter_formset.forms:
+                    # when manually saving the forms in a formset the
+                    # parent's id is not set
+                    param_form.instance.project_panel_id = panel.id
+                    parameter = param_form.save()
+                    param_form.nested[0].instance = parameter
+                    param_form.nested[0].save()
 
                 return HttpResponseRedirect(reverse(
                     'view_project_panels',
@@ -670,116 +668,6 @@ def edit_project_panel(request, panel_id):
         {
             'form': form,
             'panel': panel,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def add_parameter(request):
-    if request.method == 'POST':
-        form = ParameterForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterForm()
-
-    return render_to_response(
-        'add_parameter.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def associate_antibody_to_parameter(request, parameter_id):
-    parameter = get_object_or_404(Parameter, pk=parameter_id)
-    pa_map = ParameterAntibodyMap(parameter_id=parameter_id)
-
-    if request.method == 'POST':
-        form = ParameterAntibodyMapForm(request.POST, instance=pa_map)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterAntibodyMapForm(instance=pa_map)
-
-    return render_to_response(
-        'associate_antibody_to_parameter.html',
-        {
-            'parameter': parameter,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def remove_parameter_antibody(request, pa_map_id):
-    pa_map = get_object_or_404(ParameterAntibodyMap, pk=pa_map_id)
-
-    pa_map.delete()
-
-    return HttpResponseRedirect(reverse('view_parameters',))
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def associate_fluorochrome_to_parameter(request, parameter_id):
-    parameter = get_object_or_404(Parameter, pk=parameter_id)
-    pf_map = ParameterFluorochromeMap(parameter_id=parameter_id)
-
-    if request.method == 'POST':
-        form = ParameterFluorochromeMapForm(request.POST, instance=pf_map)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterFluorochromeMapForm(instance=pf_map)
-
-    return render_to_response(
-        'associate_fluorochrome_to_parameter.html',
-        {
-            'parameter': parameter,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def remove_parameter_fluorochrome(request, pf_map_id):
-    pf_map = get_object_or_404(ParameterFluorochromeMap, pk=pf_map_id)
-
-    pf_map.delete()
-
-    return HttpResponseRedirect(reverse('view_parameters',))
-
-
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
-def edit_parameter(request, parameter_id):
-    parameter = get_object_or_404(Parameter, pk=parameter_id)
-
-    if request.method == 'POST':
-        form = ParameterForm(request.POST, instance=parameter)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_parameters'))
-    else:
-        form = ParameterForm(instance=parameter)
-
-    return render_to_response(
-        'edit_parameter.html',
-        {
-            'parameter': parameter,
-            'form': form,
         },
         context_instance=RequestContext(request)
     )

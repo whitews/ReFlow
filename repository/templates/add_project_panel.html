@@ -14,8 +14,8 @@ $(".add_antibody").click(function() {
     var id = new_select.attr("id");
 
     // get the TOTAL_FORMS input, increment the form count
-    var total_forms = $(this).closest("td").children("input[id*=TOTAL_FORMS]");
-    total_forms.val((parseInt(total_forms.val())  + 1));
+    var total_form = $(this).closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  + 1));
 
     var m = name.match(/-(\d+)-antibody/);
     var new_select_id = parseInt(m[1]) + 1;
@@ -25,6 +25,36 @@ $(".add_antibody").click(function() {
 
     $(this).closest("td").append("<br/>");
     $(this).closest("td").append(new_select);
+    $(this).closest("td").append($(this));
+    return false;
+});
+
+$("#add_parameter").click(function() {
+    // clone last antibody select
+    var new_row = $(this).closest("tr").prev("tr").clone();
+    var m = new_row.children("td").children("select").attr("name").match(/_set-(\d+)-/);
+    var new_set_id = parseInt(m[1]) + 1;
+    var new_name, new_id;
+
+    new_row.children("td").children("select").each(function () {
+        new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        $(this).attr({"name": new_name, "id": new_id});
+    });
+    new_row.children("td").children("input").each(function () {
+        new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        $(this).attr({"name": new_name, "id": new_id});
+    });
+    var ab_total_form = new_row.children("input[id*=TOTAL_FORMS]");
+    ab_total_form.val(1);
+
+    var param_total_form = $(document).find("#id_projectpanelparameter_set-TOTAL_FORMS");
+    param_total_form.val((parseInt(param_total_form.val())  + 1));
+
+    $(this).closest("table").append(new_row);
+    $(this).closest("table").append($(this).closest("tr"));
+    return false;
 });
 </script>
 {% endblock %}
@@ -90,6 +120,13 @@ $(".add_antibody").click(function() {
             </td>
           {% endif %}
           </tr>
+          {% if forloop.last %}
+          <tr>
+            <td colspan="50">
+              <a href="#" id="add_parameter">Add Another Parameter</a>
+            </td>
+          </tr>
+          {% endif %}
           {% endfor %}
         </table>
       <div class="control-group">

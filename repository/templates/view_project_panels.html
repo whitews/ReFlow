@@ -125,19 +125,21 @@ $(document).ready(function()
                   </tr>
                 </thead>
                 <tbody>
-                  {% for param in panel.parameters %}
+                  {% for param in panel.projectpanelparameter_set.all %}
                   <tr>
                     <td width="33%">
-                      {{ param.parameter_type__parameter_type_abbreviation }}
+                      {{ param.parameter_type.parameter_type_name }}
                     </td>
                     <td>
-                        {{ param.parameter_value_type__value_type_abbreviation }}
+                      {{ param.parameter_value_type.value_type_name }}
                     </td>
                     <td>
-{#                        TODO: add nested antibodies and create for loop here#}
+                      {% for ab in param.projectpanelparameterantibody_set.all %}
+                        {{ ab.antibody.antibody_abbreviation }}
+                      {% endfor %}
                     </td>
                     <td>
-                        {{ param.fluorochrome }}
+                        {{ param.fluorochrome|default_if_none:"" }}
                     </td>
                   </tr>
                   {% endfor %}
