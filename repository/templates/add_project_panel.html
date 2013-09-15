@@ -93,17 +93,68 @@ $("#add_parameter").click(function() {
           </div>
         {% endif %}
 
-        {% for field in panel_form %}
-          <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">
-              {{ field }}
-              {% if field.errors %}
-                <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-              {% endif %}
+        <div class="row-fluid">
+          <div class="span6">
+            <div class="control-group">
+              <label class="control-label">{{ panel_form.panel_name.label }}</label>
+              <div class="controls">
+                {{ panel_form.panel_name }}
+                {% if panel_form.panel_name.errors %}
+                  <div class="align-middle text-warning">
+                    {{ panel_form.panel_name.errors|striptags }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">{{ panel_form.panel_description.label }}</label>
+              <div class="controls">
+                {{ panel_form.panel_description }}
+                {% if panel_form.panel_description.errors %}
+                  <div class="align-middle text-warning">
+                    {{ panel_form.panel_description.errors|striptags }}
+                  </div>
+                {% endif %}
+              </div>
             </div>
           </div>
-        {% endfor %}
+          <div class="span6">
+            <div class="control-group">
+              <label class="control-label">{{ panel_form.parent_panel.label }}</label>
+              <div class="controls">
+                {{ panel_form.parent_panel }}
+                {% if panel_form.parent_panel.errors %}
+                  <div class="align-middle text-warning">
+                    {{ panel_form.parent_panel.errors|striptags }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">{{ panel_form.stimulation.label }}</label>
+              <div class="controls">
+                {{ panel_form.stimulation }}
+                {% if panel_form.stimulation.errors %}
+                  <div class="align-middle text-warning">
+                    {{ panel_form.stimulation.errors|striptags }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">{{ panel_form.staining.label }}</label>
+              <div class="controls">
+                {{ panel_form.staining }}
+                {% if panel_form.staining.errors %}
+                  <div class="align-middle text-warning">
+                    {{ panel_form.staining.errors|striptags }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
           {{ parameter_formset.management_form }}
         <table class="table">
           <thead>

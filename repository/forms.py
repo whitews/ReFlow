@@ -47,6 +47,9 @@ class ProjectPanelForm(forms.ModelForm):
     class Meta:
         model = ProjectPanel
         exclude = ('project',)  # don't allow changing the parent project
+        widgets = {
+            'panel_description': forms.Textarea(attrs={'cols': 20, 'rows': 5}),
+        }
 
 
 ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
