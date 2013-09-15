@@ -7,14 +7,14 @@
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
 
 <script>
-$(".add_antibody").click(function() {
+function add_antibody(selector) {
     // clone last antibody select
-    var new_select = $(this).closest("td").children("select").last().clone();
+    var new_select = selector.closest("td").children("select").last().clone();
     var name = new_select.attr("name");
     var id = new_select.attr("id");
 
     // get the TOTAL_FORMS input, increment the form count
-    var total_form = $(this).closest("td").children("input[id*=TOTAL_FORMS]");
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
     total_form.val((parseInt(total_form.val())  + 1));
 
     var m = name.match(/-(\d+)-antibody/);
@@ -23,11 +23,25 @@ $(".add_antibody").click(function() {
     var new_id = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
     new_select.attr({"name": new_name, "id": new_id});
 
-    $(this).closest("td").append("<br/>");
-    $(this).closest("td").append(new_select);
-    $(this).closest("td").append($(this));
+    selector.closest("td").append(
+        new_select,
+        " <a href=\"javascript:void(0)\" onclick=\"remove_antibody($(this))\"><i class=\"icon-remove align-middle\"></i></a>",
+        selector);
     return false;
-});
+}
+
+function remove_antibody(selector) {
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  - 1));
+    selector.prev("select").remove();
+
+    selector.closest("td").children("select").each(function(i, el) {
+      el.name = el.name.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+      el.id = el.id.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+    });
+    selector.remove();
+    return false;
+}
 
 $("#add_parameter").click(function() {
     // clone last antibody select
@@ -113,17 +127,17 @@ $("#add_parameter").click(function() {
               {% for nested_formset in parameter_form.nested %}
                 {{ nested_formset.management_form }}
                 {% for nested_form in nested_formset.forms %}
-                  {{ nested_form.antibody }}
+                  {{ nested_form.antibody }}<br/>
                 {% endfor %}
               {% endfor %}
-              <a href="#" class="add_antibody">Add Another Antibody</a>
+              <a href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
             </td>
           {% endif %}
           </tr>
           {% if forloop.last %}
           <tr>
             <td colspan="50">
-              <a href="#" id="add_parameter">Add Another Parameter</a>
+              <a href="javascript:void(0)" id="add_parameter">Add Another Parameter</a>
             </td>
           </tr>
           {% endif %}
