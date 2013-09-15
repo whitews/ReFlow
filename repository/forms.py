@@ -78,20 +78,48 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 prefix=pk_value)]
 
     def clean(self):
-        # check for duplicate antibodies in a parameter
+        """
+        Validate the panel:
+            - No duplicate antibodies in a parameter
+            - No fluorochromes in a scatter parameter
+            - No antibodies in a scatter parameter
+            - Fluoroscent parameter must specify a fluorochrome
+            - No duplicate fluorochrome + value type combinations
+            - No duplicate forward scatter + value type combinations
+            - No duplicate side scatter + value type combinations
+        """
         for form in self.forms:
-            ab_set = set()
             ab_formset = form.nested[0]
+
+            # check for duplicate antibodies in a parameter
+            ab_set = set()
             for ab_form in ab_formset.forms:
                 ab_set.add(ab_form.data[ab_form.add_prefix('antibody')])
             if len(ab_set) != len(ab_formset.forms):
                 raise ValidationError("A parameter cannot have duplicate antibodies.")
 
+            # get parameter type and value type
+            param_type = ParameterType.objects.get(
+                id=form.data[form.add_prefix('parameter_type')]
+            )
+            value_type = ParameterValueType.objects.get(
+                id=form.data[form.add_prefix('parameter_value_type')]
+            )
+            fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
+
+            # check for fluoro or antibodies in scatter channels
+            if 'scatter' in param_type.parameter_type_name.lower() and fluorochrome_id:
+                raise ValidationError("A scatter channel cannot have a fluorochrome.")
+            if 'scatter' in param_type.parameter_type_name.lower() and len(ab_set) > 0:
+                raise ValidationError("A scatter channel cannot have an antibody.")
+
+            # check that fluorescence channels specify a fluoro
+            if 'fluor' in param_type.parameter_type_name.lower() and not fluorochrome_id:
+                raise ValidationError("A fluoroscence channel must specify a fluorochrome.")
+
         # TODO: check for duplicate value type + fluoro combos
 
-        # TODO: check for fluoro or antibodies in scatter channels
-
-        # TODO: check that all fluorescence channels specify a fluoro
+        # TODO: check for duplicate value type + scatter combos
 
 
 class SpecimenForm(forms.ModelForm):
@@ -260,7 +288,7 @@ class SampleSubjectForm(forms.ModelForm):
             user_sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
             self.fields['site'] = forms.ModelChoiceField(user_sites)
 
-            visit_types = ProjectVisitType.objects.filter(project__id=project_id)
+            visit_types = VisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
 
 
@@ -284,7 +312,7 @@ class SampleSiteForm(forms.ModelForm):
             subjects = Subject.objects.filter(project__id=project_id)
             self.fields['subject'] = forms.ModelChoiceField(subjects)
 
-            visit_types = ProjectVisitType.objects.filter(project__id=project_id)
+            visit_types = VisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
 
 
@@ -309,7 +337,7 @@ class SampleEditForm(forms.ModelForm):
             sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
             self.fields['site'] = forms.ModelChoiceField(sites)
 
-            visit_types = ProjectVisitType.objects.filter(project__id=project_id)
+            visit_types = VisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
 
 
