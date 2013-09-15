@@ -97,9 +97,12 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             # check for duplicate antibodies in a parameter
             ab_set = set()
             for ab_form in ab_formset.forms:
-                ab_set.add(ab_form.data[ab_form.add_prefix('antibody')])
-            if len(ab_set) != len(ab_formset.forms):
-                raise ValidationError("A parameter cannot have duplicate antibodies.")
+                new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
+                if new_ab_id:  # if it's not empty string
+                    if new_ab_id in ab_set:
+                        raise ValidationError("A parameter cannot have duplicate antibodies.")
+                    else:
+                        ab_set.add(new_ab_id)
 
             # get parameter type and value type
             param_type = ParameterType.objects.get(

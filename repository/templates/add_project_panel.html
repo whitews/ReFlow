@@ -44,7 +44,7 @@ function remove_antibody(selector) {
 }
 
 $("#add_parameter").click(function() {
-    // clone last antibody select
+    // clone last parameter row
     var new_row = $(this).closest("tr").prev("tr").clone();
     var m = new_row.children("td").children("select").attr("name").match(/_set-(\d+)-/);
     var new_set_id = parseInt(m[1]) + 1;
@@ -64,12 +64,35 @@ $("#add_parameter").click(function() {
     ab_total_form.val(1);
 
     var param_total_form = $(document).find("#id_projectpanelparameter_set-TOTAL_FORMS");
-    param_total_form.val((parseInt(param_total_form.val())  + 1));
+    param_total_form.val((parseInt(param_total_form.val()) + 1));
+
+    new_row.find(".remove-parameter").show();
 
     $(this).closest("table").append(new_row);
     $(this).closest("table").append($(this).closest("tr"));
     return false;
 });
+
+function remove_parameter(selector) {
+    var param_total_form = $(document).find("#id_projectpanelparameter_set-TOTAL_FORMS");
+    param_total_form.val((parseInt(param_total_form.val()) - 1));
+
+    var table = selector.closest("table");
+    selector.closest("tr").remove();
+
+    table.children("tbody").find("tr").each(function(i, row_elem) {
+      $(row_elem).find("select").each(function(j, select_elem) {
+        select_elem.name = select_elem.name.replace(/set-(\d+)-/, "set-" + i + "-");
+        select_elem.id = select_elem.id.replace(/set-(\d+)-/, "set-" + i + "-");
+      });
+      $(row_elem).find("input").each(function(j, input_elem) {
+        input_elem.name = input_elem.name.replace(/set-(\d+)-/, "set-" + i + "-");
+        input_elem.id = input_elem.id.replace(/set-(\d+)-/, "set-" + i + "-");
+      });
+    });
+
+    return false;
+}
 </script>
 {% endblock %}
 
@@ -171,6 +194,9 @@ $("#add_parameter").click(function() {
             <td>
             {{ field }}
             {{ field.errors }}
+            {% if forloop.first %}
+            <a href="javascript:void(0)" class="hide remove-parameter" onclick="remove_parameter($(this))">Remove parameter</a>
+            {% endif %}
             </td>
           {% endfor %}
           {% if parameter_form.nested %}
