@@ -113,6 +113,7 @@ class Fluorochrome(models.Model):
     class Meta:
         ordering = ['fluorochrome_abbreviation']
 
+
 class ParameterType(models.Model):
     parameter_type_name = models.CharField(
         unique=True,
@@ -740,7 +741,7 @@ class SubjectGroup(ProtectedModel):
         unique_together = (('project', 'group_name'),)
 
     def __unicode__(self):
-        return u'%s' % (self.group_name)
+        return u'%s' % self.group_name
 
 
 class Subject(ProtectedModel):
@@ -773,8 +774,9 @@ class Subject(ProtectedModel):
         except ObjectDoesNotExist:
             return  # Project is required and will get caught by Form.is_valid()
 
-        if self.subject_group is not None and self.subject_group.project_id != self.project_id:
-            raise ValidationError("Group chosen is not in this Project")
+        if self.subject_group is not None:
+            if self.subject_group.project_id != self.project_id:
+                raise ValidationError("Group chosen is not in this Project")
 
         subject_duplicates = Subject.objects.filter(
             subject_code=self.subject_code,
