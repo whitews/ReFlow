@@ -16,7 +16,6 @@ from guardian.shortcuts import assign_perm
 
 from repository.models import *
 from repository.forms import *
-from repository.utils import apply_panel_to_sample
 
 
 @login_required
@@ -42,7 +41,10 @@ def home(request):
 #########################
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def admin(request):
     return render_to_response(
         'admin.html',
@@ -69,7 +71,10 @@ def view_specimens(request):
         context_instance=RequestContext(request)
     )
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def add_specimen(request):
     if request.method == 'POST':
         form = SpecimenForm(request.POST)
@@ -89,7 +94,10 @@ def add_specimen(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def edit_specimen(request, specimen_id):
     specimen = get_object_or_404(Specimen, pk=specimen_id)
 
@@ -125,7 +133,10 @@ def view_stains(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def add_stain(request):
     if request.method == 'POST':
         stain = Staining()
@@ -146,7 +157,10 @@ def add_stain(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def edit_stain(request, staining_id):
     stain = get_object_or_404(Staining, pk=staining_id)
 
@@ -188,7 +202,10 @@ def view_antibodies(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def add_antibody(request):
     if request.method == 'POST':
         form = AntibodyForm(request.POST)
@@ -208,7 +225,10 @@ def add_antibody(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def edit_antibody(request, antibody_id):
     antibody = get_object_or_404(Antibody, pk=antibody_id)
 
@@ -250,7 +270,10 @@ def view_fluorochromes(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def add_fluorochrome(request):
     if request.method == 'POST':
         form = FluorochromeForm(request.POST)
@@ -270,7 +293,10 @@ def add_fluorochrome(request):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def edit_fluorochrome(request, fluorochrome_id):
     fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
 
@@ -301,7 +327,8 @@ def edit_fluorochrome(request, fluorochrome_id):
 @login_required
 def view_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    user_sites = Site.objects.get_sites_user_can_view(
+        request.user, project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
@@ -322,7 +349,10 @@ def view_project(request, project_id):
     )
 
 
-@user_passes_test(lambda user: user.is_superuser, login_url='/403', redirect_field_name=None)
+@user_passes_test(
+    lambda user: user.is_superuser,
+    login_url='/403',
+    redirect_field_name=None)
 def add_project(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST)
@@ -337,7 +367,8 @@ def add_project(request):
             assign_perm('modify_project_data', request.user, project)
             assign_perm('manage_project_users', request.user, project)
 
-            return HttpResponseRedirect(reverse('view_project', args=(project.id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project', args=(project.id,)))
     else:
         form = ProjectForm()
 
@@ -362,7 +393,8 @@ def edit_project(request, project_id):
 
         if form.is_valid():
             project = form.save()
-            return HttpResponseRedirect(reverse('view_project', args=(project.id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project', args=(project.id,)))
     else:
         form = ProjectForm(instance=project)
 
@@ -408,7 +440,8 @@ def add_user_permissions(request, project_id):
     form = UserSelectForm(request.POST or None, project_id=project_id)
 
     if request.method == 'POST' and form.is_valid():
-        # is_valid calls clean so user should exist, the id is now in cleaned_data
+        # is_valid calls clean so user should exist,
+        # the id is now in cleaned_data
         if request.POST['site']:
             return HttpResponseRedirect(reverse(
                 'manage_site_user',
@@ -440,7 +473,8 @@ def manage_project_user(request, project_id, user_id):
 
     if request.method == 'POST' and form.is_valid():
         form.save_obj_perms()
-        return HttpResponseRedirect(reverse('view_project_users', args=(project.id,)))
+        return HttpResponseRedirect(reverse(
+            'view_project_users', args=(project.id,)))
 
     return render_to_response(
         'manage_project_user.html',
@@ -465,7 +499,8 @@ def manage_site_user(request, site_id, user_id):
 
     if request.method == 'POST' and form.is_valid():
         form.save_obj_perms()
-        return HttpResponseRedirect(reverse('view_project_users', args=(site.project_id,)))
+        return HttpResponseRedirect(reverse(
+            'view_project_users', args=(site.project_id,)))
 
     return render_to_response(
         'manage_site_user.html',
@@ -516,7 +551,8 @@ def add_stimulation(request, project_id):
         if form.is_valid():
             form.save()
 
-            return HttpResponseRedirect(reverse('view_project_stimulations', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project_stimulations', args=(project_id,)))
     else:
         form = StimulationForm()
 
@@ -542,7 +578,8 @@ def edit_stimulation(request, stimulation_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project_stimulations', args=(stimulation.project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project_stimulations', args=(stimulation.project_id,)))
     else:
         form = StimulationForm(instance=stimulation)
 
@@ -561,7 +598,9 @@ def edit_stimulation(request, stimulation_id):
 def view_project_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    user_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
@@ -590,16 +629,10 @@ def add_project_panel(request, project_id):
     if not (project.has_add_permission(request.user)):
         raise PermissionDenied
 
-    ParameterFormSet = inlineformset_factory(
-        ProjectPanel,
-        ProjectPanelParameter,
-        formset=BaseProjectPanelParameterFormSet,
-        extra=1,
-        can_delete=False
-    )
-
     if request.method == 'POST':
-        panel_form = ProjectPanelForm(request.POST, instance=ProjectPanel(project=project))
+        panel_form = ProjectPanelForm(
+            request.POST,
+            instance=ProjectPanel(project=project))
 
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
@@ -626,7 +659,9 @@ def add_project_panel(request, project_id):
                     'view_project_panels',
                     args=(project.id,)))
         else:
-            parameter_formset = ParameterFormSet(request.POST, instance=ProjectPanel(project=project))
+            parameter_formset = ParameterFormSet(
+                request.POST,
+                instance=ProjectPanel(project=project))
 
     else:
         panel = ProjectPanel(project=project)
@@ -676,7 +711,9 @@ def edit_project_panel(request, panel_id):
 def view_subjects(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    user_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
@@ -701,7 +738,9 @@ def view_subjects(request, project_id):
 @login_required
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    user_view_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
 
     # get user's sites based on their site_view_permission,
     # unless they have full project view permission
@@ -803,7 +842,9 @@ def add_site(request, project_id):
         if form.is_valid():
             form.save()
 
-            return HttpResponseRedirect(reverse('view_project_sites', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project_sites',
+                args=(project_id,)))
     else:
         form = SiteForm()
 
@@ -829,7 +870,9 @@ def edit_site(request, site_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project_sites', args=(site.project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project_sites',
+                args=(site.project_id,)))
     else:
         form = SiteForm(instance=site)
 
@@ -903,7 +946,9 @@ def view_site(request, site_id):
 @login_required
 def view_compensations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    user_view_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    user_view_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
 
     if project.has_view_permission(request.user):
         compensations = Compensation.objects\
@@ -957,7 +1002,9 @@ def add_compensation(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_compensations', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'project_compensations',
+                args=(project_id,)))
     else:
         form = CompensationForm(project_id=project_id, request=request)
 
@@ -974,12 +1021,15 @@ def add_compensation(request, project_id):
 @login_required
 def view_visit_types(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    user_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
 
-    visit_types = VisitType.objects.filter(project=project).order_by('visit_type_name')
+    visit_types = VisitType.objects.filter(
+        project=project).order_by('visit_type_name')
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -1009,7 +1059,9 @@ def add_visit_type(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('project_visit_types', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'project_visit_types',
+                args=(project_id,)))
     else:
         form = VisitTypeForm()
 
@@ -1071,7 +1123,9 @@ def view_site_panels(request, site_id):
                     args=(site_id,)))
             else:
                 errors_json = json.dumps(form.errors)
-                return HttpResponseBadRequest(errors_json, mimetype='application/json')
+                return HttpResponseBadRequest(
+                    errors_json,
+                    mimetype='application/json')
 
     panels = SitePanel.objects.filter(site=site).values(
         'id',
@@ -1079,14 +1133,15 @@ def view_site_panels(request, site_id):
         'site__site_name',
         'site__id'
     )
-    ppm_maps = SitePanelParameter.objects.filter(site_panel_id__in=[i['id'] for i in panels]).values(
-        'id',
-        'site_panel_id',
-        'fcs_text',
-        'fcs_opt_text',
-        'parameter_type__parameter_type_name',
-        'parameter_value_type__value_type_name',
-    )
+    ppm_maps = SitePanelParameter.objects.filter(
+        site_panel_id__in=[i['id'] for i in panels]).values(
+            'id',
+            'site_panel_id',
+            'fcs_text',
+            'fcs_opt_text',
+            'parameter_type__parameter_type_name',
+            'parameter_value_type__value_type_name',
+        )
 
     for panel in panels:
         panel['parameters'] = [i for i in ppm_maps if i['panel_id'] == panel['id']]
@@ -1122,7 +1177,9 @@ def add_site_panel(request, site_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_site_panels', args=(site_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_site_panels',
+                args=(site_id,)))
 
     else:
         form = SitePanelForm()
@@ -1194,7 +1251,9 @@ def create_panel_from_sample(request, sample_id):
     )
 
     if request.method == 'POST':
-        panel_form = SitePanelFromSampleForm(request.POST, instance=SitePanel(site=sample.site))
+        panel_form = SitePanelFromSampleForm(
+            request.POST,
+            instance=SitePanel(site=sample.site))
 
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
@@ -1208,13 +1267,17 @@ def create_panel_from_sample(request, sample_id):
                     'project_panels',
                     args=(sample.subject.project_id,)))
         else:
-            parameter_formset = ParameterFormSet(request.POST, instance=SitePanel(site=sample.site))
+            parameter_formset = ParameterFormSet(
+                request.POST,
+                instance=SitePanel(site=sample.site))
 
     else:
         # need to check if the sample is associated with a site,
         # since panels have a required site relation
         if sample.site:
-            panel = SitePanel(site=sample.site, panel_name=sample.original_filename)
+            panel = SitePanel(
+                site=sample.site,
+                panel_name=sample.original_filename)
             panel_form = SitePanelFromSampleForm(instance=panel)
 
             initial_param_data = list()
@@ -1224,7 +1287,9 @@ def create_panel_from_sample(request, sample_id):
                     'fcs_opt_text': param.fcs_opt_text
                 })
 
-            parameter_formset = ParameterFormSet(instance=panel, initial=initial_param_data)
+            parameter_formset = ParameterFormSet(
+                instance=panel,
+                initial=initial_param_data)
 
         else:
             messages.warning(
@@ -1246,12 +1311,15 @@ def create_panel_from_sample(request, sample_id):
 @login_required
 def view_subject_groups(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+    user_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
 
     if not (project.has_view_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
 
-    subject_groups = SubjectGroup.objects.filter(project=project).order_by('group_name')
+    subject_groups = SubjectGroup.objects.filter(
+        project=project).order_by('group_name')
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -1281,7 +1349,9 @@ def add_subject_group(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('subject_groups', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'subject_groups',
+                args=(project_id,)))
     else:
         form = SubjectGroupForm()
 
@@ -1297,7 +1367,10 @@ def add_subject_group(request, project_id):
 
 @login_required
 def edit_subject_group(request, project_id, subject_group_id):
-    subject_group = get_object_or_404(SubjectGroup, pk=subject_group_id, project_id=project_id)
+    subject_group = get_object_or_404(
+        SubjectGroup,
+        pk=subject_group_id,
+        project_id=project_id)
 
     if not subject_group.project.has_modify_permission(request.user):
         raise PermissionDenied
@@ -1332,11 +1405,16 @@ def add_subject(request, project_id):
 
     if request.method == 'POST':
         subject = Subject(project=project)
-        form = SubjectForm(request.POST, instance=subject, project_id=project_id)
+        form = SubjectForm(
+            request.POST,
+            instance=subject,
+            project_id=project_id)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subjects', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_subjects',
+                args=(project_id,)))
 
     else:
         form = SubjectForm(project_id=project_id)
@@ -1359,11 +1437,16 @@ def edit_subject(request, subject_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SubjectForm(request.POST, instance=subject, project_id=subject.subject_group.project_id)
+        form = SubjectForm(
+            request.POST,
+            instance=subject,
+            project_id=subject.subject_group.project_id)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subjects', args=(subject.subject_group.project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_subjects',
+                args=(subject.subject_group.project_id,)))
     else:
         form = SubjectForm(instance=subject, project_id=subject.project_id)
 
@@ -1386,11 +1469,17 @@ def add_sample(request, project_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SampleForm(request.POST, request.FILES, project_id=project_id, request=request)
+        form = SampleForm(
+            request.POST,
+            request.FILES,
+            project_id=project_id,
+            request=request)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project_samples', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project_samples',
+                args=(project_id,)))
     else:
         form = SampleForm(project_id=project_id, request=request)
 
@@ -1407,18 +1496,26 @@ def add_sample(request, project_id):
 @login_required
 def add_subject_sample(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
-    user_sites = Site.objects.get_sites_user_can_add(request.user, subject.project)
+    user_sites = Site.objects.get_sites_user_can_add(
+        request.user,
+        subject.project)
 
     if not (subject.project.has_add_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
 
     if request.method == 'POST':
         sample = Sample(subject=subject)
-        form = SampleSubjectForm(request.POST, request.FILES, instance=sample, request=request)
+        form = SampleSubjectForm(
+            request.POST,
+            request.FILES,
+            instance=sample,
+            request=request)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_subject', args=(subject_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_subject',
+                args=(subject_id,)))
     else:
         form = SampleSubjectForm(project_id=subject.project_id, request=request)
 
@@ -1441,7 +1538,11 @@ def add_site_sample(request, site_id):
 
     if request.method == 'POST':
         sample = Sample(site=site)
-        form = SampleSiteForm(request.POST, request.FILES, instance=sample, request=request)
+        form = SampleSiteForm(
+            request.POST,
+            request.FILES,
+            instance=sample,
+            request=request)
 
         if form.is_valid():
             form.save()
@@ -1467,11 +1568,17 @@ def edit_sample(request, sample_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SampleEditForm(request.POST, request.FILES, instance=sample, request=request)
+        form = SampleEditForm(
+            request.POST,
+            request.FILES,
+            instance=sample,
+            request=request)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project_samples', args=(sample.visit.project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project_samples',
+                args=(sample.visit.project_id,)))
     else:
         form = SampleEditForm(
             instance=sample,
@@ -1495,7 +1602,9 @@ def retrieve_sample(request, sample_id):
     if not sample.site.has_view_permission(request.user):
         raise PermissionDenied
 
-    response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
+    response = HttpResponse(
+        sample.sample_file,
+        content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
     return response
 
@@ -1507,7 +1616,9 @@ def retrieve_compensation(request, compensation_id):
     if not compensation.site.has_view_permission(request.user):
         raise PermissionDenied
 
-    response = HttpResponse(compensation.compensation_file, content_type='text/plain')
+    response = HttpResponse(
+        compensation.compensation_file,
+        content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % compensation.original_filename
     return response
 
@@ -1553,7 +1664,9 @@ def add_sample_set(request, project_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_project_sample_sets', args=(project_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_project_sample_sets',
+                args=(project_id,)))
     else:
         form = SampleSetForm(project_id=project_id)
 

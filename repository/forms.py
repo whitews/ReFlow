@@ -128,6 +128,15 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         # TODO: check for duplicate value type + scatter combos
 
 
+ParameterFormSet = inlineformset_factory(
+    ProjectPanel,
+    ProjectPanelParameter,
+    formset=BaseProjectPanelParameterFormSet,
+    extra=1,
+    can_delete=False
+)
+
+
 class SpecimenForm(forms.ModelForm):
     class Meta:
         model = Specimen
