@@ -5931,6 +5931,11 @@ th.header {
 .params tbody tr:hover td {
   background-color: #ddd;
 }
+
+tr.parameter-fields > td > select,
+span.antibody-field > select {
+  margin-bottom: 9px !important;
+}
 /* ----------  Table stuff   END---------- */
 /* ----------  Login stuff START---------- */
 .form-signin {

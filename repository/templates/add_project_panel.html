@@ -9,7 +9,8 @@
 <script>
 function add_antibody(selector) {
     // clone last antibody select
-    var new_select = selector.closest("td").children("select").last().clone();
+    var new_select_span = selector.siblings("span.antibody-field").last().clone();
+    var new_select = new_select_span.children("select");
     var name = new_select.attr("name");
     var id = new_select.attr("id");
 
@@ -23,24 +24,28 @@ function add_antibody(selector) {
     var new_id = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
     new_select.attr({"name": new_name, "id": new_id});
 
+    new_select_span.find(".remove-antibody").show();
+    new_select_span.append(
+      " ");
     selector.closest("td").append(
-        new_select,
-        " <a href=\"javascript:void(0)\" onclick=\"remove_antibody($(this))\"><i class=\"icon-remove align-middle\"></i></a>",
-        "<br/>",
-        selector);
+      new_select_span,
+      "<br>",
+      selector);
     return false;
 }
 
 function remove_antibody(selector) {
     var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
     total_form.val((parseInt(total_form.val())  - 1));
-    selector.prev("select").remove();
 
-    selector.closest("td").children("select").each(function(i, el) {
+    var parent_td = selector.parents("td");
+    selector.parent("span").prev("br").remove();
+    selector.parent("span").remove();  // contains selector
+
+    parent_td.children("span.antibody-field").children("select").each(function(i, el) {
       el.name = el.name.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
       el.id = el.id.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
     });
-    selector.remove();
     return false;
 }
 
@@ -51,18 +56,34 @@ $("#add_parameter").click(function() {
     var new_set_id = parseInt(m[1]) + 1;
     var new_name, new_id;
 
-    new_row.children("td").children("select").each(function () {
-        new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
-        new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
-        $(this).attr({"name": new_name, "id": new_id});
+    new_row.children("td").children("select").each(function() {
+      new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      $(this).attr({"name": new_name, "id": new_id});
     });
-    new_row.children("td").children("input").each(function () {
-        new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
-        new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
-        $(this).attr({"name": new_name, "id": new_id});
+    new_row.children("td").children("input").each(function() {
+      new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      $(this).attr({"name": new_name, "id": new_id});
     });
-    var ab_total_form = new_row.children("input[id*=TOTAL_FORMS]");
+    var ab_total_form = new_row.find("input[id*=TOTAL_FORMS]");
     ab_total_form.val(1);
+
+    var ab_selects = new_row.find("select[id*=-antibody]");
+    var ab_form_id;
+    ab_selects.each(function() {
+      ab_form_id = $(this).attr("id").match(/-\d+-(\d+)-antibody/);
+      console.log(ab_form_id);
+      if (ab_form_id[1] != 0) {
+        $(this).parent("span").prev("br").remove();
+        $(this).parent("span").remove();
+      }
+      else {
+        new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        $(this).attr({"name": new_name, "id": new_id});
+      }
+    });
 
     var param_total_form = $(document).find("#id_projectpanelparameter_set-TOTAL_FORMS");
     param_total_form.val((parseInt(param_total_form.val()) + 1));
@@ -190,26 +211,39 @@ function remove_parameter(selector) {
             </tr>
           </thead>
           {% for parameter_form in parameter_formset %}
-          <tr>
-          {% for field in parameter_form.visible_fields %}
+          <tr class="parameter-fields">
             <td>
-            {{ field }}
-            {{ field.errors }}
-            {% if forloop.first %}
-            <a href="javascript:void(0)" class="hide remove-parameter" onclick="remove_parameter($(this))">Remove parameter</a>
-            {% endif %}
+              {{ parameter_form.parameter_type }}
+              {{ parameter_form.parameter_type.errors }}
+              <br/>
+              <a href="javascript:void(0)" class="hide remove-parameter bottom" onclick="remove_parameter($(this))">Remove parameter</a>
             </td>
-          {% endfor %}
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
+            </td>
+            <td>
+              {{ parameter_form.fluorochrome }}
+              {{ parameter_form.fluorochrome.errors }}
+            </td>
           {% if parameter_form.nested %}
             <td>
               {% for nested_formset in parameter_form.nested %}
                 {{ nested_formset.management_form }}
                 {% for nested_form in nested_formset.forms %}
-                  {{ nested_form.antibody }}<br/>
+                  <span class="antibody-field no-wrap">
+                    {{ nested_form.antibody }}
+                    <a class="hide remove-antibody align-middle" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                      <i class="icon-remove align-middle\"></i>
+                    </a>
+                  </span>
                 {% endfor %}
               {% endfor %}
+              <br/>
               <a href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
             </td>
+          {% else %}
+            <td></td>
           {% endif %}
           </tr>
           {% if forloop.last %}
