@@ -53,7 +53,6 @@ def admin(request):
     )
 
 
-
 @login_required
 def view_specimens(request):
 
@@ -70,6 +69,7 @@ def view_specimens(request):
         },
         context_instance=RequestContext(request)
     )
+
 
 @user_passes_test(
     lambda user: user.is_superuser,
@@ -330,12 +330,14 @@ def view_project(request, project_id):
     user_sites = Site.objects.get_sites_user_can_view(
         request.user, project=project)
 
-    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
+    if not project.has_view_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
-    can_manage_project_users = project.has_user_management_permission(request.user)
+    can_manage_project_users = project.has_user_management_permission(
+        request.user)
 
     return render_to_response(
         'view_project.html',
@@ -412,7 +414,8 @@ def edit_project(request, project_id):
 def view_project_users(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    can_manage_project_users = project.has_user_management_permission(request.user)
+    can_manage_project_users = project.has_user_management_permission(
+        request.user)
 
     if not can_manage_project_users:
         raise PermissionDenied
@@ -492,7 +495,9 @@ def manage_site_user(request, site_id, user_id):
     site = get_object_or_404(Site, pk=site_id)
     user = get_object_or_404(User, pk=user_id)
 
-    if not site.project.has_user_management_permission(request.user) or site.has_user_management_permission(request.user):
+    if not site.project.has_user_management_permission(request.user):
+        raise PermissionDenied
+    if site.has_user_management_permission(request.user):
         raise PermissionDenied
 
     form = CustomUserObjectPermissionForm(user, site, request.POST or None)
@@ -593,7 +598,6 @@ def edit_stimulation(request, stimulation_id):
     )
 
 
-
 @login_required
 def view_project_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
@@ -602,8 +606,9 @@ def view_project_panels(request, project_id):
         request.user,
         project=project)
 
-    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
+    if not project.has_view_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     panels = ProjectPanel.objects.filter(project=project)
 
@@ -715,8 +720,9 @@ def view_subjects(request, project_id):
         request.user,
         project=project)
 
-    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
+    if not project.has_view_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     subjects = Subject.objects.filter(project=project).order_by('subject_code')
 
@@ -768,20 +774,7 @@ def view_samples(request, project_id):
     else:
         raise PermissionDenied
 
-    # TODO: fix sample param lookup, use distinct site panels???
-    # spm_maps = SampleParameterMap.objects.filter(
-    #     sample_id__in=[i['id'] for i in samples]).values(
-    #         'id',
-    #         'sample_id',
-    #         'fcs_number',
-    #         'fcs_text',
-    #         'fcs_opt_text',
-    #         'parameter__parameter_short_name',
-    #         'value_type__value_type_short_name',
-    #     )
-    #
-    # for sample in samples:
-    #     sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
+    # TODO: fix sample parameter lookup, use distinct site panels???
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -907,20 +900,6 @@ def view_site(request, site_id):
         raise PermissionDenied
 
     # TODO: rework to get site panel parameters,
-    # maybe use distinct list of site panel IDs???
-    # sample_parameters = SitePanelParameter.objects.filter(
-    #     sample_id__in=[i['id'] for i in samples]).values(
-    #         'id',
-    #         'sample_id',
-    #         'fcs_number',
-    #         'fcs_text',
-    #         'fcs_opt_text',
-    #         'parameter_value_type__value_type_abbreviation',
-    #     )
-
-    # # this is done to avoid hitting the database too hard in templates
-    # for sample in samples:
-    #     sample['parameters'] = [i for i in spm_maps if i['sample_id'] == sample['id']]
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -942,6 +921,7 @@ def view_site(request, site_id):
         },
         context_instance=RequestContext(request)
     )
+
 
 @login_required
 def view_compensations(request, project_id):
@@ -1025,8 +1005,9 @@ def view_visit_types(request, project_id):
         request.user,
         project=project)
 
-    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
+    if not project.has_view_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     visit_types = VisitType.objects.filter(
         project=project).order_by('visit_type_name')
@@ -1144,7 +1125,9 @@ def view_site_panels(request, site_id):
         )
 
     for panel in panels:
-        panel['parameters'] = [i for i in ppm_maps if i['panel_id'] == panel['id']]
+        panel['parameters'] = [
+            i for i in ppm_maps if i['panel_id'] == panel['id']
+        ]
 
     # for adding new parameters to panels
     form = SitePanelParameterMapForm()
@@ -1281,10 +1264,10 @@ def create_panel_from_sample(request, sample_id):
             panel_form = SitePanelFromSampleForm(instance=panel)
 
             initial_param_data = list()
-            for param in sample.sampleparametermap_set.all().order_by('fcs_text'):
+            for p in sample.sampleparametermap_set.all().order_by('fcs_text'):
                 initial_param_data.append({
-                    'fcs_text': param.fcs_text,
-                    'fcs_opt_text': param.fcs_opt_text
+                    'fcs_text': p.fcs_text,
+                    'fcs_opt_text': p.fcs_opt_text
                 })
 
             parameter_formset = ParameterFormSet(
@@ -1315,8 +1298,9 @@ def view_subject_groups(request, project_id):
         request.user,
         project=project)
 
-    if not (project.has_view_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
+    if not project.has_view_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     subject_groups = SubjectGroup.objects.filter(
         project=project).order_by('group_name')
@@ -1500,8 +1484,9 @@ def add_subject_sample(request, subject_id):
         request.user,
         subject.project)
 
-    if not (subject.project.has_add_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
+    if not subject.project.has_add_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     if request.method == 'POST':
         sample = Sample(subject=subject)
@@ -1533,8 +1518,9 @@ def add_subject_sample(request, subject_id):
 def add_site_sample(request, site_id):
     site = get_object_or_404(Site, pk=site_id)
 
-    if not (site.project.has_add_permission(request.user) or site.has_view_permission(request.user)):
-        raise PermissionDenied
+    if not site.project.has_add_permission(
+            request.user) and not site.has_view_permission(request.user):
+                raise PermissionDenied
 
     if request.method == 'POST':
         sample = Sample(site=site)
@@ -1605,7 +1591,8 @@ def retrieve_sample(request, sample_id):
     response = HttpResponse(
         sample.sample_file,
         content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
+    response['Content-Disposition'] = 'attachment; filename=%s' % \
+                                      sample.original_filename
     return response
 
 
@@ -1619,7 +1606,8 @@ def retrieve_compensation(request, compensation_id):
     response = HttpResponse(
         compensation.compensation_file,
         content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename=%s' % compensation.original_filename
+    response['Content-Disposition'] = 'attachment; filename=%s' % \
+                                      compensation.original_filename
     return response
 
 
