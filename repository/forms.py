@@ -1,3 +1,4 @@
+from collections import Counter
 from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.core.exceptions import ValidationError
@@ -91,6 +92,8 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             - No duplicate forward scatter + value type combinations
             - No duplicate side scatter + value type combinations
         """
+        param_counter = Counter()
+
         for form in self.forms:
             ab_formset = form.nested[0]
 
@@ -104,13 +107,18 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                     else:
                         ab_set.add(new_ab_id)
 
-            # get parameter type and value type
-            param_type = ParameterType.objects.get(
-                id=form.data[form.add_prefix('parameter_type')]
-            )
-            value_type = ParameterValueType.objects.get(
-                id=form.data[form.add_prefix('parameter_value_type')]
-            )
+            # parameter type is required
+            param_type_id = form.data[form.add_prefix('parameter_type')]
+            if not param_type_id:
+                raise ValidationError("Parameter type is required")
+            param_type = ParameterType.objects.get(id=param_type_id)
+
+            # value type is required
+            value_type_id = form.data[form.add_prefix('parameter_value_type')]
+            if not value_type_id:
+                raise ValidationError("Value type is required")
+            value_type = ParameterValueType.objects.get(id=value_type_id)
+
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 
             # check for fluoro or antibodies in scatter channels
@@ -123,9 +131,16 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             if 'fluor' in param_type.parameter_type_name.lower() and not fluorochrome_id:
                 raise ValidationError("A fluoroscence channel must specify a fluorochrome.")
 
-        # TODO: check for duplicate value type + fluoro combos
+            # make a list of the combination for use in the Counter
+            param_components = [param_type, value_type]
+            if fluorochrome_id:
+                param_components.append(fluorochrome_id)
 
-        # TODO: check for duplicate value type + scatter combos
+            param_counter.update([tuple(sorted(param_components))])
+
+        # check for duplicate parameters
+        if max(param_counter.values()) > 1:
+            raise ValidationError("Cannot have duplicate parameters")
 
 
 ParameterFormSet = inlineformset_factory(
