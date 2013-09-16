@@ -205,6 +205,37 @@ class VisitTypeForm(forms.ModelForm):
         exclude = ('project',)
 
 
+class PreSitePanelForm(forms.Form):
+    project_panel = forms.ComboField(label='Project panel')
+    fcs_file = forms.FileField(label="FCS file")
+    site_panel_comments = forms.CharField(
+        required=False,
+        widget=forms.Textarea)
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(PreSitePanelForm, self).__init__(*args, **kwargs)
+
+        # finally, the reason we're here...
+        # make sure only the project's panels are the available choices
+        if project_id:
+            project_panels = ProjectPanel.objects.filter(
+                project__id=project_id).order_by('panel_name')
+            self.fields['project_panel'] = forms.ModelChoiceField(
+                project_panels,
+                required=True,)
+
+    def clean(self):
+        """
+        Validate panel exists.
+        """
+        # TODO: is this needed?
+        return self.cleaned_data #never forget this! ;o)
+
+
 class SitePanelForm(forms.ModelForm):
     class Meta:
         model = SitePanel
@@ -225,7 +256,7 @@ class SitePanelParameterMapFromSampleForm(forms.ModelForm):
         fields = ('fcs_text', 'fcs_opt_text', 'parameter_value_type')
 
 
-class SitePanelParameterMapForm(forms.ModelForm):
+class SitePanelParameterForm(forms.ModelForm):
     class Meta:
         model = SitePanelParameter
         fields = ('fcs_text', 'fcs_opt_text', 'parameter_value_type')

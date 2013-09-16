@@ -686,6 +686,9 @@ def add_project_panel(request, project_id):
 
 @login_required
 def edit_project_panel(request, panel_id):
+    # TODO: make sure no site panels are based on this project panel
+
+    # TODO: revamp this to allow full edits???
     panel = get_object_or_404(ProjectPanel, pk=panel_id)
 
     if not panel.project.has_modify_permission(request.user):
@@ -1156,7 +1159,7 @@ def add_site_panel(request, site_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SitePanelForm(request.POST, instance=SitePanel(site=site))
+        form = PreSitePanelForm(request.POST, project_id=site.project_id)
 
         if form.is_valid():
             form.save()
@@ -1165,7 +1168,7 @@ def add_site_panel(request, site_id):
                 args=(site_id,)))
 
     else:
-        form = SitePanelForm()
+        form = PreSitePanelForm(project_id=site.project_id)
 
     return render_to_response(
         'add_site_panel.html',
@@ -1178,6 +1181,32 @@ def add_site_panel(request, site_id):
 
 
 @login_required
+def render_site_panel(request, site_id):
+    site = get_object_or_404(Site, pk=site_id)
+
+    if not site.has_add_permission(request.user):
+        raise PermissionDenied
+
+    if not request.is_ajax():
+        return HttpResponseBadRequest()
+
+    if request.method == 'POST':
+        form = PreSitePanelForm(request.POST, project_id=site.project_id)
+
+        if form.is_valid():
+            return render_to_response(
+                'render_site_panel.html',
+                {
+                    'form': form,
+                },
+                context_instance=RequestContext(request)
+            )
+        else:
+            return HttpResponseBadRequest(json.dumps(form.errors))
+
+    return HttpResponseBadRequest()
+
+@login_required
 def edit_site_panel(request, panel_id):
     panel = get_object_or_404(SitePanel, pk=panel_id)
 
@@ -1185,7 +1214,7 @@ def edit_site_panel(request, panel_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SitePanelForm(request.POST, instance=panel)
+        form = SitePanelParameterForm(request.POST, instance=panel)
 
         if form.is_valid():
             form.save()

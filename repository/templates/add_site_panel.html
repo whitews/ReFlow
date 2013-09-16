@@ -1,6 +1,33 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load staticfiles %}
 {% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+
+<script>
+$('#render_parameters').submit(function ()
+{
+    $('#get_parameters').attr('disabled', true);
+    var form = $(this);
+    $.ajax(
+    {
+        data: $(this).serialize(),
+        type: $(this).attr('method'),
+        url: $(this).attr('action'),
+        success: function (data) {
+            $(document).find("div#presite_form").hide();
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            $("div#presite_form").append(xhr.responseText);
+        }
+    });
+    return false;
+});
+</script>
+
+{% endblock %}
 
 {% block breadcrumbs %}
   <ul class="breadcrumb">
@@ -14,7 +41,8 @@
 
 {% block body %}
   <div class="container">
-      <form class="form-horizontal" action="{% url 'add_site_panel' site.id %}" method="post">
+    <div id="presite_form">
+      <form id="render_parameters" class="form-horizontal" action="{% url 'render_site_panel' site.id %}" method="post">
         {% csrf_token %}
           {% if form.non_field_errors %}
               <div class="control-group text-error">
@@ -35,9 +63,11 @@
           {% endfor %}
         <div class="control-group">
           <div class="controls">
-            <button class="btn btn-small btn-success" type="submit">Save</button>
+            <button id="get_parameters" class="btn btn-small btn-success" type="submit">Save</button>
           </div>
         </div>
       </form>
+    </div>
+    <div id="render_parameters_form hide"></div>
   </div>
 {% endblock %}
