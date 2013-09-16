@@ -26,6 +26,7 @@ function add_antibody(selector) {
     selector.closest("td").append(
         new_select,
         " <a href=\"javascript:void(0)\" onclick=\"remove_antibody($(this))\"><i class=\"icon-remove align-middle\"></i></a>",
+        "<br/>",
         selector);
     return false;
 }
