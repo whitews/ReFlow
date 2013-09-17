@@ -1,5 +1,8 @@
 from operator import attrgetter
 import json
+import io
+
+import fcm
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -1113,57 +1116,37 @@ def view_site_panels(request, site_id):
 @login_required
 def add_site_panel(request, site_id):
     site = get_object_or_404(Site, pk=site_id)
+    preform_valid = False
 
-    if not (site.has_add_permission(request.user)):
+    if not site.has_add_permission(request.user):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = PreSitePanelForm(request.POST, project_id=site.project_id)
+        preform = PreSitePanelForm(
+            request.POST,
+            request.FILES,
+            project_id=site.project_id)
 
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_site_panels',
-                args=(site_id,)))
+        if preform.is_valid():
+            preform_valid = True
+
+            # process the FCS file
+            f = fcm.loadFCS(io.BytesIO(preform.files['fcs_file'].read()))
+            print f.channels
 
     else:
-        form = PreSitePanelForm(project_id=site.project_id)
+        preform = PreSitePanelForm(project_id=site.project_id)
 
     return render_to_response(
         'add_site_panel.html',
         {
-            'form': form,
+            'preform': preform,
+            'preform_valid': preform_valid,
             'site': site,
         },
         context_instance=RequestContext(request)
     )
 
-
-@login_required
-def render_site_panel(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
-
-    if not site.has_add_permission(request.user):
-        raise PermissionDenied
-
-    if not request.is_ajax():
-        return HttpResponseBadRequest()
-
-    if request.method == 'POST':
-        form = PreSitePanelForm(request.POST, project_id=site.project_id)
-
-        if form.is_valid():
-            return render_to_response(
-                'render_site_panel.html',
-                {
-                    'form': form,
-                },
-                context_instance=RequestContext(request)
-            )
-        else:
-            return HttpResponseBadRequest(json.dumps(form.errors))
-
-    return HttpResponseBadRequest()
 
 @login_required
 def edit_site_panel(request, panel_id):

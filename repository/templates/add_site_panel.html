@@ -6,26 +6,7 @@
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
 
-<script>
-$('#render_parameters').submit(function ()
-{
-    $('#get_parameters').attr('disabled', true);
-    var form = $(this);
-    $.ajax(
-    {
-        data: $(this).serialize(),
-        type: $(this).attr('method'),
-        url: $(this).attr('action'),
-        success: function (data) {
-            $(document).find("div#presite_form").hide();
-        },
-        error: function(xhr, textStatus, errorThrown) {
-            $("div#presite_form").append(xhr.responseText);
-        }
-    });
-    return false;
-});
-</script>
+
 
 {% endblock %}
 
@@ -41,33 +22,34 @@ $('#render_parameters').submit(function ()
 
 {% block body %}
   <div class="container">
-    <div id="presite_form">
-      <form id="render_parameters" class="form-horizontal" action="{% url 'render_site_panel' site.id %}" method="post">
-        {% csrf_token %}
-          {% if form.non_field_errors %}
-              <div class="control-group text-error">
-                  {{ form.non_field_errors }}
-              </div>
-          {% endif %}
-
-          {% for field in form %}
-              <div class="control-group">
-                  <label class="control-label">{{ field.label }}</label>
-                  <div class="controls">
-                      {{ field }}
-                      {% if field.errors %}
-                          <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-                      {% endif %}
-                  </div>
-              </div>
-          {% endfor %}
-        <div class="control-group">
-          <div class="controls">
-            <button id="get_parameters" class="btn btn-small btn-success" type="submit">Save</button>
+    {% if not preform_valid %}
+    <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_site_panel' site.id %}" method="post">
+      {% csrf_token %}
+        {% if preform.non_field_errors %}
+          <div class="control-group text-error">
+            {{ preform.non_field_errors }}
           </div>
+        {% endif %}
+
+        {% for field in preform %}
+          <div class="control-group">
+            <label class="control-label">{{ field.label }}</label>
+            <div class="controls">
+              {{ field }}
+              {% if field.errors %}
+                <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      <div class="control-group">
+        <div class="controls">
+          <button class="btn btn-small btn-success" type="submit">Submit File</button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
+    {% else %}
     <div id="render_parameters_form hide"></div>
+    {% endif %}
   </div>
 {% endblock %}

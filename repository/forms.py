@@ -205,12 +205,12 @@ class VisitTypeForm(forms.ModelForm):
         exclude = ('project',)
 
 
-class PreSitePanelForm(forms.Form):
-    project_panel = forms.ComboField(label='Project panel')
+class PreSitePanelForm(forms.ModelForm):
     fcs_file = forms.FileField(label="FCS file")
-    site_panel_comments = forms.CharField(
-        required=False,
-        widget=forms.Textarea)
+
+    class Meta:
+        model = SitePanel
+        exclude = ('site',)
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -227,13 +227,6 @@ class PreSitePanelForm(forms.Form):
             self.fields['project_panel'] = forms.ModelChoiceField(
                 project_panels,
                 required=True,)
-
-    def clean(self):
-        """
-        Validate panel exists.
-        """
-        # TODO: is this needed?
-        return self.cleaned_data #never forget this! ;o)
 
 
 class SitePanelForm(forms.ModelForm):
