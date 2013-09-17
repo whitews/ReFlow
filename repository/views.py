@@ -1093,47 +1093,7 @@ def view_site_panels(request, site_id):
     if not site.has_view_permission(request.user):
         raise PermissionDenied
 
-    if request.method == 'POST':
-        if 'panel' in request.POST:
-
-            panel = get_object_or_404(SitePanel, pk=request.POST['panel'])
-            ppm = SitePanelParameter(panel=panel)
-            form = SitePanelParameterMapForm(request.POST, instance=ppm)
-
-            if form.is_valid():
-                form.save()
-                return HttpResponseRedirect(reverse(
-                    'view_site_panels',
-                    args=(site_id,)))
-            else:
-                errors_json = json.dumps(form.errors)
-                return HttpResponseBadRequest(
-                    errors_json,
-                    mimetype='application/json')
-
-    panels = SitePanel.objects.filter(site=site).values(
-        'id',
-        'site_panel_comments',
-        'site__site_name',
-        'site__id'
-    )
-    ppm_maps = SitePanelParameter.objects.filter(
-        site_panel_id__in=[i['id'] for i in panels]).values(
-            'id',
-            'site_panel_id',
-            'fcs_text',
-            'fcs_opt_text',
-            'parameter_type__parameter_type_name',
-            'parameter_value_type__value_type_name',
-        )
-
-    for panel in panels:
-        panel['parameters'] = [
-            i for i in ppm_maps if i['panel_id'] == panel['id']
-        ]
-
-    # for adding new parameters to panels
-    form = SitePanelParameterMapForm()
+    panels = SitePanel.objects.filter(site=site)
 
     can_add_site_data = site.has_add_permission(request.user)
     can_modify_site_data = site.has_modify_permission(request.user)
@@ -1143,7 +1103,6 @@ def view_site_panels(request, site_id):
         {
             'site': site,
             'panels': panels,
-            'form': form,
             'can_add_site_data': can_add_site_data,
             'can_modify_site_data': can_modify_site_data,
         },
