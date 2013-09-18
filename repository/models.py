@@ -588,12 +588,13 @@ class SitePanel(ProtectedModel):
                 id=self.id)
         if duplicates.count() > 0:
             raise ValidationError(
-                "A site panel for this project panel already exists in this site."
+                "A site panel for this project panel already exists."
             )
 
         # project panel must be in the same project as the site
         if self.site.project_id != self.project_panel.project_id:
-            raise ValidationError("Chosen project panel is not in site's project.")
+            raise ValidationError(
+                "Chosen project panel is not in site's project.")
 
     def __unicode__(self):
         return u'%s (Site: %s)' % (
@@ -995,7 +996,8 @@ class Sample(ProtectedModel):
                 n_or_s = str.lower(matches.group(2))
                 if channel_number not in sample_parameters:
                     sample_parameters[channel_number] = {}
-                sample_parameters[channel_number][n_or_s] = sample_text_segment[key]
+                sample_parameters[channel_number][n_or_s] = \
+                    sample_text_segment[key]
 
         self._sample_parameters = sample_parameters
 
@@ -1079,7 +1081,9 @@ def validate_samples(sender, **kwargs):
                     "Samples must belong to the specified project."
                 )
 
-models.signals.m2m_changed.connect(validate_samples, sender=SampleSet.samples.through)
+models.signals.m2m_changed.connect(
+    validate_samples,
+    sender=SampleSet.samples.through)
 
 
 def compensation_file_path(instance, filename):
