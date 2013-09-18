@@ -1237,7 +1237,11 @@ def process_site_panel_post(request, site_id):
                 instance=site_panel)
 
             if parameter_formset.is_valid():
-                return HttpResponse("Thanks!")
+                response_dict = {
+                    'errors': False,
+                    'messages': ["Thanks!"]
+                }
+                return HttpResponse(json.dumps(response_dict))
             else:
                 response_dict = {
                     'errors': True,

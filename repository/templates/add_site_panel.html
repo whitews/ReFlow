@@ -17,9 +17,11 @@ $(document).ready(function () {
             dataType: "json",
             type: $(this).attr('method'),
             url: $(this).attr('action'),
-            status: function (json) {
-                $('#render_parameters_form').empty();
-                $('#render_parameters_form').append('<p class=\"text-info\">' + json + '</p>');
+            success: function (json) {
+                $.each(json.messages, function (i, value)
+                {
+                    $('#render_parameters_form').append('<p class=\"text-info\">' + value + '</p>');
+                });
             },
             error: function(xhr, status, error) {
                 $('#parameter-form-errors').children().remove();
@@ -82,7 +84,7 @@ $(document).ready(function () {
 
     {% else %}
 
-    <div id="render_parameters_form hide">
+    <div id="render_parameters_form">
 
       <div id="parameter-form-errors"></div>
 
