@@ -5935,6 +5935,7 @@ th.header {
 tr.parameter-fields > td > select,
 span.antibody-field > select {
   margin-bottom: 9px !important;
+  width: auto !important;
 }
 /* ----------  Table stuff   END---------- */
 /* ----------  Login stuff START---------- */
@@ -6003,6 +6004,10 @@ span.antibody-field > select {
 }
 .control-group ul li label input {
   margin: 0;
+}
+
+#render_parameters_form > select {
+  width: auto !important;
 }
 /* ----------  Checkbox Lists in Forms    END---------- */
 /* ----------  well text START---------- */

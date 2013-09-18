@@ -6,7 +6,36 @@
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
 
+<script>
+$(document).ready(function () {
+    $('#panel-parameter-form').submit(function ()
+    {
+        $('button#process-parameters').attr('disabled', true);
+        $.ajax(
+        {
+            data: $(this).serialize(),
+            dataType: "json",
+            type: $(this).attr('method'),
+            url: $(this).attr('action'),
+            status: function (json) {
+                $('#render_parameters_form').empty();
+                $('#render_parameters_form').append('<p class=\"text-info\">' + json + '</p>');
+            },
+            error: function(xhr, status, error) {
+                $('#parameter-form-errors').children().remove();
+                var obj = JSON.parse(xhr.responseText);
 
+                $.each(obj.messages, function (i, value)
+                {
+                    $('#parameter-form-errors').append('<p class=\"text-warning\">' + value + '</p>');
+                });
+            }
+        });
+        $('button#process-parameters').attr('disabled', false);
+        return false;
+    });
+});
+</script>
 
 {% endblock %}
 
@@ -22,7 +51,9 @@
 
 {% block body %}
   <div class="container">
+
     {% if not preform_valid %}
+
     <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_site_panel' site.id %}" method="post">
       {% csrf_token %}
         {% if preform.non_field_errors %}
@@ -48,15 +79,106 @@
         </div>
       </div>
     </form>
+
     {% else %}
+
     <div id="render_parameters_form hide">
-      {% for channel, value in channels.items %}
-        {{ channel }}, {{ value.n }}, {{ value.s }}<br>
-      {% endfor %}
-      {% for param in project_panel.projectpanelparameter_set.all %}
-        {{ param }}
-      {% endfor %}
+
+      <div id="parameter-form-errors"></div>
+
+      <div class="well">
+        {% for param in project_panel.projectpanelparameter_set.all %}
+          {{ param.parameter_type.parameter_type_abbreviation }}-{{ param.parameter_value_type.value_type_abbreviation }}<br>
+        {% endfor %}
+      </div>
+
+      <form id="panel-parameter-form" class="form-horizontal" action="{% url 'process_site_panel_post' site.id %}" method="post">
+      {% csrf_token %}
+
+      <div class="hide">
+        {{ site_panel_form }}
+      </div>
+
+      {{ parameter_formset.management_form }}
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>FCS Channel #</th>
+              <th>FCS PnN Text</th>
+              <th>FCS PnS Text</th>
+              <th>Type</th>
+              <th>Value Type</th>
+              <th>Fluorochrome</th>
+              <th>Antibodies</th>
+            </tr>
+          </thead>
+          {% for parameter_form in parameter_formset %}
+          <tr class="parameter-fields">
+            <td>
+              {{ parameter_form.fcs_number.value }}
+              <div class="hide">{{ parameter_form.fcs_number }}</div>
+            </td>
+            <td>
+              {{ parameter_form.fcs_text.value }}
+              <div class="hide">{{ parameter_form.fcs_text }}</div>
+            </td>
+            <td>
+              {{ parameter_form.fcs_opt_text.value }}
+              <div class="hide">{{ parameter_form.fcs_opt_text }}</div>
+            </td>
+            <td>
+              {{ parameter_form.parameter_type }}
+              {{ parameter_form.parameter_type.errors }}
+              <br/>
+              <a href="javascript:void(0)" class="hide remove-parameter bottom" onclick="remove_parameter($(this))">Remove parameter</a>
+            </td>
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
+            </td>
+            <td>
+              {{ parameter_form.fluorochrome }}
+              {{ parameter_form.fluorochrome.errors }}
+            </td>
+          {% if parameter_form.nested %}
+            <td>
+              {% for nested_formset in parameter_form.nested %}
+                {{ nested_formset.management_form }}
+                {% for nested_form in nested_formset.forms %}
+                  <span class="antibody-field no-wrap">
+                    {{ nested_form.antibody }}
+                    <a class="hide remove-antibody align-middle" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                      <i class="icon-remove align-middle\"></i>
+                    </a>
+                  </span>
+                {% endfor %}
+              {% endfor %}
+              <br/>
+              <a href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
+            </td>
+          {% else %}
+            <td></td>
+          {% endif %}
+          </tr>
+          {% endfor %}
+        </table>
+      <div class="control-group">
+        <div class="controls">
+          <button id="process-parameters" class="btn btn-small btn-success" type="submit">Save</button>
+        </div>
+      </div>
+    </form>
+
+
+
     </div>
+
+
+
+
+
     {% endif %}
+
   </div>
 {% endblock %}

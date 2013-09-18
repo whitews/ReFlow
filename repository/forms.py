@@ -60,6 +60,13 @@ ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
     can_delete=False)
 
 
+SitePanelParameterAntibodyFormSet = inlineformset_factory(
+    SitePanelParameter,
+    SitePanelParameterAntibody,
+    extra=1,
+    can_delete=False)
+
+
 class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
     def add_fields(self, form, index):
         # allow the super class to create the fields as usual
@@ -143,7 +150,90 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             raise ValidationError("Cannot have duplicate parameters")
 
 
-ParameterFormSet = inlineformset_factory(
+class BaseSitePanelParameterFormSet(BaseInlineFormSet):
+    def add_fields(self, form, index):
+        # allow the super class to create the fields as usual
+        super(BaseSitePanelParameterFormSet, self).add_fields(form, index)
+
+        # create the nested formset
+        try:
+            instance = self.get_queryset()[index]
+            pk_value = instance.pk
+        except IndexError:
+            instance=None
+            pk_value = form.prefix
+
+        # store the formset in the .nested property
+        data = self.data if self.data and index is not None else None
+        form.nested = [
+            SitePanelParameterAntibodyFormSet(
+                data=data,
+                instance=instance,
+                prefix=pk_value)]
+
+    def clean(self):
+        """
+        Validate the panel:
+            - No duplicate antibodies in a parameter
+            - No fluorochromes in a scatter parameter
+            - No antibodies in a scatter parameter
+            - Fluoroscent parameter must specify a fluorochrome
+            - No duplicate fluorochrome + value type combinations
+            - No duplicate forward scatter + value type combinations
+            - No duplicate side scatter + value type combinations
+        """
+        param_counter = Counter()
+
+        for form in self.forms:
+            ab_formset = form.nested[0]
+
+            # check for duplicate antibodies in a parameter
+            ab_set = set()
+            for ab_form in ab_formset.forms:
+                new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
+                if new_ab_id:  # if it's not empty string
+                    if new_ab_id in ab_set:
+                        raise ValidationError("A parameter cannot have duplicate antibodies.")
+                    else:
+                        ab_set.add(new_ab_id)
+
+            # parameter type is required
+            param_type_id = form.data[form.add_prefix('parameter_type')]
+            if not param_type_id:
+                raise ValidationError("Parameter type is required")
+            param_type = ParameterType.objects.get(id=param_type_id)
+
+            # value type is required
+            value_type_id = form.data[form.add_prefix('parameter_value_type')]
+            if not value_type_id:
+                raise ValidationError("Value type is required")
+            value_type = ParameterValueType.objects.get(id=value_type_id)
+
+            fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
+
+            # check for fluoro or antibodies in scatter channels
+            if 'scatter' in param_type.parameter_type_name.lower() and fluorochrome_id:
+                raise ValidationError("A scatter channel cannot have a fluorochrome.")
+            if 'scatter' in param_type.parameter_type_name.lower() and len(ab_set) > 0:
+                raise ValidationError("A scatter channel cannot have an antibody.")
+
+            # check that fluorescence channels specify a fluoro
+            if 'fluor' in param_type.parameter_type_name.lower() and not fluorochrome_id:
+                raise ValidationError("A fluoroscence channel must specify a fluorochrome.")
+
+            # make a list of the combination for use in the Counter
+            param_components = [param_type, value_type]
+            if fluorochrome_id:
+                param_components.append(fluorochrome_id)
+
+            param_counter.update([tuple(sorted(param_components))])
+
+        # check for duplicate parameters
+        if max(param_counter.values()) > 1:
+            raise ValidationError("Cannot have duplicate parameters")
+
+
+ProjectParameterFormSet = inlineformset_factory(
     ProjectPanel,
     ProjectPanelParameter,
     formset=BaseProjectPanelParameterFormSet,

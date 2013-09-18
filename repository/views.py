@@ -1,5 +1,6 @@
 from operator import attrgetter
 import io
+import json
 
 import fcm
 
@@ -8,7 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import \
+    HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.forms.models import inlineformset_factory
@@ -642,7 +644,7 @@ def add_project_panel(request, project_id):
 
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
-            parameter_formset = ParameterFormSet(request.POST, instance=panel)
+            parameter_formset = ProjectParameterFormSet(request.POST, instance=panel)
             ab_formsets_valid = True
 
             for param_form in parameter_formset.forms:
@@ -665,14 +667,14 @@ def add_project_panel(request, project_id):
                     'view_project_panels',
                     args=(project.id,)))
         else:
-            parameter_formset = ParameterFormSet(
+            parameter_formset = ProjectParameterFormSet(
                 request.POST,
                 instance=ProjectPanel(project=project))
 
     else:
         panel = ProjectPanel(project=project)
         panel_form = ProjectPanelForm(instance=panel)
-        parameter_formset = ParameterFormSet(instance=panel)
+        parameter_formset = ProjectParameterFormSet(instance=panel)
 
     return render_to_response(
         'add_project_panel.html',
@@ -1117,6 +1119,8 @@ def add_site_panel(request, site_id):
     preform_valid = False
     channels = {}
     project_panel = None
+    site_panel_form = None
+    parameter_formset = None
 
     if not site.has_add_permission(request.user):
         raise PermissionDenied
@@ -1139,12 +1143,53 @@ def add_site_panel(request, site_id):
             for key in sample_text_segment:
                 matches = re.search('^P(\d+)([N,S])$', key, flags=re.IGNORECASE)
                 if matches:
-                    channel_number = matches.group(1)
+                    channel_number = int(matches.group(1))
                     n_or_s = str.lower(matches.group(2))
                     if channel_number not in channels:
                         channels[channel_number] = {}
                     channels[channel_number][n_or_s] = sample_text_segment[key]
 
+            site_panel = preform.save(commit=False)
+            site_panel_form = SitePanelForm(instance=site_panel)
+
+            initial_param_data = list()
+            for key in channels.keys():
+                if channels[key].has_key('n'):
+                    n_text = channels[key]['n']
+                else:
+                    n_text = ""
+
+                if channels[key].has_key('s'):
+                    s_text = channels[key]['s']
+                else:
+                    s_text = ""
+
+                initial_param_data.append({
+                    'fcs_number': key,
+                    'fcs_text': n_text,
+                    'fcs_opt_text': s_text
+                })
+
+            ParameterFormSet = inlineformset_factory(
+                SitePanel,
+                SitePanelParameter,
+                formset=BaseSitePanelParameterFormSet,
+                extra=len(channels),
+                can_delete=False,
+                max_num=len(channels)
+            )
+
+            parameter_formset = ParameterFormSet(
+                instance=site_panel,
+                initial=initial_param_data)
+
+            # Note that the formset POST will be handled in a different view.
+            # (see the template formset action URL)
+            # It would be a bit messy to differentiate an invalid pre-form
+            # from the valid panel form.
+        else:
+            # If we get here the pre-form was invalid
+            pass
     else:
         preform = PreSitePanelForm(project_id=site.project_id)
 
@@ -1154,11 +1199,62 @@ def add_site_panel(request, site_id):
             'preform': preform,
             'preform_valid': preform_valid,
             'site': site,
-            'channels': channels,
-            'project_panel': project_panel
+            'project_panel': project_panel,
+            'site_panel_form': site_panel_form,
+            'parameter_formset': parameter_formset
         },
         context_instance=RequestContext(request)
     )
+
+
+@login_required
+def process_site_panel_post(request, site_id):
+    site = get_object_or_404(Site, pk=site_id)
+
+    if not site.has_add_permission(request.user):
+        raise PermissionDenied
+
+    if request.is_ajax():
+        form = SitePanelForm(request.POST, instance=SitePanel(site=site))
+
+        if form.is_valid():
+            if not request.POST.has_key('sitepanelparameter_set-TOTAL_FORMS'):
+                return HttpResponseBadRequest()
+
+
+            site_panel = form.save(commit=False)
+
+            ParameterFormSet = inlineformset_factory(
+                SitePanel,
+                SitePanelParameter,
+                formset=BaseSitePanelParameterFormSet,
+                extra=11,
+                can_delete=False
+            )
+
+            parameter_formset = ParameterFormSet(
+                request.POST,
+                instance=site_panel)
+
+            if parameter_formset.is_valid():
+                return HttpResponse("Thanks!")
+            else:
+                response_dict = {
+                    'errors': True,
+                    'messages': []
+                }
+                for error in parameter_formset.non_form_errors():
+                    response_dict['messages'].append(error)
+                for error in parameter_formset.errors:
+                    if error.has_key('__all__'):
+                        response_dict['messages'].append(error['__all__'])
+                return HttpResponseBadRequest(json.dumps(response_dict))
+
+        else:
+            # If we get here the pre-form was invalid
+            pass
+
+    return HttpResponseBadRequest()
 
 
 @login_required

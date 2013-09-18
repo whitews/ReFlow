@@ -92,6 +92,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^site/(?P<site_id>\d+)/panels/$', 'view_site_panels', name='view_site_panels'),
     url(r'^site/(?P<site_id>\d+)/panels/add/$', 'add_site_panel', name='add_site_panel'),
+    url(r'^site_panel/(?P<site_id>\d+)/process_site_panel_post/$', 'process_site_panel_post', name='process_site_panel_post'),
     url(r'^site_panel/(?P<panel_id>\d+)/edit/$', 'edit_site_panel', name='edit_site_panel'),
     url(r'^parameter/(?P<panel_parameter_id>\d+)/remove/$', 'remove_panel_parameter', name='remove_panel_parameter'),
 

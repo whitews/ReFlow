@@ -22,5 +22,13 @@
       "parameter_type_name": "Fluorescence",
       "parameter_type_abbreviation": "FL"
     }
+  },
+  {
+    "pk": 4,
+    "model": "repository.parametertype",
+    "fields": {
+      "parameter_type_name": "Time",
+      "parameter_type_abbreviation": "Time"
+    }
   }
 ]
