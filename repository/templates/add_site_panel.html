@@ -49,7 +49,14 @@
       </div>
     </form>
     {% else %}
-    <div id="render_parameters_form hide"></div>
+    <div id="render_parameters_form hide">
+      {% for channel, value in channels.items %}
+        {{ channel }}, {{ value.n }}, {{ value.s }}<br>
+      {% endfor %}
+      {% for param in project_panel.projectpanelparameter_set.all %}
+        {{ param }}
+      {% endfor %}
+    </div>
     {% endif %}
   </div>
 {% endblock %}

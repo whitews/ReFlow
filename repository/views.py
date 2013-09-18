@@ -1,5 +1,4 @@
 from operator import attrgetter
-import json
 import io
 
 import fcm
@@ -9,8 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import \
-    HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.forms.models import inlineformset_factory
@@ -1117,6 +1115,8 @@ def view_site_panels(request, site_id):
 def add_site_panel(request, site_id):
     site = get_object_or_404(Site, pk=site_id)
     preform_valid = False
+    channels = {}
+    project_panel = None
 
     if not site.has_add_permission(request.user):
         raise PermissionDenied
@@ -1130,9 +1130,20 @@ def add_site_panel(request, site_id):
         if preform.is_valid():
             preform_valid = True
 
+            project_panel = preform.cleaned_data['project_panel']
+
             # process the FCS file
-            f = fcm.loadFCS(io.BytesIO(preform.files['fcs_file'].read()))
-            print f.channels
+            fcm_obj = fcm.loadFCS(io.BytesIO(preform.files['fcs_file'].read()))
+            sample_text_segment = fcm_obj.notes.text
+
+            for key in sample_text_segment:
+                matches = re.search('^P(\d+)([N,S])$', key, flags=re.IGNORECASE)
+                if matches:
+                    channel_number = matches.group(1)
+                    n_or_s = str.lower(matches.group(2))
+                    if channel_number not in channels:
+                        channels[channel_number] = {}
+                    channels[channel_number][n_or_s] = sample_text_segment[key]
 
     else:
         preform = PreSitePanelForm(project_id=site.project_id)
@@ -1143,6 +1154,8 @@ def add_site_panel(request, site_id):
             'preform': preform,
             'preform_valid': preform_valid,
             'site': site,
+            'channels': channels,
+            'project_panel': project_panel
         },
         context_instance=RequestContext(request)
     )
