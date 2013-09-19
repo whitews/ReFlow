@@ -181,8 +181,13 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             - No duplicate fluorochrome + value type combinations
             - No duplicate forward scatter + value type combinations
             - No duplicate side scatter + value type combinations
+        Validations against the parent project panel:
+            - Ensure all project panel parameters are present
+            - A dump channel cannot be listed in the project panel
+            - There should be only one dump channel
         """
         param_counter = Counter()
+        project_panel_parameters = self.instance.project_panel.projectpanelparameter_set.all()
 
         for form in self.forms:
             ab_formset = form.nested[0]
@@ -228,9 +233,27 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
 
             param_counter.update([tuple(sorted(param_components))])
 
+            # find match in project panel queryset and exclude for qs if found
+            matches = project_panel_parameters.filter(
+                parameter_type=param_type,
+                parameter_value_type=value_type).values()
+            if fluorochrome_id:
+                matches = matches.filter(fluorochrome_id=fluorochrome_id)
+            if matches:
+                if matches.count() > 1:
+                    raise ValidationError("Cannot have duplicate parameters")
+                project_panel_parameters = project_panel_parameters.exclude(
+                    id=matches[0]['id'])
+            print "got here"
+
         # check for duplicate parameters
         if max(param_counter.values()) > 1:
             raise ValidationError("Cannot have duplicate parameters")
+
+        # check the project parameters qs is now empty (all accounted for)
+        if project_panel_parameters.count() > 0:
+            for ppp in project_panel_parameters:
+                raise ValidationError("Project parameter %s was not used" % ppp)
 
 
 ProjectParameterFormSet = inlineformset_factory(
