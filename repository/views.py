@@ -1249,9 +1249,9 @@ def process_site_panel_post(request, site_id):
                 }
                 for error in parameter_formset.non_form_errors():
                     response_dict['messages'].append(error)
-                for error in parameter_formset.errors:
-                    if error.has_key('__all__'):
-                        response_dict['messages'].append(error['__all__'])
+                # for error in parameter_formset.errors:
+                #     if error.has_key('__all__'):
+                #         response_dict['messages'].append(error['__all__'])
                 return HttpResponseBadRequest(json.dumps(response_dict))
 
         else:

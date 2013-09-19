@@ -136,6 +136,9 @@ function remove_antibody(selector) {
         {% for param in project_panel.projectpanelparameter_set.all %}
           <tr>
             <td>
+              ID: {{ param.id }}
+            </td>
+            <td>
               {{ param.parameter_type.parameter_type_name }}
             </td>
             <td>

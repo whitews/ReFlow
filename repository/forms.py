@@ -197,6 +197,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             for ab_form in ab_formset.forms:
                 new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
                 if new_ab_id:  # if it's not empty string
+                    new_ab_id = int(new_ab_id)
                     if new_ab_id in ab_set:
                         raise ValidationError("A parameter cannot have duplicate antibodies.")
                     else:
@@ -236,15 +237,19 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             # find match in project panel queryset and exclude for qs if found
             matches = project_panel_parameters.filter(
                 parameter_type=param_type,
-                parameter_value_type=value_type).values()
+                parameter_value_type=value_type)
             if fluorochrome_id:
                 matches = matches.filter(fluorochrome_id=fluorochrome_id)
+            # now compare our matches' antibodies to our ab_set
+            for match in matches:
+                m_ab_list = match.projectpanelparameterantibody_set.all().values_list('antibody_id', flat=True)
+                if set(m_ab_list) != ab_set:
+                    matches = matches.exclude(id=match.id)
             if matches:
                 if matches.count() > 1:
                     raise ValidationError("Cannot have duplicate parameters")
                 project_panel_parameters = project_panel_parameters.exclude(
-                    id=matches[0]['id'])
-            print "got here"
+                    id=matches[0].id)
 
         # check for duplicate parameters
         if max(param_counter.values()) > 1:
@@ -253,7 +258,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         # check the project parameters qs is now empty (all accounted for)
         if project_panel_parameters.count() > 0:
             for ppp in project_panel_parameters:
-                raise ValidationError("Project parameter %s was not used" % ppp)
+                raise ValidationError("Project parameter id %d was not used" % ppp.id)
 
 
 ProjectParameterFormSet = inlineformset_factory(
