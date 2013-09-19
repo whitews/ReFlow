@@ -109,6 +109,7 @@ $(document).ready(function () {
               <th>FCS Channel #</th>
               <th>FCS PnN Text</th>
               <th>FCS PnS Text</th>
+              <th>Dump Channel?</th>
               <th>Type</th>
               <th>Value Type</th>
               <th>Fluorochrome</th>
@@ -128,6 +129,10 @@ $(document).ready(function () {
             <td>
               {{ parameter_form.fcs_opt_text.value }}
               <div class="hide">{{ parameter_form.fcs_opt_text }}</div>
+            </td>
+            <td>
+              {{ parameter_form.dump_channel }}
+              {{ parameter_form.dump_channel.errors }}
             </td>
             <td>
               {{ parameter_form.parameter_type }}
