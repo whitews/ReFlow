@@ -132,9 +132,28 @@ function remove_antibody(selector) {
       <div id="parameter-form-errors"></div>
 
       <div class="well">
+        <table>
         {% for param in project_panel.projectpanelparameter_set.all %}
-          {{ param.parameter_type.parameter_type_abbreviation }}-{{ param.parameter_value_type.value_type_abbreviation }}<br>
+          <tr>
+            <td>
+              {{ param.parameter_type.parameter_type_name }}
+            </td>
+            <td>
+              {{ param.parameter_value_type.value_type_name }}
+            </td>
+            <td>
+              {% if param.fluorochrome %}
+              {{ param.fluorochrome.fluorochrome_abbreviation }}
+              {% endif %}
+            </td>
+            <td>
+              {% for param_ab in param.projectpanelparameterantibody_set.all %}
+              {{ param_ab.antibody.antibody_abbreviation }}<br>
+              {% endfor %}
+            </td>
+          </tr>
         {% endfor %}
+        </table>
       </div>
 
       <form id="panel-parameter-form" class="form-horizontal" action="{% url 'process_site_panel_post' site.id %}" method="post">
