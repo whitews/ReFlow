@@ -37,6 +37,49 @@ $(document).ready(function () {
         return false;
     });
 });
+
+function add_antibody(selector) {
+    // clone last antibody select
+    var new_select_span = selector.siblings("span.antibody-field").last().clone();
+    var new_select = new_select_span.children("select");
+    var name = new_select.attr("name");
+    var id = new_select.attr("id");
+
+    // get the TOTAL_FORMS input, increment the form count
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  + 1));
+
+    var m = name.match(/-(\d+)-antibody/);
+    var new_select_id = parseInt(m[1]) + 1;
+    var new_name = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    var new_id = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    new_select.attr({"name": new_name, "id": new_id});
+
+    new_select_span.find(".remove-antibody").show();
+    new_select_span.append(
+      " ");
+    selector.closest("td").append(
+      new_select_span,
+      "<br>",
+      selector);
+    return false;
+}
+
+function remove_antibody(selector) {
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  - 1));
+
+    var parent_td = selector.parents("td");
+    selector.parent("span").prev("br").remove();
+    selector.parent("span").remove();  // contains selector
+
+    parent_td.children("span.antibody-field").children("select").each(function(i, el) {
+      el.name = el.name.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+      el.id = el.id.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+    });
+    return false;
+}
+
 </script>
 
 {% endblock %}
@@ -137,8 +180,6 @@ $(document).ready(function () {
             <td>
               {{ parameter_form.parameter_type }}
               {{ parameter_form.parameter_type.errors }}
-              <br/>
-              <a href="javascript:void(0)" class="hide remove-parameter bottom" onclick="remove_parameter($(this))">Remove parameter</a>
             </td>
             <td>
               {{ parameter_form.parameter_value_type }}
