@@ -27,6 +27,22 @@
     "pk": 4,
     "model": "repository.parametertype",
     "fields": {
+      "parameter_type_name": "Fluorescence minus one",
+      "parameter_type_abbreviation": "FMO"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "repository.parametertype",
+    "fields": {
+      "parameter_type_name": "Isotype control",
+      "parameter_type_abbreviation": "Iso"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "repository.parametertype",
+    "fields": {
       "parameter_type_name": "Time",
       "parameter_type_abbreviation": "Time"
     }
