@@ -205,6 +205,7 @@ function remove_parameter(selector) {
         <table class="table">
           <thead>
             <tr>
+              <th>Remove</th>
               <th>Type</th>
               <th>Value Type</th>
               <th>Fluorochrome</th>
@@ -214,10 +215,13 @@ function remove_parameter(selector) {
           {% for parameter_form in parameter_formset %}
           <tr class="parameter-fields">
             <td>
+              <a href="javascript:void(0)" class="hide remove-parameter" onclick="remove_parameter($(this))">
+                <i class="icon-remove"></i>
+              </a>
+            </td>
+            <td>
               {{ parameter_form.parameter_type }}
               {{ parameter_form.parameter_type.errors }}
-              <br/>
-              <a href="javascript:void(0)" class="hide remove-parameter bottom" onclick="remove_parameter($(this))">Remove parameter</a>
             </td>
             <td>
               {{ parameter_form.parameter_value_type }}

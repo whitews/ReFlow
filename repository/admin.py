@@ -5,8 +5,6 @@ from guardian.admin import GuardedModelAdmin
 admin.site.register(Antibody)
 admin.site.register(Fluorochrome)
 admin.site.register(Specimen)
-admin.site.register(ParameterType)
-admin.site.register(ParameterValueType)
 
 class ProjectAdmin(GuardedModelAdmin):
     user_can_access_owned_objects_only = True

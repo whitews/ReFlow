@@ -17,7 +17,7 @@ $(function() {
     sortList: [[0,0]],
     headers: {
       0: { sorter: false},
-      3: { sorter: false},
+      3: { sorter: false}
     }
   });
 });
@@ -128,10 +128,10 @@ $(document).ready(function()
                   {% for param in panel.projectpanelparameter_set.all %}
                   <tr>
                     <td width="33%">
-                      {{ param.parameter_type.parameter_type_name }}
+                      {{ param.get_parameter_type_display }}
                     </td>
                     <td>
-                      {{ param.parameter_value_type.value_type_name }}
+                      {{ param.parameter_value_type|default_if_none:"" }}
                     </td>
                     <td>
                       {% for ab in param.projectpanelparameterantibody_set.all %}

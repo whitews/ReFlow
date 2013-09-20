@@ -114,34 +114,24 @@ class Fluorochrome(models.Model):
         ordering = ['fluorochrome_abbreviation']
 
 
-class ParameterType(models.Model):
-    parameter_type_name = models.CharField(
-        unique=True,
-        max_length=32,
-        null=False,
-        blank=False)
-    parameter_type_abbreviation = models.CharField(
-        unique=True,
-        max_length=8,
-        null=False,
-        blank=False)
+PARAMETER_TYPE_CHOICES = (
+    ('FSC', 'Forward Scatter'),
+    ('SSC', 'Side Scatter'),
+    ('FCA', 'Fluorochrome Conjugated Antibody'),
+    ('FMO', 'Fluorescence Minus One'),
+    ('ISO', 'Isotype Control'),
+    ('DMP', 'Dump Channel'),
+    ('VIA', 'Viability'),
+    ('ICA', 'Isotope Conjugated Antibody'),
+    ('TIM', 'Time')
+)
 
-    def __unicode__(self):
-        return u'%s' % self.parameter_type_name
-
-
-class ParameterValueType(models.Model):
-    value_type_name = models.CharField(
-        max_length=32,
-        null=False,
-        blank=False)
-    value_type_abbreviation = models.CharField(
-        max_length=2,
-        null=False,
-        blank=False)
-
-    def __unicode__(self):
-        return u'%s' % self.value_type_abbreviation
+PARAMETER_VALUE_TYPE_CHOICES = (
+    ('H', 'Height'),
+    ('W', 'Width'),
+    ('A', 'Area'),
+    ('T', 'Time')
+)
 
 
 ##############################
@@ -323,9 +313,12 @@ class ProjectPanel(ProtectedModel):
 
 class ProjectPanelParameter(ProtectedModel):
     project_panel = models.ForeignKey(ProjectPanel)
-    parameter_type = models.ForeignKey(ParameterType)
-    parameter_value_type = models.ForeignKey(
-        ParameterValueType,
+    parameter_type = models.CharField(
+        max_length=3,
+        choices=PARAMETER_TYPE_CHOICES)
+    parameter_value_type = models.CharField(
+        max_length=1,
+        choices=PARAMETER_VALUE_TYPE_CHOICES,
         null=True,
         blank=True)
     fluorochrome = models.ForeignKey(
@@ -338,8 +331,8 @@ class ProjectPanelParameter(ProtectedModel):
         Returns the parameter name with value type.
         """
         return '%s-%s' % (
-            self.parameter_type.parameter_type_abbreviation,
-            self.parameter_value_type.value_type_abbreviation)
+            self.parameter_type,
+            self.parameter_value_type)
 
     name = property(_get_name)
 
@@ -358,8 +351,6 @@ class ProjectPanelParameter(ProtectedModel):
             error_message.append("Project Panel is required")
         if not hasattr(self, 'parameter_type'):
             error_message.append("Parameter type is required")
-        if not hasattr(self, 'parameter_value_type'):
-            error_message.append("Value type is required")
 
         if len(error_message) > 0:
             raise ValidationError(error_message)
@@ -607,9 +598,12 @@ class SitePanel(ProtectedModel):
 
 class SitePanelParameter(ProtectedModel):
     site_panel = models.ForeignKey(SitePanel)
-    parameter_type = models.ForeignKey(ParameterType)
-    parameter_value_type = models.ForeignKey(ParameterValueType)
-    dump_channel = models.BooleanField(default=False)
+    parameter_type = models.CharField(
+        max_length=3,
+        choices=PARAMETER_TYPE_CHOICES)
+    parameter_value_type = models.CharField(
+        max_length=1,
+        choices=PARAMETER_VALUE_TYPE_CHOICES)
     fluorochrome = models.ForeignKey(
         Fluorochrome,
         null=True,
@@ -640,8 +634,8 @@ class SitePanelParameter(ProtectedModel):
         """
         return '%s: %s-%s' % (
             self.fcs_number,
-            self.parameter_type.parameter_type_abbreviation,
-            self.parameter_value_type.value_type_abbreviation)
+            self.parameter_type,
+            self.parameter_value_type)
 
     name = property(_get_name)
 

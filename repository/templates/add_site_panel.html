@@ -139,10 +139,10 @@ function remove_antibody(selector) {
               ID: {{ param.id }}
             </td>
             <td>
-              {{ param.parameter_type.parameter_type_name }}
+              {{ param.get_parameter_type_display }}
             </td>
             <td>
-              {{ param.parameter_value_type.value_type_name }}
+              {{ param.get_parameter_value_type_display|default_if_none:"" }}
             </td>
             <td>
               {% if param.fluorochrome %}
@@ -174,8 +174,7 @@ function remove_antibody(selector) {
               <th>FCS Channel #</th>
               <th>FCS PnN Text</th>
               <th>FCS PnS Text</th>
-              <th>Dump Channel?</th>
-              <th>Type</th>
+              <th>Function</th>
               <th>Value Type</th>
               <th>Fluorochrome</th>
               <th>Antibodies</th>
@@ -194,10 +193,6 @@ function remove_antibody(selector) {
             <td>
               {{ parameter_form.fcs_opt_text.value }}
               <div class="hide">{{ parameter_form.fcs_opt_text }}</div>
-            </td>
-            <td>
-              {{ parameter_form.dump_channel }}
-              {{ parameter_form.dump_channel.errors }}
             </td>
             <td>
               {{ parameter_form.parameter_type }}

@@ -115,36 +115,52 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                         ab_set.add(new_ab_id)
 
             # parameter type is required
-            param_type_id = form.data[form.add_prefix('parameter_type')]
-            if not param_type_id:
+            param_type = form.data[form.add_prefix('parameter_type')]
+            if not param_type:
                 raise ValidationError("Parameter type is required")
-            param_type = ParameterType.objects.get(id=param_type_id)
 
             # value type is NOT required for project panels,
             # allows site panel implementations to have different values types
-            value_type_id = form.data[form.add_prefix('parameter_value_type')]
-            if not value_type_id:
+            value_type = form.data[form.add_prefix('parameter_value_type')]
+            if not value_type:
                 value_type = None
-            else:
-                value_type = ParameterValueType.objects.get(id=value_type_id)
 
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 
-            # check for fluoro or antibodies in scatter channels
-            if 'scatter' in param_type.parameter_type_name.lower() and fluorochrome_id:
-                raise ValidationError("A scatter channel cannot have a fluorochrome.")
-            if 'scatter' in param_type.parameter_type_name.lower() and len(ab_set) > 0:
-                raise ValidationError("A scatter channel cannot have an antibody.")
+            # dump channel must be a fluorescence channel
+            if param_type == 'DMP' and not fluorochrome_id:
+                raise ValidationError(
+                    "A dump channel must be a fluorescence channel.")
 
-            # check that fluorescence channels specify a fluoro
-            if 'fluor' in param_type.parameter_type_name.lower() and not fluorochrome_id:
-                raise ValidationError("A fluoroscence channel must specify a fluorochrome.")
+            # check for fluoro or antibodies in scatter channels
+            if param_type == 'FSC' or param_type == 'SSC':
+                if fluorochrome_id:
+                    raise ValidationError(
+                        "A scatter channel cannot have a fluorochrome.")
+                if len(ab_set) > 0:
+                    raise ValidationError(
+                        "A scatter channel cannot have an antibody.")
+
+            # check that fluoro-conj-ab channels specify either a fluoro or an
+            # antibody. If the fluoro is absent it means the project panel
+            # allows flexibility in the site panel implementation.
+            # TODO: shouldn't antibody be required here???
+            if param_type == 'FCA':
+                if not fluorochrome_id and len(ab_set) == 0:
+                    raise ValidationError(
+                        "A fluorescence conjugated antibody channel must " +
+                        "specify either a fluorochrome or an antibody.")
 
             # make a list of the combination for use in the Counter
             param_components = [param_type, value_type]
             if fluorochrome_id:
                 param_components.append(fluorochrome_id)
-
+            for ab_id in sorted(ab_set):
+                try:
+                    ab = Antibody.objects.get(id=ab_id)
+                except:
+                    raise ValidationError("Chosen antibody doesn't exist")
+                param_components.append(ab)
             param_counter.update([tuple(sorted(param_components))])
 
         # check for duplicate parameters
@@ -185,11 +201,9 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             - No duplicate side scatter + value type combinations
         Validations against the parent project panel:
             - Ensure all project panel parameters are present
-            - A dump channel cannot be listed in the project panel
-            - There should be only one dump channel
         """
         param_counter = Counter()
-        project_panel_parameters = self.instance.project_panel.projectpanelparameter_set.all()
+        param_dict = {}
 
         for form in self.forms:
             ab_formset = form.nested[0]
@@ -201,33 +215,82 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                 if new_ab_id:  # if it's not empty string
                     new_ab_id = int(new_ab_id)
                     if new_ab_id in ab_set:
-                        raise ValidationError("A parameter cannot have duplicate antibodies.")
+                        raise ValidationError(
+                            "A parameter cannot have duplicate antibodies")
                     else:
                         ab_set.add(new_ab_id)
 
             # parameter type is required
-            param_type_id = form.data[form.add_prefix('parameter_type')]
-            if not param_type_id:
-                raise ValidationError("Parameter type is required")
-            param_type = ParameterType.objects.get(id=param_type_id)
+            param_type = form.data[form.add_prefix('parameter_type')]
+            if not param_type:
+                raise ValidationError("Function is required")
 
             # value type is required
-            value_type_id = form.data[form.add_prefix('parameter_value_type')]
-            if not value_type_id:
+            value_type = form.data[form.add_prefix('parameter_value_type')]
+            if not value_type:
                 raise ValidationError("Value type is required")
-            value_type = ParameterValueType.objects.get(id=value_type_id)
 
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 
-            # check for fluoro or antibodies in scatter channels
-            if 'scatter' in param_type.parameter_type_name.lower() and fluorochrome_id:
-                raise ValidationError("A scatter channel cannot have a fluorochrome.")
-            if 'scatter' in param_type.parameter_type_name.lower() and len(ab_set) > 0:
-                raise ValidationError("A scatter channel cannot have an antibody.")
+            # dump channel must be a fluorescence channel
+            if param_type == 'DMP' and not fluorochrome_id:
+                raise ValidationError(
+                    "A dump channel must be a fluorescence channel")
 
-            # check that fluorescence channels specify a fluoro
-            if 'fluor' in param_type.parameter_type_name.lower() and not fluorochrome_id:
-                raise ValidationError("A fluoroscence channel must specify a fluorochrome.")
+            # check for fluoro or antibodies in scatter channels
+            if param_type in ['FSC', 'SSC']:
+                if fluorochrome_id:
+                    raise ValidationError(
+                        "A scatter channel cannot have a fluorochrome")
+                if len(ab_set) > 0:
+                    raise ValidationError(
+                        "A scatter channel cannot have an antibody")
+
+            # check that fluoro conjugated ab channels specify either a
+            # fluoro OR an antibody OR both
+            if param_type == 'FCA':
+                if not fluorochrome_id or len(ab_set) == 0:
+                    raise ValidationError(
+                        "A fluorescence conjugated antibody channel must " +
+                        "specify a fluorochrome and at least one antibody")
+
+            # FMO channels can't have a fluoro and must have an antibody
+            if param_type == 'FMO':
+                if fluorochrome_id:
+                    raise ValidationError(
+                        "Fluorescence minus one channels CANNOT " +
+                        "have a fluorochrome")
+                if len(ab_set) == 0:
+                    raise ValidationError(
+                        "Fluorescence minus one channels " +
+                        "must specify at least one antibody")
+
+            # Iso control & Viability channels must have a fluoro and
+            # can't have antibodies
+            if param_type == 'ISO':
+                if not fluorochrome_id:
+                    raise ValidationError(
+                        "Isotype control channels must " +
+                        "have a fluorochrome")
+                if len(ab_set) > 0:
+                    raise ValidationError(
+                        "Isotype control channels " +
+                        "CANNOT have any antibodies")
+
+            # Time channels cannot have fluoros or antibodies, must have T value
+            if param_type == 'TIM':
+                if fluorochrome_id:
+                    raise ValidationError(
+                        "Time channels " +
+                        "CANNOT have a fluorochrome")
+                if len(ab_set) > 0:
+                    raise ValidationError(
+                        "Time channels " +
+                        "CANNOT have any antibodies")
+                if value_type != 'T':
+                    raise ValidationError(
+                        "Time channels " +
+                        "must have a T value type")
 
             # make a list of the combination for use in the Counter
             param_components = [param_type, value_type]
@@ -236,31 +299,62 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
 
             param_counter.update([tuple(sorted(param_components))])
 
-            # find match in project panel queryset and exclude for qs if found
-            matches = project_panel_parameters.filter(
-                parameter_type=param_type,
-                parameter_value_type=value_type)
-            if fluorochrome_id:
-                matches = matches.filter(fluorochrome_id=fluorochrome_id)
-            # now compare our matches' antibodies to our ab_set
-            for match in matches:
-                m_ab_list = match.projectpanelparameterantibody_set.all().values_list('antibody_id', flat=True)
-                if set(m_ab_list) != ab_set:
-                    matches = matches.exclude(id=match.id)
-            if matches:
-                if matches.count() > 1:
-                    raise ValidationError("Cannot have duplicate parameters")
-                project_panel_parameters = project_panel_parameters.exclude(
-                    id=matches[0].id)
+            fcs_number = form.data[form.add_prefix('fcs_number')]
+            param_dict[fcs_number] = {
+                'parameter_type': param_type,
+                'parameter_value_type': value_type,
+                'fluorochrome_id': fluorochrome_id,
+                'antibody_id_set': ab_set
+            }
 
         # check for duplicate parameters
         if max(param_counter.values()) > 1:
             raise ValidationError("Cannot have duplicate parameters")
 
-        # check the project parameters qs is now empty (all accounted for)
-        if project_panel_parameters.count() > 0:
-            for ppp in project_panel_parameters:
-                raise ValidationError("Project parameter id %d was not used" % ppp.id)
+        # Finally, check that all the project parameters are accounted for
+        project_panel_parameters = self.instance.project_panel.projectpanelparameter_set.all()
+        matching_ids = []
+        for ppp in project_panel_parameters:
+            # first look for parameter type matches
+            for d in param_dict:
+                if ppp.parameter_type != param_dict[d]['parameter_type']:
+                    # no match
+                    continue
+
+                if ppp.parameter_value_type:
+                    if ppp.parameter_value_type != param_dict[d]['parameter_value_type']:
+                        # no match
+                        continue
+
+                if ppp.fluorochrome_id:
+                    if ppp.fluorochrome_id != param_dict[d]['fluorochrome_id']:
+                        # no match
+                        continue
+
+                if ppp.projectpanelparameterantibody_set.count() > 0:
+                    if ppp.projectpanelparameterantibody_set.count() != len(param_dict[d]['antibody_id_set']):
+                        # no match
+                        continue
+
+                    should_continue = False
+                    for ppp_ab in ppp.projectpanelparameterantibody_set.all():
+                        if ppp_ab.antibody.id not in param_dict[d]['antibody_id_set']:
+                            # no match
+                            should_continue = True
+                            break
+                    if should_continue:
+                        continue
+                # if we get here where are we?
+                matching_ids.append(ppp.id)
+                break
+
+        # At the end there should be no project parameters on our list,
+        # they all must be implemented by the site panel
+        project_panel_parameters = project_panel_parameters.exclude(
+            id__in=matching_ids)
+        for ppp in project_panel_parameters:
+            raise ValidationError(
+                "Project parameter id %d was not used" % ppp.id)
 
 
 ProjectParameterFormSet = inlineformset_factory(
@@ -583,8 +677,8 @@ class SampleSetForm(forms.ModelForm):
             # from all categorized samples in the project.
             spp = SitePanelParameter.objects.filter(site_panel__project_panel__project_id=project_id)
             unique_param_combos = spp.values(
-                    'parameter_type__parameter_type_abbreviation',
-                    'parameter_value_type__value_type_abbreviation')\
+                    'parameter_type',
+                    'parameter_value_type')\
                 .distinct()\
                 .order_by('parameter_type','parameter_value_type')
             # and combine the param + value type to one string per parameter
@@ -592,8 +686,8 @@ class SampleSetForm(forms.ModelForm):
             for p in unique_param_combos:
                 parameter_list.append(
                     (
-                        p['parameter_type__parameter_type_abbreviation'] + '-' + p['parameter_value_type__value_type_abbreviation'],
-                        p['parameter_type__parameter_type_abbreviation'] + '-' + p['parameter_value_type__value_type_abbreviation']
+                        p['parameter_type'] + '-' + p['parameter_value_type'],
+                        p['parameter_type'] + '-' + p['parameter_value_type']
                     )
                 )
             self.fields['parameters'] = forms.MultipleChoiceField(
