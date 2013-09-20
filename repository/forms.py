@@ -120,11 +120,13 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 raise ValidationError("Parameter type is required")
             param_type = ParameterType.objects.get(id=param_type_id)
 
-            # value type is required
+            # value type is NOT required for project panels,
+            # allows site panel implementations to have different values types
             value_type_id = form.data[form.add_prefix('parameter_value_type')]
             if not value_type_id:
-                raise ValidationError("Value type is required")
-            value_type = ParameterValueType.objects.get(id=value_type_id)
+                value_type = None
+            else:
+                value_type = ParameterValueType.objects.get(id=value_type_id)
 
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 

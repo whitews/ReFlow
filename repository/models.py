@@ -324,7 +324,10 @@ class ProjectPanel(ProtectedModel):
 class ProjectPanelParameter(ProtectedModel):
     project_panel = models.ForeignKey(ProjectPanel)
     parameter_type = models.ForeignKey(ParameterType)
-    parameter_value_type = models.ForeignKey(ParameterValueType)
+    parameter_value_type = models.ForeignKey(
+        ParameterValueType,
+        null=True,
+        blank=True)
     fluorochrome = models.ForeignKey(
         Fluorochrome,
         null=True,
