@@ -37,7 +37,6 @@ def repository_api_root(request, format=None):
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample-sets': reverse('sample-set-list', request=request),
-        'uncategorized_samples': reverse('uncat-sample-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
@@ -135,7 +134,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
         user_projects = Project.objects.get_projects_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = ProjectVisitType.objects.filter(project__in=user_projects)
+        queryset = VisitType.objects.filter(project__in=user_projects)
 
         return queryset
 
@@ -178,7 +177,7 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Subject
     serializer_class = SubjectSerializer
-    filter_fields = ('subject_id', 'project')
+    filter_fields = ('subject_code', 'project')
 
     def get_queryset(self):
         """
@@ -236,7 +235,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = SitePanel
     serializer_class = SitePanelSerializer
-    filter_fields = ('panel_name', 'site', 'site__project')
+    filter_fields = ('site', 'site__project')
 
     def get_queryset(self):
         """
@@ -401,7 +400,7 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
                             .filter(parameter_count=param_count_value)
         else:
             # filter on user's projects
-            queryset = Sample.objects.filter(site__in=user_sites)
+            queryset = Sample.objects.filter(site_panel__site__in=user_sites)
 
         # 'parameter' may be repeated, so get as list
         parameters = self.request.QUERY_PARAMS.getlist('parameter')
@@ -465,67 +464,6 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
                 return Response(data={'__all__': e.messages}, status=400)
 
         return Response(data={'__all__': 'Bad request'}, status=400)
-
-
-class UncategorizedSampleList(LoginRequiredMixin, generics.ListAPIView):
-    """
-    API endpoint representing a list of samples.
-    """
-
-    model = Sample
-    serializer_class = SampleSerializer
-    filter_fields = (
-        'subject',
-        'site',
-        'visit',
-        'sample_group',
-        'subject__project',
-        'original_filename'
-    )
-
-    def get_queryset(self):
-        """
-        Override .get_queryset() to filter on the SampleParameterMap property 'name'.
-        If no name is provided, all samples are returned.
-        All results are restricted to projects to which the user belongs.
-        """
-
-        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
-
-        # first, filter by user's sites
-        uncat_spm = SampleParameterMap.objects.filter(parameter=None, sample__site__in=user_sites)
-
-        # Get the distinct sample ID as a list
-        uncat_sample_ids = uncat_spm.values_list('sample__id').distinct()
-
-        param_count_value = self.request.QUERY_PARAMS.get('parameter_count', None)
-        if param_count_value is not None and param_count_value.isdigit():
-            queryset = Sample.objects\
-                            .filter(id__in=uncat_sample_ids)\
-                            .annotate(parameter_count=Count('sampleparametermap'))\
-                            .filter(parameter_count=param_count_value)
-        else:
-            # filter the queryset by the uncategorized sample ID list
-            queryset = Sample.objects.filter(id__in=uncat_sample_ids)
-
-        # Value may have multiple names separated by commas
-        fcs_text_value = self.request.QUERY_PARAMS.get('fcs_text', None)
-
-        if fcs_text_value is None:
-            return queryset
-
-        # The name property is just a concatenation of 2 related fields:
-        #  - parameter__parameter_short_name
-        #  - value_type__value_type_short_name (single character for H, A, W, T)
-        # they are joined by a hyphen
-        fcs_pnn_names = fcs_text_value.split(',')
-
-        for name in fcs_pnn_names:
-            queryset = queryset.filter(
-                sampleparametermap__fcs_text=name,
-            ).distinct()
-
-        return queryset
 
 
 class CompensationList(LoginRequiredMixin, generics.ListAPIView):

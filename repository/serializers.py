@@ -39,7 +39,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
-        fields = ('id', 'url', 'subject_id', 'subject_group', 'project',)
+        fields = ('id', 'url', 'subject_code', 'subject_group', 'project',)
 
 
 class SpecimenSerializer(serializers.ModelSerializer):
@@ -82,12 +82,12 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
 
 class SitePanelSerializer(serializers.ModelSerializer):
     site = SiteSerializer(source='site')
-    parameters = SitePanelParameterSerializer(source='sitepanelparametermap_set')
+    parameters = SitePanelParameterSerializer(source='sitepanelparameter_set')
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
 
     class Meta:
         model = SitePanel
-        fields = ('id', 'url', 'panel_name', 'site', 'parameters')
+        fields = ('id', 'url', 'site', 'parameters')
 
 
 class StimulationSerializer(serializers.ModelSerializer):
@@ -130,11 +130,10 @@ class SampleCompensationPOSTSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    parameter_count = serializers.IntegerField(source='sampleparametermap_set.count', read_only=True)
     compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
     project = serializers.IntegerField(source='subject.project_id', read_only=True)
-    subject_id = serializers.CharField(source='subject.subject_id', read_only=True)
+    subject_code = serializers.CharField(source='subject.subject_code', read_only=True)
     site_name = serializers.CharField(source='site_panel.site.site_name', read_only=True)
     visit_name = serializers.CharField(source='visit.visit_type_name', read_only=True)
     specimen_name = serializers.CharField(source='specimen.specimen_name', read_only=True)
@@ -147,7 +146,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'visit',
             'visit_name',
             'subject',
-            'subject_id',
+            'subject_code',
             'specimen',
             'specimen_name',
             'site_panel',
@@ -155,7 +154,6 @@ class SampleSerializer(serializers.ModelSerializer):
             'project',
             'original_filename',
             'sha1',
-            'parameter_count',
             'compensations'
         )
         read_only_fields = ('original_filename', 'sha1')
@@ -175,7 +173,7 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
         if 'site' in fields:
             fields['site'].queryset = Site.objects.filter(project__in=user_projects)
         if 'visit' in fields:
-            fields['visit'].queryset = ProjectVisitType.objects.filter(project__in=user_projects)
+            fields['visit'].queryset = VisitType.objects.filter(project__in=user_projects)
 
         return fields
 
