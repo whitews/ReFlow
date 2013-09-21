@@ -19,7 +19,7 @@ $(function() {
     headers: {
       0: { sorter: false},
       1: { sorter: false},
-      8: { sorter: false},
+      7: { sorter: false}
     }
   });
 });
@@ -130,8 +130,8 @@ $(document).ready(function()
         <td class="no-wrap middle">
           {{ sample.original_filename }}
         </td>
-        <td class="middle">{{ sample.site__site_name }}</td>
-        <td class="middle">{{ sample.subject__subject_id }}</td>
+        <td class="middle">{{ sample.site_panel__site__site_name }}</td>
+        <td class="middle">{{ sample.subject__subject_code }}</td>
         <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
         <td class="middle">{{ sample.specimen__specimen_name }}</td>
 
