@@ -30,7 +30,8 @@ class CustomUserObjectPermissionForm(UserObjectPermissionsForm):
         return forms.CheckboxSelectMultiple
 
     def get_obj_perms_field_choices(self):
-        choices = super(CustomUserObjectPermissionForm, self).get_obj_perms_field_choices()
+        choices = super(
+            CustomUserObjectPermissionForm, self).get_obj_perms_field_choices()
         return list(set(choices).intersection(self.obj._meta.permissions))
 
 
@@ -51,6 +52,26 @@ class ProjectPanelForm(forms.ModelForm):
         widgets = {
             'panel_description': forms.Textarea(attrs={'cols': 20, 'rows': 5}),
         }
+
+    def clean(self):
+        FULL_STAIN = 'Full Stain'
+        staining = self.cleaned_data['staining']
+        parent_panel = self.cleaned_data['parent_panel']
+        if staining.staining_name == FULL_STAIN and parent_panel:
+            raise ValidationError(
+                "Full stain panels cannot have parent panels.")
+        if staining.staining_name != FULL_STAIN:
+            if not parent_panel:
+                raise ValidationError(
+                    "Panels with staining '%s' require a parent full stain panel" %
+                    staining.staining_name
+                )
+            elif parent_panel.staining.staining_name != FULL_STAIN:
+                raise ValidationError(
+                    "Panels with staining '%s' require a parent full stain panel" %
+                    staining.staining_name
+                )
+        return self.cleaned_data
 
 
 ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
@@ -77,7 +98,7 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             instance = self.get_queryset()[index]
             pk_value = instance.pk
         except IndexError:
-            instance=None
+            instance = None
             pk_value = form.prefix
 
         # store the formset in the .nested property
@@ -110,7 +131,8 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
                 if new_ab_id:  # if it's not empty string
                     if new_ab_id in ab_set:
-                        raise ValidationError("A parameter cannot have duplicate antibodies.")
+                        raise ValidationError(
+                            "A parameter cannot have duplicate antibodies.")
                     else:
                         ab_set.add(new_ab_id)
 
@@ -178,7 +200,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             instance = self.get_queryset()[index]
             pk_value = instance.pk
         except IndexError:
-            instance=None
+            instance = None
             pk_value = form.prefix
 
         # store the formset in the .nested property
@@ -312,7 +334,8 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             raise ValidationError("Cannot have duplicate parameters")
 
         # Finally, check that all the project parameters are accounted for
-        project_panel_parameters = self.instance.project_panel.projectpanelparameter_set.all()
+        project_panel_parameters = \
+            self.instance.project_panel.projectpanelparameter_set.all()
         matching_ids = []
         for ppp in project_panel_parameters:
             # first look for parameter type matches
@@ -384,7 +407,8 @@ class UserSelectForm(forms.Form):
         # finally, the reason we're here...
         # make sure only the project's sites are the available choices
         if project_id:
-            sites = Site.objects.filter(project__id=project_id).order_by('site_name')
+            sites = Site.objects.filter(
+                project__id=project_id).order_by('site_name')
             self.fields['site'] = forms.ModelChoiceField(
                 sites,
                 required=False,
@@ -394,7 +418,7 @@ class UserSelectForm(forms.Form):
         """
         Validate user exists.
         """
-        if not self.cleaned_data.has_key('username'):
+        if not 'username' in self.cleaned_data:
             raise ValidationError("No user specified.")
 
         try:
@@ -404,7 +428,7 @@ class UserSelectForm(forms.Form):
 
         self.cleaned_data['user'] = user.id
 
-        return self.cleaned_data #never forget this! ;o)
+        return self.cleaned_data  # never forget this! ;o)
 
 
 class SiteForm(forms.ModelForm):
@@ -444,13 +468,6 @@ class PreSitePanelForm(forms.ModelForm):
 
 
 class SitePanelForm(forms.ModelForm):
-    class Meta:
-        model = SitePanel
-        exclude = ('site',)  # don't allow editing of the site for an existing panel
-
-
-# yes it's the same as SitePanelEditForm, but the class names provide context
-class SitePanelFromSampleForm(forms.ModelForm):
     class Meta:
         model = SitePanel
         exclude = ('site',)
