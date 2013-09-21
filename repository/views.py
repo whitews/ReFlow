@@ -6,7 +6,6 @@ import fcm
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import \
@@ -762,7 +761,7 @@ def view_samples(request, project_id):
         samples = Sample.objects.filter(subject__project=project).values(
             'id',
             'subject__subject_code',
-            'site_panel__id',
+            'site_panel__site__site_name',
             'visit__visit_type_name',
             'specimen__specimen_name',
             'original_filename'
@@ -771,11 +770,9 @@ def view_samples(request, project_id):
         samples = Sample.objects.filter(
             subject__project=project, site__in=user_view_sites).values(
                 'id',
-                'subject__subject_id',
-                'site__site_name',
-                'site__id',
+                'subject__subject_code',
+                'site_panel__site__site_name',
                 'visit__visit_type_name',
-                'sample_group__group_name',
                 'specimen__specimen_name',
                 'original_filename'
             )
@@ -1238,6 +1235,16 @@ def process_site_panel_post(request, site_id):
                 instance=site_panel)
 
             if parameter_formset.is_valid():
+                site_panel.save()
+
+                for param_form in parameter_formset.forms:
+                    # when manually saving the forms in a formset the
+                    # parent's id is not set
+                    param_form.instance.site_panel_id = site_panel.id
+                    parameter = param_form.save()
+                    param_form.nested[0].instance = parameter
+                    param_form.nested[0].save()
+
                 response_dict = {
                     'errors': False,
                     'messages': ["Thanks!"]
@@ -1254,10 +1261,15 @@ def process_site_panel_post(request, site_id):
                 #     if error.has_key('__all__'):
                 #         response_dict['messages'].append(error['__all__'])
                 return HttpResponseBadRequest(json.dumps(response_dict))
-
         else:
             # If we get here the pre-form was invalid
-            pass
+            response_dict = {
+                'errors': True,
+                'messages': []
+            }
+            for error in form.non_field_errors():
+                response_dict['messages'].append(error)
+            return HttpResponseBadRequest(json.dumps(response_dict))
 
     return HttpResponseBadRequest()
 
@@ -1562,7 +1574,7 @@ def add_site_sample(request, site_id):
 def edit_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
-    if not sample.site.has_modify_permission(request.user):
+    if not sample.site_panel.site.has_modify_permission(request.user):
         raise PermissionDenied
 
     if request.method == 'POST':
@@ -1597,7 +1609,7 @@ def edit_sample(request, sample_id):
 def retrieve_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
-    if not sample.site.has_view_permission(request.user):
+    if not sample.site_panel.site.has_view_permission(request.user):
         raise PermissionDenied
 
     response = HttpResponse(
