@@ -644,7 +644,9 @@ def add_project_panel(request, project_id):
 
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
-            parameter_formset = ProjectParameterFormSet(request.POST, instance=panel)
+            parameter_formset = ProjectParameterFormSet(
+                request.POST,
+                instance=panel)
             ab_formsets_valid = True
 
             for param_form in parameter_formset.forms:
@@ -1154,12 +1156,12 @@ def add_site_panel(request, site_id):
 
             initial_param_data = list()
             for key in channels.keys():
-                if channels[key].has_key('n'):
+                if 'n' in channels[key]:
                     n_text = channels[key]['n']
                 else:
                     n_text = ""
 
-                if channels[key].has_key('s'):
+                if 's' in channels[key]:
                     s_text = channels[key]['s']
                 else:
                     s_text = ""
@@ -1218,9 +1220,8 @@ def process_site_panel_post(request, site_id):
         form = SitePanelForm(request.POST, instance=SitePanel(site=site))
 
         if form.is_valid():
-            if not request.POST.has_key('sitepanelparameter_set-TOTAL_FORMS'):
+            if not 'sitepanelparameter_set-TOTAL_FORMS' in request.POST:
                 return HttpResponseBadRequest()
-
 
             site_panel = form.save(commit=False)
 
