@@ -350,7 +350,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                         continue
 
                 if ppp.fluorochrome_id:
-                    if ppp.fluorochrome_id != param_dict[d]['fluorochrome_id']:
+                    if str(ppp.fluorochrome_id) != param_dict[d]['fluorochrome_id']:
                         # no match
                         continue
 
