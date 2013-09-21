@@ -619,8 +619,8 @@ class SampleEditForm(forms.ModelForm):
         # finally, make sure only project's visit types are the available choices
         if project_id:
             project = Project.objects.get(id=project_id)
-            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(sites)
+            site_panels = SitePanel.objects.filter(site=self.instance.site_panel.site)
+            self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
             visit_types = VisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = forms.ModelChoiceField(visit_types)

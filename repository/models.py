@@ -900,7 +900,7 @@ class Sample(ProtectedModel):
         # but request isn't available in clean() ???
 
         try:
-            Subject.objects.get(id=self.subject_id)
+            Subject.objects.get(id=self.subject_code)
             self.original_filename = self.sample_file.name.split('/')[-1]
             # get the hash
             file_hash = hashlib.sha1(self.sample_file.read())
@@ -941,8 +941,8 @@ class Sample(ProtectedModel):
                 "An FCS file with this SHA-1 hash exists in this Project."
             )
 
-        if self.site is not None and self.site.project_id != self.subject.project_id:
-            raise ValidationError("Site chosen is not in this Project")
+        if self.site_panel is not None and self.site_panel.site.project_id != self.subject.project_id:
+            raise ValidationError("Site panel chosen is not in this Project")
 
         if self.visit is not None and self.visit.project_id != self.subject.project_id:
             raise ValidationError("Visit Type chosen is not in this Project")
@@ -1001,7 +1001,7 @@ class Sample(ProtectedModel):
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
             self.subject.project.project_name,
-            self.subject.subject_id,
+            self.subject.subject_code,
             self.sample_file.name.split('/')[-1])
 
 
