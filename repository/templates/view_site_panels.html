@@ -80,7 +80,7 @@ $(document).ready(function()
           </th>
         </tr>
         <tr>
-          <th>Panel Name</th>
+          <th>Project Panel</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -90,10 +90,10 @@ $(document).ready(function()
         </tr>
       </thead>
       <tbody>
-        {% for panel in panels|dictsort:"panel_name" %}
+        {% for panel in panels %}
         <tr>
           <td>
-            {{ panel.panel_name }}
+            {{ panel.project_panel.panel_name }}
             <span class="pull-right">
               {% if panel.panel_comments != '' and panel.panel_description != None  %}
               <a rel="tooltip" href="#" data-original-title="{{ panel.panel_comments }}" data-placement="bottom">
@@ -115,24 +115,38 @@ $(document).ready(function()
                   <tr>
                     <th>Type</th>
                     <th>Value Type</th>
+                    <th>FCS Number</th>
                     <th>FCS Text <a rel="tooltip" class="pull-right label label-inverse" data-original-title="Exact text from the FCS $PnN field" data-placement="left">?</a></th>
                     <th>FCS Optional Text <a rel="tooltip" class="pull-right label label-inverse" data-original-title="Exact text from the FCS $PnS field" data-placement="left">?</a></th>
+                    <th>Fluorochrome</th>
+                    <th>Antibodies</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for spp in panel.sitepanelparameter_set|dictsort:"fcs_text" %}
+                  {% for spp in panel.sitepanelparameter_set.all|dictsort:"fcs_number" %}
                   <tr>
                     <td width="33%">
-                      {{ spp.parameter.parameter_abbreviation }}
+                      {{ spp.get_parameter_type_display }}
                     </td>
                     <td>
-                      {{ spp.parameter_value_type.value_type_name }}
+                      {{ spp.parameter_value_type }}
+                    </td>
+                    <td>
+                      {{ spp.fcs_number }}
                     </td>
                     <td>
                       {{ spp.fcs_text }}
                     </td>
                     <td>
                       {{ spp.fcs_opt_text }}
+                    </td>
+                    <td>
+                      {{ spp.fluorochrome.fluorochrome_abbreviation }}
+                    </td>
+                    <td>
+                      {% for ab in spp.sitepanelparameterantibody_set.all %}
+                        {{ ab.antibody.antibody_abbreviation }}<br/>
+                      {% endfor %}
                     </td>
                   </tr>
                   {% endfor %}
