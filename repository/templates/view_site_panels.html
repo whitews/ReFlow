@@ -93,21 +93,28 @@ $(document).ready(function()
         {% for panel in panels %}
         <tr>
           <td>
-            {{ panel.project_panel.panel_name }}
-            <span class="pull-right">
-              {% if panel.panel_comments != '' and panel.panel_description != None  %}
-              <a rel="tooltip" href="#" data-original-title="{{ panel.panel_comments }}" data-placement="bottom">
-                <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
-              </a>
+            <div style="position: relative">
+              Name: {{ panel.project_panel.panel_name }}<br/>
+              {% if panel.project_panel.parent_panel %}
+              Parent Panel: {{ panel.project_panel.parent_panel.panel_name }}<br/>
               {% endif %}
-              {% if can_modify_site_data %}
-              <a rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit" data-placement="left">
-                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
-              </a>
-              {% endif %}
-            </span>
+              Staining: {{ panel.project_panel.staining.staining_name }}<br/>
+              Stimulation: {{ panel.project_panel.stimulation.stimulation_name }}<br/>
+              <span style="position: absolute;right:0;top:0;">
+                {% if panel.panel_comments != '' and panel.panel_description != None  %}
+                <a rel="tooltip" href="#" data-original-title="{{ panel.panel_comments }}" data-placement="bottom">
+                  <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
+                </a>
+                {% endif %}
+                {% if can_modify_site_data %}
+                <a rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit" data-placement="left">
+                  <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+                </a>
+                {% endif %}
+              </span>
+            </div>
           </td>
-            <td width="75%">
+          <td width="75%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="hide params">
               <table class="table table-bordered table-hover">
