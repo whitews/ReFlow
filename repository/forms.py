@@ -55,8 +55,13 @@ class ProjectPanelForm(forms.ModelForm):
 
     def clean(self):
         FULL_STAIN = 'Full Stain'
-        staining = self.cleaned_data['staining']
-        parent_panel = self.cleaned_data['parent_panel']
+
+        staining = self.cleaned_data.get('staining')
+        parent_panel = self.cleaned_data.get('parent_panel')
+
+        if not staining:
+            return self.cleaned_data
+
         if staining.staining_name == FULL_STAIN and parent_panel:
             raise ValidationError(
                 "Full stain panels cannot have parent panels.")

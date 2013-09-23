@@ -275,8 +275,14 @@ class ProjectPanel(ProtectedModel):
         blank=True,
         help_text="A short description of the project panel")
     stimulation = models.ForeignKey(Stimulation)
-    staining = models.ForeignKey(Staining)
-    parent_panel = models.ForeignKey("self", null=True, blank=True)
+    staining = models.ForeignKey(
+        Staining,
+        null=False,
+        blank=False)
+    parent_panel = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True)
 
     def has_view_permission(self, user):
 
