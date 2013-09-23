@@ -906,7 +906,7 @@ class Sample(ProtectedModel):
         # but request isn't available in clean() ???
 
         try:
-            Subject.objects.get(id=self.subject_code)
+            Subject.objects.get(id=self.subject_id)
             self.original_filename = self.sample_file.name.split('/')[-1]
             # get the hash
             file_hash = hashlib.sha1(self.sample_file.read())
