@@ -18,10 +18,7 @@ $(document).ready(function () {
             type: $(this).attr('method'),
             url: $(this).attr('action'),
             success: function (json) {
-                $.each(json.messages, function (i, value)
-                {
-                    $('#render_parameters_form').append('<p class=\"text-info\">' + value + '</p>');
-                });
+                window.location.href = "{% url 'view_site_panels' site.id %}"
             },
             error: function(xhr, status, error) {
                 $('#parameter-form-errors').children().remove();
