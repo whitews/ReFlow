@@ -5910,22 +5910,26 @@ th.center {
   text-align: center;
 }
 
-th.headerSortUp {
-    background-image: url(../img/asc.gif) !important;
+th.tablesorter-headerAsc {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7) !important;
     background-color: #f9f9f9;
 }
 
-th.headerSortDown {
-    background-image: url(../img/desc.gif) !important;
+th.tablesorter-headerDesc {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7) !important;
     background-color: #f9f9f9;
 }
 
-th.header {
-    background-image: url(../img/bg.gif);
+th.tablesorter-header {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
     cursor: pointer;
     background-repeat: no-repeat;
     background-position: center left;
     padding-left: 20px;
+}
+
+th.sorter-false {
+    background-image: none;
 }
 
 .params tbody tr:hover td {
