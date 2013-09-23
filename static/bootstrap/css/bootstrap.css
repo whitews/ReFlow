@@ -3380,9 +3380,9 @@ input[type="submit"].btn.btn-mini {
 .navbar-inner:after {
   clear: both;
 }
-.navbar .container {
-  width: auto;
-}
+/*.navbar .container {*/
+  /*width: auto;*/
+/*}*/
 .nav-collapse.collapse {
   height: auto;
   overflow: visible;
@@ -3511,11 +3511,11 @@ input[type="submit"].btn.btn-mini {
   -moz-border-radius: 0;
   border-radius: 0;
 }
-.navbar-static-top .container,
-.navbar-fixed-top .container,
-.navbar-fixed-bottom .container {
-  width: auto;
-}
+/*.navbar-static-top .container,*/
+/*.navbar-fixed-top .container,*/
+/*.navbar-fixed-bottom .container {*/
+  /*width: auto;*/
+/*}*/
 .navbar-fixed-top {
   top: 0;
 }
