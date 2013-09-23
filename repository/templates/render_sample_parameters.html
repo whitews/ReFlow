@@ -1,0 +1,33 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th colspan="50" class="center">{{ sample.original_filename }}</th>
+    </tr>
+    <tr>
+      <th>Channel #</th>
+      <th>FCS PnN Text</th>
+      <th>FCS PnS Text</th>
+      <th>Type</th>
+      <th>Value Type</th>
+      <th>Fluorochrome</th>
+      <th>Antibodies</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for param in sample.site_panel.sitepanelparameter_set.all %}
+    <tr>
+      <td>{{ param.fcs_number }}</td>
+      <td>{{ param.fcs_text }}</td>
+      <td>{{ param.fcs_opt_text }}</td>
+      <td>{{ param.parameter_type.parameter_type_name }}</td>
+      <td>{{ param.parameter_value_type.value_type_name }}</td>
+      <td>{{ param.fluorochrome.fluorochrome_abbreviation }}</td>
+      <td>
+        {% for ab in param.sitepanelparameterantibody_set.all %}
+          {{ ab.antibody.antibody_abbreviation }}<br/>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

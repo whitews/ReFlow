@@ -758,28 +758,14 @@ def view_samples(request, project_id):
     # get user's sites based on their site_view_permission,
     # unless they have full project view permission
     if project.has_view_permission(request.user):
-        samples = Sample.objects.filter(subject__project=project).values(
-            'id',
-            'subject__subject_code',
-            'site_panel__site__site_name',
-            'visit__visit_type_name',
-            'specimen__specimen_name',
-            'original_filename'
-        )
+        samples = Sample.objects.filter(
+            subject__project=project)
     elif user_view_sites.count() > 0:
         samples = Sample.objects.filter(
-            subject__project=project, site__in=user_view_sites).values(
-                'id',
-                'subject__subject_code',
-                'site_panel__site__site_name',
-                'visit__visit_type_name',
-                'specimen__specimen_name',
-                'original_filename'
-            )
+            subject__project=project,
+            site__in=user_view_sites)
     else:
         raise PermissionDenied
-
-    # TODO: fix sample parameter lookup, use distinct site panels???
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -797,6 +783,21 @@ def view_samples(request, project_id):
             'can_modify_project_data': can_modify_project_data,
             'user_add_sites': user_add_sites,
             'user_modify_sites': user_modify_sites
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def render_sample_parameters(request, sample_id):
+    sample = get_object_or_404(Sample, pk=sample_id)
+    if not sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    return render_to_response(
+        'render_sample_parameters.html',
+        {
+            'sample': sample
         },
         context_instance=RequestContext(request)
     )
