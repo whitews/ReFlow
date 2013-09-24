@@ -1,5 +1,7 @@
 from rest_framework import generics
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import \
+    SessionAuthentication, \
+    TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
@@ -11,14 +13,14 @@ import django_filters
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
-from django.db.models import Count
 
 from repository.models import *
 from repository.serializers import *
-from repository.utils import apply_panel_to_sample
 
-# Design Note: For any detail view the PermissionRequiredMixin will restrict access to users of that project
-# For any List view, the view itself will have to restrict the list of objects by user
+# Design Note: For any detail view the PermissionRequiredMixin will
+# restrict access to users of that project
+# For any List view, the view itself will have to restrict the list
+# of objects by user
 
 
 @api_view(['GET'])
@@ -36,7 +38,6 @@ def repository_api_root(request, format=None):
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
-        'sample-sets': reverse('sample-set-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
@@ -53,8 +54,11 @@ def retrieve_sample(request, pk):
     if not sample.has_view_permission(request.user):
         raise PermissionDenied
 
-    response = HttpResponse(sample.sample_file, content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' % sample.original_filename
+    response = HttpResponse(
+        sample.sample_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % sample.original_filename
     return response
 
 
@@ -65,10 +69,6 @@ class LoginRequiredMixin(object):
 
     authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticated,)
-
-    # @method_decorator(csrf_exempt)
-    # def dispatch(self, request, *args, **kwargs):
-    #     return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class PermissionRequiredMixin(object):
@@ -81,7 +81,8 @@ class PermissionRequiredMixin(object):
 
         if isinstance(obj, ProtectedModel):
             if isinstance(obj, Project):
-                user_sites = Site.objects.get_sites_user_can_view(self.request.user, obj)
+                user_sites = Site.objects.get_sites_user_can_view(
+                    self.request.user, obj)
 
                 if not (obj.has_view_permission(self.request.user) or user_sites.count() > 0):
                     raise PermissionDenied
@@ -108,7 +109,10 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class ProjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class ProjectDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
@@ -128,10 +132,12 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        Override .get_queryset() to restrict panels to projects
+        to which the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
 
         # filter on user's projects
         queryset = VisitType.objects.filter(project__in=user_projects)
@@ -139,7 +145,10 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class VisitTypeDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class VisitTypeDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
@@ -159,10 +168,12 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict subject groups to projects to which the user belongs.
+        Override .get_queryset() to restrict subject groups to projects
+        to which the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
 
         # filter on user's projects
         queryset = SubjectGroup.objects.filter(project__in=user_projects)
@@ -181,10 +192,12 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        Override .get_queryset() to restrict panels to projects
+        to which the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
 
         # filter on user's projects
         queryset = Subject.objects.filter(project__in=user_projects)
@@ -192,7 +205,10 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class SubjectDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SubjectDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
@@ -212,14 +228,18 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict sites for which the user has view permission.
+        Override .get_queryset() to restrict sites for which
+        the user has view permission.
         """
         queryset = Site.objects.get_sites_user_can_view(self.request.user)
 
         return queryset
 
 
-class SiteDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SiteDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
@@ -239,7 +259,8 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        Override .get_queryset() to restrict panels to sites
+        to which the user belongs.
         """
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
@@ -247,31 +268,15 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
         # filter on user's projects
         queryset = SitePanel.objects.filter(site__in=user_sites)
 
-        # Value may have multiple names separated by commas
-        name_value = self.request.QUERY_PARAMS.get('name', None)
-
-        if name_value is None:
-            return queryset
-
-        # The name property is just a concatenation of 2 related fields:
-        #  - parameter__parameter_short_name
-        #  - value_type__value_type_short_name (single character for H, A, W, T)
-        # they are joined by a hyphen
-        names = name_value.split(',')
-
-        for name in names:
-            parameter = name[0:-2]
-            value_type = name[-1]
-
-            queryset = queryset.filter(
-                panelparametermap__parameter__parameter_short_name=parameter,
-                panelparametermap__value_type__value_type_short_name=value_type,
-            ).distinct()
+        # TODO: implement filtering by channel info: fluoro, ab, scatter, etc
 
         return queryset
 
 
-class SitePanelDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SitePanelDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a single project.
     """
@@ -351,14 +356,17 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 
 class SampleFilter(django_filters.FilterSet):
-    subject__project = django_filters.ModelMultipleChoiceFilter(queryset=Project.objects.all())
-    site_panel = django_filters.ModelMultipleChoiceFilter(queryset=SitePanel.objects.all())
-    subject = django_filters.ModelMultipleChoiceFilter(queryset=Subject.objects.all())
-    visit = django_filters.ModelMultipleChoiceFilter(queryset=VisitType.objects.all())
-    stimulation = django_filters.ModelMultipleChoiceFilter(queryset=Stimulation.objects.all())
-    specimen = django_filters.ModelMultipleChoiceFilter(queryset=Specimen.objects.all())
+    subject__project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all())
+    site_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=SitePanel.objects.all())
+    subject = django_filters.ModelMultipleChoiceFilter(
+        queryset=Subject.objects.all())
+    visit = django_filters.ModelMultipleChoiceFilter(
+        queryset=VisitType.objects.all())
+    specimen = django_filters.ModelMultipleChoiceFilter(
+        queryset=Specimen.objects.all())
     original_filename = django_filters.CharFilter(lookup_type="icontains")
-    parameter = django_filters.MultipleChoiceFilter()
 
     class Meta:
         model = Sample
@@ -367,7 +375,6 @@ class SampleFilter(django_filters.FilterSet):
             'site_panel',
             'subject',
             'visit',
-            'stimulation',
             'specimen',
             'original_filename'
         ]
@@ -384,45 +391,19 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to filter on the SampleParameterMap property 'name'.
-        If no name is provided, all samples are returned.
-        All results are restricted to projects to which the user belongs.
+        Results are restricted to projects to which the user belongs.
         """
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
-
-        # Custom filter for specifying the exact count of parameters in a Sample
-        param_count_value = self.request.QUERY_PARAMS.get('parameter_count', None)
-        if param_count_value is not None and param_count_value.isdigit():
-            queryset = Sample.objects\
-                            .filter(site__in=user_sites)\
-                            .annotate(parameter_count=Count('sampleparametermap'))\
-                            .filter(parameter_count=param_count_value)
-        else:
-            # filter on user's projects
-            queryset = Sample.objects.filter(site_panel__site__in=user_sites)
-
-        # 'parameter' may be repeated, so get as list
-        parameters = self.request.QUERY_PARAMS.getlist('parameter')
-
-        # The name property is just a concatenation of 2 related fields:
-        #  - parameter__parameter_short_name
-        #  - value_type__value_type_short_name (single character for H, A, W, T)
-        # they are joined by a hyphen
-
-        for value in parameters:
-            parameter = value[0:-2]
-            value_type = value[-1]
-
-            queryset = queryset.filter(
-                sampleparametermap__parameter__parameter_short_name=parameter,
-                sampleparametermap__value_type__value_type_short_name=value_type,
-            ).distinct()
+        queryset = Sample.objects.filter(site_panel__site__in=user_sites)
 
         return queryset
 
 
-class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SampleDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -431,9 +412,12 @@ class SampleDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.Retriev
     serializer_class = SampleSerializer
 
 
-class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.UpdateAPIView):
+class SamplePanelUpdate(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.UpdateAPIView):
     """
-    API endpoint for applying a panel to an FCS sample.
+    API endpoint for changing a panel for an FCS sample.
     """
 
     model = Sample
@@ -447,16 +431,15 @@ class SamplePanelUpdate(LoginRequiredMixin, PermissionRequiredMixin, generics.Up
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
 
-            if not sample.site.has_add_permission(request.user):
+            if not sample.site_panel.site.has_add_permission(request.user):
                 raise PermissionDenied
 
             try:
-                # now try to apply panel parameters to the sample's parameters
-                apply_panel_to_sample(site_panel, sample)
+                # TODO: verify site panel change triggers new validation
+                sample.site_panel = site_panel
 
-                # need to re-serialize our sample to get the sampleparameters field updated
-                # we can also use this to use the SampleSerializer instead of the POST one
-                # to not give back the sample_file field containing the file path on the server
+                # Use SampleSerializer instead of the POST one to hide the
+                # sample_file field (shows file path on server)
                 serializer = SampleSerializer(sample)
 
                 return Response(serializer.data, status=201)
@@ -477,7 +460,8 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict panels to projects to which the user belongs.
+        Override .get_queryset() to restrict panels to projects
+        to which the user belongs.
         """
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
@@ -487,7 +471,10 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class CompensationDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class CompensationDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -496,7 +483,10 @@ class CompensationDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.R
     serializer_class = CompensationSerializer
 
 
-class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, generics.CreateAPIView):
+class SampleCompensationCreate(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.CreateAPIView):
     """
     API endpoint for associating a compensation matrix with an FCS sample.
     """
@@ -509,10 +499,16 @@ class SampleCompensationCreate(LoginRequiredMixin, PermissionRequiredMixin, gene
         if not sample.site.has_add_permission(request.user):
             raise PermissionDenied
 
-        return super(SampleCompensationCreate, self).post(request, *args, **kwargs)
+        return super(SampleCompensationCreate, self).post(
+            request,
+            *args,
+            **kwargs)
 
 
-class SampleSetList(LoginRequiredMixin, PermissionRequiredMixin, generics.ListAPIView):
+class SampleSetList(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.ListAPIView):
     """
     API endpoint representing a list sample sets.
     """
@@ -523,10 +519,12 @@ class SampleSetList(LoginRequiredMixin, PermissionRequiredMixin, generics.ListAP
 
     def get_queryset(self):
         """
-        Override .get_queryset() to restrict sample sets to projects to which the user belongs.
+        Override .get_queryset() to restrict sample sets to projects to which
+        the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
 
         # filter on user's projects
         queryset = SampleSet.objects.filter(project__in=user_projects)
@@ -534,7 +532,10 @@ class SampleSetList(LoginRequiredMixin, PermissionRequiredMixin, generics.ListAP
         return queryset
 
 
-class SampleSetDetail(LoginRequiredMixin, PermissionRequiredMixin, generics.RetrieveAPIView):
+class SampleSetDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
     """
     API endpoint representing a sample set.
     """
