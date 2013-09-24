@@ -1,10 +1,14 @@
 from string import join
 import hashlib
 import io
+import datetime
 
 import os
 import re
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import \
+    ValidationError, \
+    ObjectDoesNotExist, \
+    MultipleObjectsReturned
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms
@@ -881,6 +885,10 @@ class Sample(ProtectedModel):
         blank=False,
         editable=False,
         max_length=40)
+    upload_date = models.DateTimeField(
+        editable=False,
+        null=False,
+        blank=False)
 
     def has_view_permission(self, user):
 
@@ -976,9 +984,6 @@ class Sample(ProtectedModel):
                     "Chosen file does not appear to be an FCS file."
                 )
 
-        # Start collecting channel info even though we don't know the parameter
-        # Note: the SampleParameterMap instances are saved in overridden save
-
         # Read the FCS text segment and get the number of parameters
         sample_text_segment = fcm_obj.notes.text
 
@@ -991,18 +996,66 @@ class Sample(ProtectedModel):
             raise ValidationError("No parameters found in FCS file")
 
         # Get our parameter numbers from all the PnN matches
-        sample_parameters = {}  # parameter_number: PnN text
+        sample_params = {}  # parameter_number: PnN text
         for key in sample_text_segment:
             matches = re.search('^P(\d+)([N,S])$', key, flags=re.IGNORECASE)
             if matches:
                 channel_number = matches.group(1)
                 n_or_s = str.lower(matches.group(2))
-                if channel_number not in sample_parameters:
-                    sample_parameters[channel_number] = {}
-                sample_parameters[channel_number][n_or_s] = \
+                if channel_number not in sample_params:
+                    sample_params[channel_number] = {}
+                sample_params[channel_number][n_or_s] = \
                     sample_text_segment[key]
 
-        self._sample_parameters = sample_parameters
+        # Now check parameters against the chosen site panel
+        # First, simply check the counts
+        panel_params = self.site_panel.sitepanelparameter_set.all()
+        if len(sample_params.keys()) != panel_params.count():
+            raise ValidationError(
+                "FCS parameter count does not match chosen site panel")
+        for channel_number in sample_params.keys():
+            try:
+                panel_param = panel_params.get(fcs_number=channel_number)
+            except ObjectDoesNotExist:
+                raise ValidationError(
+                    "Channel number '%s' not found in chosen site panel" %
+                    str(channel_number))
+            except MultipleObjectsReturned:
+                raise ValidationError(
+                    "Multiple channels found in chosen site panel " +
+                    "for channel number '%s'" % str(channel_number))
+
+            # Compare PnN field, this field is required so error if not found
+            if 'n' in sample_params[channel_number]:
+                if sample_params[channel_number]['n'] != panel_param.fcs_text:
+                    raise ValidationError(
+                        "FCS PnN text for channel '%s' does not match panel"
+                        % str(channel_number))
+            else:
+                raise ValidationError(
+                    "Required FCS field PnN not found in file for channel '%s'"
+                    % str(channel_number))
+
+            # Compare PnS field, not required but if panel version exists
+            # and file version doesn't we'll still error
+            if 's' in sample_params[channel_number]:
+                if sample_params[channel_number]['s'] != panel_param.fcs_opt_text:
+                    raise ValidationError(
+                        "FCS PnS text for channel '%s' does not match panel"
+                        % str(channel_number))
+            else:
+                # file doesn't have PnS field, so panel param must be
+                # empty string
+                if panel_param.fcs_opt_text != '':
+                    raise ValidationError(
+                        "FCS PnS text for channel '%s' does not match panel"
+                        % str(channel_number))
+
+    def save(self, *args, **kwargs):
+        """ Populate upload date on save """
+        if not self.id:
+            self.upload_date = datetime.datetime.today()
+        return super(Sample, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (

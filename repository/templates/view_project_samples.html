@@ -76,6 +76,7 @@ function show_parameters(id) {
       <tr>
           <th></th>
           <th>File Name</th>
+          <th>Upload Date</th>
           <th>Site</th>
           <th>Subject</th>
           <th>Visit</th>
@@ -99,9 +100,8 @@ function show_parameters(id) {
           </a>
           {% endif %}
         </td>
-        <td class="no-wrap middle">
-          {{ sample.original_filename }}
-        </td>
+        <td class="no-wrap middle">{{ sample.original_filename }}</td>
+        <td class="middle">{{ sample.upload_date }}</td>
         <td class="middle">{{ sample.site_panel.site.site_name }}</td>
         <td class="middle">{{ sample.subject.subject_code }}</td>
         <td class="middle">{{ sample.visit.visit_type_name }}</td>
