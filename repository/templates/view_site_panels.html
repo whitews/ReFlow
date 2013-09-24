@@ -16,7 +16,7 @@ $(function() {
   $("table#data-table").tablesorter({
     headers: {
       0: { sorter: false},
-      2: { sorter: false}
+      3: { sorter: false}
     }
   });
 });
@@ -81,6 +81,7 @@ $(document).ready(function()
         </tr>
         <tr>
           <th>Project Panel</th>
+          <th>Version</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -114,6 +115,7 @@ $(document).ready(function()
               </span>
             </div>
           </td>
+          <td>{{ panel.implementation }}</td>
           <td width="75%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="hide params">

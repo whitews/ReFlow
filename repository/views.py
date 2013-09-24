@@ -1283,15 +1283,15 @@ def edit_site_panel(request, panel_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = SitePanelParameterForm(request.POST, instance=panel)
+        form = EditSitePanelForm(request.POST, instance=panel)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse(
-                'project_panels',
-                args=(panel.site.project_id,)))
+                'view_site_panels',
+                args=(panel.site_id,)))
     else:
-        form = SitePanelForm(instance=panel)
+        form = EditSitePanelForm(instance=panel)
 
     return render_to_response(
         'edit_site_panel.html',

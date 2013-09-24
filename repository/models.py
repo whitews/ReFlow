@@ -557,11 +557,26 @@ class SitePanel(ProtectedModel):
     # its ProjectPanel
     project_panel = models.ForeignKey(ProjectPanel, null=False, blank=False)
     site = models.ForeignKey(Site, null=False, blank=False)
+
+    # We don't allow site panels to have their own name,
+    # so we use implementation version to differentiate site panels
+    # which are based on the same project panel for the same site
+    implementation = models.IntegerField(editable=False, null=False)
     site_panel_comments = models.TextField(
         "Site Panel Comments",
         null=True,
         blank=True,
         help_text="A short description of the site panel")
+
+    def _get_name(self):
+        """
+        Returns the parameter name with value type.
+        """
+        return '%s (%d)' % (
+            self.project_panel.panel_name,
+            self.implementation)
+
+    name = property(_get_name)
 
     def has_view_permission(self, user):
 
@@ -574,31 +589,25 @@ class SitePanel(ProtectedModel):
         return False
 
     def clean(self):
-        """
-        Check for duplicate site panels for a project panel within one site.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count panels with parent project panel_name and parent site,
-        # which don't have this pk
-        try:
-            Site.objects.get(id=self.site_id)
-        except ObjectDoesNotExist:
-            return  # Site is required and will get caught by Form.is_valid()
-
-        duplicates = SitePanel.objects.filter(
-            project_panel__panel_name=self.project_panel.panel_name,
-            site=self.site).exclude(
-                id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "A site panel for this project panel already exists."
-            )
-
         # project panel must be in the same project as the site
         if self.site.project_id != self.project_panel.project_id:
             raise ValidationError(
                 "Chosen project panel is not in site's project.")
+
+        # Get count of site panels for the project panel / site combo
+        # to figure out the implementation number
+        if not self.implementation:
+            current_implementations = SitePanel.objects.filter(
+                site=self.site,
+                project_panel=self.project_panel).values_list(
+                    'implementation', flat=True)
+
+            proposed_number = len(current_implementations) + 1
+
+            if proposed_number not in current_implementations:
+                self.implementation = proposed_number
+            else:
+                raise ValidationError("Could not calculate implementation version.")
 
     def __unicode__(self):
         return u'%s (Site: %s)' % (
