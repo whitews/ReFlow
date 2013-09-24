@@ -5930,6 +5930,7 @@ th.tablesorter-header {
 
 th.sorter-false {
     background-image: none;
+    cursor: default;
 }
 
 .params tbody tr:hover td {
