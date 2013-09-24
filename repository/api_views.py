@@ -13,6 +13,7 @@ import django_filters
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.views.generic.detail import SingleObjectMixin
 
 from repository.models import *
 from repository.serializers import *
@@ -26,7 +27,7 @@ from repository.serializers import *
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
-def repository_api_root(request, format=None):
+def repository_api_root(request):
     """
     The entry endpoint of our API.
     """
@@ -71,22 +72,27 @@ class LoginRequiredMixin(object):
     permission_classes = (IsAuthenticated,)
 
 
-class PermissionRequiredMixin(object):
+class PermissionRequiredMixin(SingleObjectMixin):
     """
     View mixin to verify a user has permission to a resource.
     """
 
     def get_object(self, *args, **kwargs):
         obj = super(PermissionRequiredMixin, self).get_object(*args, **kwargs)
+        if hasattr(self, 'request'):
+            request = self.request
+        else:
+            raise PermissionDenied
 
         if isinstance(obj, ProtectedModel):
             if isinstance(obj, Project):
                 user_sites = Site.objects.get_sites_user_can_view(
-                    self.request.user, obj)
+                    request.user, obj)
 
-                if not (obj.has_view_permission(self.request.user) or user_sites.count() > 0):
+                if not obj.has_view_permission(request.user) and not (
+                        user_sites.count() > 0):
                     raise PermissionDenied
-            elif not obj.has_view_permission(self.request.user):
+            elif not obj.has_view_permission(request.user):
                 raise PermissionDenied
 
         return obj
