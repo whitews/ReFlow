@@ -16,7 +16,12 @@ class VisitTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VisitType
-        fields = ('id', 'url', 'visit_type_name', 'visit_type_description', 'project')
+        fields = (
+            'id',
+            'url',
+            'visit_type_name',
+            'visit_type_description',
+            'project')
 
 
 class SubjectGroupSerializer(serializers.ModelSerializer):
@@ -49,7 +54,9 @@ class SpecimenSerializer(serializers.ModelSerializer):
 
 
 class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='antibody.antibody_abbreviation', read_only=True)
+    name = serializers.CharField(
+        source='antibody.antibody_abbreviation',
+        read_only=True)
 
     class Meta:
         model = ProjectPanelParameterAntibody
@@ -57,7 +64,8 @@ class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
 
 
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
-    antibodies = ProjectPanelParameterAntibodySerializer(source='projectpanelparameterantibody_set')
+    antibodies = ProjectPanelParameterAntibodySerializer(
+        source='projectpanelparameterantibody_set')
     url = serializers.HyperlinkedIdentityField(view_name='parameter-detail')
 
     class Meta:
@@ -118,25 +126,39 @@ class SampleCompensationPOSTSerializer(serializers.ModelSerializer):
         model = SampleCompensationMap
 
     def get_fields(self):
-        fields = super(SampleCompensationPOSTSerializer, self).get_default_fields()
+        fields = super(
+            SampleCompensationPOSTSerializer, self).get_default_fields()
         user = self.context['view'].request.user
         user_projects = Project.objects.get_projects_user_can_view(user)
         if 'compensation' in fields:
-            fields['compensation'].queryset = Compensation.objects.filter(site__project__in=user_projects)
+            fields['compensation'].queryset = Compensation.objects.filter(
+                site__project__in=user_projects)
         if 'sample' in fields:
-            fields['sample'].queryset = Sample.objects.filter(subject__project__in=user_projects)
+            fields['sample'].queryset = Sample.objects.filter(
+                subject__project__in=user_projects)
 
         return fields
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
+    compensations = SampleCompensationSerializer(
+        source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(source='subject.project_id', read_only=True)
-    subject_code = serializers.CharField(source='subject.subject_code', read_only=True)
-    site_name = serializers.CharField(source='site_panel.site.site_name', read_only=True)
-    visit_name = serializers.CharField(source='visit.visit_type_name', read_only=True)
-    specimen_name = serializers.CharField(source='specimen.specimen_name', read_only=True)
+    project = serializers.IntegerField(
+        source='subject.project_id',
+        read_only=True)
+    subject_code = serializers.CharField(
+        source='subject.subject_code',
+        read_only=True)
+    site_name = serializers.CharField(
+        source='site_panel.site.site_name',
+        read_only=True)
+    visit_name = serializers.CharField(
+        source='visit.visit_type_name',
+        read_only=True)
+    specimen_name = serializers.CharField(
+        source='specimen.specimen_name',
+        read_only=True)
 
     class Meta:
         model = Sample
@@ -162,18 +184,23 @@ class SampleSerializer(serializers.ModelSerializer):
 
 class SamplePOSTSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(source='subject.subject_group.project_id', read_only=True)
+    project = serializers.IntegerField(
+        source='subject.subject_group.project_id',
+        read_only=True)
 
     def get_fields(self):
         fields = super(SamplePOSTSerializer, self).get_default_fields()
         user = self.context['view'].request.user
         user_projects = Project.objects.get_projects_user_can_view(user)
         if 'subject' in fields:
-            fields['subject'].queryset = Subject.objects.filter(project__in=user_projects)
+            fields['subject'].queryset = Subject.objects.filter(
+                project__in=user_projects)
         if 'site' in fields:
-            fields['site'].queryset = Site.objects.filter(project__in=user_projects)
+            fields['site'].queryset = Site.objects.filter(
+                project__in=user_projects)
         if 'visit' in fields:
-            fields['visit'].queryset = VisitType.objects.filter(project__in=user_projects)
+            fields['visit'].queryset = VisitType.objects.filter(
+                project__in=user_projects)
 
         return fields
 
