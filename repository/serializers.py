@@ -79,6 +79,26 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
             'fluorochrome')
 
 
+class ProjectPanelSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='project-panel-detail')
+    parameters = ProjectPanelParameterSerializer(
+        source='projectpanelparameter_set')
+
+    class Meta:
+        model = ProjectPanel
+        fields = (
+            'id',
+            'url',
+            'project',
+            'panel_name',
+            'panel_description',
+            'stimulation',
+            'staining',
+            'parent_panel'
+        )
+
+
 class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
 

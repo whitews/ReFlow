@@ -34,6 +34,7 @@ def repository_api_root(request):
 
     return Response({
         'compensations': reverse('compensation-list', request=request),
+        'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'projects': reverse('project-list', request=request),
@@ -216,16 +217,50 @@ class SubjectDetail(
         PermissionRequiredMixin,
         generics.RetrieveAPIView):
     """
-    API endpoint representing a single project.
+    API endpoint representing a single subject.
     """
 
     model = Subject
     serializer_class = SubjectSerializer
 
 
+class ProjectPanelList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of project panels.
+    """
+
+    model = ProjectPanel
+    serializer_class = ProjectPanelSerializer
+
+    def get_queryset(self):
+        """
+        Restrict project panels to projects for which
+        the user has view permission.
+        """
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+
+        # filter on user's projects
+        queryset = ProjectPanel.objects.filter(project__in=user_projects)
+
+        return queryset
+
+
+class ProjectPanelDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint representing a single project panel.
+    """
+
+    model = ProjectPanel
+    serializer_class = ProjectPanelSerializer
+
+
 class SiteList(LoginRequiredMixin, generics.ListAPIView):
     """
-    API endpoint representing a list of panels.
+    API endpoint representing a list of sites.
     """
 
     model = Site
@@ -247,7 +282,7 @@ class SiteDetail(
         PermissionRequiredMixin,
         generics.RetrieveAPIView):
     """
-    API endpoint representing a single project.
+    API endpoint representing a single site.
     """
 
     model = Site
@@ -256,7 +291,7 @@ class SiteDetail(
 
 class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     """
-    API endpoint representing a list of panels.
+    API endpoint representing a list of site panels.
     """
 
     model = SitePanel
@@ -284,7 +319,7 @@ class SitePanelDetail(
         PermissionRequiredMixin,
         generics.RetrieveAPIView):
     """
-    API endpoint representing a single project.
+    API endpoint representing a single site panel.
     """
 
     model = SitePanel
