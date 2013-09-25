@@ -153,7 +153,7 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             # parameter type is required
             param_type = form.data[form.add_prefix('parameter_type')]
             if not param_type:
-                raise ValidationError("Parameter type is required")
+                raise ValidationError("Function is required")
             if param_type == 'FMO' and not can_have_fmo:
                 raise ValidationError(
                     "Only FMO panels can include an FMO parameter")
@@ -247,6 +247,19 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         """
         param_counter = Counter()
         param_dict = {}
+        staining = self.instance.project_panel.staining
+        if staining == 'FS':
+            can_have_fmo = False
+            can_have_iso = False
+        elif staining == 'FM':
+            can_have_fmo = True
+            can_have_iso = False
+        elif staining == 'IS':
+            can_have_fmo = False
+            can_have_iso = True
+        else:
+            raise ValidationError(
+                "Invalid staining type '%s'" % staining)
 
         for form in self.forms:
             ab_formset = form.nested[0]
@@ -267,6 +280,13 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             param_type = form.data[form.add_prefix('parameter_type')]
             if not param_type:
                 raise ValidationError("Function is required")
+            if param_type == 'FMO' and not can_have_fmo:
+                raise ValidationError(
+                    "Only FMO panels can include an FMO parameter")
+            if param_type == 'ISO' and not can_have_iso:
+                raise ValidationError(
+                    "Only Isotype control panels can include an " +
+                    "isotype control parameter")
 
             # value type is required
             value_type = form.data[form.add_prefix('parameter_value_type')]
@@ -299,6 +319,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
 
             # FMO channels can't have a fluoro and must have an antibody
             if param_type == 'FMO':
+
                 if fluorochrome_id:
                     raise ValidationError(
                         "Fluorescence minus one channels CANNOT " +
