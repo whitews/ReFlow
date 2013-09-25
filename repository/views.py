@@ -1129,6 +1129,7 @@ def add_site_panel(request, site_id):
         preform = PreSitePanelForm(
             request.POST,
             request.FILES,
+            instance=SitePanel(site=site),
             project_id=site.project_id)
 
         if preform.is_valid():
