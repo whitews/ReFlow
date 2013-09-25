@@ -278,7 +278,10 @@ class ProjectPanel(ProtectedModel):
         null=True,
         blank=True,
         help_text="A short description of the project panel")
-    stimulation = models.ForeignKey(Stimulation)
+    stimulation = models.ForeignKey(
+        Stimulation,
+        null=True,
+        blank=True)
     staining = models.ForeignKey(
         Staining,
         null=False,
