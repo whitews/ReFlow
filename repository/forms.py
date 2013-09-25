@@ -8,11 +8,6 @@ from guardian.forms import UserObjectPermissionsForm
 from repository.models import *
 
 
-class StainingForm(forms.ModelForm):
-    class Meta:
-        model = Staining
-
-
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
@@ -126,6 +121,12 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             - No duplicate side scatter + value type combinations
         """
         param_counter = Counter()
+        staining = self.instance.staining
+        if staining.staining_abbreviation == 'Full':
+            can_have_fmo = False
+            can_have_iso = False
+        elif staining.staining_abbreviation == '':
+            pass
 
         for form in self.forms:
             ab_formset = form.nested[0]

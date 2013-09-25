@@ -123,69 +123,6 @@ def edit_specimen(request, specimen_id):
 
 
 @login_required
-def view_stains(request):
-    stains = Staining.objects.all().order_by('staining_name')
-
-    return render_to_response(
-        'view_stains.html',
-        {
-            'stains': stains,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def add_stain(request):
-    if request.method == 'POST':
-        stain = Staining()
-        form = StainingForm(request.POST, instance=stain)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_stains'))
-    else:
-        form = StainingForm()
-
-    return render_to_response(
-        'add_stain.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def edit_stain(request, staining_id):
-    stain = get_object_or_404(Staining, pk=staining_id)
-
-    if request.method == 'POST':
-        form = StainingForm(request.POST, instance=stain)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_stains'))
-    else:
-        form = StainingForm(instance=stain)
-
-    return render_to_response(
-        'edit_stain.html',
-        {
-            'form': form,
-            'stain': stain,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def view_antibodies(request):
 
     antibodies = Antibody.objects.all().values(

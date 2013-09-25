@@ -54,27 +54,6 @@ class Specimen(models.Model):
         return u'%s' % self.specimen_name
 
 
-class Staining(models.Model):
-    staining_name = models.CharField(
-        unique=True,
-        max_length=128,
-        null=False,
-        blank=False)
-    staining_abbreviation = models.CharField(
-        unique=True,
-        max_length=16,
-        null=False,
-        blank=False)
-    staining_description = models.CharField(
-        unique=True,
-        max_length=256,
-        null=True,
-        blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.staining_name
-
-
 class Antibody(models.Model):
     antibody_abbreviation = models.CharField(
         unique=True,
@@ -135,6 +114,12 @@ PARAMETER_VALUE_TYPE_CHOICES = (
     ('W', 'Width'),
     ('A', 'Area'),
     ('T', 'Time')
+)
+
+STAINING_CHOICES = (
+    ('FS', 'Full Stain'),
+    ('FM', 'Fluorescence minus'),
+    ('IS', 'Isotype Control')
 )
 
 
@@ -277,8 +262,9 @@ class ProjectPanel(ProtectedModel):
         Stimulation,
         null=True,
         blank=True)
-    staining = models.ForeignKey(
-        Staining,
+    staining = models.CharField(
+        max_length=2,
+        choices=STAINING_CHOICES,
         null=False,
         blank=False)
     parent_panel = models.ForeignKey(
