@@ -35,12 +35,12 @@
       </tr>
     </table>
   <div class="well">
+    <p><a href="{% url 'subject_groups' project.id %}">Subject Groups</a></p>
     <p><a href="{% url 'view_project_stimulations' project.id %}">Stimulations</a></p>
+    <p><a href="{% url 'project_visit_types' project.id %}">Visit Types</a></p>
     <p><a href="{% url 'view_project_panels' project.id %}">Project Panels</a></p>
     <p><a href="{% url 'view_project_sites' project.id %}">Sites</a></p>
-    <p><a href="{% url 'subject_groups' project.id %}">Subject Groups</a></p>
     <p><a href="{% url 'view_subjects' project.id %}">Subjects</a></p>
-    <p><a href="{% url 'project_visit_types' project.id %}">Visit Types</a></p>
     <p><a href="{% url 'view_project_samples' project.id %}">Samples</a></p>
     <p><a href="{% url 'project_compensations' project.id %}">Compensation Matrices</a></p>
   </div>
