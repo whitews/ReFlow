@@ -112,7 +112,7 @@ $(document).ready(function()
               {% endif %}
             </span>
           </td>
-          <td>{{ panel.staining.staining_name }}</td>
+          <td>{{ panel.get_staining_display }}</td>
           <td>{{ panel.stimulation.stimulation_name }}</td>
           <td width="65%">
             <a href="#" class="toggle-closest">Show/Hide</a>

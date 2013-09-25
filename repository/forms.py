@@ -49,28 +49,29 @@ class ProjectPanelForm(forms.ModelForm):
         }
 
     def clean(self):
-        FULL_STAIN = 'Full Stain'
-
         staining = self.cleaned_data.get('staining')
         parent_panel = self.cleaned_data.get('parent_panel')
 
         if not staining:
             return self.cleaned_data
 
-        if staining.staining_name == FULL_STAIN and parent_panel:
+        if staining == 'FS' and parent_panel:
             raise ValidationError(
                 "Full stain panels cannot have parent panels.")
-        if staining.staining_name != FULL_STAIN:
+        if staining == 'FM':
             if not parent_panel:
                 raise ValidationError(
-                    "Panels with staining '%s' require a parent full stain panel" %
-                    staining.staining_name
-                )
-            elif parent_panel.staining.staining_name != FULL_STAIN:
+                    "FMO panels require a parent full stain panel")
+            elif parent_panel.staining != 'FS':
                 raise ValidationError(
-                    "Panels with staining '%s' require a parent full stain panel" %
-                    staining.staining_name
-                )
+                    "FMO panels require a parent full stain panel")
+        elif staining == 'IS':
+            if not parent_panel:
+                raise ValidationError(
+                    "Isotype control panels require a parent full stain panel")
+            elif parent_panel.staining != 'FS':
+                raise ValidationError(
+                    "Isotype control panels require a parent full stain panel")
         return self.cleaned_data
 
 
@@ -122,11 +123,18 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         """
         param_counter = Counter()
         staining = self.instance.staining
-        if staining.staining_abbreviation == 'Full':
+        if staining == 'FS':
             can_have_fmo = False
             can_have_iso = False
-        elif staining.staining_abbreviation == '':
-            pass
+        elif staining == 'FM':
+            can_have_fmo = True
+            can_have_iso = False
+        elif staining == 'IS':
+            can_have_fmo = False
+            can_have_iso = True
+        else:
+            raise ValidationError(
+                "Invalid staining type '%s'" % staining)
 
         for form in self.forms:
             ab_formset = form.nested[0]
@@ -146,6 +154,13 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             param_type = form.data[form.add_prefix('parameter_type')]
             if not param_type:
                 raise ValidationError("Parameter type is required")
+            if param_type == 'FMO' and not can_have_fmo:
+                raise ValidationError(
+                    "Only FMO panels can include an FMO parameter")
+            if param_type == 'ISO' and not can_have_iso:
+                raise ValidationError(
+                    "Only Isotype control panels can include an " +
+                    "isotype control parameter")
 
             # value type is NOT required for project panels,
             # allows site panel implementations to have different values types
@@ -158,7 +173,7 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             # dump channel must be a fluorescence channel
             if param_type == 'DMP' and not fluorochrome_id:
                 raise ValidationError(
-                    "A dump channel must be a fluorescence channel.")
+                    "A dump channel must include a fluorochrome.")
 
             # check for fluoro or antibodies in scatter channels
             if param_type == 'FSC' or param_type == 'SSC':

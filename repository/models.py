@@ -118,7 +118,7 @@ PARAMETER_VALUE_TYPE_CHOICES = (
 
 STAINING_CHOICES = (
     ('FS', 'Full Stain'),
-    ('FM', 'Fluorescence minus'),
+    ('FM', 'Fluorescence minus one'),
     ('IS', 'Isotype Control')
 )
 
