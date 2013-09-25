@@ -17,7 +17,7 @@ $(function() {
     sortList: [[0,0]],
     headers: {
       0: { sorter: false},
-      3: { sorter: false}
+      5: { sorter: false}
     }
   });
 });
@@ -73,7 +73,7 @@ $(document).ready(function()
     <table id="data-table" class="table table-hover">
       <thead>
         <tr>
-          <th colspan="3" class="center">
+          <th colspan="50" class="center">
             <div style="position:relative">
               <h4>Project Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
 
@@ -89,7 +89,8 @@ $(document).ready(function()
         </tr>
         <tr>
           <th>Panel Name</th>
-          <th>Description</th>
+          <th>Staining</th>
+          <th>Stimulation</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -111,8 +112,9 @@ $(document).ready(function()
               {% endif %}
             </span>
           </td>
-          <td>{{ panel.panel_description }}</td>
-          <td width="75%">
+          <td>{{ panel.staining.staining_name }}</td>
+          <td>{{ panel.stimulation.stimulation_name }}</td>
+          <td width="65%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="hide params">
               <table class="table table-bordered table-hover">

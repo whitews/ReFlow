@@ -273,11 +273,6 @@ class ProjectPanel(ProtectedModel):
         null=False,
         blank=False,
         max_length=128)
-    panel_description = models.TextField(
-        "Project Panel Description",
-        null=True,
-        blank=True,
-        help_text="A short description of the project panel")
     stimulation = models.ForeignKey(
         Stimulation,
         null=True,
@@ -610,7 +605,8 @@ class SitePanel(ProtectedModel):
             if proposed_number not in current_implementations:
                 self.implementation = proposed_number
             else:
-                raise ValidationError("Could not calculate implementation version.")
+                raise ValidationError(
+                    "Could not calculate implementation version.")
 
     def __unicode__(self):
         return u'%s (Site: %s)' % (
@@ -1233,5 +1229,5 @@ class SampleCompensationMap(ProtectedModel):
 
         if self.sample.site != self.compensation.site:
             raise ValidationError(
-                "Compensation matrix must belong to the same site as the sample."
+                "Compensation matrix and sample must belong to the same site"
             )
