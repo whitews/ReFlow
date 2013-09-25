@@ -120,10 +120,10 @@ $(document).ready(function()
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
-                    <th class="sorter-false">Type</th>
-                    <th>Value Type</th>
+                    <th>Function</th>
                     <th>Antibodies</th>
                     <th>Fluorochrome</th>
+                    <th>Value Type</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -133,15 +133,15 @@ $(document).ready(function()
                       {{ param.get_parameter_type_display }}
                     </td>
                     <td>
-                      {{ param.parameter_value_type|default_if_none:"" }}
-                    </td>
-                    <td>
                       {% for ab in param.projectpanelparameterantibody_set.all %}
                         {{ ab.antibody.antibody_abbreviation }}
                       {% endfor %}
                     </td>
                     <td>
                         {{ param.fluorochrome|default_if_none:"" }}
+                    </td>
+                    <td>
+                      {{ param.parameter_value_type|default_if_none:"" }}
                     </td>
                   </tr>
                   {% endfor %}

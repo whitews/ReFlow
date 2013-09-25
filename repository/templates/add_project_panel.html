@@ -207,9 +207,9 @@ function remove_parameter(selector) {
             <tr>
               <th>Remove</th>
               <th>Type</th>
-              <th>Value Type</th>
-              <th>Fluorochrome</th>
               <th>Antibodies</th>
+              <th>Fluorochrome</th>
+              <th>Value Type</th>
             </tr>
           </thead>
           {% for parameter_form in parameter_formset %}
@@ -228,14 +228,6 @@ function remove_parameter(selector) {
             <td>
               {{ parameter_form.parameter_type }}
               {{ parameter_form.parameter_type.errors }}
-            </td>
-            <td>
-              {{ parameter_form.parameter_value_type }}
-              {{ parameter_form.parameter_value_type.errors }}
-            </td>
-            <td>
-              {{ parameter_form.fluorochrome }}
-              {{ parameter_form.fluorochrome.errors }}
             </td>
           {% if parameter_form.nested %}
             <td>
@@ -256,6 +248,14 @@ function remove_parameter(selector) {
           {% else %}
             <td></td>
           {% endif %}
+            <td>
+              {{ parameter_form.fluorochrome }}
+              {{ parameter_form.fluorochrome.errors }}
+            </td>
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
+            </td>
           </tr>
           {% if forloop.last %}
           <tr>

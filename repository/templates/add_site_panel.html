@@ -139,7 +139,9 @@ function remove_antibody(selector) {
               {{ param.get_parameter_type_display }}
             </td>
             <td>
-              {{ param.get_parameter_value_type_display|default_if_none:"" }}
+              {% for param_ab in param.projectpanelparameterantibody_set.all %}
+              {{ param_ab.antibody.antibody_abbreviation }}<br>
+              {% endfor %}
             </td>
             <td>
               {% if param.fluorochrome %}
@@ -147,9 +149,7 @@ function remove_antibody(selector) {
               {% endif %}
             </td>
             <td>
-              {% for param_ab in param.projectpanelparameterantibody_set.all %}
-              {{ param_ab.antibody.antibody_abbreviation }}<br>
-              {% endfor %}
+              {{ param.get_parameter_value_type_display|default_if_none:"" }}
             </td>
           </tr>
         {% endfor %}
@@ -172,9 +172,9 @@ function remove_antibody(selector) {
               <th>FCS PnN Text</th>
               <th>FCS PnS Text</th>
               <th>Function</th>
-              <th>Value Type</th>
-              <th>Fluorochrome</th>
               <th>Antibodies</th>
+              <th>Fluorochrome</th>
+              <th>Value Type</th>
             </tr>
           </thead>
           {% for parameter_form in parameter_formset %}
@@ -195,14 +195,6 @@ function remove_antibody(selector) {
               {{ parameter_form.parameter_type }}
               {{ parameter_form.parameter_type.errors }}
             </td>
-            <td>
-              {{ parameter_form.parameter_value_type }}
-              {{ parameter_form.parameter_value_type.errors }}
-            </td>
-            <td>
-              {{ parameter_form.fluorochrome }}
-              {{ parameter_form.fluorochrome.errors }}
-            </td>
           {% if parameter_form.nested %}
             <td>
               {% for nested_formset in parameter_form.nested %}
@@ -222,6 +214,14 @@ function remove_antibody(selector) {
           {% else %}
             <td></td>
           {% endif %}
+            <td>
+              {{ parameter_form.fluorochrome }}
+              {{ parameter_form.fluorochrome.errors }}
+            </td>
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
+            </td>
           </tr>
           {% endfor %}
         </table>
