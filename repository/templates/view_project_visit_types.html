@@ -10,9 +10,10 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-    sortList: [[0,0]],
+    sortList: [[1,0]],
     headers: {
       0: { sorter: false},
+      1: { sorter: false}
     }
   });
 });
@@ -32,7 +33,7 @@ $(function() {
     <table id="data-table" class="table table-hover">
       <thead>
         <tr>
-          <th colspan="2" class="center">
+          <th colspan="50" class="center">
             <div style="position:relative">
               <h4>Visit Types <span class="badge badge-inverse align-top">{{ visit_types|length }}</span></h4>
 
@@ -47,6 +48,7 @@ $(function() {
           </th>
         </tr>
         <tr>
+          <th></th>
           <th>Visit Name</th>
           <th>Visit Description</th>
         </tr>
@@ -54,17 +56,15 @@ $(function() {
       <tbody>
       {% for visit_type in visit_types %}
         <tr>
-          <td>
-            {{ visit_type.visit_type_name }}
+          <td width="1%">
             {% if can_modify_project_data %}
-            <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_visit_type' visit_type.id %}" data-original-title="Edit Visit Type" data-placement="left">
+              <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_visit_type' visit_type.id %}" data-original-title="Edit" data-placement="bottom">
                 <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
               </a>
-            </span>
             {% endif %}
           </td>
-          <td>{{ visit_type.visit_type_description }} </td>
+          <td>{{ visit_type.visit_type_name }}</td>
+          <td>{{ visit_type.visit_type_description }}</td>
         </tr>
       {% endfor %}
       </tbody>

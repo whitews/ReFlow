@@ -17,6 +17,7 @@ $(function() {
     sortList: [[0,0]],
     headers: {
       0: { sorter: false},
+      1: { sorter: false},
       5: { sorter: false}
     }
   });
@@ -88,6 +89,7 @@ $(document).ready(function()
           </th>
         </tr>
         <tr>
+          <th></th>
           <th>Panel Name</th>
           <th>Staining</th>
           <th>Stimulation</th>
@@ -103,14 +105,14 @@ $(document).ready(function()
         {% for panel in panels|dictsort:"panel_name" %}
         <tr>
           <td>
+            {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' panel.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+            {% endif %}
+          </td>
+          <td>
             {{ panel.panel_name }}
-            <span class="pull-right">
-              {% if can_modify_project_data %}
-              <a rel="tooltip" href="{% url 'edit_project_panel' panel.id %}" data-original-title="Edit" data-placement="left">
-                  <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
-              </a>
-              {% endif %}
-            </span>
           </td>
           <td>{{ panel.get_staining_display }}</td>
           <td>{{ panel.stimulation.stimulation_name }}</td>

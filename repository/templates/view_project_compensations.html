@@ -57,7 +57,7 @@ $(function() {
   <table id="data-table" class="table table-hover">
     <thead>
       <tr>
-        <th colspan="5" class="center">
+        <th colspan="50" class="center">
           <div style="position:relative">
             <h4>Compensation Matrices <span class="badge badge-inverse align-top">{{ compensations|length }}</span></h4>
 
@@ -113,14 +113,6 @@ $(function() {
                 </td>
               </tr>
               {% endfor %}
-              <tr>
-                <td colspan="2">
-                  Select a site sample to associate with this compensation matrix.<br/>
-                  <a class="btn btn-success btn-small" href="#">
-                    <i class="icon-plus icon-white"></i> Select Sample
-                  </a>
-                </td>
-              </tr>
             </tbody>
           </table>
           {% endif %}
