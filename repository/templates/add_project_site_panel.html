@@ -18,7 +18,7 @@ $(document).ready(function () {
             type: $(this).attr('method'),
             url: $(this).attr('action'),
             success: function (json) {
-                window.location.href = "{% url 'view_site_panels' site.id %}"
+                window.location.href = "{% url 'view_project_site_panels' project.id %}"
             },
             error: function(xhr, status, error) {
                 $('#parameter-form-errors').children().remove();
@@ -84,9 +84,7 @@ function remove_antibody(selector) {
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url site.project.project_name 'view_project' site.project.id %}
-    {% breadcrumb_url site.site_name 'view_site' site.id %}
-    {% breadcrumb_url 'Site Panels' 'view_site_panels' site.project.id %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
     {% breadcrumb "Add Site Panel" %}
   </ul>
 {% endblock %}
@@ -96,7 +94,7 @@ function remove_antibody(selector) {
 
     {% if not preform_valid %}
 
-    <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_site_panel' site.id %}" method="post">
+    <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_project_site_panel' project.id %}" method="post">
       {% csrf_token %}
         {% if preform.non_field_errors %}
           <div class="control-group text-error">
@@ -156,7 +154,7 @@ function remove_antibody(selector) {
         </table>
       </div>
 
-      <form id="panel-parameter-form" class="form-horizontal" action="{% url 'process_site_panel_post' site.id %}" method="post">
+      <form id="panel-parameter-form" class="form-horizontal" action="{% url 'process_site_panel_post' project.id %}" method="post">
       {% csrf_token %}
 
       <div class="hide">

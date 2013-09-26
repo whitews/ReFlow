@@ -7,7 +7,7 @@
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url site.project.project_name 'view_project' site.project.id %}
     {% breadcrumb_url 'Sites' 'view_project_sites' site.project.id %}
-    {% breadcrumb_url site.site_name 'view_site' site.id %}
+    {% breadcrumb site.site_name %}
     {% breadcrumb "Edit Site" %}
   </ul>
 {% endblock %}

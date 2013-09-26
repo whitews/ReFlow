@@ -823,26 +823,23 @@ def edit_site(request, site_id):
 
 
 @login_required
-def view_site(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
-    project = site.project
+def view_project_site_panels(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    user_view_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
 
     # get user's sites based on their site_view_permission,
     # unless they have full project view permission
-    if project.has_view_permission(request.user) or site.has_view_permission(request.user):
-        samples = Sample.objects.filter(site_panel__site=site).values(
-            'id',
-            'subject__subject_code',
-            'site_panel__site__site_name',
-            'site_panel__site_id',
-            'visit__visit_type_name',
-            'specimen__specimen_name',
-            'original_filename'
-        )
+    if project.has_view_permission(request.user):
+        site_panels = SitePanel.objects.filter(
+            site__project=project)
+    elif user_view_sites.count() > 0:
+        site_panels = Sample.objects.filter(
+            site__project=project,
+            site__in=user_view_sites)
     else:
         raise PermissionDenied
-
-    # TODO: rework to get site panel parameters,
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -852,11 +849,10 @@ def view_site(request, site_id):
         request.user, project).values_list('id', flat=True)
 
     return render_to_response(
-        'view_site.html',
+        'view_project_site_panels.html',
         {
             'project': project,
-            'site': site,
-            'samples': samples,
+            'site_panels': site_panels,
             'can_add_project_data': can_add_project_data,
             'can_modify_project_data': can_modify_project_data,
             'user_add_sites': user_add_sites,
@@ -1051,23 +1047,25 @@ def view_site_panels(request, site_id):
 
 
 @login_required
-def add_site_panel(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
+def add_project_site_panel(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
     preform_valid = False
     channels = {}
     project_panel = None
     site_panel_form = None
     parameter_formset = None
 
-    if not site.has_add_permission(request.user):
+    user_sites = Site.objects.get_sites_user_can_add(request.user, project)
+
+    if not (project.has_add_permission(request.user) or user_sites.count() > 0):
         raise PermissionDenied
 
     if request.method == 'POST':
         preform = PreSitePanelForm(
             request.POST,
             request.FILES,
-            instance=SitePanel(site=site),
-            project_id=site.project_id)
+            project_id=project_id,
+            request=request)
 
         if preform.is_valid():
             preform_valid = True
@@ -1129,14 +1127,16 @@ def add_site_panel(request, site_id):
             # If we get here the pre-form was invalid
             pass
     else:
-        preform = PreSitePanelForm(project_id=site.project_id)
+        preform = PreSitePanelForm(
+            project_id=project_id,
+            request=request)
 
     return render_to_response(
-        'add_site_panel.html',
+        'add_project_site_panel.html',
         {
             'preform': preform,
             'preform_valid': preform_valid,
-            'site': site,
+            'project': project,
             'project_panel': project_panel,
             'site_panel_form': site_panel_form,
             'parameter_formset': parameter_formset
@@ -1146,14 +1146,24 @@ def add_site_panel(request, site_id):
 
 
 @login_required
-def process_site_panel_post(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
-
-    if not site.has_add_permission(request.user):
-        raise PermissionDenied
+def process_site_panel_post(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
 
     if request.is_ajax():
-        form = SitePanelForm(request.POST, instance=SitePanel(site=site))
+        site_id = None
+        if request.POST:
+            if 'site' in request.POST:
+                site_id = request.POST['site']
+
+        if not site_id:
+            return HttpResponseBadRequest()
+
+        site = get_object_or_404(Site, pk=site_id)
+
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        form = SitePanelForm(request.POST)
 
         if form.is_valid():
             if not 'sitepanelparameter_set-TOTAL_FORMS' in request.POST:

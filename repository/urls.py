@@ -76,7 +76,6 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/sites/$', 'view_project_sites', name='view_project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
-    url(r'^site/(?P<site_id>\d+)$', 'view_site', name='view_site'),
     url(r'^site/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
 
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
@@ -87,9 +86,9 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/visit_types/add/$', 'add_visit_type', name='add_visit_type'),
     url(r'^visit_types/(?P<visit_type_id>\d+)/edit/$', 'edit_visit_type', name='edit_visit_type'),
 
-    url(r'^site/(?P<site_id>\d+)/panels/$', 'view_site_panels', name='view_site_panels'),
-    url(r'^site/(?P<site_id>\d+)/panels/add/$', 'add_site_panel', name='add_site_panel'),
-    url(r'^site_panel/(?P<site_id>\d+)/process_site_panel_post/$', 'process_site_panel_post', name='process_site_panel_post'),
+    url(r'^project/(?P<project_id>\d+)/site_panels/$', 'view_project_site_panels', name='view_project_site_panels'),
+    url(r'^project/(?P<project_id>\d+)/site_panels/add/$', 'add_project_site_panel', name='add_project_site_panel'),
+    url(r'^project/(?P<project_id>\d+)/site_panels/process_site_panel_post/$', 'process_site_panel_post', name='process_site_panel_post'),
     url(r'^site_panel/(?P<panel_id>\d+)/edit/$', 'edit_site_panel', name='edit_site_panel'),
     url(r'^parameter/(?P<panel_parameter_id>\d+)/remove/$', 'remove_panel_parameter', name='remove_panel_parameter'),
 

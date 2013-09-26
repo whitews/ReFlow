@@ -569,6 +569,14 @@ class SitePanel(ProtectedModel):
         return False
 
     def clean(self):
+        try:
+            Site.objects.get(id=self.site_id)
+            ProjectPanel.objects.get(id=self.project_panel_id)
+        except ObjectDoesNotExist:
+            # site & project panel are required...
+            # will get caught by Form.is_valid()
+            return
+
         # project panel must be in the same project as the site
         if self.site.project_id != self.project_panel.project_id:
             raise ValidationError(

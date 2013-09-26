@@ -64,12 +64,8 @@ $(function() {
             </a>
           {% endif %}
         </td>
-        <td class="middle">
-          <a href="{% url 'view_site' site.id %}">{{ site.site_name }}</a>
-        </td>
-        <td class="middle">
-          {{ site.sample_set.count }}
-        </td>
+        <td class="middle">{{ site.site_name }}</td>
+        <td class="middle">{{ site.sample_set.count }}</td>
         <td>
           {% for panel in site.sitepanel_set.all %}
             {{ panel.project_panel.panel_name }} ({{ panel.implementation }})<br/>

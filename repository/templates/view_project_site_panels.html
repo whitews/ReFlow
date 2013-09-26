@@ -14,10 +14,10 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-      sortList: [[1,0]],headers: {
+    headers: {
       0: { sorter: false},
       1: { sorter: false},
-      3: { sorter: false}
+      5: { sorter: false}
     }
   });
 });
@@ -53,9 +53,7 @@ $(document).ready(function()
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url site.project.project_name 'view_project' site.project.id %}
-    {% breadcrumb_url 'Sites' 'view_project_sites' site.project.id %}
-    {% breadcrumb_url site.site_name 'view_site' site.id %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
     {% breadcrumb 'Site Panels' %}
   </ul>
 {% endblock %}
@@ -70,9 +68,9 @@ $(document).ready(function()
             <div style="position:relative">
               <h4>Site Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
 
-              {% if can_add_site_data %}
+              {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_site_panel' site.id %}">
+                <a class="btn btn-small" href="{% url 'add_project_site_panel' project.id %}">
                   Add Site Panel
                 </a>
               </div>
@@ -83,6 +81,7 @@ $(document).ready(function()
         <tr>
           <th></th>
           <th>Project Panel</th>
+          <th>Comments</th>
           <th>Staining</th>
           <th>
             Parameters
@@ -93,7 +92,7 @@ $(document).ready(function()
         </tr>
       </thead>
       <tbody>
-        {% for panel in panels %}
+        {% for panel in site_panels %}
         <tr>
           <td width="1%">
             {% if panel.panel_comments != '' and panel.panel_description != None  %}
@@ -101,13 +100,14 @@ $(document).ready(function()
               <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
             </a>
             {% endif %}
-            {% if can_modify_site_data %}
+            {% if can_modify_project_data %}
             <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
             </a>
             {% endif %}
           </td>
           <td>{{ panel.project_panel.panel_name }} ({{ panel.implementation }})</td>
+          <td>{{ panel.site_panel_comments }}</td>
           <td>{{ panel.project_panel.get_staining_display }}</td>
           <td width="60%">
             <a href="#" class="toggle-closest">Show/Hide</a>
