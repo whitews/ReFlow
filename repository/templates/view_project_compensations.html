@@ -94,7 +94,7 @@ $(function() {
         <td class="middle">{{ comp.original_filename }}</td>
         <td class="middle">{{ comp.site.site_name }}</td>
         <td style="width: 60%" class="middle">
-          {% if comp.samplecompensationmap_set.all.count > 0 %}
+          {% if comp.sample_set.all.count > 0 %}
           <a href="#" class="toggle-closest">Show/Hide</a>
           <table class="table table-bordered table-hover hide params">
             <thead>
@@ -103,7 +103,7 @@ $(function() {
                 <th>Sample File</th>
             </thead>
             <tbody>
-              {% for sc_map in comp.samplecompensationmap_set.all %}
+              {% for sc_map in comp.sample_set.all %}
               <tr>
                 <td>
                   {{ sc_map.sample_id }}

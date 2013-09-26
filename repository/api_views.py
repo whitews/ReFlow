@@ -524,28 +524,6 @@ class CompensationDetail(
     serializer_class = CompensationSerializer
 
 
-class SampleCompensationCreate(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        generics.CreateAPIView):
-    """
-    API endpoint for associating a compensation matrix with an FCS sample.
-    """
-
-    model = SampleCompensationMap
-    serializer_class = SampleCompensationPOSTSerializer
-
-    def post(self, request, *args, **kwargs):
-        sample = Sample.objects.get(id=request.DATA['sample'])
-        if not sample.site.has_add_permission(request.user):
-            raise PermissionDenied
-
-        return super(SampleCompensationCreate, self).post(
-            request,
-            *args,
-            **kwargs)
-
-
 class SampleSetList(
         LoginRequiredMixin,
         PermissionRequiredMixin,

@@ -131,37 +131,7 @@ class CompensationSerializer(serializers.ModelSerializer):
         exclude = ('compensation_file',)
 
 
-class SampleCompensationSerializer(serializers.ModelSerializer):
-    compensation = CompensationSerializer(source='compensation')
-
-    class Meta:
-        model = SampleCompensationMap
-        fields = ('id', 'compensation',)
-        depth = 1
-
-
-class SampleCompensationPOSTSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SampleCompensationMap
-
-    def get_fields(self):
-        fields = super(
-            SampleCompensationPOSTSerializer, self).get_default_fields()
-        user = self.context['view'].request.user
-        user_projects = Project.objects.get_projects_user_can_view(user)
-        if 'compensation' in fields:
-            fields['compensation'].queryset = Compensation.objects.filter(
-                site__project__in=user_projects)
-        if 'sample' in fields:
-            fields['sample'].queryset = Sample.objects.filter(
-                subject__project__in=user_projects)
-
-        return fields
-
-
 class SampleSerializer(serializers.ModelSerializer):
-    compensations = SampleCompensationSerializer(
-        source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
     project = serializers.IntegerField(
         source='subject.project_id',
@@ -200,7 +170,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'project',
             'original_filename',
             'sha1',
-            'compensations'
+            'compensation'
         )
         read_only_fields = ('original_filename', 'sha1')
         exclude = ('sample_file',)

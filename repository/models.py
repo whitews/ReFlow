@@ -828,6 +828,74 @@ class VisitType(ProtectedModel):
         return u'%s' % self.visit_type_name
 
 
+def compensation_file_path(instance, filename):
+    project_id = instance.site.project_id
+    site_id = instance.site_id
+
+    upload_dir = join(
+        [
+            'ReFlow-data',
+            str(project_id),
+            'compensation',
+            str(site_id),
+            str(filename)],
+        "/"
+    )
+
+    return upload_dir
+
+
+class Compensation(ProtectedModel):
+    site = models.ForeignKey(Site)
+    compensation_file = models.FileField(
+        upload_to=compensation_file_path,
+        null=False,
+        blank=False)
+    original_filename = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        editable=False,
+        max_length=256)
+    matrix_text = models.TextField(
+        null=False,
+        blank=False,
+        editable=False)
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.site.project):
+            return True
+        elif self.site is not None:
+            if user.has_perm('view_site_data', self.site):
+                return True
+
+    def clean(self):
+        """
+        Overriding clean to do the following:
+            - Verify specified site exists (site is required)
+            - Save original file name, it may already exist on our side.
+            - Save the matrix text
+        """
+
+        try:
+            Site.objects.get(id=self.site_id)
+            self.original_filename = self.compensation_file.name.split('/')[-1]
+        except ObjectDoesNotExist:
+            # site & compensation file are required...
+            # will get caught by Form.is_valid()
+            return
+
+        # get the matrix, a bit funky b/c the files may have \r or \n line
+        # termination. we'll save the matrix_text with \n line terminators
+        self.compensation_file.seek(0)
+        text = self.compensation_file.read()
+        self.matrix_text = '\n'.join(text.splitlines())
+
+    def __unicode__(self):
+        return u'%s' % (self.original_filename)
+
+
 def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
     subject_id = instance.subject_id
@@ -863,6 +931,10 @@ class Sample(ProtectedModel):
         SitePanel,
         null=False,
         blank=False)
+    compensation = models.ForeignKey(
+        Compensation,
+        null=True,
+        blank=True)
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,
@@ -1055,7 +1127,7 @@ class Sample(ProtectedModel):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
             self.subject.project.project_name,
             self.subject.subject_code,
-            self.sample_file.name.split('/')[-1])
+            self.original_filename)
 
 
 class SampleSet(ProtectedModel):
@@ -1134,86 +1206,3 @@ def validate_samples(sender, **kwargs):
 models.signals.m2m_changed.connect(
     validate_samples,
     sender=SampleSet.samples.through)
-
-
-def compensation_file_path(instance, filename):
-    project_id = instance.site.project_id
-    site_id = instance.site_id
-
-    upload_dir = join(
-        [
-            'ReFlow-data',
-            str(project_id),
-            'compensation',
-            str(site_id),
-            str(filename)],
-        "/"
-    )
-
-    return upload_dir
-
-
-class Compensation(ProtectedModel):
-    site = models.ForeignKey(Site)
-    compensation_file = models.FileField(
-        upload_to=compensation_file_path,
-        null=False,
-        blank=False)
-    original_filename = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        editable=False,
-        max_length=256)
-    matrix_text = models.TextField(
-        null=False,
-        blank=False,
-        editable=False)
-
-    def has_view_permission(self, user):
-
-        if user.has_perm('view_project_data', self.site.project):
-            return True
-        elif self.site is not None:
-            if user.has_perm('view_site_data', self.site):
-                return True
-
-    def clean(self):
-        """
-        Overriding clean to do the following:
-            - Verify specified site exists (site is required)
-            - Save original file name, it may already exist on our side.
-            - Save the matrix text
-        """
-
-        try:
-            Site.objects.get(id=self.site_id)
-            self.original_filename = self.compensation_file.name.split('/')[-1]
-        except ObjectDoesNotExist:
-            # site & compensation file are required...
-            # will get caught by Form.is_valid()
-            return
-
-        # get the matrix, a bit funky b/c the files may have \r or \n line
-        # termination. we'll save the matrix_text with \n line terminators
-        self.compensation_file.seek(0)
-        text = self.compensation_file.read()
-        self.matrix_text = '\n'.join(text.splitlines())
-
-
-class SampleCompensationMap(ProtectedModel):
-    sample = models.ForeignKey(Sample, null=False, blank=False)
-    compensation = models.ForeignKey(Compensation, null=False, blank=False)
-
-    class Meta:
-        unique_together = (('sample', 'compensation'),)
-
-    def clean(self):
-        """
-        Verify the compensation and sample belong to the same site
-        """
-
-        if self.sample.site != self.compensation.site:
-            raise ValidationError(
-                "Compensation matrix and sample must belong to the same site"
-            )

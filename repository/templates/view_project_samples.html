@@ -82,6 +82,7 @@ function show_parameters(id) {
           <th>Visit</th>
           <th>Specimen</th>
           <th>Panel</th>
+          <th>Compensation</th>
       </tr>
     </thead>
     <tbody>
@@ -107,6 +108,7 @@ function show_parameters(id) {
         <td class="middle">{{ sample.visit.visit_type_name }}</td>
         <td class="middle">{{ sample.specimen.specimen_name }}</td>
         <td class="middle">{{ sample.site_panel.project_panel.panel_name }}</td>
+        <td class="middle">{{ sample.compensation.original_filename }}</td>
       </tr>
       {% endfor %}
     </tbody>
