@@ -93,7 +93,6 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
             'project',
             'panel_name',
             'panel_description',
-            'stimulation',
             'staining',
             'parent_panel'
         )
@@ -179,6 +178,9 @@ class SampleSerializer(serializers.ModelSerializer):
     specimen_name = serializers.CharField(
         source='specimen.specimen_name',
         read_only=True)
+    stimulation_name = serializers.CharField(
+        source='stimulation.stimulation_name',
+        read_only=True)
 
     class Meta:
         model = Sample
@@ -191,6 +193,8 @@ class SampleSerializer(serializers.ModelSerializer):
             'subject_code',
             'specimen',
             'specimen_name',
+            'stimulation',
+            'stimulation_name',
             'site_panel',
             'site_name',
             'project',

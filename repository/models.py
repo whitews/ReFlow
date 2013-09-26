@@ -258,10 +258,6 @@ class ProjectPanel(ProtectedModel):
         null=False,
         blank=False,
         max_length=128)
-    stimulation = models.ForeignKey(
-        Stimulation,
-        null=True,
-        blank=True)
     staining = models.CharField(
         max_length=2,
         choices=STAINING_CHOICES,
@@ -857,6 +853,10 @@ class Sample(ProtectedModel):
         blank=False)
     specimen = models.ForeignKey(
         Specimen,
+        null=False,
+        blank=False)
+    stimulation = models.ForeignKey(
+        Stimulation,
         null=False,
         blank=False)
     site_panel = models.ForeignKey(

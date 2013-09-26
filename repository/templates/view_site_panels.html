@@ -17,7 +17,7 @@ $(function() {
       sortList: [[1,0]],headers: {
       0: { sorter: false},
       1: { sorter: false},
-      4: { sorter: false}
+      3: { sorter: false}
     }
   });
 });
@@ -84,7 +84,6 @@ $(document).ready(function()
           <th></th>
           <th>Project Panel</th>
           <th>Staining</th>
-          <th>Stimulation</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -110,7 +109,6 @@ $(document).ready(function()
           </td>
           <td>{{ panel.project_panel.panel_name }} ({{ panel.implementation }})</td>
           <td>{{ panel.project_panel.get_staining_display }}</td>
-          <td>{{ panel.project_panel.stimulation.stimulation_name }}</td>
           <td width="60%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="hide params">

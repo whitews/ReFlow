@@ -176,17 +176,6 @@ function remove_parameter(selector) {
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label">{{ panel_form.stimulation.label }}</label>
-              <div class="controls">
-                {{ panel_form.stimulation }}
-                {% if panel_form.stimulation.errors %}
-                  <div class="align-middle text-warning">
-                    {{ panel_form.stimulation.errors|striptags }}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-            <div class="control-group">
               <label class="control-label">{{ panel_form.staining.label }}</label>
               <div class="controls">
                 {{ panel_form.staining }}

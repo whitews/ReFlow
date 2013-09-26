@@ -70,6 +70,7 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/stimulations/$', 'view_project_stimulations', name='view_project_stimulations'),
     url(r'^project/(?P<project_id>\d+)/stimulations/add/$', 'add_stimulation', name='add_stimulation'),
     url(r'^stimulations/(?P<stimulation_id>\d+)/edit/$', 'edit_stimulation', name='edit_stimulation'),
+
     url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='view_project_panels'),
     url(r'^project/(?P<project_id>\d+)/panels/add/$', 'add_project_panel', name='add_project_panel'),
     url(r'^panels/(?P<panel_id>\d+)/edit/$', 'edit_project_panel', name='edit_project_panel'),
