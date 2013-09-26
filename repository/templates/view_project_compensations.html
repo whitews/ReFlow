@@ -24,23 +24,6 @@ $(function() {
 });
 </script>
 
-<script>
-  $(document).ready(function() {
-    $(".show-all").click(function() {
-      $('.params').show(250);
-    });
-
-    $(".hide-all").click(function() {
-      $('.params').hide(250);
-    });
-
-    $(".toggle-closest").click(function() {
-      $(this).siblings('table.params').toggle(250);
-    });
-
-    return false;
-  });
-</script>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -75,48 +58,23 @@ $(function() {
         <th></th>
         <th>File Name</th>
         <th>Site</th>
-        <th>
-          Samples
-          <span class="pull-right">
-            <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-          </span>
-        </th>
+        <th>Samples</th>
       </tr>
     </thead>
     <tbody>
       {% for comp in compensations %}
       <tr>
-        <td class="middle">
+        <td width="1%" class="middle">
           <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_compensation' comp.id %}" data-original-title="Download FCS File" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
           </a>
         </td>
         <td class="middle">{{ comp.original_filename }}</td>
         <td class="middle">{{ comp.site.site_name }}</td>
-        <td style="width: 60%" class="middle">
-          {% if comp.sample_set.all.count > 0 %}
-          <a href="#" class="toggle-closest">Show/Hide</a>
-          <table class="table table-bordered table-hover hide params">
-            <thead>
-              <tr>
-                <th>Sample ID</th>
-                <th>Sample File</th>
-            </thead>
-            <tbody>
-              {% for sc_map in comp.sample_set.all %}
-              <tr>
-                <td>
-                  {{ sc_map.sample_id }}
-                </td>
-                <td>
-                  {{ sc_map.sample.original_filename }}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          {% endif %}
-
+        <td class="middle">
+          {% for sample in comp.sample_set.all %}
+            {{ sample.original_filename }}<br/>
+          {% endfor %}
         </td>
       </tr>
       {% endfor %}
