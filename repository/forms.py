@@ -279,7 +279,8 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             # parameter type is required
             param_type = form.data[form.add_prefix('parameter_type')]
             if not param_type:
-                raise ValidationError("Function is required")
+                raise ValidationError(
+                    "Function is required for all parameters")
             if param_type == 'FMO' and not can_have_fmo:
                 raise ValidationError(
                     "Only FMO panels can include an FMO parameter")
@@ -539,8 +540,18 @@ class SitePanelParameterMapFromSampleForm(forms.ModelForm):
 class SitePanelParameterForm(forms.ModelForm):
     class Meta:
         model = SitePanelParameter
-        fields = ('fcs_text', 'fcs_opt_text', 'parameter_value_type')
+        fields = (
+            'fcs_number',
+            'fcs_text',
+            'fcs_opt_text',
+            'parameter_type',
+            'parameter_value_type',
+            'fluorochrome')
         exclude = ('site_panel',)
+
+    def __init__(self, *args, **kwargs):
+        super(SitePanelParameterForm, self).__init__(*args, **kwargs)
+        self.fields['parameter_type'].widget.attrs['class'] = 'param_type'
 
 
 class SubjectGroupForm(forms.ModelForm):

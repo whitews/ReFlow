@@ -23,15 +23,31 @@ $(document).ready(function () {
             error: function(xhr, status, error) {
                 $('#parameter-form-errors').children().remove();
                 var obj = JSON.parse(xhr.responseText);
-
+                $('#parameter-form-errors').show();
                 $.each(obj.messages, function (i, value)
                 {
-                    $('#parameter-form-errors').append('<p class=\"text-warning\">' + value + '</p>');
+                    $('#parameter-form-errors').append('<p>' + value + '</p>');
                 });
             }
         });
         $('button#process-parameters').attr('disabled', false);
         return false;
+    });
+    $( ".param_type" ).change(function() {
+        var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
+        var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
+        var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
+        if (jQuery.inArray($(this).val(), ['FSC', 'SSC']) > -1) {
+            ab_selects.hide();
+            ab_selects.val(0);
+            ab_add_link.hide();
+            fl_selects.hide();
+            fl_selects.val(0);
+        } else {
+            ab_selects.show();
+            ab_add_link.show();
+            fl_selects.show();
+        }
     });
 });
 
@@ -124,7 +140,9 @@ function remove_antibody(selector) {
 
     <div id="render_parameters_form">
 
-      <div id="parameter-form-errors"></div>
+      <div id="parameter-form-errors" class="hide alert alert-error">
+
+      </div>
 
       <div class="well">
         <table>
@@ -170,9 +188,9 @@ function remove_antibody(selector) {
               <th>FCS PnN Text</th>
               <th>FCS PnS Text</th>
               <th>Function</th>
+              <th>Value Type</th>
               <th>Antibodies</th>
               <th>Fluorochrome</th>
-              <th>Value Type</th>
             </tr>
           </thead>
           {% for parameter_form in parameter_formset %}
@@ -193,6 +211,10 @@ function remove_antibody(selector) {
               {{ parameter_form.parameter_type }}
               {{ parameter_form.parameter_type.errors }}
             </td>
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
+            </td>
           {% if parameter_form.nested %}
             <td>
               {% for nested_formset in parameter_form.nested %}
@@ -207,7 +229,7 @@ function remove_antibody(selector) {
                 {% endfor %}
               {% endfor %}
               <br/>
-              <a href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
+              <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
             </td>
           {% else %}
             <td></td>
@@ -215,10 +237,6 @@ function remove_antibody(selector) {
             <td>
               {{ parameter_form.fluorochrome }}
               {{ parameter_form.fluorochrome.errors }}
-            </td>
-            <td>
-              {{ parameter_form.parameter_value_type }}
-              {{ parameter_form.parameter_value_type.errors }}
             </td>
           </tr>
           {% endfor %}

@@ -1109,6 +1109,7 @@ def add_project_site_panel(request, project_id):
             ParameterFormSet = inlineformset_factory(
                 SitePanel,
                 SitePanelParameter,
+                form=SitePanelParameterForm,
                 formset=BaseSitePanelParameterFormSet,
                 extra=len(channels),
                 can_delete=False,
@@ -1174,6 +1175,7 @@ def process_site_panel_post(request, project_id):
             ParameterFormSet = inlineformset_factory(
                 SitePanel,
                 SitePanelParameter,
+                form=SitePanelParameterForm,
                 formset=BaseSitePanelParameterFormSet,
                 extra=11,
                 can_delete=False

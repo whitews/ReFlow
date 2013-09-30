@@ -132,60 +132,43 @@ function remove_parameter(selector) {
     <form class="form-horizontal" action="{% url 'add_project_panel' project.id %}" method="post">
       {% csrf_token %}
         {% if panel_form.non_field_errors or parameter_formset.non_form_errors %}
-          <div class="control-group text-error">
+          <div class="control-group alert alert-error">
             {{ panel_form.non_field_errors }}
             {{ parameter_formset.non_form_errors }}
           </div>
         {% endif %}
 
-        <div class="row-fluid">
-          <div class="span6">
-            <div class="control-group">
-              <label class="control-label">{{ panel_form.panel_name.label }}</label>
-              <div class="controls">
-                {{ panel_form.panel_name }}
-                {% if panel_form.panel_name.errors %}
-                  <div class="align-middle text-warning">
-                    {{ panel_form.panel_name.errors|striptags }}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label">{{ panel_form.panel_description.label }}</label>
-              <div class="controls">
-                {{ panel_form.panel_description }}
-                {% if panel_form.panel_description.errors %}
-                  <div class="align-middle text-warning">
-                    {{ panel_form.panel_description.errors|striptags }}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
+        <div class="control-group">
+          <label class="control-label">{{ panel_form.panel_name.label }}</label>
+          <div class="controls">
+            {{ panel_form.panel_name }}
+            {% if panel_form.panel_name.errors %}
+              <span class="align-middle text-warning">
+                {{ panel_form.panel_name.errors|striptags }}
+              </span>
+            {% endif %}
           </div>
-          <div class="span6">
-            <div class="control-group">
-              <label class="control-label">{{ panel_form.parent_panel.label }}</label>
-              <div class="controls">
-                {{ panel_form.parent_panel }}
-                {% if panel_form.parent_panel.errors %}
-                  <div class="align-middle text-warning">
-                    {{ panel_form.parent_panel.errors|striptags }}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label">{{ panel_form.staining.label }}</label>
-              <div class="controls">
-                {{ panel_form.staining }}
-                {% if panel_form.staining.errors %}
-                  <div class="align-middle text-warning">
-                    {{ panel_form.staining.errors|striptags }}
-                  </div>
-                {% endif %}
-              </div>
-            </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">{{ panel_form.parent_panel.label }}</label>
+          <div class="controls">
+            {{ panel_form.parent_panel }}
+            {% if panel_form.parent_panel.errors %}
+              <span class="align-middle text-warning">
+                {{ panel_form.parent_panel.errors|striptags }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">{{ panel_form.staining.label }}</label>
+          <div class="controls">
+            {{ panel_form.staining }}
+            {% if panel_form.staining.errors %}
+              <span class="align-middle text-warning">
+                {{ panel_form.staining.errors|striptags }}
+              </span>
+            {% endif %}
           </div>
         </div>
 
@@ -196,14 +179,14 @@ function remove_parameter(selector) {
             <tr>
               <th>Remove</th>
               <th>Function</th>
+              <th>Value Type</th>
               <th>Antibodies</th>
               <th>Fluorochrome</th>
-              <th>Value Type</th>
             </tr>
           </thead>
           {% for parameter_form in parameter_formset %}
           <tr class="parameter-fields">
-            <td>
+            <td width="1%">
               {% if forloop.first %}
               <a href="javascript:void(0)" class="hide remove-parameter" onclick="remove_parameter($(this))">
                 <i class="icon-remove"></i>
@@ -217,6 +200,10 @@ function remove_parameter(selector) {
             <td>
               {{ parameter_form.parameter_type }}
               {{ parameter_form.parameter_type.errors }}
+            </td>
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
             </td>
           {% if parameter_form.nested %}
             <td>
@@ -240,10 +227,6 @@ function remove_parameter(selector) {
             <td>
               {{ parameter_form.fluorochrome }}
               {{ parameter_form.fluorochrome.errors }}
-            </td>
-            <td>
-              {{ parameter_form.parameter_value_type }}
-              {{ parameter_form.parameter_value_type.errors }}
             </td>
           </tr>
           {% if forloop.last %}
