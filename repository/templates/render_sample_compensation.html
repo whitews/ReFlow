@@ -1,0 +1,21 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th colspan="50" class="center">{{ sample.original_filename }}</th>
+    </tr>
+    <tr>
+      <th>File</th>
+      <th>Matrix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      {% if sample.compensation %}
+      <td>{{ sample.compensation.original_filename }}</td>
+      <td>{{ sample.compensation.matrix_text }}</td>
+      {% else %}
+      <td colspan="2">No compensation associated.</td>
+      {% endif %}
+    </tr>
+  </tbody>
+</table>

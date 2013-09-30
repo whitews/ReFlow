@@ -42,6 +42,23 @@ function show_parameters(id) {
     return false;
 }
 
+function show_compensation(id) {
+    select_panel_dialog = $("<div></div>").dialog(
+    {
+        autoOpen: false,
+        title: 'Compensation',
+        modal: true,
+        position: 'center',
+        width: $(window).width() * 0.8,
+        height: $(window).height() * 0.6,
+        resizable: true
+    });
+    select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
+    select_panel_dialog.load("/sample/" + id + "/compensation/");
+    select_panel_dialog.dialog('open');
+    return false;
+}
+
 </script>
 {% endblock %}
 
@@ -82,7 +99,7 @@ function show_parameters(id) {
           <th>Visit</th>
           <th>Specimen</th>
           <th>Panel</th>
-          <th>Compensation</th>
+          <th>Stimulation</th>
       </tr>
     </thead>
     <tbody>
@@ -92,6 +109,11 @@ function show_parameters(id) {
           <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_parameters({{ sample.id }})" data-original-title="Show Parameters" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-list-alt align-middle"></i>
           </a>
+          {% if sample.compensation %}
+          <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_compensation({{ sample.id }})" data-original-title="Show Compensation" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-qrcode align-middle"></i>
+          </a>
+          {% endif %}
           <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_sample' sample.id %}" data-original-title="Download FCS File" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
           </a>
@@ -102,13 +124,13 @@ function show_parameters(id) {
           {% endif %}
         </td>
         <td class="no-wrap middle">{{ sample.original_filename }}</td>
-        <td class="middle">{{ sample.upload_date }}</td>
+        <td class="middle">{{ sample.upload_date|date:"Ymd H:i" }}</td>
         <td class="middle">{{ sample.site_panel.site.site_name }}</td>
         <td class="middle">{{ sample.subject.subject_code }}</td>
         <td class="middle">{{ sample.visit.visit_type_name }}</td>
         <td class="middle">{{ sample.specimen.specimen_name }}</td>
         <td class="middle">{{ sample.site_panel.project_panel.panel_name }}</td>
-        <td class="middle">{{ sample.compensation.original_filename }}</td>
+        <td class="middle">{{ sample.stimulation.stimulation_name }}</td>
       </tr>
       {% endfor %}
     </tbody>
