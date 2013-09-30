@@ -258,6 +258,26 @@ class ProjectPanelDetail(
     serializer_class = ProjectPanelSerializer
 
 
+class ProjectPanelParameterList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of parameters.
+    """
+
+    model = ProjectPanelParameter
+    serializer_class = ProjectPanelParameterSerializer
+    filter_fields = ('parameter_type', 'parameter_value_type')
+
+
+class ProjectPanelParameterDetail(LoginRequiredMixin, generics.RetrieveAPIView):
+    """
+    API endpoint representing a single project.
+    """
+
+    model = ProjectPanelParameter
+    serializer_class = ProjectPanelParameterSerializer
+    filter_fields = ('panel_name', 'staining')
+
+
 class SiteList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of sites.
@@ -334,32 +354,6 @@ class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
     model = Specimen
     serializer_class = SpecimenSerializer
     filter_fields = ('specimen_name',)
-
-
-class ProjectPanelParameterFilter(django_filters.FilterSet):
-
-    class Meta:
-        model = ProjectPanelParameter
-        fields = ['parameter_type']
-
-
-class ProjectPanelParameterList(LoginRequiredMixin, generics.ListAPIView):
-    """
-    API endpoint representing a list of parameters.
-    """
-
-    model = ProjectPanelParameter
-    serializer_class = ProjectPanelParameterSerializer
-    filter_class = ProjectPanelParameterFilter
-
-
-class ProjectPanelParameterDetail(LoginRequiredMixin, generics.RetrieveAPIView):
-    """
-    API endpoint representing a single project.
-    """
-
-    model = ProjectPanelParameter
-    serializer_class = ProjectPanelParameterSerializer
 
 
 class StimulationList(LoginRequiredMixin, generics.ListAPIView):

@@ -98,12 +98,33 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
         )
 
 
+class SitePanelParameterAntibodySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        source='antibody.antibody_abbreviation',
+        read_only=True)
+
+    class Meta:
+        model = SitePanelParameterAntibody
+        exclude = ('id', 'parameter', 'antibody')
+
+
 class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
+    antibodies = SitePanelParameterAntibodySerializer(
+        source='sitepanelparameterantibody_set')
 
     class Meta:
         model = SitePanelParameter
-        fields = ('id', 'fcs_text', 'name')
+        fields = (
+            'id',
+            'fcs_number',
+            'fcs_text',
+            'fcs_opt_text',
+            'name',
+            'parameter_type',
+            'parameter_value_type',
+            'antibodies',
+            'fluorochrome')
         depth = 1
 
 
