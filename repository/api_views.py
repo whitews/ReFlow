@@ -44,6 +44,7 @@ def repository_api_root(request):
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
+        'stimulations': reverse('stimulation-list', request=request),
     })
 
 
@@ -365,6 +366,16 @@ class StimulationList(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = StimulationSerializer
     filter_fields = ('stimulation_name',)
 
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        queryset = Stimulation.objects.filter(project__in=user_projects)
+
+        return queryset
+
 
 class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
     """
@@ -393,10 +404,13 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 class SampleFilter(django_filters.FilterSet):
     subject__project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all())
+    site_panel__project_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProjectPanel.objects.all())
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
     subject = django_filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all())
+    subject__subject_code = django_filters.CharFilter()
     visit = django_filters.ModelMultipleChoiceFilter(
         queryset=VisitType.objects.all())
     specimen = django_filters.ModelMultipleChoiceFilter(
@@ -408,7 +422,9 @@ class SampleFilter(django_filters.FilterSet):
         fields = [
             'subject__project',
             'site_panel',
+            'site_panel__project_panel',
             'subject',
+            'subject__subject_code',
             'visit',
             'specimen',
             'original_filename'
