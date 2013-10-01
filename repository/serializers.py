@@ -146,6 +146,8 @@ class SitePanelSerializer(serializers.ModelSerializer):
 
 
 class StimulationSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='stimulation-detail')
+
     class Meta:
         model = Stimulation
 

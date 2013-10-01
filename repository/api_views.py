@@ -371,7 +371,7 @@ class StimulationList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Stimulation
     serializer_class = StimulationSerializer
-    filter_fields = ('stimulation_name',)
+    filter_fields = ('project', 'stimulation_name',)
 
     def get_queryset(self):
         """
@@ -382,6 +382,18 @@ class StimulationList(LoginRequiredMixin, generics.ListAPIView):
         queryset = Stimulation.objects.filter(project__in=user_projects)
 
         return queryset
+
+
+class StimulationDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint representing a single stimulation.
+    """
+
+    model = Stimulation
+    serializer_class = StimulationSerializer
 
 
 class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
