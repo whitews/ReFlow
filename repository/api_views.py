@@ -409,7 +409,8 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
         Override post to ensure user has permission to add data to the site.
         Also removing the 'sample_file' field since it has the server path.
         """
-        site = Site.objects.get(id=request.DATA['site'])
+        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
+        site = Site.objects.get(id=site_panel.site_id)
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
@@ -446,6 +447,7 @@ class SampleFilter(django_filters.FilterSet):
             'subject__subject_code',
             'visit',
             'specimen',
+            'stimulation',
             'original_filename'
         ]
 
