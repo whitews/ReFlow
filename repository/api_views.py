@@ -232,6 +232,10 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = ProjectPanel
     serializer_class = ProjectPanelSerializer
+    filter_fields = (
+        'project',
+        'panel_name',
+    )
 
     def get_queryset(self):
         """
@@ -317,7 +321,10 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = SitePanel
     serializer_class = SitePanelSerializer
-    filter_fields = ('site', 'site__project')
+    filter_fields = (
+        'site',
+        'site__project',
+        'project_panel')
 
     def get_queryset(self):
         """

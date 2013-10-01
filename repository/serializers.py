@@ -129,13 +129,20 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
 
 
 class SitePanelSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer(source='site.project')
     site = SiteSerializer(source='site')
     parameters = SitePanelParameterSerializer(source='sitepanelparameter_set')
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
 
     class Meta:
         model = SitePanel
-        fields = ('id', 'url', 'site', 'parameters')
+        fields = (
+            'id',
+            'url',
+            'project',
+            'site',
+            'project_panel',
+            'parameters')
 
 
 class StimulationSerializer(serializers.ModelSerializer):
