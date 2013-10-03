@@ -133,6 +133,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
     site = SiteSerializer(source='site')
     parameters = SitePanelParameterSerializer(source='sitepanelparameter_set')
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
+    name = serializers.CharField(source='name')
 
     class Meta:
         model = SitePanel
@@ -142,6 +143,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'project',
             'site',
             'project_panel',
+            'name',
             'parameters')
 
 
