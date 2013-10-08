@@ -969,7 +969,7 @@ class Sample(ProtectedModel):
         if user.has_perm('view_project_data', self.subject.project):
             return True
         elif self.site is not None:
-            if user.has_perm('view_site_data', self.site):
+            if user.has_perm('view_site_data', self.site_panel.site):
                 return True
 
         return False
@@ -1026,7 +1026,7 @@ class Sample(ProtectedModel):
                 # TODO: check if this generates an IOError when Django deletes
 
             raise ValidationError(
-                "An FCS file with this SHA-1 hash exists in this Project."
+                "This FCS file already exists in this Project."
             )
 
         if self.site_panel is not None and self.site_panel.site.project_id != self.subject.project_id:
@@ -1059,10 +1059,12 @@ class Sample(ProtectedModel):
                 )
 
         # Read the FCS text segment and get the number of parameters
-        sample_text_segment = fcm_obj.notes.text
+        # save the dictionary for saving SampleMetadata instances
+        # after saving the Sample instance
+        self.sample_metadata_dict = fcm_obj.notes.text
 
-        if 'par' in sample_text_segment:
-            if not sample_text_segment['par'].isdigit():
+        if 'par' in self.sample_metadata_dict:
+            if not self.sample_metadata_dict['par'].isdigit():
                 raise ValidationError(
                     "FCS file reports non-numeric parameter count"
                 )
@@ -1071,7 +1073,7 @@ class Sample(ProtectedModel):
 
         # Get our parameter numbers from all the PnN matches
         sample_params = {}  # parameter_number: PnN text
-        for key in sample_text_segment:
+        for key in self.sample_metadata_dict:
             matches = re.search('^P(\d+)([N,S])$', key, flags=re.IGNORECASE)
             if matches:
                 channel_number = matches.group(1)
@@ -1079,12 +1081,12 @@ class Sample(ProtectedModel):
                 if channel_number not in sample_params:
                     sample_params[channel_number] = {}
                 sample_params[channel_number][n_or_s] = \
-                    sample_text_segment[key]
+                    self.sample_metadata_dict[key]
 
         # Now check parameters against the chosen site panel
         # First, simply check the counts
         panel_params = self.site_panel.sitepanelparameter_set.all()
-        if len(sample_params.keys()) != panel_params.count():
+        if len(sample_params) != panel_params.count():
             raise ValidationError(
                 "FCS parameter count does not match chosen site panel")
         for channel_number in sample_params.keys():
@@ -1129,13 +1131,60 @@ class Sample(ProtectedModel):
         """ Populate upload date on save """
         if not self.id:
             self.upload_date = datetime.datetime.today()
-        return super(Sample, self).save(*args, **kwargs)
+
+        super(Sample, self).save(*args, **kwargs)
+
+        # save metadata
+        for k, v in self.sample_metadata_dict.items():
+            try:
+                SampleMetadata(
+                    sample=self,
+                    key=k,
+                    value=v.decode('utf-8', 'ignore')).save()
+            except Exception, e:
+                print e
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
             self.subject.project.project_name,
             self.subject.subject_code,
             self.original_filename)
+
+
+class SampleMetadata(ProtectedModel):
+    """
+    Key-value pairs for the metadata found in FCS samples
+    """
+    sample = models.ForeignKey(Sample)
+    key = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=256
+    )
+    value = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=2048
+    )
+
+    def has_view_permission(self, user):
+
+        if user.has_perm(
+                'view_project_data',
+                self.sample.site_panel.site.project):
+            return True
+        elif self.sample.site_panel.site is not None:
+            if user.has_perm(
+                    'view_site_data',
+                    self.sample.site_panel.site):
+                return True
+
+        return False
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.key, self.value)
 
 
 class SampleSet(ProtectedModel):
