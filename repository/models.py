@@ -350,7 +350,8 @@ class ProjectPanelParameter(ProtectedModel):
         # TODO: update duplicate check in ProjectPanelParameter
         ppm_duplicates = ProjectPanelParameter.objects.filter(
             project_panel=self.project_panel,
-            ### MORE STUFF HERE
+            fluorochrome=self.fluorochrome,
+            parameter_type=self.parameter_type,
             parameter_value_type=self.parameter_value_type).exclude(id=self.id)
 
         if ppm_duplicates.count() > 0:
