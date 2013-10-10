@@ -36,16 +36,16 @@
     }
 },
 {
-    "pk": 5,
+    "pk": 5, 
     "model": "repository.fluorochrome", 
     "fields": {
-        "fluorochrome_name": "aAmine", 
-        "fluorochrome_abbreviation": "aAmine", 
+        "fluorochrome_name": "AquaAmine", 
+        "fluorochrome_abbreviation": "AquaAmine", 
         "fluorochrome_description": "Live/dead cells"
     }
 },
 {
-    "pk": 6,
+    "pk": 6, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Cyanine 7", 
@@ -54,7 +54,7 @@
     }
 },
 {
-    "pk": 7,
+    "pk": 7, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "V450", 
@@ -63,16 +63,16 @@
     }
 },
 {
-    "pk": 8,
+    "pk": 8, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Cyanine 5.5", 
-        "fluorochrome_abbreviation": "Cy5-5", 
+        "fluorochrome_abbreviation": "Cy5.5", 
         "fluorochrome_description": ""
     }
 },
 {
-    "pk": 9,
+    "pk": 9, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Brilliant Violet 605", 
@@ -81,7 +81,7 @@
     }
 },
 {
-    "pk": 10,
+    "pk": 10, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Brilliant Violet 650", 
@@ -90,7 +90,7 @@
     }
 },
 {
-    "pk": 11,
+    "pk": 11, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Brilliant Violet 785", 
@@ -99,7 +99,7 @@
     }
 },
 {
-    "pk": 12,
+    "pk": 12, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Alexa Fluor 700", 
@@ -108,7 +108,7 @@
     }
 },
 {
-    "pk": 13,
+    "pk": 13, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Energy Coupling Dye", 
@@ -117,7 +117,7 @@
     }
 },
 {
-    "pk": 14,
+    "pk": 14, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Cyanine 5", 
@@ -126,7 +126,7 @@
     }
 },
 {
-    "pk": 15,
+    "pk": 15, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Brilliant Violet 421", 
@@ -135,7 +135,7 @@
     }
 },
 {
-    "pk": 16,
+    "pk": 16, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Brilliant Violet 570", 
@@ -144,7 +144,7 @@
     }
 },
 {
-    "pk": 17,
+    "pk": 17, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Krome Orange", 
@@ -153,12 +153,39 @@
     }
 },
 {
-    "pk": 18,
+    "pk": 18, 
     "model": "repository.fluorochrome", 
     "fields": {
         "fluorochrome_name": "Hilite 7", 
         "fluorochrome_abbreviation": "H7", 
         "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 19, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Allophycocyanin + Hilite 7", 
+        "fluorochrome_abbreviation": "APC-H7", 
+        "fluorochrome_description": "Tandem"
+    }
+},
+{
+    "pk": 20, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "R-Phycoerythrin + Cyanine 7", 
+        "fluorochrome_abbreviation": "PE-Cy7", 
+        "fluorochrome_description": "Tandem"
+    }
+},
+{
+    "pk": 21, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Peridinin chlorophyll protein + Cyanine 5.5", 
+        "fluorochrome_abbreviation": "PerCP-Cy5.5", 
+        "fluorochrome_description": "Tandem"
     }
 }
 ]
