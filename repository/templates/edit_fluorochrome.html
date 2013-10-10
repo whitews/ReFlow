@@ -6,7 +6,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Fluorochromes' 'view_fluorochromes' %}
-    {% breadcrumb fluorochrome.fluorochrome_short_name %}
+    {% breadcrumb fluorochrome.fluorochrome_abbreviation %}
     {% breadcrumb "Edit Fluorochrome" %}
   </ul>
 {% endblock %}
@@ -42,7 +42,7 @@
         {% endfor %}
         <div class="control-group">
           <div class="controls">
-            <button class="btn btn-small btn-primary" type="submit">Save Edits</button>
+            <button class="btn btn-small btn-success" type="submit">Save Edits</button>
           </div>
         </div>
       </form>

@@ -206,7 +206,7 @@ textarea {
 body {
   margin: 0;
   font-family: "Open Sans", "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 20px;
   color: #444444;
   background-color: #ffffff;
@@ -1179,7 +1179,7 @@ input,
 button,
 select,
 textarea {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: normal;
   line-height: 20px;
 }
@@ -1214,7 +1214,7 @@ input[type="color"],
   height: 20px;
   padding: 4px 6px;
   margin-bottom: 10px;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 20px;
   color: #555555;
   -webkit-border-radius: 4px;
@@ -1701,7 +1701,7 @@ select:focus:invalid:focus {
 .input-prepend .uneditable-input,
 .input-append .dropdown-menu,
 .input-prepend .dropdown-menu {
-  font-size: 14px;
+  font-size: 13px;
 }
 .input-append input,
 .input-prepend input,
@@ -1732,7 +1732,7 @@ select:focus:invalid:focus {
   height: 20px;
   min-width: 16px;
   padding: 4px 5px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: normal;
   line-height: 20px;
   text-align: center;
@@ -3380,9 +3380,9 @@ input[type="submit"].btn.btn-mini {
 .navbar-inner:after {
   clear: both;
 }
-.navbar .container {
-  width: auto;
-}
+/*.navbar .container {*/
+  /*width: auto;*/
+/*}*/
 .nav-collapse.collapse {
   height: auto;
   overflow: visible;
@@ -3511,11 +3511,11 @@ input[type="submit"].btn.btn-mini {
   -moz-border-radius: 0;
   border-radius: 0;
 }
-.navbar-static-top .container,
-.navbar-fixed-top .container,
-.navbar-fixed-bottom .container {
-  width: 940px;
-}
+/*.navbar-static-top .container,*/
+/*.navbar-fixed-top .container,*/
+/*.navbar-fixed-bottom .container {*/
+  /*width: auto;*/
+/*}*/
 .navbar-fixed-top {
   top: 0;
 }
@@ -5910,26 +5910,37 @@ th.center {
   text-align: center;
 }
 
-th.headerSortUp {
-    background-image: url(../img/asc.gif) !important;
+th.tablesorter-headerAsc {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7) !important;
     background-color: #f9f9f9;
 }
 
-th.headerSortDown {
-    background-image: url(../img/desc.gif) !important;
+th.tablesorter-headerDesc {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7) !important;
     background-color: #f9f9f9;
 }
 
-th.header {
-    background-image: url(../img/bg.gif);
+th.tablesorter-header {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
     cursor: pointer;
     background-repeat: no-repeat;
     background-position: center left;
     padding-left: 20px;
 }
 
+th.sorter-false {
+    background-image: none;
+    cursor: default;
+}
+
 .params tbody tr:hover td {
   background-color: #ddd;
+}
+
+tr.parameter-fields > td > select,
+span.antibody-field > select {
+  margin-bottom: 9px !important;
+  width: auto !important;
 }
 /* ----------  Table stuff   END---------- */
 /* ----------  Login stuff START---------- */
@@ -5998,6 +6009,10 @@ th.header {
 }
 .control-group ul li label input {
   margin: 0;
+}
+
+#render_parameters_form > select {
+  width: auto !important;
 }
 /* ----------  Checkbox Lists in Forms    END---------- */
 /* ----------  well text START---------- */

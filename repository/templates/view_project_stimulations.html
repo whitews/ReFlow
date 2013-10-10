@@ -10,16 +10,10 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-    sortList: [[0,0]],
+    sortList: [[1,0]],
     headers: {
       0: { sorter: false},
-      3: {sorter:false},
-
-      {% if user.is_superuser %}
-      1: {sorter: false},
-      {% else %}
-      2: {sorter: false},
-      {% endif %}
+      1: { sorter: false}
     }
   });
 });
@@ -29,9 +23,7 @@ $(function() {
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% if user.is_superuser %}
-    {% breadcrumb_url 'Admin' 'admin' %}
-    {% endif %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
     {% breadcrumb 'Stimulations' %}
   </ul>
 {% endblock %}
@@ -41,40 +33,38 @@ $(function() {
     <table id="data-table" class="table table-hover">
       <thead>
         <tr>
-          <th colspan="10" class="center">
+          <th colspan="50" class="center">
             <div style="position:relative">
-              <h4>Stimulations <span class="badge badge-inverse align-top">{{ sample_groups|length }}</span></h4>
+              <h4>Stimulations <span class="badge badge-inverse align-top">{{ stimulations|length }}</span></h4>
 
+              {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-              {% if user.is_superuser %}
-                <a class="btn btn btn-small" href="{% url 'add_sample_group' %}">Add Stimulation</a>
+                <a class="btn btn-small" href="{% url 'add_stimulation' project.id %}">
+                  Add Stimulation
+                </a>
+              </div>
               {% endif %}
-            </div>
             </div>
           </th>
         </tr>
         <tr>
-          {% if user.is_superuser %}
           <th></th>
-          {% endif %}
           <th>Name</th>
           <th>Description</th>
         </tr>
       </thead>
       <tbody>
-      {% for group in sample_groups %}
+      {% for stim in stimulations %}
         <tr>
-          {% if user.is_superuser %}
-          <td>
-            <a rel="tooltip" href="{% url 'edit_sample_group' group.id %}" data-original-title="Edit" data-placement="left">
+          <td width="1%">
+            {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_stimulation' stim.id %}" data-original-title="Edit" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
             </a>
+            {% endif %}
           </td>
-          {% endif %}
-          <td>
-            {{ group.group_name }}
-          </td>
-          <td>{{ group.group_description }} </td>
+          <td>{{ stim.stimulation_name }}</td>
+          <td>{{ stim.stimulation_description }} </td>
         </tr>
       {% endfor %}
       </tbody>

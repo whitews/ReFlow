@@ -5,8 +5,8 @@
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url sample.site.project.project_name 'view_project' sample.site.project.id %}
-    {% breadcrumb_url 'Samples' 'view_project_samples' sample.site.project.id %}
+    {% breadcrumb_url sample.site_panel.site.project.project_name 'view_project' sample.site_panel.site.project.id %}
+    {% breadcrumb_url 'Samples' 'view_project_samples' sample.site_panel.site.project.id %}
     {% breadcrumb sample.original_filename %}
     {% breadcrumb "Edit Sample" %}
   </ul>
@@ -38,7 +38,7 @@
       {% endfor %}
       <div class="control-group">
         <div class="controls">
-          <button class="btn btn-small btn-primary" type="submit">Save</button>
+          <button class="btn btn-small btn-success" type="submit">Save Edits</button>
         </div>
       </div>
     </form>

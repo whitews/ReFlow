@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+
+<script>
+function add_antibody(selector) {
+    // clone last antibody select
+    var new_select_span = selector.siblings("span.antibody-field").last().clone();
+    var new_select = new_select_span.children("select");
+    var name = new_select.attr("name");
+    var id = new_select.attr("id");
+
+    // get the TOTAL_FORMS input, increment the form count
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  + 1));
+
+    var m = name.match(/-(\d+)-antibody/);
+    var new_select_id = parseInt(m[1]) + 1;
+    var new_name = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    var new_id = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    new_select.attr({"name": new_name, "id": new_id});
+
+    new_select_span.find(".remove-antibody").show();
+    new_select_span.append(
+      " ");
+    selector.closest("td").append(
+      new_select_span,
+      "<br>",
+      selector);
+    return false;
+}
+
+function remove_antibody(selector) {
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  - 1));
+
+    var parent_td = selector.parents("td");
+    selector.parent("span").prev("br").remove();
+    selector.parent("span").remove();  // contains selector
+
+    parent_td.children("span.antibody-field").children("select").each(function(i, el) {
+      el.name = el.name.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+      el.id = el.id.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+    });
+    return false;
+}
+
+$("#add_parameter").click(function() {
+    // clone last parameter row
+    var new_row = $(this).closest("tr").prev("tr").clone();
+    var m = new_row.children("td").children("select").attr("name").match(/_set-(\d+)-/);
+    var new_set_id = parseInt(m[1]) + 1;
+    var new_name, new_id;
+
+    new_row.children("td").children("select").each(function() {
+      new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      $(this).attr({"name": new_name, "id": new_id});
+    });
+    new_row.children("td").children("input").each(function() {
+      new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      $(this).attr({"name": new_name, "id": new_id});
+    });
+    var ab_total_form = new_row.find("input[id*=TOTAL_FORMS]");
+    ab_total_form.val(1);
+
+    var ab_selects = new_row.find("select[id*=-antibody]");
+    var ab_form_id;
+    ab_selects.each(function() {
+      ab_form_id = $(this).attr("id").match(/-\d+-(\d+)-antibody/);
+      console.log(ab_form_id);
+      if (ab_form_id[1] != 0) {
+        $(this).parent("span").prev("br").remove();
+        $(this).parent("span").remove();
+      }
+      else {
+        new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+        $(this).attr({"name": new_name, "id": new_id});
+      }
+    });
+
+    var param_total_form = $(document).find("#id_projectpanelparameter_set-TOTAL_FORMS");
+    param_total_form.val((parseInt(param_total_form.val()) + 1));
+
+    new_row.find(".remove-parameter").show();
+
+    $(this).closest("table").append(new_row);
+    $(this).closest("table").append($(this).closest("tr"));
+    return false;
+});
+
+function remove_parameter(selector) {
+    var param_total_form = $(document).find("#id_projectpanelparameter_set-TOTAL_FORMS");
+    param_total_form.val((parseInt(param_total_form.val()) - 1));
+
+    var table = selector.closest("table");
+    selector.closest("tr").remove();
+
+    table.children("tbody").find("tr").each(function(i, row_elem) {
+      $(row_elem).find("select").each(function(j, select_elem) {
+        select_elem.name = select_elem.name.replace(/set-(\d+)-/, "set-" + i + "-");
+        select_elem.id = select_elem.id.replace(/set-(\d+)-/, "set-" + i + "-");
+      });
+      $(row_elem).find("input").each(function(j, input_elem) {
+        input_elem.name = input_elem.name.replace(/set-(\d+)-/, "set-" + i + "-");
+        input_elem.id = input_elem.id.replace(/set-(\d+)-/, "set-" + i + "-");
+      });
+    });
+
+    return false;
+}
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url 'Project Panels' 'view_project_panels' project.id %}
+    {% breadcrumb "Add Project Panel" %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <form class="form-horizontal" action="{% url 'add_project_panel' project.id %}" method="post">
+      {% csrf_token %}
+        {% if panel_form.non_field_errors or parameter_formset.non_form_errors %}
+          <div class="control-group alert alert-error">
+            {{ panel_form.non_field_errors }}
+            {{ parameter_formset.non_form_errors }}
+          </div>
+        {% endif %}
+
+        <div class="control-group">
+          <label class="control-label">{{ panel_form.panel_name.label }}</label>
+          <div class="controls">
+            {{ panel_form.panel_name }}
+            {% if panel_form.panel_name.errors %}
+              <span class="align-middle text-warning">
+                {{ panel_form.panel_name.errors|striptags }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">{{ panel_form.parent_panel.label }}</label>
+          <div class="controls">
+            {{ panel_form.parent_panel }}
+            {% if panel_form.parent_panel.errors %}
+              <span class="align-middle text-warning">
+                {{ panel_form.parent_panel.errors|striptags }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">{{ panel_form.staining.label }}</label>
+          <div class="controls">
+            {{ panel_form.staining }}
+            {% if panel_form.staining.errors %}
+              <span class="align-middle text-warning">
+                {{ panel_form.staining.errors|striptags }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        {{ parameter_formset.management_form }}
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Remove</th>
+              <th>Function</th>
+              <th>Value Type</th>
+              <th>Antibodies</th>
+              <th>Fluorochrome</th>
+            </tr>
+          </thead>
+          {% for parameter_form in parameter_formset %}
+          <tr class="parameter-fields">
+            <td width="1%">
+              {% if forloop.first %}
+              <a href="javascript:void(0)" class="hide remove-parameter" onclick="remove_parameter($(this))">
+                <i class="icon-remove"></i>
+              </a>
+              {% else %}
+              <a href="javascript:void(0)" class="show remove-parameter" onclick="remove_parameter($(this))">
+                <i class="icon-remove"></i>
+              </a>
+              {% endif %}
+            </td>
+            <td>
+              {{ parameter_form.parameter_type }}
+              {{ parameter_form.parameter_type.errors }}
+            </td>
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
+            </td>
+          {% if parameter_form.nested %}
+            <td>
+              {% for nested_formset in parameter_form.nested %}
+                {{ nested_formset.management_form }}
+                {% for nested_form in nested_formset.forms %}
+                  <span class="antibody-field no-wrap">
+                    {{ nested_form.antibody }}
+                    <a class="hide remove-antibody align-middle" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                      <i class="icon-remove align-middle\"></i>
+                    </a>
+                  </span>
+                {% endfor %}
+              {% endfor %}
+              <br/>
+              <a href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
+            </td>
+          {% else %}
+            <td></td>
+          {% endif %}
+            <td>
+              {{ parameter_form.fluorochrome }}
+              {{ parameter_form.fluorochrome.errors }}
+            </td>
+          </tr>
+          {% if forloop.last %}
+          <tr>
+            <td colspan="50">
+              <a href="javascript:void(0)" id="add_parameter">Add Another Parameter</a>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </table>
+      <div class="control-group">
+        <div class="controls">
+          <button class="btn btn-small btn-success" type="submit">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}

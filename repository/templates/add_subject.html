@@ -6,7 +6,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
-    {% breadcrumb_url 'Subjects' 'project_subjects' project.id %}
+    {% breadcrumb_url 'Subjects' 'view_subjects' project.id %}
     {% breadcrumb "Add Subject" %}
   </ul>
 {% endblock %}
@@ -34,7 +34,7 @@
             {% endfor %}
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-small btn-primary" type="submit">Save</button>
+                    <button class="btn btn-small btn-success" type="submit">Save</button>
                 </div>
             </div>
         </form>

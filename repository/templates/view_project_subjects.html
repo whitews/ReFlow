@@ -10,9 +10,10 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-    sortList: [[0,0]],
+    sortList: [[1,0]],
     headers: {
       0: { sorter: false},
+      1: { sorter: false}
     }
   });
 });
@@ -33,13 +34,13 @@ $(function() {
   <table id="data-table" class="table table-hover">
     <thead>
       <tr>
-        <th colspan="10" class="center">
+        <th colspan="50" class="center">
           <div style="position:relative">
             <h4>Subjects <span class="badge badge-inverse align-top">{{ subjects|length }}</span></h4>
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn btn-small" href="{% url 'add_subject' project.id %}">
+                <a class="btn btn-small" href="{% url 'add_subject' project.id %}">
                   Add Subject
                 </a>
               </div>
@@ -48,7 +49,8 @@ $(function() {
         </th>
       </tr>
       <tr>
-        <th>Subject ID</th>
+        <th></th>
+        <th>Subject Code</th>
         <th>Subject Group</th>
         <th>FCS Sample Count</th>
       </tr>
@@ -56,24 +58,16 @@ $(function() {
     <tbody>
       {% for s in subjects %}
       <tr>
-        <td>
-          <div>
-            {{ s.subject_id }}
-            {% if can_modify_project_data %}
-            <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_subject' s.id %}" data-original-title="Edit" data-placement="left">
-                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
-              </a>
-            </span>
-            {% endif %}
-          </div>
+        <td width="1%">
+          {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_subject' s.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+          {% endif %}
         </td>
-        <td>
-          {{ s.subject_group.group_name|default_if_none:'' }}
-        </td>
-        <td>
-            {{ s.sample_set.count }}
-        </td>
+        <td>{{ s.subject_code }}</td>
+        <td>{{ s.subject_group.group_name|default_if_none:'' }}</td>
+        <td>{{ s.sample_set.count }}</td>
       </tr>
       {% endfor %}
     </tbody>

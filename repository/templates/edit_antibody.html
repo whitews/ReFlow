@@ -6,7 +6,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Antibodies' 'view_antibodies' %}
-    {% breadcrumb antibody.antibody_short_name %}
+    {% breadcrumb antibody.antibody_abbreviation %}
     {% breadcrumb "Edit Antibody" %}
   </ul>
 {% endblock %}
@@ -42,7 +42,7 @@
         {% endfor %}
         <div class="control-group">
           <div class="controls">
-            <button class="btn btn-small btn-primary" type="submit">Save Edits</button>
+            <button class="btn btn-small btn-success" type="submit">Save Edits</button>
           </div>
         </div>
       </form>

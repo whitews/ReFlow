@@ -10,9 +10,10 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-    sortList: [[0,0]],
+    sortList: [[1,0]],
     headers: {
       0: { sorter: false},
+      1: { sorter: false}
     }
   });
 });
@@ -32,7 +33,7 @@ $(function() {
   <table id="data-table" class="table table-hover">
     <thead>
       <tr>
-        <th colspan="4" class="center">
+        <th colspan="50" class="center">
           <div style="position:relative">
             <h4>Sites <span class="badge badge-inverse align-top">{{ sites|length }}</span></h4>
 
@@ -47,36 +48,27 @@ $(function() {
         </th>
       </tr>
       <tr>
+        <th></th>
         <th>Site</th>
         <th>FCS Sample Count</th>
         <th>Site Panels</th>
-        <th>Compensation Matrices</th>
       </tr>
     </thead>
     <tbody>
     {% for site in sites %}
       <tr>
-        <td class="middle">
-          <a href="{% url 'view_site' site.id %}">{{ site.site_name }}</a>
+        <td width="1%" class="middle">
           {% if can_modify_project_data %}
-            <span class="pull-right">
-              <a rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit" data-placement="bottom">
-                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
-              </a>
-            </span>
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
           {% endif %}
         </td>
-        <td class="middle">
-          {{ site.sample_set.count }}
-        </td>
+        <td class="middle">{{ site.site_name }}</td>
+        <td class="middle">{{ site.sample_set.count }}</td>
         <td>
           {% for panel in site.sitepanel_set.all %}
-            {{ panel.panel_name }}<br/>
-          {% endfor %}
-        </td>
-        <td>
-          {% for comp in site.compensation_set.all %}
-            {{ comp.original_filename }}<br/>
+            {{ panel.project_panel.panel_name }} ({{ panel.implementation }})<br/>
           {% endfor %}
         </td>
       </tr>

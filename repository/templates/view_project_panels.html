@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
+{% endblock %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[0,0]],
+    headers: {
+      0: { sorter: false},
+      1: { sorter: false},
+      4: { sorter: false}
+    }
+  });
+});
+</script>
+
+<script>
+$(document).ready(function()
+{
+    $(".cancel").click(function()
+    {
+        $(this).closest('div.hide').siblings('table').children('tbody').find('tr.add_parameter_row').hide();
+        $(this).closest('div.hide').hide();
+        $(this).closest('div.hide').siblings('a.add_parameter').show();
+        return false;
+    });
+
+    $(".show-all").click(function()
+    {
+        $('.params').show(250);
+        return false;
+    });
+
+    $(".hide-all").click(function()
+    {
+        $('.params').hide(250);
+        return false;
+    });
+
+    $(".toggle-closest").click(function()
+    {
+        $(this).siblings('div.params').toggle(250);
+        return false;
+    });
+
+    return false;
+});
+
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Project Panels' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+<div id="error_dialog"></div>
+
+  <div class="container">
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Project Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
+
+              {% if can_add_project_data %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'add_project_panel' project.id %}">
+                  Add Project Panel
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Panel Name</th>
+          <th>Staining</th>
+          <th>
+            Parameters
+            <span class="pull-right">
+                <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for panel in panels|dictsort:"panel_name" %}
+        <tr>
+          <td>
+            {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' panel.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+            {% endif %}
+          </td>
+          <td>
+            {{ panel.panel_name }}
+          </td>
+          <td>{{ panel.get_staining_display }}</td>
+          <td width="65%">
+            <a href="#" class="toggle-closest">Show/Hide</a>
+            <div class="hide params">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>Function</th>
+                    <th>Antibodies</th>
+                    <th>Fluorochrome</th>
+                    <th>Value Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for param in panel.projectpanelparameter_set.all %}
+                  <tr>
+                    <td width="33%">
+                      {{ param.get_parameter_type_display }}
+                    </td>
+                    <td>
+                      {% for ab in param.projectpanelparameterantibody_set.all %}
+                        {{ ab.antibody.antibody_abbreviation }}
+                      {% endfor %}
+                    </td>
+                    <td>
+                        {{ param.fluorochrome|default_if_none:"" }}
+                    </td>
+                    <td>
+                      {{ param.parameter_value_type|default_if_none:"" }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

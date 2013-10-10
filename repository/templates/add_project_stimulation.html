@@ -5,14 +5,15 @@
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url 'Sample Groups' 'view_sample_groups' %}
-    {% breadcrumb "Add Sample Group" %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url 'Stimulations' 'view_project_stimulations' project.id %}
+    {% breadcrumb "Add Stimulation" %}
   </ul>
 {% endblock %}
 
 {% block body %}
     <div class="container">
-        <form class="form-horizontal" action="{% url 'add_sample_group' %}" method="post">
+        <form class="form-horizontal" action="{% url 'add_stimulation' project.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
                 <div class="control-group text-error">
@@ -33,7 +34,7 @@
             {% endfor %}
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-small btn-primary" type="submit">Save</button>
+                    <button class="btn btn-small btn-success" type="submit">Save</button>
                 </div>
             </div>
         </form>

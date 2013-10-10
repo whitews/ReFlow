@@ -6,7 +6,6 @@ admin.site.register(Antibody)
 admin.site.register(Fluorochrome)
 admin.site.register(Specimen)
 
-
 class ProjectAdmin(GuardedModelAdmin):
     user_can_access_owned_objects_only = True
     pass
@@ -22,22 +21,20 @@ class SiteAdmin(GuardedModelAdmin):
 
 admin.site.register(Site, SiteAdmin)
 
-
-admin.site.register(SitePanel)
-admin.site.register(Parameter)
-admin.site.register(ParameterValueType)
-
-admin.site.register(ProjectVisitType)
+admin.site.register(Stimulation)
+admin.site.register(VisitType)
 admin.site.register(SubjectGroup)
 admin.site.register(Subject)
 
-admin.site.register(ParameterAntibodyMap)
-admin.site.register(ParameterFluorochromeMap)
-admin.site.register(SitePanelParameterMap)
+admin.site.register(ProjectPanel)
+admin.site.register(ProjectPanelParameter)
+admin.site.register(ProjectPanelParameterAntibody)
 
-admin.site.register(SampleGroup)
+admin.site.register(SitePanel)
+admin.site.register(SitePanelParameter)
+admin.site.register(SitePanelParameterAntibody)
+
 admin.site.register(Sample)
+admin.site.register(SampleMetadata)
 admin.site.register(SampleSet)
-admin.site.register(SampleParameterMap)
 admin.site.register(Compensation)
-admin.site.register(SampleCompensationMap)

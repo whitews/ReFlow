@@ -14,15 +14,15 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-    sortList: [[0,0]],
+    sortList: [[1,0]],
     headers: {
-      0: { sorter: false},
-      4: {sorter:false},
 
       {% if user.is_superuser %}
+      0: { sorter: false},
       1: {sorter: false},
-      5: {sorter: false},
+      4: {sorter:false},
       {% else %}
+      0: { sorter: false},
       3: {sorter: false},
       {% endif %}
     }
@@ -47,7 +47,7 @@ $(function() {
   <table id="data-table" class="table table-hover">
     <thead>
       <tr>
-        <th colspan="6" class="center">
+        <th colspan="50" class="center">
           <div style="position:relative">
             <h4>Antibodies <span class="badge badge-inverse align-top">{{ antibodies|length }}</span></h4>
 
@@ -70,16 +70,16 @@ $(function() {
       </tr>
     </thead>
     <tbody>
-      {% for antibody in antibodies|dictsort:"antibody_short_name" %}
+      {% for antibody in antibodies|dictsort:"antibody_abbreviation" %}
       <tr>
         {% if user.is_superuser %}
         <td class="middle">
-          <a rel="tooltip" href="{% url 'edit_antibody' antibody.id %}" data-original-title="Edit" data-placement="bottom">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_antibody' antibody.id %}" data-original-title="Edit" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
           </a>
         </td>
         {% endif %}
-        <td class="middle">{{ antibody.antibody_short_name }}</td>
+        <td class="middle">{{ antibody.antibody_abbreviation }}</td>
         <td class="middle">{{ antibody.antibody_name }}</td>
         <td class="middle">{{ antibody.antibody_description|default_if_none:'' }}</td>
       </tr>

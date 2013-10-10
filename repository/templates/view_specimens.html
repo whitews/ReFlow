@@ -9,17 +9,10 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-    sortList: [[0,0]],
+    sortList: [[1,0]],
     headers: {
       0: { sorter: false},
-      3: {sorter:false},
-
-      {% if user.is_superuser %}
-      1: {sorter: false},
-      4: {sorter: false},
-      {% else %}
-      2: {sorter: false},
-      {% endif %}
+      1: {sorter:false}
     }
   });
 });
@@ -44,7 +37,7 @@ $(function() {
   <table id="data-table" class="table table-hover">
     <thead>
       <tr>
-        <th colspan="3" class="center">
+        <th colspan="50" class="center">
           <div style="position:relative">
             <h4>Specimens <span class="badge badge-inverse align-top">{{ specimens|length }}</span></h4>
 
@@ -57,9 +50,7 @@ $(function() {
         </th>
       </tr>
       <tr>
-        {% if user.is_superuser %}
         <th></th>
-        {% endif %}
         <th>Name</th>
         <th>Description</th>
       </tr>
@@ -67,13 +58,13 @@ $(function() {
     <tbody>
       {% for specimen in specimens|dictsort:"specimen_name" %}
       <tr>
+        <td width="1%" class="middle">
         {% if user.is_superuser %}
-        <td class="middle">
-          <a rel="tooltip" href="{% url 'edit_specimen' specimen.id %}" data-original-title="Edit" data-placement="bottom">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_specimen' specimen.id %}" data-original-title="Edit" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
           </a>
-        </td>
         {% endif %}
+        </td>
         <td class="middle">{{ specimen.specimen_name }}</td>
         <td class="middle">{{ specimen.specimen_description|default_if_none:'' }}</td>
       </tr>

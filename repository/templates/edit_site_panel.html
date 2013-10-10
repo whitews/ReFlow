@@ -6,10 +6,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url panel.site.project.project_name 'view_project' panel.site.project.id %}
-    {% breadcrumb_url 'Sites' 'view_project_sites' panel.site.project.id %}
-    {% breadcrumb_url panel.site.site_name 'view_site' panel.site.id %}
-    {% breadcrumb_url 'Site Panels' 'view_site_panels' panel.site.id %}
-    {% breadcrumb panel.panel_name %}
+    {% breadcrumb panel.name %}
     {% breadcrumb "Edit Site Panel" %}
   </ul>
 {% endblock %}
@@ -33,7 +30,7 @@
             {% endfor %}
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-small btn-primary" type="submit">Save</button>
+                    <button class="btn btn-small btn-success" type="submit">Save Edits</button>
                 </div>
             </div>
         </form>
