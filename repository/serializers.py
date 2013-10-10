@@ -178,6 +178,9 @@ class SampleSerializer(serializers.ModelSerializer):
     subject_code = serializers.CharField(
         source='subject.subject_code',
         read_only=True)
+    site = serializers.CharField(
+        source='site_panel.site_id',
+        read_only=True)
     site_name = serializers.CharField(
         source='site_panel.site.site_name',
         read_only=True)
@@ -213,6 +216,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'project_panel',
             'panel_name',
             'site_panel',
+            'site',
             'site_name',
             'project',
             'original_filename',

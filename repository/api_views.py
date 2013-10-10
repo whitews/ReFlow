@@ -422,15 +422,10 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 
 class SampleFilter(django_filters.FilterSet):
-    subject__project = django_filters.ModelMultipleChoiceFilter(
-        queryset=Project.objects.all())
-    site_panel__project_panel = django_filters.ModelMultipleChoiceFilter(
-        queryset=ProjectPanel.objects.all())
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
     subject = django_filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all())
-    subject__subject_code = django_filters.CharFilter()
     visit = django_filters.ModelMultipleChoiceFilter(
         queryset=VisitType.objects.all())
     specimen = django_filters.ModelMultipleChoiceFilter(
@@ -442,6 +437,7 @@ class SampleFilter(django_filters.FilterSet):
         fields = [
             'subject__project',
             'site_panel',
+            'site_panel__site',
             'site_panel__project_panel',
             'subject',
             'subject__subject_code',
