@@ -17,7 +17,7 @@ $(function() {
     headers: {
       0: { sorter: false},
       1: { sorter: false},
-      5: { sorter: false}
+      6: { sorter: false}
     }
   });
 });
@@ -81,6 +81,7 @@ $(document).ready(function()
         <tr>
           <th></th>
           <th>Project Panel</th>
+          <th>Site</th>
           <th>Comments</th>
           <th>Staining</th>
           <th>
@@ -107,6 +108,7 @@ $(document).ready(function()
             {% endif %}
           </td>
           <td>{{ panel.project_panel.panel_name }} ({{ panel.implementation }})</td>
+          <td>{{ panel.site.site_name }}</td>
           <td>{{ panel.site_panel_comments }}</td>
           <td>{{ panel.project_panel.get_staining_display }}</td>
           <td width="60%">

@@ -13,15 +13,15 @@
 <script>
 $(function() {
   $("table#data-table").tablesorter({
-    sortList: [[0,0]],
+    sortList: [[1,0]],
     headers: {
-      0: { sorter: false},
-      4: {sorter:false},
 
       {% if user.is_superuser %}
+      0: { sorter: false},
       1: {sorter: false},
-      5: {sorter: false},
+      4: {sorter:false},
       {% else %}
+      0: { sorter: false},
       3: {sorter: false},
       {% endif %}
     }
