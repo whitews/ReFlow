@@ -964,6 +964,11 @@ class Sample(ProtectedModel):
         editable=False,
         null=False,
         blank=False)
+    exclude = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False
+    )
 
     def has_view_permission(self, user):
 
