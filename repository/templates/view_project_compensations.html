@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -8,117 +9,76 @@
 
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
-  $(document).ready(function() {
-    $(".show-all").click(function() {
-      $('.params').show(250);
-    });
-
-    $(".hide-all").click(function() {
-      $('.params').hide(250);
-    });
-
-    $(".toggle-closest").click(function() {
-      $(this).siblings('table.params').toggle(250);
-    });
-
-    return false;
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[2,0]],
+    headers: {
+      0: { sorter: false},
+      1: { sorter: false},
+      4: { sorter: false},
+    }
   });
+});
 </script>
+
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Compensation Matrices' %}
+  </ul>
 {% endblock %}
 
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">Compensation Matrices <span class="badge badge-inverse align-top">{{ compensations|length }}</span></div>
-  </div>
 
-  {% if compensations %}
-  <table class="table table-bordered table-striped">
+  <table id="data-table" class="table table-hover">
     <thead>
       <tr>
-        <th>Compensation ID</th>
-        <th>Site</th>
-        <th>File Name</th>
-        <th>Text</th>
-        <th>
-          Samples
-          <div class="pull-right">
-            <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+        <th colspan="50" class="center">
+          <div style="position:relative">
+            <h4>Compensation Matrices <span class="badge badge-inverse align-top">{{ compensations|length }}</span></h4>
+
+            {% if can_add_project_data or user_add_sites.count > 0 %}
+            <div style="position:absolute; right:0;top:0;">
+              <a class="btn btn-small" href="{% url 'add_compensation' project.id %}">
+                Add Compensation
+              </a>
+            </div>
+            {% endif %}
           </div>
         </th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>File Name</th>
+        <th>Site</th>
+        <th>Samples</th>
       </tr>
     </thead>
     <tbody>
       {% for comp in compensations %}
       <tr>
-        <td class="middle">
-          {{ comp.id }}
+        <td width="1%" class="middle">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_compensation' comp.id %}" data-original-title="Download" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
+          </a>
         </td>
+        <td class="middle">{{ comp.original_filename }}</td>
         <td class="middle">{{ comp.site.site_name }}</td>
         <td class="middle">
-          <a href="{% url 'retrieve_compensation' comp.id %}">{{ comp.original_filename }}</a><br/>
-        </td>
-
-        <td class="middle">{{ comp.matrix_text }}</td>
-
-        <td style="width: 60%" class="middle">
-          {% if comp.samplecompensationmap_set.all.count > 0 %}
-          <a href="#" class="toggle-closest">Show/Hide</a>
-          <table class="table table-bordered table-hover hide params">
-            <thead>
-              <tr>
-                <th>Sample ID</th>
-                <th>Sample File</th>
-            </thead>
-            <tbody>
-              {% for sc_map in comp.samplecompensationmap_set.all %}
-              <tr>
-                <td>
-                  {{ sc_map.sample_id }}
-                </td>
-                <td>
-                  {{ sc_map.sample.original_filename }}
-                </td>
-              </tr>
-              {% endfor %}
-              <tr>
-                <td colspan="8">
-                  Select a site sample to associate with this compensation matrix.<br/>
-                  <a class="btn btn-success btn-small" href="#">
-                    <i class="icon-plus icon-white"></i> Select Sample
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          {% else %}
-          Select a site sample to associate with this compensation matrix.<br/>
-                  <a class="btn btn-success btn-small" href="#">
-                    <i class="icon-plus icon-white"></i> Select Sample
-                  </a>
-          {% endif %}
-
+          {% for sample in comp.sample_set.all %}
+            {{ sample.original_filename }}<br/>
+          {% endfor %}
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  {% else %}
-  <p>Project has no compensation matrices.</p>
-  {% endif %}
-  {% if can_add_project_data or user_add_sites.count > 0 %}
-  <div class="pull-right">
-    <a class="btn btn-success btn-small" href="{% url 'add_compensation' project.id %}">
-      <i class="icon-plus icon-white"></i> Add Compensation Matrix
-    </a>
-  </div>
-  {% endif %}
 </div>
 {% endblock %}

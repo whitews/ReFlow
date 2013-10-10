@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url 'Visit Types' 'project_visit_types' project.id %}
+    {% breadcrumb "Add Visit Type" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
     <div class="container">
-        <div class="row lead">
-            <div class="span4">
-                <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
-            </div>
-            <div class="pull-right">Add Visit Type</div>
-        </div>
-        <br/>
         <form class="form-horizontal" action="{% url 'add_visit_type' project.id %}" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}
@@ -30,7 +34,7 @@
             {% endfor %}
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-small btn-primary" type="submit">Save</button>
+                    <button class="btn btn-small btn-success" type="submit">Save</button>
                 </div>
             </div>
         </form>

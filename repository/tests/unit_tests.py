@@ -47,11 +47,8 @@ class ModelsUnitTestCase(TestCase):
         user_projects = Project.objects.get_projects_user_can_view(self.test_user)
         self.assertEqual(len(user_projects), 1)
 
-
-
-
     def test_antibody_model(self):
-        antibody = Antibody(antibody_short_name='IL-6')
+        antibody = Antibody(antibody_abbreviation='IL-6')
         with self.assertRaises(ValidationError) as context:
             antibody.full_clean()
 
@@ -166,11 +163,11 @@ class FormsUnitTestCase(TestCase):
         }
         good_form_data = {
             'antibody_name': 'NeuvoAntibody',
-            'antibody_short_name': 'NA',
+            'antibody_abbreviation': 'NA',
         }
         duplicate_form_data = {
             'antibody_name': 'NadaAntibody',
-            'antibody_short_name': 'NA',
+            'antibody_abbreviation': 'NA',
         }
 
         # Using bad data should give an invalid form

@@ -1,47 +1,191 @@
 [
-    {
-        "pk": 1,
-        "model": "repository.fluorochrome",
-        "fields": {
-            "fluorochrome_name": "R-Phycoerythrin",
-            "fluorochrome_short_name": "PE",
-            "fluorochrome_description": null
-        }
-    },
-    {
-        "pk": 2,
-        "model": "repository.fluorochrome",
-        "fields": {
-            "fluorochrome_name": "Peridinin chlorophyll protein",
-            "fluorochrome_short_name": "PerCP",
-            "fluorochrome_description": null
-        }
-    },
-    {
-        "pk": 3,
-        "model": "repository.fluorochrome",
-        "fields": {
-            "fluorochrome_name": "Fluorescein",
-            "fluorochrome_short_name": "FITC",
-            "fluorochrome_description": null
-        }
-    },
-    {
-        "pk": 4,
-        "model": "repository.fluorochrome",
-        "fields": {
-            "fluorochrome_name": "Allophycocyanin",
-            "fluorochrome_short_name": "APC",
-            "fluorochrome_description": null
-        }
-    },
-    {
-        "pk": 5,
-        "model": "repository.fluorochrome",
-        "fields": {
-            "fluorochrome_name": "PerCP-Cy5.5",
-            "fluorochrome_short_name": "PerCP-Cy5-5",
-            "fluorochrome_description": ""
-        }
+{
+    "pk": 1, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "R-Phycoerythrin", 
+        "fluorochrome_abbreviation": "PE", 
+        "fluorochrome_description": null
     }
+},
+{
+    "pk": 2, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Peridinin chlorophyll protein", 
+        "fluorochrome_abbreviation": "PerCP", 
+        "fluorochrome_description": null
+    }
+},
+{
+    "pk": 3, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Fluorescein", 
+        "fluorochrome_abbreviation": "FITC", 
+        "fluorochrome_description": null
+    }
+},
+{
+    "pk": 4, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Allophycocyanin", 
+        "fluorochrome_abbreviation": "APC", 
+        "fluorochrome_description": null
+    }
+},
+{
+    "pk": 5, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "AquaAmine", 
+        "fluorochrome_abbreviation": "AquaAmine", 
+        "fluorochrome_description": "Live/dead cells"
+    }
+},
+{
+    "pk": 6, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Cyanine 7", 
+        "fluorochrome_abbreviation": "Cy7", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 7, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "V450", 
+        "fluorochrome_abbreviation": "V450", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 8, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Cyanine 5.5", 
+        "fluorochrome_abbreviation": "Cy5.5", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 9, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Brilliant Violet 605", 
+        "fluorochrome_abbreviation": "BV605", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 10, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Brilliant Violet 650", 
+        "fluorochrome_abbreviation": "BV650", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 11, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Brilliant Violet 785", 
+        "fluorochrome_abbreviation": "BV785", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 12, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Alexa Fluor 700", 
+        "fluorochrome_abbreviation": "A700", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 13, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Energy Coupling Dye", 
+        "fluorochrome_abbreviation": "ECD", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 14, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Cyanine 5", 
+        "fluorochrome_abbreviation": "Cy5", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 15, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Brilliant Violet 421", 
+        "fluorochrome_abbreviation": "BV421", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 16, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Brilliant Violet 570", 
+        "fluorochrome_abbreviation": "BV570", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 17, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Krome Orange", 
+        "fluorochrome_abbreviation": "KrO", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 18, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Hilite 7", 
+        "fluorochrome_abbreviation": "H7", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 19, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Allophycocyanin + Hilite 7", 
+        "fluorochrome_abbreviation": "APC-H7", 
+        "fluorochrome_description": "Tandem"
+    }
+},
+{
+    "pk": 20, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "R-Phycoerythrin + Cyanine 7", 
+        "fluorochrome_abbreviation": "PE-Cy7", 
+        "fluorochrome_description": "Tandem"
+    }
+},
+{
+    "pk": 21, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Peridinin chlorophyll protein + Cyanine 5.5", 
+        "fluorochrome_abbreviation": "PerCP-Cy5.5", 
+        "fluorochrome_description": "Tandem"
+    }
+}
 ]

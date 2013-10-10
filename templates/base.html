@@ -8,6 +8,7 @@
     <title>{{ header_title }}</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
     {% block extra_head %}{% endblock %}
   </head>
@@ -15,29 +16,22 @@
   <body>
     <div id="wrap">
       {% block header %}
-      <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar navbar-inverse navbar-static-top">
         <div class="navbar-inner">
           <div class="container">
             <div class="brand">
-              <a href="{% url 'home' %}">
-                <img class="inline" height="24" src="{% static 'reflow_text.png' %}">
-              </a>
-              flow cytometry repository
+              <img class="inline" src="{% static 'reflow_40.png' %}">
             </div>
             <ul class="nav pull-right">
-              <li class="dropdown">
-                <a class="dropdown-toggle"
-                   data-toggle="dropdown"
-                   href="#">
-                    {{ user.username }}
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a href="{% url 'add_project' %}">Add Project</a></li>
-                    <li class="divider"></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                </ul>
+              <li>
+                <a href="#">{{ user.username }}</a>
               </li>
+              {% if user.is_superuser %}
+              <li>
+                <a href="{% url 'admin' %}">Admin</a>
+              </li>
+              {% endif %}
+              <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
           </div>
         </div>
@@ -48,11 +42,6 @@
 
           <div class="container">
             {% block breadcrumbs %}
-{#            <ul class="breadcrumb">#}
-{#              <li><a href="#">Home</a> <span class="divider">/</span></li>#}
-{#              <li><a href="#">Library</a> <span class="divider">/</span></li>#}
-{#              <li class="active">Data</li>#}
-{#            </ul>#}
             {% endblock %}
           </div>
 
@@ -66,6 +55,7 @@
     </div>
     <!-- Javascript at the end of the document so pages load faster -->
     <script type="text/javascript" src="{% static 'bootstrap/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
     <script type='text/javascript'>
         $(document).ready(function()

@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb "Add Project" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">Create a New Project</div>
-    </div>
-    <br/>
       <form class="form-horizontal" action="{% url 'add_project' %}" method="post">
         {% csrf_token %}
 
@@ -30,7 +35,7 @@
         {% endfor %}
         <div class="control-group">
           <div class="controls">
-            <button class="btn btn-small btn-primary" type="submit">Save</button>
+            <button class="btn btn-small btn-success" type="submit">Save</button>
           </div>
         </div>
       </form>

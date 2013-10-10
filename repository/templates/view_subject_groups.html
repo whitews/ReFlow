@@ -1,44 +1,73 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[1,0]],
+    headers: {
+      0: { sorter: false},
+      1: { sorter: false}
+    }
+  });
+});
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Subject Groups' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
-    <div class="container">
-        <div class="row lead">
-            <div class="span4">
-                <a href="{% url 'view_project' project.id %}">{{ project.project_name }}</a>
+  <div class="container">
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Subject Groups <span class="badge badge-inverse align-top">{{ subject_groups|length }}</span></h4>
+
+              {% if can_add_project_data %}
+              <div style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-small" href="{% url 'add_subject_group' project.id %}">
+                      Add Subject Group
+                  </a>
+              </div>
+              {% endif %}
             </div>
-            <div class="pull-right">Subject Groups <span class="badge badge-inverse align-top">{{ visit_types.count }}</span></div>
-        </div>
-        <table class="table table-bordered table-striped">
-            <thead>
-            <tr>
-                <th>Group Name</th>
-                <th>Group Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for group in subject_groups %}
-                <tr>
-                    <td>
-                      {{ group.group_name }}
-                      {% if can_modify_project_data %}
-                      <span class="pull-right">
-                        <a rel="tooltip" href="{% url 'edit_subject_group' group.project_id group.id %}" data-original-title="Edit Subject Group" data-placement="left">
-                          <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-                        </a>
-                      </span>
-                      {% endif %}
-                    </td>
-                    <td>{{ group.group_description }} </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% if can_add_project_data %}
-        <div class="pull-right">
-            <a class="btn btn-success btn-small" href="{% url 'add_subject_group' project.id %}">
-                <i class="icon-plus icon-white"></i> Add Subject Group
-            </a>
-        </div>
-        {% endif %}
-    </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Group Name</th>
+          <th>Group Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for group in subject_groups %}
+        <tr>
+          <td width="1%">
+            {% if can_modify_project_data %}
+              <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_subject_group' group.project_id group.id %}" data-original-title="Edit" data-placement="bottom">
+                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+              </a>
+            {% endif %}
+          </td>
+          <td>{{ group.group_name }}</td>
+          <td>{{ group.group_description }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

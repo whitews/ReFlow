@@ -215,12 +215,12 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 
 /* Component containers
 ----------------------------------*/
-.ui-widget { font-size: 1.1em; }
-.ui-widget .ui-widget { font-size: 1em; }
-.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-size: 14px; }
+.ui-widget { font-size: 13px; }
+.ui-widget .ui-widget { font-size: 13px; }
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-size: 13px; }
 .ui-widget-content { border: 1px solid #aaaaaa; background: #f9f9f9; color: #333333; }
 .ui-widget-content a { color: #333333; }
-.ui-widget-header { border: 1px solid #999999; background: #b9b9bd; color: #444444; font-weight: bold; }
+.ui-widget-header { border: 1px solid #999999; background: #cacacf; color: #444444; font-weight: bold; }
 .ui-widget-header a { color: #444444; }
 
 /* Interaction states

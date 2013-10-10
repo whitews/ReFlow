@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb worker.worker_name %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="span6">Worker Hostname: {{ worker.worker_hostname }}</div>
+    </div>
+    <div class="row">
+      <div class="span6">Worker Version: {{ worker.worker_version }}</div>
+    </div>
+    <br/>
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="2" class="center">
+            <div style="position:relative">
+              <h4>Registered Processes <span class="badge badge-inverse align-top">{{ worker.workerprocessmap_set.all.count }}</span></h4>
+
+              {% if user.is_superuser %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'register_process_to_worker' worker.id %}">
+                  Register a Process
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </th>
+        </tr>
+        <tr>
+            <th>Process Name</th>
+            <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for wpm in worker.workerprocessmap_set.all %}
+        <tr>
+          <td class="middle">{{ wpm.process.process_name }}</td>
+          <td class="middle">{{ wpm.process.process_description }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

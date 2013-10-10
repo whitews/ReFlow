@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load staticfiles %}
+{% load breadcrumbs %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
@@ -8,169 +9,131 @@
 
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
-$(document).ready(function()
-{
-    var select_panel_dialog = $("<div></div>").dialog(
+$(function() {
+  $("#data-table").tablesorter({
+    selectorHeaders: '> thead > tr > th',
+    sortList: [[2,0]],
+    headers: {
+      0: { sorter: false},
+      1: { sorter: false}
+    }
+  });
+});
+
+var select_panel_dialog;
+
+function show_parameters(id) {
+    select_panel_dialog = $("<div></div>").dialog(
     {
         autoOpen: false,
-        title: 'Select a Panel',
-        modal: false,
+        title: 'Parameters',
+        modal: true,
         position: 'center',
-        height: 350,
-        width: 500
+        width: $(window).width() * 0.8,
+        height: $(window).height() * 0.6,
+        resizable: true
     });
-
-    $(".select_panel").click(function()
-    {
-        select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
-        select_panel_dialog.load($(this).data("form-url"));
-        select_panel_dialog.dialog('open');
-        return false;
-    });
-
-    $(".show-all").click(function()
-    {
-        $('.params').show(250);
-        return false;
-    });
-
-    $(".hide-all").click(function()
-    {
-        $('.params').hide(250);
-        return false;
-    });
-
-    $(".toggle-closest").click(function()
-    {
-        $(this).siblings('table.params').toggle(250);
-        return false;
-    });
-
+    select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
+    select_panel_dialog.load("/sample/" + id + "/parameters/");
+    select_panel_dialog.dialog('open');
     return false;
-});
+}
+
+function show_compensation(id) {
+    select_panel_dialog = $("<div></div>").dialog(
+    {
+        autoOpen: false,
+        title: 'Compensation',
+        modal: true,
+        position: 'center',
+        width: $(window).width() * 0.8,
+        height: $(window).height() * 0.6,
+        resizable: true
+    });
+    select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
+    select_panel_dialog.load("/sample/" + id + "/compensation/");
+    select_panel_dialog.dialog('open');
+    return false;
+}
 
 </script>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Samples' %}
+  </ul>
+{% endblock %}
+
 {% block body %}
 <div class="container">
-  <div class="row lead">
-    <div class="span4">
-      <a href="{% url 'view_project' project.id %}">
-        {{ project.project_name }}
-      </a>
-    </div>
-    <div class="pull-right">
-      Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span>
-    </div>
-  </div>
 
-  {% if samples %}
-  <table class="table table-bordered table-striped">
+  <table id="data-table" class="table table-hover">
     <thead>
       <tr>
-          <th>Sample ID</th>
+        <th colspan="50" class="center">
+          <div style="position:relative">
+            <h4>Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></h4>
+
+            {% if can_add_project_data or user_add_sites.count > 0 %}
+            <div style="position:absolute; right:0;top:0;">
+              <a class="btn btn-small" href="{% url 'add_sample' project.id %}">
+                Add Sample
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </th>
+      </tr>
+      <tr>
+          <th></th>
           <th>File Name</th>
-          <th>Subject</th>
+          <th>Upload Date</th>
           <th>Site</th>
+          <th>Subject</th>
           <th>Visit</th>
-          <th>Sample Group</th>
           <th>Specimen</th>
-          <th>
-              Parameters
-              <div class="pull-right">
-                <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
-              </div>
-          </th>
+          <th>Panel</th>
+          <th>Stimulation</th>
       </tr>
     </thead>
     <tbody>
       {% for sample in samples %}
       <tr>
-        <td class="middle">
-          {{ sample.id }}
+        <td width="1%" class="no-wrap middle">
+          <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_parameters({{ sample.id }})" data-original-title="Show Parameters" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-list-alt align-middle"></i>
+          </a>
+          {% if sample.compensation %}
+          <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_compensation({{ sample.id }})" data-original-title="Show Compensation" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-qrcode align-middle"></i>
+          </a>
+          {% endif %}
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_sample' sample.id %}" data-original-title="Download" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
+          </a>
           {% if sample.site__id in user_modify_sites or can_modify_project_data %}
-          <div class="pull-right align-middle">
-            <a rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit Sample" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-th-list align-middle"></i>
-            </a>
-          </div>
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+          </a>
           {% endif %}
         </td>
-        <td class="middle">
-          <a class="no-wrap" href="{% url 'retrieve_sample' sample.id %}">{{ sample.original_filename }}</a>
-        </td>
-        <td class="middle">{{ sample.subject__subject_id }}</td>
-        <td class="middle">{{ sample.site__site_name }}</td>
-        <td class="middle">{{ sample.visit__visit_type_name|default_if_none:'' }}</td>
-        <td class="middle">{{ sample.sample_group__group_name }}</td>
-        <td class="middle">{{ sample.specimen__specimen_name }}</td>
-
-        <td style="width: 50%" class="middle">
-
-          {% if sample.parameters.count > 0 %}
-
-          <a href="#" class="toggle-closest">Show/Hide</a>
-          <table class="table table-bordered table-hover hide params">
-            <thead>
-              <tr>
-                <th>FCS Number</th>
-                <th>FCS PnN</th>
-                <th>FCS PnS</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for sp_map in sample.parameters|dictsort:"fcs_number" %}
-              <tr>
-                <td>
-                  {{ sp_map.fcs_number }}
-                </td>
-                <td>
-                  {{ sp_map.fcs_text }}
-                </td>
-                <td>
-                  {{ sp_map.fcs_opt_text }}
-                </td>
-                <td>
-                  {{ sp_map.parameter__parameter_short_name|default_if_none:'' }}-{{ sp_map.value_type__value_type_short_name|default_if_none:'' }}
-                </td>
-              </tr>
-              {% endfor %}
-              {% if sample.site__id in user_add_sites or can_add_project_data %}
-              <tr>
-                <td colspan="4">
-                  Select a panel to associate parameters or create a new panel based on this FCS file.<br/>
-                  <a class="select_panel btn btn-success btn-small" href="#" data-form-url="{% url 'select_panel' sample.id %}">
-                    <i class="icon-plus icon-white"></i> Select Panel
-                  </a>
-                  <a class="btn btn-success btn-small" href="{% url 'create_panel_from_sample' sample.id %}">
-                      <i class="icon-pencil icon-white"></i> Create Panel from Sample
-                  </a>
-                </td>
-              </tr>
-              {% endif %}
-            </tbody>
-          </table>
-
-          {% endif %}
-
-        </td>
+        <td class="no-wrap middle">{{ sample.original_filename }}</td>
+        <td class="middle">{{ sample.upload_date|date:"Ymd H:i" }}</td>
+        <td class="middle">{{ sample.site_panel.site.site_name }}</td>
+        <td class="middle">{{ sample.subject.subject_code }}</td>
+        <td class="middle">{{ sample.visit.visit_type_name }}</td>
+        <td class="middle">{{ sample.specimen.specimen_name }}</td>
+        <td class="middle">{{ sample.site_panel.project_panel.panel_name }}</td>
+        <td class="middle">{{ sample.stimulation.stimulation_name }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  {% else %}
-  <p>Project has no flow cytometry samples.</p>
-  {% endif %}
-  {% if can_add_project_data or user_add_sites.count > 0 %}
-  <div class="pull-right">
-    <a class="btn btn-success btn-small" href="{% url 'add_sample' project.id %}">
-      <i class="icon-plus icon-white"></i> Add Sample
-    </a>
-  </div>
-  {% endif %}
 </div>
 {% endblock %}

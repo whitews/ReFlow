@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb "Add Process" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
   <div class="container">
-    <div class="row lead">
-      <div class="span4">
-        Parameter: <a href="{% url 'view_parameters' %}">{{ parameter.parameter_short_name }}</a>
-      </div>
-      <div class="pull-right">Associate Antibody</div>
-    </div>
-    <br/>
-      <form class="form-horizontal" action="{% url 'associate_antibody_to_parameter' parameter.id %}" method="post">
+      <form class="form-horizontal" action="{% url 'add_process' %}" method="post">
         {% csrf_token %}
 
-        {% if form.non_field_errors %}
+        {% if form.errors %}
         <div class="control-group warning">
           <ul>
             {% for field in form %}
@@ -28,17 +31,12 @@
         {% for field in form %}
           <div class="control-group">
             <label class="control-label">{{ field.label }}</label>
-            <div class="controls">
-              {{ field }}
-              {% if field.errors %}
-              <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-              {% endif %}
-            </div>
+            <div class="controls">{{ field }}</div>
           </div>
         {% endfor %}
         <div class="control-group">
           <div class="controls">
-            <button class="btn btn-small btn-success" type="submit">Associate</button>
+            <button class="btn btn-small btn-primary" type="submit">Save</button>
           </div>
         </div>
       </form>

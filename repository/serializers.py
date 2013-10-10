@@ -15,8 +15,13 @@ class VisitTypeSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='visittype-detail')
 
     class Meta:
-        model = ProjectVisitType
-        fields = ('id', 'url', 'visit_type_name', 'visit_type_description', 'project')
+        model = VisitType
+        fields = (
+            'id',
+            'url',
+            'visit_type_name',
+            'visit_type_description',
+            'project')
 
 
 class SubjectGroupSerializer(serializers.ModelSerializer):
@@ -39,7 +44,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
-        fields = ('id', 'url', 'subject_id', 'subject_group', 'project',)
+        fields = ('id', 'url', 'subject_code', 'subject_group', 'project',)
 
 
 class SpecimenSerializer(serializers.ModelSerializer):
@@ -48,105 +53,152 @@ class SpecimenSerializer(serializers.ModelSerializer):
         model = Specimen
 
 
-class ParameterAntibodySerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='antibody.antibody_short_name', read_only=True)
+class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        source='antibody.antibody_abbreviation',
+        read_only=True)
 
     class Meta:
-        model = ParameterAntibodyMap
+        model = ProjectPanelParameterAntibody
         exclude = ('id', 'parameter', 'antibody')
 
 
-class ParameterFluorochromeSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='fluorochrome.fluorochrome_short_name', read_only=True)
+class ProjectPanelParameterSerializer(serializers.ModelSerializer):
+    antibodies = ProjectPanelParameterAntibodySerializer(
+        source='projectpanelparameterantibody_set')
+    url = serializers.HyperlinkedIdentityField(view_name='project-parameter-detail')
 
     class Meta:
-        model = ParameterFluorochromeMap
+        model = ProjectPanelParameter
+        fields = (
+            'id',
+            'url',
+            'parameter_type',
+            'parameter_value_type',
+            'antibodies',
+            'fluorochrome')
+
+
+class ProjectPanelSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='project-panel-detail')
+    parameters = ProjectPanelParameterSerializer(
+        source='projectpanelparameter_set')
+
+    class Meta:
+        model = ProjectPanel
+        fields = (
+            'id',
+            'url',
+            'project',
+            'panel_name',
+            'staining',
+            'parent_panel',
+            'parameters'
+        )
+
+
+class SitePanelParameterAntibodySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        source='antibody.antibody_abbreviation',
+        read_only=True)
+
+    class Meta:
+        model = SitePanelParameterAntibody
         exclude = ('id', 'parameter', 'antibody')
 
 
-class ParameterSerializer(serializers.ModelSerializer):
-    antibodies = ParameterAntibodySerializer(source='parameterantibodymap_set')
-    fluorochromes = ParameterFluorochromeSerializer(source='parameterfluorochromemap_set')
-    url = serializers.HyperlinkedIdentityField(view_name='parameter-detail')
-
-    class Meta:
-        model = Parameter
-        fields = ('id', 'url', 'parameter_short_name', 'parameter_type', 'antibodies', 'fluorochromes')
-
-
-class PanelParameterSerializer(serializers.ModelSerializer):
+class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
+    antibodies = SitePanelParameterAntibodySerializer(
+        source='sitepanelparameterantibody_set')
 
     class Meta:
-        model = PanelParameterMap
-        fields = ('id', 'fcs_text', 'name')
+        model = SitePanelParameter
+        fields = (
+            'id',
+            'fcs_number',
+            'fcs_text',
+            'fcs_opt_text',
+            'name',
+            'parameter_type',
+            'parameter_value_type',
+            'antibodies',
+            'fluorochrome')
         depth = 1
 
 
-class PanelSerializer(serializers.ModelSerializer):
+class SitePanelSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer(source='site.project')
     site = SiteSerializer(source='site')
-    panelparameters = PanelParameterSerializer(source='panelparametermap_set')
-    url = serializers.HyperlinkedIdentityField(view_name='panel-detail')
+    parameters = SitePanelParameterSerializer(source='sitepanelparameter_set')
+    url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
+    name = serializers.CharField(source='name')
 
     class Meta:
-        model = Panel
-        fields = ('id', 'url', 'panel_name', 'site', 'panelparameters')
+        model = SitePanel
+        fields = (
+            'id',
+            'url',
+            'project',
+            'site',
+            'project_panel',
+            'name',
+            'parameters')
 
 
-class SampleGroupSerializer(serializers.ModelSerializer):
+class StimulationSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='stimulation-detail')
+
     class Meta:
-        model = SampleGroup
-
-
-class SampleParameterSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='name', read_only=True)
-
-    class Meta:
-        model = SampleParameterMap
-        fields = ('id', 'fcs_text', 'fcs_opt_text', 'fcs_number', 'name')
-        depth = 1
+        model = Stimulation
 
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
+    project = ProjectSerializer(source='site.project')
 
     class Meta:
         model = Compensation
-        fields = ('id', 'url', 'original_filename', 'matrix_text', 'site')
+        fields = (
+            'id',
+            'url',
+            'original_filename',
+            'matrix_text',
+            'project',
+            'site')
         exclude = ('compensation_file',)
 
 
-class SampleCompensationSerializer(serializers.ModelSerializer):
-    compensation = CompensationSerializer(source='compensation')
-
-    class Meta:
-        model = SampleCompensationMap
-        fields = ('id', 'compensation',)
-        depth = 1
-
-
-class SampleCompensationPOSTSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SampleCompensationMap
-
-    def get_fields(self):
-        fields = super(SampleCompensationPOSTSerializer, self).get_default_fields()
-        user = self.context['view'].request.user
-        user_projects = Project.objects.get_projects_user_can_view(user)
-        if 'compensation' in fields:
-            fields['compensation'].queryset = Compensation.objects.filter(site__project__in=user_projects)
-        if 'sample' in fields:
-            fields['sample'].queryset = Sample.objects.filter(subject__project__in=user_projects)
-
-        return fields
-
-
 class SampleSerializer(serializers.ModelSerializer):
-    parameter_count = serializers.IntegerField(source='sampleparametermap_set.count', read_only=True)
-    sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
-    compensations = SampleCompensationSerializer(source='samplecompensationmap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(source='subject.project_id', read_only=True)
+    project = serializers.IntegerField(
+        source='subject.project_id',
+        read_only=True)
+    subject_code = serializers.CharField(
+        source='subject.subject_code',
+        read_only=True)
+    site = serializers.CharField(
+        source='site_panel.site_id',
+        read_only=True)
+    site_name = serializers.CharField(
+        source='site_panel.site.site_name',
+        read_only=True)
+    visit_name = serializers.CharField(
+        source='visit.visit_type_name',
+        read_only=True)
+    specimen_name = serializers.CharField(
+        source='specimen.specimen_name',
+        read_only=True)
+    stimulation_name = serializers.CharField(
+        source='stimulation.stimulation_name',
+        read_only=True)
+    project_panel = serializers.IntegerField(
+        source='site_panel.project_panel_id',
+        read_only=True)
+    panel_name = serializers.CharField(
+        source='site_panel.project_panel.panel_name',
+        read_only=True)
 
     class Meta:
         model = Sample
@@ -154,44 +206,74 @@ class SampleSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'visit',
+            'visit_name',
             'subject',
-            'sample_group',
+            'subject_code',
             'specimen',
+            'specimen_name',
+            'stimulation',
+            'stimulation_name',
+            'project_panel',
+            'panel_name',
+            'site_panel',
             'site',
+            'site_name',
             'project',
             'original_filename',
             'sha1',
-            'parameter_count',
-            'sampleparameters',
-            'compensations'
+            'compensation'
         )
         read_only_fields = ('original_filename', 'sha1')
         exclude = ('sample_file',)
 
 
 class SamplePOSTSerializer(serializers.ModelSerializer):
-    sampleparameters = SampleParameterSerializer(source='sampleparametermap_set')
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(source='subject.project_id', read_only=True)
+    project = serializers.IntegerField(
+        source='subject.subject_group.project_id',
+        read_only=True)
 
     def get_fields(self):
         fields = super(SamplePOSTSerializer, self).get_default_fields()
         user = self.context['view'].request.user
         user_projects = Project.objects.get_projects_user_can_view(user)
         if 'subject' in fields:
-            fields['subject'].queryset = Subject.objects.filter(project__in=user_projects)
+            fields['subject'].queryset = Subject.objects.filter(
+                project__in=user_projects)
         if 'site' in fields:
-            fields['site'].queryset = Site.objects.filter(project__in=user_projects)
+            fields['site'].queryset = Site.objects.filter(
+                project__in=user_projects)
         if 'visit' in fields:
-            fields['visit'].queryset = ProjectVisitType.objects.filter(project__in=user_projects)
+            fields['visit'].queryset = VisitType.objects.filter(
+                project__in=user_projects)
 
         return fields
 
     class Meta:
         model = Sample
         fields = (
-            'id', 'url', 'visit', 'subject', 'sample_group', 'specimen',
-            'site', 'project', 'original_filename',
-            'sampleparameters', 'sample_file'
+            'id', 'url', 'visit', 'subject', 'specimen',
+            'site_panel', 'project', 'original_filename',
+            'sample_file'
         )
         read_only_fields = ('original_filename', 'sha1')
+
+
+class SampleSetListSerializer(serializers.ModelSerializer):
+    """
+    Display the list of sample sets (without related samples)
+    """
+    url = serializers.HyperlinkedIdentityField(view_name='sample-set-detail')
+
+    class Meta:
+        model = SampleSet
+        fields = ('id', 'url', 'name', 'description', 'project')
+
+
+class SampleSetSerializer(serializers.ModelSerializer):
+    samples = SampleSerializer(source='samples')
+    url = serializers.HyperlinkedIdentityField(view_name='sample-set-detail')
+
+    class Meta:
+        model = SampleSet
+        fields = ('id', 'url', 'name', 'description', 'project', 'samples')

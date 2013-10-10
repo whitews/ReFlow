@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
+    {% breadcrumb process.process_name %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="span6">Process Description: {{ process.process_description|default_if_none:'' }}</div>
+    </div>
+    <br/>
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="4" class="center">
+            <div style="position:relative">
+              <h4>Process Inputs <span class="badge badge-inverse align-top">{{ process.processinput_set.all.count }}</span></h4>
+
+              {% if user.is_superuser %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'add_process_input' process.id %}">
+                  Add Input
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </th>
+        </tr>
+        <tr>
+            <th>Input Name</th>
+            <th>Description</th>
+            <th>Value Type</th>
+            <th>Default Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for input in process.processinput_set.all %}
+        <tr>
+          <td class="middle">
+            {{ input.input_name }}
+            {% if user.is_superuser %}
+            <span class="pull-right align-middle">
+              <a rel="tooltip" href="{% url 'edit_process_input' input.id %}" data-original-title="Edit Input" data-placement="bottom">
+                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+              </a>
+            </span>
+            {% endif %}
+          </td>
+          <td class="middle">{{ input.input_description|default_if_none:'' }}</td>
+          <td class="middle">{{ input.value_type|default_if_none:'' }}</td>
+          <td class="middle">{{ input.default_value|default_if_none:'' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

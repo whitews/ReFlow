@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
+{% endblock %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[2,0]],
+    headers: {
+      0: { sorter: false},
+      1: { sorter: false},
+      6: { sorter: false}
+    }
+  });
+});
+</script>
+
+<script>
+$(document).ready(function()
+{
+    $(".show-all").click(function()
+    {
+        $('.params').show(250);
+        return false;
+    });
+
+    $(".hide-all").click(function()
+    {
+        $('.params').hide(250);
+        return false;
+    });
+
+    $(".toggle-closest").click(function()
+    {
+        $(this).siblings('div.params').toggle(250);
+        return false;
+    });
+
+    return false;
+});
+
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Site Panels' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+
+  <div class="container">
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Site Panels <span class="badge badge-inverse align-top">{{ site_panels|length }}</span></h4>
+
+              {% if can_add_project_data %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'add_project_site_panel' project.id %}">
+                  Add Site Panel
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Project Panel</th>
+          <th>Site</th>
+          <th>Comments</th>
+          <th>Staining</th>
+          <th>
+            Parameters
+            <span class="pull-right">
+              <a href="#" class="show-all">Show All</a> | <a href="#" class="hide-all">Hide All</a>
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for panel in site_panels %}
+        <tr>
+          <td width="1%">
+            {% if panel.panel_comments != '' and panel.panel_description != None  %}
+            <a class="btn btn-mini" rel="tooltip" href="#" data-original-title="{{ panel.panel_comments }}" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
+            </a>
+            {% endif %}
+            {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+            {% endif %}
+          </td>
+          <td>{{ panel.project_panel.panel_name }} ({{ panel.implementation }})</td>
+          <td>{{ panel.site.site_name }}</td>
+          <td>{{ panel.site_panel_comments }}</td>
+          <td>{{ panel.project_panel.get_staining_display }}</td>
+          <td width="60%">
+            <a href="#" class="toggle-closest">Show/Hide</a>
+            <div class="hide params">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Type</th>
+                    <th>FCS Text</th>
+                    <th>FCS Optional Text</th>
+                    <th>Antibodies</th>
+                    <th>Fluoro</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for spp in panel.sitepanelparameter_set.all|dictsort:"fcs_number" %}
+                  <tr>
+                    <td>
+                      {{ spp.fcs_number }}
+                    </td>
+                    <td>
+                      {{ spp.get_parameter_type_display }}
+                    </td>
+                    <td>
+                      {{ spp.fcs_text }}
+                    </td>
+                    <td>
+                      {{ spp.fcs_opt_text }}
+                    </td>
+                    <td>
+                      {% for ab in spp.sitepanelparameterantibody_set.all %}
+                        {{ ab.antibody.antibody_abbreviation }}<br/>
+                      {% endfor %}
+                    </td>
+                    <td>
+                      {{ spp.fluorochrome.fluorochrome_abbreviation }}
+                    </td>
+                    <td>
+                      {{ spp.parameter_value_type }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

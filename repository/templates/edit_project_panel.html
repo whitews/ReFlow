@@ -1,18 +1,22 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load breadcrumbs %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url panel.project.project_name 'view_project' panel.project_id %}
+    {% breadcrumb_url 'Project Panels' 'view_project_panels' panel.project_id %}
+    {% breadcrumb panel.panel_name %}
+    {% breadcrumb "Edit Site Panel" %}
+  </ul>
+{% endblock %}
+
 {% block body %}
     <div class="container">
-        <div class="row lead">
-            <div class="pull-right">Add Sample Group</div>
-        </div>
-        <br/>
-        <form class="form-horizontal" action="{% url 'add_sample_group' %}" method="post">
+        <form class="form-horizontal" action="{% url 'edit_project_panel' panel.id %}" method="post">
             {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="control-group text-error">
-                    {{ form.non_field_errors }}
-                </div>
-            {% endif %}
+            {{ form.non_field_errors }}
 
             {% for field in form %}
                 <div class="control-group">
@@ -27,7 +31,7 @@
             {% endfor %}
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-small btn-primary" type="submit">Save</button>
+                    <button class="btn btn-small btn-success" type="submit">Save Edits</button>
                 </div>
             </div>
         </form>
