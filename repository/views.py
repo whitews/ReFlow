@@ -1039,29 +1039,6 @@ def edit_visit_type(request, visit_type_id):
 
 
 @login_required
-def view_site_panels(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
-    if not site.has_view_permission(request.user):
-        raise PermissionDenied
-
-    panels = SitePanel.objects.filter(site=site)
-
-    can_add_site_data = site.has_add_permission(request.user)
-    can_modify_site_data = site.has_modify_permission(request.user)
-
-    return render_to_response(
-        'view_site_panels.html',
-        {
-            'site': site,
-            'panels': panels,
-            'can_add_site_data': can_add_site_data,
-            'can_modify_site_data': can_modify_site_data,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def add_project_site_panel(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     preform_valid = False
