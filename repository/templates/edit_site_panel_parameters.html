@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+
+<script>
+$(document).ready(function () {
+    $('#panel-parameter-form').submit(function ()
+    {
+        $('button#process-parameters').attr('disabled', true);
+        $.ajax(
+        {
+            data: $(this).serialize(),
+            dataType: "json",
+            type: $(this).attr('method'),
+            url: $(this).attr('action'),
+            success: function (json) {
+                window.location.href = "{% url 'view_project_site_panels' project.id %}"
+            },
+            error: function(xhr, status, error) {
+                $('#parameter-form-errors').children().remove();
+                var obj = JSON.parse(xhr.responseText);
+                $('#parameter-form-errors').show();
+                $.each(obj.messages, function (i, value)
+                {
+                    $('#parameter-form-errors').append('<p>' + value + '</p>');
+                });
+            }
+        });
+        $('button#process-parameters').attr('disabled', false);
+        return false;
+    });
+    $( ".param_type" ).change(function() {
+        var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
+        var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
+        var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
+        if (jQuery.inArray($(this).val(), ['FSC', 'SSC']) > -1) {
+            ab_selects.hide();
+            ab_selects.val(0);
+            ab_add_link.hide();
+            fl_selects.hide();
+            fl_selects.val(0);
+        } else {
+            ab_selects.show();
+            ab_add_link.show();
+            fl_selects.show();
+        }
+    });
+});
+
+function add_antibody(selector) {
+    // clone last antibody select
+    var new_select_span = selector.siblings("span.antibody-field").last().clone();
+    var new_select = new_select_span.children("select");
+    var name = new_select.attr("name");
+    var id = new_select.attr("id");
+
+    // get the TOTAL_FORMS input, increment the form count
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  + 1));
+
+    var m = name.match(/-(\d+)-antibody/);
+    var new_select_id = parseInt(m[1]) + 1;
+    var new_name = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    var new_id = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    new_select.attr({"name": new_name, "id": new_id});
+
+    new_select_span.find(".remove-antibody").show();
+    new_select_span.append(
+      " ");
+    selector.closest("td").append(
+      new_select_span,
+      "<br>",
+      selector);
+    return false;
+}
+
+function remove_antibody(selector) {
+    var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
+    total_form.val((parseInt(total_form.val())  - 1));
+
+    var parent_td = selector.parents("td");
+    selector.parent("span").prev("br").remove();
+    selector.parent("span").remove();  // contains selector
+
+    parent_td.children("span.antibody-field").children("select").each(function(i, el) {
+      el.name = el.name.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+      el.id = el.id.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+    });
+    return false;
+}
+
+</script>
+
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb_url "Site Panels" 'view_project_site_panels' project.id %}
+    {% breadcrumb "Edit Parameters" %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+
+    <div id="render_parameters_form">
+
+      <div id="parameter-form-errors" class="hide alert alert-error">
+
+      </div>
+
+      <div class="well">
+        <table>
+        {% for param in site_panel.project_panel.projectpanelparameter_set.all %}
+          <tr>
+            <td>
+              ID: {{ param.id }}
+            </td>
+            <td>
+              {{ param.get_parameter_type_display }}
+            </td>
+            <td>
+              {% for param_ab in param.projectpanelparameterantibody_set.all %}
+              {{ param_ab.antibody.antibody_abbreviation }}<br>
+              {% endfor %}
+            </td>
+            <td>
+              {% if param.fluorochrome %}
+              {{ param.fluorochrome.fluorochrome_abbreviation }}
+              {% endif %}
+            </td>
+            <td>
+              {{ param.get_parameter_value_type_display|default_if_none:"" }}
+            </td>
+          </tr>
+        {% endfor %}
+        </table>
+      </div>
+
+      <form id="panel-parameter-form" class="form-horizontal" action="{% url 'edit_site_panel_parameters' site_panel.id %}" method="post">
+      {% csrf_token %}
+      {{ parameter_formset.management_form }}
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>FCS Channel #</th>
+              <th>FCS PnN Text</th>
+              <th>FCS PnS Text</th>
+              <th>Function</th>
+              <th>Value Type</th>
+              <th>Antibodies</th>
+              <th>Fluorochrome</th>
+            </tr>
+          </thead>
+          {% for parameter_form in parameter_formset %}
+          <tr class="parameter-fields">
+            <td>
+              {{ parameter_form.fcs_number.value }}
+              <div class="hide">{{ parameter_form.id }}</div>
+              <div class="hide">{{ parameter_form.fcs_number }}</div>
+            </td>
+            <td>
+              {{ parameter_form.fcs_text.value }}
+              <div class="hide">{{ parameter_form.fcs_text }}</div>
+            </td>
+            <td>
+              {{ parameter_form.fcs_opt_text.value }}
+              <div class="hide">{{ parameter_form.fcs_opt_text }}</div>
+            </td>
+            <td>
+              {{ parameter_form.parameter_type }}
+              {{ parameter_form.parameter_type.errors }}
+            </td>
+            <td>
+              {{ parameter_form.parameter_value_type }}
+              {{ parameter_form.parameter_value_type.errors }}
+            </td>
+          {% if parameter_form.nested %}
+            <td>
+              {% for nested_formset in parameter_form.nested %}
+                {{ nested_formset.management_form }}
+                {% for nested_form in nested_formset.forms %}
+                  <span class="antibody-field no-wrap">
+                    {{ nested_form.antibody }}
+                    <div class="hide">{{ nested_form.id }}</div>
+                    <a class="hide remove-antibody align-middle" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                      <i class="icon-remove align-middle\"></i>
+                    </a>
+                  </span>
+                {% endfor %}
+              {% endfor %}
+              <br/>
+              <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
+            </td>
+          {% else %}
+            <td></td>
+          {% endif %}
+            <td>
+              {{ parameter_form.fluorochrome }}
+              {{ parameter_form.fluorochrome.errors }}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      <div class="control-group">
+        <div class="controls">
+          <button id="process-parameters" class="btn btn-small btn-success" type="submit">Save</button>
+        </div>
+      </div>
+    </form>
+
+    </div>
+
+  </div>
+{% endblock %}
