@@ -37,7 +37,7 @@ $(document).ready(function () {
         var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
         var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
         var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
-        if (jQuery.inArray($(this).val(), ['FSC', 'SSC']) > -1) {
+        if (jQuery.inArray($(this).val(), ['FSC', 'SSC', 'TIM']) > -1) {
             ab_selects.hide();
             ab_selects.val(0);
             ab_add_link.hide();

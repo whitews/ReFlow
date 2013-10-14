@@ -7,10 +7,30 @@
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
 
 <script>
+$(document).ready(function () {
+    $( "select[id*=parameter_type]" ).change(function() {
+        var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
+        var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
+        var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
+        if (jQuery.inArray($(this).val(), ['FSC', 'SSC', 'TIM']) > -1) {
+            ab_selects.hide();
+            ab_selects.val(0);
+            ab_add_link.hide();
+            fl_selects.hide();
+            fl_selects.val(0);
+        } else {
+            ab_selects.show();
+            ab_add_link.show();
+            fl_selects.show();
+        }
+    });
+});
+
 function add_antibody(selector) {
     // clone last antibody select
-    var new_select_span = selector.siblings("span.antibody-field").last().clone();
-    var new_select = new_select_span.children("select");
+    var new_select_span = selector.parent("span.antibody-field").last().clone();
+    new_select_span.children("a[class=add-ab-link]").remove();
+    var new_select = selector.siblings("select")
     var name = new_select.attr("name");
     var id = new_select.attr("id");
 
@@ -28,9 +48,8 @@ function add_antibody(selector) {
     new_select_span.append(
       " ");
     selector.closest("td").append(
-      new_select_span,
       "<br>",
-      selector);
+      new_select_span);
     return false;
 }
 
@@ -212,14 +231,14 @@ function remove_parameter(selector) {
                 {% for nested_form in nested_formset.forms %}
                   <span class="antibody-field no-wrap">
                     {{ nested_form.antibody }}
-                    <a class="hide remove-antibody align-middle" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                    <a class="hide remove-antibody" href="javascript:void(0)" onclick="remove_antibody($(this))">
                       <i class="icon-remove align-middle\"></i>
                     </a>
+                    <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">
+                      <i class="icon-plus align-middle"></i></a>
                   </span>
                 {% endfor %}
               {% endfor %}
-              <br/>
-              <a href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
             </td>
           {% else %}
             <td></td>
