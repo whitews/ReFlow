@@ -576,7 +576,8 @@ def add_project_panel(request, project_id):
     if request.method == 'POST':
         panel_form = ProjectPanelForm(
             request.POST,
-            instance=ProjectPanel(project=project))
+            instance=ProjectPanel(project=project),
+            project_id=project.id)
 
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
@@ -611,7 +612,9 @@ def add_project_panel(request, project_id):
 
     else:
         panel = ProjectPanel(project=project)
-        panel_form = ProjectPanelForm(instance=panel)
+        panel_form = ProjectPanelForm(
+            instance=panel,
+            project_id=project.id)
         parameter_formset = ProjectParameterFormSet(instance=panel)
 
     return render_to_response(
@@ -636,7 +639,10 @@ def edit_project_panel(request, panel_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = ProjectPanelForm(request.POST, instance=panel)
+        form = ProjectPanelForm(
+            request.POST,
+            instance=panel,
+            project_id=panel.project_id)
 
         if form.is_valid():
             form.save()
@@ -644,7 +650,9 @@ def edit_project_panel(request, panel_id):
                 'view_project_panels',
                 args=(panel.project_id,)))
     else:
-        form = ProjectPanelForm(instance=panel)
+        form = ProjectPanelForm(
+            instance=panel,
+            project_id=panel.project_id)
 
     return render_to_response(
         'edit_project_panel.html',
@@ -1139,8 +1147,6 @@ def add_project_site_panel(request, project_id):
 
 @login_required
 def process_site_panel_post(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
     if request.is_ajax():
         site_id = None
         if request.POST:

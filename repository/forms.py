@@ -44,9 +44,23 @@ class ProjectPanelForm(forms.ModelForm):
     class Meta:
         model = ProjectPanel
         exclude = ('project',)  # don't allow changing the parent project
-        widgets = {
-            'panel_description': forms.Textarea(attrs={'cols': 20, 'rows': 5}),
-        }
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(ProjectPanelForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure only project's subject groups are the
+        # available choices, and that the only panels shown are Full stain
+        if project_id:
+            parent_panels = ProjectPanel.objects.filter(
+                project__id=project_id,
+                staining="FS")
+            self.fields['parent_panel'] = forms.ModelChoiceField(
+                parent_panels,
+                required=False)
 
     def clean(self):
         staining = self.cleaned_data.get('staining')
