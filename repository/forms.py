@@ -630,56 +630,6 @@ class SampleForm(forms.ModelForm):
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
 
 
-class SampleSubjectForm(forms.ModelForm):
-    class Meta:
-        model = Sample
-        exclude = ('subject', 'original_filename', 'sha1')
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # likewise for 'request' arg
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(SampleSubjectForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's sites and visit types are the available choices
-        if project_id:
-            # we also need to limit the sites to those that the user has 'add' permission for
-            project = Project.objects.get(id=project_id)
-            user_sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(user_sites)
-
-            visit_types = VisitType.objects.filter(project__id=project_id)
-            self.fields['visit'] = forms.ModelChoiceField(visit_types)
-
-
-class SampleSiteForm(forms.ModelForm):
-    class Meta:
-        model = Sample
-        exclude = ('site', 'original_filename', 'sha1')
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # likewise for 'request' arg
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(SampleSiteForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's subjects and visit types are the available choices
-        if project_id:
-            subjects = Subject.objects.filter(project__id=project_id)
-            self.fields['subject'] = forms.ModelChoiceField(subjects)
-
-            visit_types = VisitType.objects.filter(project__id=project_id)
-            self.fields['visit'] = forms.ModelChoiceField(visit_types)
-
-
 class SampleEditForm(forms.ModelForm):
     class Meta:
         model = Sample
