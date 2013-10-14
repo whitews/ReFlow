@@ -33,7 +33,7 @@ $(document).ready(function () {
         $('button#process-parameters').attr('disabled', false);
         return false;
     });
-    $( ".param_type" ).change(function() {
+    $( "select[id*=parameter_type]" ).change(function() {
         var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
         var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
         var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
@@ -68,6 +68,7 @@ function auto_populate_param_fields(row) {
 
     var ab_selects = $(row).find('select[id*=antibody]');
     var fl_selects = $(row).find('select[id*=fluorochrome]');
+    var ab_add_link = $(row).find('a[class=add-ab-link]');
 
     var fcs_text_input = $(row).find('input[id*=fcs_text]');
     if (fcs_text_input.length < 1) {
@@ -87,11 +88,13 @@ function auto_populate_param_fields(row) {
         $(param_type_selects[0]).val('FSC');
         ab_selects.hide();
         fl_selects.hide();
+        ab_add_link.hide();
         return;
     } else if (fcs_text.substr(0, 3) == 'SSC') {
         $(param_type_selects[0]).val('SSC');
         ab_selects.hide();
         fl_selects.hide();
+        ab_add_link.hide();
         return;
     } else {
         $(param_type_selects[0]).val('FCA');
@@ -134,8 +137,9 @@ function auto_populate_param_fields(row) {
 
 function add_antibody(selector) {
     // clone last antibody select
-    var new_select_span = selector.siblings("span.antibody-field").last().clone();
-    var new_select = new_select_span.children("select");
+    var new_select_span = selector.parent("span.antibody-field").last().clone();
+    new_select_span.children("a[class=add-ab-link]").remove();
+    var new_select = selector.siblings("select")
     var name = new_select.attr("name");
     var id = new_select.attr("id");
 
@@ -153,9 +157,8 @@ function add_antibody(selector) {
     new_select_span.append(
       " ");
     selector.closest("td").append(
-      new_select_span,
       "<br>",
-      selector);
+      new_select_span);
     return false;
 }
 
@@ -303,14 +306,14 @@ function remove_antibody(selector) {
                 {% for nested_form in nested_formset.forms %}
                   <span class="antibody-field no-wrap">
                     {{ nested_form.antibody }}
-                    <a class="hide remove-antibody align-middle" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                    <a class="hide remove-antibody" href="javascript:void(0)" onclick="remove_antibody($(this))">
                       <i class="icon-remove align-middle\"></i>
                     </a>
+                    <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">
+                      <i class="icon-plus align-middle"></i></a>
                   </span>
                 {% endfor %}
               {% endfor %}
-              <br/>
-              <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
             </td>
           {% else %}
             <td></td>
