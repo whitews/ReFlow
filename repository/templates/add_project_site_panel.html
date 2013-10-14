@@ -75,31 +75,37 @@ function auto_populate_param_fields(row) {
     }
     var fcs_text = fcs_text_input[0].value;
 
+    if (fcs_text.substr(-2) == '-H') {
+        $(param_value_type_selects[0]).val('H');
+    } else if (fcs_text.substr(-2) == '-W') {
+        $(param_value_type_selects[0]).val('W');
+    } else if (fcs_text.substr(-2) == '-A') {
+        $(param_value_type_selects[0]).val('A');
+    }
+
     if (fcs_text.substr(0, 3) == 'FSC') {
         $(param_type_selects[0]).val('FSC');
         ab_selects.hide();
         fl_selects.hide();
+        return;
     } else if (fcs_text.substr(0, 3) == 'SSC') {
         $(param_type_selects[0]).val('SSC');
         ab_selects.hide();
         fl_selects.hide();
+        return;
     } else {
         $(param_type_selects[0]).val('FCA');
     }
 
-    var fcs_opt_text_input = $(row).find('input[id*=fcs_text]');
+    var fcs_opt_text_input = $(row).find('input[id*=fcs_opt_text]');
+
     if (fcs_opt_text_input.length < 1) {
         return;
     }
     var fcs_opt_text = fcs_opt_text_input[0].value;
-
-    if (fcs_opt_text.substr(-2) == '-H') {
-        $(param_value_type_selects[0]).val('H');
-    } else if (fcs_opt_text.substr(-2) == '-W') {
-        $(param_value_type_selects[0]).val('W');
-    } else if (fcs_opt_text.substr(-2) == '-A') {
-        $(param_value_type_selects[0]).val('A');
-    }
+    var pattern = /\w+/g;
+    var words = (fcs_text + ' ' + fcs_opt_text).match(pattern);
+    console.log(words);
 }
 
 function add_antibody(selector) {
