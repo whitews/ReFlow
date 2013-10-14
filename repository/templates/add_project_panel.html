@@ -8,7 +8,13 @@
 
 <script>
 $(document).ready(function () {
-    $( "select[id*=parameter_type]" ).change(function() {
+    $("select[id*=parameter_type]").each(function(i, e) {
+        toggle_fields(e);
+    });
+});
+
+function toggle_fields(selector) {
+    $(selector).change(function() {
         var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
         var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
         var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
@@ -24,7 +30,7 @@ $(document).ready(function () {
             fl_selects.show();
         }
     });
-});
+}
 
 function add_antibody(selector) {
     // clone last antibody select
@@ -102,6 +108,10 @@ $("#add_parameter").click(function() {
         new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
         $(this).attr({"name": new_name, "id": new_id});
       }
+    });
+
+    new_row.find("select[id*=parameter_type]").each(function(i, e) {
+        toggle_fields(e);
     });
 
     var param_total_form = $(document).find("#id_projectpanelparameter_set-TOTAL_FORMS");
