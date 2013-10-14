@@ -96,7 +96,7 @@ $(document).ready(function()
       <tbody>
         {% for panel in site_panels %}
         <tr>
-          <td>
+          <td class="no-wrap">
             {% if can_modify_project_data %}
             <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel_parameters' panel.id %}" data-original-title="Edit Parameters" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>

@@ -33,7 +33,7 @@ $(document).ready(function () {
         $('button#process-parameters').attr('disabled', false);
         return false;
     });
-    $( ".param_type" ).change(function() {
+    $( "select[id*=parameter_type]" ).change(function() {
         var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
         var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
         var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
@@ -49,12 +49,45 @@ $(document).ready(function () {
             fl_selects.show();
         }
     });
+
+    {# Set which extra param forms get displayed #}
+    $('tr[class=parameter-fields]').each(function (i, r) {
+        initialize_parameter_row(r);
+    });
 });
+
+function initialize_parameter_row(row) {
+    var param_type_selects = $(row).find('select[id*=parameter_type]');
+    if (param_type_selects.length < 1) {
+        return;
+    }
+
+    var ab_selects = $(row).find('select[id*=antibody]');
+    var fl_selects = $(row).find('select[id*=fluorochrome]');
+    var ab_add_link = $(row).find('a[class=add-ab-link]');
+
+    if (jQuery.inArray($(param_type_selects[0]).val(), ['FSC','SSC']) > -1) {
+        ab_selects.hide();
+        fl_selects.hide();
+        ab_add_link.hide();
+        return;
+    } else {
+        if (ab_selects.length > 1) {
+            $(ab_selects).each(function (i, e) {
+                if ($(e).val() === "") {
+                    var selector = $(e).siblings('a[class*=remove-antibody]');
+                    remove_antibody($(selector[0]));
+                }
+            });
+        }
+    }
+}
 
 function add_antibody(selector) {
     // clone last antibody select
-    var new_select_span = selector.siblings("span.antibody-field").last().clone();
-    var new_select = new_select_span.children("select");
+    var new_select_span = selector.parent("span.antibody-field").last().clone();
+    new_select_span.children("a[class=add-ab-link]").remove();
+    var new_select = selector.siblings("select")
     var name = new_select.attr("name");
     var id = new_select.attr("id");
 
@@ -72,9 +105,8 @@ function add_antibody(selector) {
     new_select_span.append(
       " ");
     selector.closest("td").append(
-      new_select_span,
       "<br>",
-      selector);
+      new_select_span);
     return false;
 }
 
@@ -190,14 +222,14 @@ function remove_antibody(selector) {
                   <span class="antibody-field no-wrap">
                     {{ nested_form.antibody }}
                     <div class="hide">{{ nested_form.id }}</div>
-                    <a class="hide remove-antibody align-middle" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                    <a class="hide remove-antibody" href="javascript:void(0)" onclick="remove_antibody($(this))">
                       <i class="icon-remove align-middle\"></i>
                     </a>
+                    <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">
+                      <i class="icon-plus align-middle"></i></a>
                   </span>
                 {% endfor %}
               {% endfor %}
-              <br/>
-              <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">Add Another Antibody</a>
             </td>
           {% else %}
             <td></td>
