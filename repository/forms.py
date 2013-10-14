@@ -621,7 +621,8 @@ class SampleForm(forms.ModelForm):
                 project__id=project_id).order_by('subject_code')
             self.fields['subject'] = forms.ModelChoiceField(subjects)
 
-            # we also need to limit the sites to those that the user has 'add' permission for
+            # we also need to limit the sites to those
+            # the user has 'add' permission for
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(
                 request.user, project).order_by('site_name')
@@ -655,14 +656,23 @@ class SampleEditForm(forms.ModelForm):
         # now it's safe to call the parent init
         super(SampleEditForm, self).__init__(*args, **kwargs)
 
-        # finally, make sure only project's visit types are the available choices
+        # finally, make sure only project's visit types are the
+        # available choices
         if project_id:
-            project = Project.objects.get(id=project_id)
-            site_panels = SitePanel.objects.filter(site=self.instance.site_panel.site)
+            site_panels = SitePanel.objects.filter(
+                site=self.instance.site_panel.site)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
             visit_types = VisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
+
+            stimulations = Stimulation.objects.filter(
+                project__id=project_id).order_by('stimulation_name')
+            self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
+
+            compensations = Compensation.objects.filter(
+                site__project__id=project_id).order_by('original_filename')
+            self.fields['compensation'] = forms.ModelChoiceField(compensations)
 
 
 class CompensationForm(forms.ModelForm):
