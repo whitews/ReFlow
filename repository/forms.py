@@ -617,18 +617,28 @@ class SampleForm(forms.ModelForm):
         # finally, make sure only project's subjects, sites, and visit types
         # are the available choices
         if project_id:
-            subjects = Subject.objects.filter(project__id=project_id).order_by('subject_code')
+            subjects = Subject.objects.filter(
+                project__id=project_id).order_by('subject_code')
             self.fields['subject'] = forms.ModelChoiceField(subjects)
 
             # we also need to limit the sites to those that the user has 'add' permission for
             project = Project.objects.get(id=project_id)
-            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
+            sites = Site.objects.get_sites_user_can_add(
+                request.user, project).order_by('site_name')
             site_panels = SitePanel.objects.filter(site__in=sites)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
-            visit_types = VisitType.objects.filter(project__id=project_id).order_by('visit_type_name')
+            visit_types = VisitType.objects.filter(
+                project__id=project_id).order_by('visit_type_name')
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
 
+            stimulations = Stimulation.objects.filter(
+                project__id=project_id).order_by('stimulation_name')
+            self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
+
+            compensations = Compensation.objects.filter(
+                site__project__id=project_id).order_by('original_filename')
+            self.fields['compensation'] = forms.ModelChoiceField(compensations)
 
 class SampleEditForm(forms.ModelForm):
     class Meta:

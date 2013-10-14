@@ -600,8 +600,9 @@ class SitePanel(ProtectedModel):
                     "Could not calculate implementation version.")
 
     def __unicode__(self):
-        return u'%s (Site: %s)' % (
+        return u'%s (%d) (Site: %s)' % (
             self.project_panel.panel_name,
+            self.implementation,
             self.site.site_name)
 
 
