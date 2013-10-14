@@ -105,6 +105,30 @@ function auto_populate_param_fields(row) {
     var fcs_opt_text = fcs_opt_text_input[0].value;
     var pattern = /\w+/g;
     var words = (fcs_text + ' ' + fcs_opt_text).match(pattern);
+
+    var ab_dict = {};
+    var fl_dict = {};
+
+    $(ab_selects[0].options).each(function (i, e) {
+        ab_dict[e.value] = e.text;
+    })
+    $(fl_selects[0].options).each(function (i, e) {
+        fl_dict[e.value] = e.text;
+    })
+
+    for (var i in ab_dict) {
+        if (jQuery.inArray(ab_dict[i], words) >= 0) {
+            $(ab_selects[0]).val(i);
+            break;
+        }
+    }
+    for (var i in fl_dict) {
+        if (jQuery.inArray(fl_dict[i], words) >= 0) {
+            $(fl_selects[0]).val(i);
+            break;
+        }
+    }
+
     console.log(words);
 }
 
