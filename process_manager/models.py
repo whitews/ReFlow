@@ -42,6 +42,13 @@ class ProcessInput(models.Model):
         blank=False,
         max_length=128)
 
+    allow_multiple = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False,
+        help_text="Whether multiple input values for this input are allowed"
+    )
+
     input_description = models.TextField(
         "Process Input Description",
         null=True,
@@ -165,27 +172,6 @@ class ProcessRequest(models.Model):
         null=False,
         blank=False,
         choices=STATUS_CHOICES)
-
-    def is_assignable(self):
-        """
-        Returns True if all input values are given and status is Pending
-        """
-        if self.status != 'Pending':
-            return False
-
-        possible_input_id_list = \
-            self.process.processinput_set.all().values_list(
-                'id',
-                flat=True).order_by('id')
-        actual_input_id_list = \
-            self.processrequestinputvalue_set.all().values_list(
-                'process_input_id',
-                flat=True).order_by('process_input_id')
-
-        if possible_input_id_list != actual_input_id_list:
-            return False
-
-        return True
 
     def save(self, *args, **kwargs):
         if not self.id:
