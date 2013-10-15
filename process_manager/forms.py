@@ -20,16 +20,15 @@ class WorkerForm(ModelForm):
         model = Worker
 
 
-class RegisterProcessToWorkerForm(ModelForm):
-    class Meta:
-        model = WorkerProcessMap
-        exclude = ('worker',)
-
-
 class ProcessRequestForm(ModelForm):
     class Meta:
         model = ProcessRequest
-        exclude = ('process', 'request_user', 'completion_date', 'worker', 'status')
+        exclude = (
+            'process',
+            'request_user',
+            'completion_date',
+            'worker',
+            'status')
 
 
 class ProcessRequestInputValueForm(ModelForm):

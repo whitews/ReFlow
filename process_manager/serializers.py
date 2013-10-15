@@ -19,7 +19,8 @@ class WorkerSerializer(serializers.ModelSerializer):
 
 
 class ProcessRequestSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='process-request-detail')
+    url = serializers.HyperlinkedIdentityField(
+        view_name='process-request-detail')
 
     class Meta:
         model = ProcessRequest
@@ -43,8 +44,10 @@ class ProcessRequestInputValueSerializer(serializers.ModelSerializer):
 
 
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='process-request-detail')
-    input_values = ProcessRequestInputValueSerializer(source='processrequestinputvalue_set')
+    url = serializers.HyperlinkedIdentityField(
+        view_name='process-request-detail')
+    input_values = ProcessRequestInputValueSerializer(
+        source='processrequestinputvalue_set')
 
     class Meta:
         model = ProcessRequest

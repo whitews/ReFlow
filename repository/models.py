@@ -347,7 +347,6 @@ class ProjectPanelParameter(ProtectedModel):
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
-        # TODO: update duplicate check in ProjectPanelParameter
         ppm_duplicates = ProjectPanelParameter.objects.filter(
             project_panel=self.project_panel,
             fluorochrome=self.fluorochrome,
@@ -676,7 +675,6 @@ class SitePanelParameter(ProtectedModel):
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
-        # TODO: need better site panel parameter duplicate checking
         spp_duplicates = SitePanelParameter.objects.filter(
             site_panel=self.site_panel,
             fluorochrome=self.fluorochrome,
@@ -991,9 +989,6 @@ class Sample(ProtectedModel):
             - Save SHA-1 hash and check for duplicate FCS files in this project.
         """
 
-        # TODO: restrict site to ones the requesting user has add perms for
-        # but request isn't available in clean() ???
-
         try:
             Subject.objects.get(id=self.subject_id)
             self.original_filename = self.sample_file.name.split('/')[-1]
@@ -1030,7 +1025,6 @@ class Sample(ProtectedModel):
             if hasattr(self.sample_file.file, 'temporary_file_path'):
                 temp_file_path = self.sample_file.file.temporary_file_path()
                 os.unlink(temp_file_path)
-                # TODO: check if this generates an IOError when Django deletes
 
             raise ValidationError(
                 "This FCS file already exists in this Project."

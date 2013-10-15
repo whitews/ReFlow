@@ -26,7 +26,6 @@ urlpatterns += patterns('process_manager.views',
     url(r'^process_manager/process_input/(?P<process_input_id>\d+)/edit/$', 'edit_process_input', name='edit_process_input'),
     url(r'^process_manager/worker/(?P<worker_id>\d+)/$', 'view_worker', name='view_worker'),
     url(r'^process_manager/worker/add/$', 'add_worker', name='add_worker'),
-    url(r'^process_manager/worker/(?P<worker_id>\d+)/register_process$', 'register_process_to_worker', name='register_process_to_worker'),
     url(r'^process_manager/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
     url(r'^process_manager/process/(?P<process_id>\d+)/request/create/$', 'create_process_request', name='create_process_request'),
 )

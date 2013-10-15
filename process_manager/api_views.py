@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework import status
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import \
+    SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
@@ -26,7 +27,9 @@ def process_manager_api_root(request, format=None):
         'processes': reverse('process-list', request=request),
         'workers': reverse('worker-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
-        'viable_process_requests': reverse('viable-process-request-list', request=request),
+        'viable_process_requests': reverse(
+            'viable-process-request-list',
+            request=request),
     })
 
 
@@ -95,7 +98,9 @@ class PermissionRequiredMixin(object):
 
     def get_object(self, *args, **kwargs):
         if self.request.user.is_superuser or hasattr(self.request.user, 'worker'):
-            return super(PermissionRequiredMixin, self).get_object(*args, **kwargs)
+            return super(PermissionRequiredMixin, self).get_object(
+                *args,
+                **kwargs)
         else:
             return PermissionDenied
 
@@ -132,8 +137,8 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
 class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
     """
-    API endpoint representing a list of process requests for which a Worker can request
-    assignment.
+    API endpoint representing a list of process requests for which a
+    Worker can request assignment.
     """
 
     model = ProcessRequest
@@ -142,20 +147,16 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Override .get_queryset() to filter process requests to those with a 'Pending' status
-        and those compatible with the calling worker. Regular users receive zero results.
+        Filter process requests to those with a 'Pending' status
+        Regular users receive zero results.
         """
 
         if not hasattr(self.request.user, 'worker'):
             return ProcessRequest.objects.none()
 
-        worker = Worker.objects.get(user=self.request.user)
-        viable_process_id_list = worker.workerprocessmap_set.all().values_list('process_id', flat=True)
-
-        # filter requests against these process IDs
+        # PRs need to be in Pending status
         queryset = ProcessRequest.objects.filter(
-            process_id__in=viable_process_id_list,
-            status = 'Pending')
+            status='Pending')
         return queryset
 
 
@@ -189,11 +190,6 @@ class ProcessRequestAssignmentUpdate(LoginRequiredMixin, PermissionRequiredMixin
                 process_request = ProcessRequest.objects.get(id=kwargs['pk'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
-
-            try:
-                WorkerProcessMap.objects.get(worker=worker, process=process_request.process)
-            except:
-                raise PermissionDenied
 
             # check if ProcessRequest is already assigned
             if process_request.worker is not None:

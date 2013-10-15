@@ -12,13 +12,15 @@ from process_manager.forms import *
 
 from repository.models import Project
 
+
 @login_required
 def process_dashboard(request):
 
     processes = Process.objects.all()
     workers = Worker.objects.all()
     requests = ProcessRequest.objects.filter(
-        sample_set__project__in=Project.objects.get_projects_user_can_view(request.user))
+        sample_set__project__in=Project.objects.get_projects_user_can_view(
+            request.user))
 
     return render_to_response(
         'process_dashboard.html',
@@ -52,7 +54,9 @@ def add_process(request):
         if form.is_valid():
             process = form.save()
 
-            return HttpResponseRedirect(reverse('view_process', args=(process.id,)))
+            return HttpResponseRedirect(reverse(
+                'view_process',
+                args=(process.id,)))
     else:
         form = ProcessForm()
 
@@ -74,9 +78,11 @@ def add_process_input(request, process_id):
         form = ProcessInputForm(request.POST, instance=process_input)
 
         if form.is_valid():
-            process_input = form.save()
+            form.save()
 
-            return HttpResponseRedirect(reverse('view_process', args=(process.id,)))
+            return HttpResponseRedirect(reverse(
+                'view_process',
+                args=(process.id,)))
     else:
         form = ProcessInputForm()
 
@@ -89,6 +95,7 @@ def add_process_input(request, process_id):
         context_instance=RequestContext(request)
     )
 
+
 @user_passes_test(lambda u: u.is_superuser)
 def edit_process_input(request, process_input_id):
     process_input = get_object_or_404(ProcessInput, pk=process_input_id)
@@ -99,7 +106,9 @@ def edit_process_input(request, process_input_id):
         if form.is_valid():
             form.save()
 
-            return HttpResponseRedirect(reverse('view_process', args=(process_input.process_id,)))
+            return HttpResponseRedirect(reverse(
+                'view_process',
+                args=(process_input.process_id,)))
     else:
         form = ProcessInputForm(instance=process_input)
 
@@ -134,7 +143,9 @@ def add_worker(request):
         if form.is_valid():
             worker = form.save()
 
-            return HttpResponseRedirect(reverse('view_worker', args=(worker.id,)))
+            return HttpResponseRedirect(reverse(
+                'view_worker',
+                args=(worker.id,)))
     else:
         form = WorkerForm()
 
@@ -146,30 +157,6 @@ def add_worker(request):
         context_instance=RequestContext(request)
     )
 
-
-@user_passes_test(lambda u: u.is_superuser)
-def register_process_to_worker(request, worker_id):
-    worker = get_object_or_404(Worker, pk=worker_id)
-    worker_process_map = WorkerProcessMap(worker_id=worker_id)
-
-    if request.method == 'POST':
-        form = RegisterProcessToWorkerForm(request.POST, instance=worker_process_map)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse('view_worker', args=(worker.id,)))
-    else:
-        form = RegisterProcessToWorkerForm(instance=worker_process_map)
-
-    return render_to_response(
-        'register_process_to_worker.html',
-        {
-            'worker': worker,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
 
 @user_passes_test(lambda u: u.is_superuser)
 def create_process_request(request, process_id):
@@ -199,7 +186,9 @@ def create_process_request(request, process_id):
 
                 return HttpResponseRedirect(reverse('process_dashboard'))
         else:
-            formset = PRInputValueFormSet(request.POST, instance=process_request)
+            formset = PRInputValueFormSet(
+                request.POST,
+                instance=process_request)
     else:
         form = ProcessRequestForm(instance=process_request)
 
