@@ -47,29 +47,6 @@ def view_process(request, process_id):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def add_process(request):
-    if request.method == 'POST':
-        form = ProcessForm(request.POST)
-
-        if form.is_valid():
-            process = form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_process',
-                args=(process.id,)))
-    else:
-        form = ProcessForm()
-
-    return render_to_response(
-        'add_process.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda u: u.is_superuser)
 def add_process_input(request, process_id):
     process = get_object_or_404(Process, pk=process_id)
 
@@ -117,19 +94,6 @@ def edit_process_input(request, process_input_id):
         {
             'process_input': process_input,
             'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def view_worker(request, worker_id):
-    worker = get_object_or_404(Worker, pk=worker_id)
-
-    return render_to_response(
-        'view_worker.html',
-        {
-            'worker': worker,
         },
         context_instance=RequestContext(request)
     )

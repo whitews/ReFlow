@@ -105,13 +105,6 @@ class Worker(models.Model):
         blank=False,
         max_length=128)
 
-    worker_version = models.CharField(
-        "Worker Version",
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=256)
-
     worker_hostname = models.CharField(
         "Worker Hostname",
         unique=False,

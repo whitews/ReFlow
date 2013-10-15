@@ -15,7 +15,7 @@ class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Worker
-        fields = ('id', 'worker_name', 'worker_version', 'worker_hostname')
+        fields = ('id', 'worker_name', 'worker_hostname')
 
 
 class ProcessRequestSerializer(serializers.ModelSerializer):
