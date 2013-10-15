@@ -16,7 +16,7 @@ from repository.models import Project
 @login_required
 def process_dashboard(request):
 
-    processes = Process.objects.all()
+    plot_process = get_object_or_404(Process, process_name="Plot")
     workers = Worker.objects.all()
     requests = ProcessRequest.objects.filter(
         sample_set__project__in=Project.objects.get_projects_user_can_view(
@@ -25,7 +25,7 @@ def process_dashboard(request):
     return render_to_response(
         'process_dashboard.html',
         {
-            'processes': sorted(processes, key=attrgetter('process_name')),
+            'plot_process': plot_process,
             'workers': sorted(workers, key=attrgetter('worker_name')),
             'requests': requests,
         },
@@ -34,11 +34,11 @@ def process_dashboard(request):
 
 
 @login_required
-def view_process(request, process_id):
-    process = get_object_or_404(Process, pk=process_id)
+def view_process_plot(request):
+    process = get_object_or_404(Process, process_name='Plot')
 
     return render_to_response(
-        'view_process.html',
+        'view_process_plot.html',
         {
             'process': process,
         },
@@ -123,8 +123,8 @@ def add_worker(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def create_process_request(request, process_id):
-    process = get_object_or_404(Process, pk=process_id)
+def process_request_plot(request):
+    process = get_object_or_404(Process, process_name='Plot')
     process_request = ProcessRequest(
         process=process,
         request_user=request.user)
@@ -172,7 +172,7 @@ def create_process_request(request, process_id):
             initial=initial_data)
 
     return render_to_response(
-        'create_process_request.html',
+        'process_request_plot.html',
         {
             'process': process,
             'form': form,

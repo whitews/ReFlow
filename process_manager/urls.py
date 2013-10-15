@@ -20,10 +20,10 @@ urlpatterns = patterns('process_manager.api_views',
 # Regular web routes
 urlpatterns += patterns('process_manager.views',
     url(r'^process_manager/$', 'process_dashboard', name='process_dashboard'),
-    url(r'^process_manager/process/(?P<process_id>\d+)/$', 'view_process', name='view_process'),
     url(r'^process_manager/process/(?P<process_id>\d+)/input/add/$', 'add_process_input', name='add_process_input'),
     url(r'^process_manager/process_input/(?P<process_input_id>\d+)/edit/$', 'edit_process_input', name='edit_process_input'),
     url(r'^process_manager/worker/add/$', 'add_worker', name='add_worker'),
     url(r'^process_manager/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
-    url(r'^process_manager/process/(?P<process_id>\d+)/request/create/$', 'create_process_request', name='create_process_request'),
+    url(r'^process_manager/process/plot/$', 'view_process_plot', name='view_process_plot'),
+    url(r'^process_manager/process/plot/request/$', 'process_request_plot', name='process_request_plot'),
 )
