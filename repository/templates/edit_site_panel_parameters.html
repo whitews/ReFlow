@@ -37,7 +37,7 @@ $(document).ready(function () {
         var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
         var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
         var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
-        if (jQuery.inArray($(this).val(), ['FSC', 'SSC', 'TIM']) > -1) {
+        if (jQuery.inArray($(this).val(), ['FSC', 'SSC']) > -1) {
             ab_selects.hide();
             ab_selects.val(0);
             ab_add_link.hide();
@@ -50,19 +50,15 @@ $(document).ready(function () {
         }
     });
 
-    {# Pre-populate some fields based on the FCS text #}
+    {# Set which extra param forms get displayed #}
     $('tr[class=parameter-fields]').each(function (i, r) {
-        auto_populate_param_fields(r);
+        initialize_parameter_row(r);
     });
 });
 
-function auto_populate_param_fields(row) {
+function initialize_parameter_row(row) {
     var param_type_selects = $(row).find('select[id*=parameter_type]');
     if (param_type_selects.length < 1) {
-        return;
-    }
-    var param_value_type_selects = $(row).find('select[id*=parameter_value_type]');
-    if (param_value_type_selects.length < 1) {
         return;
     }
 
@@ -70,69 +66,21 @@ function auto_populate_param_fields(row) {
     var fl_selects = $(row).find('select[id*=fluorochrome]');
     var ab_add_link = $(row).find('a[class=add-ab-link]');
 
-    var fcs_text_input = $(row).find('input[id*=fcs_text]');
-    if (fcs_text_input.length < 1) {
-        return;
-    }
-    var fcs_text = fcs_text_input[0].value;
-
-    if (fcs_text.substr(-2) == '-H') {
-        $(param_value_type_selects[0]).val('H');
-    } else if (fcs_text.substr(-2) == '-W') {
-        $(param_value_type_selects[0]).val('W');
-    } else if (fcs_text.substr(-2) == '-A') {
-        $(param_value_type_selects[0]).val('A');
-    }
-
-    if (fcs_text.substr(0, 3) == 'FSC') {
-        $(param_type_selects[0]).val('FSC');
-        ab_selects.hide();
-        fl_selects.hide();
-        ab_add_link.hide();
-        return;
-    } else if (fcs_text.substr(0, 3) == 'SSC') {
-        $(param_type_selects[0]).val('SSC');
+    if (jQuery.inArray($(param_type_selects[0]).val(), ['FSC','SSC']) > -1) {
         ab_selects.hide();
         fl_selects.hide();
         ab_add_link.hide();
         return;
     } else {
-        $(param_type_selects[0]).val('FCA');
-    }
-
-    var fcs_opt_text_input = $(row).find('input[id*=fcs_opt_text]');
-
-    if (fcs_opt_text_input.length < 1) {
-        return;
-    }
-    var fcs_opt_text = fcs_opt_text_input[0].value;
-    var pattern = /\w+/g;
-    var words = (fcs_text + ' ' + fcs_opt_text).match(pattern);
-
-    var ab_dict = {};
-    var fl_dict = {};
-
-    $(ab_selects[0].options).each(function (i, e) {
-        ab_dict[e.value] = e.text;
-    })
-    $(fl_selects[0].options).each(function (i, e) {
-        fl_dict[e.value] = e.text;
-    })
-
-    for (var i in ab_dict) {
-        if (jQuery.inArray(ab_dict[i], words) >= 0) {
-            $(ab_selects[0]).val(i);
-            break;
+        if (ab_selects.length > 1) {
+            $(ab_selects).each(function (i, e) {
+                if ($(e).val() === "") {
+                    var selector = $(e).siblings('a[class*=remove-antibody]');
+                    remove_antibody($(selector[0]));
+                }
+            });
         }
     }
-    for (var i in fl_dict) {
-        if (jQuery.inArray(fl_dict[i], words) >= 0) {
-            $(fl_selects[0]).val(i);
-            break;
-        }
-    }
-
-    console.log(words);
 }
 
 function add_antibody(selector) {
@@ -185,42 +133,13 @@ function remove_antibody(selector) {
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
-    {% breadcrumb "Add Site Panel" %}
+    {% breadcrumb_url "Site Panels" 'view_project_site_panels' project.id %}
+    {% breadcrumb "Edit Parameters" %}
   </ul>
 {% endblock %}
 
 {% block body %}
   <div class="container">
-
-    {% if not preform_valid %}
-
-    <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_project_site_panel' project.id %}" method="post">
-      {% csrf_token %}
-        {% if preform.non_field_errors %}
-          <div class="control-group text-error">
-            {{ preform.non_field_errors }}
-          </div>
-        {% endif %}
-
-        {% for field in preform %}
-          <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">
-              {{ field }}
-              {% if field.errors %}
-                <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-              {% endif %}
-            </div>
-          </div>
-        {% endfor %}
-      <div class="control-group">
-        <div class="controls">
-          <button class="btn btn-small btn-success" type="submit">Submit File</button>
-        </div>
-      </div>
-    </form>
-
-    {% else %}
 
     <div id="render_parameters_form">
 
@@ -230,7 +149,7 @@ function remove_antibody(selector) {
 
       <div class="well">
         <table>
-        {% for param in project_panel.projectpanelparameter_set.all %}
+        {% for param in site_panel.project_panel.projectpanelparameter_set.all %}
           <tr>
             <td>
               ID: {{ param.id }}
@@ -256,13 +175,8 @@ function remove_antibody(selector) {
         </table>
       </div>
 
-      <form id="panel-parameter-form" class="form-horizontal" action="{% url 'process_site_panel_post' project.id %}" method="post">
+      <form id="panel-parameter-form" class="form-horizontal" action="{% url 'edit_site_panel_parameters' site_panel.id %}" method="post">
       {% csrf_token %}
-
-      <div class="hide">
-        {{ site_panel_form }}
-      </div>
-
       {{ parameter_formset.management_form }}
 
         <table class="table">
@@ -281,6 +195,7 @@ function remove_antibody(selector) {
           <tr class="parameter-fields">
             <td>
               {{ parameter_form.fcs_number.value }}
+              <div class="hide">{{ parameter_form.id }}</div>
               <div class="hide">{{ parameter_form.fcs_number }}</div>
             </td>
             <td>
@@ -306,6 +221,7 @@ function remove_antibody(selector) {
                 {% for nested_form in nested_formset.forms %}
                   <span class="antibody-field no-wrap">
                     {{ nested_form.antibody }}
+                    <div class="hide">{{ nested_form.id }}</div>
                     <a class="hide remove-antibody" href="javascript:void(0)" onclick="remove_antibody($(this))">
                       <i class="icon-remove align-middle\"></i>
                     </a>
@@ -333,8 +249,6 @@ function remove_antibody(selector) {
     </form>
 
     </div>
-
-    {% endif %}
 
   </div>
 {% endblock %}

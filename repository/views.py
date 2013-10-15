@@ -576,7 +576,8 @@ def add_project_panel(request, project_id):
     if request.method == 'POST':
         panel_form = ProjectPanelForm(
             request.POST,
-            instance=ProjectPanel(project=project))
+            instance=ProjectPanel(project=project),
+            project_id=project.id)
 
         if panel_form.is_valid():
             panel = panel_form.save(commit=False)
@@ -611,7 +612,9 @@ def add_project_panel(request, project_id):
 
     else:
         panel = ProjectPanel(project=project)
-        panel_form = ProjectPanelForm(instance=panel)
+        panel_form = ProjectPanelForm(
+            instance=panel,
+            project_id=project.id)
         parameter_formset = ProjectParameterFormSet(instance=panel)
 
     return render_to_response(
@@ -636,7 +639,10 @@ def edit_project_panel(request, panel_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = ProjectPanelForm(request.POST, instance=panel)
+        form = ProjectPanelForm(
+            request.POST,
+            instance=panel,
+            project_id=panel.project_id)
 
         if form.is_valid():
             form.save()
@@ -644,7 +650,9 @@ def edit_project_panel(request, panel_id):
                 'view_project_panels',
                 args=(panel.project_id,)))
     else:
-        form = ProjectPanelForm(instance=panel)
+        form = ProjectPanelForm(
+            instance=panel,
+            project_id=panel.project_id)
 
     return render_to_response(
         'edit_project_panel.html',
@@ -1139,8 +1147,6 @@ def add_project_site_panel(request, project_id):
 
 @login_required
 def process_site_panel_post(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
     if request.is_ajax():
         site_id = None
         if request.POST:
@@ -1216,7 +1222,67 @@ def process_site_panel_post(request, project_id):
 
 
 @login_required
-def edit_site_panel(request, panel_id):
+def edit_site_panel_parameters(request, panel_id):
+    site_panel = get_object_or_404(SitePanel, pk=panel_id)
+    project = site_panel.project_panel.project
+
+    if not (site_panel.site.has_modify_permission(request.user)):
+        raise PermissionDenied
+
+    ParameterFormSet = inlineformset_factory(
+        SitePanel,
+        SitePanelParameter,
+        formset=BaseSitePanelParameterFormSet,
+        can_delete=False,
+        extra=0
+    )
+
+    if request.method == 'POST':
+        parameter_formset = ParameterFormSet(
+            request.POST,
+            instance=site_panel)
+
+        if parameter_formset.is_valid():
+            for param_form in parameter_formset.forms:
+                # when manually saving the forms in a formset the
+                # parent's id is not set
+                param_form.instance.site_panel_id = site_panel.id
+                parameter = param_form.save()
+                param_form.nested[0].instance = parameter
+                param_form.nested[0].save()
+
+            response_dict = {
+                'errors': False,
+                'messages': ["Thanks!"]
+            }
+            return HttpResponse(json.dumps(response_dict))
+        else:
+            response_dict = {
+                'errors': True,
+                'messages': []
+            }
+            for error in parameter_formset.non_form_errors():
+                response_dict['messages'].append(error)
+            for error in parameter_formset.errors:
+                 if error.has_key('__all__'):
+                     response_dict['messages'].append(error['__all__'])
+            return HttpResponseBadRequest(json.dumps(response_dict))
+    else:
+        parameter_formset = ParameterFormSet(instance=site_panel)
+
+    return render_to_response(
+        'edit_site_panel_parameters.html',
+        {
+            'project': project,
+            'site_panel': site_panel,
+            'parameter_formset': parameter_formset
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def edit_site_panel_comments(request, panel_id):
     panel = get_object_or_404(SitePanel, pk=panel_id)
 
     if not panel.site.has_modify_permission(request.user):
@@ -1228,8 +1294,8 @@ def edit_site_panel(request, panel_id):
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse(
-                'view_site_panels',
-                args=(panel.site_id,)))
+                'view_project_site_panels',
+                args=(panel.project_panel.project_id,)))
     else:
         form = EditSitePanelForm(instance=panel)
 

@@ -44,9 +44,23 @@ class ProjectPanelForm(forms.ModelForm):
     class Meta:
         model = ProjectPanel
         exclude = ('project',)  # don't allow changing the parent project
-        widgets = {
-            'panel_description': forms.Textarea(attrs={'cols': 20, 'rows': 5}),
-        }
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(ProjectPanelForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure only project's subject groups are the
+        # available choices, and that the only panels shown are Full stain
+        if project_id:
+            parent_panels = ProjectPanel.objects.filter(
+                project__id=project_id,
+                staining="FS")
+            self.fields['parent_panel'] = forms.ModelChoiceField(
+                parent_panels,
+                required=False)
 
     def clean(self):
         staining = self.cleaned_data.get('staining')
@@ -603,68 +617,29 @@ class SampleForm(forms.ModelForm):
         # finally, make sure only project's subjects, sites, and visit types
         # are the available choices
         if project_id:
-            subjects = Subject.objects.filter(project__id=project_id).order_by('subject_code')
+            subjects = Subject.objects.filter(
+                project__id=project_id).order_by('subject_code')
             self.fields['subject'] = forms.ModelChoiceField(subjects)
 
-            # we also need to limit the sites to those that the user has 'add' permission for
+            # we also need to limit the sites to those
+            # the user has 'add' permission for
             project = Project.objects.get(id=project_id)
-            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
+            sites = Site.objects.get_sites_user_can_add(
+                request.user, project).order_by('site_name')
             site_panels = SitePanel.objects.filter(site__in=sites)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
-            visit_types = VisitType.objects.filter(project__id=project_id).order_by('visit_type_name')
+            visit_types = VisitType.objects.filter(
+                project__id=project_id).order_by('visit_type_name')
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
 
+            stimulations = Stimulation.objects.filter(
+                project__id=project_id).order_by('stimulation_name')
+            self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
-class SampleSubjectForm(forms.ModelForm):
-    class Meta:
-        model = Sample
-        exclude = ('subject', 'original_filename', 'sha1')
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # likewise for 'request' arg
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(SampleSubjectForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's sites and visit types are the available choices
-        if project_id:
-            # we also need to limit the sites to those that the user has 'add' permission for
-            project = Project.objects.get(id=project_id)
-            user_sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(user_sites)
-
-            visit_types = VisitType.objects.filter(project__id=project_id)
-            self.fields['visit'] = forms.ModelChoiceField(visit_types)
-
-
-class SampleSiteForm(forms.ModelForm):
-    class Meta:
-        model = Sample
-        exclude = ('site', 'original_filename', 'sha1')
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # likewise for 'request' arg
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(SampleSiteForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's subjects and visit types are the available choices
-        if project_id:
-            subjects = Subject.objects.filter(project__id=project_id)
-            self.fields['subject'] = forms.ModelChoiceField(subjects)
-
-            visit_types = VisitType.objects.filter(project__id=project_id)
-            self.fields['visit'] = forms.ModelChoiceField(visit_types)
-
+            compensations = Compensation.objects.filter(
+                site__project__id=project_id).order_by('original_filename')
+            self.fields['compensation'] = forms.ModelChoiceField(compensations)
 
 class SampleEditForm(forms.ModelForm):
     class Meta:
@@ -681,14 +656,23 @@ class SampleEditForm(forms.ModelForm):
         # now it's safe to call the parent init
         super(SampleEditForm, self).__init__(*args, **kwargs)
 
-        # finally, make sure only project's visit types are the available choices
+        # finally, make sure only project's visit types are the
+        # available choices
         if project_id:
-            project = Project.objects.get(id=project_id)
-            site_panels = SitePanel.objects.filter(site=self.instance.site_panel.site)
+            site_panels = SitePanel.objects.filter(
+                site=self.instance.site_panel.site)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
             visit_types = VisitType.objects.filter(project__id=project_id)
             self.fields['visit'] = forms.ModelChoiceField(visit_types)
+
+            stimulations = Stimulation.objects.filter(
+                project__id=project_id).order_by('stimulation_name')
+            self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
+
+            compensations = Compensation.objects.filter(
+                site__project__id=project_id).order_by('original_filename')
+            self.fields['compensation'] = forms.ModelChoiceField(compensations)
 
 
 class CompensationForm(forms.ModelForm):

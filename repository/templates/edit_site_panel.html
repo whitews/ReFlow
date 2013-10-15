@@ -13,7 +13,7 @@
 
 {% block body %}
     <div class="container">
-        <form class="form-horizontal" action="{% url 'edit_site_panel' panel.id %}" method="post">
+        <form class="form-horizontal" action="{% url 'edit_site_panel_comments' panel.id %}" method="post">
             {% csrf_token %}
             {{ form.non_field_errors }}
 

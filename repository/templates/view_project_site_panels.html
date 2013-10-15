@@ -96,15 +96,13 @@ $(document).ready(function()
       <tbody>
         {% for panel in site_panels %}
         <tr>
-          <td width="1%">
-            {% if panel.panel_comments != '' and panel.panel_description != None  %}
-            <a class="btn btn-mini" rel="tooltip" href="#" data-original-title="{{ panel.panel_comments }}" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-info-sign align-middle"></i>
-            </a>
-            {% endif %}
+          <td class="no-wrap">
             {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel' panel.id %}" data-original-title="Edit" data-placement="bottom">
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel_parameters' panel.id %}" data-original-title="Edit Parameters" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel_comments' panel.id %}" data-original-title="Edit Comments" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-comment align-middle"></i>
             </a>
             {% endif %}
           </td>

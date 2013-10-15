@@ -600,8 +600,9 @@ class SitePanel(ProtectedModel):
                     "Could not calculate implementation version.")
 
     def __unicode__(self):
-        return u'%s (Site: %s)' % (
+        return u'%s (%d) (Site: %s)' % (
             self.project_panel.panel_name,
+            self.implementation,
             self.site.site_name)
 
 
@@ -678,7 +679,7 @@ class SitePanelParameter(ProtectedModel):
         # TODO: need better site panel parameter duplicate checking
         spp_duplicates = SitePanelParameter.objects.filter(
             site_panel=self.site_panel,
-            ### More stuff here
+            fluorochrome=self.fluorochrome,
             parameter_type=self.parameter_type,
             parameter_value_type=self.parameter_value_type).exclude(id=self.id)
 
