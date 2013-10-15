@@ -29,8 +29,6 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/samples/(?P<pk>\d+)/$', SampleDetail.as_view(), name='sample-detail'),
     url(r'^api/repository/samples/(?P<pk>\d+)/download/$', retrieve_sample, name='sample-download'),
     url(r'^api/repository/samples/(?P<pk>\d+)/apply_panel/$', SamplePanelUpdate.as_view(), name='sample-panel-update'),
-    url(r'^api/repository/sample_sets/$', SampleSetList.as_view(), name='sample-set-list'),
-    url(r'^api/repository/sample_sets/(?P<pk>\d+)/$', SampleSetDetail.as_view(), name='sample-set-detail'),
     url(r'^api/repository/sites/$', SiteList.as_view(), name='site-list'),
     url(r'^api/repository/sites/(?P<pk>\d+)/$', SiteDetail.as_view(), name='site-detail'),
     url(r'^api/repository/subject_groups/$', SubjectGroupList.as_view(), name='subject-group-list'),
@@ -108,9 +106,6 @@ urlpatterns += patterns('repository.views',
     url(r'^sample/(?P<sample_id>\d+)/parameters/$', 'render_sample_parameters', name='render_sample_parameters'),
     url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample', name='retrieve_sample'),
-
-    url(r'^project/(?P<project_id>\d+)/sample_sets/$', 'view_project_sample_sets', name='view_project_sample_sets'),
-    url(r'^project/(?P<project_id>\d+)/sample_sets/add/$', 'add_sample_set', name='add_sample_set'),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 )

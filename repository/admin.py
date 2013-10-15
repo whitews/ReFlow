@@ -36,5 +36,4 @@ admin.site.register(SitePanelParameterAntibody)
 
 admin.site.register(Sample)
 admin.site.register(SampleMetadata)
-admin.site.register(SampleSet)
 admin.site.register(Compensation)

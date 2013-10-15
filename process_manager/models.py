@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 from rest_framework.authtoken.models import Token
 
-from repository.models import SampleSet
+from repository.models import Sample
 
 
 class Process(models.Model):
@@ -131,6 +131,13 @@ class Worker(models.Model):
 
     def __unicode__(self):
         return u'%s' % (self.worker_name,)
+
+
+class SampleSet(models.Model):
+    """
+    An collection of Sample instances in ProcessRequest
+    """
+    samples = models.ManyToManyField(Sample)
 
 
 class ProcessRequest(models.Model):

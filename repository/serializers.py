@@ -257,23 +257,3 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'sample_file'
         )
         read_only_fields = ('original_filename', 'sha1')
-
-
-class SampleSetListSerializer(serializers.ModelSerializer):
-    """
-    Display the list of sample sets (without related samples)
-    """
-    url = serializers.HyperlinkedIdentityField(view_name='sample-set-detail')
-
-    class Meta:
-        model = SampleSet
-        fields = ('id', 'url', 'name', 'description', 'project')
-
-
-class SampleSetSerializer(serializers.ModelSerializer):
-    samples = SampleSerializer(source='samples')
-    url = serializers.HyperlinkedIdentityField(view_name='sample-set-detail')
-
-    class Meta:
-        model = SampleSet
-        fields = ('id', 'url', 'name', 'description', 'project', 'samples')
