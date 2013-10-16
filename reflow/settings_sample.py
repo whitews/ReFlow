@@ -39,6 +39,10 @@ LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
+# Hosts/domain names that are valid for this site; required if DEBUG is False
+# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = ['*']
+
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -156,7 +160,7 @@ GUARDIAN_RENDER_403 = True
 
 REST_FRAMEWORK = {
     #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser'),
-    'PAGINATE_BY': 10,
+    'PAGINATE_BY': None,
     'PAGINATE_BY_PARAM': 'paginate_by',
     'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
     'DEFAULT_AUTHENTICATION_CLASSES': (

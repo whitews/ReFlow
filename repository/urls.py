@@ -36,6 +36,15 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/subjects/(?P<pk>\d+)/$', SubjectDetail.as_view(), name='subject-detail'),
     url(r'^api/repository/visit_types/$', VisitTypeList.as_view(), name='visit-type-list'),
     url(r'^api/repository/visit_types/(?P<pk>\d+)/$', VisitTypeDetail.as_view(), name='visittype-detail'),
+    url(r'^api/repository/processes/$', ProcessList.as_view(), name='process-list'),
+    url(r'^api/repository/workers/$', WorkerList.as_view(), name='worker-list'),
+    url(r'^api/repository/verify_worker/$', verify_worker, name='verify-worker'),
+    url(r'^api/repository/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),
+    url(r'^api/repository/viable_process_requests/$', ViableProcessRequestList.as_view(), name='viable-process-request-list'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/$', ProcessRequestDetail.as_view(), name='process-request-detail'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/request_assignment/$', ProcessRequestAssignmentUpdate.as_view(), name='process-request-assignment'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/revoke_assignment/$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/verify_assignment/$', verify_process_request_assignment, name='verify-process-request-assignment'),
 )
 
 # Regular web routes
@@ -108,4 +117,14 @@ urlpatterns += patterns('repository.views',
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample', name='retrieve_sample'),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
+
+    url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),
+    url(r'^processing/process/(?P<process_id>\d+)/input/add/$', 'add_process_input', name='add_process_input'),
+    url(r'^processing/process/process_input/(?P<process_input_id>\d+)/edit/$', 'edit_process_input', name='edit_process_input'),
+    url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
+    url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
+    url(r'^processing/process/plot/$', 'view_process_plot', name='view_process_plot'),
+
+    # Specific process requests are under a project
+    url(r'^project/(?P<project_id>\d+)/plots/request/$', 'process_request_plot', name='process_request_plot'),
 )

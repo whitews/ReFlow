@@ -1,8 +1,9 @@
 from rest_framework import generics
+from rest_framework import status
 from rest_framework.authentication import \
     SessionAuthentication, \
     TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
@@ -45,6 +46,11 @@ def repository_api_root(request):
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
+        'processes': reverse('process-list', request=request),
+        'workers': reverse('worker-list', request=request),
+        'process_requests': reverse('process-request-list', request=request),
+        'viable_process_requests': reverse(
+            'viable-process-request-list', request=request),
     })
 
 
@@ -378,7 +384,8 @@ class StimulationList(LoginRequiredMixin, generics.ListAPIView):
         Results are restricted to projects to which the user belongs.
         """
 
-        user_projects = Project.objects.get_projects_user_can_view(self.request.user)
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
         queryset = Stimulation.objects.filter(project__in=user_projects)
 
         return queryset
@@ -549,3 +556,165 @@ class CompensationDetail(
 
     model = Compensation
     serializer_class = CompensationSerializer
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def verify_worker(request):
+    """
+    Tests whether the requesting user is a Worker
+    """
+    data = {'worker': False}
+    if hasattr(request.user, 'worker'):
+        data['worker'] = True
+
+    return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated, IsAdminUser))
+def revoke_process_request_assignment(request, pk):
+    pr = get_object_or_404(ProcessRequest, pk=pk)
+    if not pr.worker:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    pr.worker = None
+    pr.status = "Pending"
+    try:
+        pr.save()
+    except:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    return Response(status=status.HTTP_200_OK, data={})
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def verify_process_request_assignment(request, pk):
+    """
+    Tests whether the requesting user (worker) is assigned to the
+    specified ProcessRequest
+    """
+    pr = get_object_or_404(ProcessRequest, pk=pk)
+    data = {'assignment': False}
+    if pr.worker is not None and hasattr(request.user, 'worker'):
+        if pr.worker == Worker.objects.get(user=request.user):
+            data['assignment'] = True
+
+    return Response(status=status.HTTP_200_OK, data=data)
+
+
+class ProcessList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of processes.
+    """
+
+    model = Process
+    serializer_class = ProcessSerializer
+    filter_fields = ('process_name',)
+
+
+class WorkerList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of workers.
+    """
+
+    model = Worker
+    serializer_class = WorkerSerializer
+    filter_fields = ('worker_name',)
+
+
+class ProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of process requests.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
+    filter_fields = ('process', 'worker', 'request_user')
+
+
+class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of process requests for which a
+    Worker can request assignment.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
+    filter_fields = ('process', 'worker', 'request_user')
+
+    def get_queryset(self):
+        """
+        Filter process requests to those with a 'Pending' status
+        Regular users receive zero results.
+        """
+
+        if not hasattr(self.request.user, 'worker'):
+            return ProcessRequest.objects.none()
+
+        # PRs need to be in Pending status
+        queryset = ProcessRequest.objects.filter(
+            status='Pending')
+        return queryset
+
+
+class ProcessRequestDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint representing a single process request.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestDetailSerializer
+
+
+class ProcessRequestAssignmentUpdate(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.UpdateAPIView):
+    """
+    API endpoint for requesting assignment for a ProcessRequest.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequest
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Override patch for validation:
+          - ensure user is a Worker
+          - Worker must be registered to the ProcessRequest's Process
+          - ProcessRequest must not already be assigned
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                process_request = ProcessRequest.objects.get(id=kwargs['pk'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # check if ProcessRequest is already assigned
+            if process_request.worker is not None:
+                return Response(
+                    data={'detail': 'Request is already assigned'}, status=400)
+
+            # if we get here, the worker is bonafide! "He's a suitor!"
+            try:
+                # now try to save the ProcessRequest
+                process_request.worker = worker
+                process_request.save()
+
+                # serialize the updated ProcessRequest
+                serializer = ProcessRequestSerializer(process_request)
+
+                return Response(serializer.data, status=201)
+            except ValidationError as e:
+                return Response(data={'detail': e.messages}, status=400)
+
+        return Response(data={'detail': 'Bad request'}, status=400)

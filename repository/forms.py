@@ -695,3 +695,41 @@ class CompensationForm(forms.ModelForm):
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
             self.fields['site'] = forms.ModelChoiceField(sites)
+
+
+class ProcessForm(forms.ModelForm):
+    class Meta:
+        model = Process
+
+
+class ProcessInputForm(forms.ModelForm):
+    class Meta:
+        model = ProcessInput
+        exclude = ('process',)
+
+
+class WorkerForm(forms.ModelForm):
+    class Meta:
+        model = Worker
+
+
+class ProcessRequestForm(forms.ModelForm):
+    class Meta:
+        model = ProcessRequest
+        exclude = (
+            'process',
+            'request_user',
+            'completion_date',
+            'worker',
+            'status')
+
+
+class ProcessRequestInputValueForm(forms.ModelForm):
+    value_label = forms.CharField(widget=forms.HiddenInput())
+    process_input = forms.ModelChoiceField(
+        queryset=ProcessInput.objects.all(),
+        widget=forms.HiddenInput())
+
+    class Meta:
+        model = ProcessRequestInputValue
+        exclude = ('process_request',)

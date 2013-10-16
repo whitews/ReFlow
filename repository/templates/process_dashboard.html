@@ -61,11 +61,6 @@ $(function() {
         <tr>
           <td>
             <a href="{% url 'view_process_plot' %}">{{ plot_process.process_name }}</a>
-            <span class="pull-right">
-              <a class="btn btn-mini" href="{% url 'process_request_plot' %}">
-                New Request
-              </a>
-            </span>
           </td>
           <td>
             {{ plot_process.process_description }}

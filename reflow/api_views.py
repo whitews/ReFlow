@@ -11,7 +11,6 @@ def api_root(request, format=None):
 
     return Response({
         'repository_api': reverse('repository-api-root', request=request),
-        'process_manager_api': reverse('process-manager-api-root', request=request),
         'api_token_auth': reverse('api-token-auth', request=request),
         'api_docs': reverse('api-docs', request=request),
     })
