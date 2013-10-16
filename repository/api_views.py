@@ -71,6 +71,23 @@ def retrieve_sample(request, pk):
     return response
 
 
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_sample_as_pk(request, pk):
+    sample = get_object_or_404(Sample, pk=pk)
+
+    if not sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        sample.sample_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % sample.id + '.fcs'
+    return response
+
+
 class LoginRequiredMixin(object):
     """
     View mixin to verify a user is logged in.
