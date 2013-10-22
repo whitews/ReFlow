@@ -602,7 +602,7 @@ class StimulationForm(forms.ModelForm):
 class SampleForm(forms.ModelForm):
     class Meta:
         model = Sample
-        exclude = ('original_filename', 'sha1')
+        exclude = ('original_filename', 'sha1', 'subsample')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -644,7 +644,7 @@ class SampleForm(forms.ModelForm):
 class SampleEditForm(forms.ModelForm):
     class Meta:
         model = Sample
-        exclude = ('original_filename', 'sample_file', 'sha1')
+        exclude = ('original_filename', 'sample_file', 'sha1', 'subsample')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it

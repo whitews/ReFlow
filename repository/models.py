@@ -2,6 +2,7 @@ from string import join
 import hashlib
 import io
 import datetime
+from tempfile import TemporaryFile
 
 import os
 import re
@@ -9,6 +10,7 @@ from django.core.exceptions import \
     ValidationError, \
     ObjectDoesNotExist, \
     MultipleObjectsReturned
+from django.core.files import File
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
@@ -17,6 +19,7 @@ from guardian.models import UserObjectPermission
 from rest_framework.authtoken.models import Token
 
 import fcm
+import numpy as np
 
 
 class ProtectedModel(models.Model):
@@ -909,13 +912,29 @@ class Compensation(ProtectedModel):
 
 def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
-    subject_id = instance.subject_id
+    site_id = instance.site_panel.site_id
     
     upload_dir = join([
         'ReFlow-data',
         str(project_id),
-        str(subject_id),
+        'sample',
+        str(site_id),
         str(filename)],
+        "/")
+
+    return upload_dir
+
+
+def subsample_file_path(instance, filename):
+    project_id = instance.subject.project_id
+    site_id = instance.site_panel.site_id
+
+    upload_dir = join([
+        'ReFlow-data',
+        str(project_id),
+        'subsample',
+        str(site_id),
+        str(filename + ".npy")],
         "/")
 
     return upload_dir
@@ -956,6 +975,10 @@ class Sample(ProtectedModel):
         blank=False,
         editable=False,
         max_length=256)
+    subsample = models.FileField(
+        upload_to=subsample_file_path,
+        null=False,
+        blank=False)
     sha1 = models.CharField(
         unique=False,
         null=False,
@@ -1130,6 +1153,25 @@ class Sample(ProtectedModel):
                     raise ValidationError(
                         "FCS PnS text for channel '%s' does not match panel"
                         % str(channel_number))
+
+        # Save a sub-sample of the FCS data for more efficient retrieval
+        # We'll save a random 10,000 events (non-duplicated) if possible
+        # We'll also store the indices of the randomly chosen events for
+        # reproducibility. The indices will be inserted as the first column.
+        # The result is stored as a numpy object in a file field.
+        numpy_data = fcm_obj.view()
+        index_array = np.arange(len(numpy_data))
+        np.random.shuffle(index_array)
+        random_subsample = numpy_data[index_array[:10000]]
+        random_subsample_indexed = np.insert(
+            random_subsample,
+            0,
+            index_array[:10000],
+            axis=1)
+        subsample_file = TemporaryFile()
+        np.save(subsample_file, random_subsample_indexed)
+        self.subsample.save(self.original_filename, File(subsample_file))
+
 
     def save(self, *args, **kwargs):
         """ Populate upload date on save """
