@@ -1594,11 +1594,11 @@ def process_dashboard(request):
 
 
 @login_required
-def view_process_plot(request):
-    process = get_object_or_404(Process, process_name='Plot')
+def view_process(request, process_id):
+    process = get_object_or_404(Process, id=process_id)
 
     return render_to_response(
-        'view_process_plot.html',
+        'view_process.html',
         {
             'process': process,
         },
@@ -1619,7 +1619,7 @@ def add_process_input(request, process_id):
 
             return HttpResponseRedirect(reverse(
                 'view_process',
-                args=(process.id,)))
+                args=(process_id,)))
     else:
         form = ProcessInputForm()
 

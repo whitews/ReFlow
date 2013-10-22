@@ -5,7 +5,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
-    {% breadcrumb_url process.process_name 'view_process_plot' %}
+    {% breadcrumb_url process.process_name 'view_process' process.id %}
     {% breadcrumb "Submit Process Request" %}
   </ul>
 {% endblock %}

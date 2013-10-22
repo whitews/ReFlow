@@ -124,7 +124,7 @@ urlpatterns += patterns('repository.views',
     url(r'^processing/process/process_input/(?P<process_input_id>\d+)/edit/$', 'edit_process_input', name='edit_process_input'),
     url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
     url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
-    url(r'^processing/process/plot/$', 'view_process_plot', name='view_process_plot'),
+    url(r'^processing/process/(?P<process_id>\d+)/$', 'view_process', name='view_process'),
 
     # Specific process requests are under a project
     url(r'^project/(?P<project_id>\d+)/plots/request/$', 'process_request_plot', name='process_request_plot'),

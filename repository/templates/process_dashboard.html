@@ -60,7 +60,7 @@ $(function() {
 
         <tr>
           <td>
-            <a href="{% url 'view_process_plot' %}">{{ plot_process.process_name }}</a>
+            <a href="{% url 'view_process' plot_process.id %}">{{ plot_process.process_name }}</a>
           </td>
           <td>
             {{ plot_process.process_description }}
