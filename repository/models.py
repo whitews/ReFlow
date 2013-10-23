@@ -3,6 +3,7 @@ import hashlib
 import io
 import datetime
 from tempfile import TemporaryFile
+from cStringIO import StringIO
 
 import os
 import re
@@ -852,7 +853,8 @@ def compensation_file_path(instance, filename):
             str(project_id),
             'compensation',
             str(site_id),
-            str(filename)],
+            str(filename + ".npy")
+        ],
         "/"
     )
 
@@ -860,54 +862,51 @@ def compensation_file_path(instance, filename):
 
 
 class Compensation(ProtectedModel):
-    site = models.ForeignKey(Site)
+    name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=256)
+    site_panel = models.ForeignKey(SitePanel)
     compensation_file = models.FileField(
         upload_to=compensation_file_path,
         null=False,
         blank=False)
-    original_filename = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        editable=False,
-        max_length=256)
     matrix_text = models.TextField(
         null=False,
-        blank=False,
-        editable=False)
+        blank=False)
 
     def has_view_permission(self, user):
 
         if user.has_perm('view_project_data', self.site.project):
             return True
-        elif self.site is not None:
+        elif self.site_panel.site is not None:
             if user.has_perm('view_site_data', self.site):
                 return True
 
     def clean(self):
         """
         Overriding clean to do the following:
-            - Verify specified site exists (site is required)
+            - Verify specified site panel exists (site panel is required)
             - Save original file name, it may already exist on our side.
-            - Save the matrix text
+            - Save the matrix as numpy array
         """
 
         try:
-            Site.objects.get(id=self.site_id)
-            self.original_filename = self.compensation_file.name.split('/')[-1]
+            SitePanel.objects.get(id=self.site_panel_id)
         except ObjectDoesNotExist:
             # site & compensation file are required...
             # will get caught by Form.is_valid()
             return
 
-        # get the matrix, a bit funky b/c the files may have \r or \n line
-        # termination. we'll save the matrix_text with \n line terminators
-        self.compensation_file.seek(0)
-        text = self.compensation_file.read()
-        self.matrix_text = '\n'.join(text.splitlines())
+        # Save as a numpy object in a file field.
+        matrix_array = np.fromstring(str(self.matrix_text))
+        matrix_file = TemporaryFile()
+        np.save(matrix_file, matrix_array)
+        self.compensation_file.save(self.name, File(matrix_file))
 
     def __unicode__(self):
-        return u'%s' % (self.original_filename)
+        return u'%s' % (self.name)
 
 
 def fcs_file_path(instance, filename):
@@ -1004,6 +1003,13 @@ class Sample(ProtectedModel):
                 return True
 
         return False
+
+    def get_subsample_as_csv(self):
+        csv_string = StringIO()
+        subsample_array = np.load(self.subsample.file)
+        np.savetxt(csv_string, subsample_array, fmt='%F', delimiter=',')
+        csv_string.seek(0)
+        return csv_string
 
     def clean(self):
         """

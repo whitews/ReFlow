@@ -116,6 +116,7 @@ urlpatterns += patterns('repository.views',
     url(r'^sample/(?P<sample_id>\d+)/parameters/$', 'render_sample_parameters', name='render_sample_parameters'),
     url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
     url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample', name='retrieve_sample'),
+    url(r'^download/sample/(?P<sample_id>\d+)/subsample/$', 'retrieve_subsample', name='retrieve_subsample'),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 

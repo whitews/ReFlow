@@ -56,8 +56,8 @@ $(function() {
       </tr>
       <tr>
         <th></th>
-        <th>File Name</th>
-        <th>Site</th>
+        <th>Name</th>
+        <th>Site Panel</th>
         <th>Samples</th>
       </tr>
     </thead>
@@ -69,8 +69,8 @@ $(function() {
             <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
           </a>
         </td>
-        <td class="middle">{{ comp.original_filename }}</td>
-        <td class="middle">{{ comp.site.site_name }}</td>
+        <td class="middle">{{ comp.name }}</td>
+        <td class="middle">{{ comp.site_panel }}</td>
         <td class="middle">
           {% for sample in comp.sample_set.all %}
             {{ sample.original_filename }}<br/>

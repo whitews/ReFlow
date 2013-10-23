@@ -638,7 +638,7 @@ class SampleForm(forms.ModelForm):
             self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
             compensations = Compensation.objects.filter(
-                site__project__id=project_id).order_by('original_filename')
+                site__project__id=project_id).order_by('name')
             self.fields['compensation'] = forms.ModelChoiceField(
                 compensations,
                 required=False)
@@ -673,14 +673,14 @@ class SampleEditForm(forms.ModelForm):
             self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
             compensations = Compensation.objects.filter(
-                site__project__id=project_id).order_by('original_filename')
+                site__project__id=project_id).order_by('name')
             self.fields['compensation'] = forms.ModelChoiceField(compensations)
 
 
 class CompensationForm(forms.ModelForm):
     class Meta:
         model = Compensation
-        exclude = ('original_filename', 'matrix_text')
+        exclude = ('compensation_file',)
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -695,8 +695,10 @@ class CompensationForm(forms.ModelForm):
         # finally, make sure only project's sites are the available choices
         if project_id:
             project = Project.objects.get(id=project_id)
-            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(sites)
+            sites = Site.objects.get_sites_user_can_add(
+                request.user, project)
+            site_panels = SitePanel.objects.filter(site__in=sites)
+            self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
 
 class ProcessForm(forms.ModelForm):

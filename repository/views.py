@@ -895,13 +895,13 @@ def view_compensations(request, project_id):
     if project.has_view_permission(request.user):
         compensations = Compensation.objects\
             .select_related()\
-            .filter(site__project=project)\
-            .order_by('original_filename')
+            .filter(site_panel__site__project=project)\
+            .order_by('name')
     elif user_view_sites.count() > 0:
         compensations = Compensation.objects\
             .select_related()\
-            .filter(site__in=user_view_sites)\
-            .order_by('original_filename')
+            .filter(site_panel__site__in=user_view_sites)\
+            .order_by('name')
     else:
         raise PermissionDenied
 
@@ -938,7 +938,6 @@ def add_compensation(request, project_id):
     if request.method == 'POST':
         form = CompensationForm(
             request.POST,
-            request.FILES,
             project_id=project_id,
             request=request)
 
@@ -1559,17 +1558,33 @@ def retrieve_sample(request, sample_id):
 
 
 @login_required
+def retrieve_subsample(request, sample_id):
+    sample = get_object_or_404(Sample, pk=sample_id)
+
+    if not sample.site_panel.site.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        sample.get_subsample_as_csv(),
+        content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' % \
+                                      sample.id + ".csv"
+    return response
+
+
+@login_required
 def retrieve_compensation(request, compensation_id):
     compensation = get_object_or_404(Compensation, pk=compensation_id)
 
-    if not compensation.site.has_view_permission(request.user):
+    if not compensation.site_panel.site.has_view_permission(request.user):
         raise PermissionDenied
 
+    # TODO: create method to get npy file as csv
     response = HttpResponse(
         compensation.compensation_file,
         content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % \
-                                      compensation.original_filename
+                                      compensation.name + ".csv"
     return response
 
 
