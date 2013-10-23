@@ -639,7 +639,9 @@ class SampleForm(forms.ModelForm):
 
             compensations = Compensation.objects.filter(
                 site__project__id=project_id).order_by('original_filename')
-            self.fields['compensation'] = forms.ModelChoiceField(compensations)
+            self.fields['compensation'] = forms.ModelChoiceField(
+                compensations,
+                required=False)
 
 class SampleEditForm(forms.ModelForm):
     class Meta:
