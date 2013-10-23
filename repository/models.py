@@ -1007,7 +1007,8 @@ class Sample(ProtectedModel):
     def get_subsample_as_csv(self):
         csv_string = StringIO()
         subsample_array = np.load(self.subsample.file)
-        np.savetxt(csv_string, subsample_array, fmt='%F', delimiter=',')
+        # return the array as integers, the extra precision is questionable
+        np.savetxt(csv_string, subsample_array, fmt='%d', delimiter=',')
         csv_string.seek(0)
         return csv_string
 
