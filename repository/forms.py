@@ -1,4 +1,6 @@
+import re
 from collections import Counter
+import numpy as np
 from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.core.exceptions import ValidationError
@@ -545,7 +547,6 @@ class EditSitePanelForm(forms.ModelForm):
 
 
 class SitePanelParameterMapFromSampleForm(forms.ModelForm):
-
     class Meta:
         model = SitePanelParameter
         fields = ('fcs_text', 'fcs_opt_text', 'parameter_value_type')
@@ -699,6 +700,55 @@ class CompensationForm(forms.ModelForm):
                 request.user, project)
             site_panels = SitePanel.objects.filter(site__in=sites)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
+
+    def clean(self):
+        """
+        Validate compensation matrix matches site panel
+        """
+        if not 'site_panel' in self.cleaned_data:
+            # site panel is required, will get caught
+            return self.cleaned_data
+        if not 'matrix_text' in self.cleaned_data:
+            # matrix text is required, will get caught
+            return self.cleaned_data
+
+        try:
+            site_panel = SitePanel.objects.get(
+                id=self.cleaned_data['site_panel'].id)
+        except ObjectDoesNotExist:
+            raise ValidationError("Site panel does not exist.")
+
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel=site_panel).exclude(
+                parameter_type__in=['FSC','SSC','TIM'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = str(self.cleaned_data['matrix_text'])
+        matrix_text = matrix_text.splitlines()
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be delimited by white space or a comma
+        headers = re.split('\s|,', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if p.fcs_text not in headers:
+                missing_fields.append(p.fcs_text)
+
+        if len(missing_fields) > 0:
+            self._errors["matrix_text"] = \
+                "Missing fields: %s" % ", ".join(missing_fields)
+
+        # if all goes well, convert the matrix text to numpy array and
+        # save in the self.compensation_file field
+
+
+        raise ValidationError('Not ready yet')
+        return self.cleaned_data  # never forget this! ;o)
 
 
 class ProcessForm(forms.ModelForm):

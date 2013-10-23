@@ -6021,3 +6021,7 @@ span.antibody-field > select {
   font-weight: 200;
   line-height: 150%;
 }
+/* Other stuff */
+#id_matrix_text {
+  width: 412px;
+}

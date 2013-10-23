@@ -844,8 +844,8 @@ class VisitType(ProtectedModel):
 
 
 def compensation_file_path(instance, filename):
-    project_id = instance.site.project_id
-    site_id = instance.site_id
+    project_id = instance.site_panel.site.project_id
+    site_id = instance.site_panel.site_id
 
     upload_dir = join(
         [
@@ -883,27 +883,6 @@ class Compensation(ProtectedModel):
         elif self.site_panel.site is not None:
             if user.has_perm('view_site_data', self.site):
                 return True
-
-    def clean(self):
-        """
-        Overriding clean to do the following:
-            - Verify specified site panel exists (site panel is required)
-            - Save original file name, it may already exist on our side.
-            - Save the matrix as numpy array
-        """
-
-        try:
-            SitePanel.objects.get(id=self.site_panel_id)
-        except ObjectDoesNotExist:
-            # site & compensation file are required...
-            # will get caught by Form.is_valid()
-            return
-
-        # Save as a numpy object in a file field.
-        matrix_array = np.fromstring(str(self.matrix_text))
-        matrix_file = TemporaryFile()
-        np.save(matrix_file, matrix_array)
-        self.compensation_file.save(self.name, File(matrix_file))
 
     def __unicode__(self):
         return u'%s' % (self.name)
