@@ -156,17 +156,19 @@ class StimulationSerializer(serializers.ModelSerializer):
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
-    project = ProjectSerializer(source='site.project')
+    project = ProjectSerializer(source='site_panel.site.project')
+    site = SiteSerializer(source='site_panel.site')
 
     class Meta:
         model = Compensation
         fields = (
             'id',
             'url',
-            'original_filename',
+            'name',
             'matrix_text',
             'project',
-            'site')
+            'site',
+            'site_panel')
         exclude = ('compensation_file',)
 
 

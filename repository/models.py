@@ -878,10 +878,10 @@ class Compensation(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if user.has_perm('view_project_data', self.site.project):
+        if user.has_perm('view_project_data', self.site_panel.site.project):
             return True
         elif self.site_panel.site is not None:
-            if user.has_perm('view_site_data', self.site):
+            if user.has_perm('view_site_data', self.site_panel.site):
                 return True
 
     def get_compensation_as_csv(self):

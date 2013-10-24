@@ -84,7 +84,75 @@ def retrieve_sample_as_pk(request, pk):
         sample.sample_file,
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
-        % sample.id + '.fcs'
+        % str(sample.id) + '.fcs'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_subsample_as_csv(request, pk):
+    sample = get_object_or_404(Sample, pk=pk)
+
+    if not sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        sample.get_subsample_as_csv(),
+        content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(sample.id) + '.csv'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_subsample_as_numpy(request, pk):
+    sample = get_object_or_404(Sample, pk=pk)
+
+    if not sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        sample.subsample,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(sample.id) + '.npy'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_compensation_as_csv(request, pk):
+    compensation = get_object_or_404(Compensation, pk=pk)
+
+    if not compensation.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        compensation.get_compensation_as_csv(),
+        content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % "comp_" + str(compensation.id) + '.csv'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_compensation_as_numpy(request, pk):
+    compensation = get_object_or_404(Compensation, pk=pk)
+
+    if not compensation.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        compensation.compensation_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % "comp_" + str(compensation.id) + '.npy'
     return response
 
 
@@ -548,7 +616,11 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Compensation
     serializer_class = CompensationSerializer
-    filter_fields = ('original_filename', 'site', 'site__project')
+    filter_fields = (
+        'name',
+        'site_panel',
+        'site_panel__site',
+        'site_panel__site__project')
 
     def get_queryset(self):
         """
@@ -559,7 +631,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = Compensation.objects.filter(site__in=user_sites)
+        queryset = Compensation.objects.filter(site_panel__site__in=user_sites)
         return queryset
 
 
