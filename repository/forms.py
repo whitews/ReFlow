@@ -5,7 +5,6 @@ from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from django.db import models
 from guardian.forms import UserObjectPermissionsForm
 
 from repository.models import *
@@ -732,7 +731,7 @@ class CompensationForm(forms.ModelForm):
         # the number of fluoro params in the site panel and that the matrix
         # values are numbers (can be exp notation)
         matrix_text = str(self.cleaned_data['matrix_text'])
-        matrix_text = matrix_text.splitlines()
+        matrix_text = matrix_text.splitlines(False)
 
         # first row should be headers matching the PnN value (fcs_text field)
         # may be tab or comma delimited

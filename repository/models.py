@@ -125,7 +125,7 @@ PARAMETER_VALUE_TYPE_CHOICES = (
 
 STAINING_CHOICES = (
     ('FS', 'Full Stain'),
-    ('FM', 'Fluorescence minus one'),
+    ('FM', 'Fluorescence Minus One'),
     ('IS', 'Isotype Control')
 )
 
@@ -892,9 +892,10 @@ class Compensation(ProtectedModel):
         return csv_string
 
     def clean(self):
-        self.compensation_file.save(
-            self.name,
-            File(self.tmp_compensation_file))
+        if hasattr(self, 'tmp_compensation_file'):
+            self.compensation_file.save(
+                self.name,
+                File(self.tmp_compensation_file))
 
 
     def __unicode__(self):
