@@ -884,6 +884,19 @@ class Compensation(ProtectedModel):
             if user.has_perm('view_site_data', self.site):
                 return True
 
+    def get_compensation_as_csv(self):
+        csv_string = StringIO()
+        compensation_array = np.load(self.compensation_file.file)
+        np.savetxt(csv_string, compensation_array, fmt='%f', delimiter=',')
+        csv_string.seek(0)
+        return csv_string
+
+    def clean(self):
+        self.compensation_file.save(
+            self.name,
+            File(self.tmp_compensation_file))
+
+
     def __unicode__(self):
         return u'%s' % (self.name)
 

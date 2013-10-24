@@ -1579,9 +1579,8 @@ def retrieve_compensation(request, compensation_id):
     if not compensation.site_panel.site.has_view_permission(request.user):
         raise PermissionDenied
 
-    # TODO: create method to get npy file as csv
     response = HttpResponse(
-        compensation.compensation_file,
+        compensation.get_compensation_as_csv(),
         content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % \
                                       compensation.name + ".csv"

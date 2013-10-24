@@ -5,6 +5,7 @@ from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.db import models
 from guardian.forms import UserObjectPermissionsForm
 
 from repository.models import *
@@ -680,6 +681,8 @@ class SampleEditForm(forms.ModelForm):
 
 
 class CompensationForm(forms.ModelForm):
+    #dummy_file_field = forms.FileField(widget=forms.HiddenInput())
+
     class Meta:
         model = Compensation
         exclude = ('compensation_file',)
@@ -744,21 +747,57 @@ class CompensationForm(forms.ModelForm):
         if len(missing_fields) > 0:
             self._errors["matrix_text"] = \
                 "Missing fields: %s" % ", ".join(missing_fields)
+            return self.cleaned_data
 
         if len(headers) > params.count():
-            raise ValidationError("Too many parameters")
+            self._errors["matrix_text"] = "Too many parameters"
+            return self.cleaned_data
 
         # the header of matrix text adds a row
         if len(matrix_text) > params.count() + 1:
-            raise ValidationError("Too many rows")
+            self._errors["matrix_text"] = "Too many rows"
+            return self.cleaned_data
         elif len(matrix_text) < params.count() + 1:
-            raise ValidationError("Too few rows")
+            self._errors["matrix_text"] = "Too few rows"
+            return self.cleaned_data
 
-        # if all goes well, convert the matrix text to numpy array and
-        # save in the self.compensation_file field
+        # we need to store the channel number in the first row of the numpy
+        # array, more reliable to identify parameters than some concatenation
+        # of parameter attributes
+        channel_header = list()
+        for h in headers:
+            for p in params:
+                if p.fcs_text == h:
+                    channel_header.append(p.fcs_number)
 
+        np_array = np.array(channel_header)
+        np_width = np_array.shape[0]
 
-        raise ValidationError('Not ready yet')
+        # convert the matrix text to numpy array and
+        for line in matrix_text[1:]:
+            line_values = re.split('\t|,', line)
+            for i, value in enumerate(line_values):
+                try:
+                    line_values[i] = float(line_values[i])
+                except ValueError:
+                    self._errors["matrix_text"] = \
+                        "%s is an invalid matrix value" % line_values[i]
+            if len(line_values) > np_width:
+                self._errors["matrix_text"] = \
+                    "Too many values in line: %s" % line
+                return self.cleaned_data
+            elif len(line_values) < np_width:
+                self._errors["matrix_text"] = \
+                    "Too few values in line: %s" % line
+                return self.cleaned_data
+            else:
+                np_array = np.vstack([np_array, line_values])
+
+        # save numpy array in the self.compensation_file field
+        np_array_file = TemporaryFile()
+        np.save(np_array_file, np_array)
+        self.instance.tmp_compensation_file = np_array_file
+
         return self.cleaned_data  # never forget this! ;o)
 
 
