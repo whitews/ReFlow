@@ -1568,7 +1568,7 @@ def retrieve_subsample(request, sample_id):
         sample.get_subsample_as_csv(),
         content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % \
-                                      sample.id + ".csv"
+                                      str(sample.id) + ".csv"
     return response
 
 
@@ -1583,7 +1583,7 @@ def retrieve_compensation(request, compensation_id):
         compensation.get_compensation_as_csv(),
         content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % \
-                                      compensation.name + ".csv"
+                                      "comp_" + str(compensation.id) + ".csv"
     return response
 
 
