@@ -591,7 +591,8 @@ class SubjectForm(forms.ModelForm):
         # available choices
         if project_id:
             subject_groups = SubjectGroup.objects.filter(project__id=project_id)
-            self.fields['subject_group'] = forms.ModelChoiceField(subject_groups)
+            self.fields['subject_group'] = forms.ModelChoiceField(
+                subject_groups)
 
 
 class StimulationForm(forms.ModelForm):
@@ -731,8 +732,9 @@ class CompensationForm(forms.ModelForm):
         matrix_text = matrix_text.splitlines()
 
         # first row should be headers matching the PnN value (fcs_text field)
-        # may be delimited by white space or a comma
-        headers = re.split('\s|,', matrix_text[0])
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        headers = re.split('\t|,', matrix_text[0])
 
         missing_fields = list()
         for p in params:
@@ -742,6 +744,15 @@ class CompensationForm(forms.ModelForm):
         if len(missing_fields) > 0:
             self._errors["matrix_text"] = \
                 "Missing fields: %s" % ", ".join(missing_fields)
+
+        if len(headers) > params.count():
+            raise ValidationError("Too many parameters")
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            raise ValidationError("Too many rows")
+        elif len(matrix_text) < params.count() + 1:
+            raise ValidationError("Too few rows")
 
         # if all goes well, convert the matrix text to numpy array and
         # save in the self.compensation_file field
