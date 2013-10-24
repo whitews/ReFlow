@@ -65,7 +65,7 @@ $(function() {
       {% for comp in compensations %}
       <tr>
         <td width="1%" class="middle">
-          <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_compensation' comp.id %}" data-original-title="Download" data-placement="bottom">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_compensation_as_csv' comp.id %}" data-original-title="Download" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
           </a>
         </td>

@@ -115,7 +115,7 @@ def retrieve_subsample_as_numpy(request, pk):
         raise PermissionDenied
 
     response = HttpResponse(
-        sample.subsample,
+        sample.subsample.file,
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % str(sample.id) + '.npy'
@@ -149,7 +149,7 @@ def retrieve_compensation_as_numpy(request, pk):
         raise PermissionDenied
 
     response = HttpResponse(
-        compensation.compensation_file,
+        compensation.compensation_file.file,
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % "comp_" + str(compensation.id) + '.npy'

@@ -117,7 +117,7 @@ function show_compensation(id) {
           <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_sample' sample.id %}" data-original-title="Download FCS File" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
           </a>
-          <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_subsample' sample.id %}" data-original-title="Download Subsampled CSV File" data-placement="bottom">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_subsample_as_csv' sample.id %}" data-original-title="Download Subsampled CSV File" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
           </a>
           {% if sample.site__id in user_modify_sites or can_modify_project_data %}

@@ -1543,51 +1543,6 @@ def edit_sample(request, sample_id):
 
 
 @login_required
-def retrieve_sample(request, sample_id):
-    sample = get_object_or_404(Sample, pk=sample_id)
-
-    if not sample.site_panel.site.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        sample.sample_file,
-        content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' % \
-                                      sample.original_filename
-    return response
-
-
-@login_required
-def retrieve_subsample(request, sample_id):
-    sample = get_object_or_404(Sample, pk=sample_id)
-
-    if not sample.site_panel.site.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        sample.get_subsample_as_csv(),
-        content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename=%s' % \
-                                      str(sample.id) + ".csv"
-    return response
-
-
-@login_required
-def retrieve_compensation(request, compensation_id):
-    compensation = get_object_or_404(Compensation, pk=compensation_id)
-
-    if not compensation.site_panel.site.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        compensation.get_compensation_as_csv(),
-        content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename=%s' % \
-                                      "comp_" + str(compensation.id) + ".csv"
-    return response
-
-
-@login_required
 def process_dashboard(request):
 
     plot_process = get_object_or_404(Process, process_name="Plot")
