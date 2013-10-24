@@ -108,9 +108,9 @@ PARAMETER_TYPE_CHOICES = (
     ('FSC', 'Forward Scatter'),
     ('SSC', 'Side Scatter'),
     ('FCA', 'Fluorochrome Conjugated Antibody'),
-    ('FMO', 'Fluorescence Minus One'),
+    ('UNS', 'Unstained'),
     ('ISO', 'Isotype Control'),
-    ('DMP', 'Dump Channel'),
+    ('EXC', 'Exclusion'),
     ('VIA', 'Viability'),
     ('ICA', 'Isotope Conjugated Antibody'),
     ('TIM', 'Time')
@@ -125,6 +125,7 @@ PARAMETER_VALUE_TYPE_CHOICES = (
 
 STAINING_CHOICES = (
     ('FS', 'Full Stain'),
+    ('US', 'Unstained'),
     ('FM', 'Fluorescence Minus One'),
     ('IS', 'Isotype Control')
 )

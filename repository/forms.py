@@ -140,14 +140,17 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         param_counter = Counter()
         staining = self.instance.staining
         if staining == 'FS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = False
         elif staining == 'FM':
-            can_have_fmo = True
+            can_have_uns = True
             can_have_iso = False
         elif staining == 'IS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = True
+        elif staining == 'US':
+            can_have_uns = True
+            can_have_iso = False
         else:
             raise ValidationError(
                 "Invalid staining type '%s'" % staining)
@@ -170,9 +173,10 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             param_type = form.data[form.add_prefix('parameter_type')]
             if not param_type:
                 raise ValidationError("Function is required")
-            if param_type == 'FMO' and not can_have_fmo:
+            if param_type == 'UNS' and not can_have_uns:
                 raise ValidationError(
-                    "Only FMO panels can include an FMO parameter")
+                    "Only FMO & Unstained panels can include an " +
+                    "unstained parameter")
             if param_type == 'ISO' and not can_have_iso:
                 raise ValidationError(
                     "Only Isotype control panels can include an " +
@@ -186,10 +190,10 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
 
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 
-            # dump channel must be a fluorescence channel
-            if param_type == 'DMP' and not fluorochrome_id:
+            # exclusion must be a fluorescence channel
+            if param_type == 'EXC' and not fluorochrome_id:
                 raise ValidationError(
-                    "A dump channel must include a fluorochrome.")
+                    "An exclusion channel must include a fluorochrome.")
 
             # check for fluoro or antibodies in scatter channels
             if param_type == 'FSC' or param_type == 'SSC':
@@ -265,14 +269,17 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         param_dict = {}
         staining = self.instance.project_panel.staining
         if staining == 'FS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = False
         elif staining == 'FM':
-            can_have_fmo = True
+            can_have_uns = True
             can_have_iso = False
         elif staining == 'IS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = True
+        elif staining == 'US':
+            can_have_uns = True
+            can_have_iso = False
         else:
             raise ValidationError(
                 "Invalid staining type '%s'" % staining)
@@ -297,9 +304,10 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             if not param_type:
                 raise ValidationError(
                     "Function is required for all parameters")
-            if param_type == 'FMO' and not can_have_fmo:
+            if param_type == 'UNS' and not can_have_uns:
                 raise ValidationError(
-                    "Only FMO panels can include an FMO parameter")
+                    "Only FMO & Unstained panels can include an " +
+                    "unstained parameter")
             if param_type == 'ISO' and not can_have_iso:
                 raise ValidationError(
                     "Only Isotype control panels can include an " +
@@ -312,10 +320,10 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
 
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 
-            # dump channel must be a fluorescence channel
-            if param_type == 'DMP' and not fluorochrome_id:
+            # exclusion must be a fluorescence channel
+            if param_type == 'EXC' and not fluorochrome_id:
                 raise ValidationError(
-                    "A dump channel must be a fluorescence channel")
+                    "An exclusion channel must be a fluorescence channel")
 
             # check for fluoro or antibodies in scatter channels
             if param_type in ['FSC', 'SSC']:
@@ -334,16 +342,15 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                         "A fluorescence conjugated antibody channel must " +
                         "specify a fluorochrome and at least one antibody")
 
-            # FMO channels can't have a fluoro and must have an antibody
-            if param_type == 'FMO':
-
+            # Unstained channels can't have a fluoro and must have an antibody
+            if param_type == 'UNS':
                 if fluorochrome_id:
                     raise ValidationError(
-                        "Fluorescence minus one channels CANNOT " +
+                        "Unstained channels CANNOT " +
                         "have a fluorochrome")
                 if len(ab_set) == 0:
                     raise ValidationError(
-                        "Fluorescence minus one channels " +
+                        "Unstained channels " +
                         "must specify at least one antibody")
 
             # Iso control & Viability channels must have a fluoro and
