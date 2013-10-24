@@ -354,26 +354,6 @@ class ProjectPanelDetail(
     serializer_class = ProjectPanelSerializer
 
 
-class ProjectPanelParameterList(LoginRequiredMixin, generics.ListAPIView):
-    """
-    API endpoint representing a list of parameters.
-    """
-
-    model = ProjectPanelParameter
-    serializer_class = ProjectPanelParameterSerializer
-    filter_fields = ('parameter_type', 'parameter_value_type')
-
-
-class ProjectPanelParameterDetail(LoginRequiredMixin, generics.RetrieveAPIView):
-    """
-    API endpoint representing a single project.
-    """
-
-    model = ProjectPanelParameter
-    serializer_class = ProjectPanelParameterSerializer
-    filter_fields = ('panel_name', 'staining')
-
-
 class SiteList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of sites.

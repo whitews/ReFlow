@@ -17,8 +17,6 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/projects/(?P<pk>\d+)/$', ProjectDetail.as_view(), name='project-detail'),
     url(r'^api/repository/project_panels/$', ProjectPanelList.as_view(), name='project-panel-list'),
     url(r'^api/repository/project_panels/(?P<pk>\d+)/$', ProjectPanelDetail.as_view(), name='project-panel-detail'),
-    url(r'^api/repository/parameters/$', ProjectPanelParameterList.as_view(), name='project-parameter-list'),
-    url(r'^api/repository/project_panel_parameters/(?P<pk>\d+)/$', ProjectPanelParameterDetail.as_view(), name='project-parameter-detail'),
 
     url(r'^api/repository/sites/$', SiteList.as_view(), name='site-list'),
     url(r'^api/repository/sites/(?P<pk>\d+)/$', SiteDetail.as_view(), name='site-detail'),
