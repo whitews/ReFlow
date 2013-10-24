@@ -66,7 +66,8 @@ class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
     antibodies = ProjectPanelParameterAntibodySerializer(
         source='projectpanelparameterantibody_set')
-    url = serializers.HyperlinkedIdentityField(view_name='project-parameter-detail')
+    url = serializers.HyperlinkedIdentityField(
+        view_name='project-parameter-detail')
 
     class Meta:
         model = ProjectPanelParameter

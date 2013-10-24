@@ -136,7 +136,8 @@ STAINING_CHOICES = (
 
 
 class ProjectManager(models.Manager):
-    def get_projects_user_can_view(self, user):
+    @staticmethod
+    def get_projects_user_can_view(user):
         """
         Return a list of projects for which the given user has view permissions,
         including any view access to even a single site in the project.
@@ -398,7 +399,8 @@ class ProjectPanelParameterAntibody(models.Model):
 
 
 class SiteManager(models.Manager):
-    def get_sites_user_can_view(self, user, project=None):
+    @staticmethod
+    def get_sites_user_can_view(user, project=None):
         """
         Returns project sites for which the given user has view permissions
         """
@@ -427,7 +429,8 @@ class SiteManager(models.Manager):
 
         return sites
 
-    def get_sites_user_can_add(self, user, project):
+    @staticmethod
+    def get_sites_user_can_add(user, project):
         """
         Returns project sites for which the given user has add permissions
         """
@@ -442,7 +445,8 @@ class SiteManager(models.Manager):
 
         return sites
 
-    def get_sites_user_can_modify(self, user, project):
+    @staticmethod
+    def get_sites_user_can_modify(user, project):
         """
         Returns project sites for which the given user has modify permissions
         """
@@ -457,7 +461,8 @@ class SiteManager(models.Manager):
 
         return sites
 
-    def get_sites_user_can_manage_users(self, user, project):
+    @staticmethod
+    def get_sites_user_can_manage_users(user, project):
         """
         Returns project sites for which the given user has modify permissions
         """
@@ -804,7 +809,6 @@ class Subject(ProtectedModel):
         return u'%s' % self.subject_code
 
 
-# TODO: change to TimePoint ???
 class VisitType(ProtectedModel):
     project = models.ForeignKey(Project)
     visit_type_name = models.CharField(
@@ -897,9 +901,8 @@ class Compensation(ProtectedModel):
                 self.name,
                 File(self.tmp_compensation_file))
 
-
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s' % self.name
 
 
 def fcs_file_path(instance, filename):
@@ -1056,10 +1059,12 @@ class Sample(ProtectedModel):
                 "This FCS file already exists in this Project."
             )
 
-        if self.site_panel is not None and self.site_panel.site.project_id != self.subject.project_id:
+        if self.site_panel is not None and \
+                self.site_panel.site.project_id != self.subject.project_id:
             raise ValidationError("Site panel chosen is not in this Project")
 
-        if self.visit is not None and self.visit.project_id != self.subject.project_id:
+        if self.visit is not None and \
+                self.visit.project_id != self.subject.project_id:
             raise ValidationError("Visit Type chosen is not in this Project")
 
         # Verify the file is an FCS file
@@ -1142,7 +1147,8 @@ class Sample(ProtectedModel):
             # Compare PnS field, not required but if panel version exists
             # and file version doesn't we'll still error
             if 's' in sample_params[channel_number]:
-                if sample_params[channel_number]['s'] != panel_param.fcs_opt_text:
+                if sample_params[channel_number]['s'] != \
+                        panel_param.fcs_opt_text:
                     raise ValidationError(
                         "FCS PnS text for channel '%s' does not match panel"
                         % str(channel_number))
@@ -1171,7 +1177,6 @@ class Sample(ProtectedModel):
         subsample_file = TemporaryFile()
         np.save(subsample_file, random_subsample_indexed)
         self.subsample.save(self.original_filename, File(subsample_file))
-
 
     def save(self, *args, **kwargs):
         """ Populate upload date on save """
@@ -1235,6 +1240,7 @@ class SampleMetadata(ProtectedModel):
 ####################################
 ### START PROCESS RELATED MODELS ###
 ####################################
+
 
 class Process(models.Model):
     """

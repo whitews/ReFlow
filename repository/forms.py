@@ -645,6 +645,7 @@ class SampleForm(forms.ModelForm):
                 compensations,
                 required=False)
 
+
 class SampleEditForm(forms.ModelForm):
     class Meta:
         model = Sample
@@ -680,8 +681,6 @@ class SampleEditForm(forms.ModelForm):
 
 
 class CompensationForm(forms.ModelForm):
-    #dummy_file_field = forms.FileField(widget=forms.HiddenInput())
-
     class Meta:
         model = Compensation
         exclude = ('compensation_file',)
@@ -725,7 +724,7 @@ class CompensationForm(forms.ModelForm):
         # scatter and time don't get compensated
         params = SitePanelParameter.objects.filter(
             site_panel=site_panel).exclude(
-                parameter_type__in=['FSC','SSC','TIM'])
+                parameter_type__in=['FSC', 'SSC', 'TIM'])
 
         # parse the matrix text and validate the number of params match
         # the number of fluoro params in the site panel and that the matrix
