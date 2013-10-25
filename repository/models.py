@@ -1166,7 +1166,9 @@ class Sample(ProtectedModel):
         # We'll also store the indices of the randomly chosen events for
         # reproducibility. The indices will be inserted as the first column.
         # The result is stored as a numpy object in a file field.
-        numpy_data = fcm_obj.view()
+        # To ensure room for the indices and preserve precision for values,
+        # we save as float32
+        numpy_data = fcm_obj.view().astype(np.float32)
         index_array = np.arange(len(numpy_data))
         np.random.shuffle(index_array)
         random_subsample = numpy_data[index_array[:10000]]
