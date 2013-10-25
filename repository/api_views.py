@@ -552,43 +552,6 @@ class SampleDetail(
     serializer_class = SampleSerializer
 
 
-class SamplePanelUpdate(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        generics.UpdateAPIView):
-    """
-    API endpoint for changing a panel for an FCS sample.
-    """
-
-    model = Sample
-    serializer_class = SampleSerializer
-
-    def patch(self, request, *args, **kwargs):
-        if 'panel' in request.DATA:
-            try:
-                site_panel = SitePanel.objects.get(id=request.DATA['panel'])
-                sample = Sample.objects.get(id=kwargs['pk'])
-            except Exception as e:
-                return Response(data={'detail': e.message}, status=400)
-
-            if not sample.site_panel.site.has_add_permission(request.user):
-                raise PermissionDenied
-
-            try:
-                # TODO: verify site panel change triggers new validation
-                sample.site_panel = site_panel
-
-                # Use SampleSerializer instead of the POST one to hide the
-                # sample_file field (shows file path on server)
-                serializer = SampleSerializer(sample)
-
-                return Response(serializer.data, status=201)
-            except ValidationError as e:
-                return Response(data={'__all__': e.messages}, status=400)
-
-        return Response(data={'__all__': 'Bad request'}, status=400)
-
-
 class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of compensations.
