@@ -897,6 +897,23 @@ class Compensation(ProtectedModel):
         return csv_string
 
     def clean(self):
+        """
+        Check for duplicate comp names within a site.
+        Returns ValidationError if any duplicates are found.
+        Also, save the numpy compensation_file
+        """
+
+        # get comps with matching name and parent site,
+        # which don't have this pk
+        duplicates = Compensation.objects.filter(
+            name=self.name,
+            site_panel__site=self.site_panel.site_id).exclude(
+                id=self.id)
+
+        if duplicates.count() > 0:
+            raise ValidationError(
+                "Compensation with this name already exists in this site.")
+
         if hasattr(self, 'tmp_compensation_file'):
             self.compensation_file.save(
                 self.name,
