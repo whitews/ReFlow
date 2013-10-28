@@ -91,6 +91,9 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
         view_name='project-panel-detail')
     parameters = ProjectPanelParameterSerializer(
         source='projectpanelparameter_set')
+    staining_name = serializers.CharField(
+        source='get_staining_display',
+        read_only=True)
 
     class Meta:
         model = ProjectPanel
@@ -100,6 +103,7 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
             'project',
             'panel_name',
             'staining',
+            'staining_name',
             'parent_panel',
             'parameters'
         )
