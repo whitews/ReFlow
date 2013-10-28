@@ -287,7 +287,7 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Subject
     serializer_class = SubjectSerializer
-    filter_fields = ('subject_code', 'project')
+    filter_fields = ('subject_code', 'project', 'subject_group')
 
     def get_queryset(self):
         """
