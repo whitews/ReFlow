@@ -41,10 +41,19 @@ class SiteSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(source='project')
     url = serializers.HyperlinkedIdentityField(view_name='subject-detail')
+    subject_group_name = serializers.CharField(
+        source='subject_group.group_name',
+        read_only=True)
 
     class Meta:
         model = Subject
-        fields = ('id', 'url', 'subject_code', 'subject_group', 'project',)
+        fields = (
+            'id',
+            'url',
+            'subject_code',
+            'subject_group',
+            'subject_group_name',
+            'project',)
 
 
 class SpecimenSerializer(serializers.ModelSerializer):
