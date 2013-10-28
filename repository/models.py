@@ -1012,7 +1012,7 @@ class Sample(ProtectedModel):
 
         if user.has_perm('view_project_data', self.subject.project):
             return True
-        elif self.site is not None:
+        elif self.site_panel is not None:
             if user.has_perm('view_site_data', self.site_panel.site):
                 return True
 
