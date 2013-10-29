@@ -12,7 +12,7 @@
 
 {% block body %}
   <div class="container">
-    <form class="form-horizontal" action="{% url 'create_process_request' process.id %}" method="post">
+    <form class="form-horizontal" action="{% url 'process_request_plot' %}" method="post">
       {% csrf_token %}
 
       {{ form.non_field_errors }}
@@ -64,7 +64,7 @@
 
       <div class="control-group">
         <div class="controls">
-          <button class="btn btn-small btn-primary" type="submit">Save</button>
+          <button class="btn btn-small btn-success" type="submit">Save</button>
         </div>
       </div>
     </form>

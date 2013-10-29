@@ -41,10 +41,19 @@ class SiteSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(source='project')
     url = serializers.HyperlinkedIdentityField(view_name='subject-detail')
+    subject_group_name = serializers.CharField(
+        source='subject_group.group_name',
+        read_only=True)
 
     class Meta:
         model = Subject
-        fields = ('id', 'url', 'subject_code', 'subject_group', 'project',)
+        fields = (
+            'id',
+            'url',
+            'subject_code',
+            'subject_group',
+            'subject_group_name',
+            'project',)
 
 
 class SpecimenSerializer(serializers.ModelSerializer):
@@ -66,13 +75,11 @@ class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
     antibodies = ProjectPanelParameterAntibodySerializer(
         source='projectpanelparameterantibody_set')
-    url = serializers.HyperlinkedIdentityField(view_name='project-parameter-detail')
 
     class Meta:
         model = ProjectPanelParameter
         fields = (
             'id',
-            'url',
             'parameter_type',
             'parameter_value_type',
             'antibodies',
@@ -84,6 +91,9 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
         view_name='project-panel-detail')
     parameters = ProjectPanelParameterSerializer(
         source='projectpanelparameter_set')
+    staining_name = serializers.CharField(
+        source='get_staining_display',
+        read_only=True)
 
     class Meta:
         model = ProjectPanel
@@ -93,6 +103,7 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
             'project',
             'panel_name',
             'staining',
+            'staining_name',
             'parent_panel',
             'parameters'
         )
@@ -134,6 +145,8 @@ class SitePanelSerializer(serializers.ModelSerializer):
     parameters = SitePanelParameterSerializer(source='sitepanelparameter_set')
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
     name = serializers.CharField(source='name')
+    project_panel_name = serializers.CharField(
+        source='project_panel.panel_name')
 
     class Meta:
         model = SitePanel
@@ -143,6 +156,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'project',
             'site',
             'project_panel',
+            'project_panel_name',
             'name',
             'parameters')
 
@@ -156,17 +170,19 @@ class StimulationSerializer(serializers.ModelSerializer):
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
-    project = ProjectSerializer(source='site.project')
+    project = ProjectSerializer(source='site_panel.site.project')
+    site = SiteSerializer(source='site_panel.site')
 
     class Meta:
         model = Compensation
         fields = (
             'id',
             'url',
-            'original_filename',
+            'name',
             'matrix_text',
             'project',
-            'site')
+            'site',
+            'site_panel')
         exclude = ('compensation_file',)
 
 
@@ -259,21 +275,62 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
         read_only_fields = ('original_filename', 'sha1')
 
 
-class SampleSetListSerializer(serializers.ModelSerializer):
-    """
-    Display the list of sample sets (without related samples)
-    """
-    url = serializers.HyperlinkedIdentityField(view_name='sample-set-detail')
+class ProcessSerializer(serializers.ModelSerializer):
+    #url = serializers.HyperlinkedIdentityField(view_name='process-detail')
 
     class Meta:
-        model = SampleSet
-        fields = ('id', 'url', 'name', 'description', 'project')
+        model = Process
+        fields = ('id', 'process_name', 'process_description')
 
 
-class SampleSetSerializer(serializers.ModelSerializer):
-    samples = SampleSerializer(source='samples')
-    url = serializers.HyperlinkedIdentityField(view_name='sample-set-detail')
+class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = SampleSet
-        fields = ('id', 'url', 'name', 'description', 'project', 'samples')
+        model = Worker
+        fields = ('id', 'worker_name', 'worker_hostname')
+
+
+class ProcessRequestSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='process-request-detail')
+
+    class Meta:
+        model = ProcessRequest
+        fields = (
+            'id',
+            'url',
+            'process',
+            'sample_set',
+            'worker',
+            'request_user',
+            'request_date',
+            'status',
+            'completion_date')
+
+
+class ProcessRequestInputValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequestInputValue
+        fields = ('id', 'process_input', 'value')
+        depth = 1
+
+
+class ProcessRequestDetailSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='process-request-detail')
+    input_values = ProcessRequestInputValueSerializer(
+        source='processrequestinputvalue_set')
+
+    class Meta:
+        model = ProcessRequest
+        fields = (
+            'id',
+            'url',
+            'process',
+            'sample_set',
+            'worker',
+            'request_user',
+            'request_date',
+            'status',
+            'completion_date',
+            'input_values')

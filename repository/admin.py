@@ -36,5 +36,12 @@ admin.site.register(SitePanelParameterAntibody)
 
 admin.site.register(Sample)
 admin.site.register(SampleMetadata)
-admin.site.register(SampleSet)
 admin.site.register(Compensation)
+
+admin.site.register(Process)
+admin.site.register(ProcessInput)
+
+admin.site.register(Worker)
+
+admin.site.register(ProcessRequest)
+admin.site.register(ProcessRequestInputValue)

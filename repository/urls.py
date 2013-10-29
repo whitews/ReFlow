@@ -12,32 +12,49 @@ handler403 = TemplateView.as_view(template_name='403.html')
 urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/$', 'repository_api_root', name='repository-api-root'),
     url(r'^api/repository/specimens/$', SpecimenList.as_view(), name='specimen-list'),
-    url(r'^api/repository/compensations/$', CompensationList.as_view(), name='compensation-list'),
-    url(r'^api/repository/compensations/(?P<pk>\d+)/$', CompensationDetail.as_view(), name='compensation-detail'),
-    url(r'^api/repository/project_panels/$', ProjectPanelList.as_view(), name='project-panel-list'),
-    url(r'^api/repository/project_panels/(?P<pk>\d+)/$', ProjectPanelDetail.as_view(), name='project-panel-detail'),
-    url(r'^api/repository/site_panels/$', SitePanelList.as_view(), name='site-panel-list'),
-    url(r'^api/repository/site_panels/(?P<pk>\d+)/$', SitePanelDetail.as_view(), name='site-panel-detail'),
-    url(r'^api/repository/parameters/$', ProjectPanelParameterList.as_view(), name='project-parameter-list'),
-    url(r'^api/repository/project_panel_parameters/(?P<pk>\d+)/$', ProjectPanelParameterDetail.as_view(), name='project-parameter-detail'),
+
     url(r'^api/repository/projects/$', ProjectList.as_view(), name='project-list'),
     url(r'^api/repository/projects/(?P<pk>\d+)/$', ProjectDetail.as_view(), name='project-detail'),
-    url(r'^api/repository/stimulations/$', StimulationList.as_view(), name='stimulation-list'),
-    url(r'^api/repository/stimulations/(?P<pk>\d+)/$', StimulationDetail.as_view(), name='stimulation-detail'),
-    url(r'^api/repository/samples/$', SampleList.as_view(), name='sample-list'),
-    url(r'^api/repository/samples/add/$', CreateSampleList.as_view(), name='create-sample-list'),
-    url(r'^api/repository/samples/(?P<pk>\d+)/$', SampleDetail.as_view(), name='sample-detail'),
-    url(r'^api/repository/samples/(?P<pk>\d+)/download/$', retrieve_sample, name='sample-download'),
-    url(r'^api/repository/samples/(?P<pk>\d+)/apply_panel/$', SamplePanelUpdate.as_view(), name='sample-panel-update'),
-    url(r'^api/repository/sample_sets/$', SampleSetList.as_view(), name='sample-set-list'),
-    url(r'^api/repository/sample_sets/(?P<pk>\d+)/$', SampleSetDetail.as_view(), name='sample-set-detail'),
+    url(r'^api/repository/project_panels/$', ProjectPanelList.as_view(), name='project-panel-list'),
+    url(r'^api/repository/project_panels/(?P<pk>\d+)/$', ProjectPanelDetail.as_view(), name='project-panel-detail'),
+
     url(r'^api/repository/sites/$', SiteList.as_view(), name='site-list'),
     url(r'^api/repository/sites/(?P<pk>\d+)/$', SiteDetail.as_view(), name='site-detail'),
+    url(r'^api/repository/site_panels/$', SitePanelList.as_view(), name='site-panel-list'),
+    url(r'^api/repository/site_panels/(?P<pk>\d+)/$', SitePanelDetail.as_view(), name='site-panel-detail'),
+
     url(r'^api/repository/subject_groups/$', SubjectGroupList.as_view(), name='subject-group-list'),
     url(r'^api/repository/subjects/$', SubjectList.as_view(), name='subject-list'),
     url(r'^api/repository/subjects/(?P<pk>\d+)/$', SubjectDetail.as_view(), name='subject-detail'),
+
     url(r'^api/repository/visit_types/$', VisitTypeList.as_view(), name='visit-type-list'),
     url(r'^api/repository/visit_types/(?P<pk>\d+)/$', VisitTypeDetail.as_view(), name='visittype-detail'),
+
+    url(r'^api/repository/stimulations/$', StimulationList.as_view(), name='stimulation-list'),
+    url(r'^api/repository/stimulations/(?P<pk>\d+)/$', StimulationDetail.as_view(), name='stimulation-detail'),
+
+    url(r'^api/repository/samples/$', SampleList.as_view(), name='sample-list'),
+    url(r'^api/repository/samples/add/$', CreateSampleList.as_view(), name='create-sample-list'),
+    url(r'^api/repository/samples/(?P<pk>\d+)/$', SampleDetail.as_view(), name='sample-detail'),
+    url(r'^api/repository/samples/(?P<pk>\d+)/fcs_original/$', retrieve_sample, name='retrieve_sample'),
+    url(r'^api/repository/samples/(?P<pk>\d+)/fcs/$', retrieve_sample_as_pk, name='sample-download-as-pk'),
+    url(r'^api/repository/samples/(?P<pk>\d+)/csv/$', retrieve_subsample_as_csv, name='retrieve_subsample_as_csv'),
+    url(r'^api/repository/samples/(?P<pk>\d+)/npy/$', retrieve_subsample_as_numpy, name='retrieve_subsample_as_numpy'),
+
+    url(r'^api/repository/compensations/$', CompensationList.as_view(), name='compensation-list'),
+    url(r'^api/repository/compensations/(?P<pk>\d+)/$', CompensationDetail.as_view(), name='compensation-detail'),
+    url(r'^api/repository/compensations/(?P<pk>\d+)/csv/$', retrieve_compensation_as_csv, name='retrieve_compensation_as_csv'),
+    url(r'^api/repository/compensations/(?P<pk>\d+)/npy/$', retrieve_compensation_as_numpy, name='retrieve_compensation_as_numpy'),
+
+    url(r'^api/repository/processes/$', ProcessList.as_view(), name='process-list'),
+    url(r'^api/repository/workers/$', WorkerList.as_view(), name='worker-list'),
+    url(r'^api/repository/verify_worker/$', verify_worker, name='verify-worker'),
+    url(r'^api/repository/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),
+    url(r'^api/repository/viable_process_requests/$', ViableProcessRequestList.as_view(), name='viable-process-request-list'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/$', ProcessRequestDetail.as_view(), name='process-request-detail'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/request_assignment/$', ProcessRequestAssignmentUpdate.as_view(), name='process-request-assignment'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/revoke_assignment/$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/verify_assignment/$', verify_process_request_assignment, name='verify-process-request-assignment'),
 )
 
 # Regular web routes
@@ -81,7 +98,6 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
-    url(r'^download/compensation/(?P<compensation_id>\d+)$', 'retrieve_compensation', name='retrieve_compensation'),
 
     url(r'^project/(?P<project_id>\d+)/visit_types/$', 'view_visit_types', name='project_visit_types'),
     url(r'^project/(?P<project_id>\d+)/visit_types/add/$', 'add_visit_type', name='add_visit_type'),
@@ -107,10 +123,16 @@ urlpatterns += patterns('repository.views',
     url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
     url(r'^sample/(?P<sample_id>\d+)/parameters/$', 'render_sample_parameters', name='render_sample_parameters'),
     url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
-    url(r'^download/sample/(?P<sample_id>\d+)$', 'retrieve_sample', name='retrieve_sample'),
-
-    url(r'^project/(?P<project_id>\d+)/sample_sets/$', 'view_project_sample_sets', name='view_project_sample_sets'),
-    url(r'^project/(?P<project_id>\d+)/sample_sets/add/$', 'add_sample_set', name='add_sample_set'),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
+
+    url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),
+    url(r'^processing/process/(?P<process_id>\d+)/input/add/$', 'add_process_input', name='add_process_input'),
+    url(r'^processing/process/process_input/(?P<process_input_id>\d+)/edit/$', 'edit_process_input', name='edit_process_input'),
+    url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
+    url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
+    url(r'^processing/process/(?P<process_id>\d+)/$', 'view_process', name='view_process'),
+
+    # Specific process requests are under a project
+    url(r'^project/(?P<project_id>\d+)/plots/request/$', 'process_request_plot', name='process_request_plot'),
 )

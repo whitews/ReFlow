@@ -1,4 +1,6 @@
+import re
 from collections import Counter
+import numpy as np
 from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
 from django.core.exceptions import ValidationError
@@ -138,14 +140,17 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         param_counter = Counter()
         staining = self.instance.staining
         if staining == 'FS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = False
         elif staining == 'FM':
-            can_have_fmo = True
+            can_have_uns = True
             can_have_iso = False
         elif staining == 'IS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = True
+        elif staining == 'US':
+            can_have_uns = True
+            can_have_iso = False
         else:
             raise ValidationError(
                 "Invalid staining type '%s'" % staining)
@@ -168,9 +173,10 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             param_type = form.data[form.add_prefix('parameter_type')]
             if not param_type:
                 raise ValidationError("Function is required")
-            if param_type == 'FMO' and not can_have_fmo:
+            if param_type == 'UNS' and not can_have_uns:
                 raise ValidationError(
-                    "Only FMO panels can include an FMO parameter")
+                    "Only FMO & Unstained panels can include an " +
+                    "unstained parameter")
             if param_type == 'ISO' and not can_have_iso:
                 raise ValidationError(
                     "Only Isotype control panels can include an " +
@@ -184,10 +190,10 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
 
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 
-            # dump channel must be a fluorescence channel
-            if param_type == 'DMP' and not fluorochrome_id:
+            # exclusion must be a fluorescence channel
+            if param_type == 'EXC' and not fluorochrome_id:
                 raise ValidationError(
-                    "A dump channel must include a fluorochrome.")
+                    "An exclusion channel must include a fluorochrome.")
 
             # check for fluoro or antibodies in scatter channels
             if param_type == 'FSC' or param_type == 'SSC':
@@ -263,14 +269,17 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         param_dict = {}
         staining = self.instance.project_panel.staining
         if staining == 'FS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = False
         elif staining == 'FM':
-            can_have_fmo = True
+            can_have_uns = True
             can_have_iso = False
         elif staining == 'IS':
-            can_have_fmo = False
+            can_have_uns = False
             can_have_iso = True
+        elif staining == 'US':
+            can_have_uns = True
+            can_have_iso = False
         else:
             raise ValidationError(
                 "Invalid staining type '%s'" % staining)
@@ -295,9 +304,10 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
             if not param_type:
                 raise ValidationError(
                     "Function is required for all parameters")
-            if param_type == 'FMO' and not can_have_fmo:
+            if param_type == 'UNS' and not can_have_uns:
                 raise ValidationError(
-                    "Only FMO panels can include an FMO parameter")
+                    "Only FMO & Unstained panels can include an " +
+                    "unstained parameter")
             if param_type == 'ISO' and not can_have_iso:
                 raise ValidationError(
                     "Only Isotype control panels can include an " +
@@ -310,10 +320,10 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
 
             fluorochrome_id = form.data[form.add_prefix('fluorochrome')]
 
-            # dump channel must be a fluorescence channel
-            if param_type == 'DMP' and not fluorochrome_id:
+            # exclusion must be a fluorescence channel
+            if param_type == 'EXC' and not fluorochrome_id:
                 raise ValidationError(
-                    "A dump channel must be a fluorescence channel")
+                    "An exclusion channel must be a fluorescence channel")
 
             # check for fluoro or antibodies in scatter channels
             if param_type in ['FSC', 'SSC']:
@@ -332,16 +342,15 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                         "A fluorescence conjugated antibody channel must " +
                         "specify a fluorochrome and at least one antibody")
 
-            # FMO channels can't have a fluoro and must have an antibody
-            if param_type == 'FMO':
-
+            # Unstained channels can't have a fluoro and must have an antibody
+            if param_type == 'UNS':
                 if fluorochrome_id:
                     raise ValidationError(
-                        "Fluorescence minus one channels CANNOT " +
+                        "Unstained channels CANNOT " +
                         "have a fluorochrome")
                 if len(ab_set) == 0:
                     raise ValidationError(
-                        "Fluorescence minus one channels " +
+                        "Unstained channels " +
                         "must specify at least one antibody")
 
             # Iso control & Viability channels must have a fluoro and
@@ -545,7 +554,6 @@ class EditSitePanelForm(forms.ModelForm):
 
 
 class SitePanelParameterMapFromSampleForm(forms.ModelForm):
-
     class Meta:
         model = SitePanelParameter
         fields = ('fcs_text', 'fcs_opt_text', 'parameter_value_type')
@@ -590,7 +598,8 @@ class SubjectForm(forms.ModelForm):
         # available choices
         if project_id:
             subject_groups = SubjectGroup.objects.filter(project__id=project_id)
-            self.fields['subject_group'] = forms.ModelChoiceField(subject_groups)
+            self.fields['subject_group'] = forms.ModelChoiceField(
+                subject_groups)
 
 
 class StimulationForm(forms.ModelForm):
@@ -602,7 +611,7 @@ class StimulationForm(forms.ModelForm):
 class SampleForm(forms.ModelForm):
     class Meta:
         model = Sample
-        exclude = ('original_filename', 'sha1')
+        exclude = ('original_filename', 'sha1', 'subsample')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -638,13 +647,16 @@ class SampleForm(forms.ModelForm):
             self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
             compensations = Compensation.objects.filter(
-                site__project__id=project_id).order_by('original_filename')
-            self.fields['compensation'] = forms.ModelChoiceField(compensations)
+                site_panel__site__project__id=project_id).order_by('name')
+            self.fields['compensation'] = forms.ModelChoiceField(
+                compensations,
+                required=False)
+
 
 class SampleEditForm(forms.ModelForm):
     class Meta:
         model = Sample
-        exclude = ('original_filename', 'sample_file', 'sha1')
+        exclude = ('original_filename', 'sample_file', 'sha1', 'subsample')
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -671,14 +683,14 @@ class SampleEditForm(forms.ModelForm):
             self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
             compensations = Compensation.objects.filter(
-                site__project__id=project_id).order_by('original_filename')
+                site__project__id=project_id).order_by('name')
             self.fields['compensation'] = forms.ModelChoiceField(compensations)
 
 
 class CompensationForm(forms.ModelForm):
     class Meta:
         model = Compensation
-        exclude = ('original_filename', 'matrix_text')
+        exclude = ('compensation_file',)
 
     def __init__(self, *args, **kwargs):
         # pop our 'project_id' key since parent's init is not expecting it
@@ -693,89 +705,140 @@ class CompensationForm(forms.ModelForm):
         # finally, make sure only project's sites are the available choices
         if project_id:
             project = Project.objects.get(id=project_id)
-            sites = Site.objects.get_sites_user_can_add(request.user, project).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(sites)
-
-
-class SampleSetForm(forms.ModelForm):
-    class Meta:
-        model = SampleSet
-        exclude = ('project',)
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # now it's safe to call the parent init
-        super(SampleSetForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure the available choices belong to the project
-        if project_id:
-            sites = Site.objects.filter(project_id=project_id)
-            self.fields['sites'] = forms.ModelMultipleChoiceField(
-                sites,
-                required=False,
-                widget=forms.widgets.CheckboxSelectMultiple()
-            )
-
-            subjects = Subject.objects.filter(project_id=project_id)
-            self.fields['subjects'] = forms.ModelMultipleChoiceField(
-                subjects,
-                required=False,
-                widget=forms.widgets.CheckboxSelectMultiple()
-            )
-
-            visit_types = VisitType.objects.filter(project_id=project_id)
-            self.fields['visit_types'] = forms.ModelMultipleChoiceField(
-                visit_types,
-                required=False,
-                widget=forms.widgets.CheckboxSelectMultiple()
-            )
-
-            specimens = Specimen.objects.all()
-            self.fields['specimens'] = forms.ModelMultipleChoiceField(
-                specimens,
-                required=False,
-                widget=forms.widgets.CheckboxSelectMultiple()
-            )
-
-            # and now some foo to get the distinct list of parameter+value_type
-            # from all categorized samples in the project.
-            spp = SitePanelParameter.objects.filter(site_panel__project_panel__project_id=project_id)
-            unique_param_combos = spp.values(
-                    'parameter_type',
-                    'parameter_value_type')\
-                .distinct()\
-                .order_by('parameter_type','parameter_value_type')
-            # and combine the param + value type to one string per parameter
-            parameter_list = []
-            for p in unique_param_combos:
-                parameter_list.append(
-                    (
-                        p['parameter_type'] + '-' + p['parameter_value_type'],
-                        p['parameter_type'] + '-' + p['parameter_value_type']
-                    )
-                )
-            self.fields['parameters'] = forms.MultipleChoiceField(
-                choices=parameter_list,
-                required=False,
-                widget=forms.widgets.CheckboxSelectMultiple()
-            )
+            sites = Site.objects.get_sites_user_can_add(
+                request.user, project)
+            site_panels = SitePanel.objects.filter(site__in=sites)
+            self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
     def clean(self):
         """
-        Validate all samples belong to the same project, and that
-        at least one sample is included in the set.
+        Validate compensation matrix matches site panel
         """
-        if not self.cleaned_data.has_key('samples'):
-            raise ValidationError("There must be at least one sample in a set.")
+        if not 'site_panel' in self.cleaned_data:
+            # site panel is required, will get caught
+            return self.cleaned_data
+        if not 'matrix_text' in self.cleaned_data:
+            # matrix text is required, will get caught
+            return self.cleaned_data
 
-        samples = self.cleaned_data['samples']
-        matching_count = samples.filter(subject__project_id=self.instance.project_id).count()
-        
-        if samples.count() < 1:
-            raise ValidationError("A set must contain at least one sample.")
-        elif samples.count() != matching_count:
-            raise ValidationError("A set must contain samples from the same project.")
+        try:
+            site_panel = SitePanel.objects.get(
+                id=self.cleaned_data['site_panel'].id)
+        except ObjectDoesNotExist:
+            raise ValidationError("Site panel does not exist.")
 
-        return self.cleaned_data #never forget this! ;o)
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel=site_panel).exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = str(self.cleaned_data['matrix_text'])
+        matrix_text = matrix_text.splitlines(False)
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        headers = re.split('\t|,', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if p.fcs_text not in headers:
+                missing_fields.append(p.fcs_text)
+
+        if len(missing_fields) > 0:
+            self._errors["matrix_text"] = \
+                "Missing fields: %s" % ", ".join(missing_fields)
+            return self.cleaned_data
+
+        if len(headers) > params.count():
+            self._errors["matrix_text"] = "Too many parameters"
+            return self.cleaned_data
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            self._errors["matrix_text"] = "Too many rows"
+            return self.cleaned_data
+        elif len(matrix_text) < params.count() + 1:
+            self._errors["matrix_text"] = "Too few rows"
+            return self.cleaned_data
+
+        # we need to store the channel number in the first row of the numpy
+        # array, more reliable to identify parameters than some concatenation
+        # of parameter attributes
+        channel_header = list()
+        for h in headers:
+            for p in params:
+                if p.fcs_text == h:
+                    channel_header.append(p.fcs_number)
+
+        np_array = np.array(channel_header)
+        np_width = np_array.shape[0]
+
+        # convert the matrix text to numpy array and
+        for line in matrix_text[1:]:
+            line_values = re.split('\t|,', line)
+            for i, value in enumerate(line_values):
+                try:
+                    line_values[i] = float(line_values[i])
+                except ValueError:
+                    self._errors["matrix_text"] = \
+                        "%s is an invalid matrix value" % line_values[i]
+            if len(line_values) > np_width:
+                self._errors["matrix_text"] = \
+                    "Too many values in line: %s" % line
+                return self.cleaned_data
+            elif len(line_values) < np_width:
+                self._errors["matrix_text"] = \
+                    "Too few values in line: %s" % line
+                return self.cleaned_data
+            else:
+                np_array = np.vstack([np_array, line_values])
+
+        # save numpy array in the self.compensation_file field
+        np_array_file = TemporaryFile()
+        np.save(np_array_file, np_array)
+        self.instance.tmp_compensation_file = np_array_file
+
+        return self.cleaned_data  # never forget this! ;o)
+
+
+class ProcessForm(forms.ModelForm):
+    class Meta:
+        model = Process
+
+
+class ProcessInputForm(forms.ModelForm):
+    class Meta:
+        model = ProcessInput
+        exclude = ('process',)
+
+
+class WorkerForm(forms.ModelForm):
+    class Meta:
+        model = Worker
+
+
+class ProcessRequestForm(forms.ModelForm):
+    class Meta:
+        model = ProcessRequest
+        exclude = (
+            'process',
+            'request_user',
+            'completion_date',
+            'worker',
+            'status')
+
+
+class ProcessRequestInputValueForm(forms.ModelForm):
+    value_label = forms.CharField(widget=forms.HiddenInput())
+    process_input = forms.ModelChoiceField(
+        queryset=ProcessInput.objects.all(),
+        widget=forms.HiddenInput())
+
+    class Meta:
+        model = ProcessRequestInputValue
+        exclude = ('process_request',)

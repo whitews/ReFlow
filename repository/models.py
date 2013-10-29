@@ -2,6 +2,8 @@ from string import join
 import hashlib
 import io
 import datetime
+from tempfile import TemporaryFile
+from cStringIO import StringIO
 
 import os
 import re
@@ -9,11 +11,16 @@ from django.core.exceptions import \
     ValidationError, \
     ObjectDoesNotExist, \
     MultipleObjectsReturned
+from django.core.files import File
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.contrib.auth.models import User
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms
 from guardian.models import UserObjectPermission
+from rest_framework.authtoken.models import Token
+
 import fcm
+import numpy as np
 
 
 class ProtectedModel(models.Model):
@@ -101,9 +108,9 @@ PARAMETER_TYPE_CHOICES = (
     ('FSC', 'Forward Scatter'),
     ('SSC', 'Side Scatter'),
     ('FCA', 'Fluorochrome Conjugated Antibody'),
-    ('FMO', 'Fluorescence Minus One'),
+    ('UNS', 'Unstained'),
     ('ISO', 'Isotype Control'),
-    ('DMP', 'Dump Channel'),
+    ('EXC', 'Exclusion'),
     ('VIA', 'Viability'),
     ('ICA', 'Isotope Conjugated Antibody'),
     ('TIM', 'Time')
@@ -118,7 +125,8 @@ PARAMETER_VALUE_TYPE_CHOICES = (
 
 STAINING_CHOICES = (
     ('FS', 'Full Stain'),
-    ('FM', 'Fluorescence minus one'),
+    ('US', 'Unstained'),
+    ('FM', 'Fluorescence Minus One'),
     ('IS', 'Isotype Control')
 )
 
@@ -129,7 +137,8 @@ STAINING_CHOICES = (
 
 
 class ProjectManager(models.Manager):
-    def get_projects_user_can_view(self, user):
+    @staticmethod
+    def get_projects_user_can_view(user):
         """
         Return a list of projects for which the given user has view permissions,
         including any view access to even a single site in the project.
@@ -347,7 +356,6 @@ class ProjectPanelParameter(ProtectedModel):
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
-        # TODO: update duplicate check in ProjectPanelParameter
         ppm_duplicates = ProjectPanelParameter.objects.filter(
             project_panel=self.project_panel,
             fluorochrome=self.fluorochrome,
@@ -392,7 +400,8 @@ class ProjectPanelParameterAntibody(models.Model):
 
 
 class SiteManager(models.Manager):
-    def get_sites_user_can_view(self, user, project=None):
+    @staticmethod
+    def get_sites_user_can_view(user, project=None):
         """
         Returns project sites for which the given user has view permissions
         """
@@ -421,7 +430,8 @@ class SiteManager(models.Manager):
 
         return sites
 
-    def get_sites_user_can_add(self, user, project):
+    @staticmethod
+    def get_sites_user_can_add(user, project):
         """
         Returns project sites for which the given user has add permissions
         """
@@ -436,7 +446,8 @@ class SiteManager(models.Manager):
 
         return sites
 
-    def get_sites_user_can_modify(self, user, project):
+    @staticmethod
+    def get_sites_user_can_modify(user, project):
         """
         Returns project sites for which the given user has modify permissions
         """
@@ -451,7 +462,8 @@ class SiteManager(models.Manager):
 
         return sites
 
-    def get_sites_user_can_manage_users(self, user, project):
+    @staticmethod
+    def get_sites_user_can_manage_users(user, project):
         """
         Returns project sites for which the given user has modify permissions
         """
@@ -676,7 +688,6 @@ class SitePanelParameter(ProtectedModel):
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
-        # TODO: need better site panel parameter duplicate checking
         spp_duplicates = SitePanelParameter.objects.filter(
             site_panel=self.site_panel,
             fluorochrome=self.fluorochrome,
@@ -799,7 +810,6 @@ class Subject(ProtectedModel):
         return u'%s' % self.subject_code
 
 
-# TODO: change to TimePoint ???
 class VisitType(ProtectedModel):
     project = models.ForeignKey(Project)
     visit_type_name = models.CharField(
@@ -839,8 +849,8 @@ class VisitType(ProtectedModel):
 
 
 def compensation_file_path(instance, filename):
-    project_id = instance.site.project_id
-    site_id = instance.site_id
+    project_id = instance.site_panel.site.project_id
+    site_id = instance.site_panel.site_id
 
     upload_dir = join(
         [
@@ -848,7 +858,8 @@ def compensation_file_path(instance, filename):
             str(project_id),
             'compensation',
             str(site_id),
-            str(filename)],
+            str(filename + ".npy")
+        ],
         "/"
     )
 
@@ -856,65 +867,87 @@ def compensation_file_path(instance, filename):
 
 
 class Compensation(ProtectedModel):
-    site = models.ForeignKey(Site)
+    name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=256)
+    site_panel = models.ForeignKey(SitePanel)
     compensation_file = models.FileField(
         upload_to=compensation_file_path,
         null=False,
         blank=False)
-    original_filename = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        editable=False,
-        max_length=256)
     matrix_text = models.TextField(
         null=False,
-        blank=False,
-        editable=False)
+        blank=False)
 
     def has_view_permission(self, user):
 
-        if user.has_perm('view_project_data', self.site.project):
+        if user.has_perm('view_project_data', self.site_panel.site.project):
             return True
-        elif self.site is not None:
-            if user.has_perm('view_site_data', self.site):
+        elif self.site_panel.site is not None:
+            if user.has_perm('view_site_data', self.site_panel.site):
                 return True
+
+    def get_compensation_as_csv(self):
+        csv_string = StringIO()
+        compensation_array = np.load(self.compensation_file.file)
+        np.savetxt(csv_string, compensation_array, fmt='%f', delimiter=',')
+        csv_string.seek(0)
+        return csv_string
 
     def clean(self):
         """
-        Overriding clean to do the following:
-            - Verify specified site exists (site is required)
-            - Save original file name, it may already exist on our side.
-            - Save the matrix text
+        Check for duplicate comp names within a site.
+        Returns ValidationError if any duplicates are found.
+        Also, save the numpy compensation_file
         """
 
-        try:
-            Site.objects.get(id=self.site_id)
-            self.original_filename = self.compensation_file.name.split('/')[-1]
-        except ObjectDoesNotExist:
-            # site & compensation file are required...
-            # will get caught by Form.is_valid()
-            return
+        # get comps with matching name and parent site,
+        # which don't have this pk
+        duplicates = Compensation.objects.filter(
+            name=self.name,
+            site_panel__site=self.site_panel.site_id).exclude(
+                id=self.id)
 
-        # get the matrix, a bit funky b/c the files may have \r or \n line
-        # termination. we'll save the matrix_text with \n line terminators
-        self.compensation_file.seek(0)
-        text = self.compensation_file.read()
-        self.matrix_text = '\n'.join(text.splitlines())
+        if duplicates.count() > 0:
+            raise ValidationError(
+                "Compensation with this name already exists in this site.")
+
+        if hasattr(self, 'tmp_compensation_file'):
+            self.compensation_file.save(
+                self.name,
+                File(self.tmp_compensation_file))
 
     def __unicode__(self):
-        return u'%s' % (self.original_filename)
+        return u'%s' % self.name
 
 
 def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
-    subject_id = instance.subject_id
+    site_id = instance.site_panel.site_id
     
     upload_dir = join([
         'ReFlow-data',
         str(project_id),
-        str(subject_id),
+        'sample',
+        str(site_id),
         str(filename)],
+        "/")
+
+    return upload_dir
+
+
+def subsample_file_path(instance, filename):
+    project_id = instance.subject.project_id
+    site_id = instance.site_panel.site_id
+
+    upload_dir = join([
+        'ReFlow-data',
+        str(project_id),
+        'subsample',
+        str(site_id),
+        str(filename + ".npy")],
         "/")
 
     return upload_dir
@@ -955,6 +988,10 @@ class Sample(ProtectedModel):
         blank=False,
         editable=False,
         max_length=256)
+    subsample = models.FileField(
+        upload_to=subsample_file_path,
+        null=False,
+        blank=False)
     sha1 = models.CharField(
         unique=False,
         null=False,
@@ -975,11 +1012,19 @@ class Sample(ProtectedModel):
 
         if user.has_perm('view_project_data', self.subject.project):
             return True
-        elif self.site is not None:
+        elif self.site_panel is not None:
             if user.has_perm('view_site_data', self.site_panel.site):
                 return True
 
         return False
+
+    def get_subsample_as_csv(self):
+        csv_string = StringIO()
+        subsample_array = np.load(self.subsample.file)
+        # return the array as integers, the extra precision is questionable
+        np.savetxt(csv_string, subsample_array, fmt='%d', delimiter=',')
+        csv_string.seek(0)
+        return csv_string
 
     def clean(self):
         """
@@ -990,9 +1035,6 @@ class Sample(ProtectedModel):
             - Save  original file name, since it may already exist on our side.
             - Save SHA-1 hash and check for duplicate FCS files in this project.
         """
-
-        # TODO: restrict site to ones the requesting user has add perms for
-        # but request isn't available in clean() ???
 
         try:
             Subject.objects.get(id=self.subject_id)
@@ -1030,16 +1072,17 @@ class Sample(ProtectedModel):
             if hasattr(self.sample_file.file, 'temporary_file_path'):
                 temp_file_path = self.sample_file.file.temporary_file_path()
                 os.unlink(temp_file_path)
-                # TODO: check if this generates an IOError when Django deletes
 
             raise ValidationError(
                 "This FCS file already exists in this Project."
             )
 
-        if self.site_panel is not None and self.site_panel.site.project_id != self.subject.project_id:
+        if self.site_panel is not None and \
+                self.site_panel.site.project_id != self.subject.project_id:
             raise ValidationError("Site panel chosen is not in this Project")
 
-        if self.visit is not None and self.visit.project_id != self.subject.project_id:
+        if self.visit is not None and \
+                self.visit.project_id != self.subject.project_id:
             raise ValidationError("Visit Type chosen is not in this Project")
 
         # Verify the file is an FCS file
@@ -1122,7 +1165,8 @@ class Sample(ProtectedModel):
             # Compare PnS field, not required but if panel version exists
             # and file version doesn't we'll still error
             if 's' in sample_params[channel_number]:
-                if sample_params[channel_number]['s'] != panel_param.fcs_opt_text:
+                if sample_params[channel_number]['s'] != \
+                        panel_param.fcs_opt_text:
                     raise ValidationError(
                         "FCS PnS text for channel '%s' does not match panel"
                         % str(channel_number))
@@ -1133,6 +1177,26 @@ class Sample(ProtectedModel):
                     raise ValidationError(
                         "FCS PnS text for channel '%s' does not match panel"
                         % str(channel_number))
+
+        # Save a sub-sample of the FCS data for more efficient retrieval
+        # We'll save a random 10,000 events (non-duplicated) if possible
+        # We'll also store the indices of the randomly chosen events for
+        # reproducibility. The indices will be inserted as the first column.
+        # The result is stored as a numpy object in a file field.
+        # To ensure room for the indices and preserve precision for values,
+        # we save as float32
+        numpy_data = fcm_obj.view().astype(np.float32)
+        index_array = np.arange(len(numpy_data))
+        np.random.shuffle(index_array)
+        random_subsample = numpy_data[index_array[:10000]]
+        random_subsample_indexed = np.insert(
+            random_subsample,
+            0,
+            index_array[:10000],
+            axis=1)
+        subsample_file = TemporaryFile()
+        np.save(subsample_file, random_subsample_indexed)
+        self.subsample.save(self.original_filename, File(subsample_file))
 
     def save(self, *args, **kwargs):
         """ Populate upload date on save """
@@ -1193,26 +1257,142 @@ class SampleMetadata(ProtectedModel):
     def __unicode__(self):
         return u'%s: %s' % (self.key, self.value)
 
+####################################
+### START PROCESS RELATED MODELS ###
+####################################
 
-class SampleSet(ProtectedModel):
-    """
-    An arbitrary collection of Sample instances within a Project
-    """
-    project = models.ForeignKey(Project)
 
-    # Make non-editable and auto-generated based on date/user combo???
-    name = models.CharField(
+class Process(models.Model):
+    """
+    The model representation of a specific workflow.
+    """
+    process_name = models.CharField(
+        "Process Name",
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128,
+        help_text="The name of the process (must be unique)")
+    process_description = models.TextField(
+        "Process Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the process")
+
+    def __unicode__(self):
+        return u'%s' % (self.process_name,)
+
+
+class ProcessInput(models.Model):
+    """
+    Defines an input parameter for a Process
+    """
+    process = models.ForeignKey(Process)
+    input_name = models.CharField(
+        "Input Name",
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+
+    allow_multiple = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False,
+        help_text="Whether multiple input values for this input are allowed"
+    )
+
+    input_description = models.TextField(
+        "Process Input Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the input parameter")
+
+    VALUE_TYPE_CHOICES = (
+        ('int', 'Integer'),
+        ('dec', 'Decimal'),
+        ('txt', 'Text String'),
+    )
+
+    value_type = models.CharField(
+        max_length=32,
+        null=False,
+        blank=False,
+        choices=VALUE_TYPE_CHOICES)
+
+    # Should we add minimum/maximum values???
+
+    default_value = models.CharField(null=True, blank=True, max_length=1024)
+
+    class Meta:
+        unique_together = (('process', 'input_name'),)
+
+    # override clean to prevent duplicate input names for a process input...
+    # unique_together doesn't work for forms with any of the
+    # unique together fields excluded
+    def clean(self):
+        """
+        Verify the process & input_name combination is unique
+        """
+
+        qs = ProcessInput.objects.filter(
+            process=self.process,
+            input_name=self.input_name)\
+            .exclude(
+                id=self.id)
+
+        if qs.exists():
+            raise ValidationError(
+                "This input name is already used in this process. " +
+                "Choose a different name."
+            )
+
+    def __unicode__(self):
+        return u'%s (Process: %s)' % (
+            self.input_name,
+            self.get_process_display(),)
+
+
+class Worker(models.Model):
+    """
+    The model representation of a client-side worker.
+    """
+    user = models.OneToOneField(User, null=False, blank=False, editable=False)
+    worker_name = models.CharField(
+        "Worker Name",
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128)
+
+    worker_hostname = models.CharField(
+        "Worker Hostname",
         unique=False,
         null=False,
         blank=False,
         max_length=256)
-    description = models.TextField(
-        null=True,
-        blank=True)
-    samples = models.ManyToManyField(Sample)
 
-    class Meta:
-        unique_together = (('project', 'name'),)
+    def save(self, *args, **kwargs):
+        if not User.objects.filter(username=self.worker_name).exists():
+            # ok to create user, and w/o password since it will not allow login
+            user = User.objects.create_user(username=self.worker_name)
+            # create auth token for REST API usage
+            Token.objects.create(user=user)
+            # associate worker to new user
+            self.user = user
+        super(Worker, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u'%s' % (self.worker_name,)
+
+
+class SampleSet(models.Model):
+    """
+    An collection of Sample instances in ProcessRequest
+    Must belong to the same project.
+    """
+    project = models.ForeignKey(Project)
+    samples = models.ManyToManyField(Sample)
 
     def has_view_permission(self, user):
         """
@@ -1222,25 +1402,6 @@ class SampleSet(ProtectedModel):
             return True
 
         return False
-
-    def clean(self):
-        """
-        Verify the project & name combo doesn't already exist
-        """
-
-        qs = SampleSet.objects.filter(
-            project=self.project,
-            name=self.name)
-
-        if qs.exists():
-            raise ValidationError(
-                "A sample set with this name already exists in this project."
-            )
-
-    def __unicode__(self):
-        return u'%s (Project: %s)' % (
-            self.name,
-            self.project.project_name)
 
 
 def validate_samples(sender, **kwargs):
@@ -1260,8 +1421,6 @@ def validate_samples(sender, **kwargs):
                 "Could not find specified samples. Check that they exist.")
 
         for sample in samples_to_add:
-            print "Sample Set Project: ", sample_set.project_id
-            print "Sample Project: ", sample.subject.project_id
             if sample_set.project_id != sample.subject.project_id:
                 raise ValidationError(
                     "Samples must belong to the specified project."
@@ -1270,3 +1429,78 @@ def validate_samples(sender, **kwargs):
 models.signals.m2m_changed.connect(
     validate_samples,
     sender=SampleSet.samples.through)
+
+
+class ProcessRequest(ProtectedModel):
+    """
+    A request for a Process to be executed on a SampleSet
+    """
+    project = models.ForeignKey(Project)
+    process = models.ForeignKey(Process)
+    sample_set = models.ForeignKey(
+        SampleSet,
+        null=False,
+        blank=False)
+    request_user = models.ForeignKey(
+        User, null=False,
+        blank=False,
+        editable=False)
+    request_date = models.DateTimeField(
+        editable=False,
+        auto_now_add=True)
+    completion_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        editable=False)
+    # optional FK to the worker that is assigned or has completed the request
+    worker = models.ForeignKey(
+        Worker,
+        null=True,
+        blank=True)
+
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Working', 'Working'),
+        ('Error', 'Error'),
+        ('Completed', 'Completed'),
+    )
+
+    status = models.CharField(
+        max_length=32,
+        null=False,
+        blank=False,
+        choices=STATUS_CHOICES)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.request_date = datetime.datetime.now()
+            self.status = 'Pending'
+        if self.worker:
+            self.status = 'Working'
+        super(ProcessRequest, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u'%s (Date: %s)' % (
+            self.process.process_name,
+            self.request_date,)
+
+
+class ProcessRequestInputValue(models.Model):
+    """
+    The actual value to be used for a specific ProcessInput
+    for a specific ProcessRequest
+    """
+    process_request = models.ForeignKey(ProcessRequest)
+    process_input = models.ForeignKey(ProcessInput)
+    # all values get transmitted in JSON format via REST,
+    # so everything is a string
+    value = models.CharField(null=False, blank=False, max_length=1024)
+
+    class Meta:
+        unique_together = (('process_request', 'process_input'),)
+
+    def __unicode__(self):
+        return u'%s (%s): %s' % (
+            self.process_request.process.process_name,
+            self.process_request_id,
+            self.process_input.input_name)

@@ -6,14 +6,14 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
-    {% breadcrumb_url worker.worker_name 'view_worker' worker.id %}
-    {% breadcrumb "Register a Process" %}
+    {% breadcrumb_url process_input.process.process_name 'view_process' process_input.process_id %}
+    {% breadcrumb "Edit Process Input" %}
   </ul>
 {% endblock %}
 
 {% block body %}
   <div class="container">
-      <form class="form-horizontal" action="{% url 'register_process_to_worker' worker.id %}" method="post">
+      <form class="form-horizontal" action="{% url 'edit_process_input' process_input.id %}" method="post">
         {% csrf_token %}
 
         {{ form.non_field_errors }}
@@ -31,7 +31,7 @@
         {% endfor %}
         <div class="control-group">
           <div class="controls">
-            <button class="btn btn-small btn-primary" type="submit">Save</button>
+            <button class="btn btn-small btn-success" type="submit">Save</button>
           </div>
         </div>
       </form>
