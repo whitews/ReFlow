@@ -1196,7 +1196,10 @@ class Sample(ProtectedModel):
             axis=1)
         subsample_file = TemporaryFile()
         np.save(subsample_file, random_subsample_indexed)
-        self.subsample.save(self.original_filename, File(subsample_file))
+        self.subsample.save(
+            self.original_filename,
+            File(subsample_file),
+            save=False)
 
     def save(self, *args, **kwargs):
         """ Populate upload date on save """

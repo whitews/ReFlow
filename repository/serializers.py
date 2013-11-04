@@ -272,7 +272,8 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'site_panel', 'project', 'original_filename',
             'sample_file'
         )
-        read_only_fields = ('original_filename', 'sha1')
+        read_only_fields = ('original_filename', 'sha1', 'subsample')
+        exclude = ('subsample',)
 
 
 class ProcessSerializer(serializers.ModelSerializer):
