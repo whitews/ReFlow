@@ -497,6 +497,11 @@ class Site(ProtectedModel):
             ('manage_site_users', 'Manage Site Users')
         )
 
+    def get_sample_count(self):
+        site_panels = SitePanel.objects.filter(site=self)
+        sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
+        return sample_count
+
     def get_user_permissions(self, user):
         return UserObjectPermission.objects.filter(
             user=user,

@@ -65,7 +65,7 @@ $(function() {
           {% endif %}
         </td>
         <td class="middle">{{ site.site_name }}</td>
-        <td class="middle">{{ site.sample_set.count }}</td>
+        <td class="middle">{{ site.get_sample_count }}</td>
         <td>
           {% for panel in site.sitepanel_set.all %}
             {{ panel.project_panel.panel_name }} ({{ panel.implementation }})<br/>
