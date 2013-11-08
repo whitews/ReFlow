@@ -269,7 +269,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         param_dict = {}
         staining = self.instance.project_panel.staining
         if staining == 'FS':
-            can_have_uns = False
+            can_have_uns = True
             can_have_iso = False
         elif staining == 'FM':
             can_have_uns = True
@@ -306,8 +306,8 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                     "Function is required for all parameters")
             if param_type == 'UNS' and not can_have_uns:
                 raise ValidationError(
-                    "Only FMO & Unstained panels can include an " +
-                    "unstained parameter")
+                    "Only Full Stain, FMO, & Unstained panels can " +
+                    "include an unstained parameter")
             if param_type == 'ISO' and not can_have_iso:
                 raise ValidationError(
                     "Only Isotype control panels can include an " +
