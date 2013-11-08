@@ -381,11 +381,13 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                         "must have a T value type")
 
             # make a list of the combination for use in the Counter
-            param_components = [param_type, value_type]
-            if fluorochrome_id:
-                param_components.append(fluorochrome_id)
+            # but, unstained params aren't required to be unique
+            if param_type not in ['UNS']:
+                param_components = [param_type, value_type]
+                if fluorochrome_id:
+                    param_components.append(fluorochrome_id)
 
-            param_counter.update([tuple(sorted(param_components))])
+                param_counter.update([tuple(sorted(param_components))])
 
             fcs_number = form.data[form.add_prefix('fcs_number')]
             param_dict[fcs_number] = {
