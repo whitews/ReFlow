@@ -340,5 +340,23 @@
         "antibody_name": "Cluster of Differentiation 107a", 
         "antibody_description": ""
     }
+},
+{
+    "pk": 40,
+    "model": "repository.antibody",
+    "fields": {
+        "antibody_abbreviation": "Multimer-I",
+        "antibody_name": "Multimer Class I",
+        "antibody_description": ""
+    }
+},
+{
+    "pk": 41,
+    "model": "repository.antibody",
+    "fields": {
+        "antibody_abbreviation": "Multimer-II",
+        "antibody_name": "Multimer Class II",
+        "antibody_description": ""
+    }
 }
 ]
