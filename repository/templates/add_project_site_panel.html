@@ -82,6 +82,8 @@ function auto_populate_param_fields(row) {
         $(param_value_type_selects[0]).val('W');
     } else if (fcs_text.substr(-2) == '-A') {
         $(param_value_type_selects[0]).val('A');
+    } else if (fcs_text == 'Time') {
+        $(param_value_type_selects[0]).val('T');
     }
 
     if (fcs_text.substr(0, 3) == 'FSC') {
@@ -96,6 +98,11 @@ function auto_populate_param_fields(row) {
         fl_selects.hide();
         ab_add_link.hide();
         return;
+    } else if (fcs_text == 'Time') {
+        $(param_type_selects[0]).val('TIM');
+        ab_selects.hide();
+        fl_selects.hide();
+        ab_add_link.hide();
     } else {
         $(param_type_selects[0]).val('FCA');
     }
