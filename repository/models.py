@@ -267,6 +267,11 @@ class ProjectPanel(ProtectedModel):
         null=False,
         blank=False,
         max_length=128)
+    panel_description = models.TextField(
+        "Panel Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the panel")
     staining = models.CharField(
         max_length=2,
         choices=STAINING_CHOICES,
