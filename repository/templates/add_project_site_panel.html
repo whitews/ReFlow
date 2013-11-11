@@ -121,10 +121,10 @@ function auto_populate_param_fields(row) {
 
     $(ab_selects[0].options).each(function (i, e) {
         ab_dict[e.value] = e.text;
-    })
+    });
     $(fl_selects[0].options).each(function (i, e) {
         fl_dict[e.value] = e.text;
-    })
+    });
 
     for (var i in ab_dict) {
         if (jQuery.inArray(ab_dict[i], words) >= 0) {
@@ -132,21 +132,26 @@ function auto_populate_param_fields(row) {
             break;
         }
     }
+
+    var fl_match = '';
     for (var i in fl_dict) {
-        if (jQuery.inArray(fl_dict[i], words) >= 0) {
-            $(fl_selects[0]).val(i);
-            break;
+        // for the fluorochromes, matching is a bit tricky b/c of tandem dyes
+        // we'll need to check against the longest match in the entire
+        // fcs_text first and then the words
+        if (fcs_text.indexOf(fl_dict[i]) >= 0) {
+            if (fl_dict[i].length > fl_match.length) {
+                $(fl_selects[0]).val(i);
+                fl_match = fl_dict[i];
+            }
         }
     }
-
-    console.log(words);
 }
 
 function add_antibody(selector) {
     // clone last antibody select
     var new_select_span = selector.parent("span.antibody-field").last().clone();
     new_select_span.children("a[class=add-ab-link]").remove();
-    var new_select = selector.siblings("select")
+    var new_select = selector.siblings("select");
     var name = new_select.attr("name");
     var id = new_select.attr("id");
 
