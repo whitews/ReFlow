@@ -18,7 +18,8 @@ $(function() {
     headers: {
       0: { sorter: false},
       1: { sorter: false},
-      4: { sorter: false}
+      4: { sorter: false},
+      5: { sorter: false}
     }
   });
 });
@@ -92,6 +93,7 @@ $(document).ready(function()
           <th></th>
           <th>Panel Name</th>
           <th>Staining</th>
+          <th>Description</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -114,6 +116,7 @@ $(document).ready(function()
             {{ panel.panel_name }}
           </td>
           <td>{{ panel.get_staining_display }}</td>
+          <td>{{ panel.panel_description }}</td>
           <td width="65%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="hide params">
