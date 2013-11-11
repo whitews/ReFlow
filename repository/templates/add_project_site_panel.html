@@ -103,8 +103,7 @@ function auto_populate_param_fields(row) {
         ab_selects.hide();
         fl_selects.hide();
         ab_add_link.hide();
-    } else {
-        $(param_type_selects[0]).val('FCA');
+        return;
     }
 
     var fcs_opt_text_input = $(row).find('input[id*=fcs_opt_text]');
@@ -144,6 +143,10 @@ function auto_populate_param_fields(row) {
                 fl_match = fl_dict[i];
             }
         }
+    }
+
+    if (fl_match.length > 0) {
+        $(param_type_selects[0]).val('FCA');
     }
 }
 
