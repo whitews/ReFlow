@@ -187,5 +187,32 @@
         "fluorochrome_abbreviation": "PerCP-Cy5.5", 
         "fluorochrome_description": "Tandem"
     }
+},
+{
+    "pk": 22,
+    "model": "repository.fluorochrome",
+    "fields": {
+        "fluorochrome_name": "Quantum Dot 605",
+        "fluorochrome_abbreviation": "QD605",
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 23,
+    "model": "repository.fluorochrome",
+    "fields": {
+        "fluorochrome_name": "Pacific Blue",
+        "fluorochrome_abbreviation": "PacBlue",
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 24,
+    "model": "repository.fluorochrome",
+    "fields": {
+        "fluorochrome_name": "Allophycocyanin + Cyanine 7",
+        "fluorochrome_abbreviation": "APC-Cy7",
+        "fluorochrome_description": "Tandem"
+    }
 }
 ]
