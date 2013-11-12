@@ -152,7 +152,11 @@ function remove_parameter(selector) {
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
     {% breadcrumb_url 'Project Panels' 'view_project_panels' project.id %}
+    {% if add_or_edit == 'edit' %}
+    {% breadcrumb "Edit Project Panel" %}
+    {% else %}
     {% breadcrumb "Add Project Panel" %}
+    {% endif %}
   </ul>
 {% endblock %}
 
