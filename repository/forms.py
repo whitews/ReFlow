@@ -65,6 +65,14 @@ class ProjectPanelForm(forms.ModelForm):
                 required=False)
 
     def clean(self):
+        # check for any site panel's made from this project panel
+        # don't allow editing a project panel if any are found
+        if self.instance:
+            if self.instance.sitepanel_set.count() > 0:
+                raise ValidationError(
+                    "This panel cannot be edited because one or more site " +
+                    "panels built from this project panel exist.")
+
         staining = self.cleaned_data.get('staining')
         parent_panel = self.cleaned_data.get('parent_panel')
 
