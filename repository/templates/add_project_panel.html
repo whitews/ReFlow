@@ -11,7 +11,20 @@ $(document).ready(function () {
     $("select[id*=parameter_type]").each(function(i, e) {
         toggle_fields(e);
     });
+    var select_panel_dialog = $("#error-dialog").dialog(
+    {
+        autoOpen: true,
+        title: 'Error',
+        modal: true,
+        position: 'center',
+        width: $(window).width() * 0.5,
+        height: $(window).height() * 0.5,
+        resizable: true
+    });
+    select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
+    select_panel_dialog.dialog('open');
 });
+
 
 function toggle_fields(selector) {
     $(selector).change(function() {
@@ -169,10 +182,14 @@ function remove_parameter(selector) {
     {% endif %}
       {% csrf_token %}
         {% if panel_form.non_field_errors or parameter_formset.non_form_errors %}
-          <div class="control-group alert alert-error">
-            {{ panel_form.non_field_errors }}
-            {{ parameter_formset.non_form_errors }}
+
+          <div id="error-dialog" class="hide">
+            <div class="control-group alert alert-error">
+              {{ panel_form.non_field_errors }}
+              {{ parameter_formset.non_form_errors }}
+            </div>
           </div>
+
         {% endif %}
 
         <div class="control-group">

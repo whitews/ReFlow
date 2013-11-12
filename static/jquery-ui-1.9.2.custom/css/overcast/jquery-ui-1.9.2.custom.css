@@ -218,10 +218,10 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 .ui-widget { font-size: 13px; }
 .ui-widget .ui-widget { font-size: 13px; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-size: 13px; }
-.ui-widget-content { border: 1px solid #aaaaaa; background: #f9f9f9; color: #333333; }
-.ui-widget-content a { color: #333333; }
-.ui-widget-header { border: 1px solid #999999; background: #cacacf; color: #444444; font-weight: bold; }
-.ui-widget-header a { color: #444444; }
+.ui-widget-content { border: 1px solid #223; background: #ffffff; color: #000; }
+.ui-widget-content a { color: #000; }
+.ui-widget-header { border: 1px solid #223; background: #3A3A4F; color: #aaaaaa; font-weight: bold; }
+.ui-widget-header a { color: #aaaaaa; }
 
 /* Interaction states
 ----------------------------------*/
@@ -234,8 +234,8 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 
 /* Interaction Cues
 ----------------------------------*/
-.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight  {border: 1px solid #ffffff; background: #eeeeee url(images/ui-bg_flat_55_eeeeee_40x100.png) 50% 50% repeat-x; color: #444444; }
-.ui-state-highlight a, .ui-widget-content .ui-state-highlight a,.ui-widget-header .ui-state-highlight a { color: #444444; }
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight  {border: 1px solid #ffffff; background: #eeeeee url(images/ui-bg_flat_55_eeeeee_40x100.png) 50% 50% repeat-x; color: #aaaaaa; }
+.ui-state-highlight a, .ui-widget-content .ui-state-highlight a,.ui-widget-header .ui-state-highlight a { color: #aaaaaa; }
 .ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error {border: 1px solid #c0402a; background: #c0402a url(images/ui-bg_flat_55_c0402a_40x100.png) 50% 50% repeat-x; color: #ffffff; }
 .ui-state-error a, .ui-widget-content .ui-state-error a, .ui-widget-header .ui-state-error a { color: #ffffff; }
 .ui-state-error-text, .ui-widget-content .ui-state-error-text, .ui-widget-header .ui-state-error-text { color: #ffffff; }
@@ -250,7 +250,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 /* states and images */
 .ui-icon { width: 16px; height: 16px; background-image: url(images/ui-icons_999999_256x240.png); }
 .ui-widget-content .ui-icon {background-image: url(images/ui-icons_999999_256x240.png); }
-.ui-widget-header .ui-icon {background-image: url(images/ui-icons_454545_256x240.png); }
+.ui-widget-header .ui-icon {background-image: url(images/ui-icons_999999_256x240.png); }
 .ui-state-default .ui-icon { background-image: url(images/ui-icons_70b2e1_256x240.png); }
 .ui-state-hover .ui-icon, .ui-state-focus .ui-icon {background-image: url(images/ui-icons_3383bb_256x240.png); }
 .ui-state-active .ui-icon {background-image: url(images/ui-icons_454545_256x240.png); }
