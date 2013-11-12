@@ -28,6 +28,20 @@ $(document).ready(function () {
                 {
                     $('#parameter-form-errors').append('<p>' + value + '</p>');
                 });
+
+                var error_dialog = $("#parameter-form-errors").dialog(
+                {
+                    autoOpen: false,
+                    title: 'Error',
+                    modal: true,
+                    position: 'center',
+                    width: $(window).width() * 0.5,
+                    height: $(window).height() * 0.5,
+                    resizable: true
+                });
+                error_dialog.dialog({ close: function() { $(this).empty(); } });
+                error_dialog.dialog('open');
+
             }
         });
         $('button#process-parameters').attr('disabled', false);
