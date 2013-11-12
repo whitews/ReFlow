@@ -158,7 +158,11 @@ function remove_parameter(selector) {
 
 {% block body %}
   <div class="container">
+    {% if add_or_edit == 'edit' %}
+    <form class="form-horizontal" action="{% url 'edit_project_panel' project.id panel_id %}" method="post">
+    {% else %}
     <form class="form-horizontal" action="{% url 'add_project_panel' project.id %}" method="post">
+    {% endif %}
       {% csrf_token %}
         {% if panel_form.non_field_errors or parameter_formset.non_form_errors %}
           <div class="control-group alert alert-error">
@@ -238,6 +242,7 @@ function remove_parameter(selector) {
               {% endif %}
             </td>
             <td>
+              <div class="hide">{{ parameter_form.id }}</div>
               {{ parameter_form.parameter_type }}
               {{ parameter_form.parameter_type.errors }}
             </td>

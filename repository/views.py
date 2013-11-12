@@ -567,8 +567,17 @@ def view_project_panels(request, project_id):
 
 
 @login_required
-def add_project_panel(request, project_id):
+def add_project_panel(request, project_id, panel_id=None):
+    add_or_edit = None
     project = get_object_or_404(Project, pk=project_id)
+    if panel_id:
+        panel = get_object_or_404(ProjectPanel, pk=panel_id)
+        add_or_edit = 'edit'
+        if panel.project != project:
+            raise PermissionDenied
+    else:
+        panel = ProjectPanel(project=project)
+        add_or_edit = 'add'
 
     if not (project.has_add_permission(request.user)):
         raise PermissionDenied
@@ -576,11 +585,11 @@ def add_project_panel(request, project_id):
     if request.method == 'POST':
         panel_form = ProjectPanelForm(
             request.POST,
-            instance=ProjectPanel(project=project),
+            instance=panel,
             project_id=project.id)
 
         if panel_form.is_valid():
-            panel = panel_form.save(commit=False)
+            panel_form.save(commit=False)
             parameter_formset = ProjectParameterFormSet(
                 request.POST,
                 instance=panel)
@@ -592,7 +601,7 @@ def add_project_panel(request, project_id):
                         ab_formsets_valid = False
 
             if parameter_formset.is_valid() and ab_formsets_valid:
-                panel.save()
+                panel_form.save()
 
                 for param_form in parameter_formset.forms:
                     # when manually saving the forms in a formset the
@@ -608,10 +617,9 @@ def add_project_panel(request, project_id):
         else:
             parameter_formset = ProjectParameterFormSet(
                 request.POST,
-                instance=ProjectPanel(project=project))
+                instance=panel)
 
     else:
-        panel = ProjectPanel(project=project)
         panel_form = ProjectPanelForm(
             instance=panel,
             project_id=project.id)
@@ -623,42 +631,8 @@ def add_project_panel(request, project_id):
             'panel_form': panel_form,
             'parameter_formset': parameter_formset,
             'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_project_panel(request, panel_id):
-    # TODO: make sure no site panels are based on this project panel
-
-    # TODO: revamp this to allow full edits???
-    panel = get_object_or_404(ProjectPanel, pk=panel_id)
-
-    if not panel.project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = ProjectPanelForm(
-            request.POST,
-            instance=panel,
-            project_id=panel.project_id)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_panels',
-                args=(panel.project_id,)))
-    else:
-        form = ProjectPanelForm(
-            instance=panel,
-            project_id=panel.project_id)
-
-    return render_to_response(
-        'edit_project_panel.html',
-        {
-            'form': form,
-            'panel': panel,
+            'add_or_edit': add_or_edit,
+            'panel_id': panel_id
         },
         context_instance=RequestContext(request)
     )

@@ -107,7 +107,7 @@ $(document).ready(function()
         <tr>
           <td>
             {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' panel.id %}" data-original-title="Edit" data-placement="bottom">
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' project.id panel.id %}" data-original-title="Edit" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
             </a>
             {% endif %}

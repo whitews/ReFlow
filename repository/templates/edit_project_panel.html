@@ -16,9 +16,9 @@
     <div class="container">
         <form class="form-horizontal" action="{% url 'edit_project_panel' panel.id %}" method="post">
             {% csrf_token %}
-            {{ form.non_field_errors }}
+            {{ panel_form.non_field_errors }}
 
-            {% for field in form %}
+            {% for field in panel_form %}
                 <div class="control-group">
                     <label class="control-label">{{ field.label }}</label>
                     <div class="controls">
