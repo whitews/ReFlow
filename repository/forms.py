@@ -236,7 +236,11 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
 
         # check for duplicate parameters
         if max(param_counter.values()) > 1:
-            raise ValidationError("Cannot have duplicate parameters")
+            error_string = "Duplicate parameters found: "
+            for p in param_counter:
+                if param_counter[p] > 1:
+                    error_string += "(" + ", ".join(p) + ")"
+            raise ValidationError(error_string)
 
 
 class BaseSitePanelParameterFormSet(BaseInlineFormSet):
