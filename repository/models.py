@@ -991,12 +991,12 @@ class Sample(ProtectedModel):
         null=False,
         blank=False)
     pretreatment = models.CharField(
-        max_length=2,
+        max_length=32,
         choices=PRETREATMENT_CHOICES,
         null=False,
         blank=False)
     storage = models.CharField(
-        max_length=2,
+        max_length=32,
         choices=STORAGE_CHOICES,
         null=False,
         blank=False)
