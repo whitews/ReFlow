@@ -393,7 +393,7 @@ class ProjectPanelParameterAntibody(models.Model):
 
         qs = ProjectPanelParameterAntibody.objects.filter(
             project_panel_parameter=self.project_panel_parameter,
-            antibody=self.antibody)
+            antibody=self.antibody).exclude(id=self.id)
 
         if qs.exists():
             raise ValidationError(
