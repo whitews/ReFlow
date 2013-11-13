@@ -98,8 +98,10 @@ function show_compensation(id) {
           <th>Subject</th>
           <th>Visit</th>
           <th>Specimen</th>
-          <th>Panel</th>
+          <th>Pre-treatment</th>
+          <th>Storage</th>
           <th>Stimulation</th>
+          <th>Panel</th>
       </tr>
     </thead>
     <tbody>
@@ -132,8 +134,10 @@ function show_compensation(id) {
         <td class="middle">{{ sample.subject.subject_code }}</td>
         <td class="middle">{{ sample.visit.visit_type_name }}</td>
         <td class="middle">{{ sample.specimen.specimen_name }}</td>
-        <td class="middle">{{ sample.site_panel.project_panel.panel_name }}</td>
+        <td class="middle">{{ sample.pretreatment }}</td>
+        <td class="middle">{{ sample.storage }}</td>
         <td class="middle">{{ sample.stimulation.stimulation_name }}</td>
+        <td class="middle">{{ sample.site_panel.project_panel.panel_name }}</td>
       </tr>
       {% endfor %}
     </tbody>

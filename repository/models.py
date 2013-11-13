@@ -130,6 +130,16 @@ STAINING_CHOICES = (
     ('IS', 'Isotype Control')
 )
 
+PRETREATMENT_CHOICES = (
+    ('In vitro', 'In vitro'),
+    ('Ex vivo', 'Ex vivo')
+)
+
+STORAGE_CHOICES = (
+    ('Fresh', 'Fresh'),
+    ('Cryopreserved', 'Cryopreserved')
+)
+
 
 ##############################
 ### Project related models ###
@@ -978,6 +988,16 @@ class Sample(ProtectedModel):
         blank=False)
     stimulation = models.ForeignKey(
         Stimulation,
+        null=False,
+        blank=False)
+    pretreatment = models.CharField(
+        max_length=2,
+        choices=PRETREATMENT_CHOICES,
+        null=False,
+        blank=False)
+    storage = models.CharField(
+        max_length=2,
+        choices=STORAGE_CHOICES,
         null=False,
         blank=False)
     site_panel = models.ForeignKey(
