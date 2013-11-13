@@ -10,6 +10,15 @@
 $(document).ready(function () {
     $("select[id*=parameter_type]").each(function(i, e) {
         toggle_fields(e);
+
+        var ab_selects = $(e).parent().siblings().find('select[id*=antibody]');
+        if (ab_selects.length > 1) {
+            ab_selects.each(function(j, f) {
+                if (f.value == "") {
+                    remove_antibody($(f));
+                }
+            });
+        }
     });
     var select_panel_dialog = $("#error-dialog").dialog(
     {
@@ -278,6 +287,7 @@ function remove_parameter(selector) {
                 {% for nested_form in nested_formset.forms %}
                   <span class="antibody-field no-wrap">
                     {{ nested_form.antibody }}
+                    <div class="hide">{{ nested_form.id }}</div>
                     <a class="hide remove-antibody" href="javascript:void(0)" onclick="remove_antibody($(this))">
                       <i class="icon-remove align-middle\"></i>
                     </a>
