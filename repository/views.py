@@ -637,6 +637,48 @@ def add_project_panel(request, project_id, panel_id=None):
         context_instance=RequestContext(request)
     )
 
+@login_required
+def copy_project_panel(request, project_id, panel_id=None):
+    project = get_object_or_404(Project, pk=project_id)
+    panel = get_object_or_404(ProjectPanel, pk=panel_id)
+    if panel.project != project:
+        raise PermissionDenied
+    if not (project.has_add_permission(request.user)):
+        raise PermissionDenied
+
+    new_panel = panel
+    new_panel.id = None
+    panel_name_exists = True
+    new_panel_name = new_panel.panel_name
+    while panel_name_exists:
+        new_panel_name += '[copy]'
+        if not ProjectPanel.objects.filter(panel_name=new_panel_name).exists():
+            new_panel.panel_name = new_panel_name
+            break
+    new_panel.save()
+
+    # have to re-get the old panel by the ID
+    panel = get_object_or_404(ProjectPanel, pk=panel_id)
+
+    for param in panel.projectpanelparameter_set.all():
+        # again we need to cache the IDs to re-retrieve
+        param_id = param.id
+        new_param = param
+        new_param.id = None
+        new_param.project_panel = new_panel
+        new_param.save()
+
+        # and re-get the param
+        param = ProjectPanelParameter.objects.get(id=param_id)
+
+        for marker in param.projectpanelparameterantibody_set.all():
+            marker.id = None
+            marker.project_panel_parameter = new_param
+            marker.save()
+
+    return HttpResponseRedirect(reverse(
+        'view_project_panels',
+        args=(project.id,)))
 
 @login_required
 def view_subjects(request, project_id):

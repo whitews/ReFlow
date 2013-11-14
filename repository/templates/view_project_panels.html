@@ -105,10 +105,15 @@ $(document).ready(function()
       <tbody>
         {% for panel in panels|dictsort:"panel_name" %}
         <tr>
-          <td>
+          <td class="no-wrap">
             {% if can_modify_project_data %}
             <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' project.id panel.id %}" data-original-title="Edit" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+            {% endif %}
+            {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'copy_project_panel' project.id panel.id %}" data-original-title="Copy" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-repeat align-middle"></i>
             </a>
             {% endif %}
           </td>
@@ -117,7 +122,7 @@ $(document).ready(function()
           </td>
           <td>{{ panel.get_staining_display }}</td>
           <td>{{ panel.panel_description }}</td>
-          <td width="65%">
+          <td width="60%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="hide params">
               <table class="table table-bordered table-hover">
