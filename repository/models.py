@@ -107,12 +107,12 @@ class Fluorochrome(models.Model):
 PARAMETER_TYPE_CHOICES = (
     ('FSC', 'Forward Scatter'),
     ('SSC', 'Side Scatter'),
-    ('FCA', 'Fluorochrome Conjugated Antibody'),
+    ('FCM', 'Fluorochrome Conjugated Marker'),
     ('UNS', 'Unstained'),
     ('ISO', 'Isotype Control'),
     ('EXC', 'Exclusion'),
     ('VIA', 'Viability'),
-    ('ICA', 'Isotope Conjugated Antibody'),
+    ('ICM', 'Isotope Conjugated Marker'),
     ('TIM', 'Time')
 )
 

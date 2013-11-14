@@ -216,11 +216,11 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             # marker. If the fluoro is absent it means the project panel
             # allows flexibility in the site panel implementation.
             # TODO: shouldn't marker be required here???
-            if param_type == 'FCA':
+            if param_type == 'FCM':
                 if not fluorochrome_id and len(marker_set) == 0:
                     raise ValidationError(
-                        "A fluorescence conjugated antibody channel must " +
-                        "specify either a fluorochrome or an antibody.")
+                        "A fluorescence conjugated marker channel must " +
+                        "specify either a fluorochrome or a marker.")
 
             # make a list of the combination for use in the Counter
             param_components = [param_type, value_type]
@@ -347,12 +347,12 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                         "A scatter channel cannot have a marker")
 
             # check that fluoro conjugated ab channels specify either a
-            # fluoro OR an antibody OR both
-            if param_type == 'FCA':
+            # fluoro OR marker OR both
+            if param_type == 'FCM':
                 if not fluorochrome_id or len(marker_set) == 0:
                     raise ValidationError(
-                        "A fluorescence conjugated antibody channel must " +
-                        "specify a fluorochrome and at least one antibody")
+                        "A fluorescence conjugated marker channel must " +
+                        "specify a fluorochrome and at least one marker")
 
             # Unstained channels can't have a fluoro and must have an marker
             if param_type == 'UNS':
