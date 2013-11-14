@@ -29,7 +29,7 @@ class ViewsIntegrationTestCase(TestCase):
 
     def test_project_view(self):
         """
-        Test the creation and modification of Antibody model instances
+        Test the creation and modification of Marker model instances
         """
 
         # Test regular user without permission to view the project

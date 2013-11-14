@@ -62,19 +62,19 @@ class SpecimenSerializer(serializers.ModelSerializer):
         model = Specimen
 
 
-class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
+class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
-        source='antibody.antibody_abbreviation',
+        source='marker.marker_abbreviation',
         read_only=True)
 
     class Meta:
-        model = ProjectPanelParameterAntibody
-        exclude = ('id', 'parameter', 'antibody')
+        model = ProjectPanelParameterMarker
+        exclude = ('id', 'parameter', 'marker')
 
 
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
-    antibodies = ProjectPanelParameterAntibodySerializer(
-        source='projectpanelparameterantibody_set')
+    markers = ProjectPanelParameterMarkerSerializer(
+        source='projectpanelparametermarker_set')
 
     class Meta:
         model = ProjectPanelParameter
@@ -82,7 +82,7 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
             'id',
             'parameter_type',
             'parameter_value_type',
-            'antibodies',
+            'markers',
             'fluorochrome')
 
 
@@ -109,20 +109,20 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
         )
 
 
-class SitePanelParameterAntibodySerializer(serializers.ModelSerializer):
+class SitePanelParameterMarkerSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
-        source='antibody.antibody_abbreviation',
+        source='marker.marker_abbreviation',
         read_only=True)
 
     class Meta:
-        model = SitePanelParameterAntibody
-        exclude = ('id', 'parameter', 'antibody')
+        model = SitePanelParameterMarker
+        exclude = ('id', 'parameter', 'marker')
 
 
 class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
-    antibodies = SitePanelParameterAntibodySerializer(
-        source='sitepanelparameterantibody_set')
+    markers = SitePanelParameterMarkerSerializer(
+        source='sitepanelparametermarker_set')
 
     class Meta:
         model = SitePanelParameter
@@ -134,7 +134,7 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
             'name',
             'parameter_type',
             'parameter_value_type',
-            'antibodies',
+            'markers',
             'fluorochrome')
         depth = 1
 

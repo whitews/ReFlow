@@ -408,7 +408,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
         # filter on user's projects
         queryset = SitePanel.objects.filter(site__in=user_sites)
 
-        # TODO: implement filtering by channel info: fluoro, ab, scatter, etc
+        # TODO: implement filtering by channel info: fluoro, marker, scatter
 
         return queryset
 

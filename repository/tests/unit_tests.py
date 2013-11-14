@@ -47,14 +47,14 @@ class ModelsUnitTestCase(TestCase):
         user_projects = Project.objects.get_projects_user_can_view(self.test_user)
         self.assertEqual(len(user_projects), 1)
 
-    def test_antibody_model(self):
-        antibody = Antibody(antibody_abbreviation='IL-6')
+    def test_marker_model(self):
+        marker = Marker(marker_abbreviation='IL-6')
         with self.assertRaises(ValidationError) as context:
-            antibody.full_clean()
+            marker.full_clean()
 
         self.assertEqual(
             context.exception.message_dict,
-            {'antibody_name': [u'This field cannot be blank.']})
+            {'marker_name': [u'This field cannot be blank.']})
 
 
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
@@ -124,9 +124,9 @@ class ViewsUnitTestCase(TestCase):
             200)
         self.client.logout()
 
-    def test_antibody_views(self):
+    def test_marker_views(self):
         """
-        Test the creation and modification of Antibody model instances
+        Test the creation and modification of Marker model instances
         """
         user = User.objects.get(username='supertester')
         self.assertIsNotNone(user)
@@ -139,10 +139,10 @@ class ViewsUnitTestCase(TestCase):
 
         # Using bad fields shouldn't redirect, should give a 200 to same page
         response = self.client.post(
-            reverse('add_antibody'),
+            reverse('add_marker'),
             data=data_bad_fields)
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'antibody_name', "This field is required.")
+        self.assertFormError(response, 'form', 'marker_name', "This field is required.")
 
 
 @override_settings(MEDIA_ROOT=FILE_UPLOAD_TEMP_DIR)
@@ -153,33 +153,33 @@ class FormsUnitTestCase(TestCase):
     def setUp(self):
         testSetup()
 
-    def test_antibody_form(self):
+    def test_marker_form(self):
         """
-        Test Antibody ModelForm
+        Test Marker ModelForm
         """
 
         bad_form_data = {
             'not_a_field': 43
         }
         good_form_data = {
-            'antibody_name': 'NeuvoAntibody',
-            'antibody_abbreviation': 'NA',
+            'marker_name': 'NeuvoMarker',
+            'marker_abbreviation': 'NM',
         }
         duplicate_form_data = {
-            'antibody_name': 'NadaAntibody',
-            'antibody_abbreviation': 'NA',
+            'marker_name': 'NadaMarker',
+            'marker_abbreviation': 'NM',
         }
 
         # Using bad data should give an invalid form
-        bad_form = AntibodyForm(data=bad_form_data)
+        bad_form = MarkerForm(data=bad_form_data)
         self.assertEqual(bad_form.is_valid(), False)
 
         # And good data is good!
-        good_form = AntibodyForm(data=good_form_data)
+        good_form = MarkerForm(data=good_form_data)
         self.assertEqual(good_form.is_valid(), True)
         good_form.save()
 
         # And duplicates ain't allowed
-        duplicate_form = AntibodyForm(data=duplicate_form_data)
+        duplicate_form = MarkerForm(data=duplicate_form_data)
         self.assertEqual(duplicate_form.is_valid(), False)
 

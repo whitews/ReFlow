@@ -129,7 +129,7 @@ $(document).ready(function()
                 <thead>
                   <tr>
                     <th>Function</th>
-                    <th>Antibodies</th>
+                    <th>Markers</th>
                     <th>Fluorochrome</th>
                     <th>Value Type</th>
                   </tr>
@@ -141,8 +141,8 @@ $(document).ready(function()
                       {{ param.get_parameter_type_display }}
                     </td>
                     <td>
-                      {% for ab in param.projectpanelparameterantibody_set.all %}
-                        {{ ab.antibody.antibody_abbreviation }}
+                      {% for param_marker in param.projectpanelparametermarker_set.all %}
+                        {{ param_marker.marker.marker_abbreviation }}
                       {% endfor %}
                     </td>
                     <td>

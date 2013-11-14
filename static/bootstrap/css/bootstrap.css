@@ -5938,7 +5938,7 @@ th.sorter-false {
 }
 
 tr.parameter-fields > td > select,
-span.antibody-field > select {
+span.marker-field > select {
   margin-bottom: 9px !important;
   width: auto !important;
 }

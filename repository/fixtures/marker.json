@@ -1,0 +1,362 @@
+[
+{
+    "pk": 1, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD3", 
+        "marker_name": "Cluster of Differentiation 3", 
+        "marker_description": null
+    }
+},
+{
+    "pk": 2, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD4", 
+        "marker_name": "Cluster of Differentiation 4", 
+        "marker_description": null
+    }
+},
+{
+    "pk": 3, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD8", 
+        "marker_name": "Cluster of Differentiation 8", 
+        "marker_description": null
+    }
+},
+{
+    "pk": 4, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "IL6", 
+        "marker_name": "Interleukin-6", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 5, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD45", 
+        "marker_name": "Cluster of Differentiation 45", 
+        "marker_description": null
+    }
+},
+{
+    "pk": 6, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "NY-ESO-1", 
+        "marker_name": "New York esophageal squamous cell carcinoma 1", 
+        "marker_description": null
+    }
+},
+{
+    "pk": 7, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "IFNg", 
+        "marker_name": "Interferon-gamma", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 8, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "IL2", 
+        "marker_name": "Interleukin 2", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 9, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "TNFa", 
+        "marker_name": "Tumor Necrosis Factor alpha", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 11, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD8a", 
+        "marker_name": "Cluster of Differentiation 8a", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 12, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "ProCol1a", 
+        "marker_name": "Procollagen 1a", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 13, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD28", 
+        "marker_name": "Cluster of Differentiation 28", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 14, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "GranzymeB", 
+        "marker_name": "Granzyme B", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 15, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD163", 
+        "marker_name": "Cluster of Differentiation 163", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 16, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "HLA-DR", 
+        "marker_name": "Human Leukocyte Antigen DR", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 17, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD40", 
+        "marker_name": "Cluster of Differentiation 40", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 18, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD258", 
+        "marker_name": "Cluster of Differentiation 258", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 19, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD38", 
+        "marker_name": "Cluster of Differentiation 38", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 20, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD206", 
+        "marker_name": "Cluster of Differentiation 206", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 21, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD33", 
+        "marker_name": "Cluster of Differentiation 33", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 22, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD278", 
+        "marker_name": "Cluster of Differentiation 278", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 23, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD272", 
+        "marker_name": "Cluster of Differentiation 272", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 24, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD152", 
+        "marker_name": "Cluster of Differentiation 152", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 25, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "Ki67", 
+        "marker_name": "Ki67", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 26, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD95", 
+        "marker_name": "Cluster of Differentiation 95", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 27, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "aCaspase3", 
+        "marker_name": "Caspase-3, Active Form", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 28, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "Perforin", 
+        "marker_name": "Perforin", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 29, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD34", 
+        "marker_name": "Cluster of Differentiation 34", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 30, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD19", 
+        "marker_name": "Cluster of Differentiation 19", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 31, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD16", 
+        "marker_name": "Cluster of Differentiation 16", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 32, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD57", 
+        "marker_name": "Cluster of Differentiation 57", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 33, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "IL17", 
+        "marker_name": "Interleukin 17", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 34, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD14", 
+        "marker_name": "Cluster of Differentiation 14", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 35, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD154", 
+        "marker_name": "Cluster of Differentiation 154", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 36, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD45RO", 
+        "marker_name": "Cluster of Differentiation 45 (RO)", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 37, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD27", 
+        "marker_name": "Cluster of Differentiation 27", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 38, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD137", 
+        "marker_name": "Cluster of Differentiation 137", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 39, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD107a", 
+        "marker_name": "Cluster of Differentiation 107a", 
+        "marker_description": ""
+    }
+},
+{
+    "pk": 40,
+    "model": "repository.marker",
+    "fields": {
+        "marker_abbreviation": "Multimer-I",
+        "marker_name": "Multimer Class I",
+        "marker_description": ""
+    }
+},
+{
+    "pk": 41,
+    "model": "repository.marker",
+    "fields": {
+        "marker_abbreviation": "Multimer-II",
+        "marker_name": "Multimer Class II",
+        "marker_description": ""
+    }
+}
+]

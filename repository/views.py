@@ -123,19 +123,19 @@ def edit_specimen(request, specimen_id):
 
 
 @login_required
-def view_antibodies(request):
+def view_markers(request):
 
-    antibodies = Antibody.objects.all().values(
+    markers = Marker.objects.all().values(
         'id',
-        'antibody_abbreviation',
-        'antibody_name',
-        'antibody_description',
+        'marker_abbreviation',
+        'marker_name',
+        'marker_description',
     )
 
     return render_to_response(
-        'view_antibodies.html',
+        'view_markers.html',
         {
-            'antibodies': antibodies,
+            'markers': markers,
         },
         context_instance=RequestContext(request)
     )
@@ -145,18 +145,18 @@ def view_antibodies(request):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def add_antibody(request):
+def add_marker(request):
     if request.method == 'POST':
-        form = AntibodyForm(request.POST)
+        form = MarkerForm(request.POST)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_antibodies'))
+            return HttpResponseRedirect(reverse('view_markers'))
     else:
-        form = AntibodyForm()
+        form = MarkerForm()
 
     return render_to_response(
-        'add_antibody.html',
+        'add_marker.html',
         {
             'form': form,
         },
@@ -168,22 +168,22 @@ def add_antibody(request):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def edit_antibody(request, antibody_id):
-    antibody = get_object_or_404(Antibody, pk=antibody_id)
+def edit_marker(request, marker_id):
+    marker = get_object_or_404(Marker, pk=marker_id)
 
     if request.method == 'POST':
-        form = AntibodyForm(request.POST, instance=antibody)
+        form = MarkerForm(request.POST, instance=marker)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_antibodies'))
+            return HttpResponseRedirect(reverse('view_markers'))
     else:
-        form = AntibodyForm(instance=antibody)
+        form = MarkerForm(instance=marker)
 
     return render_to_response(
-        'edit_antibody.html',
+        'edit_marker.html',
         {
-            'antibody': antibody,
+            'marker': marker,
             'form': form,
         },
         context_instance=RequestContext(request)
@@ -593,14 +593,14 @@ def add_project_panel(request, project_id, panel_id=None):
             parameter_formset = ProjectParameterFormSet(
                 request.POST,
                 instance=panel)
-            ab_formsets_valid = True
+            marker_formsets_valid = True
 
             for param_form in parameter_formset.forms:
                 if param_form.nested:
                     if not param_form.nested[0].is_valid():
-                        ab_formsets_valid = False
+                        marker_formsets_valid = False
 
-            if parameter_formset.is_valid() and ab_formsets_valid:
+            if parameter_formset.is_valid() and marker_formsets_valid:
                 panel_form.save()
 
                 for param_form in parameter_formset.forms:
@@ -671,7 +671,7 @@ def copy_project_panel(request, project_id, panel_id=None):
         # and re-get the param
         param = ProjectPanelParameter.objects.get(id=param_id)
 
-        for marker in param.projectpanelparameterantibody_set.all():
+        for marker in param.projectpanelparametermarker_set.all():
             marker.id = None
             marker.project_panel_parameter = new_param
             marker.save()

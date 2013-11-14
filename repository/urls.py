@@ -63,9 +63,9 @@ urlpatterns += patterns('repository.views',
     url(r'^$', 'home', name='home'),
     url(r'^reflow_admin/$', 'admin', name='admin'),
 
-    url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
-    url(r'^antibodies/add/$', 'add_antibody', name='add_antibody'),
-    url(r'^antibodies/(?P<antibody_id>\d+)/edit/$', 'edit_antibody', name='edit_antibody'),
+    url(r'^markers/$', 'view_markers', name='view_markers'),
+    url(r'^markers/add/$', 'add_marker', name='add_marker'),
+    url(r'^markers/(?P<marker_id>\d+)/edit/$', 'edit_marker', name='edit_marker'),
 
     url(r'^fluorochromes/$', 'view_fluorochromes', name='view_fluorochromes'),
     url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),

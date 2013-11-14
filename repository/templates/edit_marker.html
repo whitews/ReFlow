@@ -5,15 +5,15 @@
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb_url 'Antibodies' 'view_antibodies' %}
-    {% breadcrumb antibody.antibody_abbreviation %}
-    {% breadcrumb "Edit Antibody" %}
+    {% breadcrumb_url 'Markers' 'view_markers' %}
+    {% breadcrumb marker.marker_abbreviation %}
+    {% breadcrumb "Edit Marker" %}
   </ul>
 {% endblock %}
 
 {% block body %}
   <div class="container">
-      <form class="form-horizontal" action="{% url 'edit_antibody' antibody.id %}" method="post">
+      <form class="form-horizontal" action="{% url 'edit_marker' marker.id %}" method="post">
         {% csrf_token %}
 
         {% if form.non_field_errors %}

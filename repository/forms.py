@@ -32,9 +32,9 @@ class CustomUserObjectPermissionForm(UserObjectPermissionsForm):
         return list(set(choices).intersection(self.obj._meta.permissions))
 
 
-class AntibodyForm(forms.ModelForm):
+class MarkerForm(forms.ModelForm):
     class Meta:
-        model = Antibody
+        model = Marker
 
 
 class FluorochromeForm(forms.ModelForm):
@@ -99,16 +99,16 @@ class ProjectPanelForm(forms.ModelForm):
         return self.cleaned_data
 
 
-ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
+ProjectPanelParameterMarkerFormSet = inlineformset_factory(
     ProjectPanelParameter,
-    ProjectPanelParameterAntibody,
+    ProjectPanelParameterMarker,
     extra=1,
     can_delete=False)
 
 
-SitePanelParameterAntibodyFormSet = inlineformset_factory(
+SitePanelParameterMarkerFormSet = inlineformset_factory(
     SitePanelParameter,
-    SitePanelParameterAntibody,
+    SitePanelParameterMarker,
     extra=1,
     can_delete=False)
 
@@ -129,7 +129,7 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         # store the formset in the .nested property
         data = self.data if self.data and index is not None else None
         form.nested = [
-            ProjectPanelParameterAntibodyFormSet(
+            ProjectPanelParameterMarkerFormSet(
                 data=data,
                 instance=instance,
                 prefix=pk_value)]
@@ -137,9 +137,9 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
     def clean(self):
         """
         Validate the panel:
-            - No duplicate antibodies in a parameter
+            - No duplicate markers in a parameter
             - No fluorochromes in a scatter parameter
-            - No antibodies in a scatter parameter
+            - No markers in a scatter parameter
             - Fluoroscent parameter must specify a fluorochrome
             - No duplicate fluorochrome + value type combinations
             - No duplicate forward scatter + value type combinations
@@ -164,18 +164,18 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 "Invalid staining type '%s'" % staining)
 
         for form in self.forms:
-            ab_formset = form.nested[0]
+            marker_formset = form.nested[0]
 
-            # check for duplicate antibodies in a parameter
-            ab_set = set()
-            for ab_form in ab_formset.forms:
-                new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
-                if new_ab_id:  # if it's not empty string
-                    if new_ab_id in ab_set:
+            # check for duplicate markers in a parameter
+            marker_set = set()
+            for marker_form in marker_formset.forms:
+                new_marker_id = marker_form.data[marker_form.add_prefix('marker')]
+                if new_marker_id:  # if it's not empty string
+                    if new_marker_id in marker_set:
                         raise ValidationError(
-                            "A parameter cannot have duplicate antibodies.")
+                            "A parameter cannot have duplicate markers.")
                     else:
-                        ab_set.add(new_ab_id)
+                        marker_set.add(new_marker_id)
 
             # parameter type is required
             param_type = form.data[form.add_prefix('parameter_type')]
@@ -203,21 +203,21 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 raise ValidationError(
                     "An exclusion channel must include a fluorochrome.")
 
-            # check for fluoro or antibodies in scatter channels
+            # check for fluoro or markers in scatter channels
             if param_type == 'FSC' or param_type == 'SSC':
                 if fluorochrome_id:
                     raise ValidationError(
                         "A scatter channel cannot have a fluorochrome.")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
-                        "A scatter channel cannot have an antibody.")
+                        "A scatter channel cannot have an marker.")
 
-            # check that fluoro-conj-ab channels specify either a fluoro or an
-            # antibody. If the fluoro is absent it means the project panel
+            # check that fluoro-conj-ab channels specify either a fluoro or a
+            # marker. If the fluoro is absent it means the project panel
             # allows flexibility in the site panel implementation.
-            # TODO: shouldn't antibody be required here???
+            # TODO: shouldn't marker be required here???
             if param_type == 'FCA':
-                if not fluorochrome_id and len(ab_set) == 0:
+                if not fluorochrome_id and len(marker_set) == 0:
                     raise ValidationError(
                         "A fluorescence conjugated antibody channel must " +
                         "specify either a fluorochrome or an antibody.")
@@ -226,12 +226,12 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             param_components = [param_type, value_type]
             if fluorochrome_id:
                 param_components.append(fluorochrome_id)
-            for ab_id in sorted(ab_set):
+            for marker_id in sorted(marker_set):
                 try:
-                    ab = Antibody.objects.get(id=ab_id)
+                    marker = Marker.objects.get(id=marker_id)
                 except:
-                    raise ValidationError("Chosen antibody doesn't exist")
-                param_components.append(ab)
+                    raise ValidationError("Chosen marker doesn't exist")
+                param_components.append(marker)
             param_counter.update([tuple(sorted(param_components))])
 
         # check for duplicate parameters
@@ -259,7 +259,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         # store the formset in the .nested property
         data = self.data if self.data and index is not None else None
         form.nested = [
-            SitePanelParameterAntibodyFormSet(
+            SitePanelParameterMarkerFormSet(
                 data=data,
                 instance=instance,
                 prefix=pk_value)]
@@ -267,9 +267,9 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
     def clean(self):
         """
         Validate the panel:
-            - No duplicate antibodies in a parameter
+            - No duplicate markers in a parameter
             - No fluorochromes in a scatter parameter
-            - No antibodies in a scatter parameter
+            - No markers in a scatter parameter
             - Fluoroscent parameter must specify a fluorochrome
             - No duplicate fluorochrome + value type combinations
             - No duplicate forward scatter + value type combinations
@@ -297,19 +297,19 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                 "Invalid staining type '%s'" % staining)
 
         for form in self.forms:
-            ab_formset = form.nested[0]
+            marker_formset = form.nested[0]
 
-            # check for duplicate antibodies in a parameter
-            ab_set = set()
-            for ab_form in ab_formset.forms:
-                new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
-                if new_ab_id:  # if it's not empty string
-                    new_ab_id = int(new_ab_id)
-                    if new_ab_id in ab_set:
+            # check for duplicate markers in a parameter
+            marker_set = set()
+            for marker_form in marker_formset.forms:
+                new_marker_id = marker_form.data[marker_form.add_prefix('marker')]
+                if new_marker_id:  # if it's not empty string
+                    new_marker_id = int(new_marker_id)
+                    if new_marker_id in marker_set:
                         raise ValidationError(
-                            "A parameter cannot have duplicate antibodies")
+                            "A parameter cannot have duplicate markers")
                     else:
-                        ab_set.add(new_ab_id)
+                        marker_set.add(new_marker_id)
 
             # parameter type is required
             param_type = form.data[form.add_prefix('parameter_type')]
@@ -337,56 +337,56 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                 raise ValidationError(
                     "An exclusion channel must be a fluorescence channel")
 
-            # check for fluoro or antibodies in scatter channels
+            # check for fluoro or markers in scatter channels
             if param_type in ['FSC', 'SSC']:
                 if fluorochrome_id:
                     raise ValidationError(
                         "A scatter channel cannot have a fluorochrome")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
-                        "A scatter channel cannot have an antibody")
+                        "A scatter channel cannot have a marker")
 
             # check that fluoro conjugated ab channels specify either a
             # fluoro OR an antibody OR both
             if param_type == 'FCA':
-                if not fluorochrome_id or len(ab_set) == 0:
+                if not fluorochrome_id or len(marker_set) == 0:
                     raise ValidationError(
                         "A fluorescence conjugated antibody channel must " +
                         "specify a fluorochrome and at least one antibody")
 
-            # Unstained channels can't have a fluoro and must have an antibody
+            # Unstained channels can't have a fluoro and must have an marker
             if param_type == 'UNS':
                 if fluorochrome_id:
                     raise ValidationError(
                         "Unstained channels CANNOT " +
                         "have a fluorochrome")
-                if len(ab_set) == 0:
+                if len(marker_set) == 0:
                     raise ValidationError(
                         "Unstained channels " +
-                        "must specify at least one antibody")
+                        "must specify at least one marker")
 
             # Iso control & Viability channels must have a fluoro and
-            # can't have antibodies
+            # can't have markers
             if param_type == 'ISO':
                 if not fluorochrome_id:
                     raise ValidationError(
                         "Isotype control channels must " +
                         "have a fluorochrome")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
                         "Isotype control channels " +
-                        "CANNOT have any antibodies")
+                        "CANNOT have any markers")
 
-            # Time channels cannot have fluoros or antibodies, must have T value
+            # Time channels cannot have fluoros or markers, must have T value
             if param_type == 'TIM':
                 if fluorochrome_id:
                     raise ValidationError(
                         "Time channels " +
                         "CANNOT have a fluorochrome")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
                         "Time channels " +
-                        "CANNOT have any antibodies")
+                        "CANNOT have any markers")
                 if value_type != 'T':
                     raise ValidationError(
                         "Time channels " +
@@ -406,7 +406,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                 'parameter_type': param_type,
                 'parameter_value_type': value_type,
                 'fluorochrome_id': fluorochrome_id,
-                'antibody_id_set': ab_set
+                'marker_id_set': marker_set
             }
 
         # check for duplicate parameters
@@ -434,14 +434,14 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                         # no match
                         continue
 
-                if ppp.projectpanelparameterantibody_set.count() > 0:
-                    if ppp.projectpanelparameterantibody_set.count() != len(param_dict[d]['antibody_id_set']):
+                if ppp.projectpanelparametermarker_set.count() > 0:
+                    if ppp.projectpanelparametermarker_set.count() != len(param_dict[d]['marker_id_set']):
                         # no match
                         continue
 
                     should_continue = False
-                    for ppp_ab in ppp.projectpanelparameterantibody_set.all():
-                        if ppp_ab.antibody.id not in param_dict[d]['antibody_id_set']:
+                    for ppp_marker in ppp.projectpanelparametermarker_set.all():
+                        if ppp_marker.marker.id not in param_dict[d]['marker_id_set']:
                             # no match
                             should_continue = True
                             break

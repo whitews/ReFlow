@@ -120,7 +120,7 @@ $(document).ready(function()
                     <th>Type</th>
                     <th>FCS Text</th>
                     <th>FCS Optional Text</th>
-                    <th>Antibodies</th>
+                    <th>Markers</th>
                     <th>Fluoro</th>
                     <th>Value</th>
                   </tr>
@@ -141,8 +141,8 @@ $(document).ready(function()
                       {{ spp.fcs_opt_text }}
                     </td>
                     <td>
-                      {% for ab in spp.sitepanelparameterantibody_set.all %}
-                        {{ ab.antibody.antibody_abbreviation }}<br/>
+                      {% for param_marker in spp.sitepanelparametermarker_set.all %}
+                        {{ param_marker.marker.marker_abbreviation }}<br/>
                       {% endfor %}
                     </td>
                     <td>

@@ -37,7 +37,7 @@ $(function() {
     {% if user.is_superuser %}
     {% breadcrumb_url 'Admin' 'admin' %}
     {% endif %}
-    {% breadcrumb 'Antibodies' %}
+    {% breadcrumb 'Markers' %}
   </ul>
 {% endblock %}
 
@@ -49,11 +49,11 @@ $(function() {
       <tr>
         <th colspan="50" class="center">
           <div style="position:relative">
-            <h4>Antibodies <span class="badge badge-inverse align-top">{{ antibodies|length }}</span></h4>
+            <h4>Markers <span class="badge badge-inverse align-top">{{ markers|length }}</span></h4>
 
             <div style="position:absolute; right:0;top:0;">
               {% if user.is_superuser %}
-                <a class="btn btn btn-small" href="{% url 'add_antibody' %}">Add Antibody</a>
+                <a class="btn btn btn-small" href="{% url 'add_marker' %}">Add Marker</a>
               {% endif %}
             </div>
 
@@ -70,18 +70,18 @@ $(function() {
       </tr>
     </thead>
     <tbody>
-      {% for antibody in antibodies|dictsort:"antibody_abbreviation" %}
+      {% for marker in markers|dictsort:"marker_abbreviation" %}
       <tr>
         {% if user.is_superuser %}
         <td class="middle">
-          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_antibody' antibody.id %}" data-original-title="Edit" data-placement="bottom">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_marker' marker.id %}" data-original-title="Edit" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
           </a>
         </td>
         {% endif %}
-        <td class="middle">{{ antibody.antibody_abbreviation }}</td>
-        <td class="middle">{{ antibody.antibody_name }}</td>
-        <td class="middle">{{ antibody.antibody_description|default_if_none:'' }}</td>
+        <td class="middle">{{ marker.marker_abbreviation }}</td>
+        <td class="middle">{{ marker.marker_name }}</td>
+        <td class="middle">{{ marker.marker_description|default_if_none:'' }}</td>
       </tr>
       {% endfor %}
     </tbody>

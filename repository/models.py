@@ -61,27 +61,27 @@ class Specimen(models.Model):
         return u'%s' % self.specimen_name
 
 
-class Antibody(models.Model):
-    antibody_abbreviation = models.CharField(
+class Marker(models.Model):
+    marker_abbreviation = models.CharField(
         unique=True,
         null=False,
         blank=False,
         max_length=32)
-    antibody_name = models.CharField(
+    marker_name = models.CharField(
         unique=True,
         null=False,
         blank=False,
         max_length=128)
-    antibody_description = models.TextField(
+    marker_description = models.TextField(
         null=True,
         blank=True)
 
     def __unicode__(self):
-        return u'%s' % self.antibody_abbreviation
+        return u'%s' % self.marker_abbreviation
 
     class Meta:
-        verbose_name_plural = 'Antibodies'
-        ordering = ['antibody_abbreviation']
+        verbose_name_plural = 'Markers'
+        ordering = ['marker_abbreviation']
 
 
 class Fluorochrome(models.Model):
@@ -390,28 +390,28 @@ class ProjectPanelParameter(ProtectedModel):
         )
 
 
-class ProjectPanelParameterAntibody(models.Model):
+class ProjectPanelParameterMarker(models.Model):
     project_panel_parameter = models.ForeignKey(ProjectPanelParameter)
-    antibody = models.ForeignKey(Antibody)
+    marker = models.ForeignKey(Marker)
 
     # override clean to prevent duplicate Ab's for a parameter...
     # unique_together doesn't work for forms with the parameter excluded
     def clean(self):
         """
-        Verify the parameter & antibody combo doesn't already exist
+        Verify the parameter & marker combo doesn't already exist
         """
 
-        qs = ProjectPanelParameterAntibody.objects.filter(
+        qs = ProjectPanelParameterMarker.objects.filter(
             project_panel_parameter=self.project_panel_parameter,
-            antibody=self.antibody).exclude(id=self.id)
+            marker=self.marker).exclude(id=self.id)
 
         if qs.exists():
             raise ValidationError(
-                "This antibody is already included in this parameter."
+                "This marker is already included in this parameter."
             )
 
     def __unicode__(self):
-        return u'%s: %s' % (self.project_panel_parameter, self.antibody)
+        return u'%s: %s' % (self.project_panel_parameter, self.marker)
 
 
 class SiteManager(models.Manager):
@@ -738,28 +738,28 @@ class SitePanelParameter(ProtectedModel):
         )
 
 
-class SitePanelParameterAntibody(models.Model):
+class SitePanelParameterMarker(models.Model):
     site_panel_parameter = models.ForeignKey(SitePanelParameter)
-    antibody = models.ForeignKey(Antibody)
+    marker = models.ForeignKey(Marker)
 
     # override clean to prevent duplicate Ab's for a parameter...
     # unique_together doesn't work for forms with the parameter excluded
     def clean(self):
         """
-        Verify the parameter & antibody combo doesn't already exist
+        Verify the parameter & marker combo doesn't already exist
         """
 
-        qs = SitePanelParameterAntibody.objects.filter(
+        qs = SitePanelParameterMarker.objects.filter(
             site_panel_parameter=self.site_panel_parameter,
-            antibody=self.antibody)
+            marker=self.marker)
 
         if qs.exists():
             raise ValidationError(
-                "This antibody is already included in this parameter."
+                "This marker is already included in this parameter."
             )
 
     def __unicode__(self):
-        return u'%s: %s' % (self.site_panel_parameter, self.antibody)
+        return u'%s: %s' % (self.site_panel_parameter, self.marker)
 
 
 class SubjectGroup(ProtectedModel):
