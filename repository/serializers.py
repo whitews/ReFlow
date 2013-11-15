@@ -236,6 +236,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'site_name',
             'project',
             'original_filename',
+            'exclude',
             'sha1',
             'compensation'
         )
