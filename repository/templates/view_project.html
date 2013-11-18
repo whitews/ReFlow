@@ -40,7 +40,11 @@
       <i class="icon-chevron-right"></i>
       <a href="{% url 'view_subjects' project.id %}">Subjects</a>
     </p>
-    <p><a href="{% url 'view_project_sites' project.id %}">Sites</a></p>
+    <p>
+      <a href="{% url 'view_project_sites' project.id %}">Sites</a>
+      <i class="icon-chevron-right"></i>
+      <a href="{% url 'view_project_cytometers' project.id %}">Cytometers</a>
+    </p>
     <p><a href="{% url 'project_visit_types' project.id %}">Visit Types</a></p>
     <p><a href="{% url 'view_project_stimulations' project.id %}">Stimulations</a></p>
     <p>

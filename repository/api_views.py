@@ -509,7 +509,7 @@ class SampleFilter(django_filters.FilterSet):
         fields = [
             'subject__project',
             'site_panel',
-            'site_panel__site',
+            'site_panel__cytometer__site',
             'site_panel__project_panel',
             'subject',
             'subject__subject_code',

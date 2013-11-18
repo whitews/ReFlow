@@ -517,6 +517,11 @@ class SiteForm(forms.ModelForm):
         exclude = ('project',)
 
 
+class CytometerForm(forms.ModelForm):
+    class Meta:
+        model = Cytometer
+
+
 class VisitTypeForm(forms.ModelForm):
     class Meta:
         model = VisitType

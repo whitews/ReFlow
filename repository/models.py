@@ -513,7 +513,7 @@ class Site(ProtectedModel):
         )
 
     def get_sample_count(self):
-        site_panels = SitePanel.objects.filter(site=self)
+        site_panels = SitePanel.objects.filter(cytometer__site=self)
         sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
         return sample_count
 
@@ -564,12 +564,42 @@ class Site(ProtectedModel):
         return u'%s' % self.site_name
 
 
+class Cytometer(ProtectedModel):
+    site = models.ForeignKey(Site, null=False, blank=False)
+    cytometer_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    serial_number = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=256)
+
+    def clean(self):
+        """
+        Check for duplicate cytometer names within a site.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # count cytos with matching name and parent site,
+        # which don't have this pk
+        duplicates = Cytometer.objects.filter(
+            cytometer_name=self.cytometer_name,
+            site=self.site).exclude(
+                id=self.id)
+
+        if duplicates.count() > 0:
+            raise ValidationError("Cytometer already exists in this site.")
+
+
 class SitePanel(ProtectedModel):
     # a SitePanel must be "based" off of a ProjectPanel
     # and is required to have at least the parameters specified in the
     # its ProjectPanel
     project_panel = models.ForeignKey(ProjectPanel, null=False, blank=False)
-    site = models.ForeignKey(Site, null=False, blank=False)
+    cytometer = models.ForeignKey(Cytometer, null=False, blank=False)
 
     # We don't allow site panels to have their own name,
     # so we use implementation version to differentiate site panels
@@ -593,17 +623,17 @@ class SitePanel(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if user.has_perm('view_project_data', self.site.project):
+        if user.has_perm('view_project_data', self.project_panel.project):
             return True
         elif self.site is not None:
-            if user.has_perm('view_site_data', self.site):
+            if user.has_perm('view_site_data', self.cytometer.site):
                 return True
 
         return False
 
     def clean(self):
         try:
-            Site.objects.get(id=self.site_id)
+            Site.objects.get(id=self.cytometer.site_id)
             ProjectPanel.objects.get(id=self.project_panel_id)
         except ObjectDoesNotExist:
             # site & project panel are required...
@@ -611,7 +641,7 @@ class SitePanel(ProtectedModel):
             return
 
         # project panel must be in the same project as the site
-        if self.site.project_id != self.project_panel.project_id:
+        if self.cytometer.site.project_id != self.project_panel.project_id:
             raise ValidationError(
                 "Chosen project panel is not in site's project.")
 
@@ -619,7 +649,7 @@ class SitePanel(ProtectedModel):
         # to figure out the implementation number
         if not self.implementation:
             current_implementations = SitePanel.objects.filter(
-                site=self.site,
+                cytometer=self.cytometer,
                 project_panel=self.project_panel).values_list(
                     'implementation', flat=True)
 
@@ -635,7 +665,7 @@ class SitePanel(ProtectedModel):
         return u'%s (%d) (Site: %s)' % (
             self.project_panel.panel_name,
             self.implementation,
-            self.site.site_name)
+            self.cytometer.cytometer_name_name)
 
 
 class SitePanelParameter(ProtectedModel):
@@ -794,6 +824,10 @@ class Subject(ProtectedModel):
         null=False,
         blank=False,
         max_length=128)
+    batch_control = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False)
 
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
@@ -900,6 +934,10 @@ class Compensation(ProtectedModel):
     matrix_text = models.TextField(
         null=False,
         blank=False)
+    acquisition_date = models.DateField(
+        null=False,
+        blank=False
+    )
 
     def has_view_permission(self, user):
 
@@ -1004,6 +1042,10 @@ class Sample(ProtectedModel):
         SitePanel,
         null=False,
         blank=False)
+    acquisition_date = models.DateField(
+        null=False,
+        blank=False
+    )
     compensation = models.ForeignKey(
         Compensation,
         null=True,

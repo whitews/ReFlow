@@ -13,7 +13,8 @@ $(function() {
     sortList: [[1,0]],
     headers: {
       0: { sorter: false},
-      1: { sorter: false}
+      1: { sorter: false},
+      5: { sorter: false}
     }
   });
 });
@@ -24,7 +25,7 @@ $(function() {
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
-    {% breadcrumb 'Sites' %}
+    {% breadcrumb 'Cytometers' %}
   </ul>
 {% endblock %}
 
@@ -35,12 +36,12 @@ $(function() {
       <tr>
         <th colspan="50" class="center">
           <div style="position:relative">
-            <h4>Sites <span class="badge badge-inverse align-top">{{ sites|length }}</span></h4>
+            <h4>Cytometers <span class="badge badge-inverse align-top">{{ cytometers|length }}</span></h4>
 
             {% if can_add_project_data %}
             <div style="position:absolute; right:0;top:0;">
-              <a class="btn btn-small" href="{% url 'add_site' project.id %}">
-                Add Site
+              <a class="btn btn-small" href="{% url 'add_cytometer' project.id %}">
+                Add Cytometer
               </a>
             </div>
             {% endif %}
@@ -49,34 +50,28 @@ $(function() {
       </tr>
       <tr>
         <th></th>
+        <th>Cytometer</th>
+        <th>Serial Number</th>
         <th>Site</th>
-        <th>FCS Sample Count</th>
-        <th>Cytometers</th>
         <th>Site Panels</th>
       </tr>
     </thead>
     <tbody>
-    {% for site in sites %}
+    {% for cyto in cytometers %}
       <tr>
         <td width="1%" class="middle">
           {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit" data-placement="bottom">
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_cytometer' project.id cyto.id %}" data-original-title="Edit" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
             </a>
           {% endif %}
         </td>
-        <td class="middle">{{ site.site_name }}</td>
-        <td class="middle">{{ site.get_sample_count }}</td>
+        <td class="middle">{{ cyto.cytometer_name }}</td>
+        <td class="middle">{{ cyto.serial_number }}</td>
+        <td class="middle">{{ cyto.site.site_name }}</td>
         <td>
-          {% for cytometer in site.cytometer_set.all %}
-            {{ cytometer.cytometer_name }}<br/>
-          {% endfor %}
-        </td>
-        <td>
-          {% for cyto in site.cytometer_set.all %}
           {% for panel in cyto.sitepanel_set.all %}
-            {{ panel.project_panel.panel_name }} ({{ panel.implementation }})<br/>
-          {% endfor %}
+            {{ panel.name }}<br/>
           {% endfor %}
         </td>
       </tr>
