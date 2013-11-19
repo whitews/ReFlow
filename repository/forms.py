@@ -693,7 +693,8 @@ class SampleForm(forms.ModelForm):
             self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
             compensations = Compensation.objects.filter(
-                site_panel__site__project__id=project_id).order_by('name')
+                site_panel__project_panel__project__id=project_id).order_by(
+                    'name')
             self.fields['compensation'] = forms.ModelChoiceField(
                 compensations,
                 required=False)

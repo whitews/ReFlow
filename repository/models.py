@@ -667,10 +667,10 @@ class SitePanel(ProtectedModel):
                     "Could not calculate implementation version.")
 
     def __unicode__(self):
-        return u'%s (%d) (Site: %s)' % (
+        return u'%s (%d) (Cytometer: %s)' % (
             self.project_panel.panel_name,
             self.implementation,
-            self.cytometer.cytometer_name_name)
+            self.cytometer.cytometer_name)
 
 
 class SitePanelParameter(ProtectedModel):
@@ -970,7 +970,7 @@ class Compensation(ProtectedModel):
         # which don't have this pk
         duplicates = Compensation.objects.filter(
             name=self.name,
-            site_panel__site=self.site_panel.cytometer.site_id).exclude(
+            site_panel__cytometer__site=self.site_panel.cytometer.site_id).exclude(
                 id=self.id)
 
         if duplicates.count() > 0:
