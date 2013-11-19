@@ -656,7 +656,7 @@ class SampleForm(forms.ModelForm):
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(
                 request.user, project).order_by('site_name')
-            site_panels = SitePanel.objects.filter(site__in=sites)
+            site_panels = SitePanel.objects.filter(cytometer__site__in=sites)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
             visit_types = VisitType.objects.filter(
@@ -693,7 +693,7 @@ class SampleEditForm(forms.ModelForm):
         # available choices
         if project_id:
             site_panels = SitePanel.objects.filter(
-                site=self.instance.site_panel.site)
+                site=self.instance.site_panel.cytometer.site)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
             visit_types = VisitType.objects.filter(project__id=project_id)

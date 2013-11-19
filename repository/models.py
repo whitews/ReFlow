@@ -906,8 +906,8 @@ class VisitType(ProtectedModel):
 
 
 def compensation_file_path(instance, filename):
-    project_id = instance.site_panel.site.project_id
-    site_id = instance.site_panel.site_id
+    project_id = instance.site_panel.cytometer.site.project_id
+    site_id = instance.site_panel.cytometer.site_id
 
     upload_dir = join(
         [
@@ -943,11 +943,11 @@ class Compensation(ProtectedModel):
     )
 
     def has_view_permission(self, user):
-
-        if user.has_perm('view_project_data', self.site_panel.site.project):
+        site = self.site_panel.cytometer.site
+        if user.has_perm('view_project_data', site.project):
             return True
-        elif self.site_panel.site is not None:
-            if user.has_perm('view_site_data', self.site_panel.site):
+        elif site is not None:
+            if user.has_perm('view_site_data', site):
                 return True
 
     def get_compensation_as_csv(self):
@@ -968,7 +968,7 @@ class Compensation(ProtectedModel):
         # which don't have this pk
         duplicates = Compensation.objects.filter(
             name=self.name,
-            site_panel__site=self.site_panel.site_id).exclude(
+            site_panel__site=self.site_panel.cytometer.site_id).exclude(
                 id=self.id)
 
         if duplicates.count() > 0:
@@ -986,7 +986,7 @@ class Compensation(ProtectedModel):
 
 def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
-    site_id = instance.site_panel.site_id
+    site_id = instance.site_panel.cytometer.site_id
     
     upload_dir = join([
         'ReFlow-data',
@@ -1001,7 +1001,7 @@ def fcs_file_path(instance, filename):
 
 def subsample_file_path(instance, filename):
     project_id = instance.subject.project_id
-    site_id = instance.site_panel.site_id
+    site_id = instance.site_panel.cytometer.site_id
 
     upload_dir = join([
         'ReFlow-data',
@@ -1088,7 +1088,7 @@ class Sample(ProtectedModel):
         if user.has_perm('view_project_data', self.subject.project):
             return True
         elif self.site_panel is not None:
-            if user.has_perm('view_site_data', self.site_panel.site):
+            if user.has_perm('view_site_data', self.site_panel.cytometer.site):
                 return True
 
         return False
@@ -1125,9 +1125,9 @@ class Sample(ProtectedModel):
         # visit project (if either site or visit is specified)
         if hasattr(self, 'site'):
             if self.site is not None:
-                if self.subject.project != self.site.project:
+                if self.subject.project != self.site_panel.cytometer.site.project:
                     raise ValidationError(
-                        "Subject and Site must belong to the same project"
+                        "Subject and Site Panel must belong to the same project"
                     )
 
         if hasattr(self, 'visit'):
@@ -1153,7 +1153,7 @@ class Sample(ProtectedModel):
             )
 
         if self.site_panel is not None and \
-                self.site_panel.site.project_id != self.subject.project_id:
+                self.site_panel.cytometer.site.project_id != self.subject.project_id:
             raise ValidationError("Site panel chosen is not in this Project")
 
         if self.visit is not None and \
@@ -1322,12 +1322,12 @@ class SampleMetadata(ProtectedModel):
 
         if user.has_perm(
                 'view_project_data',
-                self.sample.site_panel.site.project):
+                self.sample.site_panel.cytometer.site.project):
             return True
-        elif self.sample.site_panel.site is not None:
+        elif self.sample.site_panel.cytometer.site is not None:
             if user.has_perm(
                     'view_site_data',
-                    self.sample.site_panel.site):
+                    self.sample.site_panel.cytometer.site):
                 return True
 
         return False

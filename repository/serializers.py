@@ -170,8 +170,8 @@ class StimulationSerializer(serializers.ModelSerializer):
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
-    project = ProjectSerializer(source='site_panel.site.project')
-    site = SiteSerializer(source='site_panel.site')
+    project = ProjectSerializer(source='site_panel.cytometer.site.project')
+    site = SiteSerializer(source='site_panel.cytometer.site')
 
     class Meta:
         model = Compensation
@@ -195,10 +195,10 @@ class SampleSerializer(serializers.ModelSerializer):
         source='subject.subject_code',
         read_only=True)
     site = serializers.CharField(
-        source='site_panel.site_id',
+        source='site_panel.cytometer.site_id',
         read_only=True)
     site_name = serializers.CharField(
-        source='site_panel.site.site_name',
+        source='site_panel.cytometer.site.site_name',
         read_only=True)
     visit_name = serializers.CharField(
         source='visit.visit_type_name',

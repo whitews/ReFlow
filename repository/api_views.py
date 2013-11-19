@@ -574,8 +574,9 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
-        # filter on user's projects
-        queryset = Compensation.objects.filter(site_panel__site__in=user_sites)
+        # filter on user's sites
+        queryset = Compensation.objects.filter(
+            site_panel__cytometer__site__in=user_sites)
         return queryset
 
 
