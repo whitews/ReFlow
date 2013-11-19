@@ -94,6 +94,7 @@ function show_compensation(id) {
           <th></th>
           <th>File Name</th>
           <th>Upload Date</th>
+          <th>Acquisition Date</th>
           <th>Site</th>
           <th>Subject</th>
           <th>Visit</th>
@@ -130,6 +131,7 @@ function show_compensation(id) {
         </td>
         <td class="no-wrap middle">{{ sample.original_filename }}</td>
         <td class="middle">{{ sample.upload_date|date:"Ymd H:i" }}</td>
+        <td class="middle">{{ sample.acquisition_date|date:"Ymd" }}</td>
         <td class="middle">{{ sample.site_panel.cytometer.site.site_name }}</td>
         <td class="middle">{{ sample.subject.subject_code }}</td>
         <td class="middle">{{ sample.visit.visit_type_name }}</td>
