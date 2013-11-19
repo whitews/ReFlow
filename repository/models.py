@@ -113,7 +113,8 @@ PARAMETER_TYPE_CHOICES = (
     ('EXC', 'Exclusion'),
     ('VIA', 'Viability'),
     ('ICM', 'Isotope Conjugated Marker'),
-    ('TIM', 'Time')
+    ('TIM', 'Time'),
+    ('NUL', 'Null')
 )
 
 PARAMETER_VALUE_TYPE_CHOICES = (
