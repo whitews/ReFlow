@@ -482,7 +482,7 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
         Also removing the 'sample_file' field since it has the server path.
         """
         site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
-        site = Site.objects.get(id=site_panel.site_id)
+        site = Site.objects.get(id=site_panel.cytometer.site_id)
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
@@ -535,7 +535,8 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
         """
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
-        queryset = Sample.objects.filter(site_panel__site__in=user_sites)
+        queryset = Sample.objects.filter(
+            site_panel__cytometer__site__in=user_sites)
 
         return queryset
 
@@ -562,8 +563,8 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = (
         'name',
         'site_panel',
-        'site_panel__site',
-        'site_panel__site__project')
+        'site_panel__cytometer__site',
+        'site_panel__cytometer__site__project')
 
     def get_queryset(self):
         """
