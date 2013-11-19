@@ -468,6 +468,14 @@ ProjectParameterFormSet = inlineformset_factory(
     can_delete=False
 )
 
+ProjectParameterFormSetEdit = inlineformset_factory(
+    ProjectPanel,
+    ProjectPanelParameter,
+    formset=BaseProjectPanelParameterFormSet,
+    extra=0,
+    can_delete=False
+)
+
 
 class SpecimenForm(forms.ModelForm):
     class Meta:

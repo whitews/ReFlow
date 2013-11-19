@@ -623,6 +623,10 @@ def add_project_panel(request, project_id, panel_id=None):
         panel_form = ProjectPanelForm(
             instance=panel,
             project_id=project.id)
+
+        #if add_or_edit == 'edit':
+        #    parameter_formset = ProjectParameterFormSetEdit(instance=panel)
+        #else:
         parameter_formset = ProjectParameterFormSet(instance=panel)
 
     return render_to_response(

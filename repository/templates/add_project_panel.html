@@ -103,6 +103,12 @@ $("#add_parameter").click(function() {
     var new_set_id = parseInt(m[1]) + 1;
     var new_name, new_id;
 
+    new_row.children("td").children("div").children("input[type=hidden]").each(function() {
+      new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
+      $(this).attr({"name": new_name, "id": new_id});
+      $(this).removeAttr("value")
+    });
     new_row.children("td").children("select").each(function() {
       new_name = $(this).attr("name").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
       new_id = $(this).attr("id").replace(/_set-(\d+)-/, "_set-" + new_set_id + "-");
@@ -120,8 +126,7 @@ $("#add_parameter").click(function() {
     var marker_form_id;
     marker_selects.each(function() {
       marker_form_id = $(this).attr("id").match(/-\d+-(\d+)-marker/);
-      console.log(marker_form_id);
-      if (marker_form_id[1] != 0) {
+      if (marker_form_id && marker_form_id[1] != 0) {
         $(this).parent("span").prev("br").remove();
         $(this).parent("span").remove();
       }
