@@ -546,6 +546,7 @@ class PreSitePanelForm(forms.ModelForm):
 
         # finally, the reason we're here...
         # make sure only the project's panels are the available choices
+        # and that only user site cytometers are available
         if project_id:
             project_panels = ProjectPanel.objects.filter(
                 project__id=project_id).order_by('panel_name')
@@ -558,7 +559,8 @@ class PreSitePanelForm(forms.ModelForm):
             project = Project.objects.get(id=project_id)
             user_sites = Site.objects.get_sites_user_can_add(
                 request.user, project).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(user_sites)
+            cytometers = Cytometer.objects.filter(site__in=user_sites)
+            self.fields['cytometer'] = forms.ModelChoiceField(cytometers)
 
 
 class SitePanelForm(forms.ModelForm):
@@ -569,7 +571,7 @@ class SitePanelForm(forms.ModelForm):
 class EditSitePanelForm(forms.ModelForm):
     class Meta:
         model = SitePanel
-        exclude = ('site', 'project_panel')
+        exclude = ('project_panel')
 
 
 class SitePanelParameterMapFromSampleForm(forms.ModelForm):
@@ -726,7 +728,7 @@ class CompensationForm(forms.ModelForm):
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(
                 request.user, project)
-            site_panels = SitePanel.objects.filter(site__in=sites)
+            site_panels = SitePanel.objects.filter(cytometer__site__in=sites)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
     def clean(self):
