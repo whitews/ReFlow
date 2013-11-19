@@ -1233,15 +1233,16 @@ def add_project_site_panel(request, project_id):
 @login_required
 def process_site_panel_post(request, project_id):
     if request.is_ajax():
-        site_id = None
+        cytometer_id = None
         if request.POST:
-            if 'site' in request.POST:
-                site_id = request.POST['site']
+            if 'cytometer' in request.POST:
+                cytometer_id = request.POST['cytometer']
 
-        if not site_id:
+        if not cytometer_id:
             return HttpResponseBadRequest()
 
-        site = get_object_or_404(Site, pk=site_id)
+        cytometer = get_object_or_404(Cytometer, pk=cytometer_id)
+        site = get_object_or_404(Site, pk=cytometer.site_id)
 
         if not site.has_add_permission(request.user):
             raise PermissionDenied
