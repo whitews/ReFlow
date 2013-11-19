@@ -903,7 +903,10 @@ def add_cytometer(request, project_id, cytometer_id=None):
         add_or_edit = 'add'
 
     if request.method == 'POST':
-        form = CytometerForm(request.POST, instance=cytometer)
+        form = CytometerForm(
+            request.POST,
+            instance=cytometer,
+            project_id=project_id)
 
         if form.is_valid():
             form.save()
@@ -912,7 +915,7 @@ def add_cytometer(request, project_id, cytometer_id=None):
                 'view_project_cytometers',
                 args=(project_id,)))
     else:
-        form = CytometerForm(instance=cytometer)
+        form = CytometerForm(instance=cytometer, project_id=project_id)
 
     return render_to_response(
         'add_cytometer.html',

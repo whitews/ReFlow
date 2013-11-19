@@ -582,7 +582,8 @@ class Cytometer(ProtectedModel):
         Check for duplicate cytometer names within a site.
         Returns ValidationError if any duplicates are found.
         """
-
+        if not hasattr(self, 'site'):
+            return  # site is required and will get caught
         # count cytos with matching name and parent site,
         # which don't have this pk
         duplicates = Cytometer.objects.filter(
