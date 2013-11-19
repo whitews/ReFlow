@@ -593,6 +593,9 @@ class Cytometer(ProtectedModel):
         if duplicates.count() > 0:
             raise ValidationError("Cytometer already exists in this site.")
 
+    def __unicode__(self):
+        return u'%s: %s' % (self.site.site_name, self.cytometer_name)
+
 
 class SitePanel(ProtectedModel):
     # a SitePanel must be "based" off of a ProjectPanel
