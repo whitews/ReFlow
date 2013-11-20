@@ -140,8 +140,8 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
 
 
 class SitePanelSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer(source='site.project')
-    site = SiteSerializer(source='site')
+    project = ProjectSerializer(source='cytometer.site.project')
+    site = SiteSerializer(source='cytometer.site')
     parameters = SitePanelParameterSerializer(source='sitepanelparameter_set')
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
     name = serializers.CharField(source='name')
@@ -154,6 +154,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'project',
+            'cytometer',
             'site',
             'project_panel',
             'project_panel_name',

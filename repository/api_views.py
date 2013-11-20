@@ -393,9 +393,10 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     model = SitePanel
     serializer_class = SitePanelSerializer
     filter_fields = (
-        'site',
-        'site__project',
-        'project_panel')
+        'cytometer',
+        'cytometer__site',
+        'project_panel',
+        'project_panel__project')
 
     def get_queryset(self):
         """
@@ -406,7 +407,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = SitePanel.objects.filter(site__in=user_sites)
+        queryset = SitePanel.objects.filter(cytometer__site__in=user_sites)
 
         # TODO: implement filtering by channel info: fluoro, marker, scatter
 
