@@ -103,7 +103,7 @@ ProjectPanelParameterMarkerFormSet = inlineformset_factory(
     ProjectPanelParameter,
     ProjectPanelParameterMarker,
     extra=1,
-    can_delete=False)
+    can_delete=True)
 
 
 SitePanelParameterMarkerFormSet = inlineformset_factory(
@@ -473,7 +473,7 @@ ProjectParameterFormSetEdit = inlineformset_factory(
     ProjectPanelParameter,
     formset=BaseProjectPanelParameterFormSet,
     extra=0,
-    can_delete=False
+    can_delete=True
 )
 
 

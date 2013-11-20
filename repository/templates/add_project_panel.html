@@ -291,7 +291,7 @@ function remove_parameter(selector) {
                 {{ nested_formset.management_form }}
                 {% for nested_form in nested_formset.forms %}
                   <span class="marker-field no-wrap">
-                    {{ nested_form.marker }}
+                    {{ nested_form.marker }}{{ nested_form.DELETE }}
                     <div class="hide">{{ nested_form.id }}</div>
                     <a class="hide remove-marker" href="javascript:void(0)" onclick="remove_marker($(this))">
                       <i class="icon-remove align-middle\"></i>
