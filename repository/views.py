@@ -948,7 +948,7 @@ def view_project_site_panels(request, project_id):
     elif user_view_sites.count() > 0:
         site_panels = Sample.objects.filter(
             project_panel__project=project,
-            cytometer__site__in=user_view_sites)
+            site__in=user_view_sites)
     else:
         raise PermissionDenied
 
@@ -983,12 +983,12 @@ def view_compensations(request, project_id):
     if project.has_view_permission(request.user):
         compensations = Compensation.objects\
             .select_related()\
-            .filter(site_panel__cytometer__site__project=project)\
+            .filter(site_panel__site__project=project)\
             .order_by('name')
     elif user_view_sites.count() > 0:
         compensations = Compensation.objects\
             .select_related()\
-            .filter(site_panel__cytometer__site__in=user_view_sites)\
+            .filter(site_panel__site__in=user_view_sites)\
             .order_by('name')
     else:
         raise PermissionDenied
@@ -1235,16 +1235,15 @@ def add_project_site_panel(request, project_id):
 @login_required
 def process_site_panel_post(request, project_id):
     if request.is_ajax():
-        cytometer_id = None
+        site_id = None
         if request.POST:
-            if 'cytometer' in request.POST:
-                cytometer_id = request.POST['cytometer']
+            if 'site' in request.POST:
+                site_id = request.POST['site']
 
-        if not cytometer_id:
+        if not site_id:
             return HttpResponseBadRequest()
 
-        cytometer = get_object_or_404(Cytometer, pk=cytometer_id)
-        site = get_object_or_404(Site, pk=cytometer.site_id)
+        site = get_object_or_404(Site, pk=site_id)
 
         if not site.has_add_permission(request.user):
             raise PermissionDenied
@@ -1314,7 +1313,7 @@ def edit_site_panel_parameters(request, panel_id):
     site_panel = get_object_or_404(SitePanel, pk=panel_id)
     project = site_panel.project_panel.project
 
-    if not (site_panel.cytometer.site.has_modify_permission(request.user)):
+    if not (site_panel.site.has_modify_permission(request.user)):
         raise PermissionDenied
 
     ParameterFormSet = inlineformset_factory(
@@ -1401,7 +1400,7 @@ def edit_site_panel_comments(request, panel_id):
 def remove_panel_parameter(request, panel_parameter_id):
     ppm = get_object_or_404(SitePanelParameter, pk=panel_parameter_id)
 
-    if not ppm.site_panel.cytometer.site.has_modify_permission(request.user):
+    if not ppm.site_panel.site.has_modify_permission(request.user):
         raise PermissionDenied
 
     project = ppm.site_panel.project_panel.project
@@ -1600,7 +1599,7 @@ def add_sample(request, project_id):
 def edit_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
-    if not sample.site_panel.cytometer.site.has_modify_permission(request.user):
+    if not sample.site_panel.site.has_modify_permission(request.user):
         raise PermissionDenied
 
     if request.method == 'POST':

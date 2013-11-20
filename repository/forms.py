@@ -572,7 +572,7 @@ class PreSitePanelForm(forms.ModelForm):
 
         # finally, the reason we're here...
         # make sure only the project's panels are the available choices
-        # and that only user site cytometers are available
+        # and that only user sites are available
         if project_id:
             project_panels = ProjectPanel.objects.filter(
                 project__id=project_id).order_by('panel_name')
@@ -585,8 +585,7 @@ class PreSitePanelForm(forms.ModelForm):
             project = Project.objects.get(id=project_id)
             user_sites = Site.objects.get_sites_user_can_add(
                 request.user, project).order_by('site_name')
-            cytometers = Cytometer.objects.filter(site__in=user_sites)
-            self.fields['cytometer'] = forms.ModelChoiceField(cytometers)
+            self.fields['site'] = forms.ModelChoiceField(user_sites)
 
 
 class SitePanelForm(forms.ModelForm):
@@ -682,7 +681,7 @@ class SampleForm(forms.ModelForm):
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(
                 request.user, project).order_by('site_name')
-            site_panels = SitePanel.objects.filter(cytometer__site__in=sites)
+            site_panels = SitePanel.objects.filter(site__in=sites)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
             visit_types = VisitType.objects.filter(
@@ -720,7 +719,7 @@ class SampleEditForm(forms.ModelForm):
         # available choices
         if project_id:
             site_panels = SitePanel.objects.filter(
-                site=self.instance.site_panel.cytometer.site)
+                site=self.instance.site_panel.site)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
             visit_types = VisitType.objects.filter(project__id=project_id)
@@ -755,7 +754,7 @@ class CompensationForm(forms.ModelForm):
             project = Project.objects.get(id=project_id)
             sites = Site.objects.get_sites_user_can_add(
                 request.user, project)
-            site_panels = SitePanel.objects.filter(cytometer__site__in=sites)
+            site_panels = SitePanel.objects.filter(site__in=sites)
             self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
 
     def clean(self):

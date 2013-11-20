@@ -394,7 +394,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = SitePanelSerializer
     filter_fields = (
         'cytometer',
-        'cytometer__site',
+        'site',
         'project_panel',
         'project_panel__project')
 
@@ -407,7 +407,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's projects
-        queryset = SitePanel.objects.filter(cytometer__site__in=user_sites)
+        queryset = SitePanel.objects.filter(site__in=user_sites)
 
         # TODO: implement filtering by channel info: fluoro, marker, scatter
 
@@ -483,7 +483,7 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
         Also removing the 'sample_file' field since it has the server path.
         """
         site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
-        site = Site.objects.get(id=site_panel.cytometer.site_id)
+        site = Site.objects.get(id=site_panel.site_id)
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
@@ -510,7 +510,7 @@ class SampleFilter(django_filters.FilterSet):
         fields = [
             'subject__project',
             'site_panel',
-            'site_panel__cytometer__site',
+            'site_panel__site',
             'site_panel__project_panel',
             'subject',
             'subject__subject_code',
@@ -537,7 +537,7 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
         queryset = Sample.objects.filter(
-            site_panel__cytometer__site__in=user_sites)
+            site_panel__site__in=user_sites)
 
         return queryset
 
@@ -564,8 +564,8 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = (
         'name',
         'site_panel',
-        'site_panel__cytometer__site',
-        'site_panel__cytometer__site__project')
+        'site_panel__site',
+        'site_panel__site__project')
 
     def get_queryset(self):
         """
@@ -577,7 +577,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
 
         # filter on user's sites
         queryset = Compensation.objects.filter(
-            site_panel__cytometer__site__in=user_sites)
+            site_panel__site__in=user_sites)
         return queryset
 
 

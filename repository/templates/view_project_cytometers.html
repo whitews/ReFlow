@@ -13,8 +13,7 @@ $(function() {
     sortList: [[1,0]],
     headers: {
       0: { sorter: false},
-      1: { sorter: false},
-      5: { sorter: false}
+      1: { sorter: false}
     }
   });
 });
@@ -53,7 +52,6 @@ $(function() {
         <th>Cytometer</th>
         <th>Serial Number</th>
         <th>Site</th>
-        <th>Site Panels</th>
       </tr>
     </thead>
     <tbody>
@@ -69,11 +67,6 @@ $(function() {
         <td class="middle">{{ cyto.cytometer_name }}</td>
         <td class="middle">{{ cyto.serial_number }}</td>
         <td class="middle">{{ cyto.site.site_name }}</td>
-        <td>
-          {% for panel in cyto.sitepanel_set.all %}
-            {{ panel.name }}<br/>
-          {% endfor %}
-        </td>
       </tr>
     {% endfor %}
     </tbody>

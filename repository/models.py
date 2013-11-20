@@ -514,7 +514,7 @@ class Site(ProtectedModel):
         )
 
     def get_sample_count(self):
-        site_panels = SitePanel.objects.filter(cytometer__site=self)
+        site_panels = SitePanel.objects.filter(site=self)
         sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
         return sample_count
 
@@ -604,7 +604,7 @@ class SitePanel(ProtectedModel):
     # and is required to have at least the parameters specified in the
     # its ProjectPanel
     project_panel = models.ForeignKey(ProjectPanel, null=False, blank=False)
-    cytometer = models.ForeignKey(Cytometer, null=False, blank=False)
+    site = models.ForeignKey(Site, null=False, blank=False)
 
     # We don't allow site panels to have their own name,
     # so we use implementation version to differentiate site panels
@@ -631,14 +631,14 @@ class SitePanel(ProtectedModel):
         if user.has_perm('view_project_data', self.project_panel.project):
             return True
         elif self.site is not None:
-            if user.has_perm('view_site_data', self.cytometer.site):
+            if user.has_perm('view_site_data', self.site):
                 return True
 
         return False
 
     def clean(self):
         try:
-            Site.objects.get(id=self.cytometer.site_id)
+            Site.objects.get(id=self.site_id)
             ProjectPanel.objects.get(id=self.project_panel_id)
         except ObjectDoesNotExist:
             # site & project panel are required...
@@ -646,7 +646,7 @@ class SitePanel(ProtectedModel):
             return
 
         # project panel must be in the same project as the site
-        if self.cytometer.site.project_id != self.project_panel.project_id:
+        if self.site.project_id != self.project_panel.project_id:
             raise ValidationError(
                 "Chosen project panel is not in site's project.")
 
@@ -654,7 +654,7 @@ class SitePanel(ProtectedModel):
         # to figure out the implementation number
         if not self.implementation:
             current_implementations = SitePanel.objects.filter(
-                cytometer=self.cytometer,
+                site=self.site,
                 project_panel=self.project_panel).values_list(
                     'implementation', flat=True)
 
@@ -667,10 +667,7 @@ class SitePanel(ProtectedModel):
                     "Could not calculate implementation version.")
 
     def __unicode__(self):
-        return u'%s (%d) (Cytometer: %s)' % (
-            self.project_panel.panel_name,
-            self.implementation,
-            self.cytometer.cytometer_name)
+        return u'%s (%d)' % (self.project_panel.panel_name, self.implementation)
 
 
 class SitePanelParameter(ProtectedModel):
@@ -908,8 +905,8 @@ class VisitType(ProtectedModel):
 
 
 def compensation_file_path(instance, filename):
-    project_id = instance.site_panel.cytometer.site.project_id
-    site_id = instance.site_panel.cytometer.site_id
+    project_id = instance.site_panel.site.project_id
+    site_id = instance.site_panel.site_id
 
     upload_dir = join(
         [
@@ -945,7 +942,7 @@ class Compensation(ProtectedModel):
     )
 
     def has_view_permission(self, user):
-        site = self.site_panel.cytometer.site
+        site = self.site_panel.site
         if user.has_perm('view_project_data', site.project):
             return True
         elif site is not None:
@@ -970,7 +967,7 @@ class Compensation(ProtectedModel):
         # which don't have this pk
         duplicates = Compensation.objects.filter(
             name=self.name,
-            site_panel__cytometer__site=self.site_panel.cytometer.site_id).exclude(
+            site_panel__site=self.site_panel.site_id).exclude(
                 id=self.id)
 
         if duplicates.count() > 0:
@@ -988,7 +985,7 @@ class Compensation(ProtectedModel):
 
 def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
-    site_id = instance.site_panel.cytometer.site_id
+    site_id = instance.site_panel.site_id
     
     upload_dir = join([
         'ReFlow-data',
@@ -1003,7 +1000,7 @@ def fcs_file_path(instance, filename):
 
 def subsample_file_path(instance, filename):
     project_id = instance.subject.project_id
-    site_id = instance.site_panel.cytometer.site_id
+    site_id = instance.site_panel.site_id
 
     upload_dir = join([
         'ReFlow-data',
@@ -1045,6 +1042,10 @@ class Sample(ProtectedModel):
         blank=False)
     site_panel = models.ForeignKey(
         SitePanel,
+        null=False,
+        blank=False)
+    cytometer = models.ForeignKey(
+        Cytometer,
         null=False,
         blank=False)
     acquisition_date = models.DateField(
@@ -1090,7 +1091,7 @@ class Sample(ProtectedModel):
         if user.has_perm('view_project_data', self.subject.project):
             return True
         elif self.site_panel is not None:
-            if user.has_perm('view_site_data', self.site_panel.cytometer.site):
+            if user.has_perm('view_site_data', self.site_panel.site):
                 return True
 
         return False
@@ -1127,7 +1128,7 @@ class Sample(ProtectedModel):
         # visit project (if either site or visit is specified)
         if hasattr(self, 'site'):
             if self.site is not None:
-                if self.subject.project != self.site_panel.cytometer.site.project:
+                if self.subject.project != self.site_panel.site.project:
                     raise ValidationError(
                         "Subject and Site Panel must belong to the same project"
                     )
@@ -1155,7 +1156,7 @@ class Sample(ProtectedModel):
             )
 
         if self.site_panel is not None and \
-                self.site_panel.cytometer.site.project_id != self.subject.project_id:
+                self.site_panel.site.project_id != self.subject.project_id:
             raise ValidationError("Site panel chosen is not in this Project")
 
         if self.visit is not None and \
@@ -1324,12 +1325,12 @@ class SampleMetadata(ProtectedModel):
 
         if user.has_perm(
                 'view_project_data',
-                self.sample.site_panel.cytometer.site.project):
+                self.sample.site_panel.site.project):
             return True
-        elif self.sample.site_panel.cytometer.site is not None:
+        elif self.sample.site_panel.site is not None:
             if user.has_perm(
                     'view_site_data',
-                    self.sample.site_panel.cytometer.site):
+                    self.sample.site_panel.site):
                 return True
 
         return False
