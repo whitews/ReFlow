@@ -395,7 +395,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
 
             # make a list of the combination for use in the Counter
             # but, unstained params aren't required to be unique
-            if param_type not in ['UNS']:
+            if param_type not in ['UNS', 'NUL']:
                 param_components = [param_type, value_type]
                 if fluorochrome_id:
                     param_components.append(fluorochrome_id)
