@@ -115,6 +115,7 @@ SitePanelParameterMarkerFormSet = inlineformset_factory(
 
 class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
     def add_fields(self, form, index):
+        self.can_delete = True
         # allow the super class to create the fields as usual
         super(BaseProjectPanelParameterFormSet, self).add_fields(form, index)
 

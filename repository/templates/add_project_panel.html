@@ -266,6 +266,7 @@ function remove_parameter(selector) {
           {% for parameter_form in parameter_formset %}
           <tr class="parameter-fields">
             <td width="1%">
+              {{ parameter_form.DELETE }}
               {% if forloop.first %}
               <a href="javascript:void(0)" class="hide remove-parameter" onclick="remove_parameter($(this))">
                 <i class="icon-remove"></i>

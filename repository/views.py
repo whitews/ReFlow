@@ -611,6 +611,8 @@ def add_project_panel(request, project_id, panel_id=None):
                     param_form.nested[0].instance = parameter
                     param_form.nested[0].save()
 
+                parameter_formset.save()
+
                 return HttpResponseRedirect(reverse(
                     'view_project_panels',
                     args=(project.id,)))
