@@ -154,7 +154,6 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'project',
-            'cytometer',
             'site',
             'project_panel',
             'project_panel_name',
