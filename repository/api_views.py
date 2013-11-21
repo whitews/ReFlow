@@ -393,7 +393,6 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     model = SitePanel
     serializer_class = SitePanelSerializer
     filter_fields = (
-        'cytometer',
         'site',
         'project_panel',
         'project_panel__project')
