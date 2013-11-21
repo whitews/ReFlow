@@ -775,10 +775,10 @@ class CompensationForm(forms.ModelForm):
             raise ValidationError("Site panel does not exist.")
 
         # get site panel parameter fcs_text, but just for the fluoro params
-        # scatter and time don't get compensated
+        # 'Null', scatter and time don't get compensated
         params = SitePanelParameter.objects.filter(
             site_panel=site_panel).exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM'])
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
 
         # parse the matrix text and validate the number of params match
         # the number of fluoro params in the site panel and that the matrix
