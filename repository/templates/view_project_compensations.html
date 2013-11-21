@@ -18,7 +18,7 @@ $(function() {
     headers: {
       0: { sorter: false},
       1: { sorter: false},
-      4: { sorter: false},
+      5: { sorter: false}
     }
   });
 });
@@ -58,7 +58,8 @@ $(function() {
         <th></th>
         <th>Name</th>
         <th>Site Panel</th>
-        <th>Samples</th>
+        <th>Acquisition Date</th>
+        <th>Sample Count</th>
       </tr>
     </thead>
     <tbody>
@@ -71,11 +72,8 @@ $(function() {
         </td>
         <td class="middle">{{ comp.name }}</td>
         <td class="middle">{{ comp.site_panel }}</td>
-        <td class="middle">
-          {% for sample in comp.sample_set.all %}
-            {{ sample.original_filename }}<br/>
-          {% endfor %}
-        </td>
+        <td class="middle">{{ comp.acquisition_date|date:"Ymd" }}</td>
+        <td class="middle">{{ comp.sample_set.count }}</td>
       </tr>
       {% endfor %}
     </tbody>
