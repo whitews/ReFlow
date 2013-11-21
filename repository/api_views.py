@@ -37,6 +37,7 @@ def repository_api_root(request):
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
+        'cytometers': reverse('cytometer-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
@@ -423,6 +424,46 @@ class SitePanelDetail(
 
     model = SitePanel
     serializer_class = SitePanelSerializer
+
+
+class CytometerList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of site panels.
+    """
+
+    model = Cytometer
+    serializer_class = CytometerSerializer
+    filter_fields = (
+        'site',
+        'site__site_name',
+        'site__project',
+        'cytometer_name',
+        'serial_number')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to sites
+        to which the user belongs.
+        """
+
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
+
+        # filter on user's projects
+        queryset = Cytometer.objects.filter(site__in=user_sites)
+
+        return queryset
+
+
+class CytometerDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint representing a single site panel.
+    """
+
+    model = Cytometer
+    serializer_class = CytometerSerializer
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):

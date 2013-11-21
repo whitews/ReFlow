@@ -161,6 +161,22 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'parameters')
 
 
+class CytometerSerializer(serializers.ModelSerializer):
+    site = SiteSerializer(source='site')
+    site_name = serializers.CharField(source='site.site_name')
+    url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
+
+    class Meta:
+        model = Cytometer
+        fields = (
+            'id',
+            'url',
+            'site',
+            'site_name',
+            'cytometer_name',
+            'serial_number')
+
+
 class StimulationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='stimulation-detail')
 
