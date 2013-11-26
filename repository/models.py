@@ -744,7 +744,9 @@ class SitePanelParameter(ProtectedModel):
             site_panel=self.site_panel,
             fluorochrome=self.fluorochrome,
             parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(id=self.id)
+            parameter_value_type=self.parameter_value_type).exclude(
+                id=self.id,
+                parameter_type__in=['NUL'])
 
         if spp_duplicates.count() > 0:
             raise ValidationError(
