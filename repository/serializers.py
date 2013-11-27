@@ -53,6 +53,7 @@ class SubjectSerializer(serializers.ModelSerializer):
             'subject_code',
             'subject_group',
             'subject_group_name',
+            'batch_control',
             'project',)
 
 
