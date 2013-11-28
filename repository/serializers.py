@@ -199,7 +199,9 @@ class CompensationSerializer(serializers.ModelSerializer):
             'matrix_text',
             'project',
             'site',
-            'site_panel')
+            'site_panel',
+            'acquisition_date'
+        )
         exclude = ('compensation_file',)
 
 
@@ -240,6 +242,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'url',
             'visit',
             'visit_name',
+            'acquisition_date',
             'subject',
             'subject_code',
             'specimen',
