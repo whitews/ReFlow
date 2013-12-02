@@ -5870,6 +5870,15 @@ button.close {
     margin-left: 0;
   }
 }
+
+@media (min-width: 1400px) {
+  .container,
+  .navbar-static-top .container,
+  .navbar-fixed-top .container,
+  .navbar-fixed-bottom .container {
+    width: 1370px;
+  }
+}
 /* ----------Sticky footer START---------- */
 html, body, #wrap {
   height: 100%;
