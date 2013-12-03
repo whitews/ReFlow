@@ -156,6 +156,11 @@ function auto_populate_param_fields(row) {
                 $(fl_selects[0]).val(i);
                 fl_match = fl_dict[i];
             }
+        } else if (fcs_opt_text.indexOf(fl_dict[i]) >= 0) {
+            if (fl_dict[i].length > fl_match.length) {
+                $(fl_selects[0]).val(i);
+                fl_match = fl_dict[i];
+            }
         }
     }
 
