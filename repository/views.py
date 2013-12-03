@@ -1053,7 +1053,8 @@ def add_compensation(request, project_id, compensation_id=None):
         {
             'form': form,
             'project': project,
-            'add_or_edit': add_or_edit
+            'add_or_edit': add_or_edit,
+            'compensation_id': compensation_id
         },
         context_instance=RequestContext(request)
     )
