@@ -65,10 +65,15 @@ $(function() {
     <tbody>
       {% for comp in compensations %}
       <tr>
-        <td width="1%" class="middle">
+        <td width="1%" class="middle no-wrap">
           <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_compensation_as_csv' comp.id %}" data-original-title="Download" data-placement="bottom">
             <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
           </a>
+          {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_compensation' project.id comp.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+          {% endif %}
         </td>
         <td class="middle">{{ comp.name }}</td>
         <td class="middle">{{ comp.site_panel }}</td>

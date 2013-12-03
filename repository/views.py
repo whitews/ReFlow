@@ -1015,8 +1015,15 @@ def view_compensations(request, project_id):
 
 
 @login_required
-def add_compensation(request, project_id):
+def add_compensation(request, project_id, compensation_id=None):
     project = get_object_or_404(Project, pk=project_id)
+
+    if compensation_id:
+        compensation = get_object_or_404(Compensation, pk=compensation_id)
+        add_or_edit = 'edit'
+    else:
+        compensation = Compensation()
+        add_or_edit = 'add'
 
     user_sites = Site.objects.get_sites_user_can_add(request.user, project)
 
@@ -1026,6 +1033,7 @@ def add_compensation(request, project_id):
     if request.method == 'POST':
         form = CompensationForm(
             request.POST,
+            instance=compensation,
             project_id=project_id,
             request=request)
 
@@ -1035,13 +1043,17 @@ def add_compensation(request, project_id):
                 'project_compensations',
                 args=(project_id,)))
     else:
-        form = CompensationForm(project_id=project_id, request=request)
+        form = CompensationForm(
+            instance=compensation,
+            project_id=project_id,
+            request=request)
 
     return render_to_response(
         'add_compensation.html',
         {
             'form': form,
             'project': project,
+            'add_or_edit': add_or_edit
         },
         context_instance=RequestContext(request)
     )

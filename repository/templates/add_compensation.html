@@ -7,7 +7,11 @@
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
     {% breadcrumb_url 'Compensation Matrices' 'project_compensations' project.id %}
+    {% if add_or_edit == 'add' %}
     {% breadcrumb "Add Compensation Matrix" %}
+    {% else %}
+    {% breadcrumb "Edit Compensation Matrix" %}
+    {% endif %}
   </ul>
 {% endblock %}
 
