@@ -789,7 +789,7 @@ class CompensationForm(forms.ModelForm):
         # first row should be headers matching the PnN value (fcs_text field)
         # may be tab or comma delimited
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
-        headers = re.split('\t|,', matrix_text[0])
+        headers = re.split('\t|,\s*', matrix_text[0])
 
         missing_fields = list()
         for p in params:
