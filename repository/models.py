@@ -975,10 +975,78 @@ class Compensation(ProtectedModel):
             raise ValidationError(
                 "Compensation with this name already exists in this site.")
 
-        if hasattr(self, 'tmp_compensation_file'):
-            self.compensation_file.save(
-                self.name,
-                File(self.tmp_compensation_file))
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # 'Null', scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel_id=self.site_panel_id).exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = self.matrix_text.splitlines(False)
+        if not len(matrix_text) > 1:
+            raise ValidationError("Too few rows.")
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        headers = re.split('\t|,\s*', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if p.fcs_text not in headers:
+                missing_fields.append(p.fcs_text)
+
+        if len(missing_fields) > 0:
+            raise ValidationError(
+                "Missing fields: %s" % ", ".join(missing_fields))
+
+        if len(headers) > params.count():
+            raise ValidationError("Too many parameters")
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            raise ValidationError("Too many rows")
+        elif len(matrix_text) < params.count() + 1:
+            raise ValidationError("Too few rows")
+
+        # we need to store the channel number in the first row of the numpy
+        # array, more reliable to identify parameters than some concatenation
+        # of parameter attributes
+        channel_header = list()
+        for h in headers:
+            for p in params:
+                if p.fcs_text == h:
+                    channel_header.append(p.fcs_number)
+
+        np_array = np.array(channel_header)
+        np_width = np_array.shape[0]
+
+        # convert the matrix text to numpy array and
+        for line in matrix_text[1:]:
+            line_values = re.split('\t|,', line)
+            for i, value in enumerate(line_values):
+                try:
+                    line_values[i] = float(line_values[i])
+                except ValueError:
+                    self._errors["matrix_text"] = \
+                        "%s is an invalid matrix value" % line_values[i]
+            if len(line_values) > np_width:
+                raise ValidationError("Too many values in line: %s" % line)
+            elif len(line_values) < np_width:
+                raise ValidationError("Too few values in line: %s" % line)
+            else:
+                np_array = np.vstack([np_array, line_values])
+
+        # save numpy array in the self.compensation_file field
+        np_array_file = TemporaryFile()
+        np.save(np_array_file, np_array)
+
+        self.compensation_file.save(
+            self.name,
+            File(np_array_file),
+            save=False)
 
     def __unicode__(self):
         return u'%s' % self.name

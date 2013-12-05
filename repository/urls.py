@@ -44,6 +44,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/samples/(?P<pk>\d+)/npy/$', retrieve_subsample_as_numpy, name='retrieve_subsample_as_numpy'),
 
     url(r'^api/repository/compensations/$', CompensationList.as_view(), name='compensation-list'),
+    url(r'^api/repository/compensations/add/$', CreateCompensation.as_view(), name='create-compensation'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/$', CompensationDetail.as_view(), name='compensation-detail'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/csv/$', retrieve_compensation_as_csv, name='retrieve_compensation_as_csv'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/npy/$', retrieve_compensation_as_numpy, name='retrieve_compensation_as_numpy'),

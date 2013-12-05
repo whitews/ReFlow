@@ -34,6 +34,7 @@ def repository_api_root(request):
     """
 
     return Response({
+        'create_compensation': reverse('create-compensation', request=request),
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
@@ -592,6 +593,28 @@ class SampleDetail(
 
     model = Sample
     serializer_class = SampleSerializer
+
+
+class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = Compensation
+    serializer_class = CompensationSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        """
+        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
+        site = Site.objects.get(id=site_panel.site_id)
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        response = super(
+            CreateCompensation, self).post(request, *args, **kwargs)
+        return response
 
 
 class CompensationList(LoginRequiredMixin, generics.ListAPIView):

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.files import File
 
 from repository.models import *
 
@@ -187,8 +188,13 @@ class StimulationSerializer(serializers.ModelSerializer):
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
-    project = ProjectSerializer(source='site_panel.site.project')
-    site = SiteSerializer(source='site_panel.site')
+    project = ProjectSerializer(
+        source='site_panel.site.project',
+        read_only=True)
+    site = SiteSerializer(source='site_panel.site', read_only=True)
+    compensation_file = serializers.FileField(
+        source='compensation_file',
+        read_only=True)
 
     class Meta:
         model = Compensation
@@ -200,9 +206,85 @@ class CompensationSerializer(serializers.ModelSerializer):
             'project',
             'site',
             'site_panel',
-            'acquisition_date'
+            'acquisition_date',
+            'compensation_file'
         )
-        exclude = ('compensation_file',)
+
+    def validate(self, attrs):
+        """
+        Validate compensation matrix matches site panel and is, um, valid
+        """
+        if not 'site_panel' in attrs:
+            # site panel is required, will get caught
+            return attrs
+        if not 'matrix_text' in attrs:
+            # matrix text is required, will get caught
+            return attrs
+
+        try:
+            site_panel = SitePanel.objects.get(
+                id=attrs['site_panel'].id)
+        except ObjectDoesNotExist:
+            raise ValidationError("Site panel does not exist.")
+
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # 'Null', scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel=site_panel).exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = str(attrs['matrix_text'])
+        matrix_text = matrix_text.splitlines(False)
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        headers = re.split('\t|,\s*', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if p.fcs_text not in headers:
+                missing_fields.append(p.fcs_text)
+
+        if len(missing_fields) > 0:
+            self._errors["matrix_text"] = \
+                "Missing fields: %s" % ", ".join(missing_fields)
+            return attrs
+
+        if len(headers) > params.count():
+            self._errors["matrix_text"] = "Too many parameters"
+            return attrs
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            self._errors["matrix_text"] = "Too many rows"
+            return attrs
+        elif len(matrix_text) < params.count() + 1:
+            self._errors["matrix_text"] = "Too few rows"
+            return attrs
+
+        # convert the matrix text to numpy array and
+        for line in matrix_text[1:]:
+            line_values = re.split('\t|,', line)
+            for i, value in enumerate(line_values):
+                try:
+                    line_values[i] = float(line_values[i])
+                except ValueError:
+                    self._errors["matrix_text"] = \
+                        "%s is an invalid matrix value" % line_values[i]
+            if len(line_values) > len(params):
+                self._errors["matrix_text"] = \
+                    "Too many values in line: %s" % line
+                return attrs
+            elif len(line_values) < len(params):
+                self._errors["matrix_text"] = \
+                    "Too few values in line: %s" % line
+                return attrs
+
+        return attrs
 
 
 class SampleSerializer(serializers.ModelSerializer):

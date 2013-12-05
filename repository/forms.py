@@ -813,18 +813,6 @@ class CompensationForm(forms.ModelForm):
             self._errors["matrix_text"] = "Too few rows"
             return self.cleaned_data
 
-        # we need to store the channel number in the first row of the numpy
-        # array, more reliable to identify parameters than some concatenation
-        # of parameter attributes
-        channel_header = list()
-        for h in headers:
-            for p in params:
-                if p.fcs_text == h:
-                    channel_header.append(p.fcs_number)
-
-        np_array = np.array(channel_header)
-        np_width = np_array.shape[0]
-
         # convert the matrix text to numpy array and
         for line in matrix_text[1:]:
             line_values = re.split('\t|,', line)
@@ -834,21 +822,14 @@ class CompensationForm(forms.ModelForm):
                 except ValueError:
                     self._errors["matrix_text"] = \
                         "%s is an invalid matrix value" % line_values[i]
-            if len(line_values) > np_width:
+            if len(line_values) > len(params):
                 self._errors["matrix_text"] = \
                     "Too many values in line: %s" % line
                 return self.cleaned_data
-            elif len(line_values) < np_width:
+            elif len(line_values) < len(params):
                 self._errors["matrix_text"] = \
                     "Too few values in line: %s" % line
                 return self.cleaned_data
-            else:
-                np_array = np.vstack([np_array, line_values])
-
-        # save numpy array in the self.compensation_file field
-        np_array_file = TemporaryFile()
-        np.save(np_array_file, np_array)
-        self.instance.tmp_compensation_file = np_array_file
 
         return self.cleaned_data  # never forget this! ;o)
 
