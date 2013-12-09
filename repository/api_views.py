@@ -558,7 +558,8 @@ class SampleFilter(django_filters.FilterSet):
             'visit',
             'specimen',
             'stimulation',
-            'original_filename'
+            'original_filename',
+            'sha1'
         ]
 
 
