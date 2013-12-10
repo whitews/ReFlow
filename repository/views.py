@@ -1173,7 +1173,10 @@ def add_project_site_panel(request, project_id):
             project_panel = preform.cleaned_data['project_panel']
 
             # process the FCS file
-            fcm_obj = fcm.loadFCS(io.BytesIO(preform.files['fcs_file'].read()))
+            fcm_obj = fcm.loadFCS(
+                io.BytesIO(preform.files['fcs_file'].read()),
+                transform=None,
+                auto_comp=False)
             sample_text_segment = fcm_obj.notes.text
 
             for key in sample_text_segment:
