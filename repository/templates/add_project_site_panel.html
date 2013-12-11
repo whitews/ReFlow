@@ -219,7 +219,7 @@ function remove_marker(selector) {
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
-    {% breadcrumb_url "Site Panels" 'view_project_site_panels', project.id %}
+    {% breadcrumb_url "Site Panels" 'view_project_site_panels' project.id %}
     {% breadcrumb "Add Site Panel" %}
   </ul>
 {% endblock %}
