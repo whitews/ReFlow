@@ -71,12 +71,15 @@ class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProjectPanelParameterMarker
-        exclude = ('id', 'parameter', 'marker')
+        exclude = ('parameter', 'marker')
 
 
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
     markers = ProjectPanelParameterMarkerSerializer(
         source='projectpanelparametermarker_set')
+    fluorochrome_abbreviation = serializers.CharField(
+        source="fluorochrome__abbreviation",
+        read_only=True)
 
     class Meta:
         model = ProjectPanelParameter
@@ -85,7 +88,8 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
             'parameter_type',
             'parameter_value_type',
             'markers',
-            'fluorochrome')
+            'fluorochrome',
+            'fluorochrome_abbreviation')
 
 
 class ProjectPanelSerializer(serializers.ModelSerializer):
