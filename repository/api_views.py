@@ -650,7 +650,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = CompensationSerializer
     filter_fields = (
         'name',
-        'acquisition_date'
+        'acquisition_date',
         'site_panel',
         'site_panel__site',
         'site_panel__site__project')
