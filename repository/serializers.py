@@ -78,7 +78,7 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
     markers = ProjectPanelParameterMarkerSerializer(
         source='projectpanelparametermarker_set')
     fluorochrome_abbreviation = serializers.CharField(
-        source="fluorochrome__abbreviation",
+        source="fluorochrome.fluorochrome_abbreviation",
         read_only=True)
 
     class Meta:
