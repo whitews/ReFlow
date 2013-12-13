@@ -383,6 +383,12 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
         exclude = ('subsample',)
 
 
+class SampleMetadataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleMetadata
+        fields = ('id', 'sample', 'key', 'value')
+
+
 class ProcessSerializer(serializers.ModelSerializer):
     #url = serializers.HyperlinkedIdentityField(view_name='process-detail')
 

@@ -43,6 +43,7 @@ def repository_api_root(request):
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
+        'sample_metadata': reverse('sample-metadata-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
@@ -595,6 +596,27 @@ class SampleDetail(
 
     model = Sample
     serializer_class = SampleSerializer
+
+
+class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of sample metadata.
+    """
+
+    model = SampleMetadata
+    serializer_class = SampleMetadataSerializer
+    filter_fields = ('id', 'sample', 'key', 'value')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict sites for which
+        the user has view permission.
+        """
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
+        queryset = SampleMetadata.objects.filter(
+            sample__site_panel__site__in=user_sites)
+
+        return queryset
 
 
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
