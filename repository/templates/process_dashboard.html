@@ -117,7 +117,7 @@ $(function() {
         </tr>
         <tr>
             <th>Process Request ID</th>
-            <th>Process Name</th>
+            <th>Process</th>
             <th>Request Date</th>
             <th>Requesting User</th>
             <th>Status</th>
@@ -133,7 +133,7 @@ $(function() {
                 {{ request.id }}
               </a>
           </td>
-          <td class="middle">{{ request.process.process_name }}</td>
+          <td class="middle">{{ request.process }}</td>
           <td class="middle">{{ request.request_date }}</td>
           <td class="middle">{{ request.request_user }}</td>
           <td class="middle">{{ request.status }}</td>
