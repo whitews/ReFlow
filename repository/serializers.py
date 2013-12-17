@@ -389,14 +389,6 @@ class SampleMetadataSerializer(serializers.ModelSerializer):
         fields = ('id', 'sample', 'key', 'value')
 
 
-class ProcessSerializer(serializers.ModelSerializer):
-    #url = serializers.HyperlinkedIdentityField(view_name='process-detail')
-
-    class Meta:
-        model = Process
-        fields = ('id', 'process_name', 'process_description')
-
-
 class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -414,7 +406,6 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'process',
-            'sample_set',
             'worker',
             'request_user',
             'request_date',
@@ -422,18 +413,18 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'completion_date')
 
 
-class ProcessRequestInputValueSerializer(serializers.ModelSerializer):
+class ProcessRequestInputSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProcessRequestInputValue
-        fields = ('id', 'process_input', 'value')
+        model = ProcessRequestInput
+        fields = ('id', 'key', 'value')
         depth = 1
 
 
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
-    input_values = ProcessRequestInputValueSerializer(
-        source='processrequestinputvalue_set')
+    inputs = ProcessRequestInputSerializer(
+        source='processrequestinput_set')
 
     class Meta:
         model = ProcessRequest
@@ -441,10 +432,9 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'process',
-            'sample_set',
             'worker',
             'request_user',
             'request_date',
             'status',
             'completion_date',
-            'input_values')
+            'inputs')

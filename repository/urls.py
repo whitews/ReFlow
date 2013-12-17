@@ -51,7 +51,6 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/compensations/(?P<pk>\d+)/csv/$', retrieve_compensation_as_csv, name='retrieve_compensation_as_csv'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/npy/$', retrieve_compensation_as_numpy, name='retrieve_compensation_as_numpy'),
 
-    url(r'^api/repository/processes/$', ProcessList.as_view(), name='process-list'),
     url(r'^api/repository/workers/$', WorkerList.as_view(), name='worker-list'),
     url(r'^api/repository/verify_worker/$', verify_worker, name='verify-worker'),
     url(r'^api/repository/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),
@@ -138,12 +137,7 @@ urlpatterns += patterns('repository.views',
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 
     url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),
-    url(r'^processing/process/(?P<process_id>\d+)/input/add/$', 'add_process_input', name='add_process_input'),
-    url(r'^processing/process/process_input/(?P<process_input_id>\d+)/edit/$', 'edit_process_input', name='edit_process_input'),
     url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
     url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
-    url(r'^processing/process/(?P<process_id>\d+)/$', 'view_process', name='view_process'),
-
-    # Specific process requests are under a project
-    url(r'^project/(?P<project_id>\d+)/plots/request/$', 'process_request_plot', name='process_request_plot'),
+    url(r'^processing/process/(?P<process>\w+)/request/$', 'submit_process_request', name='submit_process_request'),
 )

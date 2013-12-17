@@ -834,17 +834,6 @@ class CompensationForm(forms.ModelForm):
         return self.cleaned_data  # never forget this! ;o)
 
 
-class ProcessForm(forms.ModelForm):
-    class Meta:
-        model = Process
-
-
-class ProcessInputForm(forms.ModelForm):
-    class Meta:
-        model = ProcessInput
-        exclude = ('process',)
-
-
 class WorkerForm(forms.ModelForm):
     class Meta:
         model = Worker
@@ -861,12 +850,8 @@ class ProcessRequestForm(forms.ModelForm):
             'status')
 
 
-class ProcessRequestInputValueForm(forms.ModelForm):
-    value_label = forms.CharField(widget=forms.HiddenInput())
-    process_input = forms.ModelChoiceField(
-        queryset=ProcessInput.objects.all(),
-        widget=forms.HiddenInput())
-
-    class Meta:
-        model = ProcessRequestInputValue
-        exclude = ('process_request',)
+class TestProcessForm(forms.Form):
+    project_panel = forms.ModelChoiceField(queryset=ProjectPanel.objects.all())
+    site = forms.ModelChoiceField(queryset=Site.objects.all())
+    control_group = forms.ModelChoiceField(queryset=SubjectGroup.objects.all())
+    use_fcs = forms.BooleanField()

@@ -6,6 +6,7 @@ admin.site.register(Marker)
 admin.site.register(Fluorochrome)
 admin.site.register(Specimen)
 
+
 class ProjectAdmin(GuardedModelAdmin):
     user_can_access_owned_objects_only = True
     pass
@@ -38,10 +39,7 @@ admin.site.register(Sample)
 admin.site.register(SampleMetadata)
 admin.site.register(Compensation)
 
-admin.site.register(Process)
-admin.site.register(ProcessInput)
-
 admin.site.register(Worker)
 
 admin.site.register(ProcessRequest)
-admin.site.register(ProcessRequestInputValue)
+admin.site.register(ProcessRequestInput)

@@ -52,11 +52,6 @@ function revoke_assignment()
         <td>Process Request ID:</td>
         <td class="align-left">{{ process_request.id }}</td>
       </tr>
-    
-      <tr>
-        <td>Sample Set:</td>
-        <td>{{ process_request.sample_set.name }} ({{ process_request.sample_set_id }})</td>
-      </tr>
 
       <tr>
         <td>Requested by:</td>
@@ -100,7 +95,7 @@ function revoke_assignment()
       <thead>
         <tr>
           <th colspan="4" class="center">
-            <h4>Process Request Input Values <span class="badge badge-inverse align-top">{{ process_request.processrequestinputvalue_set.all.count }}</span></h4>
+            <h4>Process Request Input Values <span class="badge badge-inverse align-top">{{ process_request.processrequestinput_set.all.count }}</span></h4>
           </th>
         </tr>
         <tr>
@@ -111,7 +106,7 @@ function revoke_assignment()
         </tr>
       </thead>
       <tbody>
-        {% for request_input in process_request.processrequestinputvalue_set.all %}
+        {% for request_input in process_request.processrequestinput_set.all %}
         <tr>
           <td class="middle">{{ request_input.process_input.input_name }}</td>
           <td class="middle">{{ request_input.process_input.input_description|default_if_none:'' }}</td>

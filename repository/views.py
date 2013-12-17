@@ -568,7 +568,6 @@ def view_project_panels(request, project_id):
 
 @login_required
 def add_project_panel(request, project_id, panel_id=None):
-    add_or_edit = None
     project = get_object_or_404(Project, pk=project_id)
     if panel_id:
         panel = get_object_or_404(ProjectPanel, pk=panel_id)
@@ -643,6 +642,7 @@ def add_project_panel(request, project_id, panel_id=None):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 def copy_project_panel(request, project_id, panel_id=None):
     project = get_object_or_404(Project, pk=project_id)
@@ -685,6 +685,7 @@ def copy_project_panel(request, project_id, panel_id=None):
     return HttpResponseRedirect(reverse(
         'view_project_panels',
         args=(project.id,)))
+
 
 @login_required
 def view_subjects(request, project_id):
@@ -900,7 +901,6 @@ def add_cytometer(request, project_id, cytometer_id=None):
     if not project.has_add_permission(request.user):
         raise PermissionDenied
 
-    add_or_edit = None
     if cytometer_id:
         cytometer = get_object_or_404(Cytometer, pk=cytometer_id)
         add_or_edit = 'edit'
@@ -928,6 +928,7 @@ def add_cytometer(request, project_id, cytometer_id=None):
         {
             'form': form,
             'project': project,
+            'add_or_edit': add_or_edit,
         },
         context_instance=RequestContext(request)
     )
@@ -1307,9 +1308,7 @@ def process_site_panel_post(request, project_id):
                 }
                 for error in parameter_formset.non_form_errors():
                     response_dict['messages'].append(error)
-                # for error in parameter_formset.errors:
-                #     if error.has_key('__all__'):
-                #         response_dict['messages'].append(error['__all__'])
+
                 return HttpResponseBadRequest(json.dumps(response_dict))
         else:
             # If we get here the pre-form was invalid
@@ -1367,7 +1366,7 @@ def edit_site_panel_parameters(request, panel_id):
             for error in parameter_formset.non_form_errors():
                 response_dict['messages'].append(error)
             for error in parameter_formset.errors:
-                if error.has_key('__all__'):
+                if '__all__' in error:
                     response_dict['messages'].append(error['__all__'])
             return HttpResponseBadRequest(json.dumps(response_dict))
     else:
@@ -1649,84 +1648,16 @@ def edit_sample(request, sample_id):
 @login_required
 def process_dashboard(request):
 
-    plot_process = get_object_or_404(Process, process_name="Plot")
     workers = Worker.objects.all()
     requests = ProcessRequest.objects.filter(
-        sample_set__project__in=Project.objects.get_projects_user_can_view(
+        project__in=Project.objects.get_projects_user_can_view(
             request.user))
 
     return render_to_response(
         'process_dashboard.html',
         {
-            'plot_process': plot_process,
             'workers': sorted(workers, key=attrgetter('worker_name')),
             'requests': requests,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def view_process(request, process_id):
-    process = get_object_or_404(Process, id=process_id)
-
-    return render_to_response(
-        'view_process.html',
-        {
-            'process': process,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def add_process_input(request, process_id):
-    process = get_object_or_404(Process, pk=process_id)
-
-    if request.method == 'POST':
-        process_input = ProcessInput(process=process)
-        form = ProcessInputForm(request.POST, instance=process_input)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_process',
-                args=(process_id,)))
-    else:
-        form = ProcessInputForm()
-
-    return render_to_response(
-        'add_process_input.html',
-        {
-            'process': process,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def edit_process_input(request, process_input_id):
-    process_input = get_object_or_404(ProcessInput, pk=process_input_id)
-
-    if request.method == 'POST':
-        form = ProcessInputForm(request.POST, instance=process_input)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_process',
-                args=(process_input.process_id,)))
-    else:
-        form = ProcessInputForm(instance=process_input)
-
-    return render_to_response(
-        'edit_process_input.html',
-        {
-            'process_input': process_input,
-            'form': form,
         },
         context_instance=RequestContext(request)
     )
@@ -1756,60 +1687,25 @@ def add_worker(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def process_request_plot(request):
-    process = get_object_or_404(Process, process_name='Plot')
-    process_request = ProcessRequest(
-        process=process,
-        request_user=request.user)
-
-    PRInputValueFormSet = inlineformset_factory(
-        ProcessRequest,
-        ProcessRequestInputValue,
-        form=ProcessRequestInputValueForm,
-        extra=process.processinput_set.count(),
-        can_delete=False,
-    )
+def submit_process_request(request, process):
+    if process == 'test':
+        process = 'Test'
+        form = TestProcessForm()
+    else:
+        process = None
+        form = None
 
     if request.method == 'POST':
-        form = ProcessRequestForm(request.POST, instance=process_request)
-
-        if form.is_valid():
-            valid_request = form.save(commit=False)
-            formset = PRInputValueFormSet(request.POST, instance=valid_request)
-
-            if formset.is_valid():
-                valid_request.save()
-                formset.save()
-
-                return HttpResponseRedirect(reverse('process_dashboard'))
-        else:
-            formset = PRInputValueFormSet(
-                request.POST,
-                instance=process_request)
-    else:
-        form = ProcessRequestForm(instance=process_request)
-
-        initial_data = list()
-
-        for process_input in process.processinput_set.all():
-            # note that 'value_label' is
-            # used for the 'value' field's label
-            initial_data.append(
-                {
-                    'process_input': process_input,
-                    'value_label': process_input.input_name
-                })
-
-        formset = PRInputValueFormSet(
-            instance=process_request,
-            initial=initial_data)
+        process_request = ProcessRequest(
+            process=process,
+            request_user=request.user)
+        pr_form = ProcessRequestForm(request.POST, instance=process_request)
 
     return render_to_response(
-        'process_request_plot.html',
+        'submit_process_request.html',
         {
             'process': process,
             'form': form,
-            'formset': formset,
         },
         context_instance=RequestContext(request)
     )

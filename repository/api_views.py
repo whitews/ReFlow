@@ -49,7 +49,6 @@ def repository_api_root(request):
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
-        'processes': reverse('process-list', request=request),
         'workers': reverse('worker-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
         'viable_process_requests': reverse(
@@ -728,16 +727,6 @@ def verify_process_request_assignment(request, pk):
             data['assignment'] = True
 
     return Response(status=status.HTTP_200_OK, data=data)
-
-
-class ProcessList(LoginRequiredMixin, generics.ListAPIView):
-    """
-    API endpoint representing a list of processes.
-    """
-
-    model = Process
-    serializer_class = ProcessSerializer
-    filter_fields = ('process_name',)
 
 
 class WorkerList(LoginRequiredMixin, generics.ListAPIView):

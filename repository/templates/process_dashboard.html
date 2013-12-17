@@ -60,10 +60,10 @@ $(function() {
 
         <tr>
           <td>
-            <a href="{% url 'view_process' plot_process.id %}">{{ plot_process.process_name }}</a>
+            <a href="{% url 'submit_process_request' 'test' %}">Test Process</a>
           </td>
           <td>
-            {{ plot_process.process_description }}
+            Some description
           </td>
         </tr>
 
@@ -120,7 +120,6 @@ $(function() {
             <th>Process Name</th>
             <th>Request Date</th>
             <th>Requesting User</th>
-            <th>Sample Set</th>
             <th>Status</th>
             <th>Worker</th>
             <th>Completion Date</th>
@@ -137,7 +136,6 @@ $(function() {
           <td class="middle">{{ request.process.process_name }}</td>
           <td class="middle">{{ request.request_date }}</td>
           <td class="middle">{{ request.request_user }}</td>
-          <td class="middle">{{ request.sample_set.name }}</td>
           <td class="middle">{{ request.status }}</td>
           <td class="middle">{{ request.worker.worker_name|default_if_none:"" }}</td>
           <td class="middle">{{ request.completion_date|default_if_none:"Not Complete" }}</td>

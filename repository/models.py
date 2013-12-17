@@ -141,6 +141,17 @@ STORAGE_CHOICES = (
     ('Cryopreserved', 'Cryopreserved')
 )
 
+PROCESS_CHOICES = (
+    (1, 'Test'),
+)
+
+STATUS_CHOICES = (
+    ('Pending', 'Pending'),
+    ('Working', 'Working'),
+    ('Error', 'Error'),
+    ('Completed', 'Completed'),
+)
+
 
 ##############################
 ### Project related models ###
@@ -1434,97 +1445,6 @@ class SampleMetadata(ProtectedModel):
 ####################################
 
 
-class Process(models.Model):
-    """
-    The model representation of a specific workflow.
-    """
-    process_name = models.CharField(
-        "Process Name",
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128,
-        help_text="The name of the process (must be unique)")
-    process_description = models.TextField(
-        "Process Description",
-        null=True,
-        blank=True,
-        help_text="A short description of the process")
-
-    def __unicode__(self):
-        return u'%s' % (self.process_name,)
-
-
-class ProcessInput(models.Model):
-    """
-    Defines an input parameter for a Process
-    """
-    process = models.ForeignKey(Process)
-    input_name = models.CharField(
-        "Input Name",
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-
-    allow_multiple = models.BooleanField(
-        null=False,
-        blank=False,
-        default=False,
-        help_text="Whether multiple input values for this input are allowed"
-    )
-
-    input_description = models.TextField(
-        "Process Input Description",
-        null=True,
-        blank=True,
-        help_text="A short description of the input parameter")
-
-    VALUE_TYPE_CHOICES = (
-        ('int', 'Integer'),
-        ('dec', 'Decimal'),
-        ('txt', 'Text String'),
-    )
-
-    value_type = models.CharField(
-        max_length=32,
-        null=False,
-        blank=False,
-        choices=VALUE_TYPE_CHOICES)
-
-    # Should we add minimum/maximum values???
-
-    default_value = models.CharField(null=True, blank=True, max_length=1024)
-
-    class Meta:
-        unique_together = (('process', 'input_name'),)
-
-    # override clean to prevent duplicate input names for a process input...
-    # unique_together doesn't work for forms with any of the
-    # unique together fields excluded
-    def clean(self):
-        """
-        Verify the process & input_name combination is unique
-        """
-
-        qs = ProcessInput.objects.filter(
-            process=self.process,
-            input_name=self.input_name)\
-            .exclude(
-                id=self.id)
-
-        if qs.exists():
-            raise ValidationError(
-                "This input name is already used in this process. " +
-                "Choose a different name."
-            )
-
-    def __unicode__(self):
-        return u'%s (Process: %s)' % (
-            self.input_name,
-            self.get_process_display(),)
-
-
 class Worker(models.Model):
     """
     The model representation of a client-side worker.
@@ -1558,59 +1478,13 @@ class Worker(models.Model):
         return u'%s' % (self.worker_name,)
 
 
-class SampleSet(models.Model):
-    """
-    An collection of Sample instances in ProcessRequest
-    Must belong to the same project.
-    """
-    project = models.ForeignKey(Project)
-    samples = models.ManyToManyField(Sample)
-
-    def has_view_permission(self, user):
-        """
-        User must have project permissions to view sample sets
-        """
-        if user.has_perm('view_project_data', self.project):
-            return True
-
-        return False
-
-
-def validate_samples(sender, **kwargs):
-    """
-    Verify all the samples belong to the self.project
-    """
-    print kwargs
-    sample_set = kwargs['instance']
-    action = kwargs['action']
-    pk_set = kwargs['pk_set']
-
-    if action == 'pre_add':
-        try:
-            samples_to_add = Sample.objects.filter(pk__in=pk_set)
-        except:
-            raise ValidationError(
-                "Could not find specified samples. Check that they exist.")
-
-        for sample in samples_to_add:
-            if sample_set.project_id != sample.subject.project_id:
-                raise ValidationError(
-                    "Samples must belong to the specified project."
-                )
-
-models.signals.m2m_changed.connect(
-    validate_samples,
-    sender=SampleSet.samples.through)
-
-
 class ProcessRequest(ProtectedModel):
     """
     A request for a Process to be executed on a SampleSet
     """
     project = models.ForeignKey(Project)
-    process = models.ForeignKey(Process)
-    sample_set = models.ForeignKey(
-        SampleSet,
+    process = models.IntegerField(
+        choices=PROCESS_CHOICES,
         null=False,
         blank=False)
     request_user = models.ForeignKey(
@@ -1630,13 +1504,6 @@ class ProcessRequest(ProtectedModel):
         null=True,
         blank=True)
 
-    STATUS_CHOICES = (
-        ('Pending', 'Pending'),
-        ('Working', 'Working'),
-        ('Error', 'Error'),
-        ('Completed', 'Completed'),
-    )
-
     status = models.CharField(
         max_length=32,
         null=False,
@@ -1653,26 +1520,23 @@ class ProcessRequest(ProtectedModel):
 
     def __unicode__(self):
         return u'%s (Date: %s)' % (
-            self.process.process_name,
+            self.get_process_display(),
             self.request_date,)
 
 
-class ProcessRequestInputValue(models.Model):
+class ProcessRequestInput(models.Model):
     """
-    The actual value to be used for a specific ProcessInput
-    for a specific ProcessRequest
+    A key/value pair used as a parameter for a specific ProcessRequest
     """
     process_request = models.ForeignKey(ProcessRequest)
-    process_input = models.ForeignKey(ProcessInput)
-    # all values get transmitted in JSON format via REST,
+    # all keys/values get transmitted in JSON format via REST,
     # so everything is a string
+    key = models.CharField(null=False, blank=False, max_length=1024)
     value = models.CharField(null=False, blank=False, max_length=1024)
 
-    class Meta:
-        unique_together = (('process_request', 'process_input'),)
-
     def __unicode__(self):
-        return u'%s (%s): %s' % (
-            self.process_request.process.process_name,
+        return u'%s (%s): %s=%s' % (
+            self.process_request.get_process_display(),
             self.process_request_id,
-            self.process_input.input_name)
+            self.key,
+            self.value)
