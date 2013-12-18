@@ -854,4 +854,27 @@ class TestProcessForm(forms.Form):
     project_panel = forms.ModelChoiceField(queryset=ProjectPanel.objects.all())
     site = forms.ModelChoiceField(queryset=Site.objects.all())
     control_group = forms.ModelChoiceField(queryset=SubjectGroup.objects.all())
-    use_fcs = forms.BooleanField()
+    use_fcs = forms.BooleanField(required=False)
+
+    def clean(self):
+        """
+        Validate project panel, site and control group all belong to the
+        same project.
+        """
+
+        project_panel = self.cleaned_data.get('project_panel')
+        site = self.cleaned_data.get('site')
+        control_group = self.cleaned_data.get('control_group')
+
+        if not project_panel or not site or not control_group:
+            # these fields are required, will get caught in field validation
+            return self.cleaned_data
+
+        if site.project != project_panel.project:
+            raise ValidationError(
+                "Site and panel must have the same project")
+        if control_group.project != project_panel.project:
+            raise ValidationError(
+                "Control group and panel must have the same project.")
+
+        return self.cleaned_data

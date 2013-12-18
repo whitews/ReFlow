@@ -1690,16 +1690,52 @@ def add_worker(request):
 def submit_process_request(request, process):
     if process == 'test':
         process = 'Test'
-        form = TestProcessForm()
+
+        if request.method == 'POST':
+            form = TestProcessForm(request.POST)
+            if form.is_valid():
+                project_panel = form.cleaned_data.get('project_panel')
+                site = form.cleaned_data.get('site')
+                control_group = form.cleaned_data.get('control_group')
+                use_fcs = form.cleaned_data.get('use_fcs')
+
+                process_request = ProcessRequest(
+                    project=project_panel.project,
+                    process=ProcessRequest.TEST,
+                    request_user=request.user)
+                process_request.save()
+
+                pr_input = ProcessRequestInput(
+                    process_request=process_request,
+                    key='project_panel',
+                    value=project_panel.id)
+                pr_input.save()
+
+                pr_input = ProcessRequestInput(
+                    process_request=process_request,
+                    key='site',
+                    value=site.id)
+                pr_input.save()
+
+                pr_input = ProcessRequestInput(
+                    process_request=process_request,
+                    key='control_group',
+                    value=control_group.id)
+                pr_input.save()
+
+                pr_input = ProcessRequestInput(
+                    process_request=process_request,
+                    key='use_fcs',
+                    value=use_fcs)
+                pr_input.save()
+
+                return HttpResponseRedirect(reverse('process_dashboard'))
+
+        else:
+            form = TestProcessForm()
     else:
         process = None
         form = None
-
-    if request.method == 'POST':
-        process_request = ProcessRequest(
-            process=process,
-            request_user=request.user)
-        pr_form = ProcessRequestForm(request.POST, instance=process_request)
 
     return render_to_response(
         'submit_process_request.html',

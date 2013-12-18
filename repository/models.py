@@ -141,10 +141,6 @@ STORAGE_CHOICES = (
     ('Cryopreserved', 'Cryopreserved')
 )
 
-PROCESS_CHOICES = (
-    (1, 'Test'),
-)
-
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Working', 'Working'),
@@ -1483,6 +1479,12 @@ class ProcessRequest(ProtectedModel):
     A request for a Process to be executed on a SampleSet
     """
     project = models.ForeignKey(Project)
+
+    TEST = 1
+    PROCESS_CHOICES = (
+        (TEST, 'Test'),
+    )
+
     process = models.IntegerField(
         choices=PROCESS_CHOICES,
         null=False,
