@@ -1186,7 +1186,7 @@ class Sample(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if user.has_perm('view_project_data', self.subject.project):
+        if self.subject.project.has_view_permission(user):
             return True
         elif self.site_panel is not None:
             if user.has_perm('view_site_data', self.site_panel.site):
@@ -1511,6 +1511,13 @@ class ProcessRequest(ProtectedModel):
         null=False,
         blank=False,
         choices=STATUS_CHOICES)
+
+    def has_view_permission(self, user):
+
+        if self.project.has_view_permission(user):
+            return True
+
+        return False
 
     def save(self, *args, **kwargs):
         if not self.id:
