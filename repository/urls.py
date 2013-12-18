@@ -59,6 +59,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/process_requests/(?P<pk>\d+)/request_assignment/$', ProcessRequestAssignmentUpdate.as_view(), name='process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/revoke_assignment/$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/verify_assignment/$', verify_process_request_assignment, name='verify-process-request-assignment'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/complete_assignment/$', complete_process_request_assignment, name='complete-process-request-assignment'),
 )
 
 # Regular web routes

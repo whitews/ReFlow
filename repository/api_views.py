@@ -715,6 +715,25 @@ def revoke_process_request_assignment(request, pk):
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
+def complete_process_request_assignment(request, pk):
+    pr = get_object_or_404(ProcessRequest, pk=pk)
+    if not pr.worker or not hasattr(request.user, 'worker'):
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+    if pr.worker.user != request.user:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    pr.status = "Complete"
+    try:
+        pr.save()
+    except:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    return Response(status=status.HTTP_200_OK, data={})
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def verify_process_request_assignment(request, pk):
     """
     Tests whether the requesting user (worker) is assigned to the
@@ -768,9 +787,9 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
         if not hasattr(self.request.user, 'worker'):
             return ProcessRequest.objects.none()
 
-        # PRs need to be in Pending status
+        # PRs need to be in Pending status with no completion date
         queryset = ProcessRequest.objects.filter(
-            status='Pending')
+            status='Pending', completion_date=None)
         return queryset
 
 
@@ -801,7 +820,6 @@ class ProcessRequestAssignmentUpdate(
         """
         Override patch for validation:
           - ensure user is a Worker
-          - Worker must be registered to the ProcessRequest's Process
           - ProcessRequest must not already be assigned
         """
         if hasattr(self.request.user, 'worker'):
