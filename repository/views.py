@@ -1671,9 +1671,7 @@ def add_worker(request):
         if form.is_valid():
             worker = form.save()
 
-            return HttpResponseRedirect(reverse(
-                'view_worker',
-                args=(worker.id,)))
+            return HttpResponseRedirect(reverse('process_dashboard'))
     else:
         form = WorkerForm()
 
