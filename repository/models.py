@@ -1520,11 +1520,18 @@ class ProcessRequest(ProtectedModel):
         return False
 
     def save(self, *args, **kwargs):
+        if self.completion_date:
+            # Dissallow editing if marked complete
+            # TODO: Figure out the best way to do this and raise a
+            # ValidationError...can't prevent saving in clean() :(
+            return
         if not self.id:
             self.request_date = datetime.datetime.now()
             self.status = 'Pending'
-        if self.worker:
+        if self.worker and self.status != 'Complete':
             self.status = 'Working'
+        if self.status == 'Complete' and not self.completion_date:
+            self.completion_date = datetime.datetime.now()
         super(ProcessRequest, self).save(*args, **kwargs)
 
     def __unicode__(self):
