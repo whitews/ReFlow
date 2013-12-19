@@ -657,7 +657,7 @@ class SitePanel(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if user.has_perm('view_project_data', self.project_panel.project):
+        if self.site.project.has_view_permission(user):
             return True
         elif self.site is not None:
             if user.has_perm('view_site_data', self.site):
