@@ -1476,7 +1476,7 @@ class Worker(models.Model):
 
 class ProcessRequest(ProtectedModel):
     """
-    A request for a Process to be executed on a SampleSet
+    A request for a Process
     """
     project = models.ForeignKey(Project)
 
