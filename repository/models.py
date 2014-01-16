@@ -973,7 +973,7 @@ class Compensation(ProtectedModel):
 
     def has_view_permission(self, user):
         site = self.site_panel.site
-        if user.has_perm('view_project_data', site.project):
+        if site.project.has_view_permission(user):
             return True
         elif site is not None:
             if user.has_perm('view_site_data', site):
