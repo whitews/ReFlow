@@ -1556,3 +1556,36 @@ class ProcessRequestInput(models.Model):
             self.process_request_id,
             self.key,
             self.value)
+
+
+def pr_output_path(instance, filename):
+    project_id = instance.process_request.project_id
+
+    upload_dir = join([
+        'ReFlow-data',
+        str(project_id),
+        'process_output',
+        str(filename)],
+        "/")
+
+    return upload_dir
+
+
+class ProcessRequestOutput(models.Model):
+    """
+    A key/value pair used to capture results from a specific ProcessRequest
+    """
+    process_request = models.ForeignKey(ProcessRequest)
+    # all values will be a (potentially large) JSON file
+    key = models.CharField(null=False, blank=False, max_length=1024)
+    value = models.FileField(
+        upload_to=pr_output_path,
+        null=False,
+        blank=False
+    )
+
+    def __unicode__(self):
+        return u'%s (%s): %s' % (
+            self.process_request.get_process_display(),
+            self.process_request_id,
+            self.key)
