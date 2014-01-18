@@ -112,5 +112,30 @@ function revoke_assignment()
         {% endfor %}
       </tbody>
     </table>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="4" class="center">
+            <h4>Process Request Outputs <span class="badge badge-inverse align-top">{{ process_request.processrequestoutput_set.all.count }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for request_output in process_request.processrequestoutput_set.all %}
+        <tr>
+          <td class="middle">{{ request_output.key }}</td>
+          <td class="middle">
+            <a href="{% url 'retrieve_process_request_output' request_output.id %}">
+              Download
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 {% endblock %}

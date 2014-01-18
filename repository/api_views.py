@@ -53,6 +53,8 @@ def repository_api_root(request):
         'process_requests': reverse('process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
+        'create_process_request_output': reverse(
+            'create-process-request-output', request=request),
     })
 
 
@@ -155,6 +157,23 @@ def retrieve_compensation_as_numpy(request, pk):
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % "comp_" + str(compensation.id) + '.npy'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_process_request_output_value(request, pk):
+    pr_output = get_object_or_404(ProcessRequestOutput, pk=pk)
+
+    if not pr_output.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        pr_output.value.file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        %  pr_output.key
     return response
 
 
@@ -847,4 +866,42 @@ class ProcessRequestAssignmentUpdate(
             except ValidationError as e:
                 return Response(data={'detail': e.messages}, status=400)
 
+        return Response(data={'detail': 'Bad request'}, status=400)
+
+
+class CreateProcessRequestOutput(
+        LoginRequiredMixin,
+        generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = ProcessRequestOutput
+    serializer_class = ProcessRequestOutputSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user is a worker.
+        Also removing the 'sample_file' field since it has the server path.
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                process_request = ProcessRequest.objects.get(
+                    id=request.DATA['process_request'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # ensure ProcessRequest is assigned to this worker
+            if process_request.worker != worker:
+                return Response(
+                    data={
+                        'detail': 'Request is not assigned to this worker'
+                    },
+                    status=400)
+
+            # if we get here, the worker is bonafide! "He's a suitor!"
+            response = super(CreateProcessRequestOutput, self).post(
+                request, *args, **kwargs)
+            return response
         return Response(data={'detail': 'Bad request'}, status=400)

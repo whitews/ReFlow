@@ -1687,8 +1687,6 @@ def add_worker(request):
 @user_passes_test(lambda u: u.is_superuser)
 def submit_process_request(request, process):
     if process == 'test':
-        process = 'Test'
-
         if request.method == 'POST':
             form = TestProcessForm(request.POST)
             if form.is_valid():

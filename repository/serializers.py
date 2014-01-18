@@ -441,3 +441,14 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'status',
             'completion_date',
             'inputs')
+
+
+class ProcessRequestOutputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequestOutput
+        fields = (
+            'id',
+            'process_request',
+            'key',
+            'value'
+        )

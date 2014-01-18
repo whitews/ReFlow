@@ -1560,18 +1560,20 @@ class ProcessRequestInput(models.Model):
 
 def pr_output_path(instance, filename):
     project_id = instance.process_request.project_id
+    pr_id = instance.process_request.id
 
     upload_dir = join([
         'ReFlow-data',
         str(project_id),
-        'process_output',
+        'process_requests',
+        str(pr_id),
         str(filename)],
         "/")
 
     return upload_dir
 
 
-class ProcessRequestOutput(models.Model):
+class ProcessRequestOutput(ProtectedModel):
     """
     A key/value pair used to capture results from a specific ProcessRequest
     """
@@ -1583,6 +1585,13 @@ class ProcessRequestOutput(models.Model):
         null=False,
         blank=False
     )
+
+    def has_view_permission(self, user):
+
+        if self.process_request.has_view_permission(user):
+            return True
+
+        return False
 
     def __unicode__(self):
         return u'%s (%s): %s' % (

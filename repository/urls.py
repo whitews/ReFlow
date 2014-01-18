@@ -60,6 +60,8 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/process_requests/(?P<pk>\d+)/revoke_assignment/$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/verify_assignment/$', verify_process_request_assignment, name='verify-process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/complete_assignment/$', complete_process_request_assignment, name='complete-process-request-assignment'),
+    url(r'^api/repository/process_request_outputs/add/$', CreateProcessRequestOutput.as_view(), name='create-process-request-output'),
+    url(r'^api/repository/process_request_outputs/(?P<pk>\d+)/download/$', retrieve_process_request_output_value, name='retrieve_process_request_output'),
 )
 
 # Regular web routes
