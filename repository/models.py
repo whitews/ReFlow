@@ -1481,8 +1481,10 @@ class ProcessRequest(ProtectedModel):
     project = models.ForeignKey(Project)
 
     TEST = 1
+    HDP = 2
     PROCESS_CHOICES = (
         (TEST, 'Test'),
+        (HDP, 'HDP'),
     )
 
     process = models.IntegerField(

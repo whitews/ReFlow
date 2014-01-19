@@ -850,10 +850,20 @@ class ProcessRequestForm(forms.ModelForm):
             'status')
 
 
-class TestProcessForm(forms.Form):
+class BaseProcessForm(forms.Form):
     project_panel = forms.ModelChoiceField(queryset=ProjectPanel.objects.all())
-    site = forms.ModelChoiceField(queryset=Site.objects.all())
-    control_group = forms.ModelChoiceField(queryset=SubjectGroup.objects.all())
+    site_panel = forms.ModelChoiceField(
+        queryset=SitePanel.objects.all(),
+        required=False)
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False)
+    subject = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
+        required=False)
+    control_group = forms.ModelChoiceField(
+        queryset=SubjectGroup.objects.all(),
+        required=False)
     use_fcs = forms.BooleanField(required=False)
 
     def clean(self):
@@ -878,3 +888,19 @@ class TestProcessForm(forms.Form):
                 "Control group and panel must have the same project.")
 
         return self.cleaned_data
+
+
+class TestProcessForm(BaseProcessForm):
+    is_test = forms.BooleanField(required=False)
+
+
+class HDPProcessForm(BaseProcessForm):
+    cluster_count = forms.IntegerField(required=True, initial=64)
+    iteration_count = forms.IntegerField(required=True, initial=50)
+    burn_in = forms.IntegerField(required=True, initial=100)
+    logicle_t = forms.IntegerField(required=True, initial=262144)
+    logicle_w = forms.DecimalField(required=True, initial=0.5)
+    random_seed = forms.IntegerField(required=True, initial=123)
+
+
+

@@ -12,7 +12,7 @@
 
 {% block body %}
   <div class="container">
-    <form class="form-horizontal" action="{% url 'submit_process_request' 'test' %}" method="post">
+    <form class="form-horizontal" action="{% url 'submit_process_request' process %}" method="post">
       {% csrf_token %}
 
       {{ form.non_field_errors }}
