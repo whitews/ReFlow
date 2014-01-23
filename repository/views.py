@@ -1688,7 +1688,7 @@ def add_worker(request):
 def submit_process_request(request, process):
     if process == 'test':
         if request.method == 'POST':
-            form = TestProcessForm(request.POST)
+            form = TestProcessForm(request.POST, request=request)
             if form.is_valid():
                 project_panel = form.cleaned_data.get('project_panel')
                 site = form.cleaned_data.get('site')
@@ -1727,10 +1727,10 @@ def submit_process_request(request, process):
 
                 return HttpResponseRedirect(reverse('process_dashboard'))
         else:
-            form = TestProcessForm()
+            form = TestProcessForm(request=request)
     elif process == 'hdp':
         if request.method == 'POST':
-            form = HDPProcessForm(request.POST)
+            form = HDPProcessForm(request.POST, request=request)
             if form.is_valid():
                 project_panel = form.cleaned_data.get('project_panel')
                 site = form.cleaned_data.get('site')
@@ -1814,7 +1814,7 @@ def submit_process_request(request, process):
 
                 return HttpResponseRedirect(reverse('process_dashboard'))
         else:
-            form = HDPProcessForm
+            form = HDPProcessForm(request=request)
     else:
         process = None
         form = None

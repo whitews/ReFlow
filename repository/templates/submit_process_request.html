@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load staticfiles %}
 {% load breadcrumbs %}
 {% block breadcrumbs %}
   <ul class="breadcrumb">
@@ -8,6 +9,167 @@
     {% breadcrumb process %}
     {% breadcrumb "Submit Process Request" %}
   </ul>
+{% endblock %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+
+<script>
+$(document).ready(function() {
+    $('select[name=project]').change(function() {
+        var project_id = this.value;
+
+        $('select[name!=project]').each(function (i, s) {
+          $(s).find('option:gt(0)').remove()
+        });
+
+        if (project_id < 1) {
+            return;
+        }
+
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'project-panel-list' %}?project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=project_panel]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.panel_name));
+              });
+            }
+        });
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'site-list' %}?project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=site]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.site_name));
+              });
+            }
+        });
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'subject-list' %}?project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=subject]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.subject_code));
+              });
+            }
+        });
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'visit-type-list' %}?project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=visit]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.visit_type_name));
+              });
+            }
+        });
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'cytometer-list' %}?site__project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=cytometer]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.cytometer_name));
+              });
+            }
+        });
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'stimulation-list' %}?project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=stimulation]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.stimulation_name));
+              });
+            }
+        });
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'subject-group-list' %}?project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=control_group]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.group_name));
+              });
+            }
+        });
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'site-panel-list' %}?project_panel__project=' + project_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=site_panel]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.name));
+              });
+            }
+        });
+    });
+    $('select[name=site]').change(function() {
+        var site_id = this.value;
+
+        if (site_id < 1) {
+            return;
+        }
+
+        var project_panel_id = $('select[name=project_panel]').val();
+        var site_panel_url;
+
+        $('select[name=site_panel]').find("option[value!='']").remove();
+
+        if (project_panel_id != '') {
+            site_panel_url =
+                '{% url 'site-panel-list' %}?project_panel=' +
+                project_panel_id +
+                '&site=' +
+                site_id;
+        } else {
+            site_panel_url = '{% url 'site-panel-list' %}?site=' + site_id;
+        }
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: site_panel_url,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=site_panel]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.name));
+              });
+            }
+        });
+    });
+});
+
+</script>
 {% endblock %}
 
 {% block body %}

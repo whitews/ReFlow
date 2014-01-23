@@ -851,20 +851,53 @@ class ProcessRequestForm(forms.ModelForm):
 
 
 class BaseProcessForm(forms.Form):
-    project_panel = forms.ModelChoiceField(queryset=ProjectPanel.objects.all())
-    site_panel = forms.ModelChoiceField(
-        queryset=SitePanel.objects.all(),
-        required=False)
+    # projects are populated based on what the user has access to
+    project = forms.ModelChoiceField(queryset=Project.objects.none())
+    project_panel = forms.ModelChoiceField(queryset=ProjectPanel.objects.none())
     site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
+        queryset=Site.objects.none(),
+        required=False)
+    site_panel = forms.ModelChoiceField(
+        queryset=SitePanel.objects.none(),
         required=False)
     subject = forms.ModelChoiceField(
-        queryset=Subject.objects.all(),
+        queryset=Subject.objects.none(),
         required=False)
     control_group = forms.ModelChoiceField(
-        queryset=SubjectGroup.objects.all(),
+        queryset=SubjectGroup.objects.none(),
         required=False)
+    visit = forms.ModelChoiceField(
+        queryset=VisitType.objects.none(),
+        required=False)
+    stimulation = forms.ModelChoiceField(
+        queryset=Stimulation.objects.none(),
+        required=False)
+    cytometer = forms.ModelChoiceField(
+        queryset=Cytometer.objects.none(),
+        required=False)
+
+    specimen = forms.ModelChoiceField(
+        queryset=Specimen.objects.all(),
+        required=False)
+
+    STORAGE_CHOICES_AND_EMPTY = [('', '---------')] + list(STORAGE_CHOICES)
+    storage = forms.ChoiceField(
+        choices=STORAGE_CHOICES_AND_EMPTY,
+        required=False)
+
     use_fcs = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        # pop 'request' arg, super init doesn't expect it
+        request = kwargs.pop('request', None)
+
+        # now it's safe to call the parent init
+        super(BaseProcessForm, self).__init__(*args, **kwargs)
+
+        # limit projects to those the user has access to
+        projects = Project.objects.get_projects_user_can_view(
+            request.user).order_by('project_name')
+        self.fields['project'] = forms.ModelChoiceField(projects)
 
     def clean(self):
         """
