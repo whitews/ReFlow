@@ -20,7 +20,9 @@ $(document).ready(function() {
         var project_id = this.value;
 
         $('select[name!=project]').each(function (i, s) {
-          $(s).find('option:gt(0)').remove()
+          if ($.inArray(s.name, ['specimen', 'storage']) == -1) {
+              $(s).find('option:gt(0)').remove();
+          }
         });
 
         if (project_id < 1) {
