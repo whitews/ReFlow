@@ -851,6 +851,21 @@ class ProcessRequestForm(forms.ModelForm):
 
 
 class BaseProcessForm(forms.Form):
+    BASE_PROCESS_FORM_FIELDS = [
+        'project',
+        'project_panel',
+        'site',
+        'site_panel',
+        'subject',
+        'control_group',
+        'visit',
+        'stimulation',
+        'cytometer',
+        'specimen',
+        'storage',
+        'use_fcs'
+    ]
+
     # projects are populated based on what the user has access to
     project = forms.ModelChoiceField(queryset=Project.objects.none())
     project_panel = forms.ModelChoiceField(queryset=ProjectPanel.objects.none())
@@ -928,7 +943,7 @@ class TestProcessForm(BaseProcessForm):
 
 
 class HDPProcessForm(BaseProcessForm):
-    cluster_count = forms.IntegerField(required=True, initial=64)
+    cluster_count = forms.IntegerField(required=True, initial=64, help_text="Clusters are things too")
     iteration_count = forms.IntegerField(required=True, initial=50)
     burn_in = forms.IntegerField(required=True, initial=100)
     logicle_t = forms.IntegerField(required=True, initial=262144)

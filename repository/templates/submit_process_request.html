@@ -16,16 +16,21 @@
 
 <script>
 $(document).ready(function() {
+    var updating_element = "&nbsp;<img class='whirligig inline' src='{% static 'whirligig.gif' %}' height='24' width='24'>";
     $('select[name=project]').change(function() {
         var project_id = this.value;
 
         $('select[name!=project]').each(function (i, s) {
           if ($.inArray(s.name, ['specimen', 'storage']) == -1) {
               $(s).find('option:gt(0)').remove();
+              $(s).prop("disabled", true);
+              $(s).after(updating_element);
           }
         });
 
         if (project_id < 1) {
+            $('select').prop('disabled', false);
+            $('img.whirligig').remove();
             return;
         }
 
@@ -40,6 +45,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.panel_name));
               });
+              $('select[name=project_panel]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
         $.ajax( {
@@ -53,6 +61,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.site_name));
               });
+              $('select[name=site]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
         $.ajax( {
@@ -66,6 +77,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.subject_code));
               });
+              $('select[name=subject]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
         $.ajax( {
@@ -79,6 +93,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.visit_type_name));
               });
+              $('select[name=visit]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
         $.ajax( {
@@ -92,6 +109,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.cytometer_name));
               });
+              $('select[name=cytometer]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
         $.ajax( {
@@ -105,6 +125,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.stimulation_name));
               });
+              $('select[name=stimulation]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
         $.ajax( {
@@ -118,6 +141,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.group_name));
               });
+              $('select[name=control_group]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
         $.ajax( {
@@ -131,6 +157,9 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.name));
               });
+              $('select[name=site_panel]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
     });
@@ -141,10 +170,19 @@ $(document).ready(function() {
             return;
         }
 
+        var project_id = $('select[name=project]').val();
         var project_panel_id = $('select[name=project_panel]').val();
         var site_panel_url;
 
-        $('select[name=site_panel]').find("option[value!='']").remove();
+        $('select[name=site_panel]')
+            .prop('disabled', true)
+            .after(updating_element)
+            .find('option:gt(0)').remove();
+
+        $('select[name=cytometer]')
+            .prop('disabled', true)
+            .after(updating_element)
+            .find('option:gt(0)').remove();
 
         if (project_panel_id != '') {
             site_panel_url =
@@ -166,6 +204,26 @@ $(document).ready(function() {
                       .attr("value", d.id)
                       .text(d.name));
               });
+              $('select[name=site_panel]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
+            }
+        });
+
+        $.ajax( {
+            dataType: 'json',
+            type: 'GET',
+            url: '{% url 'cytometer-list' %}?site__project=' + project_id + '&site=' + site_id,
+            success: function(data) {
+              $.each(data, function(i, d) {
+                  $('select[name=cytometer]')
+                      .append($('<option></option>')
+                      .attr("value", d.id)
+                      .text(d.cytometer_name));
+              });
+              $('select[name=cytometer]')
+                  .prop("disabled", false)
+                  .next('img.whirligig').remove();
             }
         });
     });
