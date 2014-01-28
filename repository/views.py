@@ -1732,7 +1732,8 @@ def submit_process_request(request, process):
         if request.method == 'POST':
             form = HDPProcessForm(request.POST, request=request)
             if form.is_valid():
-                project_panel = form.cleaned_data.get('project_panel')
+                project_panel = ProjectPanel.objects.get(
+                    id=form.cleaned_data.get('project_panel'))
                 site = form.cleaned_data.get('site')
                 control_group = form.cleaned_data.get('control_group')
                 use_fcs = form.cleaned_data.get('use_fcs')

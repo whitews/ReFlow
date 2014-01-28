@@ -10,6 +10,15 @@ from guardian.forms import UserObjectPermissionsForm
 from repository.models import *
 
 
+class DynamicChoiceField(forms.ChoiceField):
+    def validate(self, value):
+        """
+        Override validate to avoid invalid choice error.
+        """
+        if self.required and not value:
+            raise ValidationError(self.error_messages['required'])
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
@@ -868,7 +877,7 @@ class BaseProcessForm(forms.Form):
 
     # projects are populated based on what the user has access to
     project = forms.ModelChoiceField(queryset=Project.objects.none())
-    project_panel = forms.ModelChoiceField(queryset=ProjectPanel.objects.none())
+    project_panel = DynamicChoiceField(required=True)
     site = forms.ModelChoiceField(
         queryset=Site.objects.none(),
         required=False)
@@ -919,21 +928,33 @@ class BaseProcessForm(forms.Form):
         Validate project panel, site and control group all belong to the
         same project.
         """
+        project = self.cleaned_data.get('project')
+        try:
+            project_panel = ProjectPanel.objects.get(
+                id=self.cleaned_data.get('project_panel'))
+        except:
+            raise ValidationError("Invalid project panel")
 
-        project_panel = self.cleaned_data.get('project_panel')
         site = self.cleaned_data.get('site')
         control_group = self.cleaned_data.get('control_group')
 
-        if not project_panel or not site or not control_group:
+        if not project_panel:
             # these fields are required, will get caught in field validation
             return self.cleaned_data
 
-        if site.project != project_panel.project:
+        if project_panel.project != project:
             raise ValidationError(
-                "Site and panel must have the same project")
-        if control_group.project != project_panel.project:
-            raise ValidationError(
-                "Control group and panel must have the same project.")
+                "Project panel is not in chosen project")
+        if site:
+            if site.project is not '':
+                if site.project != project:
+                    raise ValidationError(
+                        "Site and panel must have the same project")
+
+        if control_group:
+            if control_group.project != project_panel.project:
+                raise ValidationError(
+                    "Control group and panel must have the same project.")
 
         return self.cleaned_data
 
@@ -943,7 +964,10 @@ class TestProcessForm(BaseProcessForm):
 
 
 class HDPProcessForm(BaseProcessForm):
-    cluster_count = forms.IntegerField(required=True, initial=64, help_text="Clusters are things too")
+    cluster_count = forms.IntegerField(
+        required=True,
+        initial=64,
+        help_text="Clusters are things too")
     iteration_count = forms.IntegerField(required=True, initial=50)
     burn_in = forms.IntegerField(required=True, initial=100)
     logicle_t = forms.IntegerField(required=True, initial=262144)
