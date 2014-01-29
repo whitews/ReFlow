@@ -877,6 +877,8 @@ class BaseProcessForm(forms.Form):
 
     CUSTOM_FIELDS = list()  # empty list
 
+    EMPTY_CHOICES = [('', '---------')]
+
     # projects are populated based on what the user has access to
     project = forms.ChoiceField()
 
@@ -884,14 +886,14 @@ class BaseProcessForm(forms.Form):
     # generated via AJAX in the template. Some fields are dependent
     # on another field's value, e.g. site panels only for the chosen
     # project panel
-    project_panel = DynamicChoiceField(required=True)
-    site = DynamicChoiceField(required=False)
-    site_panel = DynamicChoiceField(required=False)
-    subject = DynamicChoiceField(required=False)
-    control_group = DynamicChoiceField(required=False)
-    visit = DynamicChoiceField(required=False)
-    stimulation = DynamicChoiceField(required=False)
-    cytometer = DynamicChoiceField(required=False)
+    project_panel = DynamicChoiceField(required=True, choices=EMPTY_CHOICES)
+    site = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    site_panel = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    subject = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    control_group = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    visit = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    stimulation = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    cytometer = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
 
     specimen = forms.ModelChoiceField(
         queryset=Specimen.objects.all(),
