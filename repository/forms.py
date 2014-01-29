@@ -878,7 +878,7 @@ class BaseProcessForm(forms.Form):
     CUSTOM_FIELDS = list()  # empty list
 
     # projects are populated based on what the user has access to
-    project = forms.ModelChoiceField(queryset=Project.objects.none())
+    project = forms.ChoiceField()
 
     # the following fields have select options that will be dynamically
     # generated via AJAX in the template. Some fields are dependent
@@ -913,8 +913,11 @@ class BaseProcessForm(forms.Form):
 
         # limit projects to those the user has access to
         projects = Project.objects.get_projects_user_can_view(
-            request.user).order_by('project_name')
-        self.fields['project'] = forms.ModelChoiceField(projects)
+            request.user).order_by(
+                'project_name').values_list('id', 'project_name')
+        projects = list(projects)
+        projects.insert(0, ('', '---------'))
+        self.fields['project'] = forms.ChoiceField(projects)
 
     def clean(self):
         """
@@ -922,7 +925,7 @@ class BaseProcessForm(forms.Form):
         same project.
         """
         try:
-            project = self.cleaned_data.get('project')
+            project = Project.objects.get(id=self.cleaned_data.get('project'))
         except:
             raise ValidationError("Invalid project")
         try:
