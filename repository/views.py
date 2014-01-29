@@ -1684,16 +1684,39 @@ def add_worker(request):
     )
 
 
+def create_process_request_inputs(process_request, form):
+    if not isinstance(form, BaseProcessForm):
+        return
+
+    for field in form.BASE_PROCESS_FORM_FIELDS:
+        value = form.cleaned_data.get(field)
+        if value in ['', None]:
+            continue
+        pr_input = ProcessRequestInput(
+            process_request=process_request,
+            key=field,
+            value=value)
+        pr_input.save()
+
+    for field in form.CUSTOM_FIELDS:
+        value = form.cleaned_data.get(field)
+        if value in ['', None]:
+            continue
+        pr_input = ProcessRequestInput(
+            process_request=process_request,
+            key=field,
+            value=form.cleaned_data.get(field))
+        pr_input.save()
+
+
 @user_passes_test(lambda u: u.is_superuser)
 def submit_process_request(request, process):
     if process == 'test':
         if request.method == 'POST':
             form = TestProcessForm(request.POST, request=request)
             if form.is_valid():
-                project_panel = form.cleaned_data.get('project_panel')
-                site = form.cleaned_data.get('site')
-                control_group = form.cleaned_data.get('control_group')
-                use_fcs = form.cleaned_data.get('use_fcs')
+                project_panel = ProjectPanel.objects.get(
+                    id=form.cleaned_data.get('project_panel'))
 
                 process_request = ProcessRequest(
                     project=project_panel.project,
@@ -1701,29 +1724,7 @@ def submit_process_request(request, process):
                     request_user=request.user)
                 process_request.save()
 
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='project_panel',
-                    value=project_panel.id)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='site',
-                    value=site.id)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='control_group',
-                    value=control_group.id)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='use_fcs',
-                    value=use_fcs)
-                pr_input.save()
+                create_process_request_inputs(process_request, form)
 
                 return HttpResponseRedirect(reverse('process_dashboard'))
         else:
@@ -1734,16 +1735,6 @@ def submit_process_request(request, process):
             if form.is_valid():
                 project_panel = ProjectPanel.objects.get(
                     id=form.cleaned_data.get('project_panel'))
-                site = form.cleaned_data.get('site')
-                control_group = form.cleaned_data.get('control_group')
-                use_fcs = form.cleaned_data.get('use_fcs')
-
-                cluster_count = form.cleaned_data.get('cluster_count')
-                iteration_count = form.cleaned_data.get('iteration_count')
-                burn_in = form.cleaned_data.get('burn_in')
-                logicle_t = form.cleaned_data.get('logicle_t')
-                logicle_w = form.cleaned_data.get('logicle_w')
-                random_seed = form.cleaned_data.get('random_seed')
 
                 process_request = ProcessRequest(
                     project=project_panel.project,
@@ -1751,67 +1742,7 @@ def submit_process_request(request, process):
                     request_user=request.user)
                 process_request.save()
 
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='project_panel',
-                    value=project_panel.id)
-                pr_input.save()
-
-                if site:
-                    pr_input = ProcessRequestInput(
-                        process_request=process_request,
-                        key='site',
-                        value=site.id)
-                    pr_input.save()
-
-                if control_group:
-                    pr_input = ProcessRequestInput(
-                        process_request=process_request,
-                        key='control_group',
-                        value=control_group.id)
-                    pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='use_fcs',
-                    value=use_fcs)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='cluster_count',
-                    value=cluster_count)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='iteration_count',
-                    value=iteration_count)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='burn_in',
-                    value=burn_in)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='logicle_t',
-                    value=logicle_t)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='logicle_w',
-                    value=logicle_w)
-                pr_input.save()
-
-                pr_input = ProcessRequestInput(
-                    process_request=process_request,
-                    key='random_seed',
-                    value=random_seed)
-                pr_input.save()
+                create_process_request_inputs(process_request, form)
 
                 return HttpResponseRedirect(reverse('process_dashboard'))
         else:

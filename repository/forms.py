@@ -875,30 +875,23 @@ class BaseProcessForm(forms.Form):
         'use_fcs'
     ]
 
+    CUSTOM_FIELDS = list()  # empty list
+
     # projects are populated based on what the user has access to
     project = forms.ModelChoiceField(queryset=Project.objects.none())
+
+    # the following fields have select options that will be dynamically
+    # generated via AJAX in the template. Some fields are dependent
+    # on another field's value, e.g. site panels only for the chosen
+    # project panel
     project_panel = DynamicChoiceField(required=True)
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.none(),
-        required=False)
-    site_panel = forms.ModelChoiceField(
-        queryset=SitePanel.objects.none(),
-        required=False)
-    subject = forms.ModelChoiceField(
-        queryset=Subject.objects.none(),
-        required=False)
-    control_group = forms.ModelChoiceField(
-        queryset=SubjectGroup.objects.none(),
-        required=False)
-    visit = forms.ModelChoiceField(
-        queryset=VisitType.objects.none(),
-        required=False)
-    stimulation = forms.ModelChoiceField(
-        queryset=Stimulation.objects.none(),
-        required=False)
-    cytometer = forms.ModelChoiceField(
-        queryset=Cytometer.objects.none(),
-        required=False)
+    site = DynamicChoiceField(required=False)
+    site_panel = DynamicChoiceField(required=False)
+    subject = DynamicChoiceField(required=False)
+    control_group = DynamicChoiceField(required=False)
+    visit = DynamicChoiceField(required=False)
+    stimulation = DynamicChoiceField(required=False)
+    cytometer = DynamicChoiceField(required=False)
 
     specimen = forms.ModelChoiceField(
         queryset=Specimen.objects.all(),
@@ -928,42 +921,124 @@ class BaseProcessForm(forms.Form):
         Validate project panel, site and control group all belong to the
         same project.
         """
-        project = self.cleaned_data.get('project')
+        try:
+            project = self.cleaned_data.get('project')
+        except:
+            raise ValidationError("Invalid project")
         try:
             project_panel = ProjectPanel.objects.get(
                 id=self.cleaned_data.get('project_panel'))
         except:
             raise ValidationError("Invalid project panel")
 
-        site = self.cleaned_data.get('site')
-        control_group = self.cleaned_data.get('control_group')
+        # these are optional, so if the user didn't specify them, its ok
+        site_id = self.cleaned_data.get('site')
+        site_panel_id = self.cleaned_data.get('site_panel')
+        subject_id = self.cleaned_data.get('subject')
+        control_group_id = self.cleaned_data.get('control_group')
+        visit_id = self.cleaned_data.get('visit')
+        stimulation_id = self.cleaned_data.get('stimulation')
+        cytometer_id = self.cleaned_data.get('cytometer')
 
         if not project_panel:
-            # these fields are required, will get caught in field validation
+            # project_panel is required, will get caught in field validation
             return self.cleaned_data
 
         if project_panel.project != project:
             raise ValidationError(
                 "Project panel is not in chosen project")
-        if site:
-            if site.project is not '':
-                if site.project != project:
-                    raise ValidationError(
-                        "Site and panel must have the same project")
 
-        if control_group:
+        if site_id:
+            try:
+                site = Site.objects.get(id=site_id)
+            except:
+                raise ValidationError("Invalid site")
+            if site.project != project:
+                raise ValidationError(
+                    "Site and project panel must belong to the same project")
+
+        if site_panel_id:
+            try:
+                site_panel = SitePanel.objects.get(id=site_panel_id)
+            except:
+                raise ValidationError("Invalid site panel")
+            if site_panel.site.project != project:
+                raise ValidationError(
+                    "Site panel & project panel must belong to same project")
+            if site_panel.project_panel != project_panel:
+                raise ValidationError(
+                    "Site panel does not belong to the chosen project panel")
+
+        if subject_id:
+            try:
+                subject = Subject.objects.get(id=subject_id)
+            except:
+                raise ValidationError("Invalid subject")
+            if subject.project != project:
+                raise ValidationError(
+                    "Subject & project panel must belong to the same project")
+
+        if control_group_id:
+            try:
+                control_group = SubjectGroup.objects.get(id=control_group_id)
+            except:
+                raise ValidationError("Invalid control group")
             if control_group.project != project_panel.project:
                 raise ValidationError(
-                    "Control group and panel must have the same project.")
+                    "Control group and project panel must belong to the same " +
+                    "project.")
+
+        if visit_id:
+            try:
+                visit = VisitType.objects.get(id=visit_id)
+            except:
+                raise ValidationError("Invalid visit type")
+            if visit.project != project:
+                raise ValidationError(
+                    "Visit & project panel must belong to the same project")
+
+        if stimulation_id:
+            try:
+                stimulation = Stimulation.objects.get(id=stimulation_id)
+            except:
+                raise ValidationError("Invalid stimulation")
+            if stimulation.project != project:
+                raise ValidationError(
+                    "Stimulation & project panel must belong to the same " +
+                    "project")
+
+        if cytometer_id:
+            try:
+                cytometer = Cytometer.objects.get(id=cytometer_id)
+            except:
+                raise ValidationError("Invalid cytometer")
+            if cytometer.site.project != project:
+                raise ValidationError(
+                    "Cytometer & project panel must belong to the same " +
+                    "project")
+            if site is not None:
+                if cytometer.site != site:
+                    raise ValidationError(
+                        "Cytometer must belong to the chosen site")
 
         return self.cleaned_data
 
 
 class TestProcessForm(BaseProcessForm):
+    CUSTOM_FIELDS = ['is_test']
     is_test = forms.BooleanField(required=False)
 
 
 class HDPProcessForm(BaseProcessForm):
+    CUSTOM_FIELDS = [
+        'cluster_count',
+        'iteration_count',
+        'burn_in',
+        'logicle_t',
+        'logicle_w',
+        'random_seed'
+    ]
+
     cluster_count = forms.IntegerField(
         required=True,
         initial=64,
