@@ -1756,6 +1756,7 @@ def submit_process_request(request, process):
         {
             'process': process,
             'form': form,
+            'required_base_fields': ['project', 'project_panel']
         },
         context_instance=RequestContext(request)
     )

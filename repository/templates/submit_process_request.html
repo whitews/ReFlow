@@ -17,6 +17,19 @@
 <script>
 $(document).ready(function() {
     var updating_element = "&nbsp;<img class='whirligig inline' src='{% static 'whirligig.gif' %}' height='24' width='24'>";
+
+    {#  Hack to add empty '---------' option to required ChoiceField  #}
+    $('select[name=project_panel]')
+                      .append($('<option></option>')
+                      .attr("value", '')
+                      .text('---------'));
+
+      $(".toggle-advanced").click(function()
+      {
+          $('.params').toggle(250);
+          return false;
+      });
+
     $('select[name=project]').change(function() {
         var project_id = this.value;
 
@@ -227,6 +240,8 @@ $(document).ready(function() {
             }
         });
     });
+
+    return false;
 });
 
 </script>
@@ -239,7 +254,31 @@ $(document).ready(function() {
 
       {{ form.non_field_errors }}
 
+      {#   Do required fields manually so we can show/hide the optional ones   #}
+      <div class="control-group">
+        <label class="control-label">{{ form.project.label }}</label>
+        <div class="controls">
+          {{ form.project }}
+          {% if form.project.errors %}
+            <span class="help-inline">{{ form.project.errors|striptags }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">{{ form.project_panel.label }}</label>
+        <div class="controls">
+          {{ form.project_panel }}
+          {% if form.project_panel.errors %}
+            <span class="help-inline">{{ form.project_panel.errors|striptags }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <a href="#" class="toggle-advanced">Show/Hide Advanced Options</a>
+
+      <div class="hide params">
       {% for field in form %}
+      {% if field.name not in required_base_fields %}
       <div class="control-group">
         <label class="control-label">{{ field.label }}</label>
         <div class="controls">
@@ -249,7 +288,9 @@ $(document).ready(function() {
           {% endif %}
         </div>
       </div>
+      {% endif %}
       {% endfor %}
+      </div>
 
       <div class="control-group">
         <div class="controls">

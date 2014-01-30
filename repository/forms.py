@@ -886,7 +886,7 @@ class BaseProcessForm(forms.Form):
     # generated via AJAX in the template. Some fields are dependent
     # on another field's value, e.g. site panels only for the chosen
     # project panel
-    project_panel = DynamicChoiceField(required=True, choices=EMPTY_CHOICES)
+    project_panel = DynamicChoiceField()
     site = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
     site_panel = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
     subject = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
@@ -953,6 +953,7 @@ class BaseProcessForm(forms.Form):
             raise ValidationError(
                 "Project panel is not in chosen project")
 
+        site = None
         if site_id:
             try:
                 site = Site.objects.get(id=site_id)
