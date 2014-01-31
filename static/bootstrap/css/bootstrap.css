@@ -6034,3 +6034,14 @@ span.marker-field > select {
 #id_matrix_text {
   width: 412px;
 }
+
+.unstyled-checkboxes > ul {
+    list-style-type: none;
+}
+.unstyled-checkboxes > ul > li > label {
+    margin-bottom: 0px;
+    line-height: 100%;
+}
+.unstyled-checkboxes > input {
+    margin: 0px;
+}

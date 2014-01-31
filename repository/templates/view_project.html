@@ -52,7 +52,10 @@
       <i class="icon-chevron-right"></i>
       <a href="{% url 'view_project_site_panels' project.id %}">Site Panels</a>
     </p>
-    <p><a href="{% url 'view_project_samples' project.id %}">Samples</a></p>
+    <p>
+      <a href="{% url 'view_project_samples' project.id %}">Samples</a>
+      (<a href="{% url 'view_project_samples2' project.id %}">Samples 2</a>)
+    </p>
     <p><a href="{% url 'project_compensations' project.id %}">Compensation Matrices</a></p>
   </div>
 </div>

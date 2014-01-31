@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
+{% endblock %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[1,0]],
+    headers: {
+      0: { sorter: false}
+    }
+  });
+});
+
+var select_panel_dialog;
+
+function show_parameters(id) {
+    select_panel_dialog = $("<div></div>").dialog(
+    {
+        autoOpen: false,
+        title: 'Parameters',
+        modal: true,
+        position: 'center',
+        width: $(window).width() * 0.8,
+        height: $(window).height() * 0.6,
+        resizable: true
+    });
+    select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
+    select_panel_dialog.load("/sample/" + id + "/parameters/");
+    select_panel_dialog.dialog('open');
+    return false;
+}
+
+function show_compensation(id) {
+    select_panel_dialog = $("<div></div>").dialog(
+    {
+        autoOpen: false,
+        title: 'Compensation',
+        modal: true,
+        position: 'center',
+        width: $(window).width() * 0.8,
+        height: $(window).height() * 0.6,
+        resizable: true
+    });
+    select_panel_dialog.dialog({ close: function() { $(this).empty(); } });
+    select_panel_dialog.load("/sample/" + id + "/compensation/");
+    select_panel_dialog.dialog('open');
+    return false;
+}
+
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Samples' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></h4>
+
+              {% if can_add_project_data or user_add_sites.count > 0 %}
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-small" href="{% url 'add_sample' project.id %}">
+                  Add Sample
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody><tr><td></td></tr></tbody>
+    </table>
+
+
+    <div class="row">
+      <div class="span3">
+        <div class="well unstyled-checkboxes">
+
+          <h5>Filter</h5>
+
+          {% for field in filter_form %}
+          <hr/>
+          {{ field.label }}
+          {{ field }}
+          {% endfor %}
+
+        </div>
+      </div>
+
+      <div class="span9">
+        <table id="data-table" class="table table-hover">
+          <thead>
+            <tr>
+                <th></th>
+                <th>File</th>
+                <th>Upload Date</th>
+                <th>Acquisition Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sample in samples %}
+            <tr>
+              <td width="1%" class="no-wrap middle">
+                <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_parameters({{ sample.id }})" data-original-title="Show Parameters" data-placement="bottom">
+                  <i style="opacity: 0.4" class="icon-list-alt align-middle"></i>
+                </a>
+                {% if sample.compensation %}
+                <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_compensation({{ sample.id }})" data-original-title="Show Compensation" data-placement="bottom">
+                  <i style="opacity: 0.4" class="icon-qrcode align-middle"></i>
+                </a>
+                {% endif %}
+                <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_sample' sample.id %}" data-original-title="Download FCS File" data-placement="bottom">
+                  <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
+                </a>
+                <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_subsample_as_csv' sample.id %}" data-original-title="Download Subsampled CSV File" data-placement="bottom">
+                  <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
+                </a>
+                {% if sample.site__id in user_modify_sites or can_modify_project_data %}
+                <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit" data-placement="bottom">
+                  <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+                </a>
+                {% endif %}
+              </td>
+              <td class="no-wrap middle">{{ sample.original_filename }}</td>
+              <td class="middle">{{ sample.upload_date|date:"Ymd H:i" }}</td>
+              <td class="middle">{{ sample.acquisition_date|date:"Ymd" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div> <!-- end span9 -->
+    </div> <!-- end row -->
+  </div>
+{% endblock %}

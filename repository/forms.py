@@ -1056,4 +1056,51 @@ class HDPProcessForm(BaseProcessForm):
     random_seed = forms.IntegerField(required=True, initial=123)
 
 
+class SampleFilterForm(forms.Form):
+    project_panels = forms.ModelMultipleChoiceField(
+        queryset=ProjectPanel.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    sites = forms.ModelMultipleChoiceField(
+        queryset=Site.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    site_panels = forms.ModelMultipleChoiceField(
+        queryset=SitePanel.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    subjects = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    subject_groups = forms.ModelMultipleChoiceField(
+        queryset=SubjectGroup.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    visits = forms.ModelMultipleChoiceField(
+        queryset=VisitType.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    stimulations = forms.ModelMultipleChoiceField(
+        queryset=Stimulation.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    cytometers = forms.ModelMultipleChoiceField(
+        queryset=Cytometer.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
 
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(SampleFilterForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure the available choices belong to the project
+        if project_id:
+            self.fields['sites'].queryset = Site.objects.filter(
+                project_id=project_id)
+
+            self.fields['subjects'].queryset = Subject.objects.filter(
+                project_id=project_id)
