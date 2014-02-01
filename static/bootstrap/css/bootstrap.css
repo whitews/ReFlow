@@ -6037,11 +6037,12 @@ span.marker-field > select {
 
 .unstyled-checkboxes > ul {
     list-style-type: none;
+    margin: 6px 0px 6px 9px;
 }
 .unstyled-checkboxes > ul > li > label {
     margin-bottom: 0px;
     line-height: 100%;
 }
-.unstyled-checkboxes > input {
-    margin: 0px;
+.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
+    margin: 0px !important;
 }

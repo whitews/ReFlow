@@ -782,7 +782,7 @@ def view_samples2(request, project_id):
     user_modify_sites = Site.objects.get_sites_user_can_modify(
         request.user, project).values_list('id', flat=True)
 
-    filter_form = SampleFilterForm(project_id=project_id)
+    filter_form = SampleFilterForm(project_id=project_id, request=request)
 
     return render_to_response(
         'view_project_samples2.html',

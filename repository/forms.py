@@ -1091,16 +1091,43 @@ class SampleFilterForm(forms.Form):
         widget=forms.widgets.CheckboxSelectMultiple())
 
     def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
+        # pop 'project_id' & 'request' keys, parent init doesn't expect them
         project_id = kwargs.pop('project_id', None)
+        request = kwargs.pop('request', None)
 
         # now it's safe to call the parent init
         super(SampleFilterForm, self).__init__(*args, **kwargs)
 
         # finally, make sure the available choices belong to the project
         if project_id:
-            self.fields['sites'].queryset = Site.objects.filter(
-                project_id=project_id)
+            project = Project.objects.get(id=project_id)
+
+            project_panels = ProjectPanel.objects.filter(project=project)
+            self.fields['project_panels'].queryset = project_panels
+
+            sites = Site.objects.get_sites_user_can_view(
+                request.user,
+                project=project
+            )
+            self.fields['sites'].queryset = sites
+
+            site_panels = SitePanel.objects.filter(site__in=sites)
+            self.fields['site_panels'].queryset = site_panels
+
+            subject_groups = SubjectGroup.objects.filter(project_id=project_id)
+            self.fields['subject_groups'].queryset = subject_groups
 
             self.fields['subjects'].queryset = Subject.objects.filter(
-                project_id=project_id)
+                project_id=project_id
+            )
+
+            self.fields['visits'].queryset = VisitType.objects.filter(
+                project_id=project_id
+            )
+
+            self.fields['stimulations'].queryset = Stimulation.objects.filter(
+                project_id=project_id
+            )
+
+            cytometers = Cytometer.objects.filter(site__in=sites)
+            self.fields['cytometers'].queryset = cytometers
