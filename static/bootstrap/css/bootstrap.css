@@ -6030,6 +6030,12 @@ span.marker-field > select {
   font-weight: 200;
   line-height: 150%;
 }
+
+.well > h4 {
+    margin-top: 0px;
+    padding-top: 0px;
+}
+
 /* Other stuff */
 #id_matrix_text {
   width: 412px;
