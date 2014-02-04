@@ -19,6 +19,7 @@ $(document).ready(function () {
         var form_data = $(this).serialize();
 
         if (form_data == "") {
+            $('#sample-count').text('0');
             return false;
         }
 
@@ -30,6 +31,9 @@ $(document).ready(function () {
             type: 'GET',
             url: sample_url,
             success: function (data) {
+                <!-- update sample count -->
+                $('#sample-count').text(data.length);
+
                 $.each(data, function(i, d) {
                     var row_content =
                         '<td width="1%" class="no-wrap middle">' +
@@ -60,6 +64,7 @@ $(document).ready(function () {
 
                 <!-- re-activate all tooltips -->
                 $('#data-table').find("[rel=tooltip]").tooltip();
+
             }
         });
         return false;
@@ -128,7 +133,7 @@ function show_compensation(id) {
         <tr>
           <th colspan="50" class="center">
             <div style="position:relative">
-              <h4>Samples <span class="badge badge-inverse align-top">{{ samples|length }}</span></h4>
+              <h4>Samples <span id="sample-count" class="badge badge-inverse align-top">0</span></h4>
 
               {% if can_add_project_data or user_add_sites.count > 0 %}
               <div style="position:absolute; right:0;top:0;">
