@@ -320,6 +320,10 @@ class SampleSerializer(serializers.ModelSerializer):
     panel_name = serializers.CharField(
         source='site_panel.project_panel.panel_name',
         read_only=True)
+    upload_date = serializers.DateTimeField(
+        source='upload_date',
+        format='%Y-%m-%d %H:%M:%S',
+        read_only=True)
 
     class Meta:
         model = Sample
