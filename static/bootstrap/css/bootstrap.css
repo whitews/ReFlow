@@ -6045,6 +6045,9 @@ span.marker-field > select {
     list-style-type: none;
     margin: 6px 0px 6px 9px;
 }
+.unstyled-checkboxes > ul > li {
+    margin: 3px 0px;
+}
 .unstyled-checkboxes > ul > li > label {
     margin-bottom: 0px;
     line-height: 100%;
