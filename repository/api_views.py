@@ -574,11 +574,13 @@ class SampleFilter(django_filters.FilterSet):
             'site_panel__project_panel',
             'subject',
             'subject__subject_code',
+            'subject__subject_group',
             'visit',
             'specimen',
             'stimulation',
             'acquisition_date',
             'original_filename',
+            'cytometer',
             'sha1'
         ]
 

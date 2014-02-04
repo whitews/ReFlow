@@ -6041,17 +6041,18 @@ span.marker-field > select {
   width: 412px;
 }
 
-.unstyled-checkboxes > ul {
+form.unstyled-checkboxes > ul {
     list-style-type: none;
     margin: 6px 0px 6px 9px;
 }
-.unstyled-checkboxes > ul > li {
-    margin: 3px 0px;
+form.unstyled-checkboxes > ul > li {
+    line-height: 0px;
+    margin: 6px 0px;
 }
-.unstyled-checkboxes > ul > li > label {
+form.unstyled-checkboxes > ul > li > label {
     margin-bottom: 0px;
     line-height: 100%;
 }
-.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
+form.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
     margin: 0px !important;
 }

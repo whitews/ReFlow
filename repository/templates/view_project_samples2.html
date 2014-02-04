@@ -10,8 +10,62 @@
 {% block toes %}
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
 <script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
-
 <script>
+$(document).ready(function () {
+    $('#sample-filter-form').submit(function () {
+
+        $("#data-table > tbody").find('tr').remove();
+
+        var form_data = $(this).serialize();
+
+        if (form_data == "") {
+            return false;
+        }
+
+        var sample_url = "{% url 'sample-list' %}?subject__project={{ project.id }}&" + form_data;
+
+        $.ajax(
+        {
+            dataType: 'json',
+            type: 'GET',
+            url: sample_url,
+            success: function (data) {
+                $.each(data, function(i, d) {
+                    var row_content =
+                        '<td width="1%" class="no-wrap middle">' +
+                          '<a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_parameters(' + d.id + ')" data-original-title="Show Parameters" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="icon-list-alt align-middle"></i>' +
+                          '</a>' +
+                          '<a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_compensation(' + d.id + ')" data-original-title="Show Compensation" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="icon-qrcode align-middle"></i>' +
+                          '</a>' +
+                          '<a class="btn btn-mini" rel="tooltip" href="/api/repository/samples/' + d.id + '/fcs_original/" data-original-title="Download FCS File" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="icon-download-alt align-middle"></i>' +
+                          '</a>' +
+                          '<a class="btn btn-mini" rel="tooltip" href="/api/repository/samples/' + d.id + '/csv/" data-original-title="Download Subsampled CSV File" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="icon-download-alt align-middle"></i>' +
+                          '</a>' +
+                          '<a class="btn btn-mini" rel="tooltip" href="/sample/' + d.id + '/edit/" data-original-title="Edit" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="icon-pencil align-middle"></i>' +
+                          '</a>' +
+                        '</td>' +
+                        '<td class="no-wrap middle">' + d.original_filename + '</td>' +
+                        '<td class="middle">' + d.upload_date + '</td>' +
+                        '<td class="middle">' + d.acquisition_date + '</td>';
+
+                    $('#data-table').find('tbody').append(
+                        $('<tr>').append(row_content)
+                    );
+                });
+
+                <!-- re-activate all tooltips -->
+                $('#data-table').find("[rel=tooltip]").tooltip();
+            }
+        });
+        return false;
+    });
+});
+
 $(function() {
   $("table#data-table").tablesorter({
     sortList: [[1,0]],
@@ -56,7 +110,6 @@ function show_compensation(id) {
     select_panel_dialog.dialog('open');
     return false;
 }
-
 </script>
 {% endblock %}
 
@@ -94,16 +147,23 @@ function show_compensation(id) {
 
     <div class="row">
       <div class="span3">
-        <div class="well unstyled-checkboxes">
+        <div class="well">
+          <form class="unstyled-checkboxes" id="sample-filter-form" method="get">
+            <div style="position: relative">
+              <h4>Filter</h4>
+              <div style="position: absolute; right:0;top:0;">
+                <button class="btn btn-small" type="submit">
+                  Apply
+                </button>
+              </div>
+            </div>
 
-          <h4>Filter</h4>
-
-          {% for field in filter_form %}
-          <hr/>
-          <b>{{ field.label }}</b>
-          {{ field }}
-          {% endfor %}
-
+            {% for field in filter_form %}
+            <hr/>
+            <b>{{ field.label }}</b>
+            {{ field }}
+            {% endfor %}
+          </form>
         </div>
       </div>
 
@@ -118,34 +178,7 @@ function show_compensation(id) {
             </tr>
           </thead>
           <tbody>
-            {% for sample in samples %}
-            <tr>
-              <td width="1%" class="no-wrap middle">
-                <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_parameters({{ sample.id }})" data-original-title="Show Parameters" data-placement="bottom">
-                  <i style="opacity: 0.4" class="icon-list-alt align-middle"></i>
-                </a>
-                {% if sample.compensation %}
-                <a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_compensation({{ sample.id }})" data-original-title="Show Compensation" data-placement="bottom">
-                  <i style="opacity: 0.4" class="icon-qrcode align-middle"></i>
-                </a>
-                {% endif %}
-                <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_sample' sample.id %}" data-original-title="Download FCS File" data-placement="bottom">
-                  <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
-                </a>
-                <a class="btn btn-mini" rel="tooltip" href="{% url 'retrieve_subsample_as_csv' sample.id %}" data-original-title="Download Subsampled CSV File" data-placement="bottom">
-                  <i style="opacity: 0.4" class="icon-download-alt align-middle"></i>
-                </a>
-                {% if sample.site__id in user_modify_sites or can_modify_project_data %}
-                <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_sample' sample.id %}" data-original-title="Edit" data-placement="bottom">
-                  <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
-                </a>
-                {% endif %}
-              </td>
-              <td class="no-wrap middle">{{ sample.original_filename }}</td>
-              <td class="middle">{{ sample.upload_date|date:"Ymd H:i" }}</td>
-              <td class="middle">{{ sample.acquisition_date|date:"Ymd" }}</td>
-            </tr>
-            {% endfor %}
+
           </tbody>
         </table>
       </div> <!-- end span9 -->

@@ -1057,35 +1057,44 @@ class HDPProcessForm(BaseProcessForm):
 
 
 class SampleFilterForm(forms.Form):
-    project_panels = forms.ModelMultipleChoiceField(
+    """
+    Note the odd naming of these fields corresponds to the REST API
+    URL parameter filter text strings for the various Sample relationships
+    See the custom filter in the SampleList in api_views.py
+    """
+
+    site_panel__project_panel = forms.ModelMultipleChoiceField(
         queryset=ProjectPanel.objects.none(),
         required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    sites = forms.ModelMultipleChoiceField(
+        widget=forms.widgets.CheckboxSelectMultiple(),
+        label="Project Panel")
+    site_panel__site = forms.ModelMultipleChoiceField(
         queryset=Site.objects.none(),
         required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    site_panels = forms.ModelMultipleChoiceField(
+        widget=forms.widgets.CheckboxSelectMultiple(),
+        label="Site")
+    site_panel = forms.ModelMultipleChoiceField(
         queryset=SitePanel.objects.none(),
         required=False,
         widget=forms.widgets.CheckboxSelectMultiple())
-    subjects = forms.ModelMultipleChoiceField(
+    subject = forms.ModelMultipleChoiceField(
         queryset=Subject.objects.none(),
         required=False,
         widget=forms.widgets.CheckboxSelectMultiple())
-    subject_groups = forms.ModelMultipleChoiceField(
+    subject__subject_group = forms.ModelMultipleChoiceField(
         queryset=SubjectGroup.objects.none(),
         required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    visits = forms.ModelMultipleChoiceField(
+        widget=forms.widgets.CheckboxSelectMultiple(),
+        label="Subject Group")
+    visit = forms.ModelMultipleChoiceField(
         queryset=VisitType.objects.none(),
         required=False,
         widget=forms.widgets.CheckboxSelectMultiple())
-    stimulations = forms.ModelMultipleChoiceField(
+    stimulation = forms.ModelMultipleChoiceField(
         queryset=Stimulation.objects.none(),
         required=False,
         widget=forms.widgets.CheckboxSelectMultiple())
-    cytometers = forms.ModelMultipleChoiceField(
+    cytometer = forms.ModelMultipleChoiceField(
         queryset=Cytometer.objects.none(),
         required=False,
         widget=forms.widgets.CheckboxSelectMultiple())
@@ -1103,31 +1112,31 @@ class SampleFilterForm(forms.Form):
             project = Project.objects.get(id=project_id)
 
             project_panels = ProjectPanel.objects.filter(project=project)
-            self.fields['project_panels'].queryset = project_panels
+            self.fields['site_panel__project_panel'].queryset = project_panels
 
             sites = Site.objects.get_sites_user_can_view(
                 request.user,
                 project=project
             )
-            self.fields['sites'].queryset = sites
+            self.fields['site_panel__site'].queryset = sites
 
             site_panels = SitePanel.objects.filter(site__in=sites)
-            self.fields['site_panels'].queryset = site_panels
+            self.fields['site_panel'].queryset = site_panels
 
             subject_groups = SubjectGroup.objects.filter(project_id=project_id)
-            self.fields['subject_groups'].queryset = subject_groups
+            self.fields['subject__subject_group'].queryset = subject_groups
 
-            self.fields['subjects'].queryset = Subject.objects.filter(
+            self.fields['subject'].queryset = Subject.objects.filter(
                 project_id=project_id
             )
 
-            self.fields['visits'].queryset = VisitType.objects.filter(
+            self.fields['visit'].queryset = VisitType.objects.filter(
                 project_id=project_id
             )
 
-            self.fields['stimulations'].queryset = Stimulation.objects.filter(
+            self.fields['stimulation'].queryset = Stimulation.objects.filter(
                 project_id=project_id
             )
 
             cytometers = Cytometer.objects.filter(site__in=sites)
-            self.fields['cytometers'].queryset = cytometers
+            self.fields['cytometer'].queryset = cytometers
