@@ -329,6 +329,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'visit',
             'visit_name',
             'acquisition_date',
+            'upload_date',
             'subject',
             'subject_code',
             'specimen',
