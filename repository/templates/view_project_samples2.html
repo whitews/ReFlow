@@ -65,6 +65,9 @@ $(document).ready(function () {
                 <!-- re-activate all tooltips -->
                 $('#data-table').find("[rel=tooltip]").tooltip();
 
+                <!-- update tablesorter -->
+                $('#data-table').trigger("update");
+
             }
         });
         return false;
