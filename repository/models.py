@@ -452,18 +452,29 @@ class SiteManager(models.Manager):
         """
 
         if project is None:
-            project_list = Project.objects.get_projects_user_can_view(user)
-            project_id_list = []
-            for p in project_list:
-                project_id_list.append(p.id)
-            project_view_sites = Site.objects.filter(
-                project_id__in=project_id_list)
-            view_sites = get_objects_for_user(
-                user, 'view_site_data',
-                klass=Site).filter(
-                    project__in=project_list)
+            # get all projects the user has at least one viewable site for,
+            # then we'll iterate through the projects and figure out
+            # the sites that are viewable
+            projects = Project.objects.get_projects_user_can_view(user)
 
-            sites = project_view_sites | view_sites
+            # will use this to get the final Site queryset
+            site_id_list = []
+
+            for project in projects:
+                if project.has_view_permission(user):
+                    site_id_list.extend(project.site_set.all())
+                else:
+                    site_id_list.extend(
+                        get_objects_for_user(
+                            user,
+                            'view_site_data',
+                            klass=Site
+                        ).filter(
+                            project=project
+                        )
+                    )
+
+            sites = site_id_list
         else:
             if project.has_view_permission(user):
                 sites = Site.objects.filter(project=project)
