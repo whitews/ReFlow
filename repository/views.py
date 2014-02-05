@@ -944,7 +944,7 @@ def view_project_site_panels(request, project_id):
         site_panels = SitePanel.objects.filter(
             project_panel__project=project)
     elif user_view_sites.count() > 0:
-        site_panels = Sample.objects.filter(
+        site_panels = SitePanel.objects.filter(
             project_panel__project=project,
             site__in=user_view_sites)
     else:
