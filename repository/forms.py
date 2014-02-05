@@ -1058,21 +1058,19 @@ class HDPProcessForm(BaseProcessForm):
 
 class SampleFilterForm(forms.Form):
     """
-    Note the odd naming of these fields corresponds to the REST API
+    Note the naming of these fields corresponds to the REST API
     URL parameter filter text strings for the various Sample relationships
     See the custom filter in the SampleList in api_views.py
     """
 
-    site_panel__project_panel = forms.ModelMultipleChoiceField(
+    project_panel = forms.ModelMultipleChoiceField(
         queryset=ProjectPanel.objects.none(),
         required=False,
-        widget=forms.widgets.CheckboxSelectMultiple(),
-        label="Project Panel")
-    site_panel__site = forms.ModelMultipleChoiceField(
+        widget=forms.widgets.CheckboxSelectMultiple())
+    site = forms.ModelMultipleChoiceField(
         queryset=Site.objects.none(),
         required=False,
-        widget=forms.widgets.CheckboxSelectMultiple(),
-        label="Site")
+        widget=forms.widgets.CheckboxSelectMultiple())
     site_panel = forms.ModelMultipleChoiceField(
         queryset=SitePanel.objects.none(),
         required=False,
@@ -1081,11 +1079,10 @@ class SampleFilterForm(forms.Form):
         queryset=Subject.objects.none(),
         required=False,
         widget=forms.widgets.CheckboxSelectMultiple())
-    subject__subject_group = forms.ModelMultipleChoiceField(
+    subject_group = forms.ModelMultipleChoiceField(
         queryset=SubjectGroup.objects.none(),
         required=False,
-        widget=forms.widgets.CheckboxSelectMultiple(),
-        label="Subject Group")
+        widget=forms.widgets.CheckboxSelectMultiple())
     visit = forms.ModelMultipleChoiceField(
         queryset=VisitType.objects.none(),
         required=False,
@@ -1112,19 +1109,19 @@ class SampleFilterForm(forms.Form):
             project = Project.objects.get(id=project_id)
 
             project_panels = ProjectPanel.objects.filter(project=project)
-            self.fields['site_panel__project_panel'].queryset = project_panels
+            self.fields['project_panel'].queryset = project_panels
 
             sites = Site.objects.get_sites_user_can_view(
                 request.user,
                 project=project
             )
-            self.fields['site_panel__site'].queryset = sites
+            self.fields['site'].queryset = sites
 
             site_panels = SitePanel.objects.filter(site__in=sites)
             self.fields['site_panel'].queryset = site_panels
 
             subject_groups = SubjectGroup.objects.filter(project_id=project_id)
-            self.fields['subject__subject_group'].queryset = subject_groups
+            self.fields['subject_group'].queryset = subject_groups
 
             self.fields['subject'].queryset = Subject.objects.filter(
                 project_id=project_id
