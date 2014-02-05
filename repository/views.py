@@ -461,8 +461,13 @@ def manage_site_user(request, site_id, user_id):
 def view_project_stimulations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    if not project.has_view_permission(request.user):
-        raise PermissionDenied
+    user_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
+
+    if not project.has_view_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     stimulations = Stimulation.objects.filter(project=project)
 
