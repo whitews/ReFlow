@@ -555,14 +555,24 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 
 class SampleFilter(django_filters.FilterSet):
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site_panel__site')
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
+    cytometer = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cytometer.objects.all())
     subject = django_filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all())
+    subject_group = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubjectGroup.objects.all(),
+        name='subject__subject_group')
     visit = django_filters.ModelMultipleChoiceFilter(
         queryset=VisitType.objects.all())
     specimen = django_filters.ModelMultipleChoiceFilter(
         queryset=Specimen.objects.all())
+    stimulation = django_filters.ModelMultipleChoiceFilter(
+        queryset=Stimulation.objects.all())
     original_filename = django_filters.CharFilter(lookup_type="icontains")
 
     class Meta:
