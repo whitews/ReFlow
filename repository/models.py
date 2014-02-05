@@ -462,9 +462,9 @@ class SiteManager(models.Manager):
 
             for project in projects:
                 if project.has_view_permission(user):
-                    site_id_list.extend(project.site_set.all())
+                    site_id_list.extend([s.id for s in project.site_set.all()])
                 else:
-                    site_id_list.extend(
+                    site_id_list.extend([s.id for s in
                         get_objects_for_user(
                             user,
                             'view_site_data',
@@ -472,9 +472,9 @@ class SiteManager(models.Manager):
                         ).filter(
                             project=project
                         )
-                    )
+                    ])
 
-            sites = site_id_list
+            sites = Site.objects.filter(id__in=site_id_list)
         else:
             if project.has_view_permission(user):
                 sites = Site.objects.filter(project=project)
