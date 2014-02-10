@@ -1,3 +1,79 @@
-
 Introduction
-====
+============
+
+===============
+What is ReFlow?
+===============
+
+ReFlow is a web-based repository for flow cytometry data (i.e.
+FCS files), with a primary focus on reproducible automated analysis. While
+other online repositories for flow cytometry exist,
+most are focused on providing data sharing using software as a service (SaaS).
+While ReFlow can be considered as a SaaS system, it was developed
+to be deployed within an organization, institution, or laboratory.
+
+=====================
+Why was ReFlow built?
+=====================
+
+ReFlow was developed to solve the problem of inconsistent data annotation to
+drive automated analysis pipelines.
+
+Flow cytometry data is complex and requires extensive training and expertise
+to analyze. Even with substantial experience in the field,
+manual analysis is subject to inter-operator variability,
+especially when attempting to find rare cell subsets. As a result,
+it is difficult to harmonize assays and interpret results across institutions.
+Automated analysis of flow cytometry data across different laboratories
+would provide a more object basis for the identification of these cell subsets.
+
+However, when implementing the automated analysis pipeline,
+problems arose in identifying the individual channels within the flow
+cytometry data files. The Flow Cytometry Standard (FCS) defines which
+metadata fields contain channel information but do not specify how individual
+channels must be labelled. As a result, annotation varies across AND within
+laboratories. For example, one FCS file may contain a channel labelled "CD14
+PB vAmine" whereas another FCS file with the same "panel" may be labelled
+"CD14 PacBlue violetAmine" and another may just contain "Violet-A".
+Further, these parameters may be in different channel numbers.
+
+==============
+Major Features
+==============
+
+* Open source under BSD-style license
+* Supports FCS data files
+* Data is organized into different projects
+* Each project can have multiple sites/labs
+* Project metadata (subject codes, cytometers, etc) customized per project
+* User permissions can be defined for each project
+* Users can belong to more than one project
+* Project templates to define site panel implementations
+* FCS parameters are coerced into a common namespace
+* All FCS metadata viewed from browser with no software to install
+* Compensation matrices can be uploaded/edited on the server
+* Prevents duplicate files from being uploaded to the same project
+* Allows filtering FCS samples by multiple criteria
+* A separate upload client is available for Mac/Windows for easier bulk uploads
+* Robust and feature complete REST API for programatically accessing data
+
+=================
+Data Organization
+=================
+
+=======================  ===========
+Name                     Description
+=======================  ===========
+Project                  Sequesters data for an experiment from other experiments in the system. This is the top level of the ReFlow hierarchy.
+Subject Group            Categorizes subjects into groups, useful for differentiating a “normal” from a “control”, etc.
+Subject                  The individual from which the biological specimen was taken. A subject must belong to a subject group.
+Site                     The location where an FCS file was produced. May be a laboratory name, institution, etc.
+Cytometer                A cytometer device, associated with a specific Site.
+Visit Type               Categorizes samples into temporal groups, such as “Send out 3” for a proficiency test project or “Baseline” for a clinical trial project. Not the same as the FCS acquisition date.
+Stimulation              In vitro conditions used to prepare cells from which an FCS file was produced.
+Sample                   An FCS file.
+Project Panel            A collection of flow parameters used as a master template for specific site panel implementations. Must specify a staining type and a stimulation.
+Site Panel               A specific implementation of a project panel. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the project panel.
+Compensation             A compensation matrix that can optionally be associated with one or more Samples.
+=======================  ===========
+

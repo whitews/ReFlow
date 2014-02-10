@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Setup Guide - Ubuntu Server 12.04 LTS &mdash; ReFlow 0.1 documentation</title>
+    <title>ReFlow Server Setup - Ubuntu Server 12.04 LTS &mdash; ReFlow 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -48,8 +48,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="setup-guide-ubuntu-server-12-04-lts">
-<h1>Setup Guide - Ubuntu Server 12.04 LTS<a class="headerlink" href="#setup-guide-ubuntu-server-12-04-lts" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="reflow-server-setup-ubuntu-server-12-04-lts">
+<h1>ReFlow Server Setup - Ubuntu Server 12.04 LTS<a class="headerlink" href="#reflow-server-setup-ubuntu-server-12-04-lts" title="Permalink to this headline">¶</a></h1>
 <p>Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.</p>
 <p>Why Ubuntu Server 12.04 LTS?</p>
 <p>The short answer is because SciPy is available from the official repository. CentOS 6 does not provide a pre-built SciPy package, and it is a rather involved process to build SciPy from source. Also, Amazon EC2 has a micro instance for Ubuntu Server 12.04 LTS which qualifies for it&#8217;s Free Tier program (i.e. free for a year).</p>
@@ -83,7 +83,8 @@
 </li>
 <li><p class="first">Install Django app dependencies</p>
 <p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-extensions</span></tt></p>
-<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-tastypie</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">djangorestframework</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-filter</span></tt></p>
 </li>
 <li><p class="first">Install git to get ReFlow</p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></tt></p>
@@ -312,7 +313,7 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Setup Guide - Ubuntu Server 12.04 LTS</a><ul>
+<li><a class="reference internal" href="#">ReFlow Server Setup - Ubuntu Server 12.04 LTS</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#optional-but-recommended">Optional, but recommended</a></li>
 <li><a class="reference internal" href="#choose-a-database">Choose a Database</a></li>

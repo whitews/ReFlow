@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    intro
+   site-nav
    setup-ubuntu
 
 Indices and tables

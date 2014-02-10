@@ -1,5 +1,5 @@
-Setup Guide - Ubuntu Server 12.04 LTS
-=====================================
+ReFlow Server Setup - Ubuntu Server 12.04 LTS
+=============================================
 
 Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.
 

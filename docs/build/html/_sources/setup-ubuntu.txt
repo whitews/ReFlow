@@ -1,5 +1,5 @@
-Setup Guide - Ubuntu Server 12.04 LTS
-=====================================
+ReFlow Server Setup - Ubuntu Server 12.04 LTS
+=============================================
 
 Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.
 
@@ -51,7 +51,9 @@ Installation
 
     ``pip install django-extensions``
 
-    ``pip install django-tastypie``
+    ``pip install djangorestframework``
+
+    ``pip install django-filter``
 
 #.  Install git to get ReFlow
 
