@@ -799,6 +799,13 @@ class SitePanelParameter(ProtectedModel):
         if panel_fcs_text_duplicates.count() > 0:
             raise ValidationError("A site panel cannot have duplicate FCS text")
 
+        panel_fcs_number_duplicates = SitePanelParameter.objects.filter(
+            site_panel=self.site_panel,
+            fcs_number=self.fcs_number).exclude(id=self.id)
+
+        if panel_fcs_number_duplicates.count() > 0:
+            raise ValidationError("Channel numbers must be unique.")
+
         if self.fcs_text == '':
             raise ValidationError("FCS Text is required")
 
