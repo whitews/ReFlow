@@ -13,6 +13,7 @@ Contents:
 
    intro
    site-nav
+   tutorials-index
    setup-ubuntu
 
 Indices and tables
