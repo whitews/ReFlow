@@ -41,3 +41,12 @@ Project Category - Subject Group
 Subject groups are simply a way to group subjects. There are no rules governing what the subject group represents and the subject group name can be any text string. However, duplicate subject group names are not allowed.
 
 :doc:`tutorials/add-subject-group`
+
+==========================
+Project Category - Subject
+==========================
+
+Subjects are individuals from which a specimen is taken to create an FCS sample. Subjects must belong to a subject group, so a subject group must be created before adding subjects. A subject can also be marked as a batch control, a field used in the automated analysis pipeline.
+
+:doc:`tutorials/add-subject`
+

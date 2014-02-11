@@ -1,5 +1,5 @@
-ReFlow Server Setup - Ubuntu Server 12.04 LTS
-=============================================
+Server Setup
+============
 
 Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.
 
@@ -284,9 +284,9 @@ Create PostgreSQL Database
     ``python manage.py syncdb``
 
 
-==============
-Almost Done!!!
-==============
+=========================
+Enable Apache VirtualHost
+=========================
 
 #.  Disable the default VirtualHost
 

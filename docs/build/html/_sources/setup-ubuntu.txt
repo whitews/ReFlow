@@ -284,9 +284,9 @@ Create PostgreSQL Database
     ``python manage.py syncdb``
 
 
-==============
-Almost Done!!!
-==============
+=========================
+Enable Apache VirtualHost
+=========================
 
 #.  Disable the default VirtualHost
 

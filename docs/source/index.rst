@@ -13,13 +13,6 @@ Contents:
 
    intro
    site-nav
+   permissions
    tutorials-index
-   setup-ubuntu
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   server-setup
