@@ -90,6 +90,7 @@
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">User Accounts &amp; Permissions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#project-permissions">Project Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#site-permissions">Site Permissions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
@@ -168,6 +169,41 @@
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.</p>
+</div>
+</div>
+<div class="section" id="manage-project-users">
+<h3>Manage Project Users<a class="headerlink" href="#manage-project-users" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Manage Project Users</strong> permission for a particular project can add/modify/remove users from a project. This also applies to managing the site level permissions for all users.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">A user with <strong>Manage Project Users</strong> permission should be treated as having all permissions, since they can technically change their own permissions within a project.</p>
+</div>
+</div>
+</div>
+<div class="section" id="site-permissions">
+<h2>Site Permissions<a class="headerlink" href="#site-permissions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="view-site">
+<h3>View Site<a class="headerlink" href="#view-site" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>View Site</strong> permission for a particular site can view all data within that site. All pages will filter data accordingly, therefore a user with view permission in only one site will be unaware of FCS samples included in the same project from a different site, nor will they see the names of the other sites.</p>
+</div>
+<div class="section" id="add-site-data">
+<h3>Add Site Data<a class="headerlink" href="#add-site-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Add Site Data</strong> permission for a particular site can create new data in any site category (site panel, sample, cytometer, compensation). They cannot add new subjects or sites to the projects, nor can they modify or delete data in the site to which they have add permission.</p>
+</div>
+<div class="section" id="modify-delete-site-data">
+<h3>Modify/Delete Site Data<a class="headerlink" href="#modify-delete-site-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Modify/Delete Site Data</strong> permission for a particular site can edit and/or remove existing data in any site category (subject, sample, site panel, cytometer).</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.</p>
+</div>
+</div>
+<div class="section" id="manage-site-users">
+<h3>Manage Site Users<a class="headerlink" href="#manage-site-users" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Manage Site Users</strong> permission for a particular site can add/modify/remove users from that site. They cannot manage any project-level permissions.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">A user with <strong>Manage Site Users</strong> permission should be treated as having all site-level permissions, since they can technically change their own permissions within that site.</p>
 </div>
 </div>
 </div>

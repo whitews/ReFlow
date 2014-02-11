@@ -44,3 +44,43 @@ A user with **Modify/Delete Project Data** permission for a particular project c
 Modifying data within ReFlow will keep any existing relationships intact. When deleting data that has a parent relationship to other data categories, all the related data must first be deleted. For example, to delete a subject group, all subjects belonging to that subject group must be deleted first. Alternatively, those subjects could also be modified to use a different subject group, and the original subject group could be deleted.
 
 .. warning:: Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.
+
+--------------------
+Manage Project Users
+--------------------
+
+A user with **Manage Project Users** permission for a particular project can add/modify/remove users from a project. This also applies to managing the site level permissions for all users.
+
+.. important:: A user with **Manage Project Users** permission should be treated as having all permissions, since they can technically change their own permissions within a project.
+
+================
+Site Permissions
+================
+
+---------
+View Site
+---------
+
+A user with **View Site** permission for a particular site can view all data within that site. All pages will filter data accordingly, therefore a user with view permission in only one site will be unaware of FCS samples included in the same project from a different site, nor will they see the names of the other sites.
+
+-------------
+Add Site Data
+-------------
+
+A user with **Add Site Data** permission for a particular site can create new data in any site category (site panel, sample, cytometer, compensation). They cannot add new subjects or sites to the projects, nor can they modify or delete data in the site to which they have add permission.
+
+-----------------------
+Modify/Delete Site Data
+-----------------------
+
+A user with **Modify/Delete Site Data** permission for a particular site can edit and/or remove existing data in any site category (subject, sample, site panel, cytometer).
+
+.. warning:: Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.
+
+--------------------
+Manage Site Users
+--------------------
+
+A user with **Manage Site Users** permission for a particular site can add/modify/remove users from that site. They cannot manage any project-level permissions.
+
+.. important:: A user with **Manage Site Users** permission should be treated as having all site-level permissions, since they can technically change their own permissions within that site.

@@ -51,7 +51,7 @@ Manage Project Users
 
 A user with **Manage Project Users** permission for a particular project can add/modify/remove users from a project. This also applies to managing the site level permissions for all users.
 
-.. info:: A user with **Manage Project Users** permission should be treated as having all permissions, since they can technically change their own permissions within a project.
+.. important:: A user with **Manage Project Users** permission should be treated as having all permissions, since they can technically change their own permissions within a project.
 
 ================
 Site Permissions
@@ -83,4 +83,4 @@ Manage Site Users
 
 A user with **Manage Site Users** permission for a particular site can add/modify/remove users from that site. They cannot manage any project-level permissions.
 
-.. info:: A user with **Manage Site Users** permission should be treated as having all site-level permissions, since they can technically change their own permissions within that site.
+.. important:: A user with **Manage Site Users** permission should be treated as having all site-level permissions, since they can technically change their own permissions within that site.
