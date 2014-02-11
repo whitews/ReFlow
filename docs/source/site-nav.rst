@@ -50,3 +50,15 @@ Subjects are individuals from which a specimen is taken to create an FCS sample.
 
 :doc:`tutorials/add-subject`
 
+======================
+Non-project Categories
+======================
+
+Several categories within ReFlow are not defined within projects and their values are shared across all projects. These include:
+
+* Specimens
+* Markers
+* Fluorochromes
+* Staining
+* Parameter Functions
+* Parameter Value Types

@@ -1,2 +1,46 @@
-Permissions
-===========
+User Accounts & Permissions
+===========================
+
+ReFlow provides granular user permissions on both the project and site levels. On a project level a user can have any combination of the following permissions:
+
+* View Project Data
+* Add Project Data
+* Modify/Delete Project Data
+* Manage Project Users
+
+Similarly, for **each site** within a project, a user can have the following permissions:
+
+* View Site
+* Add Site Data
+* Modify/Delete Site Data
+* Manage Site Users
+
+.. note:: Sites are not shared across projects. While the same site name may be found in 2 different projects, it is purely coincidental. There is no formal relationship between those 2 sites, and user permissions are not shared between them.
+
+Finally, there are **super-users** which have access to all projects' data as well as administrative functions of the ReFlow system. These are generally system administrators which can create new users and projects.
+
+===================
+Project Permissions
+===================
+
+-----------------
+View Project Data
+-----------------
+
+A user with **View Project Data** permission for a particular project can view all data within that project, regardless of the site to which that data is associated.
+
+----------------
+Add Project Data
+----------------
+
+A user with **Add Project Data** permission for a particular project can create new data in any project category (site, subject, sample, etc.). As with the view project data permission, they can add data within any site. However, they cannot edit or remove project data.
+
+--------------------------
+Modify/Delete Project Data
+--------------------------
+
+A user with **Modify/Delete Project Data** permission for a particular project can edit and/or remove existing data in any project category (site, subject, sample, etc.). This applies for data in all a project's sites.
+
+Modifying data within ReFlow will keep any existing relationships intact. When deleting data that has a parent relationship to other data categories, all the related data must first be deleted. For example, to delete a subject group, all subjects belonging to that subject group must be deleted first. Alternatively, those subjects could also be modified to use a different subject group, and the original subject group could be deleted.
+
+.. warning:: Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.

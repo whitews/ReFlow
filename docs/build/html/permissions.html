@@ -8,7 +8,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Permissions &mdash; ReFlow 0.1 documentation</title>
+  <title>User Accounts &amp; Permissions &mdash; ReFlow 0.1 documentation</title>
   
 
   
@@ -85,17 +85,22 @@
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-home">Project Home</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject">Project Category - Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#non-project-categories">Non-project Categories</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Permissions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">User Accounts &amp; Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#project-permissions">Project Permissions</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="setup-ubuntu.html">ReFlow Server Setup - Ubuntu Server 12.04 LTS</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#almost-done">Almost Done!!!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
 </ul>
 </li>
 </ul>
@@ -119,14 +124,53 @@
         <div class="rst-content">
           <ul class="wy-breadcrumbs">
   <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href="">Permissions</a></li>
+  <li><a href="">User Accounts &amp; Permissions</a></li>
   
 </ul>
 <hr/>
 
           
-  <div class="section" id="permissions">
-<h1>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="user-accounts-permissions">
+<h1>User Accounts &amp; Permissions<a class="headerlink" href="#user-accounts-permissions" title="Permalink to this headline">¶</a></h1>
+<p>ReFlow provides granular user permissions on both the project and site levels. On a project level a user can have any combination of the following permissions:</p>
+<ul class="simple">
+<li>View Project Data</li>
+<li>Add Project Data</li>
+<li>Modify/Delete Project Data</li>
+<li>Manage Project Users</li>
+</ul>
+<p>Similarly, for <strong>each site</strong> within a project, a user can have the following permissions:</p>
+<ul class="simple">
+<li>View Site</li>
+<li>Add Site Data</li>
+<li>Modify/Delete Site Data</li>
+<li>Manage Site Users</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sites are not shared across projects. While the same site name may be found in 2 different projects, it is purely coincidental. There is no formal relationship between those 2 sites, and user permissions are not shared between them.</p>
+</div>
+<p>Finally, there are <strong>super-users</strong> which have access to all projects&#8217; data as well as administrative functions of the ReFlow system. These are generally system administrators which can create new users and projects.</p>
+<div class="section" id="project-permissions">
+<h2>Project Permissions<a class="headerlink" href="#project-permissions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="view-project-data">
+<h3>View Project Data<a class="headerlink" href="#view-project-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>View Project Data</strong> permission for a particular project can view all data within that project, regardless of the site to which that data is associated.</p>
+</div>
+<div class="section" id="add-project-data">
+<h3>Add Project Data<a class="headerlink" href="#add-project-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Add Project Data</strong> permission for a particular project can create new data in any project category (site, subject, sample, etc.). As with the view project data permission, they can add data within any site. However, they cannot edit or remove project data.</p>
+</div>
+<div class="section" id="modify-delete-project-data">
+<h3>Modify/Delete Project Data<a class="headerlink" href="#modify-delete-project-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Modify/Delete Project Data</strong> permission for a particular project can edit and/or remove existing data in any project category (site, subject, sample, etc.). This applies for data in all a project&#8217;s sites.</p>
+<p>Modifying data within ReFlow will keep any existing relationships intact. When deleting data that has a parent relationship to other data categories, all the related data must first be deleted. For example, to delete a subject group, all subjects belonging to that subject group must be deleted first. Alternatively, those subjects could also be modified to use a different subject group, and the original subject group could be deleted.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.</p>
+</div>
+</div>
+</div>
 </div>
 
 

@@ -46,7 +46,7 @@
 
   
     <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
-        <link rel="next" title="Tutorials" href="tutorials-index.html"/>
+        <link rel="next" title="User Accounts &amp; Permissions" href="permissions.html"/>
         <link rel="prev" title="Introduction" href="intro.html"/> 
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -85,16 +85,19 @@
 <li class="toctree-l2"><a class="reference internal" href="#project-home">Project Home</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#project-category-subject-group">Project Category - Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#project-category-subject">Project Category - Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#non-project-categories">Non-project Categories</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="setup-ubuntu.html">ReFlow Server Setup - Ubuntu Server 12.04 LTS</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setup-ubuntu.html#almost-done">Almost Done!!!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
 </ul>
 </li>
 </ul>
@@ -155,6 +158,18 @@
 <p>Subjects are individuals from which a specimen is taken to create an FCS sample. Subjects must belong to a subject group, so a subject group must be created before adding subjects. A subject can also be marked as a batch control, a field used in the automated analysis pipeline.</p>
 <p><a class="reference internal" href="tutorials/add-subject.html"><em>Tutorial - Adding a Subject</em></a></p>
 </div>
+<div class="section" id="non-project-categories">
+<h2>Non-project Categories<a class="headerlink" href="#non-project-categories" title="Permalink to this headline">¶</a></h2>
+<p>Several categories within ReFlow are not defined within projects and their values are shared across all projects. These include:</p>
+<ul class="simple">
+<li>Specimens</li>
+<li>Markers</li>
+<li>Fluorochromes</li>
+<li>Staining</li>
+<li>Parameter Functions</li>
+<li>Parameter Value Types</li>
+</ul>
+</div>
 </div>
 
 
@@ -162,7 +177,7 @@
   
     <div class="rst-footer-buttons">
       
-        <a href="tutorials-index.html" class="btn btn-neutral float-right" title="Tutorials"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="permissions.html" class="btn btn-neutral float-right" title="User Accounts &amp; Permissions"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="intro.html" class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
