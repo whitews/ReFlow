@@ -401,11 +401,21 @@ class ProjectPanelParameter(ProtectedModel):
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
+        # This is a little tricky since we need to match the marker set
+        # but in any order (for multiplex channels)
+        # i.e. these are duplicates: CD3+CD8 & CD8+CD3
+        # We're using a an annotation approach by combining
+        # '__in' with a matching count of the markers
         ppm_duplicates = ProjectPanelParameter.objects.filter(
             project_panel=self.project_panel,
             fluorochrome=self.fluorochrome,
+            projectpanelparametermarker__in=self.projectpanelparametermarker_set.all(),
             parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(id=self.id)
+            parameter_value_type=self.parameter_value_type).exclude(
+                id=self.id)
+        ppm_duplicates = ppm_duplicates.annotate(
+            num_markers=models.Count('projectpanelparametermarker')).filter(
+                num_markers=self.projectpanelparametermarker_set.all().count())
 
         if ppm_duplicates.count() > 0:
             raise ValidationError(

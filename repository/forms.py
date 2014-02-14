@@ -241,7 +241,7 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                     marker = Marker.objects.get(id=marker_id)
                 except:
                     raise ValidationError("Chosen marker doesn't exist")
-                param_components.append(marker)
+                param_components.append(marker.marker_abbreviation)
             param_counter.update([tuple(sorted(param_components))])
 
         # check for duplicate parameters
