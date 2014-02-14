@@ -1,0 +1,419 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Server Setup &mdash; ReFlow 0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:'',
+        VERSION:'0.1',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+    <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Tutorial - Adding a Subject" href="tutorials/add-subject.html"/> 
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="icon icon-home"> ReFlow</a>
+        <form class="wy-form" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search docs" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-reflow">What is ReFlow?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#why-was-reflow-built">Why was ReFlow built?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#major-features">Major Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#data-organization">Data Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="site-nav.html">Site Navigation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#login-screen">Login Screen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#home-page">Home Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-home">Project Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject">Project Category - Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-site">Project Category - Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#non-project-categories">Non-project Categories</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#project-permissions">Project Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#site-permissions">Site Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Server Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top">
+        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
+        <a href="/">ReFlow</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <ul class="wy-breadcrumbs">
+  <li><a href="index.html">Docs</a> &raquo;</li>
+  <li><a href="">Server Setup</a></li>
+  
+</ul>
+<hr/>
+
+          
+  <div class="section" id="server-setup">
+<h1>Server Setup<a class="headerlink" href="#server-setup" title="Permalink to this headline">¶</a></h1>
+<p>Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.</p>
+<p>Why Ubuntu Server 12.04 LTS?</p>
+<p>The short answer is because SciPy is available from the official repository. CentOS 6 does not provide a pre-built SciPy package, and it is a rather involved process to build SciPy from source. Also, Amazon EC2 has a micro instance for Ubuntu Server 12.04 LTS which qualifies for it&#8217;s Free Tier program (i.e. free for a year).</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Install Ubuntu 12.04 LTS (<a class="reference external" href="http://www.ubuntu.com/download/server">http://www.ubuntu.com/download/server</a>).</p>
+</li>
+<li><p class="first">Update system packages</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">upgrade</span></tt></p>
+</li>
+<li><p class="first">Install Apache and mod-wsgi</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">apache2</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libapache2-mod-wsgi</span></tt></p>
+</li>
+<li><p class="first">Install NumPy, matplotlib, and SciPy</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-numpy</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-matplotlib</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-scipy</span></tt></p>
+</li>
+<li><p class="first">We need Mercurial and pip to get the latest py-fcm</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">mercurial</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-pip</span></tt></p>
+</li>
+<li><p class="first">Install py-fcm from the Mercurial repository.</p>
+<p><strong>Note: Do not pip install fcm. You will get errors due to the missing logicle.h file.</strong></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">hg+https://code.google.com/p/py-fcm/#egg=fcm</span></tt></p>
+</li>
+<li><p class="first">Use pip to install Django to get version 1.4. <em>You&#8217;ll get v1.3 using apt-get</em></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django</span></tt></p>
+</li>
+<li><p class="first">Install Django app dependencies</p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-extensions</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">djangorestframework</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-filter</span></tt></p>
+</li>
+<li><p class="first">Install git to get ReFlow</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></tt></p>
+</li>
+<li><p class="first">Clone ReFlow to <tt class="docutils literal"><span class="pre">/srv/django-projects</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">mkdir</span> <span class="pre">/srv/django-projects</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">cd</span> <span class="pre">/srv/django-projects</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/whitews/ReFlow.git</span></tt></p>
+</li>
+</ol>
+<div class="section" id="optional-but-recommended">
+<h3>Optional, but recommended<a class="headerlink" href="#optional-but-recommended" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">Install iPython (always nice to have)</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">ipython</span></tt></p>
+</li>
+</ul>
+</div>
+<div class="section" id="choose-a-database">
+<h3>Choose a Database<a class="headerlink" href="#choose-a-database" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">Install sqlite3 (more convenient for development)</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">sqlite3</span></tt></p>
+</li>
+<li><p class="first">Install PostgreSQL and postgresql_psycopg2 driver</p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">postgresql</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-psycopg2</span></tt></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>There are essentially 4 separate configuration tasks:</p>
+<ul class="simple">
+<li>Create an Apache2 VirtualHost</li>
+<li>Create a mod_wsgi script</li>
+<li>Create the Django Settings File</li>
+<li>Create a PostgreSQL Database</li>
+</ul>
+<div class="section" id="create-apache2-virtualhost">
+<h3>Create Apache2 VirtualHost<a class="headerlink" href="#create-apache2-virtualhost" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Copy the default VirtualHost</p>
+<p><tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">cp</span> <span class="pre">/etc/apache2/sites-available/default</span> <span class="pre">/etc/apache2/sites-available/reflow</span></tt></p>
+</li>
+<li><p class="first">The new VirtualHost file should look like this:</p>
+<div class="highlight-python"><pre>&lt;VirtualHost *:80&gt;
+    ServerAdmin webmaster@localhost
+
+    WSGIScriptAlias / /srv/django-projects/ReFlow/reflow/wsgi.py
+    WSGIApplicationGroup %{GLOBAL}
+
+    &lt;Directory /srv/django-projects/ReFlow/reflow&gt;
+
+        AllowOverride None
+
+        &lt;Files wsgi.py&gt;
+            Order allow,deny
+            Allow from all
+        &lt;/Files&gt;
+
+    &lt;/Directory&gt;
+
+    Alias /static /srv/django-projects/ReFlow-static/
+
+    ErrorLog ${APACHE_LOG_DIR}/reflow-error.log
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    CustomLog ${APACHE_LOG_DIR}/reflow-access.log combined
+&lt;/VirtualHost&gt;</pre>
+</div>
+</li>
+<li><p class="first">Edit apache2.conf file</p>
+<p>Note: If you need any of these features for other Virtual Hosts, edit as necessary. This list is meant as a guide for turning off certain Apache features that are not used by the ReFlow project. There are also Apache modules enabled by default that ReFlow does not need.</p>
+<ul>
+<li><p class="first">Hide the Apache version number and OS details</p>
+<p><tt class="docutils literal"><span class="pre">ServerSignature</span> <span class="pre">Off</span></tt>
+<tt class="docutils literal"><span class="pre">ServerTokens</span> <span class="pre">Prod</span></tt></p>
+</li>
+<li><p class="first">Disable directory browsing</p>
+<p><tt class="docutils literal"><span class="pre">Options</span> <span class="pre">-Indexes</span></tt></p>
+</li>
+<li><p class="first">Disable server side includes</p>
+<p><tt class="docutils literal"><span class="pre">Options</span> <span class="pre">-Includes</span></tt></p>
+</li>
+<li><p class="first">Disable CGI</p>
+<p><tt class="docutils literal"><span class="pre">Options</span> <span class="pre">-ExecCGI</span></tt></p>
+</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="create-a-mod-wsgi-script">
+<h3>Create a mod_wsgi script<a class="headerlink" href="#create-a-mod-wsgi-script" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">From our VirtualHost WSGIScriptAlias, we&#8217;ll need to create a wsgi.py script here:</p>
+<p><tt class="docutils literal"><span class="pre">/srv/django-projects/ReFlow/reflow/wsgi.py</span></tt></p>
+</li>
+<li><p class="first">Edit the wsgi.py file to look like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c"># Set matplotlib configuration directory, else Django complains it is not writable</span>
+<span class="c"># We&#39;ll just use a tempfile</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;MPLCONFIGDIR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+
+<span class="n">paths</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;/srv/django-projects/ReFlow&#39;</span><span class="p">,</span>
+    <span class="s">&#39;/srv/django-projects/ReFlow/reflow&#39;</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&quot;DJANGO_SETTINGS_MODULE&quot;</span><span class="p">,</span> <span class="s">&quot;reflow.settings&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">django.core.wsgi</span> <span class="kn">import</span> <span class="n">get_wsgi_application</span>
+<span class="n">application</span> <span class="o">=</span> <span class="n">get_wsgi_application</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Note: This should be the same content as the wsgi.py file in the ReFlow repository, so you will only need to change this if you are changing the location from where ReFlow is served or you need to setup your own WSGI middleware.</strong></p>
+</li>
+</ol>
+</div>
+<div class="section" id="create-django-settings-py">
+<h3>Create Django settings.py<a class="headerlink" href="#create-django-settings-py" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Copy the settings_sample.py to settings.py</p>
+<p><tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">cp</span> <span class="pre">/srv/django-projects/ReFlow/reflow/settings_sample.py</span> <span class="pre">/srv/django-projects/ReFlow/reflow/settings.py</span></tt></p>
+</li>
+<li><p class="first">Edit the settings.py file</p>
+<ul>
+<li><p class="first">Turn off debugging</p>
+<p><tt class="docutils literal"><span class="pre">Debug</span> <span class="pre">=</span> <span class="pre">False</span></tt></p>
+</li>
+<li><p class="first">Change BASE_DIR</p>
+<p><tt class="docutils literal"><span class="pre">BASE_DIR</span> <span class="pre">=</span> <span class="pre">'/srv/django-projects'</span></tt></p>
+</li>
+<li><p class="first">Change DATABASES to whichever database you are using. For example, PostgreSQL would look similar to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;django.db.backends.postgresql_psycopg2&#39;</span><span class="p">,</span>
+        <span class="s">&#39;NAME&#39;</span><span class="p">:</span> <span class="s">&#39;somedb&#39;</span><span class="p">,</span>
+        <span class="s">&#39;USER&#39;</span><span class="p">:</span> <span class="s">&#39;someuser&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PASSWORD&#39;</span><span class="p">:</span> <span class="s">&#39;somepassword&#39;</span><span class="p">,</span>
+        <span class="s">&#39;HOST&#39;</span><span class="p">:</span> <span class="s">&#39;somehost&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PORT&#39;</span><span class="p">:</span> <span class="s">&#39;5432&#39;</span><span class="p">,</span> <span class="c"># or whatever port your DB is listening on</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Change TIME_ZONE according to <a class="reference external" href="http://en.wikipedia.org/wiki/List_of_tz_zones_by_name">http://en.wikipedia.org/wiki/List_of_tz_zones_by_name</a></p>
+</li>
+<li><p class="first">Change MEDIA_ROOT to the locate where user uploaded files will be stores. This is where the FCS files will live.</p>
+</li>
+<li><p class="first">Change SECRET_KEY to a new super secret key. If you have already cloned the ReFlow project and have django_extensions installed, you can generate a new random key using:</p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">generate_secret_key</span></tt></p>
+<p>Copy and paste the output as the new SECRET_KEY value.</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Collect the Django static files. From <tt class="docutils literal"><span class="pre">/srv/django-projects/ReFlow/</span></tt> run:</p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">collectstatic</span></tt></p>
+</li>
+</ol>
+</div>
+<div class="section" id="create-postgresql-database">
+<h3>Create PostgreSQL Database<a class="headerlink" href="#create-postgresql-database" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Become &#8216;postgres&#8217; user</p>
+<p><tt class="docutils literal"><span class="pre">su</span> <span class="pre">-</span> <span class="pre">posgres</span></tt></p>
+</li>
+<li><p class="first">Open PostgreSQL Shell</p>
+<p><tt class="docutils literal"><span class="pre">psql</span></tt></p>
+</li>
+<li><p class="first">Create a new database and user</p>
+<p><tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">DATABASE</span> <span class="pre">somedb;</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">USER</span> <span class="pre">someuser</span> <span class="pre">WITH</span> <span class="pre">PASSWORD</span> <span class="pre">'somepassword';</span></tt></p>
+</li>
+<li><p class="first">Grant database access to the user and quit psql</p>
+<p><tt class="docutils literal"><span class="pre">GRANT</span> <span class="pre">ALL</span> <span class="pre">PRIVILEGES</span> <span class="pre">ON</span> <span class="pre">DATABASE</span> <span class="pre">somedb</span> <span class="pre">TO</span> <span class="pre">someuser;</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">\q</span></tt></p>
+</li>
+<li><p class="first">Edit the PostgreSQL configuration file <tt class="docutils literal"><span class="pre">pg_hba.conf</span></tt> in <tt class="docutils literal"><span class="pre">/etc/postgresql/9.1/main/</span></tt> (version number may be different). Add the following line to allow local access for the user to the new database:</p>
+<p><tt class="docutils literal"><span class="pre">local</span>&nbsp;&nbsp;&nbsp; <span class="pre">somedb</span>&nbsp;&nbsp;&nbsp; <span class="pre">someuser</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="pre">password</span></tt></p>
+</li>
+<li><p class="first">Restart PostgreSQL and exit the postgres user.</p>
+<p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">postgresql</span> <span class="pre">restart</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">exit</span> <span class="pre">postgres</span></tt></p>
+</li>
+<li><p class="first">From <tt class="docutils literal"><span class="pre">/srv/django-projects/ReFlow/</span></tt> run manage.py with syncdb option. Follow the prompts for create an Django admin user.</p>
+<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">syncdb</span></tt></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="enable-apache-virtualhost">
+<h2>Enable Apache VirtualHost<a class="headerlink" href="#enable-apache-virtualhost" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Disable the default VirtualHost</p>
+<p><tt class="docutils literal"><span class="pre">a2dissite</span> <span class="pre">default</span></tt></p>
+</li>
+<li><p class="first">Enable the reflow VirtualHost</p>
+<p><tt class="docutils literal"><span class="pre">a2ensite</span> <span class="pre">reflow</span></tt></p>
+</li>
+<li><p class="first">Restart apache:</p>
+</li>
+</ol>
+<p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">apache2</span> <span class="pre">restart</span></tt></p>
+<p>That&#8217;s it! If everything was configured correctly you should see the ReFlow login screen at your server&#8217;s URL.</p>
+</div>
+</div>
+
+
+          <footer>
+  
+    <div class="rst-footer-buttons">
+      
+      
+        <a href="tutorials/add-subject.html" class="btn btn-neutral" title="Tutorial - Adding a Subject"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <p>
+      &copy; Copyright 2013, Scott White.
+  </p>
+
+  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+</body>
+</html>
