@@ -241,5 +241,14 @@
         "fluorochrome_abbreviation": "AmCyan", 
         "fluorochrome_description": "Anemonia majano cyan fluorescent protein"
     }
+},
+{
+    "pk": 28,
+    "model": "repository.fluorochrome",
+    "fields": {
+        "fluorochrome_name": "Ethidium Monoazide",
+        "fluorochrome_abbreviation": "EMA",
+        "fluorochrome_description": "Live/Dead Viability"
+    }
 }
 ]
