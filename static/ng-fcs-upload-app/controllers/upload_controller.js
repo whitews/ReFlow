@@ -1,10 +1,11 @@
 /**
  * Created by swhite on 2/25/14.
  */
-app.controller('UploadController', function ($scope, projectsService) {
+app.controller('UploadController', ['$scope', 'projectsService', function ($scope, projectsService) {
 
-    function init() {
-        $scope.projects = projectsService.getProjects();
-    }
+    projectsService.getProjects().success(function (data) {
+        $scope.projects = data;
+    });
+    console.log($scope.projects);
 
-});
+}]);

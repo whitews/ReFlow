@@ -64,6 +64,11 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/process_request_outputs/(?P<pk>\d+)/download/$', retrieve_process_request_output_value, name='retrieve_process_request_output'),
 )
 
+# Angular web routes
+urlpatterns += patterns('repository.views',
+    url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
+)
+
 # Regular web routes
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),

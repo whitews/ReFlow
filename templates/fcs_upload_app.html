@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load repository_filters %}
+{% load breadcrumbs %}
+
+{% block toes %}
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
+<script src="{% static 'ng-fcs-upload-app/app.js' %}"></script>
+<script src="{% static 'ng-fcs-upload-app/controllers/upload_controller.js' %}"></script>
+<script src="{% static 'ng-fcs-upload-app/services/projectsService.js' %}"></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb 'Home' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+{% verbatim %}
+  <div class="container" data-ng-app="fcsUploadApp">
+
+  <div data-ng-controller="UploadController">
+    <ul>
+      <li data-ng-repeat="project in projects">{{ project.project_name }}</li>
+    </ul>
+  </div>
+
+  </div>
+{% endverbatim %}
+{% endblock %}
