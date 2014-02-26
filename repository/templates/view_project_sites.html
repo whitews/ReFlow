@@ -51,6 +51,7 @@ $(function() {
         <th></th>
         <th>Site</th>
         <th>FCS Sample Count</th>
+        <th>Cytometers</th>
         <th>Site Panels</th>
       </tr>
     </thead>
@@ -65,10 +66,17 @@ $(function() {
           {% endif %}
         </td>
         <td class="middle">{{ site.site_name }}</td>
-        <td class="middle">{{ site.sample_set.count }}</td>
+        <td class="middle">{{ site.get_sample_count }}</td>
         <td>
-          {% for panel in site.sitepanel_set.all %}
+          {% for cytometer in site.cytometer_set.all %}
+            {{ cytometer.cytometer_name }}<br/>
+          {% endfor %}
+        </td>
+        <td>
+          {% for cyto in site.cytometer_set.all %}
+          {% for panel in cyto.sitepanel_set.all %}
             {{ panel.project_panel.panel_name }} ({{ panel.implementation }})<br/>
+          {% endfor %}
           {% endfor %}
         </td>
       </tr>

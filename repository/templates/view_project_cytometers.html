@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[1,0]],
+    headers: {
+      0: { sorter: false},
+      1: { sorter: false}
+    }
+  });
+});
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb_url project.project_name 'view_project' project.id %}
+    {% breadcrumb 'Cytometers' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <table id="data-table" class="table table-hover">
+    <thead>
+      <tr>
+        <th colspan="50" class="center">
+          <div style="position:relative">
+            <h4>Cytometers <span class="badge badge-inverse align-top">{{ cytometers|length }}</span></h4>
+
+            {% if can_add_project_data %}
+            <div style="position:absolute; right:0;top:0;">
+              <a class="btn btn-small" href="{% url 'add_cytometer' project.id %}">
+                Add Cytometer
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>Cytometer</th>
+        <th>Serial Number</th>
+        <th>Site</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for cyto in cytometers %}
+      <tr>
+        <td width="1%" class="middle">
+          {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_cytometer' project.id cyto.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+          {% endif %}
+        </td>
+        <td class="middle">{{ cyto.cytometer_name }}</td>
+        <td class="middle">{{ cyto.serial_number }}</td>
+        <td class="middle">{{ cyto.site.site_name }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial - Adding a Subject Group &mdash; ReFlow 0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:'../',
+        VERSION:'0.1',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+    <link rel="top" title="ReFlow 0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="../tutorials-index.html"/>
+        <link rel="next" title="Tutorial - Adding a Subject" href="add-subject.html"/>
+        <link rel="prev" title="Tutorials" href="../tutorials-index.html"/> 
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> ReFlow</a>
+        <form class="wy-form" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search docs" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-reflow">What is ReFlow?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#why-was-reflow-built">Why was ReFlow built?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#major-features">Major Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#data-organization">Data Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../site-nav.html">Site Navigation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#login-screen">Login Screen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#home-page">Home Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-home">Project Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-subject">Project Category - Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-site">Project Category - Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#non-project-categories">Non-project Categories</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../permissions.html">User Accounts &amp; Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../permissions.html#project-permissions">Project Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../permissions.html#site-permissions">Site Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials-index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-subject.html">Tutorial - Adding a Subject</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../server-setup.html">Server Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../server-setup.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../server-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top">
+        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
+        <a href="/">ReFlow</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <ul class="wy-breadcrumbs">
+  <li><a href="../index.html">Docs</a> &raquo;</li>
+  <li><a href="">Tutorial - Adding a Subject Group</a></li>
+  
+</ul>
+<hr/>
+
+          
+  <div class="section" id="tutorial-adding-a-subject-group">
+<h1>Tutorial - Adding a Subject Group<a class="headerlink" href="#tutorial-adding-a-subject-group" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Adding a subject group requires the project-level permission &#8220;Add Project Data&#8221;.  See <a class="reference internal" href="../permissions.html"><em>User Accounts &amp; Permissions</em></a></p>
+</div>
+<ol class="arabic">
+<li><p class="first">Login to the ReFlow server.</p>
+</li>
+<li><p class="first">From the ReFlow home page, navigate to the project by clicking on the project link.</p>
+</li>
+<li><p class="first">On the project home page, click the <strong>Subject Groups</strong> link.</p>
+<img alt="../_images/project-home1.png" src="../_images/project-home1.png" />
+</li>
+<li><p class="first">From the <strong>Subject Groups</strong> page, click on the <strong>Add Subject Group</strong> button located near the upper right of the page (beside the main heading). This will take you to the subject group form.</p>
+<img alt="../_images/add-subject-group.png" src="../_images/add-subject-group.png" />
+</li>
+<li><p class="first">On the subject group form, fill out the fields. Note the <strong>Group name</strong> is required and a project cannot have duplicate group names. The description field is optional. Once the form is completed, click the <strong>Save</strong> button.</p>
+<img alt="../_images/add-subject-group-form.png" src="../_images/add-subject-group-form.png" />
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If there were validation errors with the submitted form, the form will be re-displayed along with the validation errors.</p>
+</div>
+</li>
+<li><p class="first">Once your new subject group is created you will be re-directed to the project&#8217;s subject group page, listing all the subject groups for that project.</p>
+<img alt="../_images/subject-group-form-success.png" src="../_images/subject-group-form-success.png" />
+</li>
+</ol>
+</div>
+
+
+          <footer>
+  
+    <div class="rst-footer-buttons">
+      
+        <a href="add-subject.html" class="btn btn-neutral float-right" title="Tutorial - Adding a Subject"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../tutorials-index.html" class="btn btn-neutral" title="Tutorials"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <p>
+      &copy; Copyright 2013, Scott White.
+  </p>
+
+  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+</body>
+</html>

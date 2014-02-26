@@ -3,7 +3,7 @@ __author__ = 'swhite'
 # Non-admin non-project specific web views (not REST API views)
 REGULAR_WEB_VIEWS = (
     'home',
-    'view_antibodies',
+    'view_markers',
     'view_fluorochromes',
     'view_parameters',
     'view_specimens',
@@ -13,7 +13,7 @@ REGULAR_WEB_VIEWS = (
 
 # Admin views not tied to a project and not REST API views
 ADMIN_WEB_VIEWS = (
-    'add_antibody',
+    'add_marker',
     'add_fluorochrome',
     'add_parameter',
     'add_specimen',

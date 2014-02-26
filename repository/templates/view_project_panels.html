@@ -18,7 +18,8 @@ $(function() {
     headers: {
       0: { sorter: false},
       1: { sorter: false},
-      4: { sorter: false}
+      4: { sorter: false},
+      5: { sorter: false}
     }
   });
 });
@@ -92,6 +93,7 @@ $(document).ready(function()
           <th></th>
           <th>Panel Name</th>
           <th>Staining</th>
+          <th>Description</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -103,10 +105,15 @@ $(document).ready(function()
       <tbody>
         {% for panel in panels|dictsort:"panel_name" %}
         <tr>
-          <td>
+          <td class="no-wrap">
             {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' panel.id %}" data-original-title="Edit" data-placement="bottom">
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' project.id panel.id %}" data-original-title="Edit" data-placement="bottom">
               <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            </a>
+            {% endif %}
+            {% if can_modify_project_data %}
+            <a class="btn btn-mini" rel="tooltip" href="{% url 'copy_project_panel' project.id panel.id %}" data-original-title="Copy" data-placement="bottom">
+              <i style="opacity: 0.4" class="icon-repeat align-middle"></i>
             </a>
             {% endif %}
           </td>
@@ -114,14 +121,15 @@ $(document).ready(function()
             {{ panel.panel_name }}
           </td>
           <td>{{ panel.get_staining_display }}</td>
-          <td width="65%">
+          <td>{{ panel.panel_description }}</td>
+          <td width="60%">
             <a href="#" class="toggle-closest">Show/Hide</a>
             <div class="hide params">
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
                     <th>Function</th>
-                    <th>Antibodies</th>
+                    <th>Markers</th>
                     <th>Fluorochrome</th>
                     <th>Value Type</th>
                   </tr>
@@ -133,8 +141,8 @@ $(document).ready(function()
                       {{ param.get_parameter_type_display }}
                     </td>
                     <td>
-                      {% for ab in param.projectpanelparameterantibody_set.all %}
-                        {{ ab.antibody.antibody_abbreviation }}
+                      {% for param_marker in param.projectpanelparametermarker_set.all %}
+                        {{ param_marker.marker.marker_abbreviation }}
                       {% endfor %}
                     </td>
                     <td>

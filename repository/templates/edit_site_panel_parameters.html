@@ -28,24 +28,38 @@ $(document).ready(function () {
                 {
                     $('#parameter-form-errors').append('<p>' + value + '</p>');
                 });
+
+                var error_dialog = $("#parameter-form-errors").dialog(
+                {
+                    autoOpen: false,
+                    title: 'Error',
+                    modal: true,
+                    position: 'center',
+                    width: $(window).width() * 0.5,
+                    height: $(window).height() * 0.5,
+                    resizable: true
+                });
+                error_dialog.dialog({ close: function() { $(this).empty(); } });
+                error_dialog.dialog('open');
+
             }
         });
         $('button#process-parameters').attr('disabled', false);
         return false;
     });
     $( "select[id*=parameter_type]" ).change(function() {
-        var ab_selects = $(this).parent().siblings().find('select[id*=antibody]');
-        var ab_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
+        var marker_selects = $(this).parent().siblings().find('select[id*=marker]');
+        var marker_add_link = $(this).parent().siblings().find('a[class=add-ab-link]');
         var fl_selects = $(this).parent().siblings().find('select[id*=fluorochrome]');
-        if (jQuery.inArray($(this).val(), ['FSC', 'SSC']) > -1) {
-            ab_selects.hide();
-            ab_selects.val(0);
-            ab_add_link.hide();
+        if (jQuery.inArray($(this).val(), ['FSC', 'SSC', 'TIM']) > -1) {
+            marker_selects.hide();
+            marker_selects.val(0);
+            marker_add_link.hide();
             fl_selects.hide();
             fl_selects.val(0);
         } else {
-            ab_selects.show();
-            ab_add_link.show();
+            marker_selects.show();
+            marker_add_link.show();
             fl_selects.show();
         }
     });
@@ -62,31 +76,31 @@ function initialize_parameter_row(row) {
         return;
     }
 
-    var ab_selects = $(row).find('select[id*=antibody]');
+    var marker_selects = $(row).find('select[id*=marker]');
     var fl_selects = $(row).find('select[id*=fluorochrome]');
-    var ab_add_link = $(row).find('a[class=add-ab-link]');
+    var marker_add_link = $(row).find('a[class=add-ab-link]');
 
     if (jQuery.inArray($(param_type_selects[0]).val(), ['FSC','SSC']) > -1) {
-        ab_selects.hide();
+        marker_selects.hide();
         fl_selects.hide();
-        ab_add_link.hide();
+        marker_add_link.hide();
         return;
     } else {
-        if (ab_selects.length > 1) {
-            $(ab_selects).each(function (i, e) {
+        if (marker_selects.length > 1) {
+            $(marker_selects).each(function (i, e) {
                 if ($(e).val() === "") {
-                    var selector = $(e).siblings('a[class*=remove-antibody]');
-                    remove_antibody($(selector[0]));
+                    var selector = $(e).siblings('a[class*=remove-marker]');
+                    remove_marker($(selector[0]));
                 }
             });
         }
     }
 }
 
-function add_antibody(selector) {
-    // clone last antibody select
-    var new_select_span = selector.parent("span.antibody-field").last().clone();
-    new_select_span.children("a[class=add-ab-link]").remove();
+function add_marker(selector) {
+    // clone last marker select
+    var new_select_span = selector.parent("span.marker-field").last().clone();
+    new_select_span.children("a[class=add-marker-link]").remove();
     var new_select = selector.siblings("select")
     var name = new_select.attr("name");
     var id = new_select.attr("id");
@@ -95,13 +109,13 @@ function add_antibody(selector) {
     var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
     total_form.val((parseInt(total_form.val())  + 1));
 
-    var m = name.match(/-(\d+)-antibody/);
+    var m = name.match(/-(\d+)-marker/);
     var new_select_id = parseInt(m[1]) + 1;
-    var new_name = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
-    var new_id = name.replace(/-(\d+)-antibody/, "-" + new_select_id + "-antibody");
+    var new_name = name.replace(/-(\d+)-marker/, "-" + new_select_id + "-marker");
+    var new_id = name.replace(/-(\d+)-marker/, "-" + new_select_id + "-marker");
     new_select.attr({"name": new_name, "id": new_id});
 
-    new_select_span.find(".remove-antibody").show();
+    new_select_span.find(".remove-marker").show();
     new_select_span.append(
       " ");
     selector.closest("td").append(
@@ -110,7 +124,7 @@ function add_antibody(selector) {
     return false;
 }
 
-function remove_antibody(selector) {
+function remove_marker(selector) {
     var total_form = selector.closest("td").children("input[id*=TOTAL_FORMS]");
     total_form.val((parseInt(total_form.val())  - 1));
 
@@ -118,9 +132,9 @@ function remove_antibody(selector) {
     selector.parent("span").prev("br").remove();
     selector.parent("span").remove();  // contains selector
 
-    parent_td.children("span.antibody-field").children("select").each(function(i, el) {
-      el.name = el.name.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
-      el.id = el.id.replace(/-(\d+)-antibody/, "-" + i + "-antibody");
+    parent_td.children("span.marker-field").children("select").each(function(i, el) {
+      el.name = el.name.replace(/-(\d+)-marker/, "-" + i + "-marker");
+      el.id = el.id.replace(/-(\d+)-marker/, "-" + i + "-marker");
     });
     return false;
 }
@@ -158,8 +172,8 @@ function remove_antibody(selector) {
               {{ param.get_parameter_type_display }}
             </td>
             <td>
-              {% for param_ab in param.projectpanelparameterantibody_set.all %}
-              {{ param_ab.antibody.antibody_abbreviation }}<br>
+              {% for param_marker in param.projectpanelparametermarker_set.all %}
+              {{ param_marker.marker.marker_abbreviation }}<br>
               {% endfor %}
             </td>
             <td>
@@ -187,7 +201,7 @@ function remove_antibody(selector) {
               <th>FCS PnS Text</th>
               <th>Function</th>
               <th>Value Type</th>
-              <th>Antibodies</th>
+              <th>Markers</th>
               <th>Fluorochrome</th>
             </tr>
           </thead>
@@ -219,13 +233,13 @@ function remove_antibody(selector) {
               {% for nested_formset in parameter_form.nested %}
                 {{ nested_formset.management_form }}
                 {% for nested_form in nested_formset.forms %}
-                  <span class="antibody-field no-wrap">
-                    {{ nested_form.antibody }}
+                  <span class="marker-field no-wrap">
+                    {{ nested_form.marker }}
                     <div class="hide">{{ nested_form.id }}</div>
-                    <a class="hide remove-antibody" href="javascript:void(0)" onclick="remove_antibody($(this))">
+                    <a class="hide remove-marker" href="javascript:void(0)" onclick="remove_marker($(this))">
                       <i class="icon-remove align-middle\"></i>
                     </a>
-                    <a class="add-ab-link" href="javascript:void(0)" onclick="add_antibody($(this))">
+                    <a class="add-marker-link" href="javascript:void(0)" onclick="add_marker($(this))">
                       <i class="icon-plus align-middle"></i></a>
                   </span>
                 {% endfor %}

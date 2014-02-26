@@ -52,6 +52,7 @@ $(function() {
         <th></th>
         <th>Subject Code</th>
         <th>Subject Group</th>
+        <th>Batch Control</th>
         <th>FCS Sample Count</th>
       </tr>
     </thead>
@@ -67,6 +68,7 @@ $(function() {
         </td>
         <td>{{ s.subject_code }}</td>
         <td>{{ s.subject_group.group_name|default_if_none:'' }}</td>
+        <td>{% if s.batch_control %}True{% endif %}</td>
         <td>{{ s.sample_set.count }}</td>
       </tr>
       {% endfor %}

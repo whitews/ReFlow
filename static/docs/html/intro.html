@@ -1,0 +1,268 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; ReFlow 0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:'',
+        VERSION:'0.1',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+    <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
+        <link rel="next" title="Site Navigation" href="site-nav.html"/>
+        <link rel="prev" title="Welcome to ReFlow’s documentation!" href="index.html"/> 
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="icon icon-home"> ReFlow</a>
+        <form class="wy-form" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search docs" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-reflow">What is ReFlow?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-was-reflow-built">Why was ReFlow built?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#major-features">Major Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-organization">Data Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="site-nav.html">Site Navigation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#login-screen">Login Screen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#home-page">Home Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-home">Project Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject">Project Category - Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-site">Project Category - Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#non-project-categories">Non-project Categories</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#project-permissions">Project Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#site-permissions">Site Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top">
+        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
+        <a href="/">ReFlow</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <ul class="wy-breadcrumbs">
+  <li><a href="index.html">Docs</a> &raquo;</li>
+  <li><a href="">Introduction</a></li>
+  
+</ul>
+<hr/>
+
+          
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-reflow">
+<h2>What is ReFlow?<a class="headerlink" href="#what-is-reflow" title="Permalink to this headline">¶</a></h2>
+<p>ReFlow is a web-based repository for flow cytometry data (i.e.
+FCS files), with a primary focus on reproducible automated analysis. While
+other online repositories for flow cytometry exist,
+most are focused on providing data sharing using software as a service (SaaS).
+While ReFlow can be considered as a SaaS system, it was developed
+to be deployed within an organization, institution, or laboratory.</p>
+</div>
+<div class="section" id="why-was-reflow-built">
+<h2>Why was ReFlow built?<a class="headerlink" href="#why-was-reflow-built" title="Permalink to this headline">¶</a></h2>
+<p>ReFlow was developed to solve the problem of inconsistent data annotation to
+drive automated analysis pipelines.</p>
+<p>Flow cytometry data is complex and requires extensive training and expertise
+to analyze. Even with substantial experience in the field,
+manual analysis is subject to inter-operator variability,
+especially when attempting to find rare cell subsets. As a result,
+it is difficult to harmonize assays and interpret results across institutions.
+Automated analysis of flow cytometry data across different laboratories
+would provide a more object basis for the identification of these cell subsets.</p>
+<p>However, when implementing the automated analysis pipeline,
+problems arose in identifying the individual channels within the flow
+cytometry data files. The Flow Cytometry Standard (FCS) defines which
+metadata fields contain channel information but do not specify how individual
+channels must be labelled. As a result, annotation varies across AND within
+laboratories. For example, one FCS file may contain a channel labelled &#8220;CD14
+PB vAmine&#8221; whereas another FCS file with the same &#8220;panel&#8221; may be labelled
+&#8220;CD14 PacBlue violetAmine&#8221; and another may just contain &#8220;Violet-A&#8221;.
+Further, these parameters may be in different channel numbers.</p>
+</div>
+<div class="section" id="major-features">
+<h2>Major Features<a class="headerlink" href="#major-features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Open source under BSD-style license</li>
+<li>Supports FCS data files</li>
+<li>Data is organized into different projects</li>
+<li>Each project can have multiple sites/labs</li>
+<li>Project metadata (subject codes, cytometers, etc) customized per project</li>
+<li>User permissions can be defined for each project</li>
+<li>Users can belong to more than one project</li>
+<li>Project templates to define site panel implementations</li>
+<li>FCS parameters are coerced into a common namespace</li>
+<li>All FCS metadata viewed from browser with no software to install</li>
+<li>Compensation matrices can be uploaded/edited on the server</li>
+<li>Prevents duplicate files from being uploaded to the same project</li>
+<li>Allows filtering FCS samples by multiple criteria</li>
+<li>A separate upload client is available for Mac/Windows for easier bulk uploads</li>
+<li>Robust and feature complete REST API for programatically accessing data</li>
+</ul>
+</div>
+<div class="section" id="data-organization">
+<h2>Data Organization<a class="headerlink" href="#data-organization" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Project</td>
+<td>Sequesters data for an experiment from other experiments in the system. This is the top level of the ReFlow hierarchy.</td>
+</tr>
+<tr class="row-odd"><td>Subject Group</td>
+<td>Categorizes subjects into groups, useful for differentiating a “normal” from a “control”, etc.</td>
+</tr>
+<tr class="row-even"><td>Subject</td>
+<td>The individual from which the biological specimen was taken. A subject must belong to a subject group.</td>
+</tr>
+<tr class="row-odd"><td>Site</td>
+<td>The location where an FCS file was produced. May be a laboratory name, institution, etc.</td>
+</tr>
+<tr class="row-even"><td>Cytometer</td>
+<td>A cytometer device, associated with a specific Site.</td>
+</tr>
+<tr class="row-odd"><td>Visit Type</td>
+<td>Categorizes samples into temporal groups, such as “Send out 3” for a proficiency test project or “Baseline” for a clinical trial project. Not the same as the FCS acquisition date.</td>
+</tr>
+<tr class="row-even"><td>Stimulation</td>
+<td>In vitro conditions used to prepare cells from which an FCS file was produced.</td>
+</tr>
+<tr class="row-odd"><td>Sample</td>
+<td>An FCS file.</td>
+</tr>
+<tr class="row-even"><td>Project Panel</td>
+<td>A collection of flow parameters used as a master template for specific site panel implementations. Must specify a staining type and a stimulation.</td>
+</tr>
+<tr class="row-odd"><td>Site Panel</td>
+<td>A specific implementation of a project panel. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the project panel.</td>
+</tr>
+<tr class="row-even"><td>Compensation</td>
+<td>A compensation matrix that can optionally be associated with one or more Samples.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          <footer>
+  
+    <div class="rst-footer-buttons">
+      
+        <a href="site-nav.html" class="btn btn-neutral float-right" title="Site Navigation"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to ReFlow’s documentation!"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <p>
+      &copy; Copyright 2013, Scott White.
+  </p>
+
+  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+</body>
+</html>

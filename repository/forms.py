@@ -10,6 +10,15 @@ from guardian.forms import UserObjectPermissionsForm
 from repository.models import *
 
 
+class DynamicChoiceField(forms.ChoiceField):
+    def validate(self, value):
+        """
+        Override validate to avoid invalid choice error.
+        """
+        if self.required and not value:
+            raise ValidationError(self.error_messages['required'])
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
@@ -32,9 +41,9 @@ class CustomUserObjectPermissionForm(UserObjectPermissionsForm):
         return list(set(choices).intersection(self.obj._meta.permissions))
 
 
-class AntibodyForm(forms.ModelForm):
+class MarkerForm(forms.ModelForm):
     class Meta:
-        model = Antibody
+        model = Marker
 
 
 class FluorochromeForm(forms.ModelForm):
@@ -65,6 +74,14 @@ class ProjectPanelForm(forms.ModelForm):
                 required=False)
 
     def clean(self):
+        # check for any site panel's made from this project panel
+        # don't allow editing a project panel if any are found
+        if self.instance:
+            if self.instance.sitepanel_set.count() > 0:
+                raise ValidationError(
+                    "This panel cannot be edited because one or more site " +
+                    "panels built from this project panel exist.")
+
         staining = self.cleaned_data.get('staining')
         parent_panel = self.cleaned_data.get('parent_panel')
 
@@ -91,22 +108,23 @@ class ProjectPanelForm(forms.ModelForm):
         return self.cleaned_data
 
 
-ProjectPanelParameterAntibodyFormSet = inlineformset_factory(
+ProjectPanelParameterMarkerFormSet = inlineformset_factory(
     ProjectPanelParameter,
-    ProjectPanelParameterAntibody,
+    ProjectPanelParameterMarker,
     extra=1,
-    can_delete=False)
+    can_delete=True)
 
 
-SitePanelParameterAntibodyFormSet = inlineformset_factory(
+SitePanelParameterMarkerFormSet = inlineformset_factory(
     SitePanelParameter,
-    SitePanelParameterAntibody,
+    SitePanelParameterMarker,
     extra=1,
     can_delete=False)
 
 
 class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
     def add_fields(self, form, index):
+        self.can_delete = True
         # allow the super class to create the fields as usual
         super(BaseProjectPanelParameterFormSet, self).add_fields(form, index)
 
@@ -121,7 +139,7 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         # store the formset in the .nested property
         data = self.data if self.data and index is not None else None
         form.nested = [
-            ProjectPanelParameterAntibodyFormSet(
+            ProjectPanelParameterMarkerFormSet(
                 data=data,
                 instance=instance,
                 prefix=pk_value)]
@@ -129,9 +147,9 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
     def clean(self):
         """
         Validate the panel:
-            - No duplicate antibodies in a parameter
+            - No duplicate markers in a parameter
             - No fluorochromes in a scatter parameter
-            - No antibodies in a scatter parameter
+            - No markers in a scatter parameter
             - Fluoroscent parameter must specify a fluorochrome
             - No duplicate fluorochrome + value type combinations
             - No duplicate forward scatter + value type combinations
@@ -156,18 +174,18 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 "Invalid staining type '%s'" % staining)
 
         for form in self.forms:
-            ab_formset = form.nested[0]
+            marker_formset = form.nested[0]
 
-            # check for duplicate antibodies in a parameter
-            ab_set = set()
-            for ab_form in ab_formset.forms:
-                new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
-                if new_ab_id:  # if it's not empty string
-                    if new_ab_id in ab_set:
+            # check for duplicate markers in a parameter
+            marker_set = set()
+            for marker_form in marker_formset.forms:
+                new_marker_id = marker_form.data[marker_form.add_prefix('marker')]
+                if new_marker_id:  # if it's not empty string
+                    if new_marker_id in marker_set:
                         raise ValidationError(
-                            "A parameter cannot have duplicate antibodies.")
+                            "A parameter cannot have duplicate markers.")
                     else:
-                        ab_set.add(new_ab_id)
+                        marker_set.add(new_marker_id)
 
             # parameter type is required
             param_type = form.data[form.add_prefix('parameter_type')]
@@ -195,40 +213,44 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                 raise ValidationError(
                     "An exclusion channel must include a fluorochrome.")
 
-            # check for fluoro or antibodies in scatter channels
+            # check for fluoro or markers in scatter channels
             if param_type == 'FSC' or param_type == 'SSC':
                 if fluorochrome_id:
                     raise ValidationError(
                         "A scatter channel cannot have a fluorochrome.")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
-                        "A scatter channel cannot have an antibody.")
+                        "A scatter channel cannot have an marker.")
 
-            # check that fluoro-conj-ab channels specify either a fluoro or an
-            # antibody. If the fluoro is absent it means the project panel
+            # check that fluoro-conj-ab channels specify either a fluoro or a
+            # marker. If the fluoro is absent it means the project panel
             # allows flexibility in the site panel implementation.
-            # TODO: shouldn't antibody be required here???
-            if param_type == 'FCA':
-                if not fluorochrome_id and len(ab_set) == 0:
+            # TODO: shouldn't marker be required here???
+            if param_type == 'FCM':
+                if not fluorochrome_id and len(marker_set) == 0:
                     raise ValidationError(
-                        "A fluorescence conjugated antibody channel must " +
-                        "specify either a fluorochrome or an antibody.")
+                        "A fluorescence conjugated marker channel must " +
+                        "specify either a fluorochrome or a marker.")
 
             # make a list of the combination for use in the Counter
             param_components = [param_type, value_type]
             if fluorochrome_id:
                 param_components.append(fluorochrome_id)
-            for ab_id in sorted(ab_set):
+            for marker_id in sorted(marker_set):
                 try:
-                    ab = Antibody.objects.get(id=ab_id)
+                    marker = Marker.objects.get(id=marker_id)
                 except:
-                    raise ValidationError("Chosen antibody doesn't exist")
-                param_components.append(ab)
+                    raise ValidationError("Chosen marker doesn't exist")
+                param_components.append(marker.marker_abbreviation)
             param_counter.update([tuple(sorted(param_components))])
 
         # check for duplicate parameters
         if max(param_counter.values()) > 1:
-            raise ValidationError("Cannot have duplicate parameters")
+            error_string = "Duplicate parameters found: "
+            for p in param_counter:
+                if param_counter[p] > 1:
+                    error_string += "(" + ", ".join(p) + ")"
+            raise ValidationError(error_string)
 
 
 class BaseSitePanelParameterFormSet(BaseInlineFormSet):
@@ -247,7 +269,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         # store the formset in the .nested property
         data = self.data if self.data and index is not None else None
         form.nested = [
-            SitePanelParameterAntibodyFormSet(
+            SitePanelParameterMarkerFormSet(
                 data=data,
                 instance=instance,
                 prefix=pk_value)]
@@ -255,9 +277,9 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
     def clean(self):
         """
         Validate the panel:
-            - No duplicate antibodies in a parameter
+            - No duplicate markers in a parameter
             - No fluorochromes in a scatter parameter
-            - No antibodies in a scatter parameter
+            - No markers in a scatter parameter
             - Fluoroscent parameter must specify a fluorochrome
             - No duplicate fluorochrome + value type combinations
             - No duplicate forward scatter + value type combinations
@@ -269,7 +291,7 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
         param_dict = {}
         staining = self.instance.project_panel.staining
         if staining == 'FS':
-            can_have_uns = False
+            can_have_uns = True
             can_have_iso = False
         elif staining == 'FM':
             can_have_uns = True
@@ -285,19 +307,19 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                 "Invalid staining type '%s'" % staining)
 
         for form in self.forms:
-            ab_formset = form.nested[0]
+            marker_formset = form.nested[0]
 
-            # check for duplicate antibodies in a parameter
-            ab_set = set()
-            for ab_form in ab_formset.forms:
-                new_ab_id = ab_form.data[ab_form.add_prefix('antibody')]
-                if new_ab_id:  # if it's not empty string
-                    new_ab_id = int(new_ab_id)
-                    if new_ab_id in ab_set:
+            # check for duplicate markers in a parameter
+            marker_set = set()
+            for marker_form in marker_formset.forms:
+                new_marker_id = marker_form.data[marker_form.add_prefix('marker')]
+                if new_marker_id:  # if it's not empty string
+                    new_marker_id = int(new_marker_id)
+                    if new_marker_id in marker_set:
                         raise ValidationError(
-                            "A parameter cannot have duplicate antibodies")
+                            "A parameter cannot have duplicate markers")
                     else:
-                        ab_set.add(new_ab_id)
+                        marker_set.add(new_marker_id)
 
             # parameter type is required
             param_type = form.data[form.add_prefix('parameter_type')]
@@ -306,8 +328,8 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                     "Function is required for all parameters")
             if param_type == 'UNS' and not can_have_uns:
                 raise ValidationError(
-                    "Only FMO & Unstained panels can include an " +
-                    "unstained parameter")
+                    "Only Full Stain, FMO, & Unstained panels can " +
+                    "include an unstained parameter")
             if param_type == 'ISO' and not can_have_iso:
                 raise ValidationError(
                     "Only Isotype control panels can include an " +
@@ -325,74 +347,76 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                 raise ValidationError(
                     "An exclusion channel must be a fluorescence channel")
 
-            # check for fluoro or antibodies in scatter channels
+            # check for fluoro or markers in scatter channels
             if param_type in ['FSC', 'SSC']:
                 if fluorochrome_id:
                     raise ValidationError(
                         "A scatter channel cannot have a fluorochrome")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
-                        "A scatter channel cannot have an antibody")
+                        "A scatter channel cannot have a marker")
 
             # check that fluoro conjugated ab channels specify either a
-            # fluoro OR an antibody OR both
-            if param_type == 'FCA':
-                if not fluorochrome_id or len(ab_set) == 0:
+            # fluoro OR marker OR both
+            if param_type == 'FCM':
+                if not fluorochrome_id or len(marker_set) == 0:
                     raise ValidationError(
-                        "A fluorescence conjugated antibody channel must " +
-                        "specify a fluorochrome and at least one antibody")
+                        "A fluorescence conjugated marker channel must " +
+                        "specify a fluorochrome and at least one marker")
 
-            # Unstained channels can't have a fluoro and must have an antibody
+            # Unstained channels can't have a fluoro and must have an marker
             if param_type == 'UNS':
                 if fluorochrome_id:
                     raise ValidationError(
                         "Unstained channels CANNOT " +
                         "have a fluorochrome")
-                if len(ab_set) == 0:
+                if len(marker_set) == 0:
                     raise ValidationError(
                         "Unstained channels " +
-                        "must specify at least one antibody")
+                        "must specify at least one marker")
 
             # Iso control & Viability channels must have a fluoro and
-            # can't have antibodies
+            # can't have markers
             if param_type == 'ISO':
                 if not fluorochrome_id:
                     raise ValidationError(
                         "Isotype control channels must " +
                         "have a fluorochrome")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
                         "Isotype control channels " +
-                        "CANNOT have any antibodies")
+                        "CANNOT have any markers")
 
-            # Time channels cannot have fluoros or antibodies, must have T value
+            # Time channels cannot have fluoros or markers, must have T value
             if param_type == 'TIM':
                 if fluorochrome_id:
                     raise ValidationError(
                         "Time channels " +
                         "CANNOT have a fluorochrome")
-                if len(ab_set) > 0:
+                if len(marker_set) > 0:
                     raise ValidationError(
                         "Time channels " +
-                        "CANNOT have any antibodies")
+                        "CANNOT have any markers")
                 if value_type != 'T':
                     raise ValidationError(
                         "Time channels " +
                         "must have a T value type")
 
             # make a list of the combination for use in the Counter
-            param_components = [param_type, value_type]
-            if fluorochrome_id:
-                param_components.append(fluorochrome_id)
+            # but, unstained params aren't required to be unique
+            if param_type not in ['UNS', 'NUL']:
+                param_components = [param_type, value_type]
+                if fluorochrome_id:
+                    param_components.append(fluorochrome_id)
 
-            param_counter.update([tuple(sorted(param_components))])
+                param_counter.update([tuple(sorted(param_components))])
 
             fcs_number = form.data[form.add_prefix('fcs_number')]
             param_dict[fcs_number] = {
                 'parameter_type': param_type,
                 'parameter_value_type': value_type,
                 'fluorochrome_id': fluorochrome_id,
-                'antibody_id_set': ab_set
+                'marker_id_set': marker_set
             }
 
         # check for duplicate parameters
@@ -420,14 +444,14 @@ class BaseSitePanelParameterFormSet(BaseInlineFormSet):
                         # no match
                         continue
 
-                if ppp.projectpanelparameterantibody_set.count() > 0:
-                    if ppp.projectpanelparameterantibody_set.count() != len(param_dict[d]['antibody_id_set']):
+                if ppp.projectpanelparametermarker_set.count() > 0:
+                    if ppp.projectpanelparametermarker_set.count() != len(param_dict[d]['marker_id_set']):
                         # no match
                         continue
 
                     should_continue = False
-                    for ppp_ab in ppp.projectpanelparameterantibody_set.all():
-                        if ppp_ab.antibody.id not in param_dict[d]['antibody_id_set']:
+                    for ppp_marker in ppp.projectpanelparametermarker_set.all():
+                        if ppp_marker.marker.id not in param_dict[d]['marker_id_set']:
                             # no match
                             should_continue = True
                             break
@@ -452,6 +476,14 @@ ProjectParameterFormSet = inlineformset_factory(
     formset=BaseProjectPanelParameterFormSet,
     extra=1,
     can_delete=False
+)
+
+ProjectParameterFormSetEdit = inlineformset_factory(
+    ProjectPanel,
+    ProjectPanelParameter,
+    formset=BaseProjectPanelParameterFormSet,
+    extra=0,
+    can_delete=True
 )
 
 
@@ -503,6 +535,28 @@ class SiteForm(forms.ModelForm):
         exclude = ('project',)
 
 
+class CytometerForm(forms.ModelForm):
+    class Meta:
+        model = Cytometer
+
+    def __init__(self, *args, **kwargs):
+        # pop our 'project_id' key since parent's init is not expecting it
+        project_id = kwargs.pop('project_id', None)
+
+        # now it's safe to call the parent init
+        super(CytometerForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure only project's sites are the
+        # available choices
+        if project_id:
+            sites = Site.objects.filter(project__id=project_id)
+
+        else:
+            sites = Site.objects.none()
+
+        self.fields['site'] = forms.ModelChoiceField(sites)
+
+
 class VisitTypeForm(forms.ModelForm):
     class Meta:
         model = VisitType
@@ -527,6 +581,7 @@ class PreSitePanelForm(forms.ModelForm):
 
         # finally, the reason we're here...
         # make sure only the project's panels are the available choices
+        # and that only user sites are available
         if project_id:
             project_panels = ProjectPanel.objects.filter(
                 project__id=project_id).order_by('panel_name')
@@ -550,7 +605,7 @@ class SitePanelForm(forms.ModelForm):
 class EditSitePanelForm(forms.ModelForm):
     class Meta:
         model = SitePanel
-        exclude = ('site', 'project_panel')
+        exclude = ('project_panel')
 
 
 class SitePanelParameterMapFromSampleForm(forms.ModelForm):
@@ -647,7 +702,8 @@ class SampleForm(forms.ModelForm):
             self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
             compensations = Compensation.objects.filter(
-                site_panel__site__project__id=project_id).order_by('name')
+                site_panel__project_panel__project__id=project_id).order_by(
+                    'name')
             self.fields['compensation'] = forms.ModelChoiceField(
                 compensations,
                 required=False)
@@ -683,7 +739,7 @@ class SampleEditForm(forms.ModelForm):
             self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
 
             compensations = Compensation.objects.filter(
-                site__project__id=project_id).order_by('name')
+                site_panel__site__project__id=project_id).order_by('name')
             self.fields['compensation'] = forms.ModelChoiceField(compensations)
 
 
@@ -728,10 +784,10 @@ class CompensationForm(forms.ModelForm):
             raise ValidationError("Site panel does not exist.")
 
         # get site panel parameter fcs_text, but just for the fluoro params
-        # scatter and time don't get compensated
+        # 'Null', scatter and time don't get compensated
         params = SitePanelParameter.objects.filter(
             site_panel=site_panel).exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM'])
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
 
         # parse the matrix text and validate the number of params match
         # the number of fluoro params in the site panel and that the matrix
@@ -742,7 +798,7 @@ class CompensationForm(forms.ModelForm):
         # first row should be headers matching the PnN value (fcs_text field)
         # may be tab or comma delimited
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
-        headers = re.split('\t|,', matrix_text[0])
+        headers = re.split('\t|,\s*', matrix_text[0])
 
         missing_fields = list()
         for p in params:
@@ -766,18 +822,6 @@ class CompensationForm(forms.ModelForm):
             self._errors["matrix_text"] = "Too few rows"
             return self.cleaned_data
 
-        # we need to store the channel number in the first row of the numpy
-        # array, more reliable to identify parameters than some concatenation
-        # of parameter attributes
-        channel_header = list()
-        for h in headers:
-            for p in params:
-                if p.fcs_text == h:
-                    channel_header.append(p.fcs_number)
-
-        np_array = np.array(channel_header)
-        np_width = np_array.shape[0]
-
         # convert the matrix text to numpy array and
         for line in matrix_text[1:]:
             line_values = re.split('\t|,', line)
@@ -787,34 +831,16 @@ class CompensationForm(forms.ModelForm):
                 except ValueError:
                     self._errors["matrix_text"] = \
                         "%s is an invalid matrix value" % line_values[i]
-            if len(line_values) > np_width:
+            if len(line_values) > len(params):
                 self._errors["matrix_text"] = \
                     "Too many values in line: %s" % line
                 return self.cleaned_data
-            elif len(line_values) < np_width:
+            elif len(line_values) < len(params):
                 self._errors["matrix_text"] = \
                     "Too few values in line: %s" % line
                 return self.cleaned_data
-            else:
-                np_array = np.vstack([np_array, line_values])
-
-        # save numpy array in the self.compensation_file field
-        np_array_file = TemporaryFile()
-        np.save(np_array_file, np_array)
-        self.instance.tmp_compensation_file = np_array_file
 
         return self.cleaned_data  # never forget this! ;o)
-
-
-class ProcessForm(forms.ModelForm):
-    class Meta:
-        model = Process
-
-
-class ProcessInputForm(forms.ModelForm):
-    class Meta:
-        model = ProcessInput
-        exclude = ('process',)
 
 
 class WorkerForm(forms.ModelForm):
@@ -833,12 +859,281 @@ class ProcessRequestForm(forms.ModelForm):
             'status')
 
 
-class ProcessRequestInputValueForm(forms.ModelForm):
-    value_label = forms.CharField(widget=forms.HiddenInput())
-    process_input = forms.ModelChoiceField(
-        queryset=ProcessInput.objects.all(),
-        widget=forms.HiddenInput())
+class BaseProcessForm(forms.Form):
+    BASE_PROCESS_FORM_FIELDS = [
+        'project',
+        'project_panel',
+        'site',
+        'site_panel',
+        'subject',
+        'control_group',
+        'visit',
+        'stimulation',
+        'cytometer',
+        'specimen',
+        'storage',
+        'use_fcs'
+    ]
 
-    class Meta:
-        model = ProcessRequestInputValue
-        exclude = ('process_request',)
+    CUSTOM_FIELDS = list()  # empty list
+
+    EMPTY_CHOICES = [('', '---------')]
+
+    # projects are populated based on what the user has access to
+    project = forms.ChoiceField()
+
+    # the following fields have select options that will be dynamically
+    # generated via AJAX in the template. Some fields are dependent
+    # on another field's value, e.g. site panels only for the chosen
+    # project panel
+    project_panel = DynamicChoiceField()
+    site = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    site_panel = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    subject = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    control_group = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    visit = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    stimulation = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+    cytometer = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
+
+    specimen = forms.ModelChoiceField(
+        queryset=Specimen.objects.all(),
+        required=False)
+
+    STORAGE_CHOICES_AND_EMPTY = [('', '---------')] + list(STORAGE_CHOICES)
+    storage = forms.ChoiceField(
+        choices=STORAGE_CHOICES_AND_EMPTY,
+        required=False)
+
+    use_fcs = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        # pop 'request' arg, super init doesn't expect it
+        request = kwargs.pop('request', None)
+
+        # now it's safe to call the parent init
+        super(BaseProcessForm, self).__init__(*args, **kwargs)
+
+        # limit projects to those the user has access to
+        projects = Project.objects.get_projects_user_can_view(
+            request.user).order_by(
+                'project_name').values_list('id', 'project_name')
+        projects = list(projects)
+        projects.insert(0, ('', '---------'))
+        self.fields['project'] = forms.ChoiceField(projects)
+
+    def clean(self):
+        """
+        Validate project panel, site and control group all belong to the
+        same project.
+        """
+        try:
+            project = Project.objects.get(id=self.cleaned_data.get('project'))
+        except:
+            raise ValidationError("Invalid project")
+        try:
+            project_panel = ProjectPanel.objects.get(
+                id=self.cleaned_data.get('project_panel'))
+        except:
+            raise ValidationError("Invalid project panel")
+
+        # these are optional, so if the user didn't specify them, its ok
+        site_id = self.cleaned_data.get('site')
+        site_panel_id = self.cleaned_data.get('site_panel')
+        subject_id = self.cleaned_data.get('subject')
+        control_group_id = self.cleaned_data.get('control_group')
+        visit_id = self.cleaned_data.get('visit')
+        stimulation_id = self.cleaned_data.get('stimulation')
+        cytometer_id = self.cleaned_data.get('cytometer')
+
+        if not project_panel:
+            # project_panel is required, will get caught in field validation
+            return self.cleaned_data
+
+        if project_panel.project != project:
+            raise ValidationError(
+                "Project panel is not in chosen project")
+
+        site = None
+        if site_id:
+            try:
+                site = Site.objects.get(id=site_id)
+            except:
+                raise ValidationError("Invalid site")
+            if site.project != project:
+                raise ValidationError(
+                    "Site and project panel must belong to the same project")
+
+        if site_panel_id:
+            try:
+                site_panel = SitePanel.objects.get(id=site_panel_id)
+            except:
+                raise ValidationError("Invalid site panel")
+            if site_panel.site.project != project:
+                raise ValidationError(
+                    "Site panel & project panel must belong to same project")
+            if site_panel.project_panel != project_panel:
+                raise ValidationError(
+                    "Site panel does not belong to the chosen project panel")
+
+        if subject_id:
+            try:
+                subject = Subject.objects.get(id=subject_id)
+            except:
+                raise ValidationError("Invalid subject")
+            if subject.project != project:
+                raise ValidationError(
+                    "Subject & project panel must belong to the same project")
+
+        if control_group_id:
+            try:
+                control_group = SubjectGroup.objects.get(id=control_group_id)
+            except:
+                raise ValidationError("Invalid control group")
+            if control_group.project != project_panel.project:
+                raise ValidationError(
+                    "Control group and project panel must belong to the same " +
+                    "project.")
+
+        if visit_id:
+            try:
+                visit = VisitType.objects.get(id=visit_id)
+            except:
+                raise ValidationError("Invalid visit type")
+            if visit.project != project:
+                raise ValidationError(
+                    "Visit & project panel must belong to the same project")
+
+        if stimulation_id:
+            try:
+                stimulation = Stimulation.objects.get(id=stimulation_id)
+            except:
+                raise ValidationError("Invalid stimulation")
+            if stimulation.project != project:
+                raise ValidationError(
+                    "Stimulation & project panel must belong to the same " +
+                    "project")
+
+        if cytometer_id:
+            try:
+                cytometer = Cytometer.objects.get(id=cytometer_id)
+            except:
+                raise ValidationError("Invalid cytometer")
+            if cytometer.site.project != project:
+                raise ValidationError(
+                    "Cytometer & project panel must belong to the same " +
+                    "project")
+            if site is not None:
+                if cytometer.site != site:
+                    raise ValidationError(
+                        "Cytometer must belong to the chosen site")
+
+        return self.cleaned_data
+
+
+class TestProcessForm(BaseProcessForm):
+    CUSTOM_FIELDS = ['is_test']
+    is_test = forms.BooleanField(required=False)
+
+
+class HDPProcessForm(BaseProcessForm):
+    CUSTOM_FIELDS = [
+        'cluster_count',
+        'iteration_count',
+        'burn_in',
+        'logicle_t',
+        'logicle_w',
+        'random_seed'
+    ]
+
+    cluster_count = forms.IntegerField(
+        required=True,
+        initial=64,
+        help_text="Clusters are things too")
+    iteration_count = forms.IntegerField(required=True, initial=50)
+    burn_in = forms.IntegerField(required=True, initial=100)
+    logicle_t = forms.IntegerField(required=True, initial=262144)
+    logicle_w = forms.DecimalField(required=True, initial=0.5)
+    random_seed = forms.IntegerField(required=True, initial=123)
+
+
+class SampleFilterForm(forms.Form):
+    """
+    Note the naming of these fields corresponds to the REST API
+    URL parameter filter text strings for the various Sample relationships
+    See the custom filter in the SampleList in api_views.py
+    """
+
+    project_panel = forms.ModelMultipleChoiceField(
+        queryset=ProjectPanel.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    site = forms.ModelMultipleChoiceField(
+        queryset=Site.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    site_panel = forms.ModelMultipleChoiceField(
+        queryset=SitePanel.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    subject = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    subject_group = forms.ModelMultipleChoiceField(
+        queryset=SubjectGroup.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    visit = forms.ModelMultipleChoiceField(
+        queryset=VisitType.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    stimulation = forms.ModelMultipleChoiceField(
+        queryset=Stimulation.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+    cytometer = forms.ModelMultipleChoiceField(
+        queryset=Cytometer.objects.none(),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple())
+
+    def __init__(self, *args, **kwargs):
+        # pop 'project_id' & 'request' keys, parent init doesn't expect them
+        project_id = kwargs.pop('project_id', None)
+        request = kwargs.pop('request', None)
+
+        # now it's safe to call the parent init
+        super(SampleFilterForm, self).__init__(*args, **kwargs)
+
+        # finally, make sure the available choices belong to the project
+        if project_id:
+            project = Project.objects.get(id=project_id)
+
+            project_panels = ProjectPanel.objects.filter(project=project)
+            self.fields['project_panel'].queryset = project_panels
+
+            sites = Site.objects.get_sites_user_can_view(
+                request.user,
+                project=project
+            )
+            self.fields['site'].queryset = sites
+
+            site_panels = SitePanel.objects.filter(site__in=sites)
+            self.fields['site_panel'].queryset = site_panels
+
+            subject_groups = SubjectGroup.objects.filter(project_id=project_id)
+            self.fields['subject_group'].queryset = subject_groups
+
+            self.fields['subject'].queryset = Subject.objects.filter(
+                project_id=project_id
+            )
+
+            self.fields['visit'].queryset = VisitType.objects.filter(
+                project_id=project_id
+            )
+
+            self.fields['stimulation'].queryset = Stimulation.objects.filter(
+                project_id=project_id
+            )
+
+            cytometers = Cytometer.objects.filter(site__in=sites)
+            self.fields['cytometer'].queryset = cytometers

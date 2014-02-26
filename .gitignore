@@ -1,0 +1,5 @@
+*.pyc
+.idea
+*.db
+settings.py
+.DS_Store

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load staticfiles %}
+{% load breadcrumbs %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
+{% endblock %}
+
+{% block toes %}
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
+<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+
+<script>
+$(function() {
+  $("table#data-table").tablesorter({
+    sortList: [[1,0]],
+    headers: {
+
+      {% if user.is_superuser %}
+      0: { sorter: false},
+      1: {sorter: false},
+      4: {sorter:false},
+      {% else %}
+      0: { sorter: false},
+      3: {sorter: false},
+      {% endif %}
+    }
+  });
+});
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Home' 'home' %}
+    {% if user.is_superuser %}
+    {% breadcrumb_url 'Admin' 'admin' %}
+    {% endif %}
+    {% breadcrumb 'Markers' %}
+  </ul>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+
+  <table id="data-table" class="table table-hover">
+    <thead>
+      <tr>
+        <th colspan="50" class="center">
+          <div style="position:relative">
+            <h4>Markers <span class="badge badge-inverse align-top">{{ markers|length }}</span></h4>
+
+            <div style="position:absolute; right:0;top:0;">
+              {% if user.is_superuser %}
+                <a class="btn btn btn-small" href="{% url 'add_marker' %}">Add Marker</a>
+              {% endif %}
+            </div>
+
+          </div>
+        </th>
+      </tr>
+      <tr>
+        {% if user.is_superuser %}
+        <th></th>
+        {% endif %}
+        <th>Abbreviation</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for marker in markers|dictsort:"marker_abbreviation" %}
+      <tr>
+        {% if user.is_superuser %}
+        <td class="middle">
+          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_marker' marker.id %}" data-original-title="Edit" data-placement="bottom">
+            <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+          </a>
+        </td>
+        {% endif %}
+        <td class="middle">{{ marker.marker_abbreviation }}</td>
+        <td class="middle">{{ marker.marker_name }}</td>
+        <td class="middle">{{ marker.marker_description|default_if_none:'' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

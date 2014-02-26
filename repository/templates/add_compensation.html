@@ -7,13 +7,21 @@
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
     {% breadcrumb_url 'Compensation Matrices' 'project_compensations' project.id %}
+    {% if add_or_edit == 'add' %}
     {% breadcrumb "Add Compensation Matrix" %}
+    {% else %}
+    {% breadcrumb "Edit Compensation Matrix" %}
+    {% endif %}
   </ul>
 {% endblock %}
 
 {% block body %}
     <div class="container">
-        <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_compensation' project.id %}" method="post">
+        {% if add_or_edit == 'edit' %}
+        <form class="form-horizontal" action="{% url 'edit_compensation' project.id compensation_id %}" method="post">
+        {% else %}
+        <form class="form-horizontal" action="{% url 'add_compensation' project.id %}" method="post">
+        {% endif %}
             {% csrf_token %}
 
             {% if form.non_field_errors %}

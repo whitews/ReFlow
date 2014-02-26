@@ -206,7 +206,7 @@ textarea {
 body {
   margin: 0;
   font-family: "Open Sans", "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 20px;
   color: #444444;
   background-color: #ffffff;
@@ -5870,6 +5870,15 @@ button.close {
     margin-left: 0;
   }
 }
+
+@media (min-width: 1400px) {
+  .container,
+  .navbar-static-top .container,
+  .navbar-fixed-top .container,
+  .navbar-fixed-bottom .container {
+    width: 1370px;
+  }
+}
 /* ----------Sticky footer START---------- */
 html, body, #wrap {
   height: 100%;
@@ -5938,7 +5947,7 @@ th.sorter-false {
 }
 
 tr.parameter-fields > td > select,
-span.antibody-field > select {
+span.marker-field > select {
   margin-bottom: 9px !important;
   width: auto !important;
 }
@@ -6021,7 +6030,29 @@ span.antibody-field > select {
   font-weight: 200;
   line-height: 150%;
 }
+
+.well > h4 {
+    margin-top: 0px;
+    padding-top: 0px;
+}
+
 /* Other stuff */
 #id_matrix_text {
   width: 412px;
+}
+
+form.unstyled-checkboxes > ul {
+    list-style-type: none;
+    margin: 6px 0px 6px 9px;
+}
+form.unstyled-checkboxes > ul > li {
+    line-height: 0px;
+    margin: 6px 0px;
+}
+form.unstyled-checkboxes > ul > li > label {
+    margin-bottom: 0px;
+    line-height: 100%;
+}
+form.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
+    margin: 0px !important;
 }
