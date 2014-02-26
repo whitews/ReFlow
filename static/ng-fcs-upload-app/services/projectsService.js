@@ -29,22 +29,10 @@ var URLS = {
     'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
 };
 
-app.service('projectsService', ['$http', function ($http) {
+app.service('projectsService', function ($http) {
 
     this.getProjects = function () {
-//        return [
-//            {
-//                project_name: 'A'
-//            },
-//            {
-//                project_name: 'B'
-//            },
-//            {
-//                project_name: 'C'
-//            }
-//        ];
-
         return $http.get(URLS.PROJECTS);
     }
 
-}]);
+});
