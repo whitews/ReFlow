@@ -7,6 +7,7 @@
 {% block toes %}
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
 <script src="{% static 'ng-fcs-upload-app/app.js' %}"></script>
 <script src="{% static 'ng-fcs-upload-app/controllers/upload_controller.js' %}"></script>
 <script src="{% static 'ng-fcs-upload-app/services/projectsService.js' %}"></script>
@@ -14,7 +15,8 @@
 
 {% block breadcrumbs %}
   <ul class="breadcrumb">
-    {% breadcrumb 'Home' %}
+    {% breadcrumb_url 'Home' 'home' %}
+    {% breadcrumb 'Upload FCS Files' %}
   </ul>
 {% endblock %}
 
@@ -23,7 +25,6 @@
   <div class="container" data-ng-app="fcsUploadApp">
 
       <div data-ng-view></div>
-
 
   </div>
 {% endverbatim %}

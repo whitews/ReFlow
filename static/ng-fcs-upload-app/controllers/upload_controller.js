@@ -1,10 +1,15 @@
 /**
  * Created by swhite on 2/25/14.
  */
-app.controller('UploadController', function ($scope, projectsService) {
+app.controller('UploadController', ['$scope', 'Project', 'Site', function ($scope, Project, Site) {
+    $scope.current_project = {};
+    $scope.projects = Project.query();
 
-    projectsService.getProjects().success(function (data) {
-        $scope.projects = data;
-    });
 
-});
+
+    if ($scope.current_project) {
+        $scope.sites = Site.query({project: '1'});
+    }
+
+
+}]);

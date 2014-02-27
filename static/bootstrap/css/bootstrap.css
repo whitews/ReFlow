@@ -6023,6 +6023,9 @@ span.marker-field > select {
 #render_parameters_form > select {
   width: auto !important;
 }
+select.app {
+  width: auto !important;
+}
 /* ----------  Checkbox Lists in Forms    END---------- */
 /* ----------  well text START---------- */
 .well p {

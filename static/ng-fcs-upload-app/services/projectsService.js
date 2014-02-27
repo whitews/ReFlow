@@ -29,10 +29,14 @@ var URLS = {
     'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
 };
 
-app.service('projectsService', function ($http) {
+app.factory('Project', ['$resource', function ($resource) {
 
-    this.getProjects = function () {
-        return $http.get(URLS.PROJECTS);
-    }
+    return $resource(URLS.PROJECTS);
 
-});
+}]);
+
+app.factory('Site', ['$resource', function ($resource) {
+
+    return $resource(URLS.SITES + ':project');
+
+}]);

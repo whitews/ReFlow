@@ -1,4 +1,17 @@
 
-    <ul>
-      <li data-ng-repeat="project in projects">{{ project.project_name }}</li>
-    </ul>
+
+
+    Project:
+    <select class="app btn-small" ng-model="current_project" ng-options="p.project_name for p in projects">
+    </select>
+    <br />
+
+    Site:
+    <select class="app btn-small" ng-model="current_site" ng-options="s.site_name for s in sites">
+    </select>
+    <br />
+
+
+    You selected the following: <br />
+    Project:{{ current_project }}<br />
+    Site:{{ current_site }}<br />
