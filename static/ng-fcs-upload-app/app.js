@@ -3,3 +3,12 @@
  */
 
 var app = angular.module('fcsUploadApp', ['ngRoute']);
+
+app.config(function ($routeProvider) {
+    $routeProvider
+        .when('/',
+        {
+            controller: 'UploadController',
+            templateUrl: '/static/ng-fcs-upload-app/partials/upload_samples.html'
+        });
+});
