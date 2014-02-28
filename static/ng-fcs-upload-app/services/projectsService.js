@@ -3,7 +3,6 @@
  */
 
 var URLS = {
-    'TOKEN':               '/api/token-auth/',
     'PROJECTS':            '/api/repository/projects/',
     'SPECIMENS':           '/api/repository/specimens/',
     'SUBJECT_GROUPS':      '/api/repository/subject_groups/',
@@ -29,14 +28,45 @@ var URLS = {
     'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
 };
 
-app.factory('Project', ['$resource', function ($resource) {
-
-    return $resource(URLS.PROJECTS);
-
-}]);
-
-app.factory('Site', ['$resource', function ($resource) {
-
-    return $resource(URLS.SITES + '?project=:project');
-
-}]);
+app
+    .factory('Project', ['$resource', function ($resource) {
+        return $resource(URLS.PROJECTS);
+    }])
+    .factory('Site', ['$resource', function ($resource) {
+        return $resource(URLS.SITES);
+    }])
+    .factory('Specimen', ['$resource', function ($resource) {
+        return $resource(URLS.SPECIMENS);
+    }])
+    .factory('SubjectGroup', ['$resource', function ($resource) {
+        return $resource(URLS.SUBJECT_GROUPS);
+    }])
+    .factory('Subject', ['$resource', function ($resource) {
+        return $resource(URLS.SUBJECTS);
+    }])
+    .factory('VisitType', ['$resource', function ($resource) {
+        return $resource(URLS.VISIT_TYPES);
+    }])
+    .factory('Stimulation', ['$resource', function ($resource) {
+        return $resource(URLS.STIMULATIONS);
+    }])
+    .factory('Cytometer', ['$resource', function ($resource) {
+        return $resource(URLS.CYTOMETERS);
+    }])
+    .factory('ProjectPanel', ['$resource', function ($resource) {
+        return $resource(URLS.PROJECT_PANELS);
+    }])
+    .factory('SitePanel', ['$resource', function ($resource) {
+        return $resource(URLS.SITE_PANELS);
+    }])
+    .factory('Compensation', ['$resource', function ($resource) {
+        return $resource(URLS.COMPENSATIONS);
+    }])
+    .factory('Sample', ['$resource', function ($resource) {
+        return $resource(URLS.SAMPLES);
+    }])
+    .service('Pretreatment', [ function () {
+        this.query = function () {
+            return [{name:'In vitro'}, {name:'Ex vivo'}];
+        };
+    }]);

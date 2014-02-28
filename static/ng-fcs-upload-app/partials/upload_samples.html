@@ -4,7 +4,7 @@
     <tr>
         <td>Project:</td>
         <td>
-            <select ng-model="current_project" ng-change="updateMetadata()" ng-options="p.project_name for p in projects">
+            <select ng-model="current_project" ng-change="projectChanged()" ng-options="p.project_name for p in projects">
             </select>
             <br />
         </td>
@@ -12,7 +12,31 @@
     <tr>
         <td>Site:</td>
         <td>
-            <select ng-model="current_site" ng-options="s.site_name for s in sites">
+            <select ng-model="current_site" ng-change="siteChanged()" ng-options="s.site_name for s in sites">
+            </select>
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td>Cytometer:</td>
+        <td>
+            <select ng-model="current_cytometer" ng-options="c.cytometer_name for c in cytometers">
+            </select>
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td>Specimen:</td>
+        <td>
+            <select ng-model="current_specimen" ng-options="s.specimen_description for s in specimens">
+            </select>
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td>Pre-treatment:</td>
+        <td>
+            <select ng-model="current_pretreatment" ng-options="pt.name for pt in pretreatments">
             </select>
             <br />
         </td>
@@ -20,7 +44,28 @@
 </table>
 
     You selected the following: <br />
-    Project: <br />
-    <pre>{{ current_project | json }}</pre><br />
-    Site: <br />
-    <pre>{{ current_site | json }}<br /></pre>
+
+    <div ng-show="current_project">
+      Project: <br />
+      <pre>{{ current_project | json }}</pre><br />
+    </div>
+
+    <div ng-show="current_site">
+      Site: <br />
+      <pre>{{ current_site | json }}</pre><br />
+    </div>
+
+    <div ng-show="current_cytometer">
+      Cytometer: <br />
+      <pre>{{ current_cytometer | json }}</pre><br />
+    </div>
+
+    <div ng-show="current_specimen">
+      Specimen: <br />
+      <pre>{{ current_specimen | json }}</pre><br />
+    </div>
+
+    <div ng-show="current_pretreatment">
+      Pre-treatment: <br />
+      <pre>{{ current_pretreatment | json }}</pre><br />
+    </div>
