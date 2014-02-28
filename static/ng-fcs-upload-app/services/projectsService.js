@@ -37,6 +37,6 @@ app.factory('Project', ['$resource', function ($resource) {
 
 app.factory('Site', ['$resource', function ($resource) {
 
-    return $resource(URLS.SITES + ':project');
+    return $resource(URLS.SITES + '?project=:project');
 
 }]);
