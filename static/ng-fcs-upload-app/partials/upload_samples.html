@@ -41,6 +41,14 @@
             <br />
         </td>
     </tr>
+    <tr>
+        <td>Storage:</td>
+        <td>
+            <select ng-model="current_storage" ng-options="s.name for s in storages">
+            </select>
+            <br />
+        </td>
+    </tr>
 </table>
 
     You selected the following: <br />
@@ -68,4 +76,9 @@
     <div ng-show="current_pretreatment">
       Pre-treatment: <br />
       <pre>{{ current_pretreatment | json }}</pre><br />
+    </div>
+
+    <div ng-show="current_storage">
+      Storage: <br />
+      <pre>{{ current_storage | json }}</pre><br />
     </div>

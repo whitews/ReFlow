@@ -28,7 +28,9 @@ var URLS = {
     'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
 };
 
-app
+var service = angular.module('reflowService', ['ngResource']);
+
+service
     .factory('Project', ['$resource', function ($resource) {
         return $resource(URLS.PROJECTS);
     }])
@@ -68,5 +70,10 @@ app
     .service('Pretreatment', [ function () {
         this.query = function () {
             return [{name:'In vitro'}, {name:'Ex vivo'}];
+        };
+    }])
+    .service('Storage', [ function () {
+        this.query = function () {
+            return [{name:'Fresh'}, {name:'Cryopreserved'}];
         };
     }]);
