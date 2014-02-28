@@ -1,5 +1,6 @@
 
-
+<div class="row">
+<div class="span4">
 <table>
     <tr>
         <td>Project:</td>
@@ -50,35 +51,66 @@
         </td>
     </tr>
 </table>
+</div>
+<div class="span8">
 
-    You selected the following: <br />
+    <div ng-show="dropSupported" class="drop-box" ng-file-drop="onFileSelect($files);" ng-file-drop-available="dropSupported=true">Drop files here</div>
+    <div ng-show="!dropSupported">HTML5 Drop File is not supported on this browser</div>
+    <br />
 
-    <div ng-show="current_project">
-      Project: <br />
-      <pre>{{ current_project | json }}</pre><br />
-    </div>
+</div>
+</div>
 
-    <div ng-show="current_site">
-      Site: <br />
-      <pre>{{ current_site | json }}</pre><br />
-    </div>
 
-    <div ng-show="current_cytometer">
-      Cytometer: <br />
-      <pre>{{ current_cytometer | json }}</pre><br />
-    </div>
+<table class="table table-hover" ng-show="selectedFiles">
+  <thead>
+    <th><input type="checkbox" /> </th>
+    <th>File Name</th>
+    <th>Acquistion Date</th>
+    <th>Site Panel</th>
+    <th>Subject</th>
+    <th>Visit</th>
+    <th>Stimulation</th>
+  </thead>
+  <tbody>
+    <tr data-ng-repeat="f in selectedFiles">
+      <td><input type="checkbox" /></td>
+      <td>{{ f.name }}</td>
+      <td>some text</td>
+      <td>some text</td>
+      <td>some text</td>
+      <td>some text</td>
+      <td>some text</td>
+    </tr>
+  </tbody>
+</table>
 
-    <div ng-show="current_specimen">
-      Specimen: <br />
-      <pre>{{ current_specimen | json }}</pre><br />
-    </div>
+<div ng-show="current_project">
+  Project: <br />
+  <pre>{{ current_project | json }}</pre><br />
+</div>
 
-    <div ng-show="current_pretreatment">
-      Pre-treatment: <br />
-      <pre>{{ current_pretreatment | json }}</pre><br />
-    </div>
+<div ng-show="current_site">
+  Site: <br />
+  <pre>{{ current_site | json }}</pre><br />
+</div>
 
-    <div ng-show="current_storage">
-      Storage: <br />
-      <pre>{{ current_storage | json }}</pre><br />
-    </div>
+<div ng-show="current_cytometer">
+  Cytometer: <br />
+  <pre>{{ current_cytometer | json }}</pre><br />
+</div>
+
+<div ng-show="current_specimen">
+  Specimen: <br />
+  <pre>{{ current_specimen | json }}</pre><br />
+</div>
+
+<div ng-show="current_pretreatment">
+  Pre-treatment: <br />
+  <pre>{{ current_pretreatment | json }}</pre><br />
+</div>
+
+<div ng-show="current_storage">
+  Storage: <br />
+  <pre>{{ current_storage | json }}</pre><br />
+</div>

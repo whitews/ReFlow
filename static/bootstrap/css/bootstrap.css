@@ -6039,6 +6039,19 @@ select.app {
     padding-top: 0px;
 }
 
+/* DnD box */
+.drop-box {
+    background-color: #fffdfd;
+    border: 2px dashed #b9b9b9;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    padding: 27px;
+    text-align: center;
+    font: 21px bold "Optima";
+    color: #b9b9b9;
+}
+
 /* Other stuff */
 #id_matrix_text {
   width: 412px;
