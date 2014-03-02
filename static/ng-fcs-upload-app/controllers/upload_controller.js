@@ -62,9 +62,20 @@ app.controller(
             function parseFcsText(queue_index) {
                 var reader = new FileReader();
                 reader.addEventListener("loadend", function(evt) {
+                    var delimiter = evt.target.result[0];
+                    var non_paired_list = evt.target.result.split(delimiter);
+                    var metadata = {};
+
+                    // first match will be empty string since the FCS TEXT
+                    // segment starts with the delimiter, so we'll start at
+                    // the 2nd index
+                    for (var i = 1; i < non_paired_list.length; i+=2) {
+                        metadata[non_paired_list[i]] = non_paired_list[i+1];
+                    }
+
                     // Using $apply here to trigger template update
                     $scope.$apply(function () {
-                        $scope.file_queue[queue_index].metadata = evt.target.result;
+                        $scope.file_queue[queue_index].metadata = metadata;
                     });
                 });
 

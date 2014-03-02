@@ -98,7 +98,11 @@
 
   Metadata: <br />
   <ul>
-      <li data-ng-repeat="f in file_queue">{{ f.metadata }}</li>
+      <li data-ng-repeat="f in file_queue">
+          <div data-ng-repeat="(key, value) in f.metadata">
+              {{ key }}: {{ value }}<br />
+          </div>
+      </li>
   </ul>
 
 <div ng-show="current_project">
