@@ -62,20 +62,31 @@
 </div>
 
 
-<table class="table table-hover" ng-show="selectedFiles">
+<table class="table table-hover" ng-show="file_queue">
   <thead>
-    <th><input type="checkbox" /> </th>
-    <th>File Name</th>
-    <th>Acquistion Date</th>
-    <th>Site Panel</th>
-    <th>Subject</th>
-    <th>Visit</th>
-    <th>Stimulation</th>
+    <tr>
+        <th></th>
+        <th>File Name</th>
+        <th>Acquisition Date</th>
+        <th>Site Panel</th>
+        <th>Subject</th>
+        <th>Visit</th>
+        <th>Stimulation</th>
+    </tr>
+    <tr>
+        <th><input type="checkbox" /></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
   </thead>
   <tbody>
-    <tr data-ng-repeat="f in selectedFiles">
+    <tr data-ng-repeat="f in file_queue">
       <td><input type="checkbox" /></td>
-      <td>{{ f.name }}</td>
+      <td>{{ f.filename }}</td>
       <td>some text</td>
       <td>some text</td>
       <td>some text</td>
@@ -84,6 +95,11 @@
     </tr>
   </tbody>
 </table>
+
+  Metadata: <br />
+  <ul>
+      <li data-ng-repeat="f in file_queue">{{ f.metadata }}</li>
+  </ul>
 
 <div ng-show="current_project">
   Project: <br />

@@ -6041,7 +6041,7 @@ select.app {
 
 /* DnD box */
 .drop-box {
-    background-color: #fffdfd;
+    background-color: #fcfcfc;
     border: 2px dashed #b9b9b9;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;

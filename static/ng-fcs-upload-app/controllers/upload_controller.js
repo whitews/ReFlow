@@ -40,37 +40,31 @@ app.controller(
                 $scope.upload[index].abort();
                 $scope.upload[index] = null;
             };
-            $scope.onFileSelect = function($files) {
-                $scope.selectedFiles = [];
-                $scope.progress = [];
-                if ($scope.upload && $scope.upload.length > 0) {
-                    for (var i = 0; i < $scope.upload.length; i++) {
-                        if ($scope.upload[i] != null) {
-                            $scope.upload[i].abort();
-                        }
-                    }
-                }
-                $scope.upload = [];
-                $scope.uploadResult = [];
-                $scope.selectedFiles = $files;
-                $scope.dataUrls = [];
-                for ( var i = 0; i < $files.length; i++) {
-                    var $file = $files[i];
-                    if (window.FileReader && $file.type.indexOf('image') > -1) {
-                        var fileReader = new FileReader();
-                        fileReader.readAsDataURL($files[i]);
-                        function setPreview(fileReader, index) {
-                            fileReader.onload = function(e) {
-                                $timeout(function() {
-                                    $scope.dataUrls[index] = e.target.result;
-                                });
-                            }
-                        }
-                        setPreview(fileReader, i);
-                    }
-                    $scope.progress[i] = -1;
-                }
+
+            function setupReader (queue_index) {
+                var reader = new FileReader();
+                reader.addEventListener("loadend", function(evt) {
+                    $scope.$apply(function () {
+                        $scope.file_queue[queue_index].metadata = evt.target.result;
+                    });
+                });
+                var blob =  $scope.file_queue[queue_index].file.slice(0, 58);
+                reader.readAsBinaryString(blob);
             }
+
+            $scope.onFileSelect = function($files) {
+                $scope.file_queue = [];
+
+                for (var i = 0; i < $files.length; i++) {
+                    $scope.file_queue.push({
+                        filename: $files[i].name,
+                        file: $files[i],
+                        metadata: {}
+                    });
+
+                    setupReader(i);
+                }
+            };
 
             $scope.start = function(index) {
                 $scope.progress[index] = 0;
