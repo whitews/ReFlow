@@ -41,14 +41,37 @@ app.controller(
                 $scope.upload[index] = null;
             };
 
-            function setupReader (queue_index) {
+            function setupReader(queue_index) {
                 var reader = new FileReader();
                 reader.addEventListener("loadend", function(evt) {
+                    var preheader = evt.target.result;
+
+                    // TODO: Check 1st 6 bytes to make sure this is an FCS file
+
+                    // The following uses the FCS standard offset definitions
+                    $scope.file_queue[queue_index].text_begin = parseInt(preheader.substr(10, 8));
+                    $scope.file_queue[queue_index].text_end = parseInt(preheader.substr(18, 8));
+                    $scope.file_queue[queue_index].data_begin = parseInt(preheader.substr(26, 8));
+                    $scope.file_queue[queue_index].data_end = parseInt(preheader.substr(34, 8));
+                    parseFcsText(queue_index);
+                });
+                var blob = $scope.file_queue[queue_index].file.slice(0, 58);
+                reader.readAsBinaryString(blob);
+            }
+
+            function parseFcsText(queue_index) {
+                var reader = new FileReader();
+                reader.addEventListener("loadend", function(evt) {
+                    // Using $apply here to trigger template update
                     $scope.$apply(function () {
                         $scope.file_queue[queue_index].metadata = evt.target.result;
                     });
                 });
-                var blob =  $scope.file_queue[queue_index].file.slice(0, 58);
+
+                var blob = $scope.file_queue[queue_index].file.slice(
+                    $scope.file_queue[queue_index].text_begin,
+                    $scope.file_queue[queue_index].text_end
+                );
                 reader.readAsBinaryString(blob);
             }
 
