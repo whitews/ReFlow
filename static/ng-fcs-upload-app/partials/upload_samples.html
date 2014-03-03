@@ -99,8 +99,8 @@
   Metadata: <br />
   <ul>
       <li data-ng-repeat="f in file_queue">
-          <div data-ng-repeat="(key, value) in f.metadata">
-              {{ key }}: {{ value }}<br />
+          <div data-ng-repeat="item in f.metadata">
+              {{ item.key }}: {{ item.value }}<br />
           </div>
       </li>
   </ul>
