@@ -26,30 +26,6 @@
             <br />
         </td>
     </tr>
-    <tr>
-        <td>Specimen:</td>
-        <td>
-            <select ng-model="current_specimen" ng-options="s.specimen_description for s in specimens">
-            </select>
-            <br />
-        </td>
-    </tr>
-    <tr>
-        <td>Pre-treatment:</td>
-        <td>
-            <select ng-model="current_pretreatment" ng-options="pt.name for pt in pretreatments">
-            </select>
-            <br />
-        </td>
-    </tr>
-    <tr>
-        <td>Storage:</td>
-        <td>
-            <select ng-model="current_storage" ng-options="s.name for s in storages">
-            </select>
-            <br />
-        </td>
-    </tr>
 </table>
 </div>
 <div class="span8">
@@ -65,6 +41,9 @@
 <table class="table table-hover" ng-show="file_queue">
   <thead>
     <tr>
+        <th colspan="50" class="center"><h4>Upload Queue</h4></th>
+    </tr>
+    <tr>
         <th></th>
         <th>File Name</th>
         <th>Acquisition Date</th>
@@ -72,65 +51,56 @@
         <th>Subject</th>
         <th>Visit</th>
         <th>Stimulation</th>
+        <th>Specimen</th>
+        <th>Pre-treatment</th>
+        <th>Storage</th>
     </tr>
     <tr>
         <th><input type="checkbox" /></th>
         <th></th>
         <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
+        <th>
+          <select class="app btn-mini" ng-model="current_site_panel" ng-options="s.name for s in site_panels">
+          </select>
+        </th>
+        <th>
+          <select class="app btn-mini" ng-model="current_subject" ng-options="s.subject_code for s in subjects">
+          </select>
+        </th>
+        <th>
+          <select class="app btn-mini" ng-model="current_visit_type" ng-options="v.visit_type_name for v in visit_types">
+          </select>
+        </th>
+        <th>
+          <select class="app btn-mini" ng-model="current_stimulation" ng-options="s.stimulation_name for s in stimulations">
+          </select>
+        </th>
+        <th>
+          <select class="app btn-mini" ng-model="current_specimen" ng-options="s.specimen_name for s in specimens">
+          </select>
+        </th>
+        <th>
+          <select class="app btn-mini" ng-model="current_pretreatment" ng-options="pt.name for pt in pretreatments">
+          </select>
+        </th>
+        <th>
+          <select class="app btn-mini" ng-model="current_storage" ng-options="s.name for s in storages">
+          </select>
+        </th>
     </tr>
   </thead>
   <tbody>
     <tr data-ng-repeat="f in file_queue">
       <td><input type="checkbox" /></td>
       <td>{{ f.filename }}</td>
-      <td>some text</td>
-      <td>some text</td>
-      <td>some text</td>
-      <td>some text</td>
-      <td>some text</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
   </tbody>
 </table>
-
-  Metadata: <br />
-  <ul>
-      <li data-ng-repeat="f in file_queue">
-          <div data-ng-repeat="item in f.metadata">
-              {{ item.key }}: {{ item.value }}<br />
-          </div>
-      </li>
-  </ul>
-
-<div ng-show="current_project">
-  Project: <br />
-  <pre>{{ current_project | json }}</pre><br />
-</div>
-
-<div ng-show="current_site">
-  Site: <br />
-  <pre>{{ current_site | json }}</pre><br />
-</div>
-
-<div ng-show="current_cytometer">
-  Cytometer: <br />
-  <pre>{{ current_cytometer | json }}</pre><br />
-</div>
-
-<div ng-show="current_specimen">
-  Specimen: <br />
-  <pre>{{ current_specimen | json }}</pre><br />
-</div>
-
-<div ng-show="current_pretreatment">
-  Pre-treatment: <br />
-  <pre>{{ current_pretreatment | json }}</pre><br />
-</div>
-
-<div ng-show="current_storage">
-  Storage: <br />
-  <pre>{{ current_storage | json }}</pre><br />
-</div>

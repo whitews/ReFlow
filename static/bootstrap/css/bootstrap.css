@@ -5545,7 +5545,7 @@ button.close {
     width: 28px;
   }
 }
-@media (min-width: 1200px) {
+@media (min-width: 1180px) {
   .row {
     margin-left: -30px;
     *zoom: 1;
@@ -5568,43 +5568,43 @@ button.close {
   .navbar-static-top .container,
   .navbar-fixed-top .container,
   .navbar-fixed-bottom .container {
-    width: 1170px;
+    width: 1150px;
   }
   .span12 {
-    width: 1170px;
+    width: 1150px;
   }
   .span11 {
-    width: 1070px;
+    width: 1050px;
   }
   .span10 {
-    width: 970px;
+    width: 950px;
   }
   .span9 {
-    width: 870px;
+    width: 850px;
   }
   .span8 {
-    width: 770px;
+    width: 750px;
   }
   .span7 {
-    width: 670px;
+    width: 650px;
   }
   .span6 {
-    width: 570px;
+    width: 550px;
   }
   .span5 {
-    width: 470px;
+    width: 450px;
   }
   .span4 {
-    width: 370px;
+    width: 350px;
   }
   .span3 {
-    width: 270px;
+    width: 250px;
   }
   .span2 {
-    width: 170px;
+    width: 150px;
   }
   .span1 {
-    width: 70px;
+    width: 50px;
   }
   .offset12 {
     margin-left: 1230px;
@@ -6025,6 +6025,7 @@ span.marker-field > select {
 }
 select.app {
   width: auto !important;
+  margin: 0;
 }
 /* ----------  Checkbox Lists in Forms    END---------- */
 /* ----------  well text START---------- */
