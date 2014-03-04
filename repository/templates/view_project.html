@@ -18,12 +18,12 @@
             <div style="position:relative">
               <h4>{{ project.project_name }}</h4>
 
-              <div style="position:absolute; right:0;top:0;">
+              <div class="btn-group" style="position:absolute; right:0;top:0;">
                 {% if can_modify_project_data %}
-                  <a class="btn btn btn-small" href="{% url 'edit_project' project.id %}">Edit Project</a>
+                  <a class="btn btn-default btn-sm" href="{% url 'edit_project' project.id %}">Edit Project</a>
                 {% endif %}
                 {% if can_manage_project_users %}
-                  <a class="btn btn btn-small"  href="{% url 'view_project_users' project.id %}">Manage Users</a>
+                  <a class="btn btn-default btn-sm"  href="{% url 'view_project_users' project.id %}">Manage Users</a>
                 {% endif %}
               </div>
             </div>
@@ -42,14 +42,14 @@
     </p>
     <p>
       <a href="{% url 'view_project_sites' project.id %}">Sites</a>
-      <i class="icon-chevron-right"></i>
+      <i class="glyphicon glyphicon-chevron-right"></i>
       <a href="{% url 'view_project_cytometers' project.id %}">Cytometers</a>
     </p>
     <p><a href="{% url 'project_visit_types' project.id %}">Visit Types</a></p>
     <p><a href="{% url 'view_project_stimulations' project.id %}">Stimulations</a></p>
     <p>
       <a href="{% url 'view_project_panels' project.id %}">Project Panels</a>
-      <i class="icon-chevron-right"></i>
+      <i class="glyphicon glyphicon-chevron-right"></i>
       <a href="{% url 'view_project_site_panels' project.id %}">Site Panels</a>
     </p>
     <p>
