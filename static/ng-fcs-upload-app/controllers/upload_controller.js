@@ -136,7 +136,32 @@ app.controller(
                     $scope.progress[index] = parseInt(100.0 * evt.loaded / evt.total);
                 });
 
-            }
+            };
+
+            // Date picker stuff
+            $scope.today = function() {
+                $scope.dt = new Date();
+            };
+            $scope.today();
+
+            $scope.clear = function () {
+                $scope.dt = null;
+            };
+
+            $scope.open = function($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                $scope.opened = true;
+            };
+
+            $scope.dateOptions = {
+                'year-format': "'yy'",
+                'starting-day': 1
+            };
+
+            $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'shortDate'];
+            $scope.format = $scope.formats[0];
 
         }
     ]

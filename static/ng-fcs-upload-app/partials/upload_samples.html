@@ -1,6 +1,6 @@
 
 <div class="row">
-<div class="span4">
+<div class="col-md-4">
 <table>
     <tr>
         <td>Project:</td>
@@ -28,7 +28,7 @@
     </tr>
 </table>
 </div>
-<div class="span8">
+<div class="col-md-8">
 
     <div ng-show="dropSupported" class="drop-box" ng-file-drop="onFileSelect($files);" ng-file-drop-available="dropSupported=true">Drop files here</div>
     <div ng-show="!dropSupported">HTML5 Drop File is not supported on this browser</div>
@@ -58,7 +58,16 @@
     <tr>
         <th><input type="checkbox" /></th>
         <th></th>
-        <th></th>
+        <th>
+          <div class="col-md-6">
+            <p class="input-group">
+              <input type="text" class="app form-control" datepicker-popup="{{format}}" ng-model="dt" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+              </span>
+            </p>
+          </div>
+        </th>
         <th>
           <select class="app btn-mini" ng-model="current_site_panel" ng-options="s.name for s in site_panels">
           </select>
