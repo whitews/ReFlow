@@ -77,11 +77,11 @@ urlpatterns += patterns('repository.views',
 
     url(r'^markers/$', 'view_markers', name='view_markers'),
     url(r'^markers/add/$', 'add_marker', name='add_marker'),
-    url(r'^markers/(?P<marker_id>\d+)/edit/$', 'edit_marker', name='edit_marker'),
+    url(r'^markers/(?P<marker_id>\d+)/edit/$', 'add_marker', name='edit_marker'),
 
     url(r'^fluorochromes/$', 'view_fluorochromes', name='view_fluorochromes'),
     url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
-    url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'edit_fluorochrome', name='edit_fluorochrome'),
+    url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'add_fluorochrome', name='edit_fluorochrome'),
 
     url(r'^specimens/$', 'view_specimens', name='view_specimens'),
     url(r'^specimens/add/$', 'add_specimen', name='add_specimen'),
@@ -89,7 +89,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),
-    url(r'^project/(?P<project_id>\d+)/edit/$', 'edit_project', name='edit_project'),
+    url(r'^project/(?P<project_id>\d+)/edit/$', 'add_project', name='edit_project'),
 
     url(r'^project/(?P<project_id>\d+)/users/$', 'view_project_users', name='view_project_users'),
     url(r'^project/(?P<project_id>\d+)/users/add/$', 'add_user_permissions', name='add_user_permissions'),
@@ -98,7 +98,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/stimulations/$', 'view_project_stimulations', name='view_project_stimulations'),
     url(r'^project/(?P<project_id>\d+)/stimulations/add/$', 'add_stimulation', name='add_stimulation'),
-    url(r'^stimulations/(?P<stimulation_id>\d+)/edit/$', 'edit_stimulation', name='edit_stimulation'),
+    url(r'^project/(?P<project_id>\d+)/stimulations/(?P<stimulation_id>\d+)/edit/$', 'add_stimulation', name='edit_stimulation'),
 
     url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='view_project_panels'),
     url(r'^project/(?P<project_id>\d+)/panels/add/$', 'add_project_panel', name='add_project_panel'),

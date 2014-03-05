@@ -154,31 +154,13 @@ def view_markers(request):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def add_marker(request):
-    if request.method == 'POST':
-        form = MarkerForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_markers'))
+def add_marker(request, marker_id=None):
+    if marker_id:
+        marker = get_object_or_404(Marker, pk=marker_id)
+        add_or_edit = 'edit'
     else:
-        form = MarkerForm()
-
-    return render_to_response(
-        'add_marker.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def edit_marker(request, marker_id):
-    marker = get_object_or_404(Marker, pk=marker_id)
+        marker = Marker()
+        add_or_edit = 'add'
 
     if request.method == 'POST':
         form = MarkerForm(request.POST, instance=marker)
@@ -190,10 +172,11 @@ def edit_marker(request, marker_id):
         form = MarkerForm(instance=marker)
 
     return render_to_response(
-        'edit_marker.html',
+        'add_marker.html',
         {
-            'marker': marker,
             'form': form,
+            'add_or_edit': add_or_edit,
+            'marker_id': marker_id,
         },
         context_instance=RequestContext(request)
     )
@@ -222,31 +205,13 @@ def view_fluorochromes(request):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def add_fluorochrome(request):
-    if request.method == 'POST':
-        form = FluorochromeForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_fluorochromes'))
+def add_fluorochrome(request, fluorochrome_id=None):
+    if fluorochrome_id:
+        fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
+        add_or_edit = 'edit'
     else:
-        form = FluorochromeForm()
-
-    return render_to_response(
-        'add_fluorochrome.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def edit_fluorochrome(request, fluorochrome_id):
-    fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
+        fluorochrome = Fluorochrome()
+        add_or_edit = 'add'
 
     if request.method == 'POST':
         form = FluorochromeForm(request.POST, instance=fluorochrome)
@@ -258,10 +223,11 @@ def edit_fluorochrome(request, fluorochrome_id):
         form = FluorochromeForm(instance=fluorochrome)
 
     return render_to_response(
-        'edit_fluorochrome.html',
+        'add_fluorochrome.html',
         {
-            'fluorochrome': fluorochrome,
             'form': form,
+            'add_or_edit': add_or_edit,
+            'fluorochrome_id': fluorochrome_id,
         },
         context_instance=RequestContext(request)
     )
@@ -303,9 +269,16 @@ def view_project(request, project_id):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def add_project(request):
+def add_project(request, project_id=None):
+    if project_id:
+        project = get_object_or_404(Project, pk=project_id)
+        add_or_edit = 'edit'
+    else:
+        project = Project()
+        add_or_edit = 'add'
+
     if request.method == 'POST':
-        form = ProjectForm(request.POST)
+        form = ProjectForm(request.POST, instance=project)
 
         if form.is_valid():
             project = form.save()
@@ -320,39 +293,14 @@ def add_project(request):
             return HttpResponseRedirect(reverse(
                 'view_project', args=(project.id,)))
     else:
-        form = ProjectForm()
+        form = ProjectForm(instance=project)
 
     return render_to_response(
         'add_project.html',
         {
             'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_project(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if not project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = ProjectForm(request.POST, instance=project)
-
-        if form.is_valid():
-            project = form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project', args=(project.id,)))
-    else:
-        form = ProjectForm(instance=project)
-
-    return render_to_response(
-        'edit_project.html',
-        {
-            'project': project,
-            'form': form,
+            'add_or_edit': add_or_edit,
+            'project_id': project_id,
         },
         context_instance=RequestContext(request)
     )
@@ -496,14 +444,27 @@ def view_project_stimulations(request, project_id):
 
 
 @login_required
-def add_stimulation(request, project_id):
+def add_stimulation(request, project_id, stimulation_id=None):
     project = get_object_or_404(Project, pk=project_id)
 
-    if not project.has_add_permission(request.user):
-        raise PermissionDenied
+    if stimulation_id:
+        stimulation = get_object_or_404(Stimulation, pk=stimulation_id)
+        add_or_edit = 'edit'
+
+        if stimulation.project != project:
+            return HttpResponseBadRequest()
+
+        if not project.has_modify_permission(request.user):
+            raise PermissionDenied
+
+    else:
+        stimulation = Stimulation(project=project)
+        add_or_edit = 'add'
+
+        if not project.has_add_permission(request.user):
+            raise PermissionDenied
 
     if request.method == 'POST':
-        stimulation = Stimulation(project=project)
         form = StimulationForm(request.POST, instance=stimulation)
 
         if form.is_valid():
@@ -512,40 +473,15 @@ def add_stimulation(request, project_id):
             return HttpResponseRedirect(reverse(
                 'view_project_stimulations', args=(project_id,)))
     else:
-        form = StimulationForm()
+        form = StimulationForm(instance=stimulation)
 
     return render_to_response(
         'add_project_stimulation.html',
         {
             'form': form,
             'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_stimulation(request, stimulation_id):
-    stimulation = get_object_or_404(Stimulation, pk=stimulation_id)
-
-    if not stimulation.project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = StimulationForm(request.POST, instance=stimulation)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_stimulations', args=(stimulation.project_id,)))
-    else:
-        form = StimulationForm(instance=stimulation)
-
-    return render_to_response(
-        'edit_project_stimulation.html',
-        {
-            'form': form,
-            'stimulation': stimulation,
+            'add_or_edit': add_or_edit,
+            'stimulation_id': stimulation_id,
         },
         context_instance=RequestContext(request)
     )
@@ -935,6 +871,7 @@ def add_cytometer(request, project_id, cytometer_id=None):
             'form': form,
             'project': project,
             'add_or_edit': add_or_edit,
+            'cytometer_id': cytometer_id,
         },
         context_instance=RequestContext(request)
     )

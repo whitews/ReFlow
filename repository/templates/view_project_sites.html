@@ -60,8 +60,8 @@ $(function() {
       <tr>
         <td width="1%" class="middle">
           {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_site' site.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
             </a>
           {% endif %}
         </td>

@@ -58,9 +58,9 @@ $(function() {
         <tr>
           <td width="1%">
             {% if can_modify_project_data %}
-              <button class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_subject_group' group.project_id group.id %}" data-original-title="Edit" data-placement="bottom">
+              <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_subject_group' group.project_id group.id %}" data-original-title="Edit" data-placement="bottom">
                 <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
-              </button>
+              </a>
             {% endif %}
           </td>
           <td>{{ group.group_name }}</td>

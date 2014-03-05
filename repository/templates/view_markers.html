@@ -74,8 +74,8 @@ $(function() {
       <tr>
         {% if user.is_superuser %}
         <td class="middle">
-          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_marker' marker.id %}" data-original-title="Edit" data-placement="bottom">
-            <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+          <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_marker' marker.id %}" data-original-title="Edit" data-placement="bottom">
+            <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
           </a>
         </td>
         {% endif %}

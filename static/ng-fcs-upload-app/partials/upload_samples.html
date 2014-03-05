@@ -59,41 +59,39 @@
         <th><input type="checkbox" /></th>
         <th></th>
         <th>
-          <div class="col-md-6">
-            <p class="input-group">
+            <div class="input-group">
               <input type="text" class="app form-control" datepicker-popup="{{format}}" ng-model="dt" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close" />
               <span class="input-group-btn">
                 <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
               </span>
-            </p>
-          </div>
+            </div>
         </th>
         <th>
-          <select class="app btn-mini" ng-model="current_site_panel" ng-options="s.name for s in site_panels">
+          <select class="app btn btn-default btn-xs" ng-model="current_site_panel" ng-options="s.name for s in site_panels">
           </select>
         </th>
         <th>
-          <select class="app btn-mini" ng-model="current_subject" ng-options="s.subject_code for s in subjects">
+          <select class="app btn btn-default btn-xs" ng-model="current_subject" ng-options="s.subject_code for s in subjects">
           </select>
         </th>
         <th>
-          <select class="app btn-mini" ng-model="current_visit_type" ng-options="v.visit_type_name for v in visit_types">
+          <select class="app btn btn-default btn-xs" ng-model="current_visit_type" ng-options="v.visit_type_name for v in visit_types">
           </select>
         </th>
         <th>
-          <select class="app btn-mini" ng-model="current_stimulation" ng-options="s.stimulation_name for s in stimulations">
+          <select class="app btn btn-default btn-xs" ng-model="current_stimulation" ng-options="s.stimulation_name for s in stimulations">
           </select>
         </th>
         <th>
-          <select class="app btn-mini" ng-model="current_specimen" ng-options="s.specimen_name for s in specimens">
+          <select class="app btn btn-default btn-xs" ng-model="current_specimen" ng-options="s.specimen_name for s in specimens">
           </select>
         </th>
         <th>
-          <select class="app btn-mini" ng-model="current_pretreatment" ng-options="pt.name for pt in pretreatments">
+          <select class="app btn btn-default btn-xs" ng-model="current_pretreatment" ng-options="pt.name for pt in pretreatments">
           </select>
         </th>
         <th>
-          <select class="app btn-mini" ng-model="current_storage" ng-options="s.name for s in storages">
+          <select class="app btn btn-default btn-xs" ng-model="current_storage" ng-options="s.name for s in storages">
           </select>
         </th>
     </tr>

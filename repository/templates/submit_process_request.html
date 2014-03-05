@@ -12,7 +12,6 @@
 {% endblock %}
 
 {% block toes %}
-<script src="{% static 'js/jquery-ui-1.9.2.custom.js' %}"></script>
 
 <script>
 $(document).ready(function() {
@@ -24,10 +23,9 @@ $(document).ready(function() {
                       .attr("value", '')
                       .text('---------'));
 
-      $(".toggle-advanced").click(function()
+      $("#toggle-advanced").click(function()
       {
-          $('.params').toggle(250);
-          return false;
+          $('#advanced-params').toggle(250);
       });
 
     $('select[name=project]').change(function() {
@@ -274,22 +272,22 @@ $(document).ready(function() {
         </div>
       </div>
 
-      <a href="#" class="toggle-advanced">Show/Hide Advanced Options</a>
+      <a href="#" id="toggle-advanced">Show/Hide Advanced Options</a>
 
-      <div class="hide params">
-      {% for field in form %}
-      {% if field.name not in required_base_fields %}
-      <div class="control-group">
-        <label class="control-label">{{ field.label }}</label>
-        <div class="controls">
-          {{ field }}
-          {% if field.errors %}
-            <span class="help-inline">{{ field.label }}: {{ field.errors|striptags }}</span>
-          {% endif %}
+      <div id="advanced-params" style="display: none">
+        {% for field in form %}
+        {% if field.name not in required_base_fields %}
+        <div class="control-group">
+          <label class="control-label">{{ field.label }}</label>
+          <div class="controls">
+            {{ field }}
+            {% if field.errors %}
+              <span class="help-inline">{{ field.label }}: {{ field.errors|striptags }}</span>
+            {% endif %}
+          </div>
         </div>
-      </div>
-      {% endif %}
-      {% endfor %}
+        {% endif %}
+        {% endfor %}
       </div>
 
       <div class="control-group">

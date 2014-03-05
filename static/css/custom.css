@@ -40,6 +40,7 @@ input[type="color"],
   -moz-border-radius: 4px;
   border-radius: 4px;
   vertical-align: middle;
+  min-width: 190px;
 }
 
 .lead {
@@ -303,19 +304,28 @@ span.marker-field > select {
 .no-wrap {
   white-space: nowrap;
 }
-/* ----------  Checkbox Lists in Forms  START---------- */
-.control-group ul {
-  width: auto;
+/* ----------  Custom form stuff START---------- */
+.form-group {
+  margin-bottom: 12px;
+}
+
+select,
+input[type="file"] {
+  height: 30px;
+  line-height: 30px;
+}
+
+input[type="file"] {
+  display: inline-block;
+}
+
+.form-group ul {
   list-style: none;
-  padding-top: 5px;
-  margin-left: 5px;
+  display: inline-block;
+  padding: 7px 0px;
 }
-.control-group ul li label {
-  width: auto !important;
-  display: inline;
-}
-.control-group ul li label input {
-  margin: 0;
+.form-group ul > li {
+  display: list-item;
 }
 
 #render_parameters_form > select {
@@ -324,8 +334,12 @@ span.marker-field > select {
 select.app, input.app {
   width: auto !important;
   margin: 0;
+  min-width: 0;
 }
-/* ----------  Checkbox Lists in Forms    END---------- */
+p.input-group {
+  min-width: 0;
+}
+/* ----------  Custom form stuff END---------- */
 /* ----------  well text START---------- */
 .well p {
   font-size: 16px;

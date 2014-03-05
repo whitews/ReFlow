@@ -13,16 +13,16 @@
 {% block body %}
   <div class="container">
   <div class="well">
-    <div class="row-fluid">
-      <div class="span5">
+    <div class="row">
+      <div class="col-md-5">
         <h4>Projects</h4>
           <a href="{% url 'add_project' %}">Add Project</a>
       </div>
     </div>
   </div>
   <div class="well">
-    <div class="row-fluid">
-      <div class="span5">
+    <div class="row">
+      <div class="col-md-5">
         <h4>Specimens</h4>
 
             <a href="{% url 'view_specimens' %}">View</a><br/>
@@ -30,17 +30,17 @@
 
       </div>
     </div>
-    <div class="row-fluid"><br/>
+    <div class="row"><br/>
     </div>
-    <div class="row-fluid">
-      <div class="span5">
+    <div class="row">
+      <div class="col-md-5">
         <h4>Markers</h4>
 
             <a href="{% url 'view_markers' %}">View</a><br/>
             <a href="{% url 'add_marker' %}">Add Marker</a><br/>
 
       </div>
-      <div class="span5">
+      <div class="col-md-5">
         <h4>Fluorochromes</h4>
 
             <a href="{% url 'view_fluorochromes' %}">View</a><br/>
@@ -50,9 +50,9 @@
     </div>
   </div>
   <div class="well">
-    <div class="row-fluid">
+    <div class="row">
 
-      <div class="span5">
+      <div class="col-md-5">
         <h4>Process Manager</h4>
 
             <a href="{% url 'process_dashboard' %}">Dashboard</a><br/>

@@ -232,26 +232,22 @@ function remove_marker(selector) {
     <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_project_site_panel' project.id %}" method="post">
       {% csrf_token %}
         {% if preform.non_field_errors %}
-          <div class="control-group text-error">
+          <div class="form-group text-error">
             {{ preform.non_field_errors }}
           </div>
         {% endif %}
 
         {% for field in preform %}
-          <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">
+          <div class="form-group">
+            <label class="col-md-2 control-label">{{ field.label }}</label>
               {{ field }}
               {% if field.errors %}
                 <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
               {% endif %}
-            </div>
           </div>
         {% endfor %}
-      <div class="control-group">
-        <div class="controls">
-          <button class="btn btn-small btn-success" type="submit">Submit File</button>
-        </div>
+      <div class="form-group">
+        <button class="col-sm-offset-2 btn btn-small btn-success" type="submit">Submit File</button>
       </div>
     </form>
 
@@ -342,10 +338,10 @@ function remove_marker(selector) {
                   <span class="marker-field no-wrap">
                     {{ nested_form.marker }}
                     <a class="hide remove-marker" href="javascript:void(0)" onclick="remove_marker($(this))">
-                      <i class="icon-remove align-middle\"></i>
+                      <i class="glyphicon glyphicon-remove align-middle\"></i>
                     </a>
                     <a class="add-marker-link" href="javascript:void(0)" onclick="add_marker($(this))">
-                      <i class="icon-plus align-middle"></i></a>
+                      <i class="glyphicon glyphicon-plus align-middle"></i></a>
                   </span>
                 {% endfor %}
               {% endfor %}
@@ -360,10 +356,8 @@ function remove_marker(selector) {
           </tr>
           {% endfor %}
         </table>
-      <div class="control-group">
-        <div class="controls">
-          <button id="process-parameters" class="btn btn-small btn-success" type="submit">Save</button>
-        </div>
+      <div class="form-group">
+        <button id="process-parameters" class="col-sm-offset-2 btn btn-small btn-success" type="submit">Save</button>
       </div>
     </form>
 

@@ -74,8 +74,8 @@ function revoke_assignment()
           <span id="worker">
             {{ process_request.worker.worker_name|default_if_none:'' }}
             {% if user.is_superuser and process_request.worker.worker_name != None %}
-              <a class="btn btn-mini" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
-                <i style="opacity: 0.4;margin: 0 10px;" class="icon-remove align-middle"></i>
+              <a class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+                <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
               </a>
             {% endif %}
             <span id="error_message"></span>

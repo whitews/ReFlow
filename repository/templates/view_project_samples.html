@@ -37,20 +37,20 @@ $(document).ready(function () {
                 $.each(data, function(i, d) {
                     var row_content =
                         '<td width="1%" class="no-wrap middle">' +
-                          '<a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_parameters(' + d.id + ')" data-original-title="Show Parameters" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-list-alt align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="javascript:void(0)" onclick="show_parameters(' + d.id + ')" data-original-title="Show Parameters" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-list-alt align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_compensation(' + d.id + ')" data-original-title="Show Compensation" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-qrcode align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="javascript:void(0)" onclick="show_compensation(' + d.id + ')" data-original-title="Show Compensation" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-qrcode align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="/api/repository/samples/' + d.id + '/fcs_original/" data-original-title="Download FCS File" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-download-alt align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="/api/repository/samples/' + d.id + '/fcs_original/" data-original-title="Download FCS File" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-download-alt align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="/api/repository/samples/' + d.id + '/csv/" data-original-title="Download Subsampled CSV File" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-download-alt align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="/api/repository/samples/' + d.id + '/csv/" data-original-title="Download Subsampled CSV File" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-download-alt align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="/sample/' + d.id + '/edit/" data-original-title="Edit" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-pencil align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="/sample/' + d.id + '/edit/" data-original-title="Edit" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>' +
                           '</a>' +
                         '</td>' +
                         '<td class="no-wrap middle">' + d.original_filename + '</td>' +
@@ -154,7 +154,7 @@ function show_compensation(id) {
 
 
     <div class="row">
-      <div class="span3">
+      <div class="col-md-3">
         <div class="well">
           <form class="unstyled-checkboxes" id="sample-filter-form" method="get">
             <div style="position: relative">
@@ -175,7 +175,7 @@ function show_compensation(id) {
         </div>
       </div>
 
-      <div class="span9">
+      <div class="col-md-9">
         <table id="data-table" class="table table-hover">
           <thead>
             <tr>
@@ -189,7 +189,7 @@ function show_compensation(id) {
 
           </tbody>
         </table>
-      </div> <!-- end span9 -->
+      </div> <!-- end col-md-9 -->
     </div> <!-- end row -->
   </div>
 {% endblock %}
