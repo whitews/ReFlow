@@ -33,7 +33,7 @@ input[type="color"],
   padding: 4px 6px;
   margin-bottom: 10px;
   font-size: 13px;
-  line-height: 20px;
+  line-height: 1.5;
   color: #555;
   border: 1px solid #CCC;
   -webkit-border-radius: 4px;
@@ -341,9 +341,19 @@ select.app, input.app {
   margin: 0;
   min-width: 0;
 }
-p.input-group {
-  min-width: 0;
+.datepicker-wrapper {
+  max-width: 170px !important;
+  height: 30px;
 }
+.datepicker-wrapper > .input-group > input {
+  min-width: 130px !important;
+  font-size: 12px !important;
+  height: 30px;
+}
+.datepicker-wrapper > .input-group > span > button {
+  height: 30px;
+}
+
 /* ----------  Custom form stuff END---------- */
 /* ----------  well text START---------- */
 .well p {
