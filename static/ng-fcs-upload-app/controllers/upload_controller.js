@@ -38,6 +38,78 @@ app.controller(
                 $scope.current_cytometer = null;
                 $scope.site_panels = SitePanel.query({project: $scope.current_project.id});
             };
+            
+            $scope.acquisitionDateChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].acquisition_date = $scope.current_acquisition_date;
+                    }
+                }
+                $scope.current_acquisition_date = null;
+            };
+
+            $scope.sitePanelChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].site_panel = $scope.current_site_panel;
+                    }
+                }
+                $scope.current_site_panel = null;
+            };
+            
+            $scope.subjectChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].subject = $scope.current_subject;
+                    }
+                }
+                $scope.current_subject = null;
+            };
+            
+            $scope.visitTypeChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].visit_type = $scope.current_visit_type;
+                    }
+                }
+                $scope.current_visit_type = null;
+            };
+            
+            $scope.stimulationChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].stimulation = $scope.current_stimulation;
+                    }
+                }
+                $scope.current_stimulation = null;
+            };
+            
+            $scope.specimenChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].specimen = $scope.current_specimen;
+                    }
+                }
+                $scope.current_specimen = null;
+            };
+            
+            $scope.pretreatmentChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].pretreatment = $scope.current_pretreatment;
+                    }
+                }
+                $scope.current_pretreatment = null;
+            };
+            
+            $scope.storageChanged = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].storage = $scope.current_storage;
+                    }
+                }
+                $scope.current_storage = null;
+            };
 
             // file reader stuff
             $scope.fileReaderSupported = window.FileReader != null;
@@ -49,36 +121,39 @@ app.controller(
                 $scope.upload[index] = null;
             };
 
-            function setupReader(queue_index) {
+            function setupReader(obj) {
                 var reader = new FileReader();
                 reader.addEventListener("loadend", function(evt) {
                     var preheader = evt.target.result;
 
-                    // TODO: Check 1st 6 bytes to make sure this is an FCS file
+                    if (preheader.substr(0, 3) != 'FCS') {
+                        return;
+                    }
 
                     // The following uses the FCS standard offset definitions
-                    $scope.file_queue[queue_index].text_begin = parseInt(preheader.substr(10, 8));
-                    $scope.file_queue[queue_index].text_end = parseInt(preheader.substr(18, 8));
-                    $scope.file_queue[queue_index].data_begin = parseInt(preheader.substr(26, 8));
-                    $scope.file_queue[queue_index].data_end = parseInt(preheader.substr(34, 8));
-                    parseFcsText(queue_index);
+                    obj.text_begin = parseInt(preheader.substr(10, 8));
+                    obj.text_end = parseInt(preheader.substr(18, 8));
+                    obj.data_begin = parseInt(preheader.substr(26, 8));
+                    obj.data_end = parseInt(preheader.substr(34, 8));
+
+                    parseFcsText(obj);
                 });
-                var blob = $scope.file_queue[queue_index].file.slice(0, 58);
+                var blob = obj.file.slice(0, 58);
                 reader.readAsBinaryString(blob);
             }
 
-            function parseFcsText(queue_index) {
+            function parseFcsText(obj) {
                 var reader = new FileReader();
                 reader.addEventListener("loadend", function(evt) {
                     var delimiter = evt.target.result[0];
                     var non_paired_list = evt.target.result.split(delimiter);
-                    var metadata = [];
+                    obj.metadata = [];
 
                     // first match will be empty string since the FCS TEXT
                     // segment starts with the delimiter, so we'll start at
                     // the 2nd index
                     for (var i = 1; i < non_paired_list.length; i+=2) {
-                        metadata.push(
+                        obj.metadata.push(
                             {
                                 key: non_paired_list[i],
                                 value: non_paired_list[i+1]
@@ -88,28 +163,25 @@ app.controller(
 
                     // Using $apply here to trigger template update
                     $scope.$apply(function () {
-                        $scope.file_queue[queue_index].metadata = metadata;
+                        $scope.file_queue.push(obj);
                     });
                 });
 
-                var blob = $scope.file_queue[queue_index].file.slice(
-                    $scope.file_queue[queue_index].text_begin,
-                    $scope.file_queue[queue_index].text_end
-                );
+                var blob = obj.file.slice(obj.text_begin, obj.text_end);
                 reader.readAsBinaryString(blob);
             }
 
             $scope.onFileSelect = function($files) {
                 $scope.file_queue = [];
+                $scope.current_acquisition_date = "";
 
                 for (var i = 0; i < $files.length; i++) {
-                    $scope.file_queue.push({
+                    setupReader({
                         filename: $files[i].name,
                         file: $files[i],
-                        metadata: {}
+                        metadata: {},
+                        selected: false
                     });
-
-                    setupReader(i);
                 }
             };
 

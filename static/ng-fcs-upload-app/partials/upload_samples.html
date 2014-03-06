@@ -38,7 +38,7 @@
 </div>
 
 
-<table class="table table-hover" ng-show="file_queue">
+<table class="table table-hover">
   <thead>
     <tr>
         <th colspan="50" class="center"><h4>Upload Queue</h4></th>
@@ -56,12 +56,12 @@
         <th>Storage</th>
     </tr>
     <tr>
-        <th><input type="checkbox" /></th>
+        <th><input type="checkbox" ng-model="master_checkbox" /></th>
         <th></th>
         <th>
             <div class="datepicker-wrapper">
               <div class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dt" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close" />
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="current_acquisition_date" ng-change="acquisitionDateChanged()" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close" />
                 <span class="input-group-btn">
                   <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
@@ -69,47 +69,47 @@
             </div>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_site_panel" ng-options="s.name for s in site_panels">
+          <select class="app btn btn-default btn-xs" ng-model="current_site_panel" ng-change="sitePanelChanged()" ng-options="s.name for s in site_panels">
           </select>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_subject" ng-options="s.subject_code for s in subjects">
+          <select class="app btn btn-default btn-xs" ng-model="current_subject" ng-change="subjectChanged()" ng-options="s.subject_code for s in subjects">
           </select>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_visit_type" ng-options="v.visit_type_name for v in visit_types">
+          <select class="app btn btn-default btn-xs" ng-model="current_visit_type" ng-change="visitTypeChanged()" ng-options="v.visit_type_name for v in visit_types">
           </select>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_stimulation" ng-options="s.stimulation_name for s in stimulations">
+          <select class="app btn btn-default btn-xs" ng-model="current_stimulation" ng-change="stimulationChanged()" ng-options="s.stimulation_name for s in stimulations">
           </select>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_specimen" ng-options="s.specimen_name for s in specimens">
+          <select class="app btn btn-default btn-xs" ng-model="current_specimen" ng-change="specimenChanged()" ng-options="s.specimen_name for s in specimens">
           </select>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_pretreatment" ng-options="pt.name for pt in pretreatments">
+          <select class="app btn btn-default btn-xs" ng-model="current_pretreatment" ng-change="pretreatmentChanged()" ng-options="pt.name for pt in pretreatments">
           </select>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_storage" ng-options="s.name for s in storages">
+          <select class="app btn btn-default btn-xs" ng-model="current_storage" ng-change="storageChanged()" ng-options="s.name for s in storages">
           </select>
         </th>
     </tr>
   </thead>
   <tbody>
     <tr data-ng-repeat="f in file_queue">
-      <td><input type="checkbox" /></td>
+      <td><input type="checkbox" ng-checked="master_checkbox" ng-model="f.selected" /></td>
       <td>{{ f.filename }}</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>{{ f.acquisition_date | date }}</td>
+      <td>{{ f.site_panel.name }}</td>
+      <td>{{ f.subject.subject_code }}</td>
+      <td>{{ f.visit_type.visit_type_name }}</td>
+      <td>{{ f.stimulation.stimulation_name }}</td>
+      <td>{{ f.specimen.specimen_name }}</td>
+      <td>{{ f.pretreatment.name }}</td>
+      <td>{{ f.storage.name }}</td>
     </tr>
   </tbody>
 </table>
