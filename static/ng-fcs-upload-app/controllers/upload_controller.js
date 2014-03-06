@@ -121,6 +121,12 @@ app.controller(
                 $scope.upload[index] = null;
             };
 
+            $scope.toggleAllFiles = function () {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    $scope.file_queue[i].selected = $scope.master_checkbox;
+                }
+            }
+
             function setupReader(obj) {
                 var reader = new FileReader();
                 reader.addEventListener("loadend", function(evt) {

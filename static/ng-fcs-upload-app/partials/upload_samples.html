@@ -56,7 +56,7 @@
         <th>Storage</th>
     </tr>
     <tr>
-        <th><input type="checkbox" ng-model="master_checkbox" /></th>
+        <th><input type="checkbox" ng-model="master_checkbox" ng-change="toggleAllFiles()"/></th>
         <th></th>
         <th>
             <div class="datepicker-wrapper">
@@ -100,7 +100,7 @@
   </thead>
   <tbody>
     <tr data-ng-repeat="f in file_queue">
-      <td><input type="checkbox" ng-checked="master_checkbox" ng-model="f.selected" /></td>
+      <td><input type="checkbox" ng-model="f.selected" /></td>
       <td>{{ f.filename }}</td>
       <td>{{ f.acquisition_date | date }}</td>
       <td>{{ f.site_panel.name }}</td>
