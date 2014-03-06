@@ -30,8 +30,10 @@
               <img class="inline" src="{% static 'reflow_text.png' %}">
           </div>
       </div>
-      <div class="row"><br></div>
-        <div class="col-md-4 col-md-offset-4">
+
+      <br />
+
+      <div id="login-box">
         <form class="form-signin" action="{% url 'authenticate.views.login_view' %}" method="POST">
           {% csrf_token %}
           <h2 class="form-signin-heading">Please sign in</h2>
@@ -42,7 +44,8 @@
           <br />
           <button class="btn btn-primary" type="submit">Sign in</button>
         </form>
-        </div>
+      </div>
+
 
     </div>
   </body>

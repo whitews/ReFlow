@@ -244,6 +244,11 @@ span.marker-field > select {
 }
 /* ----------  Table stuff   END---------- */
 /* ----------  Login stuff START---------- */
+#login-box {
+  width: 350px;
+  margin: auto;
+}
+
 .form-signin {
   padding: 30px;
   margin: 0;
