@@ -255,7 +255,7 @@ function remove_marker(selector) {
 
     <div id="render_parameters_form">
 
-      <div id="parameter-form-errors" class="hide alert alert-error">
+      <div id="parameter-form-errors" class="alert alert-error" style="display: none">
 
       </div>
 
@@ -290,7 +290,7 @@ function remove_marker(selector) {
       <form id="panel-parameter-form" class="form-horizontal" action="{% url 'process_site_panel_post' project.id %}" method="post">
       {% csrf_token %}
 
-      <div class="hide">
+      <div style="display: none">
         {{ site_panel_form }}
       </div>
 
@@ -312,15 +312,15 @@ function remove_marker(selector) {
           <tr class="parameter-fields">
             <td>
               {{ parameter_form.fcs_number.value }}
-              <div class="hide">{{ parameter_form.fcs_number }}</div>
+              <div style="display: none">{{ parameter_form.fcs_number }}</div>
             </td>
             <td>
               {{ parameter_form.fcs_text.value }}
-              <div class="hide">{{ parameter_form.fcs_text }}</div>
+              <div style="display: none">{{ parameter_form.fcs_text }}</div>
             </td>
             <td>
               {{ parameter_form.fcs_opt_text.value }}
-              <div class="hide">{{ parameter_form.fcs_opt_text }}</div>
+              <div style="display: none">{{ parameter_form.fcs_opt_text }}</div>
             </td>
             <td>
               {{ parameter_form.parameter_type }}
@@ -337,7 +337,7 @@ function remove_marker(selector) {
                 {% for nested_form in nested_formset.forms %}
                   <span class="marker-field no-wrap">
                     {{ nested_form.marker }}
-                    <a class="hide remove-marker" href="javascript:void(0)" onclick="remove_marker($(this))">
+                    <a class="remove-marker" style="display: none" href="javascript:void(0)" onclick="remove_marker($(this))">
                       <i class="glyphicon glyphicon-remove align-middle\"></i>
                     </a>
                     <a class="add-marker-link" href="javascript:void(0)" onclick="add_marker($(this))">

@@ -140,7 +140,7 @@ function show_compensation(id) {
 
               {% if can_add_project_data or user_add_sites.count > 0 %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_sample' project.id %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_sample' project.id %}">
                   Add Sample
                 </a>
               </div>
@@ -160,7 +160,7 @@ function show_compensation(id) {
             <div style="position: relative">
               <h4>Filter</h4>
               <div style="position: absolute; right:0;top:0;">
-                <button class="btn btn-small" type="submit">
+                <button class="btn btn-default btn-sm" type="submit">
                   Apply
                 </button>
               </div>

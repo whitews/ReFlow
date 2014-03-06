@@ -46,7 +46,7 @@ $(function() {
 
             {% if can_add_project_data or user_add_sites.count > 0 %}
             <div style="position:absolute; right:0;top:0;">
-              <a class="btn btn-small" href="{% url 'add_compensation' project.id %}">
+              <a class="btn btn-default btn-sm" href="{% url 'add_compensation' project.id %}">
                 Add Compensation
               </a>
             </div>

@@ -87,7 +87,7 @@ $(function() {
               <h4>Workers <span class="badge badge-inverse align-top">{{ workers|length }}</span></h4>
               {% if user.is_superuser %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_worker' %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_worker' %}">
                   Add Worker
                 </a>
               </div>

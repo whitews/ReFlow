@@ -71,7 +71,7 @@ $(document).ready(function()
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_project_site_panel' project.id %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_project_site_panel' project.id %}">
                   Add Site Panel
                 </a>
               </div>
@@ -112,7 +112,7 @@ $(document).ready(function()
           <td>{{ panel.project_panel.get_staining_display }}</td>
           <td width="60%">
             <a href="#" class="toggle-closest">Show/Hide</a>
-            <div class="hide params">
+            <div class="params" style="display: none">
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
