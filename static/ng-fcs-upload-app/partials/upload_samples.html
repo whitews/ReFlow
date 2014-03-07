@@ -42,11 +42,13 @@
   <thead>
     <tr>
         <th colspan="50" class="center">
-          <h4>Upload Queue</h4>
-          <div style="position:absolute; right:0;top:0;">
-            <button class="btn btn-default btn-sm" href="#" data-ng-click="uploadSelected()">
-              Upload Selected
-            </button>
+          <div style="position:relative">
+            <h4>Upload Queue</h4>
+            <div style="position:absolute; right:0;top:0;">
+              <button class="btn btn-default btn-sm" href="#" data-ng-click="uploadSelected()">
+                Upload Selected
+              </button>
+            </div>
           </div>
         </th>
     </tr>
@@ -108,7 +110,15 @@
   <tbody>
     <tr data-ng-repeat="f in file_queue" data-ng-click="f.selected = !f.selected">
       <td><input type="checkbox" ng-model="f.selected" /></td>
-      <td>{{ f.filename }}</td>
+      <td>
+        {{ f.filename }}
+        <div class="text-warning" data-ng-show="f.errors">
+          <ul>
+            <li data-ng-repeat="error in f.errors">{{ error.key }}: {{ error.value }}</li>
+          </ul>
+        </div>
+
+      </td>
       <td>{{ f.acquisition_date | date }}</td>
       <td>{{ f.site_panel.name }}</td>
       <td>{{ f.subject.subject_code }}</td>

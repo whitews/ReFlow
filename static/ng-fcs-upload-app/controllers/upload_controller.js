@@ -5,7 +5,6 @@ app.controller(
     'UploadController',
     [
         '$scope',
-        '$http',
         '$timeout',
         '$upload',
         'Project',
@@ -18,7 +17,7 @@ app.controller(
         'VisitType',
         'Subject',
         'SitePanel',
-        function ($scope, $http, $timeout, $upload, Project, Site, Specimen, Cytometer, Pretreatment, Storage, Stimulation, VisitType, Subject, SitePanel) {
+        function ($scope, $timeout, $upload, Project, Site, Specimen, Cytometer, Pretreatment, Storage, Stimulation, VisitType, Subject, SitePanel) {
             $scope.projects = Project.query();
             $scope.specimens = Specimen.query();
             $scope.pretreatments = Pretreatment.query();
@@ -125,7 +124,7 @@ app.controller(
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     $scope.file_queue[i].selected = $scope.master_checkbox;
                 }
-            }
+            };
 
             function setupReader(obj) {
                 var reader = new FileReader();
@@ -186,35 +185,59 @@ app.controller(
                         filename: $files[i].name,
                         file: $files[i],
                         metadata: {},
-                        selected: false
+                        selected: false,
+                        errors: []
                     });
                 }
             };
 
-            $scope.start = function(index) {
-                $scope.progress[index] = 0;
+            $scope.uploadSelected = function() {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        upload(i);
+                    }
+                }
+            };
 
-                $scope.upload[index] = $upload.upload({
-                    url : 'upload',
+            function upload(index) {
+                $scope.file_queue[index].progress = 0;
+
+                $scope.file_queue[index].progress = $upload.upload({
+                    url : '/api/repository/samples/add/',
                     method: 'POST',
-                    headers: {'myHeaderKey': 'myHeaderVal'},
+//                            headers: {'myHeaderKey': 'myHeaderVal'},
 
                     // put the sample's model data here
                     data : {
-                        myModel : $scope.myModel
+                        'subject': $scope.file_queue[index].subject.id,
+                        'visit': $scope.file_queue[index].visit_type.id,
+                        'specimen': $scope.file_queue[index].specimen.id,
+                        'pretreatment': $scope.file_queue[index].pretreatment.name,
+                        'storage': $scope.file_queue[index].storage.name,
+                        'stimulation': $scope.file_queue[index].stimulation.id,
+                        'site_panel': $scope.file_queue[index].site_panel.id,
+                        'cytometer': $scope.current_cytometer.id,
+                        'acquisition_date': $scope.file_queue[index].acquisition_date
                     },
 
-                    file: $scope.selectedFiles[index],
+                    file: $scope.file_queue[index].file,
+                    fileFormDataName: 'sample_file'
 
-                    // TODO: change the file name
-                    fileFormDataName: 'myFile'
+                }).error(function(errors, status, xhr, request) {
+                    for (key in errors) {
+                        $scope.file_queue[index].errors.push(
+                            {
+                                'key': key,
+                                'value': errors[key]
+                            }
+                        );
+                    }
                 }).then(function(response) {
-                    $scope.uploadResult.push(response.data);
+                    $scope.file_queue[index].uploadResult.push(response.data);
                 }, null, function(evt) {
-                    $scope.progress[index] = parseInt(100.0 * evt.loaded / evt.total);
+                    $scope.file_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
                 });
-
-            };
+            }
 
             // Date picker stuff
             $scope.today = function() {
