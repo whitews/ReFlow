@@ -99,7 +99,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr data-ng-repeat="f in file_queue">
+    <tr data-ng-repeat="f in file_queue" data-ng-click="f.selected = !f.selected">
       <td><input type="checkbox" ng-model="f.selected" /></td>
       <td>{{ f.filename }}</td>
       <td>{{ f.acquisition_date | date }}</td>
