@@ -178,7 +178,6 @@ app.controller(
                         file: $files[i],
                         metadata: {},
                         selected: false,
-                        errors: []
                     });
                 }
             };
@@ -221,13 +220,18 @@ app.controller(
                     fileFormDataName: 'sample_file'
 
                 }).error(function(errors, status, xhr, request) {
-                    for (key in errors) {
-                        $scope.file_queue[index].errors.push(
-                            {
-                                'key': key,
-                                'value': errors[key]
-                            }
-                        );
+                    if (Object.keys(errors).length > 0) {
+                        $scope.file_queue[index].errors = [];
+
+                        for (key in errors) {
+                            $scope.file_queue[index].errors.push(
+                                {
+                                    'key': key,
+                                    'value': errors[key]
+                                }
+                            );
+                        }
+                        $scope.$apply();
                     }
                 }).then(function(response) {
                     $scope.file_queue[index].uploadResult.push(response.data);
