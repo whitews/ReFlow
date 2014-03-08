@@ -44,70 +44,62 @@ app.controller(
                         $scope.file_queue[i].acquisition_date = $scope.current_acquisition_date;
                     }
                 }
-                $scope.current_acquisition_date = null;
             };
 
-            $scope.sitePanelChanged = function () {
+            $scope.sitePanelChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].site_panel = $scope.current_site_panel;
+                        $scope.file_queue[i].site_panel = selected;
                     }
                 }
-                $scope.current_site_panel = null;
             };
             
-            $scope.subjectChanged = function () {
+            $scope.subjectChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].subject = $scope.current_subject;
+                        $scope.file_queue[i].subject = selected;
                     }
                 }
-                $scope.current_subject = null;
             };
             
-            $scope.visitTypeChanged = function () {
+            $scope.visitTypeChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].visit_type = $scope.current_visit_type;
+                        $scope.file_queue[i].visit_type = selected;
                     }
                 }
-                $scope.current_visit_type = null;
             };
             
-            $scope.stimulationChanged = function () {
+            $scope.stimulationChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].stimulation = $scope.current_stimulation;
+                        $scope.file_queue[i].stimulation = selected;
                     }
                 }
-                $scope.current_stimulation = null;
             };
             
-            $scope.specimenChanged = function () {
+            $scope.specimenChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].specimen = $scope.current_specimen;
+                        $scope.file_queue[i].specimen = selected;
                     }
                 }
-                $scope.current_specimen = null;
             };
             
-            $scope.pretreatmentChanged = function () {
+            $scope.pretreatmentChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].pretreatment = $scope.current_pretreatment;
+                        $scope.file_queue[i].pretreatment = selected;
                     }
                 }
-                $scope.current_pretreatment = null;
             };
             
-            $scope.storageChanged = function () {
+            $scope.storageChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].storage = $scope.current_storage;
+                        $scope.file_queue[i].storage = selected;
                     }
                 }
-                $scope.current_storage = null;
             };
 
             // file reader stuff

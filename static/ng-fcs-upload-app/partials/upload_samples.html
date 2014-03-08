@@ -53,57 +53,71 @@
         </th>
     </tr>
     <tr>
-        <th></th>
+        <th>
+            <input type="checkbox" ng-model="master_checkbox" ng-change="toggleAllFiles()"/>
+        </th>
         <th>File Name</th>
-        <th>Acquisition Date</th>
-        <th>Site Panel</th>
-        <th>Subject</th>
-        <th>Visit</th>
-        <th>Stimulation</th>
-        <th>Specimen</th>
-        <th>Pre-treatment</th>
-        <th>Storage</th>
-    </tr>
-    <tr>
-        <th><input type="checkbox" ng-model="master_checkbox" ng-change="toggleAllFiles()"/></th>
-        <th></th>
         <th>
-            <div class="datepicker-wrapper">
-              <div class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="current_acquisition_date" ng-change="acquisitionDateChanged()" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close" />
-                <span class="input-group-btn">
-                  <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-                </span>
-              </div>
-            </div>
+                <div class="no-wrap" datepicker-popup="{{format}}" ng-model="current_acquisition_date" ng-change="acquisitionDateChanged()" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close">
+                    Acquisition Date
+                  <a ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></a>
+                </div>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_site_panel" ng-change="sitePanelChanged()" ng-options="s.name for s in site_panels">
-          </select>
+            <li class="list-unstyled dropdown">
+              <a href="#" class="dropdown-toggle no-wrap">Site Panel <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link" ng-repeat="s in site_panels"><a data-ng-click="sitePanelChanged(s)">{{ s.name }}</a></li>
+              </ul>
+            </li>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_subject" ng-change="subjectChanged()" ng-options="s.subject_code for s in subjects">
-          </select>
+            <li class="list-unstyled dropdown">
+              <a href="#" class="dropdown-toggle no-wrap">Subject <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link" ng-repeat="s in subjects"><a data-ng-click="subjectChanged(s)">{{ s.subject_code }}</a></li>
+              </ul>
+            </li>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_visit_type" ng-change="visitTypeChanged()" ng-options="v.visit_type_name for v in visit_types">
-          </select>
+            <li class="list-unstyled dropdown">
+              <a href="#" class="dropdown-toggle no-wrap">Visit <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link" ng-repeat="v in visit_types"><a data-ng-click="visitTypeChanged(v)">{{ v.visit_type_name }}</a></li>
+              </ul>
+            </li>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_stimulation" ng-change="stimulationChanged()" ng-options="s.stimulation_name for s in stimulations">
-          </select>
+            <li class="list-unstyled dropdown">
+              <a href="#" class="dropdown-toggle no-wrap">Stimulation <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link" ng-repeat="s in stimulations"><a data-ng-click="stimulationChanged(s)">{{ s.stimulation_name }}</a></li>
+              </ul>
+            </li>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_specimen" ng-change="specimenChanged()" ng-options="s.specimen_name for s in specimens">
-          </select>
+            <li class="list-unstyled dropdown">
+              <a href="#" class="dropdown-toggle no-wrap">Specimen <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link" ng-repeat="s in specimens"><a data-ng-click="specimenChanged(s)">{{ s.specimen_name }}</a></li>
+              </ul>
+            </li>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_pretreatment" ng-change="pretreatmentChanged()" ng-options="pt.name for pt in pretreatments">
-          </select>
+            <li class="list-unstyled dropdown">
+              <a href="#" class="dropdown-toggle no-wrap">Pre-treatment <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link" ng-repeat="p in pretreatments"><a data-ng-click="pretreatmentChanged(p)">{{ p.name }}</a></li>
+              </ul>
+            </li>
         </th>
         <th>
-          <select class="app btn btn-default btn-xs" ng-model="current_storage" ng-change="storageChanged()" ng-options="s.name for s in storages">
-          </select>
+            <li class="list-unstyled dropdown">
+              <a href="#" class="dropdown-toggle no-wrap">Storage <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link" ng-repeat="s in storages"><a data-ng-click="storageChanged(s)">{{ s.name }}</a></li>
+              </ul>
+            </li>
         </th>
     </tr>
   </thead>
