@@ -35,7 +35,7 @@ app.controller(
             $scope.siteChanged = function () {
                 $scope.cytometers = Cytometer.query({site: $scope.current_site.id});
                 $scope.current_cytometer = null;
-                $scope.site_panels = SitePanel.query({project: $scope.current_project.id});
+                $scope.site_panels = SitePanel.query({project_panel__project: $scope.current_project.id});
             };
             
             $scope.acquisitionDateChanged = function () {
@@ -217,7 +217,12 @@ app.controller(
                         'stimulation': $scope.file_queue[index].stimulation.id,
                         'site_panel': $scope.file_queue[index].site_panel.id,
                         'cytometer': $scope.current_cytometer.id,
-                        'acquisition_date': $scope.file_queue[index].acquisition_date
+                        'acquisition_date':
+                                $scope.file_queue[index].acquisition_date.getFullYear().toString() +
+                                "-" +
+                                ($scope.file_queue[index].acquisition_date.getMonth() + 1) +
+                                "-" +
+                                $scope.file_queue[index].acquisition_date.getDate().toString()
                     },
 
                     file: $scope.file_queue[index].file,
