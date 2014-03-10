@@ -51,6 +51,8 @@ def repository_api_root(request):
         'stimulations': reverse('stimulation-list', request=request),
         'workers': reverse('worker-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'assigned_process_requests': reverse(
+            'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
         'create_process_request_output': reverse(
@@ -800,6 +802,34 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
     filter_fields = ('process', 'worker', 'request_user')
+
+
+class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of process requests to which the
+    requesting Worker is assigned.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
+
+    def get_queryset(self):
+        """
+        Filter process requests which do not have 'Completed' status
+        and is currently assigned to the requesting worker
+        Regular users receive zero results.
+        """
+
+        if not hasattr(self.request.user, 'worker'):
+            return ProcessRequest.objects.none()
+
+        worker = Worker.objects.get(user=self.request.user)
+
+        # PRs need to be in Pending status with no completion date
+        queryset = ProcessRequest.objects.filter(
+            worker=worker, completion_date=None).exclude(
+                status='Completed')
+        return queryset
 
 
 class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
