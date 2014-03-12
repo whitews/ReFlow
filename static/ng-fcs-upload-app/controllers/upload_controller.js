@@ -35,7 +35,12 @@ app.controller(
             $scope.siteChanged = function () {
                 $scope.cytometers = Cytometer.query({site: $scope.current_site.id});
                 $scope.current_cytometer = null;
-                $scope.site_panels = SitePanel.query({project_panel__project: $scope.current_project.id});
+                $scope.site_panels = SitePanel.query(
+                    {
+                        project_panel__project: $scope.current_project.id,
+                        site: $scope.current_site.id
+                    }
+                );
             };
             
             $scope.acquisitionDateChanged = function () {
@@ -177,7 +182,7 @@ app.controller(
                         filename: $files[i].name,
                         file: $files[i],
                         metadata: {},
-                        selected: false,
+                        selected: false
                     });
                 }
             };
@@ -193,7 +198,7 @@ app.controller(
             function upload(index) {
                 $scope.file_queue[index].progress = 0;
 
-                $scope.file_queue[index].progress = $upload.upload({
+                $scope.file_queue[index].upload = $upload.upload({
                     url : '/api/repository/samples/add/',
                     method: 'POST',
 //                            headers: {'myHeaderKey': 'myHeaderVal'},
@@ -218,25 +223,24 @@ app.controller(
 
                     file: $scope.file_queue[index].file,
                     fileFormDataName: 'sample_file'
-
-                }).error(function(errors, status, xhr, request) {
-                    if (Object.keys(errors).length > 0) {
+                }).progress(function(evt) {
+                    $scope.file_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
+                }).success(function(data, status, headers, config) {
+                    $scope.file_queue[index].uploaded = true;
+                    $scope.file_queue[index].selected = false;
+                }).error(function(error) {
+                    if (Object.keys(error).length > 0) {
                         $scope.file_queue[index].errors = [];
 
-                        for (key in errors) {
+                        for (var key in error) {
                             $scope.file_queue[index].errors.push(
                                 {
                                     'key': key,
-                                    'value': errors[key]
+                                    'value': error[key]
                                 }
                             );
                         }
-                        $scope.$apply();
                     }
-                }).then(function(response) {
-                    $scope.file_queue[index].uploadResult.push(response.data);
-                }, null, function(evt) {
-                    $scope.file_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
                 });
             }
 

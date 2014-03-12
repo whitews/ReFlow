@@ -123,9 +123,12 @@
   </thead>
   <tbody>
     <tr data-ng-repeat="f in file_queue" data-ng-click="f.selected = !f.selected">
-      <td><input type="checkbox" ng-model="f.selected" /></td>
       <td>
-        {{ f.filename }}
+        <input ng-hide="f.uploaded" type="checkbox" ng-model="f.selected" />
+        <span ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
+      </td>
+      <td>
+        {{ f.filename }} {{ f.progress }}
         <div class="text-warning" data-ng-show="f.errors">
           <ul>
             <li data-ng-repeat="error in f.errors">{{ error.key }}: {{ error.value }}</li>
