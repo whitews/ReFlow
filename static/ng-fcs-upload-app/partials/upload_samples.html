@@ -122,19 +122,35 @@
     </tr>
   </thead>
   <tbody>
-    <tr data-ng-repeat="f in file_queue" data-ng-click="f.selected = !f.selected">
+    <tr data-ng-repeat="f in file_queue">
       <td>
         <input ng-hide="f.uploaded" type="checkbox" ng-model="f.selected" />
-        <span ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
+        <span data-ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
+
+        <script type="text/ng-template" id="myModalContent.html">
+            <div class="modal-header">
+                <h3>Error uploading {{ upload_file.filename }}</h3>
+            </div>
+            <div class="modal-body">
+                <div class="text-warning">
+                  <ul>
+                    <li data-ng-repeat="error in upload_file.errors">{{ error.key }}: {{ error.value }}</li>
+                  </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">OK</button>
+            </div>
+        </script>
+        <button data-ng-show="f.errors" data-ng-click="open_error_modal(f)" class="btn btn-default btn-xs">
+          <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
+        </button>
+
       </td>
       <td>
-        {{ f.filename }} {{ f.progress }}
-        <div class="text-warning" data-ng-show="f.errors">
-          <ul>
-            <li data-ng-repeat="error in f.errors">{{ error.key }}: {{ error.value }}</li>
-          </ul>
-        </div>
-
+          <progressbar class="progress" value="f.progress" type="warning">
+            <span style="color:black">{{ f.filename }}</span>
+          </progressbar>
       </td>
       <td>{{ f.acquisition_date | date }}</td>
       <td>{{ f.site_panel.name }}</td>

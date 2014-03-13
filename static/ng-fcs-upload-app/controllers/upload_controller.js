@@ -7,6 +7,7 @@ app.controller(
         '$scope',
         '$timeout',
         '$upload',
+        '$modal',
         'Project',
         'Site',
         'Specimen',
@@ -17,7 +18,7 @@ app.controller(
         'VisitType',
         'Subject',
         'SitePanel',
-        function ($scope, $timeout, $upload, Project, Site, Specimen, Cytometer, Pretreatment, Storage, Stimulation, VisitType, Subject, SitePanel) {
+        function ($scope, $timeout, $upload, $modal, Project, Site, Specimen, Cytometer, Pretreatment, Storage, Stimulation, VisitType, Subject, SitePanel) {
             $scope.projects = Project.query();
             $scope.specimens = Specimen.query();
             $scope.pretreatments = Pretreatment.query();
@@ -182,7 +183,8 @@ app.controller(
                         filename: $files[i].name,
                         file: $files[i],
                         metadata: {},
-                        selected: false
+                        selected: false,
+                        progress: 0
                     });
                 }
             };
@@ -201,9 +203,8 @@ app.controller(
                 $scope.file_queue[index].upload = $upload.upload({
                     url : '/api/repository/samples/add/',
                     method: 'POST',
-//                            headers: {'myHeaderKey': 'myHeaderVal'},
 
-                    // put the sample's model data here
+                    // FCS sample's REST API model fields here
                     data : {
                         'subject': $scope.file_queue[index].subject.id,
                         'visit': $scope.file_queue[index].visit_type.id,
@@ -244,6 +245,20 @@ app.controller(
                 });
             }
 
+            $scope.open_error_modal = function (f) {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'myModalContent.html',
+                    controller: ModalInstanceCtrl,
+                    resolve: {
+                        upload_file: function() {
+                            return f;
+                        }
+                    }
+                });
+            };
+
+
             // Date picker stuff
             $scope.today = function() {
                 $scope.dt = new Date();
@@ -273,3 +288,10 @@ app.controller(
     ]
 );
 
+var ModalInstanceCtrl = function ($scope, $modalInstance, upload_file) {
+    $scope.upload_file = upload_file;
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+
+};

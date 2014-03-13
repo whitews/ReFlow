@@ -381,6 +381,14 @@ select.app, input.app {
     color: #b9b9b9;
 }
 
+.danger {
+  color: #D9534F;
+}
+
+.progress {
+  margin-bottom: 0;
+}
+
 ul.dropdown-menu > li > table > tbody > tr > td {
     padding: 0;
 }
