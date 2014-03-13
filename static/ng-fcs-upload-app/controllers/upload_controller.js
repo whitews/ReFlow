@@ -24,6 +24,8 @@ app.controller(
             $scope.pretreatments = Pretreatment.query();
             $scope.storages = Storage.query();
 
+            $scope.file_queue = [];
+
             $scope.projectChanged = function () {
                 $scope.sites = Site.query({project: $scope.current_project.id});
                 $scope.current_site = null;
@@ -31,6 +33,16 @@ app.controller(
                 $scope.stimulations = Stimulation.query({project: $scope.current_project.id});
                 $scope.visit_types = VisitType.query({project: $scope.current_project.id});
                 $scope.subjects = Subject.query({project: $scope.current_project.id});
+
+                // Clear any project related choices from non-uploaded files in queue
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if (! $scope.file_queue[i].uploaded) {
+                        $scope.file_queue[i].site_panel = null;
+                        $scope.file_queue[i].subject = null;
+                        $scope.file_queue[i].visit_type = null;
+                        $scope.file_queue[i].stimulation = null;
+                    }
+                }
             };
 
             $scope.siteChanged = function () {
@@ -42,6 +54,13 @@ app.controller(
                         site: $scope.current_site.id
                     }
                 );
+
+                // Clear any site related choices from non-uploaded files in queue
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if (! $scope.file_queue[i].uploaded) {
+                        $scope.file_queue[i].site_panel = null;
+                    }
+                }
             };
             
             $scope.acquisitionDateChanged = function () {
@@ -104,6 +123,22 @@ app.controller(
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
                         $scope.file_queue[i].storage = selected;
+                    }
+                }
+            };
+
+            $scope.clearUploaded = function() {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].uploaded) {
+                        $scope.file_queue.splice(i, 1);
+                    }
+                }
+            };
+
+            $scope.clearSelected = function() {
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].selected) {
+                        $scope.file_queue.splice(i, 1);
                     }
                 }
             };
@@ -175,7 +210,7 @@ app.controller(
             }
 
             $scope.onFileSelect = function($files) {
-                $scope.file_queue = [];
+
                 $scope.current_acquisition_date = "";
 
                 for (var i = 0; i < $files.length; i++) {
@@ -199,6 +234,27 @@ app.controller(
 
             function upload(index) {
                 $scope.file_queue[index].progress = 0;
+                $scope.file_queue[index].errors = null;
+
+                if (! $scope.file_queue[index].subject ||
+                    ! $scope.file_queue[index].visit_type ||
+                    ! $scope.file_queue[index].specimen ||
+                    ! $scope.file_queue[index].pretreatment ||
+                    ! $scope.file_queue[index].storage ||
+                    ! $scope.file_queue[index].stimulation ||
+                    ! $scope.file_queue[index].site_panel ||
+                    ! $scope.current_cytometer ||
+                    ! $scope.file_queue[index].acquisition_date)
+                {
+                    $scope.file_queue[index].errors = [];
+                    $scope.file_queue[index].errors.push(
+                        {
+                            'key': 'Missing fields',
+                            'value': 'Please select all fields for the FCS sample.'
+                        }
+                    );
+                    return;
+                }
 
                 $scope.file_queue[index].upload = $upload.upload({
                     url : '/api/repository/samples/add/',

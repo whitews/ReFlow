@@ -44,7 +44,13 @@
         <th colspan="50" class="center">
           <div style="position:relative">
             <h4>Upload Queue</h4>
-            <div style="position:absolute; right:0;top:0;">
+            <div class="btn-group" style="position:absolute; right:0;top:0;">
+              <button class="btn btn-default btn-sm" href="#" data-ng-click="clearUploaded()">
+                Clear Uploaded
+              </button>
+              <button class="btn btn-default btn-sm" href="#" data-ng-click="clearSelected()">
+                Clear Selected
+              </button>
               <button class="btn btn-default btn-sm" href="#" data-ng-click="uploadSelected()">
                 Upload Selected
               </button>
@@ -149,7 +155,7 @@
       </td>
       <td>
           <progressbar class="progress" value="f.progress" type="warning">
-            <span style="color:black">{{ f.filename }}</span>
+            <strong style="color:black">{{ f.filename }}</strong>
           </progressbar>
       </td>
       <td>{{ f.acquisition_date | date }}</td>
