@@ -74,7 +74,9 @@ app.controller(
             $scope.sitePanelChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].site_panel = selected;
+//                        if (file_matches_panel(i, selected)) {
+                            $scope.file_queue[i].site_panel = selected;
+//                        }
                     }
                 }
             };
@@ -143,6 +145,25 @@ app.controller(
                 }
             };
 
+            // site panel matching
+//            function file_matches_panel(file_index, site_panel) {
+//                // iterate through site panel params, use channel number to
+//                // find the corresponding PnN and PnS fields in FCS metadata
+//                for (var param in site_panel.parameters) {
+//
+//                }
+//
+//
+//                $scope.file_queue[file_index].errors = [];
+//                $scope.file_queue[file_index].errors.push(
+//                    {
+//                        'key': 'Incompatible site panel',
+//                        'value': "The chosen site panel does not match the FCS file's annotation."
+//                    }
+//                );
+//                return false;
+//            }
+
             // file reader stuff
             $scope.fileReaderSupported = window.FileReader != null;
             $scope.hasUploader = function(index) {
@@ -186,6 +207,10 @@ app.controller(
                     var delimiter = evt.target.result[0];
                     var non_paired_list = evt.target.result.split(delimiter);
                     obj.metadata = [];
+                    obj.channels = {};
+
+                    var pnn_pattern = /\$P(\d+)N/i;
+                    var pns_pattern = /\$P(\d+)S/i;
 
                     // first match will be empty string since the FCS TEXT
                     // segment starts with the delimiter, so we'll start at
@@ -197,6 +222,10 @@ app.controller(
                                 value: non_paired_list[i+1]
                             }
                         );
+//                        pnn_result = pnn_pattern.exec(non_paired_list[i])
+//                        if (pnn_result) {
+//                            obj.channels
+//                        }
                     }
 
                     // Using $apply here to trigger template update

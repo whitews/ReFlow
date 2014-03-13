@@ -385,6 +385,10 @@ select.app, input.app {
   color: #D9534F;
 }
 
+.modal-body {
+  font-size: 14px;
+}
+
 .progress {
   margin-bottom: 0;
 }
