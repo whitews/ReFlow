@@ -133,6 +133,7 @@ app.controller(
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].uploaded) {
                         $scope.file_queue.splice(i, 1);
+                        i--;
                     }
                 }
             };
@@ -141,6 +142,7 @@ app.controller(
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
                         $scope.file_queue.splice(i, 1);
+                        i--;
                     }
                 }
             };
