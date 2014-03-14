@@ -148,7 +148,7 @@ app.controller(
             // site panel matching
             function file_matches_panel(file_index, site_panel) {
                 // first make sure the number of params is the same
-                if ($scope.file_queue[file_index].pnn_channels.length != site_panel.parameters.length) {
+                if ($scope.file_queue[file_index].channels.length != site_panel.parameters.length) {
                     $scope.file_queue[file_index].errors = [];
                     $scope.file_queue[file_index].errors.push(
                         {
@@ -161,36 +161,33 @@ app.controller(
 
                 // iterate through site panel params, use channel number to
                 // find the corresponding PnN and PnS fields in FCS object
-                // properties pnn_channels and pns_channels, respectively
-                // collect mis-matches to report them in errors
+                // channels property.
+                // collect mis-matches to report them in errors array
                 var mismatches = [];
                 for (var i = 0; i < site_panel.parameters.length; i++) {
-                    var pnn = $scope.file_queue[file_index].pnn_channels.filter(function(item) {
+                    var channel = $scope.file_queue[file_index].channels.filter(function(item) {
                         return (item.channel == site_panel.parameters[i].fcs_number);
                     });
-                    var pns = $scope.file_queue[file_index].pns_channels.filter(function(item) {
-                        return (item.channel == site_panel.parameters[i].fcs_number);
-                    });
-                    if (pnn.length > 0) {
-                        if (site_panel.parameters[i].fcs_text != pnn[0].value) {
+
+                    if (channel.length > 0) {
+                        if (site_panel.parameters[i].fcs_text != channel[0].pnn) {
                             mismatches.push(
                                 "PnN mismatch in channel " +
                                 site_panel.parameters[i].fcs_number +
                                 ": expected " +
                                 site_panel.parameters[i].fcs_text +
                                 ", file has " +
-                                pnn[0].value);
+                                channel[0].pnn);
                         }
-                    }
-                    if (pns.length > 0) {
-                        if (site_panel.parameters[i].fcs_opt_text != pns[0].value) {
+
+                        if (site_panel.parameters[i].fcs_opt_text != channel[0].pns) {
                             mismatches.push(
                                 "PnS mismatch in channel " +
                                 site_panel.parameters[i].fcs_number +
                                 ": expected " +
                                 site_panel.parameters[i].fcs_opt_text +
                                 ", file has " +
-                                pns[0].value);
+                                channel[0].pns);
                         }
                     }
                 }
@@ -251,8 +248,7 @@ app.controller(
                     var delimiter = evt.target.result[0];
                     var non_paired_list = evt.target.result.split(delimiter);
                     obj.metadata = [];
-                    obj.pnn_channels = [];
-                    obj.pns_channels = [];
+                    obj.channels = [];
 
                     var pnn_pattern = /\$P(\d+)N/i;
                     var pns_pattern = /\$P(\d+)S/i;
@@ -267,23 +263,57 @@ app.controller(
                                 value: non_paired_list[i+1]
                             }
                         );
+
                         var pnn_result = pnn_pattern.exec(non_paired_list[i]);
-                        if (pnn_result) {
-                            obj.pnn_channels.push(
-                                {
-                                    'channel': pnn_result[1],
-                                    'value': non_paired_list[i+1]
-                                }
-                            )
-                        }
                         var pns_result = pns_pattern.exec(non_paired_list[i]);
-                        if (pns_result) {
-                            obj.pns_channels.push(
-                                {
-                                    'channel': pns_result[1],
-                                    'value': non_paired_list[i+1]
+
+                        var index = null;
+
+                        if (pnn_result) {
+                            for (var j = 0; j < obj.channels.length; j++) {
+                                if (obj.channels[j].channel == pnn_result[1]) {
+                                    index = j;
+                                    break;
                                 }
-                            )
+                            }
+                            if (index) {
+                                obj.channels[j].pnn = non_paired_list[i+1];
+                            } else {
+                                obj.channels.push(
+                                    {
+                                        'channel': pnn_result[1],
+                                        'pnn': non_paired_list[i+1]
+                                    }
+                                );
+                            }
+                        }
+
+                        if (pns_result) {
+                            for (var j = 0; j < obj.channels.length; j++) {
+                                if (obj.channels[j].channel == pns_result[1]) {
+                                    index = j;
+                                    break;
+                                }
+                            }
+                            if (index) {
+                                obj.channels[j].pns = non_paired_list[i+1];
+                            } else {
+                                obj.channels.push(
+                                    {
+                                        'channel': pnn_result[1],
+                                        'pns': non_paired_list[i+1]
+                                    }
+                                );
+                            }
+                        }
+                    }
+
+                    // Now check our channels for missing PnS fields, since
+                    // they are optional in the FCS file. Add empty strings,
+                    // where they are missing (so our panel matching works)
+                    for (var j = 0; j < obj.channels.length; j++) {
+                        if (! obj.channels[j].pns) {
+                            obj.channels[j].pns = "";
                         }
                     }
 
@@ -393,6 +423,32 @@ app.controller(
 
                 var modalInstance = $modal.open({
                     templateUrl: 'myModalContent.html',
+                    controller: ModalInstanceCtrl,
+                    resolve: {
+                        upload_file: function() {
+                            return f;
+                        }
+                    }
+                });
+            };
+
+            $scope.open_metadata_modal = function (f) {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'metadata_content.html',
+                    controller: ModalInstanceCtrl,
+                    resolve: {
+                        upload_file: function() {
+                            return f;
+                        }
+                    }
+                });
+            };
+
+            $scope.open_channels_modal = function (f) {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'channels_content.html',
                     controller: ModalInstanceCtrl,
                     resolve: {
                         upload_file: function() {
