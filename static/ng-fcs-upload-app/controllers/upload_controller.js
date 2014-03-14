@@ -174,11 +174,23 @@ app.controller(
                     if (pnn.length > 0) {
                         if (site_panel.parameters[i].fcs_text != pnn[0].value) {
                             mismatches.push(
-                                "Mismatch in channel %d: expected %s, file has %s" %
-                                site_panel.parameters[i].fcs_number,
-                                site_panel.parameters[i].fcs_text,
-                                pnn[0].value
-                            )
+                                "PnN mismatch in channel " +
+                                site_panel.parameters[i].fcs_number +
+                                ": expected " +
+                                site_panel.parameters[i].fcs_text +
+                                ", file has " +
+                                pnn[0].value);
+                        }
+                    }
+                    if (pns.length > 0) {
+                        if (site_panel.parameters[i].fcs_opt_text != pns[0].value) {
+                            mismatches.push(
+                                "PnS mismatch in channel " +
+                                site_panel.parameters[i].fcs_number +
+                                ": expected " +
+                                site_panel.parameters[i].fcs_opt_text +
+                                ", file has " +
+                                pns[0].value);
                         }
                     }
                 }
@@ -255,7 +267,7 @@ app.controller(
                                 value: non_paired_list[i+1]
                             }
                         );
-                        pnn_result = pnn_pattern.exec(non_paired_list[i])
+                        var pnn_result = pnn_pattern.exec(non_paired_list[i]);
                         if (pnn_result) {
                             obj.pnn_channels.push(
                                 {
@@ -264,7 +276,7 @@ app.controller(
                                 }
                             )
                         }
-                        pns_result = pns_pattern.exec(non_paired_list[i])
+                        var pns_result = pns_pattern.exec(non_paired_list[i]);
                         if (pns_result) {
                             obj.pns_channels.push(
                                 {

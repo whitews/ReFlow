@@ -140,7 +140,7 @@
             <div class="modal-body">
                 <div class="text-warning">
                   <ul>
-                    <li data-ng-repeat="error in upload_file.errors">{{ error.key }}: {{ error.value }}</li>
+                    <li data-ng-repeat="error in upload_file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
                   </ul>
                 </div>
             </div>
