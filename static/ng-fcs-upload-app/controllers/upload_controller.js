@@ -217,7 +217,10 @@ app.controller(
 
             $scope.toggleAllFiles = function () {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
-                    $scope.file_queue[i].selected = $scope.master_checkbox;
+                    // only select the non-uploaded filess
+                    if (! $scope.file_queue[i].uploaded) {
+                        $scope.file_queue[i].selected = $scope.master_checkbox;
+                    }
                 }
             };
 
