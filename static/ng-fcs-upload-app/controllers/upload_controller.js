@@ -74,9 +74,9 @@ app.controller(
             $scope.sitePanelChanged = function (selected) {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-//                        if (file_matches_panel(i, selected)) {
+                        if (file_matches_panel(i, selected)) {
                             $scope.file_queue[i].site_panel = selected;
-//                        }
+                        }
                     }
                 }
             };
@@ -146,23 +146,55 @@ app.controller(
             };
 
             // site panel matching
-//            function file_matches_panel(file_index, site_panel) {
-//                // iterate through site panel params, use channel number to
-//                // find the corresponding PnN and PnS fields in FCS metadata
-//                for (var param in site_panel.parameters) {
-//
-//                }
-//
-//
-//                $scope.file_queue[file_index].errors = [];
-//                $scope.file_queue[file_index].errors.push(
-//                    {
-//                        'key': 'Incompatible site panel',
-//                        'value': "The chosen site panel does not match the FCS file's annotation."
-//                    }
-//                );
-//                return false;
-//            }
+            function file_matches_panel(file_index, site_panel) {
+                // first make sure the number of params is the same
+                if ($scope.file_queue[file_index].pnn_channels.length != site_panel.parameters.length) {
+                    $scope.file_queue[file_index].errors = [];
+                    $scope.file_queue[file_index].errors.push(
+                        {
+                            'key': 'Incompatible site panel',
+                            'value': "The number of parameters in chosen site panel and FCS file are not equal."
+                        }
+                    );
+                    return false;
+                }
+
+                // iterate through site panel params, use channel number to
+                // find the corresponding PnN and PnS fields in FCS object
+                // properties pnn_channels and pns_channels, respectively
+                // collect mis-matches to report them in errors
+                var mismatches = [];
+                for (var i = 0; i < site_panel.parameters.length; i++) {
+                    var pnn = $scope.file_queue[file_index].pnn_channels.filter(function(item) {
+                        return (item.channel == site_panel.parameters[i].fcs_number);
+                    });
+                    var pns = $scope.file_queue[file_index].pns_channels.filter(function(item) {
+                        return (item.channel == site_panel.parameters[i].fcs_number);
+                    });
+                    if (pnn.length > 0) {
+                        if (site_panel.parameters[i].fcs_text != pnn[0].value) {
+                            mismatches.push(
+                                "Mismatch in channel %d: expected %s, file has %s" %
+                                site_panel.parameters[i].fcs_number,
+                                site_panel.parameters[i].fcs_text,
+                                pnn[0].value
+                            )
+                        }
+                    }
+                }
+
+                if (mismatches.length > 0) {
+                    $scope.file_queue[file_index].errors = [];
+                    $scope.file_queue[file_index].errors.push(
+                        {
+                            'key': 'Incompatible site panel',
+                            'value': mismatches.join('<br />')
+                        }
+                    );
+                    return false;
+                }
+                return true;
+            }
 
             // file reader stuff
             $scope.fileReaderSupported = window.FileReader != null;
@@ -207,7 +239,8 @@ app.controller(
                     var delimiter = evt.target.result[0];
                     var non_paired_list = evt.target.result.split(delimiter);
                     obj.metadata = [];
-                    obj.channels = {};
+                    obj.pnn_channels = [];
+                    obj.pns_channels = [];
 
                     var pnn_pattern = /\$P(\d+)N/i;
                     var pns_pattern = /\$P(\d+)S/i;
@@ -222,10 +255,24 @@ app.controller(
                                 value: non_paired_list[i+1]
                             }
                         );
-//                        pnn_result = pnn_pattern.exec(non_paired_list[i])
-//                        if (pnn_result) {
-//                            obj.channels
-//                        }
+                        pnn_result = pnn_pattern.exec(non_paired_list[i])
+                        if (pnn_result) {
+                            obj.pnn_channels.push(
+                                {
+                                    'channel': pnn_result[1],
+                                    'value': non_paired_list[i+1]
+                                }
+                            )
+                        }
+                        pns_result = pns_pattern.exec(non_paired_list[i])
+                        if (pns_result) {
+                            obj.pns_channels.push(
+                                {
+                                    'channel': pns_result[1],
+                                    'value': non_paired_list[i+1]
+                                }
+                            )
+                        }
                     }
 
                     // Using $apply here to trigger template update
