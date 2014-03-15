@@ -140,7 +140,7 @@ app.controller(
 
             $scope.clearSelected = function() {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
+                    if ($scope.file_queue[i].selected && ! $scope.file_queue[i].uploading) {
                         $scope.file_queue.splice(i, 1);
                         i--;
                     }
@@ -342,14 +342,26 @@ app.controller(
                         file: $files[i],
                         metadata: {},
                         selected: false,
-                        progress: 0
+                        progress: 0,
+                        uploading: false,
+                        uploaded: false
                     });
                 }
             };
 
             $scope.uploadSelected = function() {
+                // first iterate through all the selected and mark as uploading
+                // we do this so all the selected files get marked, since
+                // the uploads may take a while and we don't want the user
+                // interacting with the ones we are trying to upload
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
+                        $scope.file_queue[i].uploading = true;
+                    }
+                }
+                // now actually call upload for all the marked files
+                for (var i = 0; i < $scope.file_queue.length; i++) {
+                    if ($scope.file_queue[i].uploading) {
                         upload(i);
                     }
                 }

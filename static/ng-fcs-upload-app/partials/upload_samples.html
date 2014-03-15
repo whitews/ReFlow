@@ -130,7 +130,7 @@
   <tbody>
     <tr data-ng-repeat="f in file_queue">
       <td>
-        <input ng-hide="f.uploaded" type="checkbox" ng-model="f.selected" />
+        <input ng-hide="f.uploaded" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
         <span data-ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
 
         <script type="text/ng-template" id="myModalContent.html">
