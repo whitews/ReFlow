@@ -1,227 +1,214 @@
 
-<div class="row">
-<div class="col-md-4">
-<table>
-    <tr>
-        <td>Project:</td>
+<div ng-show="!dropSupported">HTML5 Drop File is not supported on this browser</div>
+
+<div ng-show="dropSupported" ng-file-drop="onFileSelect($files);" ng-file-drop-available="dropSupported=true">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Upload Queue <span class="badge badge-inverse align-top">{{ file_queue.length }}</span></h4>
+              <div style="position:absolute; right:0;top:0;">
+                <button class="btn btn-default btn-sm" data-ng-click="clearUploaded()">
+                  Clear Uploaded
+                </button>
+                <button class="btn btn-default btn-sm" data-ng-click="clearSelected()">
+                  Clear Selected
+                </button>
+                <button class="btn btn-default btn-sm" data-ng-click="uploadSelected()">
+                  Upload Selected
+                </button>
+              </div>
+            </div>
+          </th>
+      </tr>
+      <tr>
+        <th colspan="50">
+          Project:
+          <select ng-model="current_project" ng-change="projectChanged()" ng-options="p.project_name for p in projects">
+          </select>
+
+          Site:
+          <select ng-model="current_site" ng-change="siteChanged()" ng-options="s.site_name for s in sites">
+          </select>
+
+          Cytometer:
+          <select ng-model="current_cytometer" ng-options="c.cytometer_name for c in cytometers">
+          </select>
+        </th>
+      </tr>
+      <tr>
+          <th>
+              <input type="checkbox" ng-model="master_checkbox" ng-change="toggleAllFiles()"/>
+          </th>
+          <th>File Name</th>
+          <th>
+            <button class="btn btn-default btn-sm" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="current_acquisition_date" ng-change="acquisitionDateChanged()" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close">
+                Acquisition Date <span class="glyphicon glyphicon-calendar"></span>
+            </button>
+          </th>
+          <th>
+              <div class="btn-group">
+                <button class="btn btn-default btn-sm dropdown-toggle">
+                  Site Panel <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li class="btn-link" ng-repeat="s in site_panels">
+                      <a href="#" data-ng-click="sitePanelChanged(s)">{{ s.name }}</a>
+                    </li>
+                </ul>
+              </div>
+          </th>
+          <th>
+              <div class="btn-group">
+                <button class="btn btn-default btn-sm dropdown-toggle">
+                  Subject <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li class="btn-link" ng-repeat="s in subjects">
+                      <a data-ng-click="subjectChanged(s)">{{ s.subject_code }}</a>
+                    </li>
+                </ul>
+              </div>
+          </th>
+          <th>
+              <li class="list-unstyled dropdown">
+                <a href="#" class="dropdown-toggle no-wrap">Visit <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li class="btn-link" ng-repeat="v in visit_types"><a data-ng-click="visitTypeChanged(v)">{{ v.visit_type_name }}</a></li>
+                </ul>
+              </li>
+          </th>
+          <th>
+              <li class="list-unstyled dropdown">
+                <a href="#" class="dropdown-toggle no-wrap">Stimulation <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li class="btn-link" ng-repeat="s in stimulations"><a data-ng-click="stimulationChanged(s)">{{ s.stimulation_name }}</a></li>
+                </ul>
+              </li>
+          </th>
+          <th>
+              <li class="list-unstyled dropdown">
+                <a href="#" class="dropdown-toggle no-wrap">Specimen <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li class="btn-link" ng-repeat="s in specimens"><a data-ng-click="specimenChanged(s)">{{ s.specimen_name }}</a></li>
+                </ul>
+              </li>
+          </th>
+          <th>
+              <li class="list-unstyled dropdown">
+                <a href="#" class="dropdown-toggle no-wrap">Pre-treatment <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li class="btn-link" ng-repeat="p in pretreatments"><a data-ng-click="pretreatmentChanged(p)">{{ p.name }}</a></li>
+                </ul>
+              </li>
+          </th>
+          <th>
+              <li class="list-unstyled dropdown">
+                <a href="#" class="dropdown-toggle no-wrap">Storage <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li class="btn-link" ng-repeat="s in storages"><a data-ng-click="storageChanged(s)">{{ s.name }}</a></li>
+                </ul>
+              </li>
+          </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-ng-repeat="f in file_queue">
         <td>
-            <select ng-model="current_project" ng-change="projectChanged()" ng-options="p.project_name for p in projects">
-            </select>
-            <br />
+          <input ng-hide="f.uploaded" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
+          <span data-ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
+
+          <script type="text/ng-template" id="myModalContent.html">
+              <div class="modal-header">
+                  <h3>Error uploading {{ upload_file.filename }}</h3>
+              </div>
+              <div class="modal-body">
+                  <div class="text-warning">
+                    <ul>
+                      <li data-ng-repeat="error in upload_file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
+                    </ul>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+              </div>
+          </script>
+          <button data-ng-show="f.errors" data-ng-click="open_error_modal(f)" class="btn btn-default btn-xs">
+            <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
+          </button>
+
         </td>
-    </tr>
-    <tr>
-        <td>Site:</td>
         <td>
-            <select ng-model="current_site" ng-change="siteChanged()" ng-options="s.site_name for s in sites">
-            </select>
-            <br />
+
+          <script type="text/ng-template" id="metadata_content.html">
+              <div class="modal-header">
+                  <h3>Metadata from {{ upload_file.filename }}</h3>
+              </div>
+              <div class="modal-body">
+                  <div>
+                    <ul>
+                      <li data-ng-repeat="field in upload_file.metadata">{{ field.key }}: {{ field.value }}</li>
+                    </ul>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+              </div>
+          </script>
+
+          <script type="text/ng-template" id="channels_content.html">
+              <div class="modal-header">
+                  <h3>Channel annotation from {{ upload_file.filename }}</h3>
+              </div>
+              <div class="modal-body">
+                <table class="table-condensed">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>PnN</th>
+                      <th>PnS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr data-ng-repeat="channel in upload_file.channels">
+                      <td>{{ channel.channel }}</td>
+                      <td>{{ channel.pnn }}</td>
+                      <td>{{ channel.pns }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+              </div>
+          </script>
+
+          <li class="list-unstyled dropdown">
+          <progressbar class="progress" value="f.progress" type="warning">
+              <a href="#" class="dropdown-toggle no-wrap">
+                <strong>{{ f.filename }}</strong> <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                  <li class="btn-link">
+                    <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
+                  </li>
+                  <li class="btn-link">
+                    <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                  </li>
+              </ul>
+          </progressbar>
+          </li>
         </td>
-    </tr>
-    <tr>
-        <td>Cytometer:</td>
-        <td>
-            <select ng-model="current_cytometer" ng-options="c.cytometer_name for c in cytometers">
-            </select>
-            <br />
-        </td>
-    </tr>
-</table>
+        <td>{{ f.acquisition_date | date }}</td>
+        <td>{{ f.site_panel.name }}</td>
+        <td>{{ f.subject.subject_code }}</td>
+        <td>{{ f.visit_type.visit_type_name }}</td>
+        <td>{{ f.stimulation.stimulation_name }}</td>
+        <td>{{ f.specimen.specimen_name }}</td>
+        <td>{{ f.pretreatment.name }}</td>
+        <td>{{ f.storage.name }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
-<div class="col-md-8">
-
-    <div ng-show="dropSupported" class="drop-box" ng-file-drop="onFileSelect($files);" ng-file-drop-available="dropSupported=true">Drop files here</div>
-    <div ng-show="!dropSupported">HTML5 Drop File is not supported on this browser</div>
-    <br />
-
-</div>
-</div>
-
-
-<table class="table table-hover">
-  <thead>
-    <tr>
-        <th colspan="50" class="center">
-          <div style="position:relative">
-            <h4>Upload Queue <span class="badge badge-inverse align-top">{{ file_queue.length }}</span></h4>
-            <div style="position:absolute; right:0;top:0;">
-              <button class="btn btn-default btn-sm" data-ng-click="clearUploaded()">
-                Clear Uploaded
-              </button>
-              <button class="btn btn-default btn-sm" data-ng-click="clearSelected()">
-                Clear Selected
-              </button>
-              <button class="btn btn-default btn-sm" data-ng-click="uploadSelected()">
-                Upload Selected
-              </button>
-            </div>
-          </div>
-        </th>
-    </tr>
-    <tr>
-        <th>
-            <input type="checkbox" ng-model="master_checkbox" ng-change="toggleAllFiles()"/>
-        </th>
-        <th>File Name</th>
-        <th>
-                <div class="no-wrap" datepicker-popup="{{format}}" ng-model="current_acquisition_date" ng-change="acquisitionDateChanged()" is-open="opened" datepicker-options="dateOptions" show-button-bar="false" show-weeks="false" ng-required="true" close-text="Close">
-                    Acquisition Date
-                  <a ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></a>
-                </div>
-        </th>
-        <th>
-            <li class="list-unstyled dropdown">
-              <a href="#" class="dropdown-toggle no-wrap">Site Panel <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                  <li class="btn-link" ng-repeat="s in site_panels"><a data-ng-click="sitePanelChanged(s)">{{ s.name }}</a></li>
-              </ul>
-            </li>
-        </th>
-        <th>
-            <li class="list-unstyled dropdown">
-              <a href="#" class="dropdown-toggle no-wrap">Subject <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                  <li class="btn-link" ng-repeat="s in subjects"><a data-ng-click="subjectChanged(s)">{{ s.subject_code }}</a></li>
-              </ul>
-            </li>
-        </th>
-        <th>
-            <li class="list-unstyled dropdown">
-              <a href="#" class="dropdown-toggle no-wrap">Visit <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                  <li class="btn-link" ng-repeat="v in visit_types"><a data-ng-click="visitTypeChanged(v)">{{ v.visit_type_name }}</a></li>
-              </ul>
-            </li>
-        </th>
-        <th>
-            <li class="list-unstyled dropdown">
-              <a href="#" class="dropdown-toggle no-wrap">Stimulation <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                  <li class="btn-link" ng-repeat="s in stimulations"><a data-ng-click="stimulationChanged(s)">{{ s.stimulation_name }}</a></li>
-              </ul>
-            </li>
-        </th>
-        <th>
-            <li class="list-unstyled dropdown">
-              <a href="#" class="dropdown-toggle no-wrap">Specimen <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                  <li class="btn-link" ng-repeat="s in specimens"><a data-ng-click="specimenChanged(s)">{{ s.specimen_name }}</a></li>
-              </ul>
-            </li>
-        </th>
-        <th>
-            <li class="list-unstyled dropdown">
-              <a href="#" class="dropdown-toggle no-wrap">Pre-treatment <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                  <li class="btn-link" ng-repeat="p in pretreatments"><a data-ng-click="pretreatmentChanged(p)">{{ p.name }}</a></li>
-              </ul>
-            </li>
-        </th>
-        <th>
-            <li class="list-unstyled dropdown">
-              <a href="#" class="dropdown-toggle no-wrap">Storage <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                  <li class="btn-link" ng-repeat="s in storages"><a data-ng-click="storageChanged(s)">{{ s.name }}</a></li>
-              </ul>
-            </li>
-        </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr data-ng-repeat="f in file_queue">
-      <td>
-        <input ng-hide="f.uploaded" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
-        <span data-ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
-
-        <script type="text/ng-template" id="myModalContent.html">
-            <div class="modal-header">
-                <h3>Error uploading {{ upload_file.filename }}</h3>
-            </div>
-            <div class="modal-body">
-                <div class="text-warning">
-                  <ul>
-                    <li data-ng-repeat="error in upload_file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
-                  </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" ng-click="ok()">OK</button>
-            </div>
-        </script>
-        <button data-ng-show="f.errors" data-ng-click="open_error_modal(f)" class="btn btn-default btn-xs">
-          <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
-        </button>
-
-      </td>
-      <td>
-
-        <script type="text/ng-template" id="metadata_content.html">
-            <div class="modal-header">
-                <h3>Metadata from {{ upload_file.filename }}</h3>
-            </div>
-            <div class="modal-body">
-                <div>
-                  <ul>
-                    <li data-ng-repeat="field in upload_file.metadata">{{ field.key }}: {{ field.value }}</li>
-                  </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" ng-click="ok()">OK</button>
-            </div>
-        </script>
-
-        <script type="text/ng-template" id="channels_content.html">
-            <div class="modal-header">
-                <h3>Channel annotation from {{ upload_file.filename }}</h3>
-            </div>
-            <div class="modal-body">
-              <table class="table-condensed">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>PnN</th>
-                    <th>PnS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr data-ng-repeat="channel in upload_file.channels">
-                    <td>{{ channel.channel }}</td>
-                    <td>{{ channel.pnn }}</td>
-                    <td>{{ channel.pns }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" ng-click="ok()">OK</button>
-            </div>
-        </script>
-
-        <li class="list-unstyled dropdown">
-        <progressbar class="progress" value="f.progress" type="warning">
-            <a href="#" class="dropdown-toggle no-wrap">
-              <strong>{{ f.filename }}</strong> <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-                <li class="btn-link">
-                  <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
-                </li>
-                <li class="btn-link">
-                  <a data-ng-click="open_channels_modal(f)">View Channels</a>
-                </li>
-            </ul>
-        </progressbar>
-        </li>
-      </td>
-      <td>{{ f.acquisition_date | date }}</td>
-      <td>{{ f.site_panel.name }}</td>
-      <td>{{ f.subject.subject_code }}</td>
-      <td>{{ f.visit_type.visit_type_name }}</td>
-      <td>{{ f.stimulation.stimulation_name }}</td>
-      <td>{{ f.specimen.specimen_name }}</td>
-      <td>{{ f.pretreatment.name }}</td>
-      <td>{{ f.storage.name }}</td>
-    </tr>
-  </tbody>
-</table>
