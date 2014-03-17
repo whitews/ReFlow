@@ -424,8 +424,18 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
 class ProcessRequestInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProcessRequestInput
-        fields = ('id', 'key', 'value')
-        depth = 1
+        fields = ('id', 'process_request', 'key', 'value')
+
+
+class ProcessRequestOutputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequestOutput
+        fields = (
+            'id',
+            'process_request',
+            'key',
+            'value'
+        )
 
 
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
@@ -433,6 +443,8 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
         view_name='process-request-detail')
     inputs = ProcessRequestInputSerializer(
         source='processrequestinput_set')
+    outputs = ProcessRequestOutputSerializer(
+        source='processrequestoutput_set')
 
     class Meta:
         model = ProcessRequest
@@ -445,15 +457,6 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'request_date',
             'status',
             'completion_date',
-            'inputs')
-
-
-class ProcessRequestOutputSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProcessRequestOutput
-        fields = (
-            'id',
-            'process_request',
-            'key',
-            'value'
+            'inputs',
+            'outputs'
         )
