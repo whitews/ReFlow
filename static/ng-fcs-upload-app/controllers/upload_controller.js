@@ -388,6 +388,8 @@ app.controller(
                             'value': 'Please select all fields for the FCS sample.'
                         }
                     );
+                    // reset uploading status else checkbox stays disabled
+                    $scope.file_queue[index].uploading = false;
                     return;
                 }
 
@@ -433,6 +435,8 @@ app.controller(
                             );
                         }
                     }
+                    // reset uploading status else checkbox stays disabled
+                    $scope.file_queue[index].uploading = false;
                 });
             }
 
