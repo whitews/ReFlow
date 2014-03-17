@@ -22,6 +22,8 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/sites/(?P<pk>\d+)/$', SiteDetail.as_view(), name='site-detail'),
     url(r'^api/repository/site_panels/$', SitePanelList.as_view(), name='site-panel-list'),
     url(r'^api/repository/site_panels/(?P<pk>\d+)/$', SitePanelDetail.as_view(), name='site-panel-detail'),
+    url(r'^api/repository/cytometers/$', CytometerList.as_view(), name='cytometer-list'),
+    url(r'^api/repository/cytometers/(?P<pk>\d+)/$', CytometerDetail.as_view(), name='cytometer-detail'),
 
     url(r'^api/repository/subject_groups/$', SubjectGroupList.as_view(), name='subject-group-list'),
     url(r'^api/repository/subjects/$', SubjectList.as_view(), name='subject-list'),
@@ -41,20 +43,31 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/samples/(?P<pk>\d+)/csv/$', retrieve_subsample_as_csv, name='retrieve_subsample_as_csv'),
     url(r'^api/repository/samples/(?P<pk>\d+)/npy/$', retrieve_subsample_as_numpy, name='retrieve_subsample_as_numpy'),
 
+    url(r'^api/repository/samplemetadata/$', SampleMetaDataList.as_view(), name='sample-metadata-list'),
+
     url(r'^api/repository/compensations/$', CompensationList.as_view(), name='compensation-list'),
+    url(r'^api/repository/compensations/add/$', CreateCompensation.as_view(), name='create-compensation'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/$', CompensationDetail.as_view(), name='compensation-detail'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/csv/$', retrieve_compensation_as_csv, name='retrieve_compensation_as_csv'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/npy/$', retrieve_compensation_as_numpy, name='retrieve_compensation_as_numpy'),
 
-    url(r'^api/repository/processes/$', ProcessList.as_view(), name='process-list'),
     url(r'^api/repository/workers/$', WorkerList.as_view(), name='worker-list'),
     url(r'^api/repository/verify_worker/$', verify_worker, name='verify-worker'),
     url(r'^api/repository/process_requests/$', ProcessRequestList.as_view(), name='process-request-list'),
     url(r'^api/repository/viable_process_requests/$', ViableProcessRequestList.as_view(), name='viable-process-request-list'),
+    url(r'^api/repository/assigned_process_requests/$', AssignedProcessRequestList.as_view(), name='assigned-process-request-list'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/$', ProcessRequestDetail.as_view(), name='process-request-detail'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/request_assignment/$', ProcessRequestAssignmentUpdate.as_view(), name='process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/revoke_assignment/$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/verify_assignment/$', verify_process_request_assignment, name='verify-process-request-assignment'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/complete_assignment/$', complete_process_request_assignment, name='complete-process-request-assignment'),
+    url(r'^api/repository/process_request_outputs/add/$', CreateProcessRequestOutput.as_view(), name='create-process-request-output'),
+    url(r'^api/repository/process_request_outputs/(?P<pk>\d+)/download/$', retrieve_process_request_output_value, name='retrieve_process_request_output'),
+)
+
+# Angular web routes
+urlpatterns += patterns('repository.views',
+    url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
 )
 
 # Regular web routes
@@ -63,13 +76,13 @@ urlpatterns += patterns('repository.views',
     url(r'^$', 'home', name='home'),
     url(r'^reflow_admin/$', 'admin', name='admin'),
 
-    url(r'^antibodies/$', 'view_antibodies', name='view_antibodies'),
-    url(r'^antibodies/add/$', 'add_antibody', name='add_antibody'),
-    url(r'^antibodies/(?P<antibody_id>\d+)/edit/$', 'edit_antibody', name='edit_antibody'),
+    url(r'^markers/$', 'view_markers', name='view_markers'),
+    url(r'^markers/add/$', 'add_marker', name='add_marker'),
+    url(r'^markers/(?P<marker_id>\d+)/edit/$', 'add_marker', name='edit_marker'),
 
     url(r'^fluorochromes/$', 'view_fluorochromes', name='view_fluorochromes'),
     url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
-    url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'edit_fluorochrome', name='edit_fluorochrome'),
+    url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'add_fluorochrome', name='edit_fluorochrome'),
 
     url(r'^specimens/$', 'view_specimens', name='view_specimens'),
     url(r'^specimens/add/$', 'add_specimen', name='add_specimen'),
@@ -77,7 +90,7 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/$', 'view_project', name='view_project'),
     url(r'^project/add/$', 'add_project', name='add_project'),
-    url(r'^project/(?P<project_id>\d+)/edit/$', 'edit_project', name='edit_project'),
+    url(r'^project/(?P<project_id>\d+)/edit/$', 'add_project', name='edit_project'),
 
     url(r'^project/(?P<project_id>\d+)/users/$', 'view_project_users', name='view_project_users'),
     url(r'^project/(?P<project_id>\d+)/users/add/$', 'add_user_permissions', name='add_user_permissions'),
@@ -86,18 +99,24 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/stimulations/$', 'view_project_stimulations', name='view_project_stimulations'),
     url(r'^project/(?P<project_id>\d+)/stimulations/add/$', 'add_stimulation', name='add_stimulation'),
-    url(r'^stimulations/(?P<stimulation_id>\d+)/edit/$', 'edit_stimulation', name='edit_stimulation'),
+    url(r'^project/(?P<project_id>\d+)/stimulations/(?P<stimulation_id>\d+)/edit/$', 'add_stimulation', name='edit_stimulation'),
 
     url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='view_project_panels'),
     url(r'^project/(?P<project_id>\d+)/panels/add/$', 'add_project_panel', name='add_project_panel'),
-    url(r'^panels/(?P<panel_id>\d+)/edit/$', 'edit_project_panel', name='edit_project_panel'),
+    url(r'^project/(?P<project_id>\d+)/panels/(?P<panel_id>\d+)/edit/$', 'add_project_panel', name='edit_project_panel'),
+    url(r'^project/(?P<project_id>\d+)/panels/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
 
     url(r'^project/(?P<project_id>\d+)/sites/$', 'view_project_sites', name='view_project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
     url(r'^site/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
 
+    url(r'^project/(?P<project_id>\d+)/cytometers/$', 'view_project_cytometers', name='view_project_cytometers'),
+    url(r'^project/(?P<project_id>\d+)/cytometers/add/$', 'add_cytometer', name='add_cytometer'),
+    url(r'^project/(?P<project_id>\d+)/cytometers/(?P<cytometer_id>\d+)/edit/$', 'add_cytometer', name='edit_cytometer'),
+
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
+    url(r'^project/(?P<project_id>\d+)/compensations/(?P<compensation_id>\d+)/edit/$', 'add_compensation', name='edit_compensation'),
 
     url(r'^project/(?P<project_id>\d+)/visit_types/$', 'view_visit_types', name='project_visit_types'),
     url(r'^project/(?P<project_id>\d+)/visit_types/add/$', 'add_visit_type', name='add_visit_type'),
@@ -127,12 +146,7 @@ urlpatterns += patterns('repository.views',
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 
     url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),
-    url(r'^processing/process/(?P<process_id>\d+)/input/add/$', 'add_process_input', name='add_process_input'),
-    url(r'^processing/process/process_input/(?P<process_input_id>\d+)/edit/$', 'edit_process_input', name='edit_process_input'),
     url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
     url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
-    url(r'^processing/process/(?P<process_id>\d+)/$', 'view_process', name='view_process'),
-
-    # Specific process requests are under a project
-    url(r'^project/(?P<project_id>\d+)/plots/request/$', 'process_request_plot', name='process_request_plot'),
+    url(r'^processing/process/(?P<process>\w+)/request/$', 'submit_process_request', name='submit_process_request'),
 )

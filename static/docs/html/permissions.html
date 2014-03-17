@@ -1,0 +1,243 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>User Accounts &amp; Permissions &mdash; ReFlow 0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:'',
+        VERSION:'0.1',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+    <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
+        <link rel="next" title="Tutorials" href="tutorials-index.html"/>
+        <link rel="prev" title="Site Navigation" href="site-nav.html"/> 
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="icon icon-home"> ReFlow</a>
+        <form class="wy-form" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search docs" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-reflow">What is ReFlow?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#why-was-reflow-built">Why was ReFlow built?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#major-features">Major Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#data-organization">Data Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="site-nav.html">Site Navigation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#login-screen">Login Screen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#home-page">Home Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-home">Project Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject">Project Category - Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-site">Project Category - Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#non-project-categories">Non-project Categories</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">User Accounts &amp; Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#project-permissions">Project Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#site-permissions">Site Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top">
+        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
+        <a href="/">ReFlow</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <ul class="wy-breadcrumbs">
+  <li><a href="index.html">Docs</a> &raquo;</li>
+  <li><a href="">User Accounts &amp; Permissions</a></li>
+  
+</ul>
+<hr/>
+
+          
+  <div class="section" id="user-accounts-permissions">
+<h1>User Accounts &amp; Permissions<a class="headerlink" href="#user-accounts-permissions" title="Permalink to this headline">¶</a></h1>
+<p>ReFlow provides granular user permissions on both the project and site levels. On a project level a user can have any combination of the following permissions:</p>
+<ul class="simple">
+<li>View Project Data</li>
+<li>Add Project Data</li>
+<li>Modify/Delete Project Data</li>
+<li>Manage Project Users</li>
+</ul>
+<p>Similarly, for <strong>each site</strong> within a project, a user can have the following permissions:</p>
+<ul class="simple">
+<li>View Site</li>
+<li>Add Site Data</li>
+<li>Modify/Delete Site Data</li>
+<li>Manage Site Users</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sites are not shared across projects. While the same site name may be found in 2 different projects, it is purely coincidental. There is no formal relationship between those 2 sites, and user permissions are not shared between them.</p>
+</div>
+<p>Finally, there are <strong>super-users</strong> which have access to all projects&#8217; data as well as administrative functions of the ReFlow system. These are generally system administrators which can create new users and projects.</p>
+<div class="section" id="project-permissions">
+<h2>Project Permissions<a class="headerlink" href="#project-permissions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="view-project-data">
+<h3>View Project Data<a class="headerlink" href="#view-project-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>View Project Data</strong> permission for a particular project can view all data within that project, regardless of the site to which that data is associated.</p>
+</div>
+<div class="section" id="add-project-data">
+<h3>Add Project Data<a class="headerlink" href="#add-project-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Add Project Data</strong> permission for a particular project can create new data in any project category (site, subject, sample, etc.). As with the view project data permission, they can add data within any site. However, they cannot edit or remove project data.</p>
+</div>
+<div class="section" id="modify-delete-project-data">
+<h3>Modify/Delete Project Data<a class="headerlink" href="#modify-delete-project-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Modify/Delete Project Data</strong> permission for a particular project can edit and/or remove existing data in any project category (site, subject, sample, etc.). This applies for data in all a project&#8217;s sites.</p>
+<p>Modifying data within ReFlow will keep any existing relationships intact. When deleting data that has a parent relationship to other data categories, all the related data must first be deleted. For example, to delete a subject group, all subjects belonging to that subject group must be deleted first. Alternatively, those subjects could also be modified to use a different subject group, and the original subject group could be deleted.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.</p>
+</div>
+</div>
+<div class="section" id="manage-project-users">
+<h3>Manage Project Users<a class="headerlink" href="#manage-project-users" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Manage Project Users</strong> permission for a particular project can add/modify/remove users from a project. This also applies to managing the site level permissions for all users.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">A user with <strong>Manage Project Users</strong> permission should be treated as having all permissions, since they can technically change their own permissions within a project.</p>
+</div>
+</div>
+</div>
+<div class="section" id="site-permissions">
+<h2>Site Permissions<a class="headerlink" href="#site-permissions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="view-site">
+<h3>View Site<a class="headerlink" href="#view-site" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>View Site</strong> permission for a particular site can view all data within that site. All pages will filter data accordingly, therefore a user with view permission in only one site will be unaware of FCS samples included in the same project from a different site, nor will they see the names of the other sites.</p>
+</div>
+<div class="section" id="add-site-data">
+<h3>Add Site Data<a class="headerlink" href="#add-site-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Add Site Data</strong> permission for a particular site can create new data in any site category (site panel, sample, cytometer, compensation). They cannot add new subjects or sites to the projects, nor can they modify or delete data in the site to which they have add permission.</p>
+</div>
+<div class="section" id="modify-delete-site-data">
+<h3>Modify/Delete Site Data<a class="headerlink" href="#modify-delete-site-data" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Modify/Delete Site Data</strong> permission for a particular site can edit and/or remove existing data in any site category (subject, sample, site panel, cytometer).</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Deleted data cannot be recovered as ReFlow is not meant as an archive for source data. While there is no undo operation after deleting data, the data can be re-uploaded to the project.</p>
+</div>
+</div>
+<div class="section" id="manage-site-users">
+<h3>Manage Site Users<a class="headerlink" href="#manage-site-users" title="Permalink to this headline">¶</a></h3>
+<p>A user with <strong>Manage Site Users</strong> permission for a particular site can add/modify/remove users from that site. They cannot manage any project-level permissions.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">A user with <strong>Manage Site Users</strong> permission should be treated as having all site-level permissions, since they can technically change their own permissions within that site.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          <footer>
+  
+    <div class="rst-footer-buttons">
+      
+        <a href="tutorials-index.html" class="btn btn-neutral float-right" title="Tutorials"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="site-nav.html" class="btn btn-neutral" title="Site Navigation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <p>
+      &copy; Copyright 2013, Scott White.
+  </p>
+
+  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+</body>
+</html>

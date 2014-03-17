@@ -8,7 +8,7 @@
       <th>Function</th>
       <th>FCS PnN Text</th>
       <th>FCS PnS Text</th>
-      <th>Antibodies</th>
+      <th>Markers</th>
       <th>Fluorochrome</th>
       <th>Value Type</th>
     </tr>
@@ -21,8 +21,8 @@
       <td>{{ param.fcs_text }}</td>
       <td>{{ param.fcs_opt_text }}</td>
       <td>
-        {% for ab in param.sitepanelparameterantibody_set.all %}
-          {{ ab.antibody.antibody_abbreviation }}<br/>
+        {% for param_marker in param.sitepanelparametermarker_set.all %}
+          {{ param_marker.marker.marker_abbreviation }}<br/>
         {% endfor %}
       </td>
       <td>{{ param.fluorochrome.fluorochrome_abbreviation }}</td>

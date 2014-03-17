@@ -61,27 +61,27 @@ class Specimen(models.Model):
         return u'%s' % self.specimen_name
 
 
-class Antibody(models.Model):
-    antibody_abbreviation = models.CharField(
+class Marker(models.Model):
+    marker_abbreviation = models.CharField(
         unique=True,
         null=False,
         blank=False,
         max_length=32)
-    antibody_name = models.CharField(
+    marker_name = models.CharField(
         unique=True,
         null=False,
         blank=False,
         max_length=128)
-    antibody_description = models.TextField(
+    marker_description = models.TextField(
         null=True,
         blank=True)
 
     def __unicode__(self):
-        return u'%s' % self.antibody_abbreviation
+        return u'%s' % self.marker_abbreviation
 
     class Meta:
-        verbose_name_plural = 'Antibodies'
-        ordering = ['antibody_abbreviation']
+        verbose_name_plural = 'Markers'
+        ordering = ['marker_abbreviation']
 
 
 class Fluorochrome(models.Model):
@@ -107,13 +107,14 @@ class Fluorochrome(models.Model):
 PARAMETER_TYPE_CHOICES = (
     ('FSC', 'Forward Scatter'),
     ('SSC', 'Side Scatter'),
-    ('FCA', 'Fluorochrome Conjugated Antibody'),
+    ('FCM', 'Fluorochrome Conjugated Marker'),
     ('UNS', 'Unstained'),
     ('ISO', 'Isotype Control'),
     ('EXC', 'Exclusion'),
     ('VIA', 'Viability'),
-    ('ICA', 'Isotope Conjugated Antibody'),
-    ('TIM', 'Time')
+    ('ICM', 'Isotope Conjugated Marker'),
+    ('TIM', 'Time'),
+    ('NUL', 'Null')
 )
 
 PARAMETER_VALUE_TYPE_CHOICES = (
@@ -128,6 +129,23 @@ STAINING_CHOICES = (
     ('US', 'Unstained'),
     ('FM', 'Fluorescence Minus One'),
     ('IS', 'Isotype Control')
+)
+
+PRETREATMENT_CHOICES = (
+    ('In vitro', 'In vitro'),
+    ('Ex vivo', 'Ex vivo')
+)
+
+STORAGE_CHOICES = (
+    ('Fresh', 'Fresh'),
+    ('Cryopreserved', 'Cryopreserved')
+)
+
+STATUS_CHOICES = (
+    ('Pending', 'Pending'),
+    ('Working', 'Working'),
+    ('Error', 'Error'),
+    ('Completed', 'Completed'),
 )
 
 
@@ -243,7 +261,7 @@ class Project(ProtectedModel):
 class Stimulation(ProtectedModel):
     project = models.ForeignKey(Project)
     stimulation_name = models.CharField(
-        unique=True,
+        unique=False,
         null=False,
         blank=False,
         max_length=128)
@@ -256,6 +274,28 @@ class Stimulation(ProtectedModel):
 
         return False
 
+    def clean(self):
+        """
+        Check for duplicate stimulations in a project.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # count stims with matching name and parent project,
+        # which don't have this pk
+        try:
+            Project.objects.get(id=self.project_id)
+        except ObjectDoesNotExist:
+            return  # Project is required and will get caught by Form.is_valid()
+
+        stim_duplicates = Stimulation.objects.filter(
+            stimulation_name=self.stimulation_name,
+            project=self.project).exclude(
+                id=self.id)
+        if stim_duplicates.count() > 0:
+            raise ValidationError(
+                "Stimulation name already exists in this project."
+            )
+
     def __unicode__(self):
         return u'%s' % self.stimulation_name
 
@@ -267,6 +307,11 @@ class ProjectPanel(ProtectedModel):
         null=False,
         blank=False,
         max_length=128)
+    panel_description = models.TextField(
+        "Panel Description",
+        null=True,
+        blank=True,
+        help_text="A short description of the panel")
     staining = models.CharField(
         max_length=2,
         choices=STAINING_CHOICES,
@@ -356,11 +401,21 @@ class ProjectPanelParameter(ProtectedModel):
 
         # count panel mappings with matching parameter and value_type,
         # which don't have this pk
+        # This is a little tricky since we need to match the marker set
+        # but in any order (for multiplex channels)
+        # i.e. these are duplicates: CD3+CD8 & CD8+CD3
+        # We're using a an annotation approach by combining
+        # '__in' with a matching count of the markers
         ppm_duplicates = ProjectPanelParameter.objects.filter(
             project_panel=self.project_panel,
             fluorochrome=self.fluorochrome,
+            projectpanelparametermarker__in=self.projectpanelparametermarker_set.all(),
             parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(id=self.id)
+            parameter_value_type=self.parameter_value_type).exclude(
+                id=self.id)
+        ppm_duplicates = ppm_duplicates.annotate(
+            num_markers=models.Count('projectpanelparametermarker')).filter(
+                num_markers=self.projectpanelparametermarker_set.all().count())
 
         if ppm_duplicates.count() > 0:
             raise ValidationError(
@@ -375,28 +430,28 @@ class ProjectPanelParameter(ProtectedModel):
         )
 
 
-class ProjectPanelParameterAntibody(models.Model):
+class ProjectPanelParameterMarker(models.Model):
     project_panel_parameter = models.ForeignKey(ProjectPanelParameter)
-    antibody = models.ForeignKey(Antibody)
+    marker = models.ForeignKey(Marker)
 
     # override clean to prevent duplicate Ab's for a parameter...
     # unique_together doesn't work for forms with the parameter excluded
     def clean(self):
         """
-        Verify the parameter & antibody combo doesn't already exist
+        Verify the parameter & marker combo doesn't already exist
         """
 
-        qs = ProjectPanelParameterAntibody.objects.filter(
+        qs = ProjectPanelParameterMarker.objects.filter(
             project_panel_parameter=self.project_panel_parameter,
-            antibody=self.antibody)
+            marker=self.marker).exclude(id=self.id)
 
         if qs.exists():
             raise ValidationError(
-                "This antibody is already included in this parameter."
+                "This marker is already included in this parameter."
             )
 
     def __unicode__(self):
-        return u'%s: %s' % (self.project_panel_parameter, self.antibody)
+        return u'%s: %s' % (self.project_panel_parameter, self.marker)
 
 
 class SiteManager(models.Manager):
@@ -407,18 +462,29 @@ class SiteManager(models.Manager):
         """
 
         if project is None:
-            project_list = Project.objects.get_projects_user_can_view(user)
-            project_id_list = []
-            for p in project_list:
-                project_id_list.append(p.id)
-            project_view_sites = Site.objects.filter(
-                project_id__in=project_id_list)
-            view_sites = get_objects_for_user(
-                user, 'view_site_data',
-                klass=Site).filter(
-                    project__in=project_list)
+            # get all projects the user has at least one viewable site for,
+            # then we'll iterate through the projects and figure out
+            # the sites that are viewable
+            projects = Project.objects.get_projects_user_can_view(user)
 
-            sites = project_view_sites | view_sites
+            # will use this to get the final Site queryset
+            site_id_list = []
+
+            for project in projects:
+                if project.has_view_permission(user):
+                    site_id_list.extend([s.id for s in project.site_set.all()])
+                else:
+                    site_id_list.extend([s.id for s in
+                        get_objects_for_user(
+                            user,
+                            'view_site_data',
+                            klass=Site
+                        ).filter(
+                            project=project
+                        )
+                    ])
+
+            sites = Site.objects.filter(id__in=site_id_list)
         else:
             if project.has_view_permission(user):
                 sites = Site.objects.filter(project=project)
@@ -497,6 +563,11 @@ class Site(ProtectedModel):
             ('manage_site_users', 'Manage Site Users')
         )
 
+    def get_sample_count(self):
+        site_panels = SitePanel.objects.filter(site=self)
+        sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
+        return sample_count
+
     def get_user_permissions(self, user):
         return UserObjectPermission.objects.filter(
             user=user,
@@ -544,6 +615,40 @@ class Site(ProtectedModel):
         return u'%s' % self.site_name
 
 
+class Cytometer(ProtectedModel):
+    site = models.ForeignKey(Site, null=False, blank=False)
+    cytometer_name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=128)
+    serial_number = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=256)
+
+    def clean(self):
+        """
+        Check for duplicate cytometer names within a site.
+        Returns ValidationError if any duplicates are found.
+        """
+        if not hasattr(self, 'site'):
+            return  # site is required and will get caught
+        # count cytos with matching name and parent site,
+        # which don't have this pk
+        duplicates = Cytometer.objects.filter(
+            cytometer_name=self.cytometer_name,
+            site=self.site).exclude(
+                id=self.id)
+
+        if duplicates.count() > 0:
+            raise ValidationError("Cytometer already exists in this site.")
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.site.site_name, self.cytometer_name)
+
+
 class SitePanel(ProtectedModel):
     # a SitePanel must be "based" off of a ProjectPanel
     # and is required to have at least the parameters specified in the
@@ -573,7 +678,7 @@ class SitePanel(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if user.has_perm('view_project_data', self.site.project):
+        if self.site.project.has_view_permission(user):
             return True
         elif self.site is not None:
             if user.has_perm('view_site_data', self.site):
@@ -612,10 +717,10 @@ class SitePanel(ProtectedModel):
                     "Could not calculate implementation version.")
 
     def __unicode__(self):
-        return u'%s (%d) (Site: %s)' % (
+        return u'%s: %s (%d)' % (
+            self.site.site_name,
             self.project_panel.panel_name,
-            self.implementation,
-            self.site.site_name)
+            self.implementation)
 
 
 class SitePanelParameter(ProtectedModel):
@@ -692,7 +797,8 @@ class SitePanelParameter(ProtectedModel):
             site_panel=self.site_panel,
             fluorochrome=self.fluorochrome,
             parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(id=self.id)
+            parameter_value_type=self.parameter_value_type).exclude(
+                id=self.id).exclude(parameter_type='NUL')
 
         if spp_duplicates.count() > 0:
             raise ValidationError(
@@ -706,6 +812,13 @@ class SitePanelParameter(ProtectedModel):
         if panel_fcs_text_duplicates.count() > 0:
             raise ValidationError("A site panel cannot have duplicate FCS text")
 
+        panel_fcs_number_duplicates = SitePanelParameter.objects.filter(
+            site_panel=self.site_panel,
+            fcs_number=self.fcs_number).exclude(id=self.id)
+
+        if panel_fcs_number_duplicates.count() > 0:
+            raise ValidationError("Channel numbers must be unique.")
+
         if self.fcs_text == '':
             raise ValidationError("FCS Text is required")
 
@@ -718,28 +831,28 @@ class SitePanelParameter(ProtectedModel):
         )
 
 
-class SitePanelParameterAntibody(models.Model):
+class SitePanelParameterMarker(models.Model):
     site_panel_parameter = models.ForeignKey(SitePanelParameter)
-    antibody = models.ForeignKey(Antibody)
+    marker = models.ForeignKey(Marker)
 
     # override clean to prevent duplicate Ab's for a parameter...
     # unique_together doesn't work for forms with the parameter excluded
     def clean(self):
         """
-        Verify the parameter & antibody combo doesn't already exist
+        Verify the parameter & marker combo doesn't already exist
         """
 
-        qs = SitePanelParameterAntibody.objects.filter(
+        qs = SitePanelParameterMarker.objects.filter(
             site_panel_parameter=self.site_panel_parameter,
-            antibody=self.antibody)
+            marker=self.marker)
 
         if qs.exists():
             raise ValidationError(
-                "This antibody is already included in this parameter."
+                "This marker is already included in this parameter."
             )
 
     def __unicode__(self):
-        return u'%s: %s' % (self.site_panel_parameter, self.antibody)
+        return u'%s: %s' % (self.site_panel_parameter, self.marker)
 
 
 class SubjectGroup(ProtectedModel):
@@ -774,6 +887,10 @@ class Subject(ProtectedModel):
         null=False,
         blank=False,
         max_length=128)
+    batch_control = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False)
 
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
@@ -880,13 +997,17 @@ class Compensation(ProtectedModel):
     matrix_text = models.TextField(
         null=False,
         blank=False)
+    acquisition_date = models.DateField(
+        null=False,
+        blank=False
+    )
 
     def has_view_permission(self, user):
-
-        if user.has_perm('view_project_data', self.site_panel.site.project):
+        site = self.site_panel.site
+        if site.project.has_view_permission(user):
             return True
-        elif self.site_panel.site is not None:
-            if user.has_perm('view_site_data', self.site_panel.site):
+        elif site is not None:
+            if user.has_perm('view_site_data', site):
                 return True
 
     def get_compensation_as_csv(self):
@@ -914,10 +1035,78 @@ class Compensation(ProtectedModel):
             raise ValidationError(
                 "Compensation with this name already exists in this site.")
 
-        if hasattr(self, 'tmp_compensation_file'):
-            self.compensation_file.save(
-                self.name,
-                File(self.tmp_compensation_file))
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # 'Null', scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel_id=self.site_panel_id).exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = self.matrix_text.splitlines(False)
+        if not len(matrix_text) > 1:
+            raise ValidationError("Too few rows.")
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        headers = re.split('\t|,\s*', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if p.fcs_text not in headers:
+                missing_fields.append(p.fcs_text)
+
+        if len(missing_fields) > 0:
+            raise ValidationError(
+                "Missing fields: %s" % ", ".join(missing_fields))
+
+        if len(headers) > params.count():
+            raise ValidationError("Too many parameters")
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            raise ValidationError("Too many rows")
+        elif len(matrix_text) < params.count() + 1:
+            raise ValidationError("Too few rows")
+
+        # we need to store the channel number in the first row of the numpy
+        # array, more reliable to identify parameters than some concatenation
+        # of parameter attributes
+        channel_header = list()
+        for h in headers:
+            for p in params:
+                if p.fcs_text == h:
+                    channel_header.append(p.fcs_number)
+
+        np_array = np.array(channel_header)
+        np_width = np_array.shape[0]
+
+        # convert the matrix text to numpy array and
+        for line in matrix_text[1:]:
+            line_values = re.split('\t|,', line)
+            for i, value in enumerate(line_values):
+                try:
+                    line_values[i] = float(line_values[i])
+                except ValueError:
+                    self._errors["matrix_text"] = \
+                        "%s is an invalid matrix value" % line_values[i]
+            if len(line_values) > np_width:
+                raise ValidationError("Too many values in line: %s" % line)
+            elif len(line_values) < np_width:
+                raise ValidationError("Too few values in line: %s" % line)
+            else:
+                np_array = np.vstack([np_array, line_values])
+
+        # save numpy array in the self.compensation_file field
+        np_array_file = TemporaryFile()
+        np.save(np_array_file, np_array)
+
+        self.compensation_file.save(
+            self.name,
+            File(np_array_file),
+            save=False)
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -970,10 +1159,28 @@ class Sample(ProtectedModel):
         Stimulation,
         null=False,
         blank=False)
+    pretreatment = models.CharField(
+        max_length=32,
+        choices=PRETREATMENT_CHOICES,
+        null=False,
+        blank=False)
+    storage = models.CharField(
+        max_length=32,
+        choices=STORAGE_CHOICES,
+        null=False,
+        blank=False)
     site_panel = models.ForeignKey(
         SitePanel,
         null=False,
         blank=False)
+    cytometer = models.ForeignKey(
+        Cytometer,
+        null=False,
+        blank=False)
+    acquisition_date = models.DateField(
+        null=False,
+        blank=False
+    )
     compensation = models.ForeignKey(
         Compensation,
         null=True,
@@ -1010,7 +1217,7 @@ class Sample(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if user.has_perm('view_project_data', self.subject.project):
+        if self.subject.project.has_view_permission(user):
             return True
         elif self.site_panel is not None:
             if user.has_perm('view_site_data', self.site_panel.site):
@@ -1050,9 +1257,9 @@ class Sample(ProtectedModel):
         # visit project (if either site or visit is specified)
         if hasattr(self, 'site'):
             if self.site is not None:
-                if self.subject.project != self.site.project:
+                if self.subject.project != self.site_panel.site.project:
                     raise ValidationError(
-                        "Subject and Site must belong to the same project"
+                        "Subject and Site Panel must belong to the same project"
                     )
 
         if hasattr(self, 'visit'):
@@ -1196,7 +1403,10 @@ class Sample(ProtectedModel):
             axis=1)
         subsample_file = TemporaryFile()
         np.save(subsample_file, random_subsample_indexed)
-        self.subsample.save(self.original_filename, File(subsample_file))
+        self.subsample.save(
+            self.original_filename,
+            File(subsample_file),
+            save=False)
 
     def save(self, *args, **kwargs):
         """ Populate upload date on save """
@@ -1262,97 +1472,6 @@ class SampleMetadata(ProtectedModel):
 ####################################
 
 
-class Process(models.Model):
-    """
-    The model representation of a specific workflow.
-    """
-    process_name = models.CharField(
-        "Process Name",
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128,
-        help_text="The name of the process (must be unique)")
-    process_description = models.TextField(
-        "Process Description",
-        null=True,
-        blank=True,
-        help_text="A short description of the process")
-
-    def __unicode__(self):
-        return u'%s' % (self.process_name,)
-
-
-class ProcessInput(models.Model):
-    """
-    Defines an input parameter for a Process
-    """
-    process = models.ForeignKey(Process)
-    input_name = models.CharField(
-        "Input Name",
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-
-    allow_multiple = models.BooleanField(
-        null=False,
-        blank=False,
-        default=False,
-        help_text="Whether multiple input values for this input are allowed"
-    )
-
-    input_description = models.TextField(
-        "Process Input Description",
-        null=True,
-        blank=True,
-        help_text="A short description of the input parameter")
-
-    VALUE_TYPE_CHOICES = (
-        ('int', 'Integer'),
-        ('dec', 'Decimal'),
-        ('txt', 'Text String'),
-    )
-
-    value_type = models.CharField(
-        max_length=32,
-        null=False,
-        blank=False,
-        choices=VALUE_TYPE_CHOICES)
-
-    # Should we add minimum/maximum values???
-
-    default_value = models.CharField(null=True, blank=True, max_length=1024)
-
-    class Meta:
-        unique_together = (('process', 'input_name'),)
-
-    # override clean to prevent duplicate input names for a process input...
-    # unique_together doesn't work for forms with any of the
-    # unique together fields excluded
-    def clean(self):
-        """
-        Verify the process & input_name combination is unique
-        """
-
-        qs = ProcessInput.objects.filter(
-            process=self.process,
-            input_name=self.input_name)\
-            .exclude(
-                id=self.id)
-
-        if qs.exists():
-            raise ValidationError(
-                "This input name is already used in this process. " +
-                "Choose a different name."
-            )
-
-    def __unicode__(self):
-        return u'%s (Process: %s)' % (
-            self.input_name,
-            self.get_process_display(),)
-
-
 class Worker(models.Model):
     """
     The model representation of a client-side worker.
@@ -1386,59 +1505,21 @@ class Worker(models.Model):
         return u'%s' % (self.worker_name,)
 
 
-class SampleSet(models.Model):
-    """
-    An collection of Sample instances in ProcessRequest
-    Must belong to the same project.
-    """
-    project = models.ForeignKey(Project)
-    samples = models.ManyToManyField(Sample)
-
-    def has_view_permission(self, user):
-        """
-        User must have project permissions to view sample sets
-        """
-        if user.has_perm('view_project_data', self.project):
-            return True
-
-        return False
-
-
-def validate_samples(sender, **kwargs):
-    """
-    Verify all the samples belong to the self.project
-    """
-    print kwargs
-    sample_set = kwargs['instance']
-    action = kwargs['action']
-    pk_set = kwargs['pk_set']
-
-    if action == 'pre_add':
-        try:
-            samples_to_add = Sample.objects.filter(pk__in=pk_set)
-        except:
-            raise ValidationError(
-                "Could not find specified samples. Check that they exist.")
-
-        for sample in samples_to_add:
-            if sample_set.project_id != sample.subject.project_id:
-                raise ValidationError(
-                    "Samples must belong to the specified project."
-                )
-
-models.signals.m2m_changed.connect(
-    validate_samples,
-    sender=SampleSet.samples.through)
-
-
 class ProcessRequest(ProtectedModel):
     """
-    A request for a Process to be executed on a SampleSet
+    A request for a Process
     """
     project = models.ForeignKey(Project)
-    process = models.ForeignKey(Process)
-    sample_set = models.ForeignKey(
-        SampleSet,
+
+    TEST = 1
+    HDP = 2
+    PROCESS_CHOICES = (
+        (TEST, 'Test'),
+        (HDP, 'HDP'),
+    )
+
+    process = models.IntegerField(
+        choices=PROCESS_CHOICES,
         null=False,
         blank=False)
     request_user = models.ForeignKey(
@@ -1458,49 +1539,95 @@ class ProcessRequest(ProtectedModel):
         null=True,
         blank=True)
 
-    STATUS_CHOICES = (
-        ('Pending', 'Pending'),
-        ('Working', 'Working'),
-        ('Error', 'Error'),
-        ('Completed', 'Completed'),
-    )
-
     status = models.CharField(
         max_length=32,
         null=False,
         blank=False,
         choices=STATUS_CHOICES)
 
+    def has_view_permission(self, user):
+
+        if self.project.has_view_permission(user):
+            return True
+
+        return False
+
     def save(self, *args, **kwargs):
+        if self.completion_date:
+            # Dissallow editing if marked complete
+            # TODO: Figure out the best way to do this and raise a
+            # ValidationError...can't prevent saving in clean() :(
+            return
         if not self.id:
             self.request_date = datetime.datetime.now()
             self.status = 'Pending'
-        if self.worker:
+        if self.worker and self.status != 'Complete':
             self.status = 'Working'
+        if self.status == 'Complete' and not self.completion_date:
+            self.completion_date = datetime.datetime.now()
         super(ProcessRequest, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'%s (Date: %s)' % (
-            self.process.process_name,
+            self.get_process_display(),
             self.request_date,)
 
 
-class ProcessRequestInputValue(models.Model):
+class ProcessRequestInput(models.Model):
     """
-    The actual value to be used for a specific ProcessInput
-    for a specific ProcessRequest
+    A key/value pair used as a parameter for a specific ProcessRequest
     """
     process_request = models.ForeignKey(ProcessRequest)
-    process_input = models.ForeignKey(ProcessInput)
-    # all values get transmitted in JSON format via REST,
+    # all keys/values get transmitted in JSON format via REST,
     # so everything is a string
+    key = models.CharField(null=False, blank=False, max_length=1024)
     value = models.CharField(null=False, blank=False, max_length=1024)
 
-    class Meta:
-        unique_together = (('process_request', 'process_input'),)
+    def __unicode__(self):
+        return u'%s (%s): %s=%s' % (
+            self.process_request.get_process_display(),
+            self.process_request_id,
+            self.key,
+            self.value)
+
+
+def pr_output_path(instance, filename):
+    project_id = instance.process_request.project_id
+    pr_id = instance.process_request.id
+
+    upload_dir = join([
+        'ReFlow-data',
+        str(project_id),
+        'process_requests',
+        str(pr_id),
+        str(filename)],
+        "/")
+
+    return upload_dir
+
+
+class ProcessRequestOutput(ProtectedModel):
+    """
+    A key/value pair used to capture results from a specific ProcessRequest
+    """
+    process_request = models.ForeignKey(ProcessRequest)
+    # all values will be a (potentially large) JSON file
+    key = models.CharField(null=False, blank=False, max_length=1024)
+    value = models.FileField(
+        upload_to=pr_output_path,
+        null=False,
+        blank=False
+    )
+
+    def has_view_permission(self, user):
+
+        if self.process_request.has_view_permission(user):
+            return True
+
+        return False
 
     def __unicode__(self):
         return u'%s (%s): %s' % (
-            self.process_request.process.process_name,
+            self.process_request.get_process_display(),
             self.process_request_id,
-            self.process_input.input_name)
+            self.key)

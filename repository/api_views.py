@@ -34,23 +34,29 @@ def repository_api_root(request):
     """
 
     return Response({
+        'create_compensation': reverse('create-compensation', request=request),
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
+        'cytometers': reverse('cytometer-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
+        'sample_metadata': reverse('sample-metadata-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
-        'processes': reverse('process-list', request=request),
         'workers': reverse('worker-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'assigned_process_requests': reverse(
+            'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
+        'create_process_request_output': reverse(
+            'create-process-request-output', request=request),
     })
 
 
@@ -153,6 +159,23 @@ def retrieve_compensation_as_numpy(request, pk):
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % "comp_" + str(compensation.id) + '.npy'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_process_request_output_value(request, pk):
+    pr_output = get_object_or_404(ProcessRequestOutput, pk=pk)
+
+    if not pr_output.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        pr_output.value.file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        %  pr_output.key
     return response
 
 
@@ -394,8 +417,8 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = SitePanelSerializer
     filter_fields = (
         'site',
-        'site__project',
-        'project_panel')
+        'project_panel',
+        'project_panel__project')
 
     def get_queryset(self):
         """
@@ -408,7 +431,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
         # filter on user's projects
         queryset = SitePanel.objects.filter(site__in=user_sites)
 
-        # TODO: implement filtering by channel info: fluoro, ab, scatter, etc
+        # TODO: implement filtering by channel info: fluoro, marker, scatter
 
         return queryset
 
@@ -423,6 +446,46 @@ class SitePanelDetail(
 
     model = SitePanel
     serializer_class = SitePanelSerializer
+
+
+class CytometerList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of site panels.
+    """
+
+    model = Cytometer
+    serializer_class = CytometerSerializer
+    filter_fields = (
+        'site',
+        'site__site_name',
+        'site__project',
+        'cytometer_name',
+        'serial_number')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to sites
+        to which the user belongs.
+        """
+
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
+
+        # filter on user's projects
+        queryset = Cytometer.objects.filter(site__in=user_sites)
+
+        return queryset
+
+
+class CytometerDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint representing a single site panel.
+    """
+
+    model = Cytometer
+    serializer_class = CytometerSerializer
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
@@ -494,14 +557,27 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 
 class SampleFilter(django_filters.FilterSet):
+    project_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProjectPanel.objects.all(),
+        name='site_panel__project_panel')
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site_panel__site')
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
+    cytometer = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cytometer.objects.all())
     subject = django_filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all())
+    subject_group = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubjectGroup.objects.all(),
+        name='subject__subject_group')
     visit = django_filters.ModelMultipleChoiceFilter(
         queryset=VisitType.objects.all())
     specimen = django_filters.ModelMultipleChoiceFilter(
         queryset=Specimen.objects.all())
+    stimulation = django_filters.ModelMultipleChoiceFilter(
+        queryset=Stimulation.objects.all())
     original_filename = django_filters.CharFilter(lookup_type="icontains")
 
     class Meta:
@@ -513,10 +589,14 @@ class SampleFilter(django_filters.FilterSet):
             'site_panel__project_panel',
             'subject',
             'subject__subject_code',
+            'subject__subject_group',
             'visit',
             'specimen',
             'stimulation',
-            'original_filename'
+            'acquisition_date',
+            'original_filename',
+            'cytometer',
+            'sha1'
         ]
 
 
@@ -535,7 +615,8 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
         """
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
-        queryset = Sample.objects.filter(site_panel__site__in=user_sites)
+        queryset = Sample.objects.filter(
+            site_panel__site__in=user_sites)
 
         return queryset
 
@@ -552,6 +633,49 @@ class SampleDetail(
     serializer_class = SampleSerializer
 
 
+class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of sample metadata.
+    """
+
+    model = SampleMetadata
+    serializer_class = SampleMetadataSerializer
+    filter_fields = ('id', 'sample', 'key', 'value')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict sites for which
+        the user has view permission.
+        """
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
+        queryset = SampleMetadata.objects.filter(
+            sample__site_panel__site__in=user_sites)
+
+        return queryset
+
+
+class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = Compensation
+    serializer_class = CompensationSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        """
+        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
+        site = Site.objects.get(id=site_panel.site_id)
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        response = super(
+            CreateCompensation, self).post(request, *args, **kwargs)
+        return response
+
+
 class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of compensations.
@@ -561,6 +685,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = CompensationSerializer
     filter_fields = (
         'name',
+        'acquisition_date',
         'site_panel',
         'site_panel__site',
         'site_panel__site__project')
@@ -573,8 +698,9 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
-        # filter on user's projects
-        queryset = Compensation.objects.filter(site_panel__site__in=user_sites)
+        # filter on user's sites
+        queryset = Compensation.objects.filter(
+            site_panel__site__in=user_sites)
         return queryset
 
 
@@ -625,6 +751,25 @@ def revoke_process_request_assignment(request, pk):
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
+def complete_process_request_assignment(request, pk):
+    pr = get_object_or_404(ProcessRequest, pk=pk)
+    if not pr.worker or not hasattr(request.user, 'worker'):
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+    if pr.worker.user != request.user:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    pr.status = "Complete"
+    try:
+        pr.save()
+    except:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    return Response(status=status.HTTP_200_OK, data={})
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def verify_process_request_assignment(request, pk):
     """
     Tests whether the requesting user (worker) is assigned to the
@@ -637,16 +782,6 @@ def verify_process_request_assignment(request, pk):
             data['assignment'] = True
 
     return Response(status=status.HTTP_200_OK, data=data)
-
-
-class ProcessList(LoginRequiredMixin, generics.ListAPIView):
-    """
-    API endpoint representing a list of processes.
-    """
-
-    model = Process
-    serializer_class = ProcessSerializer
-    filter_fields = ('process_name',)
 
 
 class WorkerList(LoginRequiredMixin, generics.ListAPIView):
@@ -669,6 +804,34 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = ('process', 'worker', 'request_user')
 
 
+class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of process requests to which the
+    requesting Worker is assigned.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
+
+    def get_queryset(self):
+        """
+        Filter process requests which do not have 'Completed' status
+        and is currently assigned to the requesting worker
+        Regular users receive zero results.
+        """
+
+        if not hasattr(self.request.user, 'worker'):
+            return ProcessRequest.objects.none()
+
+        worker = Worker.objects.get(user=self.request.user)
+
+        # PRs need to be in Pending status with no completion date
+        queryset = ProcessRequest.objects.filter(
+            worker=worker, completion_date=None).exclude(
+                status='Completed')
+        return queryset
+
+
 class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of process requests for which a
@@ -688,9 +851,9 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
         if not hasattr(self.request.user, 'worker'):
             return ProcessRequest.objects.none()
 
-        # PRs need to be in Pending status
+        # PRs need to be in Pending status with no completion date
         queryset = ProcessRequest.objects.filter(
-            status='Pending')
+            status='Pending', completion_date=None)
         return queryset
 
 
@@ -721,7 +884,6 @@ class ProcessRequestAssignmentUpdate(
         """
         Override patch for validation:
           - ensure user is a Worker
-          - Worker must be registered to the ProcessRequest's Process
           - ProcessRequest must not already be assigned
         """
         if hasattr(self.request.user, 'worker'):
@@ -749,4 +911,42 @@ class ProcessRequestAssignmentUpdate(
             except ValidationError as e:
                 return Response(data={'detail': e.messages}, status=400)
 
+        return Response(data={'detail': 'Bad request'}, status=400)
+
+
+class CreateProcessRequestOutput(
+        LoginRequiredMixin,
+        generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = ProcessRequestOutput
+    serializer_class = ProcessRequestOutputSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user is a worker.
+        Also removing the 'sample_file' field since it has the server path.
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                process_request = ProcessRequest.objects.get(
+                    id=request.DATA['process_request'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # ensure ProcessRequest is assigned to this worker
+            if process_request.worker != worker:
+                return Response(
+                    data={
+                        'detail': 'Request is not assigned to this worker'
+                    },
+                    status=400)
+
+            # if we get here, the worker is bonafide! "He's a suitor!"
+            response = super(CreateProcessRequestOutput, self).post(
+                request, *args, **kwargs)
+            return response
         return Response(data={'detail': 'Bad request'}, status=400)

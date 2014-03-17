@@ -6,7 +6,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
-    {% breadcrumb process_request.process.process_name %}
+    {% breadcrumb process_request.get_process_display %}
   </ul>
 {% endblock %}
 
@@ -52,11 +52,6 @@ function revoke_assignment()
         <td>Process Request ID:</td>
         <td class="align-left">{{ process_request.id }}</td>
       </tr>
-    
-      <tr>
-        <td>Sample Set:</td>
-        <td>{{ process_request.sample_set.name }} ({{ process_request.sample_set_id }})</td>
-      </tr>
 
       <tr>
         <td>Requested by:</td>
@@ -79,8 +74,8 @@ function revoke_assignment()
           <span id="worker">
             {{ process_request.worker.worker_name|default_if_none:'' }}
             {% if user.is_superuser and process_request.worker.worker_name != None %}
-              <a class="btn btn-mini" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
-                <i style="opacity: 0.4;margin: 0 10px;" class="icon-remove align-middle"></i>
+              <a class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+                <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
               </a>
             {% endif %}
             <span id="error_message"></span>
@@ -100,23 +95,44 @@ function revoke_assignment()
       <thead>
         <tr>
           <th colspan="4" class="center">
-            <h4>Process Request Input Values <span class="badge badge-inverse align-top">{{ process_request.processrequestinputvalue_set.all.count }}</span></h4>
+            <h4>Process Request Input Values <span class="badge badge-inverse align-top">{{ process_request.processrequestinput_set.all.count }}</span></h4>
           </th>
         </tr>
         <tr>
-            <th>Input Name</th>
-            <th>Description</th>
-            <th>Value Type</th>
+            <th>Key</th>
             <th>Value</th>
         </tr>
       </thead>
       <tbody>
-        {% for request_input in process_request.processrequestinputvalue_set.all %}
+        {% for request_input in process_request.processrequestinput_set.all %}
         <tr>
-          <td class="middle">{{ request_input.process_input.input_name }}</td>
-          <td class="middle">{{ request_input.process_input.input_description|default_if_none:'' }}</td>
-          <td class="middle">{{ request_input.process_input.value_type|default_if_none:'' }}</td>
+          <td class="middle">{{ request_input.key }}</td>
           <td class="middle">{{ request_input.value|default_if_none:'' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="4" class="center">
+            <h4>Process Request Outputs <span class="badge badge-inverse align-top">{{ process_request.processrequestoutput_set.all.count }}</span></h4>
+          </th>
+        </tr>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for request_output in process_request.processrequestoutput_set.all %}
+        <tr>
+          <td class="middle">{{ request_output.key }}</td>
+          <td class="middle">
+            <a href="{% url 'retrieve_process_request_output' request_output.id %}">
+              Download
+            </a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>

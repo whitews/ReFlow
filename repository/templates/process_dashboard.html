@@ -4,7 +4,7 @@
 {% load breadcrumbs %}
 
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -60,10 +60,19 @@ $(function() {
 
         <tr>
           <td>
-            <a href="{% url 'view_process' plot_process.id %}">{{ plot_process.process_name }}</a>
+            <a href="{% url 'submit_process_request' 'test' %}">Test Process</a>
           </td>
           <td>
-            {{ plot_process.process_description }}
+            Just a test process type for development purposes
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <a href="{% url 'submit_process_request' 'hdp' %}">HDP Process</a>
+          </td>
+          <td>
+            Hierarchical Dirichlet Process (HDP) Gaussian mixture model for identifying cell subsets.
           </td>
         </tr>
 
@@ -78,7 +87,7 @@ $(function() {
               <h4>Workers <span class="badge badge-inverse align-top">{{ workers|length }}</span></h4>
               {% if user.is_superuser %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_worker' %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_worker' %}">
                   Add Worker
                 </a>
               </div>
@@ -117,10 +126,9 @@ $(function() {
         </tr>
         <tr>
             <th>Process Request ID</th>
-            <th>Process Name</th>
+            <th>Process</th>
             <th>Request Date</th>
             <th>Requesting User</th>
-            <th>Sample Set</th>
             <th>Status</th>
             <th>Worker</th>
             <th>Completion Date</th>
@@ -134,10 +142,9 @@ $(function() {
                 {{ request.id }}
               </a>
           </td>
-          <td class="middle">{{ request.process.process_name }}</td>
+          <td class="middle">{{ request.get_process_display }}</td>
           <td class="middle">{{ request.request_date }}</td>
           <td class="middle">{{ request.request_user }}</td>
-          <td class="middle">{{ request.sample_set.name }}</td>
           <td class="middle">{{ request.status }}</td>
           <td class="middle">{{ request.worker.worker_name|default_if_none:"" }}</td>
           <td class="middle">{{ request.completion_date|default_if_none:"Not Complete" }}</td>

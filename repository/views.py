@@ -38,6 +38,15 @@ def home(request):
         context_instance=RequestContext(request)
     )
 
+
+@login_required
+def fcs_upload_app(request):
+    return render_to_response(
+        'fcs_upload_app.html',
+        {},
+        context_instance=RequestContext(request)
+    )
+
 #########################
 ### Non-project views ###
 #########################
@@ -123,19 +132,19 @@ def edit_specimen(request, specimen_id):
 
 
 @login_required
-def view_antibodies(request):
+def view_markers(request):
 
-    antibodies = Antibody.objects.all().values(
+    markers = Marker.objects.all().values(
         'id',
-        'antibody_abbreviation',
-        'antibody_name',
-        'antibody_description',
+        'marker_abbreviation',
+        'marker_name',
+        'marker_description',
     )
 
     return render_to_response(
-        'view_antibodies.html',
+        'view_markers.html',
         {
-            'antibodies': antibodies,
+            'markers': markers,
         },
         context_instance=RequestContext(request)
     )
@@ -145,46 +154,29 @@ def view_antibodies(request):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def add_antibody(request):
+def add_marker(request, marker_id=None):
+    if marker_id:
+        marker = get_object_or_404(Marker, pk=marker_id)
+        add_or_edit = 'edit'
+    else:
+        marker = Marker()
+        add_or_edit = 'add'
+
     if request.method == 'POST':
-        form = AntibodyForm(request.POST)
+        form = MarkerForm(request.POST, instance=marker)
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('view_antibodies'))
+            return HttpResponseRedirect(reverse('view_markers'))
     else:
-        form = AntibodyForm()
+        form = MarkerForm(instance=marker)
 
     return render_to_response(
-        'add_antibody.html',
+        'add_marker.html',
         {
             'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def edit_antibody(request, antibody_id):
-    antibody = get_object_or_404(Antibody, pk=antibody_id)
-
-    if request.method == 'POST':
-        form = AntibodyForm(request.POST, instance=antibody)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_antibodies'))
-    else:
-        form = AntibodyForm(instance=antibody)
-
-    return render_to_response(
-        'edit_antibody.html',
-        {
-            'antibody': antibody,
-            'form': form,
+            'add_or_edit': add_or_edit,
+            'marker_id': marker_id,
         },
         context_instance=RequestContext(request)
     )
@@ -213,31 +205,13 @@ def view_fluorochromes(request):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def add_fluorochrome(request):
-    if request.method == 'POST':
-        form = FluorochromeForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_fluorochromes'))
+def add_fluorochrome(request, fluorochrome_id=None):
+    if fluorochrome_id:
+        fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
+        add_or_edit = 'edit'
     else:
-        form = FluorochromeForm()
-
-    return render_to_response(
-        'add_fluorochrome.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def edit_fluorochrome(request, fluorochrome_id):
-    fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
+        fluorochrome = Fluorochrome()
+        add_or_edit = 'add'
 
     if request.method == 'POST':
         form = FluorochromeForm(request.POST, instance=fluorochrome)
@@ -249,10 +223,11 @@ def edit_fluorochrome(request, fluorochrome_id):
         form = FluorochromeForm(instance=fluorochrome)
 
     return render_to_response(
-        'edit_fluorochrome.html',
+        'add_fluorochrome.html',
         {
-            'fluorochrome': fluorochrome,
             'form': form,
+            'add_or_edit': add_or_edit,
+            'fluorochrome_id': fluorochrome_id,
         },
         context_instance=RequestContext(request)
     )
@@ -294,9 +269,16 @@ def view_project(request, project_id):
     lambda user: user.is_superuser,
     login_url='/403',
     redirect_field_name=None)
-def add_project(request):
+def add_project(request, project_id=None):
+    if project_id:
+        project = get_object_or_404(Project, pk=project_id)
+        add_or_edit = 'edit'
+    else:
+        project = Project()
+        add_or_edit = 'add'
+
     if request.method == 'POST':
-        form = ProjectForm(request.POST)
+        form = ProjectForm(request.POST, instance=project)
 
         if form.is_valid():
             project = form.save()
@@ -311,39 +293,14 @@ def add_project(request):
             return HttpResponseRedirect(reverse(
                 'view_project', args=(project.id,)))
     else:
-        form = ProjectForm()
+        form = ProjectForm(instance=project)
 
     return render_to_response(
         'add_project.html',
         {
             'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_project(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if not project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = ProjectForm(request.POST, instance=project)
-
-        if form.is_valid():
-            project = form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project', args=(project.id,)))
-    else:
-        form = ProjectForm(instance=project)
-
-    return render_to_response(
-        'edit_project.html',
-        {
-            'project': project,
-            'form': form,
+            'add_or_edit': add_or_edit,
+            'project_id': project_id,
         },
         context_instance=RequestContext(request)
     )
@@ -461,8 +418,13 @@ def manage_site_user(request, site_id, user_id):
 def view_project_stimulations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
-    if not project.has_view_permission(request.user):
-        raise PermissionDenied
+    user_sites = Site.objects.get_sites_user_can_view(
+        request.user,
+        project=project)
+
+    if not project.has_view_permission(request.user) and not (
+            user_sites.count() > 0):
+                raise PermissionDenied
 
     stimulations = Stimulation.objects.filter(project=project)
 
@@ -482,14 +444,27 @@ def view_project_stimulations(request, project_id):
 
 
 @login_required
-def add_stimulation(request, project_id):
+def add_stimulation(request, project_id, stimulation_id=None):
     project = get_object_or_404(Project, pk=project_id)
 
-    if not project.has_add_permission(request.user):
-        raise PermissionDenied
+    if stimulation_id:
+        stimulation = get_object_or_404(Stimulation, pk=stimulation_id)
+        add_or_edit = 'edit'
+
+        if stimulation.project != project:
+            return HttpResponseBadRequest()
+
+        if not project.has_modify_permission(request.user):
+            raise PermissionDenied
+
+    else:
+        stimulation = Stimulation(project=project)
+        add_or_edit = 'add'
+
+        if not project.has_add_permission(request.user):
+            raise PermissionDenied
 
     if request.method == 'POST':
-        stimulation = Stimulation(project=project)
         form = StimulationForm(request.POST, instance=stimulation)
 
         if form.is_valid():
@@ -498,40 +473,15 @@ def add_stimulation(request, project_id):
             return HttpResponseRedirect(reverse(
                 'view_project_stimulations', args=(project_id,)))
     else:
-        form = StimulationForm()
+        form = StimulationForm(instance=stimulation)
 
     return render_to_response(
         'add_project_stimulation.html',
         {
             'form': form,
             'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_stimulation(request, stimulation_id):
-    stimulation = get_object_or_404(Stimulation, pk=stimulation_id)
-
-    if not stimulation.project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = StimulationForm(request.POST, instance=stimulation)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_stimulations', args=(stimulation.project_id,)))
-    else:
-        form = StimulationForm(instance=stimulation)
-
-    return render_to_response(
-        'edit_project_stimulation.html',
-        {
-            'form': form,
-            'stimulation': stimulation,
+            'add_or_edit': add_or_edit,
+            'stimulation_id': stimulation_id,
         },
         context_instance=RequestContext(request)
     )
@@ -567,8 +517,16 @@ def view_project_panels(request, project_id):
 
 
 @login_required
-def add_project_panel(request, project_id):
+def add_project_panel(request, project_id, panel_id=None):
     project = get_object_or_404(Project, pk=project_id)
+    if panel_id:
+        panel = get_object_or_404(ProjectPanel, pk=panel_id)
+        add_or_edit = 'edit'
+        if panel.project != project:
+            raise PermissionDenied
+    else:
+        panel = ProjectPanel(project=project)
+        add_or_edit = 'add'
 
     if not (project.has_add_permission(request.user)):
         raise PermissionDenied
@@ -576,23 +534,23 @@ def add_project_panel(request, project_id):
     if request.method == 'POST':
         panel_form = ProjectPanelForm(
             request.POST,
-            instance=ProjectPanel(project=project),
+            instance=panel,
             project_id=project.id)
 
         if panel_form.is_valid():
-            panel = panel_form.save(commit=False)
+            panel_form.save(commit=False)
             parameter_formset = ProjectParameterFormSet(
                 request.POST,
                 instance=panel)
-            ab_formsets_valid = True
+            marker_formsets_valid = True
 
             for param_form in parameter_formset.forms:
                 if param_form.nested:
                     if not param_form.nested[0].is_valid():
-                        ab_formsets_valid = False
+                        marker_formsets_valid = False
 
-            if parameter_formset.is_valid() and ab_formsets_valid:
-                panel.save()
+            if parameter_formset.is_valid() and marker_formsets_valid:
+                panel_form.save()
 
                 for param_form in parameter_formset.forms:
                     # when manually saving the forms in a formset the
@@ -602,19 +560,24 @@ def add_project_panel(request, project_id):
                     param_form.nested[0].instance = parameter
                     param_form.nested[0].save()
 
+                parameter_formset.save()
+
                 return HttpResponseRedirect(reverse(
                     'view_project_panels',
                     args=(project.id,)))
         else:
             parameter_formset = ProjectParameterFormSet(
                 request.POST,
-                instance=ProjectPanel(project=project))
+                instance=panel)
 
     else:
-        panel = ProjectPanel(project=project)
         panel_form = ProjectPanelForm(
             instance=panel,
             project_id=project.id)
+
+        #if add_or_edit == 'edit':
+        #    parameter_formset = ProjectParameterFormSetEdit(instance=panel)
+        #else:
         parameter_formset = ProjectParameterFormSet(instance=panel)
 
     return render_to_response(
@@ -623,45 +586,55 @@ def add_project_panel(request, project_id):
             'panel_form': panel_form,
             'parameter_formset': parameter_formset,
             'project': project,
+            'add_or_edit': add_or_edit,
+            'panel_id': panel_id
         },
         context_instance=RequestContext(request)
     )
 
 
 @login_required
-def edit_project_panel(request, panel_id):
-    # TODO: make sure no site panels are based on this project panel
-
-    # TODO: revamp this to allow full edits???
+def copy_project_panel(request, project_id, panel_id=None):
+    project = get_object_or_404(Project, pk=project_id)
     panel = get_object_or_404(ProjectPanel, pk=panel_id)
-
-    if not panel.project.has_modify_permission(request.user):
+    if panel.project != project:
+        raise PermissionDenied
+    if not (project.has_add_permission(request.user)):
         raise PermissionDenied
 
-    if request.method == 'POST':
-        form = ProjectPanelForm(
-            request.POST,
-            instance=panel,
-            project_id=panel.project_id)
+    new_panel = panel
+    new_panel.id = None
+    panel_name_exists = True
+    new_panel_name = new_panel.panel_name
+    while panel_name_exists:
+        new_panel_name += '[copy]'
+        if not ProjectPanel.objects.filter(panel_name=new_panel_name).exists():
+            new_panel.panel_name = new_panel_name
+            break
+    new_panel.save()
 
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_panels',
-                args=(panel.project_id,)))
-    else:
-        form = ProjectPanelForm(
-            instance=panel,
-            project_id=panel.project_id)
+    # have to re-get the old panel by the ID
+    panel = get_object_or_404(ProjectPanel, pk=panel_id)
 
-    return render_to_response(
-        'edit_project_panel.html',
-        {
-            'form': form,
-            'panel': panel,
-        },
-        context_instance=RequestContext(request)
-    )
+    for param in panel.projectpanelparameter_set.all():
+        # again we need to cache the IDs to re-retrieve
+        param_id = param.id
+        new_param = param
+        new_param.id = None
+        new_param.project_panel = new_panel
+        new_param.save()
+
+        # and re-get the param
+        param = ProjectPanelParameter.objects.get(id=param_id)
+
+        for marker in param.projectpanelparametermarker_set.all():
+            marker.id = None
+            marker.project_panel_parameter = new_param
+            marker.save()
+
+    return HttpResponseRedirect(reverse(
+        'view_project_panels',
+        args=(project.id,)))
 
 
 @login_required
@@ -700,17 +673,9 @@ def view_samples(request, project_id):
         request.user,
         project=project)
 
-    # get user's sites based on their site_view_permission,
-    # unless they have full project view permission
-    if project.has_view_permission(request.user):
-        samples = Sample.objects.filter(
-            subject__project=project)
-    elif user_view_sites.count() > 0:
-        samples = Sample.objects.filter(
-            subject__project=project,
-            site__in=user_view_sites)
-    else:
-        raise PermissionDenied
+    # samples are retrieved via AJAX using the sample list REST API driven
+    # by the following form
+    filter_form = SampleFilterForm(project_id=project_id, request=request)
 
     can_add_project_data = project.has_add_permission(request.user)
     can_modify_project_data = project.has_modify_permission(request.user)
@@ -723,11 +688,11 @@ def view_samples(request, project_id):
         'view_project_samples.html',
         {
             'project': project,
-            'samples': samples,
             'can_add_project_data': can_add_project_data,
             'can_modify_project_data': can_modify_project_data,
             'user_add_sites': user_add_sites,
-            'user_modify_sites': user_modify_sites
+            'user_modify_sites': user_modify_sites,
+            'filter_form': filter_form
         },
         context_instance=RequestContext(request)
     )
@@ -846,6 +811,73 @@ def edit_site(request, site_id):
 
 
 @login_required
+def view_project_cytometers(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    sites = Site.objects.get_sites_user_can_view(request.user, project=project)
+
+    if not (project.has_view_permission(request.user) or sites.count() > 0):
+        raise PermissionDenied
+
+    cytometers = Cytometer.objects.filter(site__in=sites)
+
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+
+    return render_to_response(
+        'view_project_cytometers.html',
+        {
+            'project': project,
+            'cytometers': cytometers,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def add_cytometer(request, project_id, cytometer_id=None):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.has_add_permission(request.user):
+        raise PermissionDenied
+
+    if cytometer_id:
+        cytometer = get_object_or_404(Cytometer, pk=cytometer_id)
+        add_or_edit = 'edit'
+    else:
+        cytometer = Cytometer()
+        add_or_edit = 'add'
+
+    if request.method == 'POST':
+        form = CytometerForm(
+            request.POST,
+            instance=cytometer,
+            project_id=project_id)
+
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse(
+                'view_project_cytometers',
+                args=(project_id,)))
+    else:
+        form = CytometerForm(instance=cytometer, project_id=project_id)
+
+    return render_to_response(
+        'add_cytometer.html',
+        {
+            'form': form,
+            'project': project,
+            'add_or_edit': add_or_edit,
+            'cytometer_id': cytometer_id,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def view_project_site_panels(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_view_sites = Site.objects.get_sites_user_can_view(
@@ -856,10 +888,10 @@ def view_project_site_panels(request, project_id):
     # unless they have full project view permission
     if project.has_view_permission(request.user):
         site_panels = SitePanel.objects.filter(
-            site__project=project)
+            project_panel__project=project)
     elif user_view_sites.count() > 0:
-        site_panels = Sample.objects.filter(
-            site__project=project,
+        site_panels = SitePanel.objects.filter(
+            project_panel__project=project,
             site__in=user_view_sites)
     else:
         raise PermissionDenied
@@ -927,8 +959,15 @@ def view_compensations(request, project_id):
 
 
 @login_required
-def add_compensation(request, project_id):
+def add_compensation(request, project_id, compensation_id=None):
     project = get_object_or_404(Project, pk=project_id)
+
+    if compensation_id:
+        compensation = get_object_or_404(Compensation, pk=compensation_id)
+        add_or_edit = 'edit'
+    else:
+        compensation = Compensation()
+        add_or_edit = 'add'
 
     user_sites = Site.objects.get_sites_user_can_add(request.user, project)
 
@@ -938,6 +977,7 @@ def add_compensation(request, project_id):
     if request.method == 'POST':
         form = CompensationForm(
             request.POST,
+            instance=compensation,
             project_id=project_id,
             request=request)
 
@@ -947,13 +987,18 @@ def add_compensation(request, project_id):
                 'project_compensations',
                 args=(project_id,)))
     else:
-        form = CompensationForm(project_id=project_id, request=request)
+        form = CompensationForm(
+            instance=compensation,
+            project_id=project_id,
+            request=request)
 
     return render_to_response(
         'add_compensation.html',
         {
             'form': form,
             'project': project,
+            'add_or_edit': add_or_edit,
+            'compensation_id': compensation_id
         },
         context_instance=RequestContext(request)
     )
@@ -1072,7 +1117,10 @@ def add_project_site_panel(request, project_id):
             project_panel = preform.cleaned_data['project_panel']
 
             # process the FCS file
-            fcm_obj = fcm.loadFCS(io.BytesIO(preform.files['fcs_file'].read()))
+            fcm_obj = fcm.loadFCS(
+                io.BytesIO(preform.files['fcs_file'].read()),
+                transform=None,
+                auto_comp=False)
             sample_text_segment = fcm_obj.notes.text
 
             for key in sample_text_segment:
@@ -1203,9 +1251,7 @@ def process_site_panel_post(request, project_id):
                 }
                 for error in parameter_formset.non_form_errors():
                     response_dict['messages'].append(error)
-                # for error in parameter_formset.errors:
-                #     if error.has_key('__all__'):
-                #         response_dict['messages'].append(error['__all__'])
+
                 return HttpResponseBadRequest(json.dumps(response_dict))
         else:
             # If we get here the pre-form was invalid
@@ -1263,8 +1309,8 @@ def edit_site_panel_parameters(request, panel_id):
             for error in parameter_formset.non_form_errors():
                 response_dict['messages'].append(error)
             for error in parameter_formset.errors:
-                 if error.has_key('__all__'):
-                     response_dict['messages'].append(error['__all__'])
+                if '__all__' in error:
+                    response_dict['messages'].append(error['__all__'])
             return HttpResponseBadRequest(json.dumps(response_dict))
     else:
         parameter_formset = ParameterFormSet(instance=site_panel)
@@ -1315,7 +1361,7 @@ def remove_panel_parameter(request, panel_parameter_id):
     if not ppm.site_panel.site.has_modify_permission(request.user):
         raise PermissionDenied
 
-    project = ppm.site_panel.site.project
+    project = ppm.site_panel.project_panel.project
     ppm.delete()
 
     return HttpResponseRedirect(reverse('project_panels', args=(project.id,)))
@@ -1545,84 +1591,16 @@ def edit_sample(request, sample_id):
 @login_required
 def process_dashboard(request):
 
-    plot_process = get_object_or_404(Process, process_name="Plot")
     workers = Worker.objects.all()
     requests = ProcessRequest.objects.filter(
-        sample_set__project__in=Project.objects.get_projects_user_can_view(
+        project__in=Project.objects.get_projects_user_can_view(
             request.user))
 
     return render_to_response(
         'process_dashboard.html',
         {
-            'plot_process': plot_process,
             'workers': sorted(workers, key=attrgetter('worker_name')),
             'requests': requests,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def view_process(request, process_id):
-    process = get_object_or_404(Process, id=process_id)
-
-    return render_to_response(
-        'view_process.html',
-        {
-            'process': process,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def add_process_input(request, process_id):
-    process = get_object_or_404(Process, pk=process_id)
-
-    if request.method == 'POST':
-        process_input = ProcessInput(process=process)
-        form = ProcessInputForm(request.POST, instance=process_input)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_process',
-                args=(process_id,)))
-    else:
-        form = ProcessInputForm()
-
-    return render_to_response(
-        'add_process_input.html',
-        {
-            'process': process,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def edit_process_input(request, process_input_id):
-    process_input = get_object_or_404(ProcessInput, pk=process_input_id)
-
-    if request.method == 'POST':
-        form = ProcessInputForm(request.POST, instance=process_input)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_process',
-                args=(process_input.process_id,)))
-    else:
-        form = ProcessInputForm(instance=process_input)
-
-    return render_to_response(
-        'edit_process_input.html',
-        {
-            'process_input': process_input,
-            'form': form,
         },
         context_instance=RequestContext(request)
     )
@@ -1636,9 +1614,7 @@ def add_worker(request):
         if form.is_valid():
             worker = form.save()
 
-            return HttpResponseRedirect(reverse(
-                'view_worker',
-                args=(worker.id,)))
+            return HttpResponseRedirect(reverse('process_dashboard'))
     else:
         form = WorkerForm()
 
@@ -1651,61 +1627,79 @@ def add_worker(request):
     )
 
 
+def create_process_request_inputs(process_request, form):
+    if not isinstance(form, BaseProcessForm):
+        return
+
+    for field in form.BASE_PROCESS_FORM_FIELDS:
+        value = form.cleaned_data.get(field)
+        if value in ['', None]:
+            continue
+        pr_input = ProcessRequestInput(
+            process_request=process_request,
+            key=field,
+            value=value)
+        pr_input.save()
+
+    for field in form.CUSTOM_FIELDS:
+        value = form.cleaned_data.get(field)
+        if value in ['', None]:
+            continue
+        pr_input = ProcessRequestInput(
+            process_request=process_request,
+            key=field,
+            value=form.cleaned_data.get(field))
+        pr_input.save()
+
+
 @user_passes_test(lambda u: u.is_superuser)
-def process_request_plot(request):
-    process = get_object_or_404(Process, process_name='Plot')
-    process_request = ProcessRequest(
-        process=process,
-        request_user=request.user)
+def submit_process_request(request, process):
+    if process == 'test':
+        if request.method == 'POST':
+            form = TestProcessForm(request.POST, request=request)
+            if form.is_valid():
+                project_panel = ProjectPanel.objects.get(
+                    id=form.cleaned_data.get('project_panel'))
 
-    PRInputValueFormSet = inlineformset_factory(
-        ProcessRequest,
-        ProcessRequestInputValue,
-        form=ProcessRequestInputValueForm,
-        extra=process.processinput_set.count(),
-        can_delete=False,
-    )
+                process_request = ProcessRequest(
+                    project=project_panel.project,
+                    process=ProcessRequest.TEST,
+                    request_user=request.user)
+                process_request.save()
 
-    if request.method == 'POST':
-        form = ProcessRequestForm(request.POST, instance=process_request)
-
-        if form.is_valid():
-            valid_request = form.save(commit=False)
-            formset = PRInputValueFormSet(request.POST, instance=valid_request)
-
-            if formset.is_valid():
-                valid_request.save()
-                formset.save()
+                create_process_request_inputs(process_request, form)
 
                 return HttpResponseRedirect(reverse('process_dashboard'))
         else:
-            formset = PRInputValueFormSet(
-                request.POST,
-                instance=process_request)
+            form = TestProcessForm(request=request)
+    elif process == 'hdp':
+        if request.method == 'POST':
+            form = HDPProcessForm(request.POST, request=request)
+            if form.is_valid():
+                project_panel = ProjectPanel.objects.get(
+                    id=form.cleaned_data.get('project_panel'))
+
+                process_request = ProcessRequest(
+                    project=project_panel.project,
+                    process=ProcessRequest.HDP,
+                    request_user=request.user)
+                process_request.save()
+
+                create_process_request_inputs(process_request, form)
+
+                return HttpResponseRedirect(reverse('process_dashboard'))
+        else:
+            form = HDPProcessForm(request=request)
     else:
-        form = ProcessRequestForm(instance=process_request)
-
-        initial_data = list()
-
-        for process_input in process.processinput_set.all():
-            # note that 'value_label' is
-            # used for the 'value' field's label
-            initial_data.append(
-                {
-                    'process_input': process_input,
-                    'value_label': process_input.input_name
-                })
-
-        formset = PRInputValueFormSet(
-            instance=process_request,
-            initial=initial_data)
+        process = None
+        form = None
 
     return render_to_response(
-        'process_request_plot.html',
+        'submit_process_request.html',
         {
             'process': process,
             'form': form,
-            'formset': formset,
+            'required_base_fields': ['project', 'project_panel']
         },
         context_instance=RequestContext(request)
     )

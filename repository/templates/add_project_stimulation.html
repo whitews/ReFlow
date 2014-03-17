@@ -7,36 +7,25 @@
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
     {% breadcrumb_url 'Stimulations' 'view_project_stimulations' project.id %}
-    {% breadcrumb "Add Stimulation" %}
+    {% if add_or_edit == 'edit' %}
+      {% breadcrumb "Edit Stimulation" %}
+    {% else %}
+      {% breadcrumb "Add Stimulation" %}
+    {% endif %}
   </ul>
 {% endblock %}
 
 {% block body %}
     <div class="container">
-        <form class="form-horizontal" action="{% url 'add_stimulation' project.id %}" method="post">
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="control-group text-error">
-                    {{ form.non_field_errors }}
-                </div>
-            {% endif %}
+      {% if add_or_edit == 'edit' %}
+      <form class="form-horizontal" action="{% url 'edit_stimulation' project.id stimulation_id %}" method="post">
+      {% else %}
+      <form class="form-horizontal" action="{% url 'add_stimulation' project.id %}" method="post">
+      {% endif %}
+      {% csrf_token %}
 
-            {% for field in form %}
-                <div class="control-group">
-                    <label class="control-label">{{ field.label }}</label>
-                    <div class="controls">
-                        {{ field }}
-                        {% if field.errors %}
-                            <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-            <div class="control-group">
-                <div class="controls">
-                    <button class="btn btn-small btn-success" type="submit">Save</button>
-                </div>
-            </div>
-        </form>
+        {% include "generic_form_fields.html" %}
+
+      </form>
     </div>
 {% endblock %}

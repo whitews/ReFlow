@@ -114,8 +114,8 @@ def create_crumb(title, url=None):
     Helper function
     """
     if url:
-        crumb = "<li><a href='%s'>%s</a>&nbsp;<span class=\"divider\">/</span></li>" % (url, title)
+        crumb = "<li><a href='%s'>%s</a>&nbsp;</li>" % (url, title)
     else:
-        crumb = "<li>%s&nbsp;<span class=\"divider\">/</span></li>" % (title)
+        crumb = "<li>%s&nbsp;</li>" % (title)
 
     return crumb

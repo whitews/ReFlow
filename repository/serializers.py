@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.files import File
 
 from repository.models import *
 
@@ -53,6 +54,7 @@ class SubjectSerializer(serializers.ModelSerializer):
             'subject_code',
             'subject_group',
             'subject_group_name',
+            'batch_control',
             'project',)
 
 
@@ -62,19 +64,22 @@ class SpecimenSerializer(serializers.ModelSerializer):
         model = Specimen
 
 
-class ProjectPanelParameterAntibodySerializer(serializers.ModelSerializer):
+class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
-        source='antibody.antibody_abbreviation',
+        source='marker.marker_abbreviation',
         read_only=True)
 
     class Meta:
-        model = ProjectPanelParameterAntibody
-        exclude = ('id', 'parameter', 'antibody')
+        model = ProjectPanelParameterMarker
+        exclude = ('parameter', 'marker')
 
 
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
-    antibodies = ProjectPanelParameterAntibodySerializer(
-        source='projectpanelparameterantibody_set')
+    markers = ProjectPanelParameterMarkerSerializer(
+        source='projectpanelparametermarker_set')
+    fluorochrome_abbreviation = serializers.CharField(
+        source="fluorochrome.fluorochrome_abbreviation",
+        read_only=True)
 
     class Meta:
         model = ProjectPanelParameter
@@ -82,8 +87,9 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
             'id',
             'parameter_type',
             'parameter_value_type',
-            'antibodies',
-            'fluorochrome')
+            'markers',
+            'fluorochrome',
+            'fluorochrome_abbreviation')
 
 
 class ProjectPanelSerializer(serializers.ModelSerializer):
@@ -109,20 +115,20 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
         )
 
 
-class SitePanelParameterAntibodySerializer(serializers.ModelSerializer):
+class SitePanelParameterMarkerSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
-        source='antibody.antibody_abbreviation',
+        source='marker.marker_abbreviation',
         read_only=True)
 
     class Meta:
-        model = SitePanelParameterAntibody
-        exclude = ('id', 'parameter', 'antibody')
+        model = SitePanelParameterMarker
+        exclude = ('id', 'parameter', 'marker')
 
 
 class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
-    antibodies = SitePanelParameterAntibodySerializer(
-        source='sitepanelparameterantibody_set')
+    markers = SitePanelParameterMarkerSerializer(
+        source='sitepanelparametermarker_set')
 
     class Meta:
         model = SitePanelParameter
@@ -134,7 +140,7 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
             'name',
             'parameter_type',
             'parameter_value_type',
-            'antibodies',
+            'markers',
             'fluorochrome')
         depth = 1
 
@@ -161,6 +167,22 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'parameters')
 
 
+class CytometerSerializer(serializers.ModelSerializer):
+    site = SiteSerializer(source='site')
+    site_name = serializers.CharField(source='site.site_name')
+    url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
+
+    class Meta:
+        model = Cytometer
+        fields = (
+            'id',
+            'url',
+            'site',
+            'site_name',
+            'cytometer_name',
+            'serial_number')
+
+
 class StimulationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='stimulation-detail')
 
@@ -170,8 +192,13 @@ class StimulationSerializer(serializers.ModelSerializer):
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
-    project = ProjectSerializer(source='site_panel.site.project')
-    site = SiteSerializer(source='site_panel.site')
+    project = ProjectSerializer(
+        source='site_panel.site.project',
+        read_only=True)
+    site = SiteSerializer(source='site_panel.site', read_only=True)
+    compensation_file = serializers.FileField(
+        source='compensation_file',
+        read_only=True)
 
     class Meta:
         model = Compensation
@@ -182,8 +209,86 @@ class CompensationSerializer(serializers.ModelSerializer):
             'matrix_text',
             'project',
             'site',
-            'site_panel')
-        exclude = ('compensation_file',)
+            'site_panel',
+            'acquisition_date',
+            'compensation_file'
+        )
+
+    def validate(self, attrs):
+        """
+        Validate compensation matrix matches site panel and is, um, valid
+        """
+        if not 'site_panel' in attrs:
+            # site panel is required, will get caught
+            return attrs
+        if not 'matrix_text' in attrs:
+            # matrix text is required, will get caught
+            return attrs
+
+        try:
+            site_panel = SitePanel.objects.get(
+                id=attrs['site_panel'].id)
+        except ObjectDoesNotExist:
+            raise ValidationError("Site panel does not exist.")
+
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # 'Null', scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel=site_panel).exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = str(attrs['matrix_text'])
+        matrix_text = matrix_text.splitlines(False)
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        headers = re.split('\t|,\s*', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if p.fcs_text not in headers:
+                missing_fields.append(p.fcs_text)
+
+        if len(missing_fields) > 0:
+            self._errors["matrix_text"] = \
+                "Missing fields: %s" % ", ".join(missing_fields)
+            return attrs
+
+        if len(headers) > params.count():
+            self._errors["matrix_text"] = "Too many parameters"
+            return attrs
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            self._errors["matrix_text"] = "Too many rows"
+            return attrs
+        elif len(matrix_text) < params.count() + 1:
+            self._errors["matrix_text"] = "Too few rows"
+            return attrs
+
+        # convert the matrix text to numpy array and
+        for line in matrix_text[1:]:
+            line_values = re.split('\t|,', line)
+            for i, value in enumerate(line_values):
+                try:
+                    line_values[i] = float(line_values[i])
+                except ValueError:
+                    self._errors["matrix_text"] = \
+                        "%s is an invalid matrix value" % line_values[i]
+            if len(line_values) > len(params):
+                self._errors["matrix_text"] = \
+                    "Too many values in line: %s" % line
+                return attrs
+            elif len(line_values) < len(params):
+                self._errors["matrix_text"] = \
+                    "Too few values in line: %s" % line
+                return attrs
+
+        return attrs
 
 
 class SampleSerializer(serializers.ModelSerializer):
@@ -215,6 +320,10 @@ class SampleSerializer(serializers.ModelSerializer):
     panel_name = serializers.CharField(
         source='site_panel.project_panel.panel_name',
         read_only=True)
+    upload_date = serializers.DateTimeField(
+        source='upload_date',
+        format='%Y-%m-%d %H:%M:%S',
+        read_only=True)
 
     class Meta:
         model = Sample
@@ -223,10 +332,15 @@ class SampleSerializer(serializers.ModelSerializer):
             'url',
             'visit',
             'visit_name',
+            'acquisition_date',
+            'upload_date',
             'subject',
             'subject_code',
             'specimen',
             'specimen_name',
+            'storage',
+            'pretreatment',
+            'cytometer',
             'stimulation',
             'stimulation_name',
             'project_panel',
@@ -236,6 +350,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'site_name',
             'project',
             'original_filename',
+            'exclude',
             'sha1',
             'compensation'
         )
@@ -272,15 +387,14 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'site_panel', 'project', 'original_filename',
             'sample_file'
         )
-        read_only_fields = ('original_filename', 'sha1')
+        read_only_fields = ('original_filename', 'sha1', 'subsample')
+        exclude = ('subsample',)
 
 
-class ProcessSerializer(serializers.ModelSerializer):
-    #url = serializers.HyperlinkedIdentityField(view_name='process-detail')
-
+class SampleMetadataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Process
-        fields = ('id', 'process_name', 'process_description')
+        model = SampleMetadata
+        fields = ('id', 'sample', 'key', 'value')
 
 
 class WorkerSerializer(serializers.ModelSerializer):
@@ -300,7 +414,6 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'process',
-            'sample_set',
             'worker',
             'request_user',
             'request_date',
@@ -308,18 +421,18 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'completion_date')
 
 
-class ProcessRequestInputValueSerializer(serializers.ModelSerializer):
+class ProcessRequestInputSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProcessRequestInputValue
-        fields = ('id', 'process_input', 'value')
+        model = ProcessRequestInput
+        fields = ('id', 'key', 'value')
         depth = 1
 
 
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
-    input_values = ProcessRequestInputValueSerializer(
-        source='processrequestinputvalue_set')
+    inputs = ProcessRequestInputSerializer(
+        source='processrequestinput_set')
 
     class Meta:
         model = ProcessRequest
@@ -327,10 +440,20 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'process',
-            'sample_set',
             'worker',
             'request_user',
             'request_date',
             'status',
             'completion_date',
-            'input_values')
+            'inputs')
+
+
+class ProcessRequestOutputSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequestOutput
+        fields = (
+            'id',
+            'process_request',
+            'key',
+            'value'
+        )

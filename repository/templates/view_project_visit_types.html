@@ -4,8 +4,7 @@
 {% load breadcrumbs %}
 
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -39,7 +38,7 @@ $(function() {
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_visit_type' project.id %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_visit_type' project.id %}">
                   Add Visit Type
                 </a>
               </div>
@@ -58,8 +57,8 @@ $(function() {
         <tr>
           <td width="1%">
             {% if can_modify_project_data %}
-              <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_visit_type' visit_type.id %}" data-original-title="Edit" data-placement="bottom">
-                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+              <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_visit_type' visit_type.id %}" data-original-title="Edit" data-placement="bottom">
+                <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
               </a>
             {% endif %}
           </td>
