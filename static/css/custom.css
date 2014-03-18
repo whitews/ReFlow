@@ -369,7 +369,7 @@ select.app, input.app {
 
 /* DnD box */
 .drop-box {
-    background-color: #fcfcfc;
+    background-color: #f9f9f9;
     border: 2px dashed #b9b9b9;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
@@ -379,6 +379,11 @@ select.app, input.app {
     /*text-align: center;*/
     /*font: 21px bold "Optima";*/
     /*color: #b9b9b9;*/
+}
+
+.drop-box > .instruction {
+    font: 21px bold "Optima";
+    color: #b9b9b9;
 }
 
 .danger {
