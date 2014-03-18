@@ -25,6 +25,7 @@ app.controller(
             $scope.storages = Storage.query();
 
             $scope.file_queue = [];
+            $scope.upload_queue = [];
 
             $scope.projectChanged = function () {
                 $scope.sites = Site.query({project: $scope.current_project.id});
@@ -33,16 +34,6 @@ app.controller(
                 $scope.stimulations = Stimulation.query({project: $scope.current_project.id});
                 $scope.visit_types = VisitType.query({project: $scope.current_project.id});
                 $scope.subjects = Subject.query({project: $scope.current_project.id});
-
-                // Clear any project related choices from non-uploaded files in queue
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if (! $scope.file_queue[i].uploaded) {
-                        $scope.file_queue[i].site_panel = null;
-                        $scope.file_queue[i].subject = null;
-                        $scope.file_queue[i].visit_type = null;
-                        $scope.file_queue[i].stimulation = null;
-                    }
-                }
             };
 
             $scope.siteChanged = function () {
@@ -54,94 +45,77 @@ app.controller(
                         site: $scope.current_site.id
                     }
                 );
+            };
 
-                // Clear any site related choices from non-uploaded files in queue
+            $scope.evaluateParameterMatch = function () {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if (! $scope.file_queue[i].uploaded) {
-                        $scope.file_queue[i].site_panel = null;
-                    }
+                    file_matches_panel(i, $scope.current_site_panel);
                 }
+            };
+
+            $scope.removeFromFileQueue = function(f) {
+                $scope.file_queue.splice($scope.file_queue.indexOf(f), 1);
             };
             
-            $scope.acquisitionDateChanged = function () {
+            function verifyCategories() {
+                return $scope.current_cytometer &&
+                    $scope.current_acquisition_date &&
+                    $scope.current_site_panel &&
+                    $scope.current_subject &&
+                    $scope.current_visit &&
+                    $scope.current_stimulation &&
+                    $scope.current_specimen &&
+                    $scope.current_pretreatment &&
+                    $scope.current_storage;
+            }
+            
+            $scope.addSelectedToUploadQueue = function() {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
                     if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].acquisition_date = $scope.current_acquisition_date;
-                    }
-                }
-            };
-
-            $scope.sitePanelChanged = function (selected) {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        if (file_matches_panel(i, selected)) {
-                            $scope.file_queue[i].site_panel = selected;
+                        // ensure all the category fields have data
+                        if (! verifyCategories()) {
+                            return false;
                         }
-                    }
-                }
-            };
-            
-            $scope.subjectChanged = function (selected) {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].subject = selected;
-                    }
-                }
-            };
-            
-            $scope.visitTypeChanged = function (selected) {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].visit_type = selected;
-                    }
-                }
-            };
-            
-            $scope.stimulationChanged = function (selected) {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].stimulation = selected;
-                    }
-                }
-            };
-            
-            $scope.specimenChanged = function (selected) {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].specimen = selected;
-                    }
-                }
-            };
-            
-            $scope.pretreatmentChanged = function (selected) {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].pretreatment = selected;
-                    }
-                }
-            };
-            
-            $scope.storageChanged = function (selected) {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].storage = selected;
-                    }
-                }
-            };
 
-            $scope.clearUploaded = function() {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].uploaded) {
+                        // verify panel matches
+                        if (!file_matches_panel(i, $scope.current_site_panel)) {
+                            continue;
+                        }
+
+                        // populate the file object properties
+                        $scope.file_queue[i].acquisition_date = $scope.current_acquisition_date;
+                        $scope.file_queue[i].site_panel = $scope.current_site_panel;
+                        $scope.file_queue[i].cytometer = $scope.current_cytometer;
+                        $scope.file_queue[i].subject = $scope.current_subject;
+                        $scope.file_queue[i].visit_type = $scope.current_visit;
+                        $scope.file_queue[i].stimulation = $scope.current_stimulation;
+                        $scope.file_queue[i].specimen = $scope.current_specimen;
+                        $scope.file_queue[i].pretreatment = $scope.current_pretreatment;
+                        $scope.file_queue[i].storage = $scope.current_storage;
+                        
+                        // Add to upload queue
+                        $scope.upload_queue.push($scope.file_queue[i]);
+                        
+                        // Remove from file queue
                         $scope.file_queue.splice(i, 1);
                         i--;
                     }
                 }
             };
 
+            $scope.clearUploaded = function() {
+                for (var i = 0; i < $scope.upload_queue.length; i++) {
+                    if ($scope.upload_queue[i].uploaded) {
+                        $scope.upload_queue.splice(i, 1);
+                        i--;
+                    }
+                }
+            };
+
             $scope.clearSelected = function() {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected && ! $scope.file_queue[i].uploading) {
-                        $scope.file_queue.splice(i, 1);
+                for (var i = 0; i < $scope.upload_queue.length; i++) {
+                    if ($scope.upload_queue[i].selected && ! $scope.upload_queue[i].uploading) {
+                        $scope.upload_queue.splice(i, 1);
                         i--;
                     }
                 }
@@ -217,11 +191,17 @@ app.controller(
                 $scope.upload[index] = null;
             };
 
-            $scope.toggleAllFiles = function () {
+            $scope.toggleAllFileQueue = function () {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
-                    // only select the non-uploaded filess
-                    if (! $scope.file_queue[i].uploaded) {
-                        $scope.file_queue[i].selected = $scope.master_checkbox;
+                    $scope.file_queue[i].selected = $scope.master_file_queue_checkbox;
+                }
+            };
+
+            $scope.toggleAllUploadQueue = function () {
+                for (var i = 0; i < $scope.upload_queue.length; i++) {
+                    // only select the non-uploaded files
+                    if (! $scope.upload_queue[i].uploaded) {
+                        $scope.upload_queue[i].selected = $scope.master_upload_queue_checkbox;
                     }
                 }
             };
@@ -257,6 +237,7 @@ app.controller(
 
                     var pnn_pattern = /\$P(\d+)N/i;
                     var pns_pattern = /\$P(\d+)S/i;
+                    var date_pattern = /^\$DATE$/i;
 
                     // first match will be empty string since the FCS TEXT
                     // segment starts with the delimiter, so we'll start at
@@ -271,8 +252,13 @@ app.controller(
 
                         var pnn_result = pnn_pattern.exec(non_paired_list[i]);
                         var pns_result = pns_pattern.exec(non_paired_list[i]);
+                        var date_result = date_pattern.exec(non_paired_list[i]);
 
                         var index = null;
+
+                        if (date_result) {
+                            obj.date = non_paired_list[i+1];
+                        }
 
                         if (pnn_result) {
                             for (var j = 0; j < obj.channels.length; j++) {
@@ -340,11 +326,21 @@ app.controller(
                     setupReader({
                         filename: $files[i].name,
                         file: $files[i],
+                        date: "",
                         metadata: {},
                         selected: false,
                         progress: 0,
                         uploading: false,
-                        uploaded: false
+                        uploaded: false,
+                        acquisition_date: null,
+                        site_panel: null,
+                        cytometer: null,
+                        subject: null,
+                        visit_type: null,
+                        stimulation: null,
+                        specimen: null,
+                        pretreatment: null,
+                        storage: null
                     });
                 }
             };
@@ -354,80 +350,80 @@ app.controller(
                 // we do this so all the selected files get marked, since
                 // the uploads may take a while and we don't want the user
                 // interacting with the ones we are trying to upload
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
-                        $scope.file_queue[i].uploading = true;
+                for (var i = 0; i < $scope.upload_queue.length; i++) {
+                    if ($scope.upload_queue[i].selected) {
+                        $scope.upload_queue[i].uploading = true;
                     }
                 }
                 // now actually call upload for all the marked files
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].uploading) {
+                for (var i = 0; i < $scope.upload_queue.length; i++) {
+                    if ($scope.upload_queue[i].uploading) {
                         upload(i);
                     }
                 }
             };
 
             function upload(index) {
-                $scope.file_queue[index].progress = 0;
-                $scope.file_queue[index].errors = null;
+                $scope.upload_queue[index].progress = 0;
+                $scope.upload_queue[index].errors = null;
 
-                if (! $scope.file_queue[index].subject ||
-                    ! $scope.file_queue[index].visit_type ||
-                    ! $scope.file_queue[index].specimen ||
-                    ! $scope.file_queue[index].pretreatment ||
-                    ! $scope.file_queue[index].storage ||
-                    ! $scope.file_queue[index].stimulation ||
-                    ! $scope.file_queue[index].site_panel ||
-                    ! $scope.current_cytometer ||
-                    ! $scope.file_queue[index].acquisition_date)
+                if (! $scope.upload_queue[index].subject ||
+                    ! $scope.upload_queue[index].visit_type ||
+                    ! $scope.upload_queue[index].specimen ||
+                    ! $scope.upload_queue[index].pretreatment ||
+                    ! $scope.upload_queue[index].storage ||
+                    ! $scope.upload_queue[index].stimulation ||
+                    ! $scope.upload_queue[index].site_panel ||
+                    ! $scope.upload_queue[index].cytometer ||
+                    ! $scope.upload_queue[index].acquisition_date)
                 {
-                    $scope.file_queue[index].errors = [];
-                    $scope.file_queue[index].errors.push(
+                    $scope.upload_queue[index].errors = [];
+                    $scope.upload_queue[index].errors.push(
                         {
                             'key': 'Missing fields',
                             'value': 'Please select all fields for the FCS sample.'
                         }
                     );
                     // reset uploading status else checkbox stays disabled
-                    $scope.file_queue[index].uploading = false;
+                    $scope.upload_queue[index].uploading = false;
                     return;
                 }
 
-                $scope.file_queue[index].upload = $upload.upload({
+                $scope.upload_queue[index].upload = $upload.upload({
                     url : '/api/repository/samples/add/',
                     method: 'POST',
 
                     // FCS sample's REST API model fields here
                     data : {
-                        'subject': $scope.file_queue[index].subject.id,
-                        'visit': $scope.file_queue[index].visit_type.id,
-                        'specimen': $scope.file_queue[index].specimen.id,
-                        'pretreatment': $scope.file_queue[index].pretreatment.name,
-                        'storage': $scope.file_queue[index].storage.name,
-                        'stimulation': $scope.file_queue[index].stimulation.id,
-                        'site_panel': $scope.file_queue[index].site_panel.id,
-                        'cytometer': $scope.current_cytometer.id,
+                        'subject': $scope.upload_queue[index].subject.id,
+                        'visit': $scope.upload_queue[index].visit_type.id,
+                        'specimen': $scope.upload_queue[index].specimen.id,
+                        'pretreatment': $scope.upload_queue[index].pretreatment.name,
+                        'storage': $scope.upload_queue[index].storage.name,
+                        'stimulation': $scope.upload_queue[index].stimulation.id,
+                        'site_panel': $scope.upload_queue[index].site_panel.id,
+                        'cytometer': $scope.upload_queue[index].cytometer.id,
                         'acquisition_date':
-                                $scope.file_queue[index].acquisition_date.getFullYear().toString() +
+                                $scope.upload_queue[index].acquisition_date.getFullYear().toString() +
                                 "-" +
-                                ($scope.file_queue[index].acquisition_date.getMonth() + 1) +
+                                ($scope.upload_queue[index].acquisition_date.getMonth() + 1) +
                                 "-" +
-                                $scope.file_queue[index].acquisition_date.getDate().toString()
+                                $scope.upload_queue[index].acquisition_date.getDate().toString()
                     },
 
-                    file: $scope.file_queue[index].file,
+                    file: $scope.upload_queue[index].file,
                     fileFormDataName: 'sample_file'
                 }).progress(function(evt) {
-                    $scope.file_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
+                    $scope.upload_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
                 }).success(function(data, status, headers, config) {
-                    $scope.file_queue[index].uploaded = true;
-                    $scope.file_queue[index].selected = false;
+                    $scope.upload_queue[index].uploaded = true;
+                    $scope.upload_queue[index].selected = false;
                 }).error(function(error) {
                     if (Object.keys(error).length > 0) {
-                        $scope.file_queue[index].errors = [];
+                        $scope.upload_queue[index].errors = [];
 
                         for (var key in error) {
-                            $scope.file_queue[index].errors.push(
+                            $scope.upload_queue[index].errors.push(
                                 {
                                     'key': key,
                                     'value': error[key]
@@ -436,9 +432,22 @@ app.controller(
                         }
                     }
                     // reset uploading status else checkbox stays disabled
-                    $scope.file_queue[index].uploading = false;
+                    $scope.upload_queue[index].uploading = false;
                 });
             }
+
+            $scope.open_site_panel_mismatch_modal = function (f) {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'sitePanelMismatchModal.html',
+                    controller: ModalInstanceCtrl,
+                    resolve: {
+                        file: function() {
+                            return f;
+                        }
+                    }
+                });
+            };
 
             $scope.open_error_modal = function (f) {
 
@@ -446,7 +455,7 @@ app.controller(
                     templateUrl: 'myModalContent.html',
                     controller: ModalInstanceCtrl,
                     resolve: {
-                        upload_file: function() {
+                        file: function() {
                             return f;
                         }
                     }
@@ -459,7 +468,7 @@ app.controller(
                     templateUrl: 'metadata_content.html',
                     controller: ModalInstanceCtrl,
                     resolve: {
-                        upload_file: function() {
+                        file: function() {
                             return f;
                         }
                     }
@@ -472,7 +481,7 @@ app.controller(
                     templateUrl: 'channels_content.html',
                     controller: ModalInstanceCtrl,
                     resolve: {
-                        upload_file: function() {
+                        file: function() {
                             return f;
                         }
                     }
@@ -509,8 +518,8 @@ app.controller(
     ]
 );
 
-var ModalInstanceCtrl = function ($scope, $modalInstance, upload_file) {
-    $scope.upload_file = upload_file;
+var ModalInstanceCtrl = function ($scope, $modalInstance, file) {
+    $scope.file = file;
     $scope.ok = function () {
         $modalInstance.close();
     };
