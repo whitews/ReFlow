@@ -123,9 +123,10 @@ app.controller(
 
             // site panel matching
             function file_matches_panel(file_index, site_panel) {
+                $scope.file_queue[file_index].errors = [];
+
                 // first make sure the number of params is the same
                 if ($scope.file_queue[file_index].channels.length != site_panel.parameters.length) {
-                    $scope.file_queue[file_index].errors = [];
                     $scope.file_queue[file_index].errors.push(
                         {
                             'key': 'Incompatible site panel',
@@ -169,7 +170,6 @@ app.controller(
                 }
 
                 if (mismatches.length > 0) {
-                    $scope.file_queue[file_index].errors = [];
                     $scope.file_queue[file_index].errors.push(
                         {
                             'key': 'Incompatible site panel',
