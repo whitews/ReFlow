@@ -7,76 +7,76 @@
     <div class="col-md-4">
       <table>
           <tr>
-              <td>Project:</td>
+              <td><strong>Project:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_project" ng-change="projectChanged()" ng-options="p.project_name for p in projects">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Site:</td>
+              <td><strong>Site:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_site" ng-change="siteChanged()" ng-options="s.site_name for s in sites">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Cytometer:</td>
+              <td><strong>Cytometer:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_cytometer" ng-options="c.cytometer_name for c in cytometers">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Acquisition Date:</td>
+              <td><strong>Acquisition Date:</strong></td>
               <td>
                 <input type="text" class="form-control" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="current_acquisition_date" is-open="opened" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
               </td>
           </tr>
           <tr>
-              <td>Site Panel:</td>
+              <td><strong>Site Panel:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_site_panel" ng-change="evaluateParameterMatch()" ng-options="s.name for s in site_panels">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Subject:</td>
+              <td><strong>Subject:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_subject" ng-options="s.subject_code for s in subjects">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Visit:</td>
+              <td><strong>Visit:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_visit" ng-options="v.visit_type_name for v in visit_types">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Stimulation:</td>
+              <td><strong>Stimulation:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_stimulation" ng-options="s.stimulation_name for s in stimulations">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Specimen:</td>
+              <td><strong>Specimen:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_specimen" ng-options="s.specimen_name for s in specimens">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Pre-treatment:</td>
+              <td><strong>Pre-treatment:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_pretreatment" ng-options="p.name for p in pretreatments">
                   </select>
               </td>
           </tr>
           <tr>
-              <td>Storage:</td>
+              <td><strong>Storage:</strong></td>
               <td>
                   <select class="form-control" ng-model="current_storage" ng-options="s.name for s in storages">
                   </select>

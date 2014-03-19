@@ -310,6 +310,13 @@ span.marker-field > select {
   white-space: nowrap;
 }
 /* ----------  Custom form stuff START---------- */
+.form-control {
+    padding: 3px;
+    font-size: 12px;
+    line-height: 1.1;
+    height: 30px;
+}
+
 .form-group {
   margin-bottom: 12px;
 }
@@ -377,9 +384,11 @@ select.app, input.app {
     padding: 12px 24px;
 }
 
-.drop-box > .instruction {
-    font: 21px bold "Optima";
-    color: #b9b9b9;
+.instruction {
+    margin-top: 10%;
+    font: 36px bold "Optima", "FreeSerif";
+    font-weight: 900;
+    color: #c6c6c6;
 }
 
 .danger {
