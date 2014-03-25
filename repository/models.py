@@ -141,6 +141,11 @@ STORAGE_CHOICES = (
     ('Cryopreserved', 'Cryopreserved')
 )
 
+PREDEFINED_PROCESS_CHOICES = (
+    ('1', 'Subsampled, asinh, HDP'),
+    ('2', 'Subsampled, logicle, HDP'),
+)
+
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Working', 'Working'),
@@ -1467,6 +1472,29 @@ class SampleMetadata(ProtectedModel):
     def __unicode__(self):
         return u'%s: %s' % (self.key, self.value)
 
+
+class SampleCollection(ProtectedModel):
+    """
+    A collection of Samples from the same Project
+    """
+    project = models.ForeignKey(Project)
+
+
+class SampleCollectionMember(ProtectedModel):
+    """
+    A member of a sample set (i.e. an FCS Sample). However the Samples
+    are ForeignKeys which allow null and get set to null on the Sample's
+    deletion. This allows deletion of Samples with less hassle.
+    It is up to the consumer of SampleSets to verify SampleSetMember integrity.
+    """
+    sample_collection = models.ForeignKey(SampleCollection)
+    sample = models.ForeignKey(
+        Sample,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+
 ####################################
 ### START PROCESS RELATED MODELS ###
 ####################################
@@ -1510,25 +1538,31 @@ class ProcessRequest(ProtectedModel):
     A request for a Process
     """
     project = models.ForeignKey(Project)
-
-    TEST = 1
-    HDP = 2
-    PROCESS_CHOICES = (
-        (TEST, 'Test'),
-        (HDP, 'HDP'),
-    )
-
-    process = models.IntegerField(
-        choices=PROCESS_CHOICES,
+    sample_set = models.ForeignKey(
+        SampleSet,
+        null=False,
+        blank=False,
+        editable=False)
+    description = models.CharField(
+        max_length=128,
         null=False,
         blank=False)
+    predefined = models.CharField(
+        max_length=64,
+        null=False,
+        blank=False,
+        choices=PREDEFINED_PROCESS_CHOICES)
     request_user = models.ForeignKey(
-        User, null=False,
+        User,
+        null=False,
         blank=False,
         editable=False)
     request_date = models.DateTimeField(
         editable=False,
         auto_now_add=True)
+    assignment_date = models.DateTimeField(
+        null=True,
+        blank=True)
     completion_date = models.DateTimeField(
         null=True,
         blank=True,
@@ -1538,7 +1572,6 @@ class ProcessRequest(ProtectedModel):
         Worker,
         null=True,
         blank=True)
-
     status = models.CharField(
         max_length=32,
         null=False,
