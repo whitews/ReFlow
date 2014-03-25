@@ -252,7 +252,8 @@
   <tbody>
     <tr data-ng-repeat="f in upload_queue">
       <td>
-        <input ng-hide="f.uploaded" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
+        <input ng-hide="f.uploaded || f.uploading" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
+        <img data-ng-show="f.uploading && ! f.uploaded" src="/static/whirligig.gif">
         <span data-ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
 
         <script type="text/ng-template" id="myModalContent.html">

@@ -15,12 +15,12 @@
 
 <script>
 $(document).ready(function() {
-    var updating_element = "&nbsp;<img class='whirligig inline' src='{% static 'whirligig.gif' %}' height='24' width='24'>";
+    var updating_element = "&nbsp;<img class='whirligig inline' src='{% static 'whirligig.gif' %}'>";
 
     {#  Hack to add empty '---------' option to required ChoiceField  #}
     $('select[name=project_panel]')
                       .append($('<option></option>')
-                      .attr("value", '')
+                      .attr("vsalue", '')
                       .text('---------'));
 
       $("#toggle-advanced").click(function()
