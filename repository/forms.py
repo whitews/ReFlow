@@ -1030,32 +1030,6 @@ class BaseProcessForm(forms.Form):
         return self.cleaned_data
 
 
-class TestProcessForm(BaseProcessForm):
-    CUSTOM_FIELDS = ['is_test']
-    is_test = forms.BooleanField(required=False)
-
-
-class HDPProcessForm(BaseProcessForm):
-    CUSTOM_FIELDS = [
-        'cluster_count',
-        'iteration_count',
-        'burn_in',
-        'logicle_t',
-        'logicle_w',
-        'random_seed'
-    ]
-
-    cluster_count = forms.IntegerField(
-        required=True,
-        initial=64,
-        help_text="Clusters are things too")
-    iteration_count = forms.IntegerField(required=True, initial=50)
-    burn_in = forms.IntegerField(required=True, initial=100)
-    logicle_t = forms.IntegerField(required=True, initial=262144)
-    logicle_w = forms.DecimalField(required=True, initial=0.5)
-    random_seed = forms.IntegerField(required=True, initial=123)
-
-
 class SampleFilterForm(forms.Form):
     """
     Note the naming of these fields corresponds to the REST API

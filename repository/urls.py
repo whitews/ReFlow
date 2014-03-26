@@ -68,6 +68,7 @@ urlpatterns = patterns('repository.api_views',
 # Angular web routes
 urlpatterns += patterns('repository.views',
     url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
+    url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
 )
 
 # Regular web routes
@@ -148,5 +149,4 @@ urlpatterns += patterns('repository.views',
     url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),
     url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
     url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
-    url(r'^processing/process/(?P<process>\w+)/request/$', 'submit_process_request', name='submit_process_request'),
 )

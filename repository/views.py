@@ -47,6 +47,16 @@ def fcs_upload_app(request):
         context_instance=RequestContext(request)
     )
 
+
+@user_passes_test(lambda u: u.is_superuser)
+def process_request_app(request):
+    return render_to_response(
+        'submit_process_request.html',
+        {},
+        context_instance=RequestContext(request)
+    )
+
+
 #########################
 ### Non-project views ###
 #########################
@@ -1650,59 +1660,6 @@ def create_process_request_inputs(process_request, form):
             key=field,
             value=form.cleaned_data.get(field))
         pr_input.save()
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def submit_process_request(request, process):
-    if process == 'test':
-        if request.method == 'POST':
-            form = TestProcessForm(request.POST, request=request)
-            if form.is_valid():
-                project_panel = ProjectPanel.objects.get(
-                    id=form.cleaned_data.get('project_panel'))
-
-                process_request = ProcessRequest(
-                    project=project_panel.project,
-                    process=ProcessRequest.TEST,
-                    request_user=request.user)
-                process_request.save()
-
-                create_process_request_inputs(process_request, form)
-
-                return HttpResponseRedirect(reverse('process_dashboard'))
-        else:
-            form = TestProcessForm(request=request)
-    elif process == 'hdp':
-        if request.method == 'POST':
-            form = HDPProcessForm(request.POST, request=request)
-            if form.is_valid():
-                project_panel = ProjectPanel.objects.get(
-                    id=form.cleaned_data.get('project_panel'))
-
-                process_request = ProcessRequest(
-                    project=project_panel.project,
-                    process=ProcessRequest.HDP,
-                    request_user=request.user)
-                process_request.save()
-
-                create_process_request_inputs(process_request, form)
-
-                return HttpResponseRedirect(reverse('process_dashboard'))
-        else:
-            form = HDPProcessForm(request=request)
-    else:
-        process = None
-        form = None
-
-    return render_to_response(
-        'submit_process_request.html',
-        {
-            'process': process,
-            'form': form,
-            'required_base_fields': ['project', 'project_panel']
-        },
-        context_instance=RequestContext(request)
-    )
 
 
 @login_required
