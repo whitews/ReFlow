@@ -146,6 +146,15 @@ PREDEFINED_PROCESS_CHOICES = (
     ('2', 'Subsampled, logicle, HDP'),
 )
 
+PROCESS_INPUT_VALUE_TYPE_CHOICES = (
+    ('Boolean', 'Boolean'),
+    ('Integer', 'Integer'),
+    ('PositiveInteger', 'Positive Integer'),
+    ('Decimal', 'Decimal'),
+    ('String', 'String'),
+    ('Date', 'Date')
+)
+
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Working', 'Working'),
@@ -1533,13 +1542,80 @@ class Worker(models.Model):
         return u'%s' % (self.worker_name,)
 
 
+class SubprocessCategory(models.Model):
+    name = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128)
+    description = models.TextField(
+        null=True,
+        blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    class Meta:
+        verbose_name_plural = 'Sub-process Categories'
+        ordering = ['name']
+
+
+class SubprocessImplementation(models.Model):
+    category = models.ForeignKey(SubprocessCategory)
+    name = models.CharField(
+        null=False,
+        blank=False,
+        max_length=128)
+    description = models.TextField(
+        null=True,
+        blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    class Meta:
+        verbose_name_plural = 'Sub-process Implementation'
+        ordering = ['category', 'name']
+
+
+class SubprocessInput(models.Model):
+    implementation = models.ForeignKey(SubprocessImplementation)
+    name = models.CharField(
+        null=False,
+        blank=False,
+        max_length=128)
+    description = models.TextField(
+        null=True,
+        blank=True)
+    value_type = models.CharField(
+        max_length=64,
+        null=False,
+        blank=False,
+        choices=PROCESS_INPUT_VALUE_TYPE_CHOICES)
+    required = models.BooleanField(
+        default=False)
+    allow_multiple = models.BooleanField(
+        default=False)
+    default = models.CharField(
+        null=True,
+        blank=True,
+        max_length=1024)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    class Meta:
+        verbose_name_plural = 'Sub-process Input'
+        ordering = ['implementation', 'name']
+
+
 class ProcessRequest(ProtectedModel):
     """
     A request for a Process
     """
     project = models.ForeignKey(Project)
     sample_set = models.ForeignKey(
-        SampleSet,
+        SampleCollection,
         null=False,
         blank=False,
         editable=False)
@@ -1567,7 +1643,8 @@ class ProcessRequest(ProtectedModel):
         null=True,
         blank=True,
         editable=False)
-    # optional FK to the worker that is assigned or has completed the request
+    # Worker assigned or has completed the request, null before any worker
+    # takes assignment
     worker = models.ForeignKey(
         Worker,
         null=True,
@@ -1608,19 +1685,19 @@ class ProcessRequest(ProtectedModel):
 
 class ProcessRequestInput(models.Model):
     """
-    A key/value pair used as a parameter for a specific ProcessRequest
+    The value for a specific SubprocessInput for a ProcessRequest
     """
     process_request = models.ForeignKey(ProcessRequest)
-    # all keys/values get transmitted in JSON format via REST,
+    subprocess_input = models.ForeignKey(SubprocessInput)
+
+    # all values get transmitted in JSON format via REST,
     # so everything is a string
-    key = models.CharField(null=False, blank=False, max_length=1024)
     value = models.CharField(null=False, blank=False, max_length=1024)
 
     def __unicode__(self):
-        return u'%s (%s): %s=%s' % (
-            self.process_request.get_process_display(),
+        return u'%s: %s=%s' % (
             self.process_request_id,
-            self.key,
+            self.subprocess_input.name,
             self.value)
 
 
@@ -1644,7 +1721,7 @@ class ProcessRequestOutput(ProtectedModel):
     A key/value pair used to capture results from a specific ProcessRequest
     """
     process_request = models.ForeignKey(ProcessRequest)
-    # all values will be a (potentially large) JSON file
+    # all values will be a (potentially large) file
     key = models.CharField(null=False, blank=False, max_length=1024)
     value = models.FileField(
         upload_to=pr_output_path,
