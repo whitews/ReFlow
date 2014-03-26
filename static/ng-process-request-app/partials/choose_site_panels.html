@@ -1,0 +1,60 @@
+  <div class="row">
+    <div class="col-md-4">
+      <table>
+          <tr>
+              <td><strong>Project:</strong></td>
+              <td>
+                  <select class="form-control" ng-model="current_project" ng-change="projectChanged()" ng-options="p.project_name for p in projects">
+                  </select>
+              </td>
+          </tr>
+          <tr>
+              <td><strong>Project Panel:</strong></td>
+              <td>
+                  <select class="form-control" ng-model="current_project_panel" ng-change="projectPanelChanged()" ng-options="p.panel_name for p in project_panels">
+                  </select>
+              </td>
+          </tr>
+          <tr>
+              <td><strong>Sites:</strong></td>
+              <td>
+                  <select multiple class="form-control" ng-model="current_site_list" ng-options="s.site_name for s in sites">
+                  </select>
+              </td>
+          </tr>
+      </table>
+    </div>
+    <div class="col-md-8">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50">
+              <div class=" text-center" style="position: relative">
+                <h4>Site Panels</h4>
+              </div>
+            </th>
+          </tr>
+          <tr>
+            <th style="width:1%;">
+              <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
+            </th>
+            <th>Panel Name</th>
+            <th>Site</th>
+            <th>Channel Count</th>
+            <th>Parameters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-ng-repeat="f in file_queue">
+            <td class="no-wrap">
+              <input type="checkbox" ng-model="f.selected" />
+            </td>
+            <td>{{ s.site_name }} </td>
+            <td>{{ s.site }}</td>
+            <td>{{ s.parameters.length }}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

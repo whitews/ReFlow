@@ -51,7 +51,7 @@ def fcs_upload_app(request):
 @user_passes_test(lambda u: u.is_superuser)
 def process_request_app(request):
     return render_to_response(
-        'submit_process_request.html',
+        'process_request_app.html',
         {},
         context_instance=RequestContext(request)
     )

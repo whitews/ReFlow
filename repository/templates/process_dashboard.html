@@ -82,8 +82,15 @@ $(function() {
       <thead>
         <tr>
           <th colspan="8" class="center">
-            <h4>Process Requests <span class="badge badge-inverse align-top">{{ requests.count }}</span></h4>
-            <a href="{% url 'process_request_app' %}">Create Process Request</a>
+            <div style="position:relative">
+
+              <h4>Process Requests <span class="badge badge-inverse align-top">{{ requests.count }}</span></h4>
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-default btn-sm" href="{% url 'process_request_app' %}">
+                  New Request
+                </a>
+              </div>
+            </div>
           </th>
         </tr>
         <tr>
