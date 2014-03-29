@@ -89,6 +89,12 @@ app.controller(
                 }
             };
 
+            $scope.toggleAllSitePanels = function () {
+                $scope.model.site_panels.forEach(function(site_panel) {
+                    site_panel.selected = $scope.model.master_site_panel_checkbox;
+                });
+            };
+
 
         }
     ]
