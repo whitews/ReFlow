@@ -408,6 +408,27 @@ class SiteDetail(
     serializer_class = SiteSerializer
 
 
+class SitePanelFilter(django_filters.FilterSet):
+    project_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProjectPanel.objects.all(),
+        name='project_panel')
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='project_panel__project')
+
+    class Meta:
+        model = SitePanel
+        fields = [
+            'site',
+            'project_panel',
+            'project_panel__project',
+
+        ]
+
+
 class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of site panels.
@@ -415,10 +436,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = SitePanel
     serializer_class = SitePanelSerializer
-    filter_fields = (
-        'site',
-        'project_panel',
-        'project_panel__project')
+    filter_class = SitePanelFilter
 
     def get_queryset(self):
         """
