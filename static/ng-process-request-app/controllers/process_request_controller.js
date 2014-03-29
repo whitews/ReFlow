@@ -28,7 +28,9 @@ app.controller(
         '$modal',
         'Project',
         'Site',
-        function ($scope, $modal, Project, Site) {
+        'ProjectPanel',
+        'SitePanel',
+        function ($scope, $modal, Project, Site, ProjectPanel, SitePanel) {
 
             $scope.current_step_index = 0;
             $scope.step_count = process_steps.length;
@@ -47,10 +49,44 @@ app.controller(
                 }
             };
 
-            $scope.projects = Project.query();
+            $scope.model = {
+                projects: Project.query(),
+                current_project: null,
+                project_panels: null,
+                current_project_panel: null,
+                sites: null,
+                site_panels: null
+            };
+
+            function preselectSites() {
+                $scope.model.sites.forEach(function(site) {
+                    site.selected = true;
+                });
+            }
 
             $scope.projectChanged = function () {
-                $scope.sites = Site.query({project: this.current_project.id});
+                $scope.model.project_panels = ProjectPanel.query({project: $scope.model.current_project.id});
+                $scope.model.sites = Site.query({project: $scope.model.current_project.id});
+                preselectSites();
+            };
+
+            $scope.updateSitePanels = function () {
+                var site_id_list = [];
+                $scope.model.sites.forEach(function(site) {
+                    if (site.selected) {
+                        site_id_list.push(site.id);
+                    }
+                });
+
+                if (site_id_list == 0) {
+                    $scope.model.site_panels = null;
+                } else {
+                    $scope.model.site_panels = SitePanel.query(
+                    {
+                        project_panel: $scope.model.current_project_panel.id,
+                        site: site_id_list
+                    });
+                }
             };
 
 
