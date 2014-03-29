@@ -605,7 +605,7 @@ class SitePanelForm(forms.ModelForm):
 class EditSitePanelForm(forms.ModelForm):
     class Meta:
         model = SitePanel
-        exclude = ('project_panel')
+        exclude = ('project_panel',)
 
 
 class SitePanelParameterMapFromSampleForm(forms.ModelForm):
