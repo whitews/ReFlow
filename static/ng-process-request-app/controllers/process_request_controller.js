@@ -55,10 +55,24 @@ app.controller(
                 });
 
                 if (site_panel_list == 0) {
-                    $scope.model.site_panels = null;
+                    $scope.model.samples = null;
                 } else {
-                    $scope.model.samples = Sample.query({site_panel: site_panel_list});
+                    $scope.model.samples = Sample.query(
+                        {site_panel: site_panel_list},
+                        function (data) {  // success
+                            data.forEach(function (sample) {
+                                sample.ignore = false;
+                                sample.selected = true;
+                            });
+                        }
+                    );
                 }
+
+                // Add ignore=false, selected=true to all samples
+                $scope.model.samples.forEach(function (sample) {
+                    sample.ignore = false;
+                    sample.selected = true;
+                })
 
                 var site_list = [];
                 $scope.model.sites.forEach(function(site) {
@@ -67,6 +81,7 @@ app.controller(
                     }
                 });
 
+                // Populate our sample filters
                 $scope.model.subjects = Subject.query({project: $scope.model.current_project.id});
                 $scope.model.visits = VisitType.query({project: $scope.model.current_project.id});
                 $scope.model.stimulations = Stimulation.query({project: $scope.model.current_project.id});
@@ -150,6 +165,60 @@ app.controller(
             $scope.toggleAllSitePanels = function () {
                 $scope.model.site_panels.forEach(function(site_panel) {
                     site_panel.selected = $scope.model.master_site_panel_checkbox;
+                });
+            };
+
+            $scope.updateSamples = function () {
+                // Check the various categories and collect the checks! Ka-ching!
+
+                var subject_list = [];
+                $scope.model.subjects.forEach(function(subject) {
+                    if (subject.selected) {
+                        subject_list.push(subject.id);
+                    }
+                });
+
+                var visit_list = [];
+                $scope.model.visits.forEach(function(visit) {
+                    if (visit.selected) {
+                        visit_list.push(visit.id);
+                    }
+                });
+
+                var stimulation_list = [];
+                $scope.model.stimulations.forEach(function(stimulation) {
+                    if (stimulation.selected) {
+                        stimulation_list.push(stimulation.id);
+                    }
+                });
+
+                var cytometer_list = [];
+                $scope.model.cytometers.forEach(function(cytometer) {
+                    if (cytometer.selected) {
+                        cytometer_list.push(cytometer.id);
+                    }
+                });
+
+                var pretreatment_list = [];
+                $scope.model.pretreatments.forEach(function(pretreatment) {
+                    if (pretreatment.selected) {
+                        pretreatment_list.push(pretreatment.id);
+                    }
+                });
+
+                // Now iterate over the samples to marking as ignore those not matching
+                // the filters...but, there must be at least one filter item in
+                // a category, else we won't filter
+                $scope.model.samples.forEach(function (sample) {
+                    var ignore = false;
+                    if (subject_list.length > 0) {
+                        if (subject_list.indexOf(sample.subject) == -1) {
+                            ignore = true;
+                        }
+                    }
+
+                    sample.ignore = ignore;
+
                 });
             };
 

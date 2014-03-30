@@ -81,7 +81,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="s in model.samples">
+          <tr data-ng-repeat="s in model.samples" ng-if="s.ignore == false">
             <td class="no-wrap">
               <input type="checkbox" ng-model="s.selected" />
             </td>
