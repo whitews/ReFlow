@@ -466,6 +466,29 @@ class SitePanelDetail(
     serializer_class = SitePanelSerializer
 
 
+class CytometerFilter(django_filters.FilterSet):
+
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site')
+    site_name = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site__site_name')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='site__project')
+
+    class Meta:
+        model = Cytometer
+        fields = [
+            'site',
+            'site__site_name',
+            'site__project',
+            'cytometer_name',
+            'serial_number'
+        ]
+
+
 class CytometerList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of site panels.
@@ -473,12 +496,7 @@ class CytometerList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Cytometer
     serializer_class = CytometerSerializer
-    filter_fields = (
-        'site',
-        'site__site_name',
-        'site__project',
-        'cytometer_name',
-        'serial_number')
+    filter_class = CytometerFilter
 
     def get_queryset(self):
         """
