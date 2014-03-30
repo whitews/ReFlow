@@ -29,8 +29,8 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/subjects/?$', SubjectList.as_view(), name='subject-list'),
     url(r'^api/repository/subjects/(?P<pk>\d+)/?$', SubjectDetail.as_view(), name='subject-detail'),
 
-    url(r'^api/repository/visit_types/$', VisitTypeList.as_view(), name='visit-type-list'),
-    url(r'^api/repository/visit_types/(?P<pk>\d+)/$', VisitTypeDetail.as_view(), name='visittype-detail'),
+    url(r'^api/repository/visit_types/?$', VisitTypeList.as_view(), name='visit-type-list'),
+    url(r'^api/repository/visit_types/(?P<pk>\d+)/?$', VisitTypeDetail.as_view(), name='visittype-detail'),
 
     url(r'^api/repository/stimulations/?$', StimulationList.as_view(), name='stimulation-list'),
     url(r'^api/repository/stimulations/(?P<pk>\d+)/?$', StimulationDetail.as_view(), name='stimulation-detail'),
