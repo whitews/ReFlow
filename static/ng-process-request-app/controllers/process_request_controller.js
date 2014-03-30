@@ -202,7 +202,7 @@ app.controller(
                 var pretreatment_list = [];
                 $scope.model.pretreatments.forEach(function(pretreatment) {
                     if (pretreatment.selected) {
-                        pretreatment_list.push(pretreatment.id);
+                        pretreatment_list.push(pretreatment.name);
                     }
                 });
 
@@ -213,6 +213,26 @@ app.controller(
                     var ignore = false;
                     if (subject_list.length > 0) {
                         if (subject_list.indexOf(sample.subject) == -1) {
+                            ignore = true;
+                        }
+                    }
+                    if (visit_list.length > 0) {
+                        if (visit_list.indexOf(sample.visit) == -1) {
+                            ignore = true;
+                        }
+                    }
+                    if (stimulation_list.length > 0) {
+                        if (stimulation_list.indexOf(sample.stimulation) == -1) {
+                            ignore = true;
+                        }
+                    }
+                    if (cytometer_list.length > 0) {
+                        if (cytometer_list.indexOf(sample.cytometer) == -1) {
+                            ignore = true;
+                        }
+                    }
+                    if (pretreatment_list.length > 0) {
+                        if (pretreatment_list.indexOf(sample.pretreatment) == -1) {
                             ignore = true;
                         }
                     }
