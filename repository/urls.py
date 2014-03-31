@@ -52,6 +52,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/compensations/(?P<pk>\d+)/npy/?$', retrieve_compensation_as_numpy, name='retrieve_compensation_as_numpy'),
 
     url(r'^api/repository/workers/?$', WorkerList.as_view(), name='worker-list'),
+    url(r'^api/repository/subprocess_implementations/?$', SubprocessImplementationList.as_view(), name='subprocess-implementation-list'),
     url(r'^api/repository/subprocess_inputs/?$', SubprocessInputList.as_view(), name='subprocess-input-list'),
     url(r'^api/repository/verify_worker/?$', verify_worker, name='verify-worker'),
     url(r'^api/repository/process_requests/?$', ProcessRequestList.as_view(), name='process-request-list'),
