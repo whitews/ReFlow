@@ -111,8 +111,10 @@ app.controller(
                 // we should have the intersection of parameters
                 var master_parameter_list = [];
                 var panel_match_count = 0;
+                var indices_to_exclude = [];
                 $scope.model.site_panels.forEach (function (site_panel) {
                     var parameter_list = [];
+
                     if (site_panel_list.indexOf(site_panel.id) != -1) {
                         site_panel.parameters.forEach(function (parameter) {
                             // since multiple markers are possible in a param
@@ -126,12 +128,12 @@ app.controller(
                                 marker_string = marker_list.sort().join('_');
                             }
                             var param_string = parameter.parameter_type + "_" +
-                                parameter.parameter_value_type + "_";
+                                parameter.parameter_value_type;
                             if (marker_string) {
-                                param_string = param_string + marker_string + "_";
+                                param_string = param_string + "_" + marker_string;
                             }
                             if (parameter.fluorochrome) {
-                                param_string = param_string + parameter.fluorochrome.fluorochrome_abbreviation;
+                                param_string = param_string + "_" + parameter.fluorochrome.fluorochrome_abbreviation;
                             }
                             parameter_list.push(param_string);
                         });
@@ -145,7 +147,6 @@ app.controller(
                             // compare the parameter_list against our master parameters list
                             // if the master list contains a param not in this panel,
                             // remove it from the master list
-                            var indices_to_exclude = [];
                             for (var i = 0; i < master_parameter_list.length; i++) {
                                 if (parameter_list.indexOf(master_parameter_list[i]) == -1) {
                                     indices_to_exclude.push(i);
@@ -158,14 +159,16 @@ app.controller(
                 });
 
                 $scope.model.parameters = [];
-                master_parameter_list.forEach(function (p) {
-                    $scope.model.parameters.push(
-                        {
-                            parameter: p,
-                            selected: true
-                        }
-                    );
-                });
+                for (var i = 0; i < master_parameter_list.length; i++) {
+                    if (indices_to_exclude.indexOf(i) == -1) {
+                        $scope.model.parameters.push(
+                            {
+                                parameter: master_parameter_list[i],
+                                selected: true
+                            }
+                        );
+                    }
+                }
             }
 
             function initializeStep () {
