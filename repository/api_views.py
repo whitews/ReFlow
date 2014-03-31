@@ -50,6 +50,7 @@ def repository_api_root(request):
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
         'workers': reverse('worker-list', request=request),
+        'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
         'assigned_process_requests': reverse(
             'assigned-process-request-list', request=request),
@@ -750,6 +751,41 @@ class CompensationDetail(
 
     model = Compensation
     serializer_class = CompensationSerializer
+
+
+class SubprocessInputFilter(django_filters.FilterSet):
+
+    category = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubprocessCategory.objects.all(),
+        name='implementation__category')
+    category_name = django_filters.CharFilter(
+        name='implementation__category__name')
+    implementation = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubprocessImplementation.objects.all(),
+        name='implementation')
+    implementation_name = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubprocessImplementation.objects.all(),
+        name='implementation__name')
+
+    class Meta:
+        model = SubprocessInput
+        fields = [
+            'category',
+            'category_name',
+            'implementation',
+            'implementation_name',
+            'name'
+        ]
+
+
+class SubprocessInputList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of sub-process inputs.
+    """
+
+    model = SubprocessInput
+    serializer_class = SubprocessInputSerializer
+    filter_class = SubprocessInputFilter
 
 
 @api_view(['GET'])

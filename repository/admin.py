@@ -41,5 +41,9 @@ admin.site.register(Compensation)
 
 admin.site.register(Worker)
 
+admin.site.register(SubprocessCategory)
+admin.site.register(SubprocessImplementation)
+admin.site.register(SubprocessInput)
+
 admin.site.register(ProcessRequest)
 admin.site.register(ProcessRequestInput)
