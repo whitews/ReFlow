@@ -50,6 +50,7 @@ def repository_api_root(request):
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
         'workers': reverse('worker-list', request=request),
+        'subprocess_categories': reverse('subprocess-category-list', request=request),
         'subprocess_implementations': reverse('subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
@@ -752,6 +753,24 @@ class CompensationDetail(
 
     model = Compensation
     serializer_class = CompensationSerializer
+
+
+class SubprocessCategoryFilter(django_filters.FilterSet):
+    class Meta:
+        model = SubprocessCategory
+        fields = [
+            'name'
+        ]
+
+
+class SubprocessCategoryList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of sub-process categories.
+    """
+
+    model = SubprocessCategory
+    serializer_class = SubprocessCategorySerializer
+    filter_class = SubprocessCategoryFilter
 
 
 class SubprocessImplementationFilter(django_filters.FilterSet):
