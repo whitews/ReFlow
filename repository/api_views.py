@@ -810,8 +810,7 @@ class SubprocessInputFilter(django_filters.FilterSet):
     implementation = django_filters.ModelMultipleChoiceFilter(
         queryset=SubprocessImplementation.objects.all(),
         name='implementation')
-    implementation_name = django_filters.ModelMultipleChoiceFilter(
-        queryset=SubprocessImplementation.objects.all(),
+    implementation_name = django_filters.CharFilter(
         name='implementation__name')
 
     class Meta:

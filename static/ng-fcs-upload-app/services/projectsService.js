@@ -20,7 +20,6 @@ var URLS = {
     'VISIT_TYPES':         '/api/repository/visit_types/',
 
     // Process related API URLs
-    'PROCESSES':               '/api/repository/processes/',
     'WORKERS':                 '/api/repository/workers/',
     'VERIFY_WORKER':           '/api/repository/verify_worker/',
     'PROCESS_REQUESTS':        '/api/repository/process_requests/',

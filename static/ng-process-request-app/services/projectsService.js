@@ -20,8 +20,10 @@ var URLS = {
     'VISIT_TYPES':         '/api/repository/visit_types/',
 
     // Process related API URLs
-    'PROCESSES':               '/api/repository/processes/',
     'WORKERS':                 '/api/repository/workers/',
+    'SUBPROCESS_CATEGORIES':   '/api/repository/subprocess_categories/',
+    'SUBPROCESS_IMPLEMENTATIONS':   '/api/repository/subprocess_implementations/',
+    'SUBPROCESS_INPUTS':       '/api/repository/subprocess_inputs/',
     'VERIFY_WORKER':           '/api/repository/verify_worker/',
     'PROCESS_REQUESTS':        '/api/repository/process_requests/',
     'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
@@ -66,6 +68,15 @@ service
     }])
     .factory('Sample', ['$resource', function ($resource) {
         return $resource(URLS.SAMPLES);
+    }])
+    .factory('SubprocessCategory', ['$resource', function ($resource) {
+        return $resource(URLS.SUBPROCESS_CATEGORIES);
+    }])
+    .factory('SubprocessImplementation', ['$resource', function ($resource) {
+        return $resource(URLS.SUBPROCESS_IMPLEMENTATIONS);
+    }])
+    .factory('SubprocessInput', ['$resource', function ($resource) {
+        return $resource(URLS.SUBPROCESS_INPUTS);
     }])
     .service('Pretreatment', [ function () {
         this.query = function () {

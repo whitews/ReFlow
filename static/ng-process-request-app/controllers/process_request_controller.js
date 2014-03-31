@@ -19,9 +19,14 @@ var process_steps = [
         "url": "/static/ng-process-request-app/partials/choose_parameters.html"
     },
     {
-        "name": "choose_clustering",
+        "name": "transformation_options",
+        "title": "Transformation Options",
+        "url": "/static/ng-process-request-app/partials/transformation_options.html"
+    },
+    {
+        "name": "clustering_options",
         "title": "Clustering Options",
-        "url": "/static/ng-process-request-app/partials/choose_clustering.html"
+        "url": "/static/ng-process-request-app/partials/clustering_options.html"
     }
 ];
 
@@ -40,7 +45,9 @@ app.controller(
         'Stimulation',
         'Cytometer',
         'Pretreatment',
-        function ($scope, $modal, Project, Site, ProjectPanel, SitePanel, Sample, Subject, VisitType, Stimulation, Cytometer, Pretreatment) {
+        'SubprocessImplementation',
+        'SubprocessInput',
+        function ($scope, $modal, Project, Site, ProjectPanel, SitePanel, Sample, Subject, VisitType, Stimulation, Cytometer, Pretreatment, SubprocessImplementation, SubprocessInput) {
 
             $scope.current_step_index = 0;
             $scope.step_count = process_steps.length;
@@ -171,6 +178,42 @@ app.controller(
                 }
             }
 
+            function initializeTransformation () {
+                // there's only one transform implementation now (logicle)
+                // so we'll go ahead to retrieve the inputs for that
+                // implementation
+                var category_name = 'transformation';
+                var implementation_name = 'logicle';
+                SubprocessImplementation.query(
+                    {
+                        category_name: category_name,
+                        name: implementation_name
+                    },
+                    function (data) {  // success
+                        if (data.length > 0) {
+                            $scope.model.transformation = data[0];
+                        }
+                    }
+                );
+
+                $scope.model.transform_inputs = SubprocessInput.query(
+                    {
+                        category_name: category_name,
+                        implementation_name: implementation_name
+                    },
+                    function (data) {  // success
+                        data.forEach(function (input) {
+                            input.value = input.default;
+                        });
+                    }
+                );
+
+            }
+
+            function initializeClustering () {
+
+            }
+
             function initializeStep () {
                 switch ($scope.current_step.name) {
                     case "filter_site_panels":
@@ -182,7 +225,10 @@ app.controller(
                     case "filter_parameters":
                         initializeParameters();
                         break;
-                    case "choose_clustering":
+                    case "transformation_options":
+                        initializeTransformation();
+                        break;
+                    case "clustering_options":
                         initializeClustering();
                         break;
                 }
