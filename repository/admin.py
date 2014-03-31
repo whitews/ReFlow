@@ -47,3 +47,4 @@ admin.site.register(SubprocessInput)
 
 admin.site.register(ProcessRequest)
 admin.site.register(ProcessRequestInput)
+admin.site.register(ProcessRequestOutput)
