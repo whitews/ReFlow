@@ -72,7 +72,7 @@ app.controller(
                 $scope.model.samples.forEach(function (sample) {
                     sample.ignore = false;
                     sample.selected = true;
-                })
+                });
 
                 var site_list = [];
                 $scope.model.sites.forEach(function(site) {
@@ -88,6 +88,84 @@ app.controller(
                 $scope.model.cytometers = Cytometer.query({site: site_list});
                 $scope.model.pretreatments = Pretreatment.query();
 
+            }
+
+            function initializeParameters () {
+                // Iterate samples that are both selected and not ignored
+                // to collect distinct site panels
+                // Then iterate over site panels to get the intersection
+                // of parameters
+                var site_panel_list = [];
+                $scope.model.samples.forEach(function (sample) {
+                    if (sample.selected && !sample.ignore) {
+                        if (site_panel_list.indexOf(sample.site_panel) == -1) {
+                            site_panel_list.push(sample.site_panel);
+                        }
+                    }
+                });
+
+                // For the parameter list, we'll start by adding all the
+                // params from the first site panel we encounter
+                // and if a subsequent site panel doesn't contain a
+                // parameter we remove it from the list. At the end,
+                // we should have the intersection of parameters
+                var master_parameter_list = [];
+                var panel_match_count = 0;
+                $scope.model.site_panels.forEach (function (site_panel) {
+                    var parameter_list = [];
+                    if (site_panel_list.indexOf(site_panel.id) != -1) {
+                        site_panel.parameters.forEach(function (parameter) {
+                            // since multiple markers are possible in a param
+                            // we'll get those first, sorted alphabetically
+                            var marker_list = [];
+                            var marker_string = null;
+                            parameter.markers.forEach(function (marker) {
+                                marker_list.push(marker.name);
+                            });
+                            if (marker_list.length > 0) {
+                                marker_string = marker_list.sort().join('_');
+                            }
+                            var param_string = parameter.parameter_type + "_" +
+                                parameter.parameter_value_type + "_";
+                            if (marker_string) {
+                                param_string = param_string + marker_string + "_";
+                            }
+                            if (parameter.fluorochrome) {
+                                param_string = param_string + parameter.fluorochrome.fluorochrome_abbreviation;
+                            }
+                            parameter_list.push(param_string);
+                        });
+
+                        // if it's our first rodeo save to master list
+                        if (panel_match_count == 0) {
+                            parameter_list.forEach(function (p) {
+                                master_parameter_list.push(p);
+                            });
+                        } else {
+                            // compare the parameter_list against our master parameters list
+                            // if the master list contains a param not in this panel,
+                            // remove it from the master list
+                            var indices_to_exclude = [];
+                            for (var i = 0; i < master_parameter_list.length; i++) {
+                                if (parameter_list.indexOf(master_parameter_list[i]) == -1) {
+                                    indices_to_exclude.push(i);
+                                }
+                            }
+                        }
+                        // either way we had a match so count it
+                        panel_match_count++;
+                    }
+                });
+
+                $scope.model.parameters = [];
+                master_parameter_list.forEach(function (p) {
+                    $scope.model.parameters.push(
+                        {
+                            parameter: p,
+                            selected: true
+                        }
+                    );
+                });
             }
 
             function initializeStep () {
