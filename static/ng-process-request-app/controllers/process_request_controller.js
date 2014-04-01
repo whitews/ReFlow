@@ -211,7 +211,34 @@ app.controller(
             }
 
             function initializeClustering () {
+                // there's only one clustering implementation now (hdp)
+                // so we'll go ahead to retrieve the inputs for that
+                // implementation
+                var category_name = 'clustering';
+                var implementation_name = 'hdp';
+                SubprocessImplementation.query(
+                    {
+                        category_name: category_name,
+                        name: implementation_name
+                    },
+                    function (data) {  // success
+                        if (data.length > 0) {
+                            $scope.model.clustering = data[0];
+                        }
+                    }
+                );
 
+                $scope.model.clustering_inputs = SubprocessInput.query(
+                    {
+                        category_name: category_name,
+                        implementation_name: implementation_name
+                    },
+                    function (data) {  // success
+                        data.forEach(function (input) {
+                            input.value = input.default;
+                        });
+                    }
+                );
             }
 
             function initializeStep () {
