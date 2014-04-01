@@ -1494,7 +1494,8 @@ class SampleCollectionMember(ProtectedModel):
     A member of a sample set (i.e. an FCS Sample). However the Samples
     are ForeignKeys which allow null and get set to null on the Sample's
     deletion. This allows deletion of Samples with less hassle.
-    It is up to the consumer of SampleSets to verify SampleSetMember integrity.
+    It is up to the consumer of SampleCollections to verify
+    SampleCollectionMember integrity.
     """
     sample_collection = models.ForeignKey(SampleCollection)
     sample = models.ForeignKey(
@@ -1617,7 +1618,7 @@ class ProcessRequest(ProtectedModel):
     A request for a Process
     """
     project = models.ForeignKey(Project)
-    sample_set = models.ForeignKey(
+    sample_collection = models.ForeignKey(
         SampleCollection,
         null=False,
         blank=False,
