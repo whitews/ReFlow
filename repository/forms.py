@@ -1,22 +1,15 @@
 import re
 from collections import Counter
-import numpy as np
 from django import forms
 from django.forms.models import inlineformset_factory, BaseInlineFormSet
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib.auth.models import User
 from guardian.forms import UserObjectPermissionsForm
 
-from repository.models import *
-
-
-class DynamicChoiceField(forms.ChoiceField):
-    def validate(self, value):
-        """
-        Override validate to avoid invalid choice error.
-        """
-        if self.required and not value:
-            raise ValidationError(self.error_messages['required'])
+from repository.models import Project, Site, Subject, VisitType, Sample, \
+    Cytometer, Compensation, ProjectPanel, SitePanel, ProjectPanelParameter, \
+    Fluorochrome, Marker, ProjectPanelParameterMarker, SitePanelParameter, \
+    SitePanelParameterMarker, Specimen, SubjectGroup, Stimulation, Worker
 
 
 class ProjectForm(forms.ModelForm):
@@ -822,7 +815,7 @@ class CompensationForm(forms.ModelForm):
             self._errors["matrix_text"] = "Too few rows"
             return self.cleaned_data
 
-        # convert the matrix text to numpy array and
+        # parse matrix
         for line in matrix_text[1:]:
             line_values = re.split('\t|,', line)
             for i, value in enumerate(line_values):
@@ -846,188 +839,6 @@ class CompensationForm(forms.ModelForm):
 class WorkerForm(forms.ModelForm):
     class Meta:
         model = Worker
-
-
-class ProcessRequestForm(forms.ModelForm):
-    class Meta:
-        model = ProcessRequest
-        exclude = (
-            'process',
-            'request_user',
-            'completion_date',
-            'worker',
-            'status')
-
-
-class BaseProcessForm(forms.Form):
-    BASE_PROCESS_FORM_FIELDS = [
-        'project',
-        'project_panel',
-        'site',
-        'site_panel',
-        'subject',
-        'control_group',
-        'visit',
-        'stimulation',
-        'cytometer',
-        'specimen',
-        'storage',
-        'use_fcs'
-    ]
-
-    CUSTOM_FIELDS = list()  # empty list
-
-    EMPTY_CHOICES = [('', '---------')]
-
-    # projects are populated based on what the user has access to
-    project = forms.ChoiceField()
-
-    # the following fields have select options that will be dynamically
-    # generated via AJAX in the template. Some fields are dependent
-    # on another field's value, e.g. site panels only for the chosen
-    # project panel
-    project_panel = DynamicChoiceField()
-    site = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
-    site_panel = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
-    subject = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
-    control_group = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
-    visit = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
-    stimulation = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
-    cytometer = DynamicChoiceField(required=False, choices=EMPTY_CHOICES)
-
-    specimen = forms.ModelChoiceField(
-        queryset=Specimen.objects.all(),
-        required=False)
-
-    STORAGE_CHOICES_AND_EMPTY = [('', '---------')] + list(STORAGE_CHOICES)
-    storage = forms.ChoiceField(
-        choices=STORAGE_CHOICES_AND_EMPTY,
-        required=False)
-
-    use_fcs = forms.BooleanField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        # pop 'request' arg, super init doesn't expect it
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(BaseProcessForm, self).__init__(*args, **kwargs)
-
-        # limit projects to those the user has access to
-        projects = Project.objects.get_projects_user_can_view(
-            request.user).order_by(
-                'project_name').values_list('id', 'project_name')
-        projects = list(projects)
-        projects.insert(0, ('', '---------'))
-        self.fields['project'] = forms.ChoiceField(projects)
-
-    def clean(self):
-        """
-        Validate project panel, site and control group all belong to the
-        same project.
-        """
-        try:
-            project = Project.objects.get(id=self.cleaned_data.get('project'))
-        except:
-            raise ValidationError("Invalid project")
-        try:
-            project_panel = ProjectPanel.objects.get(
-                id=self.cleaned_data.get('project_panel'))
-        except:
-            raise ValidationError("Invalid project panel")
-
-        # these are optional, so if the user didn't specify them, its ok
-        site_id = self.cleaned_data.get('site')
-        site_panel_id = self.cleaned_data.get('site_panel')
-        subject_id = self.cleaned_data.get('subject')
-        control_group_id = self.cleaned_data.get('control_group')
-        visit_id = self.cleaned_data.get('visit')
-        stimulation_id = self.cleaned_data.get('stimulation')
-        cytometer_id = self.cleaned_data.get('cytometer')
-
-        if not project_panel:
-            # project_panel is required, will get caught in field validation
-            return self.cleaned_data
-
-        if project_panel.project != project:
-            raise ValidationError(
-                "Project panel is not in chosen project")
-
-        site = None
-        if site_id:
-            try:
-                site = Site.objects.get(id=site_id)
-            except:
-                raise ValidationError("Invalid site")
-            if site.project != project:
-                raise ValidationError(
-                    "Site and project panel must belong to the same project")
-
-        if site_panel_id:
-            try:
-                site_panel = SitePanel.objects.get(id=site_panel_id)
-            except:
-                raise ValidationError("Invalid site panel")
-            if site_panel.site.project != project:
-                raise ValidationError(
-                    "Site panel & project panel must belong to same project")
-            if site_panel.project_panel != project_panel:
-                raise ValidationError(
-                    "Site panel does not belong to the chosen project panel")
-
-        if subject_id:
-            try:
-                subject = Subject.objects.get(id=subject_id)
-            except:
-                raise ValidationError("Invalid subject")
-            if subject.project != project:
-                raise ValidationError(
-                    "Subject & project panel must belong to the same project")
-
-        if control_group_id:
-            try:
-                control_group = SubjectGroup.objects.get(id=control_group_id)
-            except:
-                raise ValidationError("Invalid control group")
-            if control_group.project != project_panel.project:
-                raise ValidationError(
-                    "Control group and project panel must belong to the same " +
-                    "project.")
-
-        if visit_id:
-            try:
-                visit = VisitType.objects.get(id=visit_id)
-            except:
-                raise ValidationError("Invalid visit type")
-            if visit.project != project:
-                raise ValidationError(
-                    "Visit & project panel must belong to the same project")
-
-        if stimulation_id:
-            try:
-                stimulation = Stimulation.objects.get(id=stimulation_id)
-            except:
-                raise ValidationError("Invalid stimulation")
-            if stimulation.project != project:
-                raise ValidationError(
-                    "Stimulation & project panel must belong to the same " +
-                    "project")
-
-        if cytometer_id:
-            try:
-                cytometer = Cytometer.objects.get(id=cytometer_id)
-            except:
-                raise ValidationError("Invalid cytometer")
-            if cytometer.site.project != project:
-                raise ValidationError(
-                    "Cytometer & project panel must belong to the same " +
-                    "project")
-            if site is not None:
-                if cytometer.site != site:
-                    raise ValidationError(
-                        "Cytometer must belong to the chosen site")
-
-        return self.cleaned_data
 
 
 class SampleFilterForm(forms.Form):

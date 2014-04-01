@@ -1637,31 +1637,6 @@ def add_worker(request):
     )
 
 
-def create_process_request_inputs(process_request, form):
-    if not isinstance(form, BaseProcessForm):
-        return
-
-    for field in form.BASE_PROCESS_FORM_FIELDS:
-        value = form.cleaned_data.get(field)
-        if value in ['', None]:
-            continue
-        pr_input = ProcessRequestInput(
-            process_request=process_request,
-            key=field,
-            value=value)
-        pr_input.save()
-
-    for field in form.CUSTOM_FIELDS:
-        value = form.cleaned_data.get(field)
-        if value in ['', None]:
-            continue
-        pr_input = ProcessRequestInput(
-            process_request=process_request,
-            key=field,
-            value=form.cleaned_data.get(field))
-        pr_input.save()
-
-
 @login_required
 def view_process_request(request, process_request_id):
     process_request = get_object_or_404(ProcessRequest, pk=process_request_id)
