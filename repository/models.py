@@ -1503,6 +1503,9 @@ class SampleCollectionMember(ProtectedModel):
         on_delete=models.SET_NULL
     )
 
+    class Meta:
+        unique_together = (('sample_collection', 'sample'),)
+
 
 ####################################
 ### START PROCESS RELATED MODELS ###

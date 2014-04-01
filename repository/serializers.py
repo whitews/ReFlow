@@ -396,6 +396,21 @@ class SampleMetadataSerializer(serializers.ModelSerializer):
         fields = ('id', 'sample', 'key', 'value')
 
 
+class SampleCollectionMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleCollectionMember
+        fields = ('id', 'sample_collection', 'sample')
+
+
+class SampleCollectionSerializer(serializers.ModelSerializer):
+    members = SampleCollectionMemberSerializer(
+        source='samplecollectionmember_set', required=False)
+
+    class Meta:
+        model = SampleCollection
+        fields = ('id', 'project', 'members')
+
+
 class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:

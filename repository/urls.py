@@ -45,6 +45,10 @@ urlpatterns = patterns('repository.api_views',
 
     url(r'^api/repository/samplemetadata/?$', SampleMetaDataList.as_view(), name='sample-metadata-list'),
 
+    url(r'^api/repository/sample_collections/?$', SampleCollectionList.as_view(), name='sample-collection-list'),
+    url(r'^api/repository/sample_collection_members/?$', SampleCollectionMemberList.as_view(), name='sample-collection-member-list'),
+
+
     url(r'^api/repository/compensations/?$', CompensationList.as_view(), name='compensation-list'),
     url(r'^api/repository/compensations/add/?$', CreateCompensation.as_view(), name='create-compensation'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/?$', CompensationDetail.as_view(), name='compensation-detail'),

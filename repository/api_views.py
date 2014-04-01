@@ -44,6 +44,8 @@ def repository_api_root(request):
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
+        'sample_collections': reverse('sample-collection-list', request=request),
+        'sample_collection_members': reverse('sample-collection-member-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
@@ -691,6 +693,36 @@ class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
             sample__site_panel__site__in=user_sites)
 
         return queryset
+
+
+class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating a SampleCollectionMember.
+    """
+
+    model = SampleCollectionMember
+    serializer_class = SampleCollectionMemberSerializer
+    filter_fields = ('sample_collection', 'sample')
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SampleCollectionList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating a SampleCollection.
+    """
+
+    model = SampleCollection
+    serializer_class = SampleCollectionSerializer
+    filter_fields = ('project',)
 
 
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
