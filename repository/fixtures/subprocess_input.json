@@ -1,0 +1,80 @@
+[
+{
+    "pk": 1, 
+    "model": "repository.subprocessinput", 
+    "fields": {
+        "allow_multiple": false, 
+        "name": "t", 
+        "implementation": 1, 
+        "required": true, 
+        "default": "262144", 
+        "value_type": "PositiveInteger", 
+        "description": "Maximum data value used for scaling."
+    }
+},
+{
+    "pk": 2, 
+    "model": "repository.subprocessinput", 
+    "fields": {
+        "allow_multiple": false, 
+        "name": "w", 
+        "implementation": 1, 
+        "required": true, 
+        "default": "0.5", 
+        "value_type": "Decimal", 
+        "description": "The strength and range of linearization around zero (in decades)."
+    }
+},
+{
+    "pk": 3, 
+    "model": "repository.subprocessinput", 
+    "fields": {
+        "allow_multiple": false, 
+        "name": "cluster_count", 
+        "implementation": 2, 
+        "required": true, 
+        "default": "128", 
+        "value_type": "PositiveInteger", 
+        "description": "The number of clusters used for grouping events."
+    }
+},
+{
+    "pk": 4, 
+    "model": "repository.subprocessinput", 
+    "fields": {
+        "allow_multiple": false, 
+        "name": "iteration_count", 
+        "implementation": 2, 
+        "required": true, 
+        "default": "50", 
+        "value_type": "PositiveInteger", 
+        "description": "The number of iterations after burn-in."
+    }
+},
+{
+    "pk": 5, 
+    "model": "repository.subprocessinput", 
+    "fields": {
+        "allow_multiple": false, 
+        "name": "burnin", 
+        "implementation": 2, 
+        "required": true, 
+        "default": "1000", 
+        "value_type": "PositiveInteger", 
+        "description": "The number of burn-in cycles prior to saving iterations."
+    }
+},
+{
+    "pk": 6, 
+    "model": "repository.subprocessinput", 
+    "fields": {
+        "allow_multiple": false, 
+        "name": "random_seed", 
+        "implementation": 2, 
+        "required": true, 
+        "default": "123", 
+        "value_type": "PositiveInteger", 
+        "description": "A random seed."
+    }
+}
+]
