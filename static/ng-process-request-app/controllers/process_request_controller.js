@@ -27,6 +27,11 @@ var process_steps = [
         "name": "clustering_options",
         "title": "Clustering Options",
         "url": "/static/ng-process-request-app/partials/clustering_options.html"
+    },
+    {
+        "name": "process_request_options",
+        "title": "Process Request Options",
+        "url": "/static/ng-process-request-app/partials/request_options.html"
     }
 ];
 
@@ -241,6 +246,10 @@ app.controller(
                 );
             }
 
+            function initializeProcessRequest () {
+
+            }
+
             function initializeStep () {
                 switch ($scope.current_step.name) {
                     case "filter_site_panels":
@@ -257,6 +266,9 @@ app.controller(
                         break;
                     case "clustering_options":
                         initializeClustering();
+                        break;
+                    case "process_request_options":
+                        initializeProcessRequest();
                         break;
                 }
             }
