@@ -3,31 +3,33 @@
  */
 
 var URLS = {
-    'PROJECTS':            '/api/repository/projects/',
-    'SPECIMENS':           '/api/repository/specimens/',
-    'SUBJECT_GROUPS':      '/api/repository/subject_groups/',
-    'SITES':               '/api/repository/sites/',
-    'SUBJECTS':            '/api/repository/subjects/',
-    'PROJECT_PANELS':      '/api/repository/project_panels/',
-    'SITE_PANELS':         '/api/repository/site_panels/',
-    'CYTOMETERS':          '/api/repository/cytometers/',
-    'COMPENSATIONS':       '/api/repository/compensations/',
-    'CREATE_COMPENSATION': '/api/repository/compensations/add/',
-    'STIMULATIONS':        '/api/repository/stimulations/',
-    'SAMPLES':             '/api/repository/samples/',
-    'CREATE_SAMPLES':      '/api/repository/samples/add/',
-    'SAMPLE_METADATA':     '/api/repository/samplemetadata/',
-    'VISIT_TYPES':         '/api/repository/visit_types/',
+    'PROJECTS':                   '/api/repository/projects/',
+    'SPECIMENS':                  '/api/repository/specimens/',
+    'SUBJECT_GROUPS':             '/api/repository/subject_groups/',
+    'SITES':                      '/api/repository/sites/',
+    'SUBJECTS':                   '/api/repository/subjects/',
+    'PROJECT_PANELS':             '/api/repository/project_panels/',
+    'SITE_PANELS':                '/api/repository/site_panels/',
+    'CYTOMETERS':                 '/api/repository/cytometers/',
+    'COMPENSATIONS':              '/api/repository/compensations/',
+    'CREATE_COMPENSATION':        '/api/repository/compensations/add/',
+    'STIMULATIONS':               '/api/repository/stimulations/',
+    'SAMPLES':                    '/api/repository/samples/',
+    'CREATE_SAMPLES':             '/api/repository/samples/add/',
+    'SAMPLE_METADATA':            '/api/repository/samplemetadata/',
+    'SAMPLE_COLLECTIONS':         '/api/repository/sample_collections/',
+    'SAMPLE_COLLECTION_MEMBERS':  '/api/repository/sample_collection_members/',
+    'VISIT_TYPES':                '/api/repository/visit_types/',
 
     // Process related API URLs
-    'WORKERS':                 '/api/repository/workers/',
-    'SUBPROCESS_CATEGORIES':   '/api/repository/subprocess_categories/',
-    'SUBPROCESS_IMPLEMENTATIONS':   '/api/repository/subprocess_implementations/',
-    'SUBPROCESS_INPUTS':       '/api/repository/subprocess_inputs/',
-    'VERIFY_WORKER':           '/api/repository/verify_worker/',
-    'PROCESS_REQUESTS':        '/api/repository/process_requests/',
-    'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
-    'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
+    'WORKERS':                    '/api/repository/workers/',
+    'SUBPROCESS_CATEGORIES':      '/api/repository/subprocess_categories/',
+    'SUBPROCESS_IMPLEMENTATIONS': '/api/repository/subprocess_implementations/',
+    'SUBPROCESS_INPUTS':          '/api/repository/subprocess_inputs/',
+    'VERIFY_WORKER':              '/api/repository/verify_worker/',
+    'PROCESS_REQUESTS':           '/api/repository/process_requests/',
+    'PROCESS_REQUEST_INPUTS':     '/api/repository/process_request_inputs',
+    'VIABLE_PROCESS_REQUESTS':    '/api/repository/viable_process_requests/',
 };
 
 var service = angular.module('reflowService', ['ngResource']);
@@ -68,6 +70,13 @@ service
     }])
     .factory('Sample', ['$resource', function ($resource) {
         return $resource(URLS.SAMPLES);
+    }])
+    .factory('SampleCollection', ['$resource', function ($resource) {
+        return $resource(URLS.SAMPLE_COLLECTIONS);
+    }])
+    .factory('SampleCollectionMember', ['$resource', function ($resource) {
+        // TODO: make custom bulk create
+        return $resource(URLS.SAMPLE_COLLECTION_MEMBERS);
     }])
     .factory('SubprocessCategory', ['$resource', function ($resource) {
         return $resource(URLS.SUBPROCESS_CATEGORIES);

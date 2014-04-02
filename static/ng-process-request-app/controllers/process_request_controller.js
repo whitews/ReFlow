@@ -45,6 +45,8 @@ app.controller(
         'ProjectPanel',
         'SitePanel',
         'Sample',
+        'SampleCollection',
+        'SampleCollectionMember',
         'Subject',
         'VisitType',
         'Stimulation',
@@ -52,7 +54,23 @@ app.controller(
         'Pretreatment',
         'SubprocessImplementation',
         'SubprocessInput',
-        function ($scope, $modal, Project, Site, ProjectPanel, SitePanel, Sample, Subject, VisitType, Stimulation, Cytometer, Pretreatment, SubprocessImplementation, SubprocessInput) {
+        function (
+                $scope,
+                $modal,
+                Project,
+                Site,
+                ProjectPanel,
+                SitePanel,
+                Sample,
+                SampleCollection,
+                SampleCollectionMember,
+                Subject,
+                VisitType,
+                Stimulation,
+                Cytometer,
+                Pretreatment,
+                SubprocessImplementation,
+                SubprocessInput) {
 
             $scope.current_step_index = 0;
             $scope.step_count = process_steps.length;
@@ -408,6 +426,33 @@ app.controller(
                 });
             };
 
+            $scope.submit_request = function () {
+                // first, we'll create the sample collection using the project ID
+                var collection = SampleCollection.save(
+                    {
+                        project: $scope.model.current_project.id
+                    }
+                );
+
+                collection.$promise.then(function (c) {
+                    var members = [];
+                    $scope.model.samples.forEach(function (sample) {
+                        if (sample.selected && !sample.ignore) {
+                            members.push(
+                                new SampleCollectionMember(
+                                    {
+                                        sample_collection: c.id,
+                                        sample: sample.id
+                                    }
+                                )
+                            )
+                        }
+                    });
+                    SampleCollectionMember.save(members);
+                });
+
+
+            }
 
         }
     ]
