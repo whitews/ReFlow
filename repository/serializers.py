@@ -497,7 +497,7 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
 class ProcessRequestInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProcessRequestInput
-        fields = ('id', 'process_request', 'key', 'value')
+        fields = ('id', 'process_request', 'subprocess_input', 'value')
 
 
 class ProcessRequestOutputSerializer(serializers.ModelSerializer):

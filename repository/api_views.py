@@ -56,6 +56,7 @@ def repository_api_root(request):
         'subprocess_implementations': reverse('subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'process_request_inputs': reverse('process-request-input-list', request=request),
         'assigned_process_requests': reverse(
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
@@ -952,6 +953,26 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
     filter_fields = ('worker', 'request_user')
+
+
+class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating a ProcessRequestInput.
+    """
+
+    model = ProcessRequestInput
+    serializer_class = ProcessRequestInputSerializer
+    filter_fields = ('process_request', 'subprocess_input')
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):

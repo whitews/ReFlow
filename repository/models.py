@@ -1682,9 +1682,7 @@ class ProcessRequest(ProtectedModel):
         super(ProcessRequest, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u'%s (Date: %s)' % (
-            self.get_process_display(),
-            self.request_date,)
+        return u'%s' % self.description
 
 
 class ProcessRequestInput(models.Model):
