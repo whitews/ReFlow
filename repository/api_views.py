@@ -944,14 +944,14 @@ class WorkerList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = ('worker_name',)
 
 
-class ProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
+class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of process requests.
     """
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('process', 'worker', 'request_user')
+    filter_fields = ('worker', 'request_user')
 
 
 class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):

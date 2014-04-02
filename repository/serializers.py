@@ -481,12 +481,17 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'url',
-            'process',
-            'worker',
+            'project',
+            'sample_collection',
+            'description',
+            'predefined',
             'request_user',
             'request_date',
-            'status',
-            'completion_date')
+            'assignment_date',
+            'completion_date',
+            'worker',
+            'status'
+        )
 
 
 class ProcessRequestInputSerializer(serializers.ModelSerializer):

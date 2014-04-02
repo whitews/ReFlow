@@ -1629,8 +1629,8 @@ class ProcessRequest(ProtectedModel):
         blank=False)
     predefined = models.CharField(
         max_length=64,
-        null=False,
-        blank=False,
+        null=True,
+        blank=True,
         choices=PREDEFINED_PROCESS_CHOICES)
     request_user = models.ForeignKey(
         User,
