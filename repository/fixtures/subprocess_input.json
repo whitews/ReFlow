@@ -76,5 +76,18 @@
         "value_type": "PositiveInteger", 
         "description": "A random seed."
     }
+},
+{
+    "pk": 7, 
+    "model": "repository.subprocessinput", 
+    "fields": {
+        "allow_multiple": true, 
+        "name": "parameter", 
+        "implementation": 3, 
+        "required": false, 
+        "default": "", 
+        "value_type": "String", 
+        "description": ""
+    }
 }
 ]

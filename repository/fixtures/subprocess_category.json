@@ -14,5 +14,13 @@
         "name": "clustering", 
         "description": "Cluster analysis or clustering is the task of grouping a set of objects in such a way that objects in the same group (called a cluster) are more similar (in some sense or another) to each other than to those in other groups (clusters). Specifically, clustering algorithms in ReFlow create groups of events. These clusters have statistical significance but are not classified with any biological label. Cluster classification occurs as a separate step."
     }
+},
+{
+    "pk": 3, 
+    "model": "repository.subprocesscategory", 
+    "fields": {
+        "name": "filtering", 
+        "description": ""
+    }
 }
 ]

@@ -16,5 +16,14 @@
         "name": "hdp", 
         "description": "The hierarchical Dirichlet process (HDP) is a nonparametric Bayesian approach to clustering grouped data. The ReFlow implementation provides the input parameters cluster count, iteration count, burn-in and random seed."
     }
+},
+{
+    "pk": 3, 
+    "model": "repository.subprocessimplementation", 
+    "fields": {
+        "category": 3, 
+        "name": "parameters", 
+        "description": ""
+    }
 }
 ]
