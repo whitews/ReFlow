@@ -54,6 +54,7 @@ app.controller(
         'Pretreatment',
         'SubprocessImplementation',
         'SubprocessInput',
+        'ProcessRequest',
         function (
                 $scope,
                 $modal,
@@ -70,7 +71,8 @@ app.controller(
                 Cytometer,
                 Pretreatment,
                 SubprocessImplementation,
-                SubprocessInput) {
+                SubprocessInput,
+                ProcessRequest) {
 
             $scope.current_step_index = 0;
             $scope.step_count = process_steps.length;
@@ -434,7 +436,7 @@ app.controller(
                     }
                 );
 
-                collection.$promise.then(function (c) {
+                var members_promise = collection.$promise.then(function (c) {
                     var members = [];
                     $scope.model.samples.forEach(function (sample) {
                         if (sample.selected && !sample.ignore) {
@@ -451,6 +453,18 @@ app.controller(
                     SampleCollectionMember.save(members);
                 });
 
+                var pr_promise = members_promise.then(function () {
+                    var pr = new ProcessRequest(
+                        {
+                            project: $scope.model.current_project.id,
+                            sample_collection: collection.id,
+                            description: $scope.model.request_description
+                        }
+                    );
+                    ProcessRequest.save(pr);
+                });
+
+                console.log(pr_promise);
 
             }
 
