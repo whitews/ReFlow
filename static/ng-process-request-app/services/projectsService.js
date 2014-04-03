@@ -98,6 +98,18 @@ service
     .factory('ProcessRequest', ['$resource', function ($resource) {
         return $resource(URLS.PROCESS_REQUESTS);
     }])
+    .factory('ProcessRequestInput', ['$resource', function ($resource) {
+        return $resource(
+            URLS.PROCESS_REQUEST_INPUTS,
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    isArray: true
+                }
+            }
+        );
+    }])
     .service('Pretreatment', [ function () {
         this.query = function () {
             return [{name:'In vitro'}, {name:'Ex vivo'}];

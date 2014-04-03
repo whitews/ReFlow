@@ -55,6 +55,7 @@ app.controller(
         'SubprocessImplementation',
         'SubprocessInput',
         'ProcessRequest',
+        'ProcessRequestInput',
         function (
                 $scope,
                 $modal,
@@ -72,11 +73,47 @@ app.controller(
                 Pretreatment,
                 SubprocessImplementation,
                 SubprocessInput,
-                ProcessRequest) {
+                ProcessRequest,
+                ProcessRequestInput) {
+
+            $scope.model = {
+                projects: Project.query(),
+                current_project: null,
+                project_panels: null,
+                current_project_panel: null,
+                sites: null,
+                site_panels: null
+            };
 
             $scope.current_step_index = 0;
             $scope.step_count = process_steps.length;
             $scope.current_step = process_steps[$scope.current_step_index];
+            initializeStep();
+
+            function initializeFiltering () {
+                var category_name = 'filtering';
+                var implementation_name = 'parameters';
+                var subproc_name = 'parameter';
+                SubprocessImplementation.query(
+                    {
+                        category_name: category_name,
+                        name: implementation_name
+                    },
+                    function (data) {  // success
+                        if (data.length > 0) {
+                            $scope.model.filtering = data[0];
+                        }
+                    }
+                );
+
+                $scope.model.parameter_inputs = SubprocessInput.query(
+                    {
+                        category_name: category_name,
+                        implementation_name: implementation_name,
+                        name: subproc_name
+                    }
+                ); // there should only be one 'parameter' subproc input
+            }
 
             function initializeSamples () {
                 var site_panel_list = [];
@@ -232,7 +269,6 @@ app.controller(
                         });
                     }
                 );
-
             }
 
             function initializeClustering () {
@@ -273,7 +309,7 @@ app.controller(
             function initializeStep () {
                 switch ($scope.current_step.name) {
                     case "filter_site_panels":
-                        // Nothing to do here
+                        initializeFiltering();
                         break;
                     case "filter_samples":
                         initializeSamples();
@@ -306,15 +342,6 @@ app.controller(
                     $scope.current_step = process_steps[$scope.current_step_index];
                     initializeStep();
                 }
-            };
-
-            $scope.model = {
-                projects: Project.query(),
-                current_project: null,
-                project_panels: null,
-                current_project_panel: null,
-                sites: null,
-                site_panels: null
             };
 
             function preselectSites() {
@@ -467,7 +494,52 @@ app.controller(
                     });
 
                 pr.then(function (pr) {  // create all the PR inputs
-                    console.log(pr);
+                    var pr_inputs = [];
+
+                    // first retrieve the chosen parameters
+                    var param_subproc = $scope.model.parameter_inputs[0]
+                    $scope.model.parameters.forEach(function (param) {
+                        if (param.selected) {
+                            pr_inputs.push(
+                                new ProcessRequestInput(
+                                    {
+                                        process_request: pr.id,
+                                        subprocess_input: param_subproc.id,
+                                        value: param.parameter
+                                    }
+                                )
+                            )
+                        }
+                    });
+
+                    // next get the transformation inputs
+                    $scope.model.transform_inputs.forEach(function (input) {
+                        pr_inputs.push(
+                            new ProcessRequestInput(
+                                {
+                                    process_request: pr.id,
+                                    subprocess_input: input.id,
+                                    value: input.value
+                                }
+                            )
+                        )
+                    });
+
+                    // and the clustering inputs
+                    $scope.model.clustering_inputs.forEach(function (input) {
+                        pr_inputs.push(
+                            new ProcessRequestInput(
+                                {
+                                    process_request: pr.id,
+                                    subprocess_input: input.id,
+                                    value: input.value
+                                }
+                            )
+                        )
+                    });
+
+                    // and we're ready to save them all in bulk
+                    ProcessRequestInput.save(pr_inputs);
                 });
 
 
