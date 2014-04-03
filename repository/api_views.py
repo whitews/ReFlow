@@ -954,6 +954,13 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
     serializer_class = ProcessRequestSerializer
     filter_fields = ('worker', 'request_user')
 
+    def create(self, request, *args, **kwargs):
+        # add required fields for the user and status
+        request.DATA['request_user'] = request.user.id
+        request.DATA['status'] = 'Pending'
+        response = super(ProcessRequestList, self).create(request, *args, **kwargs)
+        return response
+
 
 class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
