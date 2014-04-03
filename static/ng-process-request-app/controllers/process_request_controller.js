@@ -350,6 +350,8 @@ app.controller(
             $scope.projectChanged = function () {
                 $scope.model.project_panels = ProjectPanel.query({project: $scope.model.current_project.id});
                 $scope.model.sites = Site.query({project: $scope.model.current_project.id});
+                $scope.model.site_panels = null;
+                $scope.model.samples = null;
                 preselectSites();
             };
 
