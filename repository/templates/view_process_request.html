@@ -6,7 +6,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
-    {% breadcrumb process_request.get_process_display %}
+    {% breadcrumb process_request.description %}
   </ul>
 {% endblock %}
 
@@ -69,6 +69,17 @@ function revoke_assignment()
       </tr>
 
       <tr>
+        <td>Sample Collection:</td>
+        <td>
+          {{ process_request.sample_collection_id }}<br/>
+          {% regroup sample_members by sample.site_panel as site_panel_list %}
+          {% for site_panel in site_panel_list %}
+          <strong>{{ site_panel.grouper }}</strong><br/>
+          {% endfor %}
+        </td>
+      </tr>
+
+      <tr>
         <td>Worker:</td>
         <td>
           <span id="worker">
@@ -84,11 +95,19 @@ function revoke_assignment()
       </tr>
 
       <tr>
+        <td>Assigned on:</td>
+        <td>{{ process_request.assignment_date | default_if_none:'' }}</td>
+      </tr>
+
+      <tr>
         <td>Completion Date:</td>
         <td>{{ process_request.completion_date|default_if_none:'Not complete' }}</td>
       </tr>
 
     </table>
+  </div>
+
+
     </br>
 
     <table class="table table-hover">

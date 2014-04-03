@@ -1640,11 +1640,13 @@ def add_worker(request):
 @login_required
 def view_process_request(request, process_request_id):
     process_request = get_object_or_404(ProcessRequest, pk=process_request_id)
+    sample_members = process_request.sample_collection.samplecollectionmember_set.all()
 
     return render_to_response(
         'view_process_request.html',
         {
             'process_request': process_request,
+            'sample_members': sample_members
         },
         context_instance=RequestContext(request)
     )
