@@ -95,6 +95,9 @@ service
     .factory('SubprocessInput', ['$resource', function ($resource) {
         return $resource(URLS.SUBPROCESS_INPUTS);
     }])
+    .factory('ProcessRequest', ['$resource', function ($resource) {
+        return $resource(URLS.PROCESS_REQUESTS);
+    }])
     .service('Pretreatment', [ function () {
         this.query = function () {
             return [{name:'In vitro'}, {name:'Ex vivo'}];
