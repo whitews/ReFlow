@@ -105,7 +105,7 @@ function revoke_assignment()
       </tr>
 
     </table>
-  </div>
+
 
 
     </br>
@@ -125,7 +125,7 @@ function revoke_assignment()
       <tbody>
         {% for request_input in process_request.processrequestinput_set.all %}
         <tr>
-          <td class="middle">{{ request_input.key }}</td>
+          <td class="middle">{{ request_input.subprocess_input.implementation.category.name }}</td>
           <td class="middle">{{ request_input.value|default_if_none:'' }}</td>
         </tr>
         {% endfor %}
