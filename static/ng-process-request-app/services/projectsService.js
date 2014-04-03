@@ -75,8 +75,16 @@ service
         return $resource(URLS.SAMPLE_COLLECTIONS);
     }])
     .factory('SampleCollectionMember', ['$resource', function ($resource) {
-        // TODO: make custom bulk create
-        return $resource(URLS.SAMPLE_COLLECTION_MEMBERS);
+        return $resource(
+            URLS.SAMPLE_COLLECTION_MEMBERS,
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    isArray: true
+                }
+            }
+        );
     }])
     .factory('SubprocessCategory', ['$resource', function ($resource) {
         return $resource(URLS.SUBPROCESS_CATEGORIES);
