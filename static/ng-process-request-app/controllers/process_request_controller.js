@@ -35,6 +35,8 @@ var process_steps = [
     }
 ];
 
+var success_url = '/static/ng-process-request-app/partials/success.html';
+
 app.controller(
     'ProcessRequestController',
     [
@@ -302,10 +304,6 @@ app.controller(
                 );
             }
 
-            function initializeProcessRequest () {
-
-            }
-
             function initializeStep () {
                 switch ($scope.current_step.name) {
                     case "filter_site_panels":
@@ -324,7 +322,6 @@ app.controller(
                         initializeClustering();
                         break;
                     case "process_request_options":
-                        initializeProcessRequest();
                         break;
                 }
             }
@@ -539,7 +536,14 @@ app.controller(
                     });
 
                     // and we're ready to save them all in bulk
-                    ProcessRequestInput.save(pr_inputs);
+                    ProcessRequestInput.save(
+                        pr_inputs,
+                        function (data) {  // success
+                            $scope.current_step_index = -1;
+                            $scope.current_step.url = success_url;
+                            $scope.model.submitted_pr = pr;
+                            $scope.model.submitted_pr_inputs = data;
+                    })
                 });
 
 
