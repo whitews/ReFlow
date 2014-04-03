@@ -412,5 +412,77 @@
         "marker_description": "", 
         "marker_name": "Cluster of Differentiation 69"
     }
+},
+{
+    "pk": 48, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "PPARa", 
+        "marker_description": "", 
+        "marker_name": "Peroxisome proliferator-activated receptor alpha"
+    }
+},
+{
+    "pk": 49, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "MYD88", 
+        "marker_description": "", 
+        "marker_name": "Myeloid differentiation primary response gene (88)"
+    }
+},
+{
+    "pk": 50, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "HMGB1", 
+        "marker_description": "", 
+        "marker_name": "High-mobility group protein B1"
+    }
+},
+{
+    "pk": 51, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "TICAM1", 
+        "marker_description": "", 
+        "marker_name": "TIR domain-containing adapter molecule 1"
+    }
+},
+{
+    "pk": 52, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "TICAM2", 
+        "marker_description": "", 
+        "marker_name": "TIR domain-containing adapter molecule 2"
+    }
+},
+{
+    "pk": 53, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "CD86", 
+        "marker_description": "", 
+        "marker_name": "Cluster of Differentiation 86"
+    }
+},
+{
+    "pk": 54, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "Caspase1", 
+        "marker_description": "", 
+        "marker_name": "Cysteine-dependent aspartate-directed protease 1"
+    }
+},
+{
+    "pk": 55, 
+    "model": "repository.marker", 
+    "fields": {
+        "marker_abbreviation": "AIM2", 
+        "marker_description": "", 
+        "marker_name": "Interferon-inducible protein (Absent in melanoma 2)"
+    }
 }
 ]
