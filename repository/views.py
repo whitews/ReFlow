@@ -1531,39 +1531,6 @@ def edit_subject(request, subject_id):
 
 
 @login_required
-def add_sample(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_add(request.user, project)
-
-    if not (project.has_add_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = SampleForm(
-            request.POST,
-            request.FILES,
-            project_id=project_id,
-            request=request)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_samples',
-                args=(project_id,)))
-    else:
-        form = SampleForm(project_id=project_id, request=request)
-
-    return render_to_response(
-        'add_sample.html',
-        {
-            'form': form,
-            'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def edit_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 

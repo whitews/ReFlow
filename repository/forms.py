@@ -656,52 +656,6 @@ class StimulationForm(forms.ModelForm):
         exclude = ('project',)
 
 
-class SampleForm(forms.ModelForm):
-    class Meta:
-        model = Sample
-        exclude = ('original_filename', 'sha1', 'subsample')
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # likewise for 'request' arg
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(SampleForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's subjects, sites, and visit types
-        # are the available choices
-        if project_id:
-            subjects = Subject.objects.filter(
-                project__id=project_id).order_by('subject_code')
-            self.fields['subject'] = forms.ModelChoiceField(subjects)
-
-            # we also need to limit the sites to those
-            # the user has 'add' permission for
-            project = Project.objects.get(id=project_id)
-            sites = Site.objects.get_sites_user_can_add(
-                request.user, project).order_by('site_name')
-            site_panels = SitePanel.objects.filter(site__in=sites)
-            self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
-
-            visit_types = VisitType.objects.filter(
-                project__id=project_id).order_by('visit_type_name')
-            self.fields['visit'] = forms.ModelChoiceField(visit_types)
-
-            stimulations = Stimulation.objects.filter(
-                project__id=project_id).order_by('stimulation_name')
-            self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
-
-            compensations = Compensation.objects.filter(
-                site_panel__project_panel__project__id=project_id).order_by(
-                    'name')
-            self.fields['compensation'] = forms.ModelChoiceField(
-                compensations,
-                required=False)
-
-
 class SampleEditForm(forms.ModelForm):
     class Meta:
         model = Sample
