@@ -723,7 +723,18 @@ class SampleCollectionList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = SampleCollection
     serializer_class = SampleCollectionSerializer
-    filter_fields = ('project',)
+    filter_fields = ('id', 'project',)
+
+
+class SampleCollectionDetail(
+        LoginRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint representing a single sample collection.
+    """
+
+    model = SampleCollection
+    serializer_class = SampleCollectionDetailSerializer
 
 
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
@@ -1018,7 +1029,7 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('process', 'worker', 'request_user')
+    filter_fields = ('worker', 'request_user')
 
     def get_queryset(self):
         """
@@ -1080,6 +1091,7 @@ class ProcessRequestAssignmentUpdate(
             try:
                 # now try to save the ProcessRequest
                 process_request.worker = worker
+                process_request.assignment_date = datetime.datetime.now()
                 process_request.save()
 
                 # serialize the updated ProcessRequest
