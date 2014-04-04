@@ -94,12 +94,12 @@ $(function() {
           </th>
         </tr>
         <tr>
-            <th>Process Request ID</th>
-            <th>Process</th>
+            <th>Label</th>
             <th>Request Date</th>
             <th>Requesting User</th>
             <th>Status</th>
             <th>Worker</th>
+            <th>Assignment Date</th>
             <th>Completion Date</th>
         </tr>
       </thead>
@@ -108,14 +108,14 @@ $(function() {
         <tr>
           <td class="middle">
               <a href="{% url 'view_process_request' request.id %}">
-                {{ request.id }}
+                {{ request.description }}
               </a>
           </td>
-          <td class="middle">{{ request.get_process_display }}</td>
           <td class="middle">{{ request.request_date }}</td>
           <td class="middle">{{ request.request_user }}</td>
           <td class="middle">{{ request.status }}</td>
           <td class="middle">{{ request.worker.worker_name|default_if_none:"" }}</td>
+          <td class="middle">{{ request.assignment_date|default_if_none:"Not assigned" }}</td>
           <td class="middle">{{ request.completion_date|default_if_none:"Not Complete" }}</td>
         </tr>
         {% endfor %}
