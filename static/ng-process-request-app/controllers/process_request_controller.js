@@ -541,7 +541,6 @@ app.controller(
                     ProcessRequestInput.save(
                         pr_inputs,
                         function (data) {  // success
-                            $scope.current_step_index = -1;
                             $scope.current_step.url = success_url;
                             $scope.model.submitted_pr = pr;
                             $scope.model.submitted_pr_inputs = data;
