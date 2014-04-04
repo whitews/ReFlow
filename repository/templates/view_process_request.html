@@ -113,12 +113,14 @@ function revoke_assignment()
     <table class="table table-hover">
       <thead>
         <tr>
-          <th colspan="4" class="center">
+          <th colspan="40" class="center">
             <h4>Process Request Input Values <span class="badge badge-inverse align-top">{{ process_request.processrequestinput_set.all.count }}</span></h4>
           </th>
         </tr>
         <tr>
-            <th>Key</th>
+            <th>Category</th>
+            <th>Implementation</th>
+            <th>Input Name</th>
             <th>Value</th>
         </tr>
       </thead>
@@ -126,6 +128,8 @@ function revoke_assignment()
         {% for request_input in process_request.processrequestinput_set.all %}
         <tr>
           <td class="middle">{{ request_input.subprocess_input.implementation.category.name }}</td>
+          <td class="middle">{{ request_input.subprocess_input.implementation.name }}</td>
+          <td class="middle">{{ request_input.subprocess_input.name }}</td>
           <td class="middle">{{ request_input.value|default_if_none:'' }}</td>
         </tr>
         {% endfor %}
