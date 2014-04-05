@@ -380,6 +380,18 @@ app.controller(
                 });
             };
 
+            $scope.toggleAllSamples = function () {
+                $scope.model.samples.forEach(function(sample) {
+                    sample.selected = $scope.model.master_sample_checkbox;
+                });
+            };
+
+            $scope.toggleAllParameters = function () {
+                $scope.model.parameters.forEach(function(param) {
+                    param.selected = $scope.model.master_parameter_checkbox;
+                });
+            };
+
             $scope.updateSamples = function () {
                 // Check the various categories and collect the checks! Ka-ching!
 
