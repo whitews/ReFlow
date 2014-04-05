@@ -95,6 +95,7 @@ $(function() {
         </tr>
         <tr>
             <th>Label</th>
+            <th>Project</th>
             <th>Request Date</th>
             <th>Requesting User</th>
             <th>Status</th>
@@ -111,6 +112,7 @@ $(function() {
                 {{ request.description }}
               </a>
           </td>
+          <td class="middle">{{ request.project.project_name }}</td>
           <td class="middle">{{ request.request_date }}</td>
           <td class="middle">{{ request.request_user }}</td>
           <td class="middle">{{ request.status }}</td>
