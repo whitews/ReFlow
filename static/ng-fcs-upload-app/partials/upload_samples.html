@@ -133,6 +133,12 @@
               <button data-ng-show="f.errors" data-ng-click="open_site_panel_mismatch_modal(f)" class="btn btn-default btn-xs">
                 <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
               </button>
+              <div ng-controller="SitePanelController">
+                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#sitePanelModal">
+                  Create Site Panel
+                </button>
+                <ng-view></ng-view>
+              </div>
 
             </td>
             <td>

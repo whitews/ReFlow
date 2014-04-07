@@ -10,6 +10,11 @@ app.config(function ($routeProvider) {
         {
             controller: 'UploadController',
             templateUrl: '/static/ng-fcs-upload-app/partials/upload_samples.html'
+        })
+        .when('/create_site_panel',
+        {
+            controller: 'SitePanelController',
+            templateUrl: '/static/ng-fcs-upload-app/partials/create_site_panel.html'
         });
 });
 app.run(function ($http, $cookies) {
