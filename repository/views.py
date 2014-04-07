@@ -18,6 +18,7 @@ from guardian.shortcuts import assign_perm
 
 from repository.models import *
 from repository.forms import *
+from repository.panel_forms import *
 
 
 @login_required
