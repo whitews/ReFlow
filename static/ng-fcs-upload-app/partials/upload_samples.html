@@ -134,10 +134,10 @@
                 <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
               </button>
               <div ng-controller="SitePanelController">
-                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#sitePanelModal">
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#sitePanelModal">
                   Create Site Panel
                 </button>
-                <ng-view></ng-view>
+                <div ng-include="model.site_panel_url"></div>
               </div>
 
             </td>

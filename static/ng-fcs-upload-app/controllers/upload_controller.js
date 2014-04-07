@@ -19,10 +19,13 @@ app.controller(
         'Subject',
         'SitePanel',
         function ($scope, $timeout, $upload, $modal, Project, Site, Specimen, Cytometer, Pretreatment, Storage, Stimulation, VisitType, Subject, SitePanel) {
+            $scope.model = {};
             $scope.projects = Project.query();
             $scope.specimens = Specimen.query();
             $scope.pretreatments = Pretreatment.query();
             $scope.storages = Storage.query();
+            $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
+
 
             $scope.file_queue = [];
             $scope.upload_queue = [];
