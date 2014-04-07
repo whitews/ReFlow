@@ -1,0 +1,65 @@
+  <div class="row">
+    <div class="col-md-4">
+      <table>
+          <tr>
+              <td><strong>Project:</strong></td>
+              <td>
+                  <select class="form-control" ng-model="model.current_project" ng-change="projectChanged()" ng-options="p.project_name for p in model.projects">
+                  </select>
+              </td>
+          </tr>
+
+          <tr>
+              <td><strong>Project Panel:</strong></td>
+              <td>
+                  <select class="form-control" ng-model="model.current_project_panel" ng-change="projectPanelChanged()" ng-options="p.panel_name for p in model.project_panels">
+                  </select>
+              </td>
+          </tr>
+
+          <tr>
+              <td><div class="top"><strong>Sites:</strong></div></td>
+              <td>
+                  <div data-ng-repeat="site in model.sites">
+                      <label>
+                          <input type="checkbox" ng-model="site.selected" ng-change="updateSitePanels()" />
+                      {{ site.site_name }}
+                      </label>
+                  </div>
+              </td>
+          </tr>
+
+      </table>
+    </div>
+    <div class="col-md-8">
+        <table class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50">
+              <div class=" text-center">
+                <h4>Site Panels</h4>
+              </div>
+            </th>
+          </tr>
+          <tr>
+            <th style="width:1%;">
+              <input type="checkbox" ng-model="model.master_site_panel_checkbox" ng-change="toggleAllSitePanels()"/>
+            </th>
+            <th>Panel Name</th>
+            <th>Site</th>
+            <th>Parameters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-ng-repeat="s in model.site_panels">
+            <td class="no-wrap">
+              <input type="checkbox" ng-model="s.selected" />
+            </td>
+            <td>{{ s.name }}</td>
+            <td>{{ s.site.site_name }}</td>
+            <td>{{ s.parameters.length }}</td>
+          </tr>
+        </tbody>
+        </table>
+    </div>
+  </div>

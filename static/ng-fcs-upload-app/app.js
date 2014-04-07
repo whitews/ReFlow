@@ -2,7 +2,7 @@
  * Created by swhite on 2/25/14.
  */
 
-var app = angular.module('fcsUploadApp', ['ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'reflowService', 'angularFileUpload']);
+var app = angular.module('FCSUploadApp', ['ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'reflowService', 'angularFileUpload']);
 
 app.config(function ($routeProvider) {
     $routeProvider

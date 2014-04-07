@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.core.files import File
 
 from repository.models import *
 
@@ -397,11 +396,97 @@ class SampleMetadataSerializer(serializers.ModelSerializer):
         fields = ('id', 'sample', 'key', 'value')
 
 
+class SampleCollectionMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleCollectionMember
+        fields = ('id', 'sample_collection', 'sample')
+
+
+class SampleCollectionMemberDetailSerializer(serializers.ModelSerializer):
+    sample = SampleSerializer()
+
+    class Meta:
+        model = SampleCollectionMember
+        fields = ('id', 'sample_collection', 'sample')
+
+
+class SampleCollectionSerializer(serializers.ModelSerializer):
+    members = SampleCollectionMemberSerializer(
+        source='samplecollectionmember_set', required=False)
+
+    class Meta:
+        model = SampleCollection
+        fields = ('id', 'project', 'members')
+
+
+class SampleCollectionDetailSerializer(serializers.ModelSerializer):
+    members = SampleCollectionMemberDetailSerializer(
+        source='samplecollectionmember_set', required=False)
+
+    class Meta:
+        model = SampleCollection
+        fields = ('id', 'project', 'members')
+
+
 class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Worker
         fields = ('id', 'worker_name', 'worker_hostname')
+
+
+class SubprocessCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubprocessCategory
+        fields = (
+            'id',
+            'name',
+            'description'
+        )
+
+
+class SubprocessImplementationSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(
+        source='category.name',
+        read_only=True)
+
+    class Meta:
+        model = SubprocessImplementation
+        fields = (
+            'id',
+            'category',
+            'category_name',
+            'name',
+            'description'
+        )
+
+
+class SubprocessInputSerializer(serializers.ModelSerializer):
+    category = serializers.IntegerField(
+        source='implementation.category_id',
+        read_only=True)
+    category_name = serializers.CharField(
+        source='implementation.category.name',
+        read_only=True)
+    implementation_name = serializers.CharField(
+        source='implementation.name',
+        read_only=True)
+
+    class Meta:
+        model = SubprocessInput
+        fields = (
+            'id',
+            'category',
+            'category_name',
+            'implementation',
+            'implementation_name',
+            'name',
+            'description',
+            'value_type',
+            'required',
+            'allow_multiple',
+            'default'
+        )
 
 
 class ProcessRequestSerializer(serializers.ModelSerializer):
@@ -413,18 +498,49 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'url',
-            'process',
-            'worker',
+            'project',
+            'sample_collection',
+            'description',
+            'predefined',
             'request_user',
             'request_date',
-            'status',
-            'completion_date')
+            'assignment_date',
+            'completion_date',
+            'worker',
+            'status'
+        )
 
 
 class ProcessRequestInputSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(
+        source='subprocess_input.implementation.category.name',
+        read_only=True
+    )
+    implementation_name = serializers.CharField(
+        source='subprocess_input.implementation.name',
+        read_only=True
+    )
+    input_name = serializers.CharField(
+        source='subprocess_input.name',
+        read_only=True
+    )
+    value_type = serializers.CharField(
+        source='subprocess_input.value_type',
+        read_only=True
+    )
+
     class Meta:
         model = ProcessRequestInput
-        fields = ('id', 'process_request', 'key', 'value')
+        fields = (
+            'id',
+            'process_request',
+            'subprocess_input',
+            'category_name',
+            'implementation_name',
+            'input_name',
+            'value_type',
+            'value'
+        )
 
 
 class ProcessRequestOutputSerializer(serializers.ModelSerializer):
@@ -451,12 +567,16 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'url',
-            'process',
-            'worker',
+            'project',
+            'sample_collection',
+            'description',
+            'predefined',
             'request_user',
             'request_date',
-            'status',
+            'assignment_date',
             'completion_date',
+            'worker',
+            'status',
             'inputs',
             'outputs'
         )

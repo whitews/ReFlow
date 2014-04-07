@@ -44,13 +44,19 @@ def repository_api_root(request):
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
+        'sample_collections': reverse('sample-collection-list', request=request),
+        'sample_collection_members': reverse('sample-collection-member-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
         'workers': reverse('worker-list', request=request),
+        'subprocess_categories': reverse('subprocess-category-list', request=request),
+        'subprocess_implementations': reverse('subprocess-implementation-list', request=request),
+        'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'process_request_inputs': reverse('process-request-input-list', request=request),
         'assigned_process_requests': reverse(
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
@@ -408,6 +414,27 @@ class SiteDetail(
     serializer_class = SiteSerializer
 
 
+class SitePanelFilter(django_filters.FilterSet):
+    project_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProjectPanel.objects.all(),
+        name='project_panel')
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='project_panel__project')
+
+    class Meta:
+        model = SitePanel
+        fields = [
+            'site',
+            'project_panel',
+            'project_panel__project',
+
+        ]
+
+
 class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of site panels.
@@ -415,10 +442,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = SitePanel
     serializer_class = SitePanelSerializer
-    filter_fields = (
-        'site',
-        'project_panel',
-        'project_panel__project')
+    filter_class = SitePanelFilter
 
     def get_queryset(self):
         """
@@ -448,6 +472,29 @@ class SitePanelDetail(
     serializer_class = SitePanelSerializer
 
 
+class CytometerFilter(django_filters.FilterSet):
+
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site')
+    site_name = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site__site_name')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='site__project')
+
+    class Meta:
+        model = Cytometer
+        fields = [
+            'site',
+            'site__site_name',
+            'site__project',
+            'cytometer_name',
+            'serial_number'
+        ]
+
+
 class CytometerList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of site panels.
@@ -455,12 +502,7 @@ class CytometerList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Cytometer
     serializer_class = CytometerSerializer
-    filter_fields = (
-        'site',
-        'site__site_name',
-        'site__project',
-        'cytometer_name',
-        'serial_number')
+    filter_class = CytometerFilter
 
     def get_queryset(self):
         """
@@ -654,6 +696,47 @@ class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
+class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating a SampleCollectionMember.
+    """
+
+    model = SampleCollectionMember
+    serializer_class = SampleCollectionMemberSerializer
+    filter_fields = ('sample_collection', 'sample')
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SampleCollectionList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating a SampleCollection.
+    """
+
+    model = SampleCollection
+    serializer_class = SampleCollectionSerializer
+    filter_fields = ('id', 'project',)
+
+
+class SampleCollectionDetail(
+        LoginRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint representing a single sample collection.
+    """
+
+    model = SampleCollection
+    serializer_class = SampleCollectionDetailSerializer
+
+
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
     """
     API endpoint for creating a new Sample.
@@ -714,6 +797,85 @@ class CompensationDetail(
 
     model = Compensation
     serializer_class = CompensationSerializer
+
+
+class SubprocessCategoryFilter(django_filters.FilterSet):
+    class Meta:
+        model = SubprocessCategory
+        fields = [
+            'name'
+        ]
+
+
+class SubprocessCategoryList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of sub-process categories.
+    """
+
+    model = SubprocessCategory
+    serializer_class = SubprocessCategorySerializer
+    filter_class = SubprocessCategoryFilter
+
+
+class SubprocessImplementationFilter(django_filters.FilterSet):
+
+    category = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubprocessCategory.objects.all(),
+        name='category')
+    category_name = django_filters.CharFilter(
+        name='category__name')
+
+    class Meta:
+        model = SubprocessImplementation
+        fields = [
+            'category',
+            'category_name',
+            'name'
+        ]
+
+
+class SubprocessImplementationList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of sub-process implementations.
+    """
+
+    model = SubprocessImplementation
+    serializer_class = SubprocessImplementationSerializer
+    filter_class = SubprocessImplementationFilter
+
+
+class SubprocessInputFilter(django_filters.FilterSet):
+
+    category = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubprocessCategory.objects.all(),
+        name='implementation__category')
+    category_name = django_filters.CharFilter(
+        name='implementation__category__name')
+    implementation = django_filters.ModelMultipleChoiceFilter(
+        queryset=SubprocessImplementation.objects.all(),
+        name='implementation')
+    implementation_name = django_filters.CharFilter(
+        name='implementation__name')
+
+    class Meta:
+        model = SubprocessInput
+        fields = [
+            'category',
+            'category_name',
+            'implementation',
+            'implementation_name',
+            'name'
+        ]
+
+
+class SubprocessInputList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of sub-process inputs.
+    """
+
+    model = SubprocessInput
+    serializer_class = SubprocessInputSerializer
+    filter_class = SubprocessInputFilter
 
 
 @api_view(['GET'])
@@ -794,14 +956,41 @@ class WorkerList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = ('worker_name',)
 
 
-class ProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
+class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of process requests.
     """
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('process', 'worker', 'request_user')
+    filter_fields = ('worker', 'request_user')
+
+    def create(self, request, *args, **kwargs):
+        # add required fields for the user and status
+        request.DATA['request_user'] = request.user.id
+        request.DATA['status'] = 'Pending'
+        response = super(ProcessRequestList, self).create(request, *args, **kwargs)
+        return response
+
+
+class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating a ProcessRequestInput.
+    """
+
+    model = ProcessRequestInput
+    serializer_class = ProcessRequestInputSerializer
+    filter_fields = ('process_request', 'subprocess_input')
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
@@ -840,7 +1029,7 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('process', 'worker', 'request_user')
+    filter_fields = ('worker', 'request_user')
 
     def get_queryset(self):
         """
@@ -902,6 +1091,7 @@ class ProcessRequestAssignmentUpdate(
             try:
                 # now try to save the ProcessRequest
                 process_request.worker = worker
+                process_request.assignment_date = datetime.datetime.now()
                 process_request.save()
 
                 # serialize the updated ProcessRequest

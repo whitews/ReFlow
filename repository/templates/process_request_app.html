@@ -13,21 +13,21 @@
 <script src="{% static 'js/angular-file-upload-shim.js' %}"></script>
 <script src="{% static 'js/angular-file-upload.js' %}"></script>
 <script src="{% static 'js/angular-ui-bootstrap.min.js' %}"></script>
-<script src="{% static 'ng-fcs-upload-app/app.js' %}"></script>
-<script src="{% static 'ng-fcs-upload-app/controllers/upload_controller.js' %}"></script>
-<script src="{% static 'ng-fcs-upload-app/services/projectsService.js' %}"></script>
+<script src="{% static 'ng-process-request-app/app.js' %}"></script>
+<script src="{% static 'ng-process-request-app/controllers/process_request_controller.js' %}"></script>
+<script src="{% static 'ng-process-request-app/services/projectsService.js' %}"></script>
 {% endblock %}
 
 {% block breadcrumbs %}
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
-    {% breadcrumb 'Upload FCS Files' %}
+    {% breadcrumb 'New Process Request' %}
   </ul>
 {% endblock %}
 
 {% block body %}
 {% verbatim %}
-  <div class="container" data-ng-app="fcsUploadApp">
+  <div class="container" data-ng-app="ProcessRequestApp">
 
       <div data-ng-view></div>
 

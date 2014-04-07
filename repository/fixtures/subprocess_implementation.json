@@ -1,0 +1,29 @@
+[
+{
+    "pk": 1, 
+    "model": "repository.subprocessimplementation", 
+    "fields": {
+        "category": 1, 
+        "name": "logicle", 
+        "description": "Logicle is a log-linear hybrid transformation. The function becomes logarithmic for large data values, linear near zero, and extends to negative data values. It is symmetrical around zero and transitions smoothly between the linear to logarithmic regions. The ReFlow Logicle implementation provides the input parameters \"t\" for the maximum data value used for scaling and \"w\" for the strength and range of linearization around zero."
+    }
+},
+{
+    "pk": 2, 
+    "model": "repository.subprocessimplementation", 
+    "fields": {
+        "category": 2, 
+        "name": "hdp", 
+        "description": "The hierarchical Dirichlet process (HDP) is a nonparametric Bayesian approach to clustering grouped data. The ReFlow implementation provides the input parameters cluster count, iteration count, burn-in and random seed."
+    }
+},
+{
+    "pk": 3, 
+    "model": "repository.subprocessimplementation", 
+    "fields": {
+        "category": 3, 
+        "name": "parameters", 
+        "description": ""
+    }
+}
+]

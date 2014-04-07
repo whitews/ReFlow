@@ -39,7 +39,15 @@ admin.site.register(Sample)
 admin.site.register(SampleMetadata)
 admin.site.register(Compensation)
 
+admin.site.register(SampleCollection)
+admin.site.register(SampleCollectionMember)
+
 admin.site.register(Worker)
+
+admin.site.register(SubprocessCategory)
+admin.site.register(SubprocessImplementation)
+admin.site.register(SubprocessInput)
 
 admin.site.register(ProcessRequest)
 admin.site.register(ProcessRequestInput)
+admin.site.register(ProcessRequestOutput)

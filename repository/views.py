@@ -47,6 +47,16 @@ def fcs_upload_app(request):
         context_instance=RequestContext(request)
     )
 
+
+@user_passes_test(lambda u: u.is_superuser)
+def process_request_app(request):
+    return render_to_response(
+        'process_request_app.html',
+        {},
+        context_instance=RequestContext(request)
+    )
+
+
 #########################
 ### Non-project views ###
 #########################
@@ -1521,39 +1531,6 @@ def edit_subject(request, subject_id):
 
 
 @login_required
-def add_sample(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-    user_sites = Site.objects.get_sites_user_can_add(request.user, project)
-
-    if not (project.has_add_permission(request.user) or user_sites.count() > 0):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = SampleForm(
-            request.POST,
-            request.FILES,
-            project_id=project_id,
-            request=request)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_samples',
-                args=(project_id,)))
-    else:
-        form = SampleForm(project_id=project_id, request=request)
-
-    return render_to_response(
-        'add_sample.html',
-        {
-            'form': form,
-            'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def edit_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
@@ -1627,92 +1604,16 @@ def add_worker(request):
     )
 
 
-def create_process_request_inputs(process_request, form):
-    if not isinstance(form, BaseProcessForm):
-        return
-
-    for field in form.BASE_PROCESS_FORM_FIELDS:
-        value = form.cleaned_data.get(field)
-        if value in ['', None]:
-            continue
-        pr_input = ProcessRequestInput(
-            process_request=process_request,
-            key=field,
-            value=value)
-        pr_input.save()
-
-    for field in form.CUSTOM_FIELDS:
-        value = form.cleaned_data.get(field)
-        if value in ['', None]:
-            continue
-        pr_input = ProcessRequestInput(
-            process_request=process_request,
-            key=field,
-            value=form.cleaned_data.get(field))
-        pr_input.save()
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def submit_process_request(request, process):
-    if process == 'test':
-        if request.method == 'POST':
-            form = TestProcessForm(request.POST, request=request)
-            if form.is_valid():
-                project_panel = ProjectPanel.objects.get(
-                    id=form.cleaned_data.get('project_panel'))
-
-                process_request = ProcessRequest(
-                    project=project_panel.project,
-                    process=ProcessRequest.TEST,
-                    request_user=request.user)
-                process_request.save()
-
-                create_process_request_inputs(process_request, form)
-
-                return HttpResponseRedirect(reverse('process_dashboard'))
-        else:
-            form = TestProcessForm(request=request)
-    elif process == 'hdp':
-        if request.method == 'POST':
-            form = HDPProcessForm(request.POST, request=request)
-            if form.is_valid():
-                project_panel = ProjectPanel.objects.get(
-                    id=form.cleaned_data.get('project_panel'))
-
-                process_request = ProcessRequest(
-                    project=project_panel.project,
-                    process=ProcessRequest.HDP,
-                    request_user=request.user)
-                process_request.save()
-
-                create_process_request_inputs(process_request, form)
-
-                return HttpResponseRedirect(reverse('process_dashboard'))
-        else:
-            form = HDPProcessForm(request=request)
-    else:
-        process = None
-        form = None
-
-    return render_to_response(
-        'submit_process_request.html',
-        {
-            'process': process,
-            'form': form,
-            'required_base_fields': ['project', 'project_panel']
-        },
-        context_instance=RequestContext(request)
-    )
-
-
 @login_required
 def view_process_request(request, process_request_id):
     process_request = get_object_or_404(ProcessRequest, pk=process_request_id)
+    sample_members = process_request.sample_collection.samplecollectionmember_set.all()
 
     return render_to_response(
         'view_process_request.html',
         {
             'process_request': process_request,
+            'sample_members': sample_members
         },
         context_instance=RequestContext(request)
     )
