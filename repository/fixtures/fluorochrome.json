@@ -243,12 +243,39 @@
     }
 },
 {
-    "pk": 28,
-    "model": "repository.fluorochrome",
+    "pk": 28, 
+    "model": "repository.fluorochrome", 
     "fields": {
-        "fluorochrome_name": "Ethidium Monoazide",
-        "fluorochrome_abbreviation": "EMA",
+        "fluorochrome_name": "Ethidium Monoazide", 
+        "fluorochrome_abbreviation": "EMA", 
         "fluorochrome_description": "Live/Dead Viability"
+    }
+},
+{
+    "pk": 29, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Alexa Fluor 647", 
+        "fluorochrome_abbreviation": "A647", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 30, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Alexa Fluor 488", 
+        "fluorochrome_abbreviation": "A488", 
+        "fluorochrome_description": ""
+    }
+},
+{
+    "pk": 31, 
+    "model": "repository.fluorochrome", 
+    "fields": {
+        "fluorochrome_name": "Peridinin chlorophyll protein + eFluor 710", 
+        "fluorochrome_abbreviation": "PerCP-eFluor710", 
+        "fluorochrome_description": "Tandem"
     }
 }
 ]

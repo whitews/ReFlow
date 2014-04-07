@@ -6,7 +6,7 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url 'Process Dashboard' 'process_dashboard' %}
-    {% breadcrumb process_request.get_process_display %}
+    {% breadcrumb process_request.description %}
   </ul>
 {% endblock %}
 
@@ -54,6 +54,11 @@ function revoke_assignment()
       </tr>
 
       <tr>
+        <td>Project:</td>
+        <td>{{ process_request.project.project_name }}</td>
+      </tr>
+
+      <tr>
         <td>Requested by:</td>
         <td>{{ process_request.request_user.username }}</td>
       </tr>
@@ -69,13 +74,24 @@ function revoke_assignment()
       </tr>
 
       <tr>
+        <td>Sample Collection:</td>
+        <td>
+          {{ process_request.sample_collection_id }}<br/>
+          {% regroup sample_members by sample.site_panel as site_panel_list %}
+          {% for site_panel in site_panel_list %}
+          <strong>{{ site_panel.grouper }}</strong><br/>
+          {% endfor %}
+        </td>
+      </tr>
+
+      <tr>
         <td>Worker:</td>
         <td>
           <span id="worker">
             {{ process_request.worker.worker_name|default_if_none:'' }}
             {% if user.is_superuser and process_request.worker.worker_name != None %}
-              <a class="btn btn-mini" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
-                <i style="opacity: 0.4;margin: 0 10px;" class="icon-remove align-middle"></i>
+              <a class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+                <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
               </a>
             {% endif %}
             <span id="error_message"></span>
@@ -84,29 +100,41 @@ function revoke_assignment()
       </tr>
 
       <tr>
+        <td>Assigned on:</td>
+        <td>{{ process_request.assignment_date | default_if_none:'' }}</td>
+      </tr>
+
+      <tr>
         <td>Completion Date:</td>
         <td>{{ process_request.completion_date|default_if_none:'Not complete' }}</td>
       </tr>
 
     </table>
+
+
+
     </br>
 
     <table class="table table-hover">
       <thead>
         <tr>
-          <th colspan="4" class="center">
+          <th colspan="40" class="center">
             <h4>Process Request Input Values <span class="badge badge-inverse align-top">{{ process_request.processrequestinput_set.all.count }}</span></h4>
           </th>
         </tr>
         <tr>
-            <th>Key</th>
+            <th>Category</th>
+            <th>Implementation</th>
+            <th>Input Name</th>
             <th>Value</th>
         </tr>
       </thead>
       <tbody>
         {% for request_input in process_request.processrequestinput_set.all %}
         <tr>
-          <td class="middle">{{ request_input.key }}</td>
+          <td class="middle">{{ request_input.subprocess_input.implementation.category.name }}</td>
+          <td class="middle">{{ request_input.subprocess_input.implementation.name }}</td>
+          <td class="middle">{{ request_input.subprocess_input.name }}</td>
           <td class="middle">{{ request_input.value|default_if_none:'' }}</td>
         </tr>
         {% endfor %}

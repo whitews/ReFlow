@@ -16,29 +16,23 @@
       <form class="form-horizontal" action="{% url 'add_user_permissions' project.id %}" method="post">
         {% csrf_token %}
 
-        {% if form.errors %}
-        <div class="control-group warning">
-          <ul>
-            {% for field in form %}
-              {% if field.errors %}
-                <span class="help-inline">{{ field.label }}: {{ field.errors|striptags }}</span>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </div>
+        {% if form.non_field_errors %}
+          <div class="form-group text-error">
+            {{ form.non_field_errors }}
+          </div>
         {% endif %}
-        {{ form.non_field_errors }}
 
         {% for field in form %}
-          <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">{{ field }}</div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+            {% endif %}
           </div>
         {% endfor %}
-        <div class="control-group">
-          <div class="controls">
-            <button class="btn btn-small btn-success" type="submit">Select User</button>
-          </div>
+        <div class="form-group">
+          <button class="col-sm-offset-2 btn btn-success" type="submit">Select User</button>
         </div>
       </form>
   </div>

@@ -4,7 +4,7 @@
 {% load breadcrumbs %}
 
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -40,45 +40,6 @@ $(function() {
 
 {% block body %}
   <div class="container">
-
-    <table id="process-table" class="table table-hover">
-      <thead>
-        <tr>
-          <th colspan="3" class="center">
-            <div style="position:relative">
-              <h4>Processes</h4>
-            </div>
-          </th>
-        </tr>
-        <tr>
-          <th>Process Name</th>
-          <th>Process Description</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        <tr>
-          <td>
-            <a href="{% url 'submit_process_request' 'test' %}">Test Process</a>
-          </td>
-          <td>
-            Just a test process type for development purposes
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <a href="{% url 'submit_process_request' 'hdp' %}">HDP Process</a>
-          </td>
-          <td>
-            Hierarchical Dirichlet Process (HDP) Gaussian mixture model for identifying cell subsets.
-          </td>
-        </tr>
-
-      </tbody>
-    </table>
-
     <table id="worker-table" class="table table-hover">
       <thead>
         <tr>
@@ -87,7 +48,7 @@ $(function() {
               <h4>Workers <span class="badge badge-inverse align-top">{{ workers|length }}</span></h4>
               {% if user.is_superuser %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_worker' %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_worker' %}">
                   Add Worker
                 </a>
               </div>
@@ -121,16 +82,25 @@ $(function() {
       <thead>
         <tr>
           <th colspan="8" class="center">
-            <h4>Process Requests <span class="badge badge-inverse align-top">{{ requests.count }}</span></h4>
+            <div style="position:relative">
+
+              <h4>Process Requests <span class="badge badge-inverse align-top">{{ requests.count }}</span></h4>
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-default btn-sm" href="{% url 'process_request_app' %}">
+                  New Request
+                </a>
+              </div>
+            </div>
           </th>
         </tr>
         <tr>
-            <th>Process Request ID</th>
-            <th>Process</th>
+            <th>Label</th>
+            <th>Project</th>
             <th>Request Date</th>
             <th>Requesting User</th>
             <th>Status</th>
             <th>Worker</th>
+            <th>Assignment Date</th>
             <th>Completion Date</th>
         </tr>
       </thead>
@@ -139,14 +109,15 @@ $(function() {
         <tr>
           <td class="middle">
               <a href="{% url 'view_process_request' request.id %}">
-                {{ request.id }}
+                {{ request.description }}
               </a>
           </td>
-          <td class="middle">{{ request.get_process_display }}</td>
+          <td class="middle">{{ request.project.project_name }}</td>
           <td class="middle">{{ request.request_date }}</td>
           <td class="middle">{{ request.request_user }}</td>
           <td class="middle">{{ request.status }}</td>
           <td class="middle">{{ request.worker.worker_name|default_if_none:"" }}</td>
+          <td class="middle">{{ request.assignment_date|default_if_none:"Not assigned" }}</td>
           <td class="middle">{{ request.completion_date|default_if_none:"Not Complete" }}</td>
         </tr>
         {% endfor %}

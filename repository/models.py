@@ -141,6 +141,20 @@ STORAGE_CHOICES = (
     ('Cryopreserved', 'Cryopreserved')
 )
 
+PREDEFINED_PROCESS_CHOICES = (
+    ('1', 'Subsampled, asinh, HDP'),
+    ('2', 'Subsampled, logicle, HDP'),
+)
+
+PROCESS_INPUT_VALUE_TYPE_CHOICES = (
+    ('Boolean', 'Boolean'),
+    ('Integer', 'Integer'),
+    ('PositiveInteger', 'Positive Integer'),
+    ('Decimal', 'Decimal'),
+    ('String', 'String'),
+    ('Date', 'Date')
+)
+
 STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Working', 'Working'),
@@ -1467,6 +1481,33 @@ class SampleMetadata(ProtectedModel):
     def __unicode__(self):
         return u'%s: %s' % (self.key, self.value)
 
+
+class SampleCollection(ProtectedModel):
+    """
+    A collection of Samples from the same Project
+    """
+    project = models.ForeignKey(Project)
+
+
+class SampleCollectionMember(ProtectedModel):
+    """
+    A member of a sample set (i.e. an FCS Sample). However the Samples
+    are ForeignKeys which allow null and get set to null on the Sample's
+    deletion. This allows deletion of Samples with less hassle.
+    It is up to the consumer of SampleCollections to verify
+    SampleCollectionMember integrity.
+    """
+    sample_collection = models.ForeignKey(SampleCollection)
+    sample = models.ForeignKey(
+        Sample,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        unique_together = (('sample_collection', 'sample'),)
+
+
 ####################################
 ### START PROCESS RELATED MODELS ###
 ####################################
@@ -1505,40 +1546,113 @@ class Worker(models.Model):
         return u'%s' % (self.worker_name,)
 
 
+class SubprocessCategory(models.Model):
+    name = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        max_length=128)
+    description = models.TextField(
+        null=True,
+        blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    class Meta:
+        verbose_name_plural = 'Sub-process Categories'
+        ordering = ['name']
+
+
+class SubprocessImplementation(models.Model):
+    category = models.ForeignKey(SubprocessCategory)
+    name = models.CharField(
+        null=False,
+        blank=False,
+        max_length=128)
+    description = models.TextField(
+        null=True,
+        blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    class Meta:
+        verbose_name_plural = 'Sub-process Implementation'
+        ordering = ['category', 'name']
+
+
+class SubprocessInput(models.Model):
+    implementation = models.ForeignKey(SubprocessImplementation)
+    name = models.CharField(
+        null=False,
+        blank=False,
+        max_length=128)
+    description = models.TextField(
+        null=True,
+        blank=True)
+    value_type = models.CharField(
+        max_length=64,
+        null=False,
+        blank=False,
+        choices=PROCESS_INPUT_VALUE_TYPE_CHOICES)
+    required = models.BooleanField(
+        default=False)
+    allow_multiple = models.BooleanField(
+        default=False)
+    default = models.CharField(
+        null=True,
+        blank=True,
+        max_length=1024)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    class Meta:
+        verbose_name_plural = 'Sub-process Input'
+        ordering = ['implementation', 'name']
+
+
 class ProcessRequest(ProtectedModel):
     """
     A request for a Process
     """
     project = models.ForeignKey(Project)
-
-    TEST = 1
-    HDP = 2
-    PROCESS_CHOICES = (
-        (TEST, 'Test'),
-        (HDP, 'HDP'),
-    )
-
-    process = models.IntegerField(
-        choices=PROCESS_CHOICES,
+    sample_collection = models.ForeignKey(
+        SampleCollection,
+        null=False,
+        blank=False,
+        editable=False)
+    description = models.CharField(
+        max_length=128,
         null=False,
         blank=False)
+    predefined = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+        choices=PREDEFINED_PROCESS_CHOICES)
     request_user = models.ForeignKey(
-        User, null=False,
+        User,
+        null=False,
         blank=False,
         editable=False)
     request_date = models.DateTimeField(
         editable=False,
         auto_now_add=True)
+    assignment_date = models.DateTimeField(
+        null=True,
+        blank=True)
     completion_date = models.DateTimeField(
         null=True,
         blank=True,
         editable=False)
-    # optional FK to the worker that is assigned or has completed the request
+    # Worker assigned or has completed the request, null before any worker
+    # takes assignment
     worker = models.ForeignKey(
         Worker,
         null=True,
         blank=True)
-
     status = models.CharField(
         max_length=32,
         null=False,
@@ -1568,26 +1682,24 @@ class ProcessRequest(ProtectedModel):
         super(ProcessRequest, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u'%s (Date: %s)' % (
-            self.get_process_display(),
-            self.request_date,)
+        return u'%s' % self.description
 
 
 class ProcessRequestInput(models.Model):
     """
-    A key/value pair used as a parameter for a specific ProcessRequest
+    The value for a specific SubprocessInput for a ProcessRequest
     """
     process_request = models.ForeignKey(ProcessRequest)
-    # all keys/values get transmitted in JSON format via REST,
+    subprocess_input = models.ForeignKey(SubprocessInput)
+
+    # all values get transmitted in JSON format via REST,
     # so everything is a string
-    key = models.CharField(null=False, blank=False, max_length=1024)
     value = models.CharField(null=False, blank=False, max_length=1024)
 
     def __unicode__(self):
-        return u'%s (%s): %s=%s' % (
-            self.process_request.get_process_display(),
+        return u'%s: %s=%s' % (
             self.process_request_id,
-            self.key,
+            self.subprocess_input.name,
             self.value)
 
 
@@ -1611,7 +1723,7 @@ class ProcessRequestOutput(ProtectedModel):
     A key/value pair used to capture results from a specific ProcessRequest
     """
     process_request = models.ForeignKey(ProcessRequest)
-    # all values will be a (potentially large) JSON file
+    # all values will be a (potentially large) file
     key = models.CharField(null=False, blank=False, max_length=1024)
     value = models.FileField(
         upload_to=pr_output_path,

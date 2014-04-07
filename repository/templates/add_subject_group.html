@@ -15,28 +15,9 @@
     <div class="container">
         <form class="form-horizontal" action="{% url 'add_subject_group' project.id %}" method="post">
             {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="control-group text-error">
-                    {{ form.non_field_errors }}
-                </div>
-            {% endif %}
 
-            {% for field in form %}
-                <div class="control-group">
-                    <label class="control-label">{{ field.label }}</label>
-                    <div class="controls">
-                        {{ field }}
-                        {% if field.errors %}
-                            <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-            <div class="control-group">
-                <div class="controls">
-                    <button class="btn btn-small btn-success" type="submit">Save</button>
-                </div>
-            </div>
+            {% include "generic_form_fields.html" %}
+
         </form>
     </div>
 {% endblock %}

@@ -3,13 +3,8 @@
 {% load staticfiles %}
 {% load breadcrumbs %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
-{% endblock %}
-
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 <script>
 $(document).ready(function () {
     $('#sample-filter-form').submit(function () {
@@ -37,20 +32,20 @@ $(document).ready(function () {
                 $.each(data, function(i, d) {
                     var row_content =
                         '<td width="1%" class="no-wrap middle">' +
-                          '<a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_parameters(' + d.id + ')" data-original-title="Show Parameters" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-list-alt align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="javascript:void(0)" onclick="show_parameters(' + d.id + ')" data-original-title="Show Parameters" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-list-alt align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="javascript:void(0)" onclick="show_compensation(' + d.id + ')" data-original-title="Show Compensation" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-qrcode align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="javascript:void(0)" onclick="show_compensation(' + d.id + ')" data-original-title="Show Compensation" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-qrcode align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="/api/repository/samples/' + d.id + '/fcs_original/" data-original-title="Download FCS File" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-download-alt align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="/api/repository/samples/' + d.id + '/fcs_original/" data-original-title="Download FCS File" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-download-alt align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="/api/repository/samples/' + d.id + '/csv/" data-original-title="Download Subsampled CSV File" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-download-alt align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="/api/repository/samples/' + d.id + '/csv/" data-original-title="Download Subsampled CSV File" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-download-alt align-middle"></i>' +
                           '</a>' +
-                          '<a class="btn btn-mini" rel="tooltip" href="/sample/' + d.id + '/edit/" data-original-title="Edit" data-placement="bottom">' +
-                            '<i style="opacity: 0.4" class="icon-pencil align-middle"></i>' +
+                          '<a class="btn btn-default btn-xs" rel="tooltip" href="/sample/' + d.id + '/edit/" data-original-title="Edit" data-placement="bottom">' +
+                            '<i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>' +
                           '</a>' +
                         '</td>' +
                         '<td class="no-wrap middle">' + d.original_filename + '</td>' +
@@ -140,8 +135,8 @@ function show_compensation(id) {
 
               {% if can_add_project_data or user_add_sites.count > 0 %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_sample' project.id %}">
-                  Add Sample
+                <a class="btn btn-default btn-sm" href="{% url 'fcs_upload_app' %}">
+                  Upload Samples
                 </a>
               </div>
               {% endif %}
@@ -154,13 +149,13 @@ function show_compensation(id) {
 
 
     <div class="row">
-      <div class="span3">
+      <div class="col-md-4">
         <div class="well">
           <form class="unstyled-checkboxes" id="sample-filter-form" method="get">
             <div style="position: relative">
               <h4>Filter</h4>
               <div style="position: absolute; right:0;top:0;">
-                <button class="btn btn-small" type="submit">
+                <button class="btn btn-default btn-sm" type="submit">
                   Apply
                 </button>
               </div>
@@ -175,13 +170,13 @@ function show_compensation(id) {
         </div>
       </div>
 
-      <div class="span9">
+      <div class="col-md-8">
         <table id="data-table" class="table table-hover">
           <thead>
             <tr>
                 <th></th>
-                <th>File</th>
-                <th>Upload Datetime</th>
+                <th>File name</th>
+                <th>Upload Date</th>
                 <th>Acquisition Date</th>
             </tr>
           </thead>
@@ -189,7 +184,7 @@ function show_compensation(id) {
 
           </tbody>
         </table>
-      </div> <!-- end span9 -->
+      </div> <!-- end col-md-9 -->
     </div> <!-- end row -->
   </div>
 {% endblock %}

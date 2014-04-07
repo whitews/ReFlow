@@ -15,30 +15,8 @@
       <form class="form-horizontal" action="{% url 'add_worker' %}" method="post">
         {% csrf_token %}
 
-        {% if form.non_field_errors %}
-        <div class="control-group warning">
-          <ul>
-            {{ form.non_field_errors }}
-          </ul>
-        </div>
-        {% endif %}
+        {% include "generic_form_fields.html" %}
 
-        {% for field in form %}
-          <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">
-              {{ field }}
-              {% if field.errors %}
-              <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
-              {% endif %}
-            </div>
-          </div>
-        {% endfor %}
-        <div class="control-group">
-          <div class="controls">
-            <button class="btn btn-small btn-success" type="submit">Save</button>
-          </div>
-        </div>
       </form>
   </div>
 {% endblock %}

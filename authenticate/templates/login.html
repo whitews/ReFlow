@@ -7,8 +7,9 @@
   <head>
     <title>{{ header_title }}</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
 
     <!-- Custom login styles -->
     <style type="text/css">
@@ -25,19 +26,26 @@
 
     <div id="reflow-login" class="container">
       <div class="row">
-          <div class="pagination-centered">
+          <div class="text-center">
               <img class="inline" src="{% static 'reflow_text.png' %}">
           </div>
       </div>
-      <div class="row"><br></div>
-      <form class="form-signin" action="{% url 'authenticate.views.login_view' %}" method="POST">
-        {% csrf_token %}
-        <h2 class="form-signin-heading">Please sign in</h2>
-        <input type="text" class="input-block-level" placeholder="Username" name="username">
-        <input type="password" class="input-block-level" placeholder="Password" name="password">
-        <input type="hidden" name="next" value="{{ next }}" />
-        <button class="btn btn-large btn-primary" type="submit">Sign in</button>
-      </form>
+
+      <br />
+
+      <div id="login-box">
+        <form class="form-signin" action="{% url 'authenticate.views.login_view' %}" method="POST">
+          {% csrf_token %}
+          <h2 class="form-signin-heading">Please sign in</h2>
+          <input type="text" class="input-block-level" placeholder="Username" name="username">
+          <br />
+          <input type="password" class="input-block-level" placeholder="Password" name="password">
+          <input type="hidden" name="next" value="{{ next }}" />
+          <br />
+          <button class="btn btn-primary" type="submit">Sign in</button>
+        </form>
+      </div>
+
 
     </div>
   </body>

@@ -3,13 +3,8 @@
 {% load staticfiles %}
 {% load breadcrumbs %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
-{% endblock %}
-
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -28,14 +23,6 @@ $(function() {
 <script>
 $(document).ready(function()
 {
-    $(".cancel").click(function()
-    {
-        $(this).closest('div.hide').siblings('table').children('tbody').find('tr.add_parameter_row').hide();
-        $(this).closest('div.hide').hide();
-        $(this).closest('div.hide').siblings('a.add_parameter').show();
-        return false;
-    });
-
     $(".show-all").click(function()
     {
         $('.params').show(250);
@@ -81,7 +68,7 @@ $(document).ready(function()
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_project_panel' project.id %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_project_panel' project.id %}">
                   Add Project Panel
                 </a>
               </div>
@@ -107,13 +94,13 @@ $(document).ready(function()
         <tr>
           <td class="no-wrap">
             {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_project_panel' project.id panel.id %}" data-original-title="Edit" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_project_panel' project.id panel.id %}" data-original-title="Edit" data-placement="bottom">
+              <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
             </a>
             {% endif %}
             {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'copy_project_panel' project.id panel.id %}" data-original-title="Copy" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-repeat align-middle"></i>
+            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'copy_project_panel' project.id panel.id %}" data-original-title="Copy" data-placement="bottom">
+              <i style="opacity: 0.4" class="glyphicon glyphicon-repeat align-middle"></i>
             </a>
             {% endif %}
           </td>
@@ -124,7 +111,7 @@ $(document).ready(function()
           <td>{{ panel.panel_description }}</td>
           <td width="60%">
             <a href="#" class="toggle-closest">Show/Hide</a>
-            <div class="hide params">
+            <div class="params" style="display: none">
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>

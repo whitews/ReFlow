@@ -4,8 +4,6 @@
 {% load breadcrumbs %}
 
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
-
 <script>
 $(document).ready(function () {
     $('#panel-parameter-form').submit(function ()
@@ -232,26 +230,22 @@ function remove_marker(selector) {
     <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'add_project_site_panel' project.id %}" method="post">
       {% csrf_token %}
         {% if preform.non_field_errors %}
-          <div class="control-group text-error">
+          <div class="form-group text-error">
             {{ preform.non_field_errors }}
           </div>
         {% endif %}
 
         {% for field in preform %}
-          <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">
+          <div class="form-group">
+            <label class="col-md-2 control-label">{{ field.label }}</label>
               {{ field }}
               {% if field.errors %}
                 <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
               {% endif %}
-            </div>
           </div>
         {% endfor %}
-      <div class="control-group">
-        <div class="controls">
-          <button class="btn btn-small btn-success" type="submit">Submit File</button>
-        </div>
+      <div class="form-group">
+        <button class="col-sm-offset-2 btn btn-success" type="submit">Submit File</button>
       </div>
     </form>
 
@@ -259,7 +253,7 @@ function remove_marker(selector) {
 
     <div id="render_parameters_form">
 
-      <div id="parameter-form-errors" class="hide alert alert-error">
+      <div id="parameter-form-errors" class="alert alert-error" style="display: none">
 
       </div>
 
@@ -294,7 +288,7 @@ function remove_marker(selector) {
       <form id="panel-parameter-form" class="form-horizontal" action="{% url 'process_site_panel_post' project.id %}" method="post">
       {% csrf_token %}
 
-      <div class="hide">
+      <div style="display: none">
         {{ site_panel_form }}
       </div>
 
@@ -316,15 +310,15 @@ function remove_marker(selector) {
           <tr class="parameter-fields">
             <td>
               {{ parameter_form.fcs_number.value }}
-              <div class="hide">{{ parameter_form.fcs_number }}</div>
+              <div style="display: none">{{ parameter_form.fcs_number }}</div>
             </td>
             <td>
               {{ parameter_form.fcs_text.value }}
-              <div class="hide">{{ parameter_form.fcs_text }}</div>
+              <div style="display: none">{{ parameter_form.fcs_text }}</div>
             </td>
             <td>
               {{ parameter_form.fcs_opt_text.value }}
-              <div class="hide">{{ parameter_form.fcs_opt_text }}</div>
+              <div style="display: none">{{ parameter_form.fcs_opt_text }}</div>
             </td>
             <td>
               {{ parameter_form.parameter_type }}
@@ -341,11 +335,11 @@ function remove_marker(selector) {
                 {% for nested_form in nested_formset.forms %}
                   <span class="marker-field no-wrap">
                     {{ nested_form.marker }}
-                    <a class="hide remove-marker" href="javascript:void(0)" onclick="remove_marker($(this))">
-                      <i class="icon-remove align-middle\"></i>
+                    <a class="remove-marker" style="display: none" href="javascript:void(0)" onclick="remove_marker($(this))">
+                      <i class="glyphicon glyphicon-remove align-middle\"></i>
                     </a>
                     <a class="add-marker-link" href="javascript:void(0)" onclick="add_marker($(this))">
-                      <i class="icon-plus align-middle"></i></a>
+                      <i class="glyphicon glyphicon-plus align-middle"></i></a>
                   </span>
                 {% endfor %}
               {% endfor %}
@@ -360,10 +354,8 @@ function remove_marker(selector) {
           </tr>
           {% endfor %}
         </table>
-      <div class="control-group">
-        <div class="controls">
-          <button id="process-parameters" class="btn btn-small btn-success" type="submit">Save</button>
-        </div>
+      <div class="form-group">
+        <button id="process-parameters" class="col-sm-offset-2 btn btn-success" type="submit">Save</button>
       </div>
     </form>
 

@@ -17,30 +17,8 @@
     <form class="form-horizontal" enctype="multipart/form-data" action="{% url 'edit_sample' sample.id %}" method="post">
       {% csrf_token %}
 
-      {% if form.errors %}
-        <div class="control-group warning">
-          <ul>
-            {% for field in form %}
-              {% if field.errors %}
-                  <span class="help-inline">{{ field.label }}: {{ field.errors|striptags }}</span>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </div>
-      {% endif %}
-      {{ form.non_field_errors }}
+      {% include "generic_form_fields.html" %}
 
-      {% for field in form %}
-        <div class="control-group">
-            <label class="control-label">{{ field.label }}</label>
-            <div class="controls">{{ field }}</div>
-        </div>
-      {% endfor %}
-      <div class="control-group">
-        <div class="controls">
-          <button class="btn btn-small btn-success" type="submit">Save Edits</button>
-        </div>
-      </div>
     </form>
   </div>
 {% endblock %}

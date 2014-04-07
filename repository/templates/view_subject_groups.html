@@ -4,8 +4,7 @@
 {% load breadcrumbs %}
 
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -37,13 +36,13 @@ $(function() {
             <div style="position:relative">
               <h4>Subject Groups <span class="badge badge-inverse align-top">{{ subject_groups|length }}</span></h4>
 
-              {% if can_add_project_data %}
-              <div style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-small" href="{% url 'add_subject_group' project.id %}">
+              <div class="btn-group" style="position:absolute; right:0;top:0;">
+                  {% if can_add_project_data %}
+                  <a class="btn btn-default btn-sm" href="{% url 'add_subject_group' project.id %}">
                       Add Subject Group
                   </a>
+                  {% endif %}
               </div>
-              {% endif %}
             </div>
           </th>
         </tr>
@@ -58,8 +57,8 @@ $(function() {
         <tr>
           <td width="1%">
             {% if can_modify_project_data %}
-              <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_subject_group' group.project_id group.id %}" data-original-title="Edit" data-placement="bottom">
-                <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+              <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_subject_group' group.project_id group.id %}" data-original-title="Edit" data-placement="bottom">
+                <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
               </a>
             {% endif %}
           </td>

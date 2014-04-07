@@ -3,13 +3,8 @@
 {% load staticfiles %}
 {% load breadcrumbs %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
-{% endblock %}
-
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -53,7 +48,7 @@ $(function() {
 
             <div style="position:absolute; right:0;top:0;">
               {% if user.is_superuser %}
-                <a class="btn btn btn-small" href="{% url 'add_marker' %}">Add Marker</a>
+                <a class="btn btn-default btn-sm" href="{% url 'add_marker' %}">Add Marker</a>
               {% endif %}
             </div>
 
@@ -74,8 +69,8 @@ $(function() {
       <tr>
         {% if user.is_superuser %}
         <td class="middle">
-          <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_marker' marker.id %}" data-original-title="Edit" data-placement="bottom">
-            <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+          <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_marker' marker.id %}" data-original-title="Edit" data-placement="bottom">
+            <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
           </a>
         </td>
         {% endif %}

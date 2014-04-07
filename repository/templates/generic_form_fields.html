@@ -1,0 +1,22 @@
+{% block generic-form-fields %}
+
+  {% if form.non_field_errors %}
+    <div class="form-group text-error">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  {% for field in form %}
+    <div class="form-group">
+      <label class="col-md-2 control-label">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}
+        <span class="align-middle text-warning">&nbsp;{{ field.errors|striptags }}</span>
+      {% endif %}
+    </div>
+  {% endfor %}
+  <div class="form-group">
+    <button class="col-sm-offset-2 btn btn-success" type="submit">Save</button>
+  </div>
+
+{% endblock %}

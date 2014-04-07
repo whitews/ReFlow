@@ -1,0 +1,404 @@
+body {
+  margin: 0;
+  font-family: "Open Sans", "Lucida Grande", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+  color: #444444;
+  background-color: #ffffff;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+font-weight: bold;
+}
+
+select,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+.uneditable-input {
+  /*display: inline-block;*/
+  /*height: 20px;*/
+  padding: 4px 6px;
+  /*margin-bottom: 10px;*/
+  /*font-size: 13px;*/
+  line-height: 1.5;
+  /*color: #555;*/
+  border: 1px solid #CCC;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  vertical-align: middle;
+  min-width: 190px;
+}
+
+.input-lg {
+    min-width: 360px !important;
+}
+
+.lead {
+  margin-bottom: 20px;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 21px;
+  font-weight: 200;
+  line-height: 30px;
+}
+
+hr {
+  margin: 12px 0;
+  border: 0;
+  border-top: 1px solid #dddddd;
+}
+
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+  background-color: #f1f1f1;
+}
+
+.navbar {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  overflow: visible;
+  height: 66px;
+  margin-bottom: 0px;
+  *position: relative;
+  *z-index: 2;
+  background-color: #3a3a4f;
+  border-bottom: 1px solid #223;
+  *zoom: 1;
+}
+
+.navbar-brand {
+  float: left;
+  display: block;
+  padding: 9px 20px;
+  margin-left: -20px;
+}
+
+.navbar-inverse .navbar-link, .navbar-inverse .navbar-text {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.well {
+  min-height: 20px;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #dddddd;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.breadcrumb {
+  padding: 8px 15px;
+  margin: 0 0 20px;
+  list-style: none;
+  background-color: #f9f9f9;
+  border: 1px solid #dddddd;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: 200;
+}
+
+.glyphicon-large {
+  font-size: 18px;
+}
+
+.tooltip-inner {
+  max-width: 200px;
+  padding: 3px 8px;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+  background-color: #50555f;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
+@media (min-width: 1400px) {
+  .container,
+  .navbar-static-top .container,
+  .navbar-fixed-top .container,
+  .navbar-fixed-bottom .container {
+    width: 1370px;
+  }
+}
+
+/* ----------Sticky footer START---------- */
+html, body, #wrap {
+  height: 100%;
+}
+
+body > #wrap {height: auto; min-height: 100%;}
+
+#main {
+  padding-top: 20px;
+  padding-bottom: 64px;
+}
+
+#footer {
+  position: relative;
+  margin-top: -30px;
+  padding-top: 5px;
+  border-top: 1px solid #dddddd;
+  height: 24px;
+  width: 100%;
+  text-align: center;
+  color: #6c717b;
+  font-size: 11px;
+}
+/* ----------  Sticky footer END---------- */
+/* ----------  Custom Table stuff START---------- */
+table.key-value, td {
+  padding: 5px;
+  text-align: left;
+}
+
+td.middle {
+  vertical-align: middle;
+}
+td.center {
+  text-align: center;
+}
+th.center {
+  text-align: center;
+}
+
+th.tablesorter-headerAsc {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7) !important;
+    background-color: #f9f9f9;
+    padding-left: 20px !important;
+}
+
+th.tablesorter-headerDesc {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7) !important;
+    background-color: #f9f9f9;
+    padding-left: 20px !important;
+}
+
+th.tablesorter-header {
+    background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center left;
+    padding-left: 20px !important;
+}
+
+th.sorter-false {
+    background-image: none;
+    cursor: default;
+}
+
+.params tbody tr:hover td {
+  background-color: #ddd;
+}
+
+tr.parameter-fields > td > select,
+span.marker-field > select {
+  margin-bottom: 9px !important;
+  width: auto !important;
+}
+/* ----------  Table stuff   END---------- */
+/* ----------  Login stuff START---------- */
+#login-box {
+  width: 350px;
+  margin: auto;
+}
+
+.form-signin {
+  padding: 30px;
+  margin: 0;
+  background-color: #fff;
+  border: 1px solid #e5e5e5;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+.form-signin input[type="text"],
+.form-signin input[type="password"] {
+  font-size: 16px;
+  height: auto;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+
+.form-signin button {
+  font-size: 18px;
+  height: auto;
+  padding: 7px 9px;
+  width: 100%;
+}
+/* ----------  Login stuff   END---------- */
+/* ----------  Nested Dropdown customization START---------- */
+.nav li.dropdown ul.dropdown-menu li:HOVER ul {
+  display:block;
+  position:absolute;
+  top: 200%;
+  right: 0;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.nav li.dropdown ul.dropdown-menu ul {
+  display: none;
+  float:left;
+  position: relative;
+  top: auto;
+  margin-top: -30px;
+}
+/* ----------  Nested Dropdown customization   END---------- */
+.align-top {
+  vertical-align: top;
+}
+.align-middle {
+  vertical-align: middle;
+}
+.no-wrap {
+  white-space: nowrap;
+}
+/* ----------  Custom form stuff START---------- */
+.form-control {
+    padding: 3px;
+    font-size: 12px;
+    line-height: 1.1;
+    height: 30px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+select,
+input[type="file"] {
+  height: 30px;
+  line-height: 30px;
+}
+
+input[type="file"] {
+  display: inline-block;
+}
+
+.form-group ul {
+  list-style: none;
+  display: inline-block;
+  padding: 7px 0px;
+}
+.form-group ul > li {
+  display: list-item;
+}
+
+#render_parameters_form > select {
+  width: auto !important;
+}
+select.app, input.app {
+  width: auto !important;
+  margin: 0;
+  min-width: 0;
+}
+.datepicker-wrapper {
+  max-width: 170px !important;
+  height: 30px;
+}
+.datepicker-wrapper > .input-group > input {
+  min-width: 130px !important;
+  font-size: 12px !important;
+  height: 30px;
+}
+.datepicker-wrapper > .input-group > span > button {
+  height: 30px;
+}
+
+/* ----------  Custom form stuff END---------- */
+/* ----------  well text START---------- */
+.well p {
+  font-size: 16px;
+  font-weight: 200;
+  line-height: 150%;
+}
+
+.well > h4 {
+    margin-top: 0px;
+    padding-top: 0px;
+}
+
+/* DnD box */
+.drop-box {
+    background-color: #f9f9f9;
+    border: 2px dashed #b9b9b9;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    padding: 12px 24px;
+}
+
+.instruction {
+    margin-top: 10%;
+    font: 36px bold "Optima", "FreeSerif";
+    font-weight: 900;
+    color: #c6c6c6;
+}
+
+.danger {
+  color: #D9534F;
+}
+
+.modal-body {
+  font-size: 14px;
+}
+
+.progress {
+  margin-bottom: 0;
+}
+
+ul.dropdown-menu > li > table > tbody > tr > td {
+    padding: 0;
+}
+
+/* Other stuff */
+#id_matrix_text {
+  width: 412px;
+}
+
+form.unstyled-checkboxes > ul {
+    list-style-type: none;
+    margin: 6px 0px 6px 9px;
+    padding: 0;
+}
+form.unstyled-checkboxes > ul > li {
+    line-height: 0px;
+    margin: 6px 0px;
+}
+form.unstyled-checkboxes > ul > li > label {
+    margin-bottom: 0px;
+    line-height: 100%;
+}
+form.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
+    margin: 0px !important;
+}

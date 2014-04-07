@@ -3,13 +3,10 @@
 {% load staticfiles %}
 {% load breadcrumbs %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'jquery-ui-1.9.2.custom/css/overcast/jquery-ui-1.9.2.custom.css' %}" />
-{% endblock %}
+
 
 {% block toes %}
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.js' %}"></script>
-<script src="{% static 'jquery-ui-1.9.2.custom/js/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
 
 <script>
 $(function() {
@@ -71,7 +68,7 @@ $(document).ready(function()
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-small" href="{% url 'add_project_site_panel' project.id %}">
+                <a class="btn btn-default btn-sm" href="{% url 'add_project_site_panel' project.id %}">
                   Add Site Panel
                 </a>
               </div>
@@ -98,11 +95,11 @@ $(document).ready(function()
         <tr>
           <td class="no-wrap">
             {% if can_modify_project_data %}
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel_parameters' panel.id %}" data-original-title="Edit Parameters" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-pencil align-middle"></i>
+            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_site_panel_parameters' panel.id %}" data-original-title="Edit Parameters" data-placement="bottom">
+              <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
             </a>
-            <a class="btn btn-mini" rel="tooltip" href="{% url 'edit_site_panel_comments' panel.id %}" data-original-title="Edit Comments" data-placement="bottom">
-              <i style="opacity: 0.4" class="icon-comment align-middle"></i>
+            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_site_panel_comments' panel.id %}" data-original-title="Edit Comments" data-placement="bottom">
+              <i style="opacity: 0.4" class="glyphicon glyphicon-comment align-middle"></i>
             </a>
             {% endif %}
           </td>
@@ -112,7 +109,7 @@ $(document).ready(function()
           <td>{{ panel.project_panel.get_staining_display }}</td>
           <td width="60%">
             <a href="#" class="toggle-closest">Show/Hide</a>
-            <div class="hide params">
+            <div class="params" style="display: none">
               <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
