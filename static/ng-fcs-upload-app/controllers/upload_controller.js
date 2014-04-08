@@ -31,12 +31,12 @@ app.controller(
             $scope.upload_queue = [];
 
             $scope.projectChanged = function () {
-                $scope.sites = Site.query({project: $scope.current_project.id});
+                $scope.sites = Site.query({project: $scope.model.current_project.id});
                 $scope.current_site = null;
                 $scope.current_cytometer = null;
-                $scope.stimulations = Stimulation.query({project: $scope.current_project.id});
-                $scope.visit_types = VisitType.query({project: $scope.current_project.id});
-                $scope.subjects = Subject.query({project: $scope.current_project.id});
+                $scope.stimulations = Stimulation.query({project: $scope.model.current_project.id});
+                $scope.visit_types = VisitType.query({project: $scope.model.current_project.id});
+                $scope.subjects = Subject.query({project: $scope.model.current_project.id});
             };
 
             $scope.siteChanged = function () {
@@ -44,7 +44,7 @@ app.controller(
                 $scope.current_cytometer = null;
                 $scope.site_panels = SitePanel.query(
                     {
-                        project_panel__project: $scope.current_project.id,
+                        project_panel__project: $scope.model.current_project.id,
                         site: $scope.current_site.id
                     }
                 );

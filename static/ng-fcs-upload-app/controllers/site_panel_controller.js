@@ -9,7 +9,7 @@ app.controller(
         '$modal',
         'SitePanel',
         function ($scope, $timeout, $modal, SitePanel) {
-            $scope.model.some_var = "Do stuff here"
+            $scope.model.some_var = "Do site panel stuff here"
 
         }
     ]
