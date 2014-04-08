@@ -9,21 +9,26 @@
           <tr>
               <td><strong>Project:</strong></td>
               <td>
-                  <select class="form-control" ng-model="model.current_project" ng-change="projectChanged()" ng-options="p.project_name for p in projects">
-                  </select>
+                <div ng-controller="ProjectQueryController">
+                    <select class="form-control" ng-model="model.current_project" ng-change="projectChanged()" ng-options="p.project_name for p in model.projects">
+                    </select>
+                </div>
               </td>
           </tr>
           <tr>
               <td><strong>Site:</strong></td>
               <td>
-                  <select class="form-control" ng-model="current_site" ng-change="siteChanged()" ng-options="s.site_name for s in sites">
+                <div ng-controller="SiteQueryController">
+                  <select class="form-control" ng-model="model.current_site" ng-change="siteChanged()" ng-options="s.site_name for s in model.sites">
                   </select>
+                  </div>
               </td>
           </tr>
           <tr>
               <td><strong>Cytometer:</strong></td>
               <td>
-                  <select class="form-control" ng-model="current_cytometer" ng-options="c.cytometer_name for c in cytometers">
+                <div ng-controller="CytometerQueryController">
+                  <select class="form-control" ng-model="model.current_cytometer" ng-options="c.cytometer_name for c in model.cytometers">
                   </select>
               </td>
           </tr>
@@ -36,8 +41,10 @@
           <tr>
               <td><strong>Site Panel:</strong></td>
               <td>
-                  <select class="form-control" ng-model="current_site_panel" ng-change="evaluateParameterMatch()" ng-options="s.name for s in site_panels">
+                <div ng-controller="SitePanelQueryController">
+                  <select class="form-control" ng-model="model.current_site_panel" ng-change="evaluateParameterMatch()" ng-options="s.name for s in model.site_panels">
                   </select>
+                </div>
               </td>
           </tr>
           <tr>
@@ -64,15 +71,19 @@
           <tr>
               <td><strong>Specimen:</strong></td>
               <td>
-                  <select class="form-control" ng-model="current_specimen" ng-options="s.specimen_name for s in specimens">
+                <div ng-controller="SpecimenQueryController">
+                  <select class="form-control" ng-model="model.current_specimen" ng-options="s.specimen_name for s in model.specimens">
                   </select>
+                </div>
               </td>
           </tr>
           <tr>
               <td><strong>Pre-treatment:</strong></td>
               <td>
-                  <select class="form-control" ng-model="current_pretreatment" ng-options="p.name for p in pretreatments">
+                <div ng-controller="PretreatmentQueryController">
+                  <select class="form-control" ng-model="model.current_pretreatment" ng-options="p.name for p in model.pretreatments">
                   </select>
+                </div>
               </td>
           </tr>
           <tr>

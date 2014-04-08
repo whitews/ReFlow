@@ -1,6 +1,69 @@
 /**
  * Created by swhite on 2/25/14.
  */
+
+app.controller(
+    'ProjectQueryController',
+    ['$scope', 'Project', function ($scope, Project) {
+        $scope.model.projects = Project.query();
+    }
+]);
+
+app.controller(
+    'SiteQueryController',
+    ['$scope', 'Site', function ($scope, Site) {
+        $scope.$on('projectChangedEvent', function () {
+            $scope.model.sites = Site.query({project: $scope.model.current_project.id});
+            $scope.model.current_site = null;
+        });
+    }
+]);
+
+app.controller(
+    'CytometerQueryController',
+    ['$scope', 'Cytometer', function ($scope, Cytometer) {
+        $scope.$on('projectChangedEvent', function () {
+            $scope.model.current_cytometer = null;
+        });
+        $scope.$on('siteChangedEvent', function () {
+            $scope.model.cytometers = Cytometer.query({project: $scope.model.current_site.id});
+            $scope.model.current_cytometer = null;
+        });
+    }
+]);
+
+app.controller(
+    'SitePanelQueryController',
+    ['$scope', 'SitePanel', function ($scope, SitePanel) {
+        $scope.$on('projectChangedEvent', function () {
+            $scope.model.current_site_panel = null;
+        });
+        $scope.$on('siteChangedEvent', function () {
+            $scope.model.site_panels = SitePanel.query(
+                    {
+                        project_panel__project: $scope.model.current_project.id,
+                        site: $scope.model.current_site.id
+                    }
+                );
+            $scope.model.current_site_panel = null;
+        });
+    }
+]);
+
+app.controller(
+    'SpecimenQueryController',
+    ['$scope', 'Specimen', function ($scope, Specimen) {
+        $scope.model.specimens = Specimen.query();
+    }
+]);
+
+app.controller(
+    'PretreatmentQueryController',
+    ['$scope', 'Pretreatment', function ($scope, Pretreatment) {
+        $scope.model.pretreatments = Pretreatment.query();
+    }
+]);
+
 app.controller(
     'UploadController',
     [
@@ -8,51 +71,33 @@ app.controller(
         '$timeout',
         '$upload',
         '$modal',
-        'Project',
-        'Site',
-        'Specimen',
-        'Cytometer',
-        'Pretreatment',
         'Storage',
         'Stimulation',
         'VisitType',
         'Subject',
-        'SitePanel',
-        function ($scope, $timeout, $upload, $modal, Project, Site, Specimen, Cytometer, Pretreatment, Storage, Stimulation, VisitType, Subject, SitePanel) {
+        function ($scope, $timeout, $upload, $modal, Storage, Stimulation, VisitType, Subject) {
             $scope.model = {};
-            $scope.projects = Project.query();
-            $scope.specimens = Specimen.query();
-            $scope.pretreatments = Pretreatment.query();
             $scope.storages = Storage.query();
             $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
-
 
             $scope.file_queue = [];
             $scope.upload_queue = [];
 
             $scope.projectChanged = function () {
-                $scope.sites = Site.query({project: $scope.model.current_project.id});
-                $scope.current_site = null;
-                $scope.current_cytometer = null;
+                $scope.$broadcast('projectChangedEvent');
+
                 $scope.stimulations = Stimulation.query({project: $scope.model.current_project.id});
                 $scope.visit_types = VisitType.query({project: $scope.model.current_project.id});
                 $scope.subjects = Subject.query({project: $scope.model.current_project.id});
             };
 
             $scope.siteChanged = function () {
-                $scope.cytometers = Cytometer.query({site: $scope.current_site.id});
-                $scope.current_cytometer = null;
-                $scope.site_panels = SitePanel.query(
-                    {
-                        project_panel__project: $scope.model.current_project.id,
-                        site: $scope.current_site.id
-                    }
-                );
+                $scope.$broadcast('siteChangedEvent');
             };
 
             $scope.evaluateParameterMatch = function () {
                 for (var i = 0; i < $scope.file_queue.length; i++) {
-                    file_matches_panel(i, $scope.current_site_panel);
+                    file_matches_panel(i, $scope.model.current_site_panel);
                 }
             };
 
@@ -61,14 +106,14 @@ app.controller(
             };
             
             function verifyCategories() {
-                return $scope.current_cytometer &&
+                return $scope.model.current_cytometer &&
                     $scope.current_acquisition_date &&
-                    $scope.current_site_panel &&
+                    $scope.model.current_site_panel &&
                     $scope.current_subject &&
                     $scope.current_visit &&
                     $scope.current_stimulation &&
-                    $scope.current_specimen &&
-                    $scope.current_pretreatment &&
+                    $scope.model.current_specimen &&
+                    $scope.model.current_pretreatment &&
                     $scope.current_storage;
             }
             
@@ -81,19 +126,19 @@ app.controller(
                         }
 
                         // verify panel matches
-                        if (!file_matches_panel(i, $scope.current_site_panel)) {
+                        if (!file_matches_panel(i, $scope.model.current_site_panel)) {
                             continue;
                         }
 
                         // populate the file object properties
                         $scope.file_queue[i].acquisition_date = $scope.current_acquisition_date;
-                        $scope.file_queue[i].site_panel = $scope.current_site_panel;
-                        $scope.file_queue[i].cytometer = $scope.current_cytometer;
+                        $scope.file_queue[i].site_panel = $scope.model.current_site_panel;
+                        $scope.file_queue[i].cytometer = $scope.model.current_cytometer;
                         $scope.file_queue[i].subject = $scope.current_subject;
                         $scope.file_queue[i].visit_type = $scope.current_visit;
                         $scope.file_queue[i].stimulation = $scope.current_stimulation;
-                        $scope.file_queue[i].specimen = $scope.current_specimen;
-                        $scope.file_queue[i].pretreatment = $scope.current_pretreatment;
+                        $scope.file_queue[i].specimen = $scope.model.current_specimen;
+                        $scope.file_queue[i].pretreatment = $scope.model.current_pretreatment;
                         $scope.file_queue[i].storage = $scope.current_storage;
                         
                         // Add to upload queue
