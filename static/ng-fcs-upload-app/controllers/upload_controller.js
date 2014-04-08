@@ -51,6 +51,33 @@ app.controller(
 ]);
 
 app.controller(
+    'SubjectQueryController',
+    ['$scope', 'Subject', function ($scope, Subject) {
+        $scope.$on('projectChangedEvent', function () {
+            $scope.model.subjects = Subject.query({project: $scope.model.current_project.id});
+            $scope.model.current_subject = null;
+        });    }
+]);
+
+app.controller(
+    'VisitTypeQueryController',
+    ['$scope', 'VisitType', function ($scope, VisitType) {
+        $scope.$on('projectChangedEvent', function () {
+            $scope.model.visit_types = VisitType.query({project: $scope.model.current_project.id});
+            $scope.model.current_visit = null;
+        });    }
+]);
+
+app.controller(
+    'StimulationQueryController',
+    ['$scope', 'Stimulation', function ($scope, Stimulation) {
+        $scope.$on('projectChangedEvent', function () {
+            $scope.model.stimulations = Stimulation.query({project: $scope.model.current_project.id});
+            $scope.model.current_stimulation = null;
+        });    }
+]);
+
+app.controller(
     'SpecimenQueryController',
     ['$scope', 'Specimen', function ($scope, Specimen) {
         $scope.model.specimens = Specimen.query();
@@ -65,30 +92,35 @@ app.controller(
 ]);
 
 app.controller(
-    'UploadController',
+    'StorageQueryController',
+    ['$scope', 'Storage', function ($scope, Storage) {
+        $scope.model.storages = Storage.query();
+    }
+]);
+
+app.controller(
+    'CategorizationController',
+    ['$scope', '$modal', function ($scope, $modal) {
+
+    }
+]);
+
+app.controller(
+    'MainController',
     [
         '$scope',
         '$timeout',
         '$upload',
         '$modal',
-        'Storage',
-        'Stimulation',
-        'VisitType',
-        'Subject',
-        function ($scope, $timeout, $upload, $modal, Storage, Stimulation, VisitType, Subject) {
+        function ($scope, $timeout, $upload, $modal) {
             $scope.model = {};
-            $scope.storages = Storage.query();
             $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
 
-            $scope.file_queue = [];
+            $scope.model.file_queue = [];
             $scope.upload_queue = [];
 
             $scope.projectChanged = function () {
                 $scope.$broadcast('projectChangedEvent');
-
-                $scope.stimulations = Stimulation.query({project: $scope.model.current_project.id});
-                $scope.visit_types = VisitType.query({project: $scope.model.current_project.id});
-                $scope.subjects = Subject.query({project: $scope.model.current_project.id});
             };
 
             $scope.siteChanged = function () {
@@ -96,30 +128,30 @@ app.controller(
             };
 
             $scope.evaluateParameterMatch = function () {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
+                for (var i = 0; i < $scope.model.file_queue.length; i++) {
                     file_matches_panel(i, $scope.model.current_site_panel);
                 }
             };
 
             $scope.removeFromFileQueue = function(f) {
-                $scope.file_queue.splice($scope.file_queue.indexOf(f), 1);
+                $scope.model.file_queue.splice($scope.model.file_queue.indexOf(f), 1);
             };
             
             function verifyCategories() {
                 return $scope.model.current_cytometer &&
                     $scope.current_acquisition_date &&
                     $scope.model.current_site_panel &&
-                    $scope.current_subject &&
-                    $scope.current_visit &&
-                    $scope.current_stimulation &&
+                    $scope.model.current_subject &&
+                    $scope.model.current_visit &&
+                    $scope.model.current_stimulation &&
                     $scope.model.current_specimen &&
                     $scope.model.current_pretreatment &&
-                    $scope.current_storage;
+                    $scope.model.current_storage;
             }
             
             $scope.addSelectedToUploadQueue = function() {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    if ($scope.file_queue[i].selected) {
+                for (var i = 0; i < $scope.model.file_queue.length; i++) {
+                    if ($scope.model.file_queue[i].selected) {
                         // ensure all the category fields have data
                         if (! verifyCategories()) {
                             return false;
@@ -131,21 +163,21 @@ app.controller(
                         }
 
                         // populate the file object properties
-                        $scope.file_queue[i].acquisition_date = $scope.current_acquisition_date;
-                        $scope.file_queue[i].site_panel = $scope.model.current_site_panel;
-                        $scope.file_queue[i].cytometer = $scope.model.current_cytometer;
-                        $scope.file_queue[i].subject = $scope.current_subject;
-                        $scope.file_queue[i].visit_type = $scope.current_visit;
-                        $scope.file_queue[i].stimulation = $scope.current_stimulation;
-                        $scope.file_queue[i].specimen = $scope.model.current_specimen;
-                        $scope.file_queue[i].pretreatment = $scope.model.current_pretreatment;
-                        $scope.file_queue[i].storage = $scope.current_storage;
+                        $scope.model.file_queue[i].acquisition_date = $scope.current_acquisition_date;
+                        $scope.model.file_queue[i].site_panel = $scope.model.current_site_panel;
+                        $scope.model.file_queue[i].cytometer = $scope.model.current_cytometer;
+                        $scope.model.file_queue[i].subject = $scope.model.current_subject;
+                        $scope.model.file_queue[i].visit_type = $scope.model.current_visit;
+                        $scope.model.file_queue[i].stimulation = $scope.model.current_stimulation;
+                        $scope.model.file_queue[i].specimen = $scope.model.current_specimen;
+                        $scope.model.file_queue[i].pretreatment = $scope.model.current_pretreatment;
+                        $scope.model.file_queue[i].storage = $scope.current_storage;
                         
                         // Add to upload queue
-                        $scope.upload_queue.push($scope.file_queue[i]);
+                        $scope.upload_queue.push($scope.model.file_queue[i]);
                         
                         // Remove from file queue
-                        $scope.file_queue.splice(i, 1);
+                        $scope.model.file_queue.splice(i, 1);
                         i--;
                     }
                 }
@@ -171,11 +203,11 @@ app.controller(
 
             // site panel matching
             function file_matches_panel(file_index, site_panel) {
-                $scope.file_queue[file_index].errors = [];
+                $scope.model.file_queue[file_index].errors = [];
 
                 // first make sure the number of params is the same
-                if ($scope.file_queue[file_index].channels.length != site_panel.parameters.length) {
-                    $scope.file_queue[file_index].errors.push(
+                if ($scope.model.file_queue[file_index].channels.length != site_panel.parameters.length) {
+                    $scope.model.file_queue[file_index].errors.push(
                         {
                             'key': 'Incompatible site panel',
                             'value': "The number of parameters in chosen site panel and FCS file are not equal."
@@ -190,7 +222,7 @@ app.controller(
                 // collect mis-matches to report them in errors array
                 var mismatches = [];
                 for (var i = 0; i < site_panel.parameters.length; i++) {
-                    var channel = $scope.file_queue[file_index].channels.filter(function(item) {
+                    var channel = $scope.model.file_queue[file_index].channels.filter(function(item) {
                         return (item.channel == site_panel.parameters[i].fcs_number);
                     });
 
@@ -218,7 +250,7 @@ app.controller(
                 }
 
                 if (mismatches.length > 0) {
-                    $scope.file_queue[file_index].errors.push(
+                    $scope.model.file_queue[file_index].errors.push(
                         {
                             'key': 'Incompatible site panel',
                             'value': mismatches.join('<br />')
@@ -240,8 +272,8 @@ app.controller(
             };
 
             $scope.toggleAllFileQueue = function () {
-                for (var i = 0; i < $scope.file_queue.length; i++) {
-                    $scope.file_queue[i].selected = $scope.master_file_queue_checkbox;
+                for (var i = 0; i < $scope.model.file_queue.length; i++) {
+                    $scope.model.file_queue[i].selected = $scope.master_file_queue_checkbox;
                 }
             };
 
@@ -358,7 +390,7 @@ app.controller(
 
                     // Using $apply here to trigger template update
                     $scope.$apply(function () {
-                        $scope.file_queue.push(obj);
+                        $scope.model.file_queue.push(obj);
                     });
                 });
 
@@ -561,7 +593,6 @@ app.controller(
 
             $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'shortDate'];
             $scope.format = $scope.formats[0];
-
         }
     ]
 );

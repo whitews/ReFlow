@@ -8,7 +8,7 @@ app.config(function ($routeProvider) {
     $routeProvider
         .when('/',
         {
-            controller: 'UploadController',
+            controller: 'MainController',
             templateUrl: '/static/ng-fcs-upload-app/partials/upload_samples.html'
         });
 });
