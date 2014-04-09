@@ -103,6 +103,9 @@ app.controller(
     ['$scope', '$modal', function ($scope, $modal) {
         $scope.model.file_queue = [];
 
+        // need site panel URL for launching site panel partial in a modal
+        $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
+
         $scope.projectChanged = function () {
             $scope.$broadcast('projectChangedEvent');
         };
@@ -459,37 +462,31 @@ app.controller(
     }
 ]);
 
+
 app.controller(
-    'MainController',
-    [
-        '$scope',
-        '$timeout',
-        '$upload',
-        '$modal',
-        function ($scope, $timeout, $upload, $modal) {
-            $scope.model = {};
-            $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
-            $scope.model.upload_queue = [];
+    'UploadQueueController',
+    ['$scope', '$upload', '$modal', function ($scope, $upload, $modal) {
+        $scope.model.upload_queue = [];
 
-            $scope.clearUploaded = function() {
-                for (var i = 0; i < $scope.model.upload_queue.length; i++) {
-                    if ($scope.model.upload_queue[i].uploaded) {
-                        $scope.model.upload_queue.splice(i, 1);
-                        i--;
-                    }
+        $scope.clearUploaded = function() {
+            for (var i = 0; i < $scope.model.upload_queue.length; i++) {
+                if ($scope.model.upload_queue[i].uploaded) {
+                    $scope.model.upload_queue.splice(i, 1);
+                    i--;
                 }
-            };
+            }
+        };
 
-            $scope.clearSelected = function() {
-                for (var i = 0; i < $scope.model.upload_queue.length; i++) {
-                    if ($scope.model.upload_queue[i].selected && ! $scope.model.upload_queue[i].uploading) {
-                        $scope.model.upload_queue.splice(i, 1);
-                        i--;
-                    }
+        $scope.clearSelected = function() {
+            for (var i = 0; i < $scope.model.upload_queue.length; i++) {
+                if ($scope.model.upload_queue[i].selected && ! $scope.model.upload_queue[i].uploading) {
+                    $scope.model.upload_queue.splice(i, 1);
+                    i--;
                 }
-            };
+            }
+        };
 
-            $scope.toggleAllUploadQueue = function () {
+        $scope.toggleAllUploadQueue = function () {
                 for (var i = 0; i < $scope.model.upload_queue.length; i++) {
                     // only select the non-uploaded files
                     if (! $scope.model.upload_queue[i].uploaded) {
@@ -498,135 +495,144 @@ app.controller(
                 }
             };
 
-            $scope.uploadSelected = function() {
-                // first iterate through all the selected and mark as uploading
-                // we do this so all the selected files get marked, since
-                // the uploads may take a while and we don't want the user
-                // interacting with the ones we are trying to upload
-                for (var i = 0; i < $scope.model.upload_queue.length; i++) {
-                    if ($scope.model.upload_queue[i].selected) {
-                        $scope.model.upload_queue[i].uploading = true;
-                    }
+        $scope.uploadSelected = function() {
+            // first iterate through all the selected and mark as uploading
+            // we do this so all the selected files get marked, since
+            // the uploads may take a while and we don't want the user
+            // interacting with the ones we are trying to upload
+            for (var i = 0; i < $scope.model.upload_queue.length; i++) {
+                if ($scope.model.upload_queue[i].selected) {
+                    $scope.model.upload_queue[i].uploading = true;
                 }
-                // now actually call upload for all the marked files
-                for (var i = 0; i < $scope.model.upload_queue.length; i++) {
-                    if ($scope.model.upload_queue[i].uploading) {
-                        upload(i);
-                    }
+            }
+            // now actually call upload for all the marked files
+            for (var i = 0; i < $scope.model.upload_queue.length; i++) {
+                if ($scope.model.upload_queue[i].uploading) {
+                    upload(i);
                 }
-            };
+            }
+        };
 
-            function upload(index) {
-                $scope.model.upload_queue[index].progress = 0;
-                $scope.model.upload_queue[index].errors = null;
+        function upload(index) {
+            $scope.model.upload_queue[index].progress = 0;
+            $scope.model.upload_queue[index].errors = null;
 
-                if (! $scope.model.upload_queue[index].subject ||
-                    ! $scope.model.upload_queue[index].visit_type ||
-                    ! $scope.model.upload_queue[index].specimen ||
-                    ! $scope.model.upload_queue[index].pretreatment ||
-                    ! $scope.model.upload_queue[index].storage ||
-                    ! $scope.model.upload_queue[index].stimulation ||
-                    ! $scope.model.upload_queue[index].site_panel ||
-                    ! $scope.model.upload_queue[index].cytometer ||
-                    ! $scope.model.upload_queue[index].acquisition_date)
-                {
-                    $scope.model.upload_queue[index].errors = [];
-                    $scope.model.upload_queue[index].errors.push(
-                        {
-                            'key': 'Missing fields',
-                            'value': 'Please select all fields for the FCS sample.'
-                        }
-                    );
-                    // reset uploading status else checkbox stays disabled
-                    $scope.model.upload_queue[index].uploading = false;
-                    return;
-                }
-
-                $scope.model.upload_queue[index].upload = $upload.upload({
-                    url : '/api/repository/samples/add/',
-                    method: 'POST',
-
-                    // FCS sample's REST API model fields here
-                    data : {
-                        'subject': $scope.model.upload_queue[index].subject.id,
-                        'visit': $scope.model.upload_queue[index].visit_type.id,
-                        'specimen': $scope.model.upload_queue[index].specimen.id,
-                        'pretreatment': $scope.model.upload_queue[index].pretreatment.name,
-                        'storage': $scope.model.upload_queue[index].storage.name,
-                        'stimulation': $scope.model.upload_queue[index].stimulation.id,
-                        'site_panel': $scope.model.upload_queue[index].site_panel.id,
-                        'cytometer': $scope.model.upload_queue[index].cytometer.id,
-                        'acquisition_date':
-                                $scope.model.upload_queue[index].acquisition_date.getFullYear().toString() +
-                                "-" +
-                                ($scope.model.upload_queue[index].acquisition_date.getMonth() + 1) +
-                                "-" +
-                                $scope.model.upload_queue[index].acquisition_date.getDate().toString()
-                    },
-
-                    file: $scope.model.upload_queue[index].file,
-                    fileFormDataName: 'sample_file'
-                }).progress(function(evt) {
-                    $scope.model.upload_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
-                }).success(function(data, status, headers, config) {
-                    $scope.model.upload_queue[index].uploaded = true;
-                    $scope.model.upload_queue[index].selected = false;
-                }).error(function(error) {
-                    if (Object.keys(error).length > 0) {
-                        $scope.model.upload_queue[index].errors = [];
-
-                        for (var key in error) {
-                            $scope.model.upload_queue[index].errors.push(
-                                {
-                                    'key': key,
-                                    'value': error[key]
-                                }
-                            );
-                        }
+            if (! $scope.model.upload_queue[index].subject ||
+                ! $scope.model.upload_queue[index].visit_type ||
+                ! $scope.model.upload_queue[index].specimen ||
+                ! $scope.model.upload_queue[index].pretreatment ||
+                ! $scope.model.upload_queue[index].storage ||
+                ! $scope.model.upload_queue[index].stimulation ||
+                ! $scope.model.upload_queue[index].site_panel ||
+                ! $scope.model.upload_queue[index].cytometer ||
+                ! $scope.model.upload_queue[index].acquisition_date)
+            {
+                $scope.model.upload_queue[index].errors = [];
+                $scope.model.upload_queue[index].errors.push(
+                    {
+                        'key': 'Missing fields',
+                        'value': 'Please select all fields for the FCS sample.'
                     }
-                    // reset uploading status else checkbox stays disabled
-                    $scope.model.upload_queue[index].uploading = false;
-                });
+                );
+                // reset uploading status else checkbox stays disabled
+                $scope.model.upload_queue[index].uploading = false;
+                return;
             }
 
-            $scope.open_error_modal = function (f) {
+            $scope.model.upload_queue[index].upload = $upload.upload({
+                url : '/api/repository/samples/add/',
+                method: 'POST',
 
-                var modalInstance = $modal.open({
-                    templateUrl: 'myModalContent.html',
-                    controller: ModalInstanceCtrl,
-                    resolve: {
-                        file: function() {
-                            return f;
-                        }
+                // FCS sample's REST API model fields here
+                data : {
+                    'subject': $scope.model.upload_queue[index].subject.id,
+                    'visit': $scope.model.upload_queue[index].visit_type.id,
+                    'specimen': $scope.model.upload_queue[index].specimen.id,
+                    'pretreatment': $scope.model.upload_queue[index].pretreatment.name,
+                    'storage': $scope.model.upload_queue[index].storage.name,
+                    'stimulation': $scope.model.upload_queue[index].stimulation.id,
+                    'site_panel': $scope.model.upload_queue[index].site_panel.id,
+                    'cytometer': $scope.model.upload_queue[index].cytometer.id,
+                    'acquisition_date':
+                            $scope.model.upload_queue[index].acquisition_date.getFullYear().toString() +
+                            "-" +
+                            ($scope.model.upload_queue[index].acquisition_date.getMonth() + 1) +
+                            "-" +
+                            $scope.model.upload_queue[index].acquisition_date.getDate().toString()
+                },
+
+                file: $scope.model.upload_queue[index].file,
+                fileFormDataName: 'sample_file'
+            }).progress(function(evt) {
+                $scope.model.upload_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
+            }).success(function(data, status, headers, config) {
+                $scope.model.upload_queue[index].uploaded = true;
+                $scope.model.upload_queue[index].selected = false;
+            }).error(function(error) {
+                if (Object.keys(error).length > 0) {
+                    $scope.model.upload_queue[index].errors = [];
+
+                    for (var key in error) {
+                        $scope.model.upload_queue[index].errors.push(
+                            {
+                                'key': key,
+                                'value': error[key]
+                            }
+                        );
                     }
-                });
-            };
+                }
+                // reset uploading status else checkbox stays disabled
+                $scope.model.upload_queue[index].uploading = false;
+            });
+        }
 
-            $scope.open_metadata_modal = function (f) {
+        $scope.open_error_modal = function (f) {
 
-                var modalInstance = $modal.open({
-                    templateUrl: 'metadata_content.html',
-                    controller: ModalInstanceCtrl,
-                    resolve: {
-                        file: function() {
-                            return f;
-                        }
+            var modalInstance = $modal.open({
+                templateUrl: 'myModalContent.html',
+                controller: ModalInstanceCtrl,
+                resolve: {
+                    file: function() {
+                        return f;
                     }
-                });
-            };
+                }
+            });
+        };
 
-            $scope.open_channels_modal = function (f) {
+        $scope.open_metadata_modal = function (f) {
 
-                var modalInstance = $modal.open({
-                    templateUrl: 'channels_content.html',
-                    controller: ModalInstanceCtrl,
-                    resolve: {
-                        file: function() {
-                            return f;
-                        }
+            var modalInstance = $modal.open({
+                templateUrl: 'metadata_content.html',
+                controller: ModalInstanceCtrl,
+                resolve: {
+                    file: function() {
+                        return f;
                     }
-                });
-            };
+                }
+            });
+        };
+
+        $scope.open_channels_modal = function (f) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'channels_content.html',
+                controller: ModalInstanceCtrl,
+                resolve: {
+                    file: function() {
+                        return f;
+                    }
+                }
+            });
+        };
+    }
+]);
+
+app.controller(
+    'MainController',
+    [
+        '$scope',
+        function ($scope) {
+            $scope.model = {};
         }
     ]
 );
