@@ -63,7 +63,13 @@ def repository_api_root(request):
             'viable-process-request-list', request=request),
         'create_process_request_output': reverse(
             'create-process-request-output', request=request),
+        'get_parameter_functions': reverse('get_parameter_functions', request=request)
     })
+
+
+@api_view(['GET'])
+def get_parameter_functions(request):
+    return Response(PARAMETER_TYPE_CHOICES)
 
 
 @api_view(['GET'])
