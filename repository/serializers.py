@@ -57,6 +57,12 @@ class SubjectSerializer(serializers.ModelSerializer):
             'project',)
 
 
+class MarkerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Marker
+
+
 class SpecimenSerializer(serializers.ModelSerializer):
 
     class Meta:

@@ -34,7 +34,12 @@
                   </select>
                 </div>
               </td>
-              <td>{{ channel.channel }}</td>
+              <td>
+                <div ng-controller="ParameterController">
+                  <select class="form-control" ng-model="channel.value_type" ng-options="p[0] for p in model.parameter_value_types">
+                  </select>
+                </div>
+              </td>
               <td>{{ channel.channel }}</td>
               <td>{{ channel.channel }}</td>
             </tr>

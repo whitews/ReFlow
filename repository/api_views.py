@@ -39,6 +39,7 @@ def repository_api_root(request):
         'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
+        'markers': reverse('marker-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
@@ -541,6 +542,16 @@ class CytometerDetail(
 
     model = Cytometer
     serializer_class = CytometerSerializer
+
+
+class MarkerList(generics.ListAPIView):
+    """
+    API endpoint representing a list of flow cytometry markers.
+    """
+
+    model = Marker
+    serializer_class = MarkerSerializer
+    filter_fields = ('marker_abbreviation', 'marker_name')
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):

@@ -12,6 +12,7 @@ handler403 = TemplateView.as_view(template_name='403.html')
 urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/?$', 'repository_api_root', name='repository-api-root'),
 
+    url(r'^api/repository/markers/?$', MarkerList.as_view(), name='marker-list'),
     url(r'^api/repository/specimens/?$', SpecimenList.as_view(), name='specimen-list'),
     url(r'^api/repository/parameter_functions/?$', get_parameter_functions, name='get_parameter_functions'),
     url(r'^api/repository/parameter_value_types/?$', get_parameter_value_types,
