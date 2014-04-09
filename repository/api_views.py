@@ -40,6 +40,7 @@ def repository_api_root(request):
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
         'markers': reverse('marker-list', request=request),
+        'fluorochromes': reverse('fluorochrome-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
@@ -552,6 +553,16 @@ class MarkerList(generics.ListAPIView):
     model = Marker
     serializer_class = MarkerSerializer
     filter_fields = ('marker_abbreviation', 'marker_name')
+
+
+class FluorochromeList(generics.ListAPIView):
+    """
+    API endpoint representing a list of flow cytometry fluorochromes.
+    """
+
+    model = Fluorochrome
+    serializer_class = FluorochromeSerializer
+    filter_fields = ('fluorochrome_abbreviation', 'fluorochrome_name')
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):

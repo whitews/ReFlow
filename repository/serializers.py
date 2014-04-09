@@ -63,6 +63,12 @@ class MarkerSerializer(serializers.ModelSerializer):
         model = Marker
 
 
+class FluorochromeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Fluorochrome
+
+
 class SpecimenSerializer(serializers.ModelSerializer):
 
     class Meta:
