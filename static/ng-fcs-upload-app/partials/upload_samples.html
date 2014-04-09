@@ -153,13 +153,6 @@
                 <button data-ng-show="f.errors" data-ng-click="open_site_panel_mismatch_modal(f)" class="btn btn-default btn-xs">
                   <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
                 </button>
-                <div ng-controller="SitePanelController">
-                  <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#sitePanelModal">
-                    Create Site Panel
-                  </button>
-                  <div ng-include="model.site_panel_url"></div>
-                </div>
-
               </td>
               <td>
 
@@ -205,23 +198,32 @@
                         <button class="btn btn-primary" ng-click="ok()">OK</button>
                     </div>
                 </script>
+                <div ng-controller="SitePanelController">
+                  <div ng-include="model.site_panel_url"></div>
+                </div>
 
                 <li class="list-unstyled dropdown">
-                    <a href="#" class="dropdown-toggle no-wrap">
-                      <strong>{{ f.filename }}</strong> <b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li class="btn-link">
-                          <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
-                        </li>
-                        <li class="btn-link">
-                          <a data-ng-click="open_channels_modal(f)">View Channels</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li class="btn-link">
-                          <a data-ng-click="removeFromFileQueue(f)">Remove</a>
-                        </li>
-                    </ul>
+                  <a href="#" class="dropdown-toggle no-wrap">
+                    <strong>{{ f.filename }}</strong> <b class="caret"></b>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li class="btn-link">
+                      <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
+                    </li>
+                    <li class="btn-link">
+                      <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="btn-link">
+                      <a data-toggle="modal" data-target="#sitePanelModal">
+                        Create Site Panel
+                      </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="btn-link">
+                      <a data-ng-click="removeFromFileQueue(f)">Remove</a>
+                    </li>
+                  </ul>
                 </li>
               </td>
               <td>{{ f.file.size | bytes }}</td>

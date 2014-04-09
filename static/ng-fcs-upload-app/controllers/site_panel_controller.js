@@ -5,11 +5,15 @@ app.controller(
     'SitePanelController',
     [
         '$scope',
-        '$timeout',
         '$modal',
         'SitePanel',
-        function ($scope, $timeout, $modal, SitePanel) {
-            $scope.model.some_var = "Do site panel stuff here"
+        function ($scope, $modal, SitePanel) {
+            $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
+            $scope.model.some_var = "Do site panel stuff here";
+
+            $scope.changeSomething = function () {
+                $scope.model.some_var = "You changed something!";
+            };
 
         }
     ]

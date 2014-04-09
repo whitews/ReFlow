@@ -103,9 +103,6 @@ app.controller(
     ['$scope', '$modal', function ($scope, $modal) {
         $scope.model.file_queue = [];
 
-        // need site panel URL for launching site panel partial in a modal
-        $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
-
         $scope.projectChanged = function () {
             $scope.$broadcast('projectChangedEvent');
         };
