@@ -28,7 +28,12 @@
               <td>{{ channel.channel }}</td>
               <td>{{ channel.pnn }}</td>
               <td>{{ channel.pns }}</td>
-              <td>{{ channel.channel }}</td>
+              <td>
+                <div ng-controller="ParameterController">
+                  <select class="form-control" ng-model="channel.function" ng-options="p[0] for p in model.parameter_functions">
+                  </select>
+                </div>
+              </td>
               <td>{{ channel.channel }}</td>
               <td>{{ channel.channel }}</td>
               <td>{{ channel.channel }}</td>

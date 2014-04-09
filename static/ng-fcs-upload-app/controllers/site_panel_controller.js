@@ -5,14 +5,28 @@ app.controller(
     'SitePanelController',
     [
         '$scope',
-        '$modal',
         'SitePanel',
-        function ($scope, $modal, SitePanel) {
+        function ($scope, SitePanel) {
             $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
             $scope.model.some_var = "Do site panel stuff here";
         }
     ]
 );
+
+
+app.controller(
+    'ParameterController',
+    [
+        '$scope',
+        'ParameterFunction',
+        'ParameterValueType',
+        function ($scope, ParameterFunction, ParameterValueType) {
+            $scope.model.parameter_functions = ParameterFunction.query();
+            $scope.model.parameter_value_types = ParameterValueType.query();
+        }
+    ]
+);
+
 
 app.controller(
     'SitePanelCreationProjectPanelController',
