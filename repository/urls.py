@@ -14,6 +14,8 @@ urlpatterns = patterns('repository.api_views',
 
     url(r'^api/repository/specimens/?$', SpecimenList.as_view(), name='specimen-list'),
     url(r'^api/repository/parameter_functions/?$', get_parameter_functions, name='get_parameter_functions'),
+    url(r'^api/repository/parameter_value_types/?$', get_parameter_value_types,
+        name='get_parameter_value_types'),
 
     url(r'^api/repository/projects/?$', ProjectList.as_view(), name='project-list'),
     url(r'^api/repository/projects/(?P<pk>\d+)/?$', ProjectDetail.as_view(), name='project-detail'),
