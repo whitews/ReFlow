@@ -1,14 +1,40 @@
 <div class="modal fade" id="sitePanelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">Create Site Panel</h4>
       </div>
       <div class="modal-body">
-        <p>{{ model.some_var }}</p>
-          <p>{{ model.current_project }}</p>
-        <button ng-click="changeSomething()">Click Me!</button>
+        <p>{{ model.current_project.project_name }}</p>
+        <div ng-controller="SitePanelCreationProjectPanelController">
+          <select class="form-control" ng-model="project_panel" ng-options="p.panel_name for p in model.project_panels">
+          </select>
+        </div>
+        <table class="table-condensed">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>PnN</th>
+              <th>PnS</th>
+              <th>Function</th>
+              <th>Value Type</th>
+              <th>Markers</th>
+              <th>Fluorochrome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="channel in model.site_panel_sample.channels">
+              <td>{{ channel.channel }}</td>
+              <td>{{ channel.pnn }}</td>
+              <td>{{ channel.pns }}</td>
+              <td>{{ channel.channel }}</td>
+              <td>{{ channel.channel }}</td>
+              <td>{{ channel.channel }}</td>
+              <td>{{ channel.channel }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

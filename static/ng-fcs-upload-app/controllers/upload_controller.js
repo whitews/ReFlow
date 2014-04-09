@@ -74,7 +74,8 @@ app.controller(
         $scope.$on('projectChangedEvent', function () {
             $scope.model.stimulations = Stimulation.query({project: $scope.model.current_project.id});
             $scope.model.current_stimulation = null;
-        });    }
+        });
+    }
 ]);
 
 app.controller(
@@ -217,6 +218,11 @@ app.controller(
             }
             return true;
         }
+
+        // notify other controllers we want to start creating a site panel
+        $scope.initSitePanel = function(f) {
+            $scope.$broadcast('initSitePanel', f);
+        };
 
         $scope.open_site_panel_mismatch_modal = function (f) {
             var modalInstance = $modal.open({
@@ -630,6 +636,7 @@ app.controller(
         '$scope',
         function ($scope) {
             $scope.model = {};
+            $scope.site_panel_creation_model = {};
         }
     ]
 );
