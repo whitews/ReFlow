@@ -11,6 +11,7 @@
           <select class="form-control" ng-model="project_panel" ng-options="p.panel_name for p in model.project_panels">
           </select>
         </div>
+        <hr/>
         <table class="table-condensed">
           <thead>
             <tr>
@@ -25,9 +26,9 @@
           </thead>
           <tbody>
             <tr ng-repeat="channel in model.site_panel_sample.channels">
-              <td>{{ channel.channel }}</td>
-              <td>{{ channel.pnn }}</td>
-              <td>{{ channel.pns }}</td>
+              <td class="no-wrap">{{ channel.channel }}</td>
+              <td class="no-wrap">{{ channel.pnn }}</td>
+              <td class="no-wrap">{{ channel.pns }}</td>
               <td>
                 <div ng-controller="ParameterController">
                   <select class="form-control" ng-model="channel.function" ng-options="p[1] for p in model.parameter_functions">
@@ -42,7 +43,8 @@
               </td>
               <td>
                 <div ng-controller="ParameterController">
-                  <select class="form-control" ng-model="channel.markers" ng-options="m.marker_abbreviation for m in model.markers">
+                  <select ui-select2="{}" multiple ng-model="channel.markers">
+                    <option value="{{ m.id }}" data-ng-repeat="m in model.markers">{{ m.marker_abbreviation }}</option>
                   </select>
                 </div>
               </td>

@@ -11,37 +11,37 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 font-weight: bold;
 }
 
-select,
-textarea,
-input[type="text"],
-input[type="password"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="date"],
-input[type="month"],
-input[type="time"],
-input[type="week"],
-input[type="number"],
-input[type="email"],
-input[type="url"],
-input[type="search"],
-input[type="tel"],
-input[type="color"],
-.uneditable-input {
+/*select,*/
+/*textarea,*/
+/*input[type="text"],*/
+/*input[type="password"],*/
+/*input[type="datetime"],*/
+/*input[type="datetime-local"],*/
+/*input[type="date"],*/
+/*input[type="month"],*/
+/*input[type="time"],*/
+/*input[type="week"],*/
+/*input[type="number"],*/
+/*input[type="email"],*/
+/*input[type="url"],*/
+/*input[type="search"],*/
+/*input[type="tel"],*/
+/*input[type="color"],*/
+/*.uneditable-input {*/
   /*display: inline-block;*/
   /*height: 20px;*/
-  padding: 4px 6px;
+  /*padding: 4px 6px;*/
   /*margin-bottom: 10px;*/
   /*font-size: 13px;*/
-  line-height: 1.5;
+  /*line-height: 1.5;*/
   /*color: #555;*/
-  border: 1px solid #CCC;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  vertical-align: middle;
-  min-width: 190px;
-}
+  /*border: 1px solid #CCC;*/
+  /*-webkit-border-radius: 4px;*/
+  /*-moz-border-radius: 4px;*/
+  /*border-radius: 4px;*/
+  /*vertical-align: middle;*/
+  /*min-width: 190px;*/
+/*}*/
 
 .input-lg {
     min-width: 360px !important;
@@ -102,6 +102,16 @@ hr {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.modal-lg {
+  width: 90% !important;
+  line-height: 20px;
+}
+
+.select2-container {
+  max-width: 150px !important;
+  width: 150px;
 }
 
 .breadcrumb {
@@ -294,44 +304,44 @@ span.marker-field > select {
   white-space: nowrap;
 }
 /* ----------  Custom form stuff START---------- */
-.form-control {
-    padding: 3px;
-    font-size: 12px;
-    line-height: 1.1;
-    height: 30px;
-}
+/*.form-control {*/
+    /*padding: 3px;*/
+    /*font-size: 12px;*/
+    /*line-height: 1.1;*/
+    /*height: 30px;*/
+/*}*/
 
-.form-group {
-  margin-bottom: 12px;
-}
+/*.form-group {*/
+  /*margin-bottom: 12px;*/
+/*}*/
 
-select,
-input[type="file"] {
-  height: 30px;
-  line-height: 30px;
-}
+/*select,*/
+/*input[type="file"] {*/
+  /*height: 30px;*/
+  /*line-height: 30px;*/
+/*}*/
 
-input[type="file"] {
-  display: inline-block;
-}
+/*input[type="file"] {*/
+  /*display: inline-block;*/
+/*}*/
 
-.form-group ul {
-  list-style: none;
-  display: inline-block;
-  padding: 7px 0px;
-}
-.form-group ul > li {
-  display: list-item;
-}
+/*.form-group ul {*/
+  /*list-style: none;*/
+  /*display: inline-block;*/
+  /*padding: 7px 0px;*/
+/*}*/
+/*.form-group ul > li {*/
+  /*display: list-item;*/
+/*}*/
 
-#render_parameters_form > select {
-  width: auto !important;
-}
-select.app, input.app {
-  width: auto !important;
-  margin: 0;
-  min-width: 0;
-}
+/*#render_parameters_form > select {*/
+  /*width: auto !important;*/
+/*}*/
+/*select.app, input.app {*/
+  /*width: auto !important;*/
+  /*margin: 0;*/
+  /*min-width: 0;*/
+/*}*/
 .datepicker-wrapper {
   max-width: 170px !important;
   height: 30px;
