@@ -30,18 +30,28 @@
               <td>{{ channel.pns }}</td>
               <td>
                 <div ng-controller="ParameterController">
-                  <select class="form-control" ng-model="channel.function" ng-options="p[0] for p in model.parameter_functions">
+                  <select class="form-control" ng-model="channel.function" ng-options="p[1] for p in model.parameter_functions">
                   </select>
                 </div>
               </td>
               <td>
                 <div ng-controller="ParameterController">
-                  <select class="form-control" ng-model="channel.value_type" ng-options="p[0] for p in model.parameter_value_types">
+                  <select class="form-control" ng-model="channel.value_type" ng-options="p[1] for p in model.parameter_value_types">
                   </select>
                 </div>
               </td>
-              <td>{{ channel.channel }}</td>
-              <td>{{ channel.channel }}</td>
+              <td>
+                <div ng-controller="ParameterController">
+                  <select class="form-control" ng-model="channel.markers" ng-options="m.marker_abbreviation for m in model.markers">
+                  </select>
+                </div>
+              </td>
+              <td>
+                <div ng-controller="ParameterController">
+                  <select class="form-control" ng-model="channel.fluorochrome" ng-options="f.fluorochrome_abbreviation for f in model.fluorochromes">
+                  </select>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>

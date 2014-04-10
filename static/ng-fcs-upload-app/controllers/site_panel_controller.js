@@ -20,9 +20,13 @@ app.controller(
         '$scope',
         'ParameterFunction',
         'ParameterValueType',
-        function ($scope, ParameterFunction, ParameterValueType) {
+        'Marker',
+        'Fluorochrome',
+        function ($scope, ParameterFunction, ParameterValueType, Marker, Fluorochrome) {
             $scope.model.parameter_functions = ParameterFunction.query();
             $scope.model.parameter_value_types = ParameterValueType.query();
+            $scope.model.markers = Marker.query();
+            $scope.model.fluorochromes = Fluorochrome.query();
         }
     ]
 );

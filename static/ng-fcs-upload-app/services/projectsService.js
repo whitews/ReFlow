@@ -4,6 +4,8 @@
 
 var URLS = {
     'PROJECTS':            '/api/repository/projects/',
+    'MARKERS':             '/api/repository/markers/',
+    'FLUOROCHROMES':       '/api/repository/fluorochromes/',
     'SPECIMENS':           '/api/repository/specimens/',
     'SUBJECT_GROUPS':      '/api/repository/subject_groups/',
     'SITES':               '/api/repository/sites/',
@@ -37,6 +39,12 @@ service
     }])
     .factory('Site', ['$resource', function ($resource) {
         return $resource(URLS.SITES);
+    }])
+    .factory('Marker', ['$resource', function ($resource) {
+        return $resource(URLS.MARKERS);
+    }])
+    .factory('Fluorochrome', ['$resource', function ($resource) {
+        return $resource(URLS.FLUOROCHROMES);
     }])
     .factory('Specimen', ['$resource', function ($resource) {
         return $resource(URLS.SPECIMENS);
