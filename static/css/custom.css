@@ -97,8 +97,8 @@ hr {
   border-top: 1px solid #dddddd;
 }
 
-.table-hover tbody tr:hover td,
-.table-hover tbody tr:hover th {
+.table-hover > tbody > tr:hover > td,
+.table-hover > tbody > tr:hover > th {
   background-color: #f1f1f1;
 }
 
