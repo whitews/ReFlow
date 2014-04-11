@@ -65,7 +65,7 @@ app.controller(
                     c.value_type = 'H';
                 } else if (c.pnn.substr(-2) == '-W') {
                     c.value_type = 'W';
-                } else if (c.pnn.substr(-2) == '-T') {
+                } else if (c.pnn.substr(-2) == '-T' || c.pnn.substr(0, 4) == 'Time') {
                     c.value_type = 'T';
                 }
 
