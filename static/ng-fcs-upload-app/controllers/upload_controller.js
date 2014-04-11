@@ -375,7 +375,7 @@ app.controller(
                         } else {
                             obj.channels.push(
                                 {
-                                    'channel': pnn_result[1],
+                                    'channel': pns_result[1],
                                     'pns': non_paired_list[i+1]
                                 }
                             );
