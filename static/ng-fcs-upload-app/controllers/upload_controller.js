@@ -351,7 +351,7 @@ app.controller(
                                 break;
                             }
                         }
-                        if (index) {
+                        if (index != null) {
                             obj.channels[j].pnn = non_paired_list[i+1];
                         } else {
                             obj.channels.push(
@@ -370,7 +370,7 @@ app.controller(
                                 break;
                             }
                         }
-                        if (index) {
+                        if (index != null) {
                             obj.channels[j].pns = non_paired_list[i+1];
                         } else {
                             obj.channels.push(
