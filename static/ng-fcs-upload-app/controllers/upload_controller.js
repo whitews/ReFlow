@@ -636,7 +636,6 @@ app.controller(
         '$scope',
         function ($scope) {
             $scope.model = {};
-            $scope.site_panel_creation_model = {};
         }
     ]
 );

@@ -53,13 +53,13 @@
                   <td class="no-wrap">{{ channel.pns }}</td>
                   <td>
                     <div ng-controller="ParameterController">
-                      <select class="form-control" ng-model="channel.function" ng-options="p[1] for p in model.parameter_functions">
+                      <select class="form-control" ng-model="channel.function" ng-options="p[0] as p[1] for p in model.parameter_functions">
                       </select>
                     </div>
                   </td>
                   <td>
                     <div ng-controller="ParameterController">
-                      <select class="form-control" ng-model="channel.value_type" ng-options="p[1] for p in model.parameter_value_types">
+                      <select class="form-control" ng-model="channel.value_type" ng-options="p[0] as p[1] for p in model.parameter_value_types">
                       </select>
                     </div>
                   </td>
@@ -72,7 +72,7 @@
                   </td>
                   <td>
                     <div ng-controller="ParameterController">
-                      <select class="form-control" ng-model="channel.fluorochrome" ng-options="f.fluorochrome_abbreviation for f in model.fluorochromes">
+                      <select class="form-control" ng-model="channel.fluorochrome" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
                       </select>
                     </div>
                   </td>
@@ -84,7 +84,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save Panel</button>
+        <button type="button" class="btn btn-primary" ng-click="savePanel()">Save Panel</button>
       </div>
     </div>
   </div>
