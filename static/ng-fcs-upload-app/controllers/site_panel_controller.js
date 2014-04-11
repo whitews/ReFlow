@@ -47,6 +47,8 @@ app.controller(
             $scope.model.site_panel_sample = f;
 
             $scope.model.site_panel_sample.channels.forEach(function (c) {
+                c.function = null;
+
                 // Check the PnN field for 'FSC' or 'SSC'
                 if (c.pnn.substr(0, 3) == 'FSC') {
                     c.function = 'FSC';
