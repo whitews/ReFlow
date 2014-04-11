@@ -24,8 +24,9 @@
                     <span ng-show="param.match" class="glyphicon glyphicon-exclamation-sign danger"></span>
                     <span ng-hide="param.match" class="glyphicon glyphicon-exclamation-sign danger"></span>
                     {{ param.parameter_type }},
-                    {{ param.parameter_value_type }}<span ng-repeat="m in param.markers"><ng-hide="$last">,</ng-hide>
-                    {{ m.name }}</span><ng-hide="param.fluorochrome == null">, {{ param.fluorochrome_abbreviation }}</ng-hide>
+                    {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
+                    {{ m.name }}</span><span ng-show="param.fluorochrome">,
+                    {{ param.fluorochrome_abbreviation }}</span>
                   </li>
                 </ul>
               </div>
