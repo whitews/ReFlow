@@ -10,7 +10,7 @@
                 <td><strong>Project:</strong></td>
                 <td>
                   <div ng-controller="ProjectQueryController">
-                      <select class="form-control" ng-model="model.current_project" ng-change="projectChanged()" ng-options="p.project_name for p in model.projects">
+                      <select class="form-control" ng-model="model.current_project" ng-required="true" ng-change="projectChanged()" ng-options="p.project_name for p in model.projects">
                       </select>
                   </div>
                 </td>
@@ -19,7 +19,7 @@
                 <td><strong>Site:</strong></td>
                 <td>
                   <div ng-controller="SiteQueryController">
-                    <select class="form-control" ng-model="model.current_site" ng-change="siteChanged()" ng-options="s.site_name for s in model.sites">
+                    <select class="form-control" ng-model="model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in model.sites">
                     </select>
                     </div>
                 </td>
@@ -28,7 +28,7 @@
                 <td><strong>Cytometer:</strong></td>
                 <td>
                   <div ng-controller="CytometerQueryController">
-                    <select class="form-control" ng-model="model.current_cytometer" ng-options="c.cytometer_name for c in model.cytometers">
+                    <select class="form-control" ng-model="model.current_cytometer" ng-required="true" ng-options="c.cytometer_name for c in model.cytometers">
                     </select>
                   </div>
                 </td>
@@ -43,7 +43,7 @@
                 <td><strong>Site Panel:</strong></td>
                 <td>
                   <div ng-controller="SitePanelQueryController">
-                    <select class="form-control" ng-model="model.current_site_panel" ng-change="evaluateParameterMatch()" ng-options="s.name for s in model.site_panels">
+                    <select class="form-control" ng-model="model.current_site_panel" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="s.name for s in model.site_panels">
                     </select>
                   </div>
                 </td>
@@ -52,7 +52,7 @@
                 <td><strong>Subject:</strong></td>
                 <td>
                   <div ng-controller="SubjectQueryController">
-                    <select class="form-control" ng-model="model.current_subject" ng-options="s.subject_code for s in model.subjects">
+                    <select class="form-control" ng-model="model.current_subject" ng-required="true" ng-options="s.subject_code for s in model.subjects">
                     </select>
                   </div>
                 </td>
@@ -61,7 +61,7 @@
                 <td><strong>Visit:</strong></td>
                 <td>
                   <div ng-controller="VisitTypeQueryController">
-                    <select class="form-control" ng-model="model.current_visit" ng-options="v.visit_type_name for v in model.visit_types">
+                    <select class="form-control" ng-model="model.current_visit" ng-required="true" ng-options="v.visit_type_name for v in model.visit_types">
                     </select>
                   </div>
                 </td>
@@ -70,7 +70,7 @@
                 <td><strong>Stimulation:</strong></td>
                 <td>
                   <div ng-controller="StimulationQueryController">
-                    <select class="form-control" ng-model="model.current_stimulation" ng-options="s.stimulation_name for s in model.stimulations">
+                    <select class="form-control" ng-model="model.current_stimulation" ng-required="true" ng-options="s.stimulation_name for s in model.stimulations">
                     </select>
                   </div>
                 </td>
@@ -79,7 +79,7 @@
                 <td><strong>Specimen:</strong></td>
                 <td>
                   <div ng-controller="SpecimenQueryController">
-                    <select class="form-control" ng-model="model.current_specimen" ng-options="s.specimen_name for s in model.specimens">
+                    <select class="form-control" ng-model="model.current_specimen" ng-required="true" ng-options="s.specimen_name for s in model.specimens">
                     </select>
                   </div>
                 </td>
@@ -88,7 +88,7 @@
                 <td><strong>Pre-treatment:</strong></td>
                 <td>
                   <div ng-controller="PretreatmentQueryController">
-                    <select class="form-control" ng-model="model.current_pretreatment" ng-options="p.name for p in model.pretreatments">
+                    <select class="form-control" ng-model="model.current_pretreatment" ng-required="true" ng-options="p.name for p in model.pretreatments">
                     </select>
                   </div>
                 </td>
@@ -97,7 +97,7 @@
                 <td><strong>Storage:</strong></td>
                 <td>
                   <div ng-controller="StorageQueryController">
-                    <select class="form-control" ng-model="model.current_storage" ng-options="s.name for s in model.storages">
+                    <select class="form-control" ng-model="model.current_storage" ng-required="true" ng-options="s.name for s in model.storages">
                     </select>
                   </div>
                 </td>
