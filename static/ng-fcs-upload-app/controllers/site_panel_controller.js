@@ -12,9 +12,69 @@ app.controller(
             $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
             $scope.model.markers = Marker.query();
             $scope.model.fluorochromes = Fluorochrome.query();
+            $scope.model.site_panel_errors = [];
+
+            $scope.validatePanel = function() {
+                $scope.model.errors = [];
+
+                if (!$scope.model.current_project_panel) {
+                    $scope.model.errors.push('Please choose a project panel');
+                    return;
+                }
+
+                $scope.model.current_project_panel.parameters.forEach(function (param) {
+                    /*
+                    Validate the panel:
+                        - Function and value type are required
+                        - No fluorochromes in a scatter parameter
+                        - No markers in a scatter parameter
+                        - Fluoroscent parameter must specify a fluorochrome
+                        - No duplicate fluorochrome + value type combinations
+                        - No duplicate forward scatter + value type combinations
+                        - No duplicate side scatter + value type combinations
+                    Validations against the parent project panel:
+                        - Ensure all project panel parameters are present
+                    */
+                    var staining = $scope.model.current_project_panel.staining;
+                    var can_have_uns = null;
+                    var can_have_iso = null;
+                    switch (staining) {
+                        case 'IS':
+                            can_have_uns = false;
+                            can_have_iso = true;
+                        default :  // includes FS, FM, & US
+                            can_have_uns = true;
+                            can_have_iso = false;
+                    }
+
+                    $scope.model.site_panel_sample.channels.forEach(function (channel) {
+                        channel.errors = [];
+                        // check for function
+                        if (!channel.function) {
+                            channel.errors.push('Function is required');
+                        }
+                        // check for value type
+                        if (!channel.value_type) {
+                            channel.errors.push('Value type is required');
+                        }
+
+                        // ensure no fluoro or markers in scatter channels
+                        if (channel.function == 'FSC' || channel.function == 'SSC') {
+                            if (channel.fluorochrome) {
+                                channel.errors.push('Scatter channels cannot have a fluorochrome');
+                            }
+                            if (channel.markers.length > 0) {
+                                channel.errors.push('Scatter channels cannot have markers');
+                            }
+                        }
+
+                    });
+
+                });
+            };
 
             $scope.savePanel = function () {
-                console.log('save panel');
+                console.log($scope.model.current_project_panel.name);
             };
         }
     ]
@@ -61,6 +121,7 @@ app.controller(
                 } else if (c.pnn.substr(0, 4) == 'Time') {
                     c.function = 'TIM';
                     c.marker_disabled = true;
+                    c.fluoro_disabled = true;
                     c.fluoro_disabled = true;
                 }
 
