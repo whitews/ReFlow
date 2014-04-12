@@ -52,10 +52,16 @@ app.controller(
                 // Check the PnN field for 'FSC' or 'SSC'
                 if (c.pnn.substr(0, 3) == 'FSC') {
                     c.function = 'FSC';
+                    c.marker_disabled = true;
+                    c.fluoro_disabled = true;
                 } else if (c.pnn.substr(0, 3) == 'SSC') {
                     c.function = 'SSC';
+                    c.marker_disabled = true;
+                    c.fluoro_disabled = true;
                 } else if (c.pnn.substr(0, 4) == 'Time') {
                     c.function = 'TIM';
+                    c.marker_disabled = true;
+                    c.fluoro_disabled = true;
                 }
 
                 // Check the PnN field for value type using the last 2 letters

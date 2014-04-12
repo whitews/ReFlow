@@ -39,6 +39,10 @@ input[type="color"],
   border-radius: 4px;
 }
 
+.ng-invalid {
+    background-color: #FFD2D4;
+}
+
 .select2-choices {
     border: 1px solid #ccc !important;
     border-radius: 4px;
