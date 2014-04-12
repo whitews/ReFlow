@@ -37,6 +37,7 @@ app.controller(
                 var staining = $scope.model.current_project_panel.staining;
                 var can_have_uns = null;
                 var can_have_iso = null;
+                var fluoro_duplicates = [];
                 switch (staining) {
                     case 'IS':
                         can_have_uns = false;
@@ -56,6 +57,15 @@ app.controller(
                     // check for value type
                     if (!channel.value_type) {
                         channel.errors.push('Value type is required');
+                    }
+
+                    // Check for fluoro duplicates
+                    if (channel.fluorochrome) {
+                        if (fluoro_duplicates.indexOf(channel.fluorochrome.toString() + "_" + channel.value_type) >= 0) {
+                            channel.errors.push('The same fluorochrome cannot be in multiple channels');
+                        } else {
+                            fluoro_duplicates.push(channel.fluorochrome.toString() + "_" + channel.value_type);
+                        }
                     }
 
                     // ensure no fluoro or markers in scatter channels
@@ -97,6 +107,29 @@ app.controller(
                         }
                         if (channel.markers.length < 1) {
                             channel.errors.push('Unstained channels must specify at least one marker');
+                        }
+                    }
+
+                    // Iso channels must have a fluoro, cannot have an Ab
+                    if (channel.function == 'ISO') {
+                        if (!channel.fluorochrome) {
+                            channel.errors.push('Iso channels must specify a fluorochrome');
+                        }
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Iso channels cannot have markers');
+                        }
+                    }
+
+                    // Time channels cannot have a fluoro or Ab, must have value type 'T'
+                    if (channel.function == 'TIM') {
+                        if (channel.fluorochrome) {
+                            channel.errors.push('Time channel cannot specify a fluorochrome');
+                        }
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Time channel cannot have markers');
+                        }
+                        if (channel.value_type != 'T') {
+                            channel.errors.push('Time channel must have time value type')
                         }
                     }
                 });
