@@ -86,6 +86,7 @@ class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
 
 
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='name', read_only=True)
     markers = ProjectPanelParameterMarkerSerializer(
         source='projectpanelparametermarker_set')
     fluorochrome_abbreviation = serializers.CharField(
@@ -96,6 +97,7 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
         model = ProjectPanelParameter
         fields = (
             'id',
+            'name',
             'parameter_type',
             'parameter_value_type',
             'markers',

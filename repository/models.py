@@ -388,9 +388,15 @@ class ProjectPanelParameter(ProtectedModel):
         """
         Returns the parameter name with value type.
         """
-        return '%s-%s' % (
+        name_string = '%s_%s' % (
             self.parameter_type,
             self.parameter_value_type)
+        if (self.projectpanelparametermarker_set.count() > 0):
+            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.projectpanelparametermarker_set.all()]))
+            name_string += '_' + marker_string
+        if (self.fluorochrome):
+            name_string += '_' + self.fluorochrome.fluorochrome_abbreviation
+        return name_string
 
     name = property(_get_name)
 
