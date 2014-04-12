@@ -22,54 +22,83 @@ app.controller(
                     return;
                 }
 
-                $scope.model.current_project_panel.parameters.forEach(function (param) {
-                    /*
-                    Validate the panel:
-                        - Function and value type are required
-                        - No fluorochromes in a scatter parameter
-                        - No markers in a scatter parameter
-                        - Fluoroscent parameter must specify a fluorochrome
-                        - No duplicate fluorochrome + value type combinations
-                        - No duplicate forward scatter + value type combinations
-                        - No duplicate side scatter + value type combinations
-                    Validations against the parent project panel:
-                        - Ensure all project panel parameters are present
-                    */
-                    var staining = $scope.model.current_project_panel.staining;
-                    var can_have_uns = null;
-                    var can_have_iso = null;
-                    switch (staining) {
-                        case 'IS':
-                            can_have_uns = false;
-                            can_have_iso = true;
-                        default :  // includes FS, FM, & US
-                            can_have_uns = true;
-                            can_have_iso = false;
+                /*
+                Validate the panel:
+                    - Function and value type are required
+                    - No fluorochromes in a scatter parameter
+                    - No markers in a scatter parameter
+                    - Fluoroscent parameter must specify a fluorochrome
+                    - No duplicate fluorochrome + value type combinations
+                    - No duplicate forward scatter + value type combinations
+                    - No duplicate side scatter + value type combinations
+                Validations against the parent project panel:
+                    - Ensure all project panel parameters are present
+                */
+                var staining = $scope.model.current_project_panel.staining;
+                var can_have_uns = null;
+                var can_have_iso = null;
+                switch (staining) {
+                    case 'IS':
+                        can_have_uns = false;
+                        can_have_iso = true;
+                        break;
+                    default :  // includes FS, FM, & US
+                        can_have_uns = true;
+                        can_have_iso = false;
+                }
+
+                $scope.model.site_panel_sample.channels.forEach(function (channel) {
+                    channel.errors = [];
+                    // check for function
+                    if (!channel.function) {
+                        channel.errors.push('Function is required');
+                    }
+                    // check for value type
+                    if (!channel.value_type) {
+                        channel.errors.push('Value type is required');
                     }
 
-                    $scope.model.site_panel_sample.channels.forEach(function (channel) {
-                        channel.errors = [];
-                        // check for function
-                        if (!channel.function) {
-                            channel.errors.push('Function is required');
+                    // ensure no fluoro or markers in scatter channels
+                    if (channel.function == 'FSC' || channel.function == 'SSC') {
+                        if (channel.fluorochrome) {
+                            channel.errors.push('Scatter channels cannot have a fluorochrome');
                         }
-                        // check for value type
-                        if (!channel.value_type) {
-                            channel.errors.push('Value type is required');
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Scatter channels cannot have markers');
                         }
+                    }
 
-                        // ensure no fluoro or markers in scatter channels
-                        if (channel.function == 'FSC' || channel.function == 'SSC') {
-                            if (channel.fluorochrome) {
-                                channel.errors.push('Scatter channels cannot have a fluorochrome');
-                            }
-                            if (channel.markers.length > 0) {
-                                channel.errors.push('Scatter channels cannot have markers');
-                            }
+                    if (!can_have_uns && channel.function == 'UNS') {
+                        channel.errors.push(staining + ' panels cannot have unstained channels');
+                    }
+                    if (!can_have_iso && channel.function == 'ISO') {
+                        channel.errors.push('Only Iso panels can include iso channels');
+                    }
+
+                    // exclusion channels must include a fluoro
+                    if (channel.function == 'EXC' && !channel.fluorochrome) {
+                        channel.errors.push('Exclusion channels must specify a fluorochrome');
+                    }
+
+                    // fluoro conjugate channels must have both fluoro and Ab
+                    if (channel.function == 'FCM') {
+                        if (!channel.fluorochrome) {
+                            channel.errors.push('Conjugated channels must specify a fluorochrome');
                         }
+                        if (channel.markers.length < 1) {
+                            channel.errors.push('Conjugated channels must specify at least one marker');
+                        }
+                    }
 
-                    });
-
+                    // unstained channels cannot have a fluoro but must have an Ab
+                    if (channel.function == 'UNS') {
+                        if (channel.fluorochrome) {
+                            channel.errors.push('Unstained channels cannot specify a fluorochrome');
+                        }
+                        if (channel.markers.length < 1) {
+                            channel.errors.push('Unstained channels must specify at least one marker');
+                        }
+                    }
                 });
             };
 
