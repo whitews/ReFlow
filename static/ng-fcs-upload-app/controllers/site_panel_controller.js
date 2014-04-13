@@ -48,6 +48,11 @@ app.controller(
                         can_have_iso = false;
                 }
 
+                // reset all project param matches
+                $scope.model.current_project_panel.parameters.forEach(function (p) {
+                    p.match = false;
+                });
+
                 $scope.model.site_panel_sample.channels.forEach(function (channel) {
                     channel.errors = [];
                     // check for function
@@ -131,6 +136,52 @@ app.controller(
                         if (channel.value_type != 'T') {
                             channel.errors.push('Time channel must have time value type')
                         }
+                    }
+
+                    // Check if we match a project panel parameter
+                    // starting with the required function / value type combo
+                    for (var i = 0; i < $scope.model.current_project_panel.parameters.length; i++) {
+                        // param var is just for better readability
+                        var param = $scope.model.current_project_panel.parameters[i];
+
+                        // first, check function
+                        if (param.parameter_type != channel.function) {
+                            // no match
+                            continue;
+                        }
+
+                        // then value type
+                        if (param.parameter_value_type != channel.value_type) {
+                            // no match
+                            continue;
+                        }
+
+                        // if project panel has fluoro, check it
+                        if (param.fluorochrome) {
+                            if (param.fluorochrome != channel.fluorochrome) {
+                                // no match
+                                continue;
+                            }
+                        }
+
+                        // if project panel has markers, check them all
+                        if (param.markers.length > 0) {
+                            var marker_match = true;
+                            for (var j = 0; j < param.markers.length; j++) {
+                                if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
+                                    // no match
+                                    marker_match = false;
+                                    break;
+                                }
+                            }
+                            if (!marker_match) {
+                                continue;
+                            }
+                        }
+
+                        // if we get here everything available in the project
+                        // panel matched
+                        param.match = true;
                     }
                 });
             };

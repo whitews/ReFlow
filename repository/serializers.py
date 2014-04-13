@@ -76,6 +76,9 @@ class SpecimenSerializer(serializers.ModelSerializer):
 
 
 class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
+    marker_id = serializers.CharField(
+        source='marker.id',
+        read_only=True)
     name = serializers.CharField(
         source='marker.marker_abbreviation',
         read_only=True)
