@@ -65,14 +65,6 @@ $(document).ready(function()
           <th colspan="50" class="center">
             <div style="position:relative">
               <h4>Site Panels <span class="badge badge-inverse align-top">{{ site_panels|length }}</span></h4>
-
-              {% if can_add_project_data %}
-              <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-default btn-sm" href="{% url 'add_project_site_panel' project.id %}">
-                  Add Site Panel
-                </a>
-              </div>
-              {% endif %}
             </div>
           </th>
         </tr>
@@ -95,9 +87,6 @@ $(document).ready(function()
         <tr>
           <td class="no-wrap">
             {% if can_modify_project_data %}
-            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_site_panel_parameters' panel.id %}" data-original-title="Edit Parameters" data-placement="bottom">
-              <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
-            </a>
             <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_site_panel_comments' panel.id %}" data-original-title="Edit Comments" data-placement="bottom">
               <i style="opacity: 0.4" class="glyphicon glyphicon-comment align-middle"></i>
             </a>

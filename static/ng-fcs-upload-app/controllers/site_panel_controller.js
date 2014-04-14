@@ -187,7 +187,15 @@ app.controller(
             };
 
             $scope.savePanel = function () {
-                console.log($scope.model.current_project_panel.name);
+                var params = [];
+                $scope.model.site_panel_sample.channels.forEach(function (c) {
+                    console.log(c);
+                });
+                var data = {
+                    site: $scope.model.current_site.id,
+                    project_panel: $scope.model.current_project_panel.id,
+                    parameters: params
+                };
             };
         }
     ]
