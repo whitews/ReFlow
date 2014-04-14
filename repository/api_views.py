@@ -18,6 +18,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from repository.models import *
 from repository.serializers import *
+from controllers import validate_site_panel_request
 
 # Design Note: For any detail view the PermissionRequiredMixin will
 # restrict access to users of that project
@@ -450,7 +451,7 @@ class SitePanelFilter(django_filters.FilterSet):
         ]
 
 
-class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
+class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of site panels.
     """
@@ -473,6 +474,20 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
         # TODO: implement filtering by channel info: fluoro, marker, scatter
 
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.DATA
+
+        # validate stuff
+        errors = validate_site_panel_request(data, request.user)
+
+        # we can create the SitePanel instance now
+        response = super(SitePanelList, self).create(request, *args, **kwargs)
+
+        if len(errors) > 0:
+            response.data = errors
+
+        return response
 
 
 class SitePanelDetail(
