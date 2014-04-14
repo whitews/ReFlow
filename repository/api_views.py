@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 import django_filters
 
+from django.db import IntegrityError, transaction
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -478,16 +479,49 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         data = request.DATA
 
-        # validate stuff
+        # validate all the site panel components
         errors = validate_site_panel_request(data, request.user)
-
-        # we can create the SitePanel instance now
-        response = super(SitePanelList, self).create(request, *args, **kwargs)
-
         if len(errors) > 0:
-            response.data = errors
+            return Response(data=errors, status=400)
 
-        return response
+        # we can create the SitePanel instance now, but we'll do so inside
+        # an atomic transaction
+        try:
+            site = Site.objects.get(id=data['site'])
+            project_panel = ProjectPanel.objects.get(id=data['project_panel'])
+
+            with transaction.atomic():
+                site_panel = SitePanel(
+                    site=site,
+                    project_panel=project_panel,
+                    site_panel_comments=data['site_panel_comments']
+                )
+                site_panel.clean()
+                site_panel.save()
+
+                for param in data['parameters']:
+                    spp = SitePanelParameter.objects.create(
+                        site_panel=site_panel,
+                        parameter_type=param['parameter_type'],
+                        parameter_value_type=param['parameter_value_type'],
+                        fluorochrome=param['fluorochrome'],
+                        fcs_number=param['fcs_number'],
+                        fcs_text=param['fcs_text'],
+                        fcs_opt_text=param['fcs_opt_text']
+                    )
+                    for marker in param['markers']:
+                        SitePanelParameterMarker.objects.create(
+                            site_panel_parameter=spp,
+                            marker=marker
+                        )
+        except Exception as e:  # catch any exception to rollback changes
+            return Response(data={'detail': 'Bad request'}, status=400)
+
+        serializer = SitePanelSerializer(site_panel)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
 
 class SitePanelDetail(

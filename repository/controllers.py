@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from models import *
+from models import ProjectPanel, Site
 from collections import Counter
 
 
@@ -25,22 +25,40 @@ def validate_site_panel_request(data, user):
     """
     errors = {}
     project_panel = None
+    site = None
+    user_sites = None
+    can_have_uns = None
+    can_have_iso = None
 
     if 'project_panel' in data:
         try:
             project_panel = ProjectPanel.objects.get(id=data['project_panel'])
             user_sites = Site.objects.get_sites_user_can_add(
                 user, project_panel.project).order_by('site_name')
-        except ObjectDoesNotExist, e:
+        except ObjectDoesNotExist:
             errors['project_panel'] = ["Project panel does not exist"]
     else:
         errors['project_panel'] = ["Project panel is required"]
 
-    # validate site is in user sites
+    if 'site' in data:
+        try:
+            site = Site.objects.get(id=data['site'])
+        except ObjectDoesNotExist:
+            errors['site'] = ["Site does not exist"]
+    else:
+        errors['site'] = ["Site is required"]
 
+    if len(errors) > 0:
+        return errors
+
+    # validate site is in user sites
+    if not site in user_sites:
+        errors['site'] = [
+            "You do not have permission to create panels for this site"]
 
     # validate project panel and site are in same project
-
+    if site.project_id != project_panel.project_id:
+        errors['project_panel'] = ["Project panel is required"]
 
     if len(errors) > 0:
         return errors
@@ -90,7 +108,8 @@ def validate_site_panel_request(data, user):
             param_errors.append('FCS text is required')
             skip = True
         if not 'fcs_opt_text' in param:
-            param_errors.append('FCS optional text is required, use null for None')
+            param_errors.append(
+                'FCS optional text is required, use null for None')
             skip = True
         if not 'parameter_type' in param:
             param_errors.append('Function is required')
@@ -99,7 +118,8 @@ def validate_site_panel_request(data, user):
             param_errors.append('Value type is required')
             skip = True
         if not 'markers' in param:
-            param_errors.append('Markers is a required field, use an empty array for None')
+            param_errors.append(
+                'Markers is a required field, use an empty array for None')
             skip = True
         if not 'fluorochrome' in param:
             param_errors.append(
@@ -233,8 +253,7 @@ def validate_site_panel_request(data, user):
                 continue
 
             if ppp.parameter_value_type:
-                if ppp.parameter_value_type != param_dict[d][
-                    'parameter_value_type']:
+                if ppp.parameter_value_type != param_dict[d]['parameter_value_type']:
                     # no match
                     continue
 
