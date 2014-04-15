@@ -15,11 +15,15 @@ app.controller(
             $scope.model.site_panel_errors = [];
 
             $scope.validatePanel = function() {
+                // start with true and set to false on any error
+                var valid = true;
+
                 $scope.model.errors = [];
 
                 if (!$scope.model.current_project_panel) {
                     $scope.model.errors.push('Please choose a project panel');
-                    return;
+                    valid = false;
+                    return valid;
                 }
 
                 /*
@@ -183,10 +187,22 @@ app.controller(
                         // panel matched
                         param.match = true;
                     }
+
+                    if (channel.errors.length > 0 ) {
+                        valid = false;
+                    }
                 });
+
+                return valid;
             };
 
             $scope.savePanel = function () {
+                var is_valid = $scope.validatePanel();
+
+                if (!is_valid) {
+                    return;
+                }
+
                 var params = [];
                 $scope.model.site_panel_sample.channels.forEach(function (c) {
                     params.push({
@@ -208,6 +224,7 @@ app.controller(
                 var site_panel = SitePanel.save(data);
                 site_panel.$promise.then(function (o) {
                     console.log(o);
+                    $scope.model.close_modal = true;
                     // send out signal here to update site panels and set
                     // current site panel to this one
                 });
@@ -235,6 +252,7 @@ app.controller(
     'SitePanelCreationProjectPanelController',
     ['$scope', 'ProjectPanel', function ($scope, ProjectPanel) {
         $scope.$on('initSitePanel', function (o, f) {
+            $scope.model.close_modal = false;
             $scope.model.project_panels = ProjectPanel.query(
                 {
                     project: $scope.model.current_project.id

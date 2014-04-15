@@ -36,3 +36,13 @@ app.filter('bytes', function() {
 		return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) +  ' ' + units[number];
 	}
 });
+
+app.directive('closeModal', function (){
+   return function(scope, elem, attrs) {
+     scope.$watch('model.close_modal', function(val) {
+        if(val) {
+           elem.modal('hide');
+        }
+     });
+   }
+});
