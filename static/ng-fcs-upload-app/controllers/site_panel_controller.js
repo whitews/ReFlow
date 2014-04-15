@@ -300,9 +300,11 @@ app.controller(
 
                     // find matching markers
                     $scope.model.markers.forEach(function(m) {
-                        if (jQuery.inArray(m.marker_abbreviation, words) >= 0) {
-                            c.markers.push(m.id);
-                        }
+                        words.forEach(function(w) {
+                            if (m.marker_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"") === w.replace(/[^A-Z,a-z,0-9]/g,"")) {
+                                c.markers.push(m.id);
+                            }
+                        });
                     });
 
                     // for the fluorochromes, matching is a bit tricky b/c of tandem dyes
@@ -310,14 +312,19 @@ app.controller(
                     // fcs_text first and then the words
                     var fl_match = '';
                     $scope.model.fluorochromes.forEach(function(f) {
-                        if (c.pnn.indexOf(f.fluorochrome_abbreviation) >= 0) {
-                            if (f.fluorochrome_abbreviation.length > fl_match.length) {
-                                fl_match = f.fluorochrome_abbreviation;
+                        // strip out non-alphanumeric chars
+                        fluoro_str = f.fluorochrome_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"");
+                        pnn_str = c.pnn.replace(/[^A-Z,a-z,0-9]/g,"");
+                        pns_str = c.pns.replace(/[^A-Z,a-z,0-9]/g,"");
+
+                        if (pnn_str.indexOf(fluoro_str) >= 0) {
+                            if (fluoro_str.length > fl_match.length) {
+                                fl_match = fluoro_str;
                                 c.fluorochrome = f.id;
                             }
-                        } else if (c.pns.indexOf(f.fluorochrome_abbreviation) >= 0) {
-                            if (f.fluorochrome_abbreviation.length > fl_match.length) {
-                                fl_match = f.fluorochrome_abbreviation;
+                        } else if (pns_str.indexOf(fluoro_str) >= 0) {
+                            if (fluoro_str.length > fl_match.length) {
+                                fl_match = fluoro_str;
                                 c.fluorochrome = f.id;
                             }
                         }
