@@ -500,11 +500,17 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                 site_panel.save()
 
                 for param in data['parameters']:
+                    if (param['fluorochrome']):
+                        param_fluoro = Fluorochrome.objects.get(
+                            id=param['fluorochrome'])
+                    else:
+                        param_fluoro = None
+
                     spp = SitePanelParameter.objects.create(
                         site_panel=site_panel,
                         parameter_type=param['parameter_type'],
                         parameter_value_type=param['parameter_value_type'],
-                        fluorochrome=param['fluorochrome'],
+                        fluorochrome=param_fluoro,
                         fcs_number=param['fcs_number'],
                         fcs_text=param['fcs_text'],
                         fcs_opt_text=param['fcs_opt_text']
@@ -512,7 +518,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                     for marker in param['markers']:
                         SitePanelParameterMarker.objects.create(
                             site_panel_parameter=spp,
-                            marker=marker
+                            marker=Marker.objects.get(id=marker)
                         )
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': 'Bad request'}, status=400)

@@ -189,13 +189,28 @@ app.controller(
             $scope.savePanel = function () {
                 var params = [];
                 $scope.model.site_panel_sample.channels.forEach(function (c) {
-                    console.log(c);
+                    params.push({
+                        fcs_number: c.channel,
+                        fcs_text: c.pnn,
+                        fcs_opt_text: c.pns,
+                        parameter_type: c.function,
+                        parameter_value_type: c.value_type,
+                        markers: c.markers,
+                        fluorochrome: c.fluorochrome || null
+                    })
                 });
                 var data = {
                     site: $scope.model.current_site.id,
                     project_panel: $scope.model.current_project_panel.id,
-                    parameters: params
+                    parameters: params,
+                    site_panel_comments: ""
                 };
+                var site_panel = SitePanel.save(data);
+                site_panel.$promise.then(function (o) {
+                    console.log(o);
+                    // send out signal here to update site panels and set
+                    // current site panel to this one
+                });
             };
         }
     ]
