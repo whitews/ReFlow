@@ -84,8 +84,9 @@
                 </tr>
                 <tr ng-repeat-end ng-show="channel.errors">
                   <td colspan="50">
+                    <div class="alert alert-danger"
                     <ul>
-                      <li data-ng-repeat="e in channel.errors">{{ e }}</li>
+                      <li data-ng-repeat="e in channel.errors"><strong>{{ e }}</strong></li>
                     </ul>
                   </td>
                 </tr>
