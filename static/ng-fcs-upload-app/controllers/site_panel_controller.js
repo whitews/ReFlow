@@ -13,6 +13,7 @@ app.controller(
             $scope.model.markers = Marker.query();
             $scope.model.fluorochromes = Fluorochrome.query();
             $scope.model.site_panel_errors = [];
+            $scope.model.site_panel_valid = false;
 
             $scope.validatePanel = function() {
                 // start with true and set to false on any error
@@ -23,6 +24,7 @@ app.controller(
                 if (!$scope.model.current_project_panel) {
                     $scope.model.errors.push('Please choose a project panel');
                     valid = false;
+                    $scope.model.site_panel_valid = valid;
                     return valid;
                 }
 
@@ -192,7 +194,7 @@ app.controller(
                         valid = false;
                     }
                 });
-
+                $scope.model.site_panel_valid = valid;
                 return valid;
             };
 
