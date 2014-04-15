@@ -225,8 +225,11 @@ app.controller(
                 site_panel.$promise.then(function (o) {
                     console.log(o);
                     $scope.model.close_modal = true;
-                    // send out signal here to update site panels and set
-                    // current site panel to this one
+                    // broadcast to update site panels and set
+                    // current site panel to this one, we broadcast to root
+                    // b/c there's no relationship between this and site panel
+                    // query controller
+                    $scope.$root.$broadcast('updateSitePanels', o.id);
                 });
             };
         }

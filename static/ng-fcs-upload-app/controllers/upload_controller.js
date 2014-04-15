@@ -47,6 +47,22 @@ app.controller(
                 );
             $scope.model.current_site_panel = null;
         });
+        $scope.$on('updateSitePanels', function (evt, id) {
+            $scope.model.site_panels = SitePanel.query(
+                    {
+                        project_panel__project: $scope.model.current_project.id,
+                        site: $scope.model.current_site.id
+                    }
+                );
+            $scope.model.site_panels.$promise.then(function (o) {
+                for (var i = 0; i < o.length; i++) {
+                    if (o[i].id === id) {
+                        $scope.model.current_site_panel = o[i];
+                        break;
+                    }
+                }
+            });
+        });
     }
 ]);
 
