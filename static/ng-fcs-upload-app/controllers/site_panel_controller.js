@@ -194,6 +194,12 @@ app.controller(
                         valid = false;
                     }
                 });
+
+                $scope.model.current_project_panel.parameters.forEach(function (p) {
+                    if (!p.match) {
+                        valid = false;
+                    }
+                });
                 $scope.model.site_panel_valid = valid;
                 return valid;
             };
