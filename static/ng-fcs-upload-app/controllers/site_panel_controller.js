@@ -225,7 +225,6 @@ app.controller(
                 };
                 var site_panel = SitePanel.save(data);
                 site_panel.$promise.then(function (o) {
-                    console.log(o);
                     $scope.model.close_modal = true;
                     // broadcast to update site panels and set
                     // current site panel to this one, we broadcast to root
