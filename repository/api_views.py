@@ -521,7 +521,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                             marker=Marker.objects.get(id=marker)
                         )
         except Exception as e:  # catch any exception to rollback changes
-            return Response(data={'detail': 'Bad request'}, status=400)
+            return Response(data={'detail': e.message}, status=400)
 
         serializer = SitePanelSerializer(site_panel)
         headers = self.get_success_headers(serializer.data)
