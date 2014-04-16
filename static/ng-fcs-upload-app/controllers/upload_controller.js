@@ -61,6 +61,7 @@ app.controller(
                         break;
                     }
                 }
+                $scope.evaluateParameterMatch();
             });
         });
     }
@@ -240,6 +241,12 @@ app.controller(
             }
             return true;
         }
+
+
+        // notify other controllers we want to start creating a site panel
+        $scope.initSitePanel = function(f) {
+            $scope.$broadcast('initSitePanel', f);
+        };
 
         $scope.open_site_panel_mismatch_modal = function (f) {
             f.matching_panels = [];
@@ -673,11 +680,4 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, file) {
     $scope.ok = function () {
         $modalInstance.close();
     };
-
-    // notify other controllers we want to start creating a site panel
-    $scope.initSitePanel = function(f) {
-        $scope.$root.$broadcast('initSitePanel', f);
-        $modalInstance.close();
-    };
-
 };

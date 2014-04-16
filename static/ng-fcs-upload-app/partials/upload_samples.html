@@ -155,9 +155,7 @@
                           <div ng-show="file.matching_panels.length == 0">
                           There are no site panels in the chosen site that match this file.
                           </div>
-                          <strong><a data-toggle="modal" data-target="#sitePanelModal" ng-click="initSitePanel(file)">
-                          Create a New Site Panel
-                          </a></strong>
+                          <p>To create a new panel, choose <strong><em>Create Site Panel</em></strong> from the file's drop-down menu.</p>
                         </div>
                     </div>
 
@@ -165,7 +163,7 @@
                         <button class="btn btn-primary" ng-click="ok()">OK</button>
                     </div>
                 </script>
-                <button data-ng-show="f.errors" data-ng-click="open_site_panel_mismatch_modal(f)" class="btn btn-default btn-xs">
+                <button data-ng-show="f.errors.length > 0" data-ng-click="open_site_panel_mismatch_modal(f)" class="btn btn-default btn-xs">
                   <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
                 </button>
               </td>
@@ -227,6 +225,12 @@
                     </li>
                     <li class="btn-link">
                       <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                    </li>
+                    <li class="divider" ng-hide="model.current_site == null"></li>
+                      <li class="btn-link" ng-hide="model.current_site == null">
+                        <a data-toggle="modal" ng-hide="model.current_site == null" data-target="#sitePanelModal" ng-click="initSitePanel(f)">
+                          Create Site Panel
+                        </a>
                     </li>
                     <li class="divider"></li>
                     <li class="btn-link">
