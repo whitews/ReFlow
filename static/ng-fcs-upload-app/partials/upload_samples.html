@@ -145,7 +145,22 @@
                             <li data-ng-repeat="error in file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
                           </ul>
                         </div>
+                        <div class="alert alert-info">
+                          <div ng-show="file.matching_panels.length > 0">
+                            The following site panels match this file's annotation:
+                            <ul>
+                              <li ng-repeat="panel in file.matching_panels">{{ panel.name }}</li>
+                            </ul>
+                          </div>
+                          <div ng-show="file.matching_panels.length == 0">
+                          There are no site panels in the chosen site that match this file.
+                          </div>
+                          <strong><a data-toggle="modal" data-target="#sitePanelModal" ng-click="initSitePanel(file)">
+                          Create a New Site Panel
+                          </a></strong>
+                        </div>
                     </div>
+
                     <div class="modal-footer">
                         <button class="btn btn-primary" ng-click="ok()">OK</button>
                     </div>
@@ -212,12 +227,6 @@
                     </li>
                     <li class="btn-link">
                       <a data-ng-click="open_channels_modal(f)">View Channels</a>
-                    </li>
-                    <li class="divider" ng-hide="model.current_site == null"></li>
-                    <li class="btn-link" ng-hide="model.current_site == null">
-                      <a data-toggle="modal" ng-hide="model.current_site == null" data-target="#sitePanelModal" ng-click="initSitePanel(f)">
-                        Create Site Panel
-                      </a>
                     </li>
                     <li class="divider"></li>
                     <li class="btn-link">

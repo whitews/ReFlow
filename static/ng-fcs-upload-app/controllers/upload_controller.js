@@ -130,7 +130,7 @@ app.controller(
 
         $scope.evaluateParameterMatch = function () {
             for (var i = 0; i < $scope.model.file_queue.length; i++) {
-                file_matches_panel(i, $scope.model.current_site_panel);
+                file_matches_panel(i, $scope.model.current_site_panel, true);
             }
         };
 
@@ -176,17 +176,21 @@ app.controller(
         }
 
         // site panel matching
-        function file_matches_panel(file_index, site_panel) {
-            $scope.model.file_queue[file_index].errors = [];
+        function file_matches_panel(file_index, site_panel, flag_errors) {
+            if (flag_errors) {
+                $scope.model.file_queue[file_index].errors = [];
+            }
 
             // first make sure the number of params is the same
             if ($scope.model.file_queue[file_index].channels.length != site_panel.parameters.length) {
-                $scope.model.file_queue[file_index].errors.push(
-                    {
-                        'key': 'Incompatible site panel',
-                        'value': "The number of parameters in chosen site panel and FCS file are not equal."
-                    }
-                );
+                if (flag_errors) {
+                    $scope.model.file_queue[file_index].errors.push(
+                        {
+                            'key': 'Incompatible site panel',
+                            'value': "The number of parameters in chosen site panel and FCS file are not equal."
+                        }
+                    );
+                }
                 return false;
             }
 
@@ -224,23 +228,27 @@ app.controller(
             }
 
             if (mismatches.length > 0) {
-                $scope.model.file_queue[file_index].errors.push(
-                    {
-                        'key': 'Incompatible site panel',
-                        'value': mismatches.join('<br />')
-                    }
-                );
+                if (flag_errors) {
+                    $scope.model.file_queue[file_index].errors.push(
+                        {
+                            'key': 'Incompatible site panel',
+                            'value': mismatches.join('<br />')
+                        }
+                    );
+                }
                 return false;
             }
             return true;
         }
 
-        // notify other controllers we want to start creating a site panel
-        $scope.initSitePanel = function(f) {
-            $scope.$broadcast('initSitePanel', f);
-        };
-
         $scope.open_site_panel_mismatch_modal = function (f) {
+            f.matching_panels = [];
+            $scope.model.site_panels.forEach(function (panel) {
+                if (file_matches_panel($scope.model.file_queue.indexOf(f), panel, false)) {
+                    f.matching_panels.push(panel);
+                }
+            });
+
             var modalInstance = $modal.open({
                 templateUrl: 'sitePanelMismatchModal.html',
                 controller: ModalInstanceCtrl,
@@ -334,6 +342,7 @@ app.controller(
                 var non_paired_list = evt.target.result.split(delimiter);
                 obj.metadata = [];
                 obj.channels = [];
+                obj.matching_panels = [];
 
                 var pnn_pattern = /\$P(\d+)N/i;
                 var pns_pattern = /\$P(\d+)S/i;
@@ -411,6 +420,9 @@ app.controller(
                 // Using $apply here to trigger template update
                 $scope.$apply(function () {
                     $scope.model.file_queue.push(obj);
+                    if ($scope.model.current_site_panel != null) {
+                        file_matches_panel($scope.model.file_queue.length - 1, $scope.model.current_site_panel, true);
+                    }
                 });
             });
 
@@ -454,7 +466,7 @@ app.controller(
                     }
 
                     // verify panel matches
-                    if (!file_matches_panel(i, $scope.model.current_site_panel)) {
+                    if (!file_matches_panel(i, $scope.model.current_site_panel, true)) {
                         continue;
                     }
 
@@ -659,6 +671,12 @@ app.controller(
 var ModalInstanceCtrl = function ($scope, $modalInstance, file) {
     $scope.file = file;
     $scope.ok = function () {
+        $modalInstance.close();
+    };
+
+    // notify other controllers we want to start creating a site panel
+    $scope.initSitePanel = function(f) {
+        $scope.$root.$broadcast('initSitePanel', f);
         $modalInstance.close();
     };
 
