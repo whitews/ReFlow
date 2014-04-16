@@ -258,6 +258,7 @@ app.controller(
     ['$scope', 'ProjectPanel', function ($scope, ProjectPanel) {
         $scope.$on('initSitePanel', function (o, f) {
             $scope.model.close_modal = false;
+            $scope.model.current_project_panel = null;
             $scope.model.project_panels = ProjectPanel.query(
                 {
                     project: $scope.model.current_project.id
@@ -267,6 +268,7 @@ app.controller(
 
             $scope.model.site_panel_sample.channels.forEach(function (c) {
                 c.function = null;
+                c.errors = [];
 
                 // Check the PnN field for 'FSC' or 'SSC'
                 if (c.pnn.substr(0, 3) == 'FSC') {
