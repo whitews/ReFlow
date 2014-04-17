@@ -78,6 +78,7 @@
                   <td>
                     <div ng-controller="ParameterController">
                       <select class="form-control" ng-model="channel.fluorochrome" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
+                      <option value=""></option>
                       </select>
                     </div>
                   </td>
