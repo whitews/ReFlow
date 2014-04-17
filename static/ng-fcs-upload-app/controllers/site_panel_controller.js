@@ -22,7 +22,7 @@ app.controller(
                 $scope.model.errors = [];
 
                 if (!$scope.model.current_project_panel) {
-                    $scope.model.errors.push('Please choose a project panel');
+                    $scope.model.errors.push('Please choose a panel template');
                     valid = false;
                     $scope.model.site_panel_valid = valid;
                     return valid;
@@ -37,8 +37,8 @@ app.controller(
                     - No duplicate fluorochrome + value type combinations
                     - No duplicate forward scatter + value type combinations
                     - No duplicate side scatter + value type combinations
-                Validations against the parent project panel:
-                    - Ensure all project panel parameters are present
+                Validations against the parent panel template:
+                    - Ensure all panel template parameters are present
                 */
                 var staining = $scope.model.current_project_panel.staining;
                 var can_have_uns = null;
@@ -144,7 +144,7 @@ app.controller(
                         }
                     }
 
-                    // Check if we match a project panel parameter
+                    // Check if we match a template parameter
                     // starting with the required function / value type combo
                     for (var i = 0; i < $scope.model.current_project_panel.parameters.length; i++) {
                         // param var is just for better readability
@@ -162,7 +162,7 @@ app.controller(
                             continue;
                         }
 
-                        // if project panel has fluoro, check it
+                        // if template has fluoro, check it
                         if (param.fluorochrome) {
                             if (param.fluorochrome != channel.fluorochrome) {
                                 // no match
@@ -170,7 +170,7 @@ app.controller(
                             }
                         }
 
-                        // if project panel has markers, check them all
+                        // if template has markers, check them all
                         if (param.markers.length > 0) {
                             var marker_match = true;
                             for (var j = 0; j < param.markers.length; j++) {
@@ -185,8 +185,7 @@ app.controller(
                             }
                         }
 
-                        // if we get here everything available in the project
-                        // panel matched
+                        // if we get here everything in the template matched
                         param.match = true;
                     }
 
