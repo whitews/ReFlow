@@ -525,13 +525,34 @@ app.controller(
         };
 
         $scope.toggleAllUploadQueue = function () {
-                for (var i = 0; i < $scope.model.upload_queue.length; i++) {
-                    // only select the non-uploaded files
-                    if (! $scope.model.upload_queue[i].uploaded) {
-                        $scope.model.upload_queue[i].selected = $scope.master_upload_queue_checkbox;
-                    }
+            for (var i = 0; i < $scope.model.upload_queue.length; i++) {
+                // only select the non-uploaded files
+                if (! $scope.model.upload_queue[i].uploaded) {
+                    $scope.model.upload_queue[i].selected = $scope.master_upload_queue_checkbox;
                 }
-            };
+            }
+        };
+        
+        $scope.recategorizeFile = function(f) {
+
+            // clear the file object properties
+            f.acquisition_date = null;
+            f.site_panel = null;
+            f.cytometer = null;
+            f.subject = null;
+            f.visit_type = null;
+            f.stimulation = null;
+            f.specimen = null;
+            f.pretreatment = null;
+            f.storage = null;
+
+            // Add back to file queue
+            $scope.model.file_queue.push(f);
+
+            // Remove from upload queue
+            $scope.model.upload_queue.splice($scope.model.upload_queue.indexOf(f), 1);
+
+        };
 
         $scope.uploadSelected = function() {
             // first iterate through all the selected and mark as uploading

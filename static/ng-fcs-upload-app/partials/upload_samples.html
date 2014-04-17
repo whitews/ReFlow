@@ -19,7 +19,7 @@
                 <td><strong>Site:</strong></td>
                 <td>
                   <div ng-controller="SiteQueryController">
-                    <select class="form-control" ng-model="model.current_site" ng-disabled="model.current_project == null" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in model.sites">
+                    <select class="form-control" ng-model="model.current_site" ng-disabled="model.current_project == null || model.sites.length == 0" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in model.sites">
                     </select>
                     </div>
                 </td>
@@ -28,7 +28,7 @@
                 <td><strong>Cytometer:</strong></td>
                 <td>
                   <div ng-controller="CytometerQueryController">
-                    <select class="form-control" ng-model="model.current_cytometer" ng-disabled="model.current_site == null" ng-required="true" ng-options="c.cytometer_name for c in model.cytometers">
+                    <select class="form-control" ng-model="model.current_cytometer" ng-disabled="model.current_site == null || model.cytometers.length == 0" ng-required="true" ng-options="c.cytometer_name for c in model.cytometers">
                     </select>
                   </div>
                 </td>
@@ -43,7 +43,7 @@
                 <td><strong>Site Panel:</strong></td>
                 <td>
                   <div ng-controller="SitePanelQueryController">
-                    <select class="form-control" ng-model="model.current_site_panel" ng-disabled="model.current_site == null" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="s.name for s in model.site_panels">
+                    <select class="form-control" ng-model="model.current_site_panel" ng-disabled="model.current_site == null || model.site_panels.length == 0" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="s.name for s in model.site_panels">
                     </select>
                   </div>
                 </td>
@@ -52,7 +52,7 @@
                 <td><strong>Subject:</strong></td>
                 <td>
                   <div ng-controller="SubjectQueryController">
-                    <select class="form-control" ng-model="model.current_subject" ng-disabled="model.current_project == null" ng-required="true" ng-options="s.subject_code for s in model.subjects">
+                    <select class="form-control" ng-model="model.current_subject" ng-disabled="model.current_project == null || model.subjects.length == 0" ng-required="true" ng-options="s.subject_code for s in model.subjects">
                     </select>
                   </div>
                 </td>
@@ -61,7 +61,7 @@
                 <td><strong>Visit:</strong></td>
                 <td>
                   <div ng-controller="VisitTypeQueryController">
-                    <select class="form-control" ng-model="model.current_visit" ng-disabled="model.current_project == null" ng-required="true" ng-options="v.visit_type_name for v in model.visit_types">
+                    <select class="form-control" ng-model="model.current_visit" ng-disabled="model.current_project == null || model.visits.length == 0" ng-required="true" ng-options="v.visit_type_name for v in model.visit_types">
                     </select>
                   </div>
                 </td>
@@ -70,7 +70,7 @@
                 <td><strong>Stimulation:</strong></td>
                 <td>
                   <div ng-controller="StimulationQueryController">
-                    <select class="form-control" ng-model="model.current_stimulation" ng-disabled="model.current_project == null" ng-required="true" ng-options="s.stimulation_name for s in model.stimulations">
+                    <select class="form-control" ng-model="model.current_stimulation" ng-disabled="model.current_project == null || model.stimulations.length == 0" ng-required="true" ng-options="s.stimulation_name for s in model.stimulations">
                     </select>
                   </div>
                 </td>
@@ -375,6 +375,10 @@
                   </li>
                   <li class="btn-link">
                     <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                  </li>
+                  <li class="divider"></li>
+                  <li class="btn-link">
+                    <a data-ng-click="recategorizeFile(f)">Move to File List</a>
                   </li>
               </ul>
           </progressbar>
