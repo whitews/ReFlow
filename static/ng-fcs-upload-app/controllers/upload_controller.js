@@ -26,7 +26,7 @@ app.controller(
             $scope.model.current_cytometer = null;
         });
         $scope.$on('siteChangedEvent', function () {
-            $scope.model.cytometers = Cytometer.query({project: $scope.model.current_site.id});
+            $scope.model.cytometers = Cytometer.query({site: $scope.model.current_site.id});
             $scope.model.current_cytometer = null;
         });
     }
