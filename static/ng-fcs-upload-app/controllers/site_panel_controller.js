@@ -236,6 +236,8 @@ app.controller(
                     // b/c there's no relationship between this and site panel
                     // query controller
                     $scope.$root.$broadcast('updateSitePanels', o.id);
+                }, function(error) {
+                    console.log(error);
                 });
             };
         }
