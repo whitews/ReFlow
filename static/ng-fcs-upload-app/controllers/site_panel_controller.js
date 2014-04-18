@@ -310,7 +310,7 @@ app.controller(
                     $scope.model.markers.forEach(function(m) {
                         words.forEach(function(w) {
                             if (m.marker_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"") === w.replace(/[^A-Z,a-z,0-9]/g,"")) {
-                                c.markers.push(m.id);
+                                c.markers.push(m.id.toString());
                             }
                         });
                     });
