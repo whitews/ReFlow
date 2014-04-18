@@ -245,33 +245,39 @@ def validate_site_panel_request(data, user):
     # Finally, check that all the project parameters are accounted for
     project_panel_parameters = project_panel.projectpanelparameter_set.all()
     matching_ids = []
+    print param_dict
     for ppp in project_panel_parameters:
         # first look for parameter type matches
         for d in param_dict:
             if ppp.parameter_type != param_dict[d]['parameter_type']:
                 # no match
+                print "function mismatch"
                 continue
 
             if ppp.parameter_value_type:
                 if ppp.parameter_value_type != param_dict[d]['parameter_value_type']:
                     # no match
+                    print "value type mismatch"
                     continue
 
             if ppp.fluorochrome_id:
                 if str(ppp.fluorochrome_id) != param_dict[d]['fluorochrome_id']:
                     # no match
+                    print "fluoro mismatch %d" % ppp.fluorochrome_id
                     continue
 
             if ppp.projectpanelparametermarker_set.count() > 0:
                 if ppp.projectpanelparametermarker_set.count() != len(
                         param_dict[d]['marker_id_set']):
                     # no match
+                    print "marker length mismatch"
                     continue
 
                 should_continue = False
                 for ppp_marker in ppp.projectpanelparametermarker_set.all():
                     if ppp_marker.marker.id not in param_dict[d]['marker_id_set']:
                         # no match
+                        print "marker mismatch"
                         should_continue = True
                         break
                 if should_continue:
