@@ -1335,7 +1335,7 @@ class Sample(ProtectedModel):
         # Read the FCS text segment and get the number of parameters
         # save the dictionary for saving SampleMetadata instances
         # after saving the Sample instance
-        self.sample_metadata_dict = fcm_obj.notes.text
+        self.sample_metadata_dict = fcm_obj.text
 
         if 'par' in self.sample_metadata_dict:
             if not self.sample_metadata_dict['par'].isdigit():
@@ -1409,7 +1409,7 @@ class Sample(ProtectedModel):
         # The result is stored as a numpy object in a file field.
         # To ensure room for the indices and preserve precision for values,
         # we save as float32
-        numpy_data = fcm_obj.view().astype(np.float32)
+        numpy_data = n = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
         index_array = np.arange(len(numpy_data))
         np.random.shuffle(index_array)
         random_subsample = numpy_data[index_array[:10000]]
