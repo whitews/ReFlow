@@ -19,7 +19,7 @@ from guardian.shortcuts import get_objects_for_user, get_users_with_perms
 from guardian.models import UserObjectPermission
 from rest_framework.authtoken.models import Token
 
-import fcm
+import flowio
 import numpy as np
 
 
@@ -1315,10 +1315,9 @@ class Sample(ProtectedModel):
         # Verify the file is an FCS file
         if hasattr(self.sample_file.file, 'temporary_file_path'):
             try:
-                fcm_obj = fcm.loadFCS(
+                fcm_obj = flowio.FlowData(
                     self.sample_file.file.temporary_file_path(),
-                    transform=None,
-                    auto_comp=False)
+                )
             except:
                 raise ValidationError(
                     "Chosen file does not appear to be an FCS file."
@@ -1326,10 +1325,8 @@ class Sample(ProtectedModel):
         else:
             self.sample_file.seek(0)
             try:
-                fcm_obj = fcm.loadFCS(io.BytesIO(
-                    self.sample_file.read()),
-                    transform=None,
-                    auto_comp=False)
+                fcm_obj = flowio.FlowData(io.BytesIO(
+                    self.sample_file.read()))
             except:
                 raise ValidationError(
                     "Chosen file does not appear to be an FCS file."

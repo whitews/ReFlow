@@ -1,8 +1,4 @@
 from operator import attrgetter
-import io
-import json
-
-import fcm
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
