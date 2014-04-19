@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 import django_filters
 
+from django.db import IntegrityError, transaction
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -18,6 +19,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from repository.models import *
 from repository.serializers import *
+from controllers import validate_site_panel_request
 
 # Design Note: For any detail view the PermissionRequiredMixin will
 # restrict access to users of that project
@@ -39,6 +41,8 @@ def repository_api_root(request):
         'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
+        'markers': reverse('marker-list', request=request),
+        'fluorochromes': reverse('fluorochrome-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
@@ -63,7 +67,20 @@ def repository_api_root(request):
             'viable-process-request-list', request=request),
         'create_process_request_output': reverse(
             'create-process-request-output', request=request),
+        'get_parameter_functions': reverse('get_parameter_functions', request=request),
+        'get_parameter_value_types': reverse('get_parameter_value_types',
+                                           request=request)
     })
+
+
+@api_view(['GET'])
+def get_parameter_functions(request):
+    return Response(PARAMETER_TYPE_CHOICES)
+
+
+@api_view(['GET'])
+def get_parameter_value_types(request):
+    return Response(PARAMETER_VALUE_TYPE_CHOICES)
 
 
 @api_view(['GET'])
@@ -435,7 +452,7 @@ class SitePanelFilter(django_filters.FilterSet):
         ]
 
 
-class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
+class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of site panels.
     """
@@ -458,6 +475,59 @@ class SitePanelList(LoginRequiredMixin, generics.ListAPIView):
         # TODO: implement filtering by channel info: fluoro, marker, scatter
 
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.DATA
+
+        # validate all the site panel components
+        errors = validate_site_panel_request(data, request.user)
+        if len(errors) > 0:
+            return Response(data=errors, status=400)
+
+        # we can create the SitePanel instance now, but we'll do so inside
+        # an atomic transaction
+        try:
+            site = Site.objects.get(id=data['site'])
+            project_panel = ProjectPanel.objects.get(id=data['project_panel'])
+
+            with transaction.atomic():
+                site_panel = SitePanel(
+                    site=site,
+                    project_panel=project_panel,
+                    site_panel_comments=data['site_panel_comments']
+                )
+                site_panel.clean()
+                site_panel.save()
+
+                for param in data['parameters']:
+                    if (param['fluorochrome']):
+                        param_fluoro = Fluorochrome.objects.get(
+                            id=param['fluorochrome'])
+                    else:
+                        param_fluoro = None
+
+                    spp = SitePanelParameter.objects.create(
+                        site_panel=site_panel,
+                        parameter_type=param['parameter_type'],
+                        parameter_value_type=param['parameter_value_type'],
+                        fluorochrome=param_fluoro,
+                        fcs_number=param['fcs_number'],
+                        fcs_text=param['fcs_text'],
+                        fcs_opt_text=param['fcs_opt_text']
+                    )
+                    for marker in param['markers']:
+                        SitePanelParameterMarker.objects.create(
+                            site_panel_parameter=spp,
+                            marker=Marker.objects.get(id=marker)
+                        )
+        except Exception as e:  # catch any exception to rollback changes
+            return Response(data={'detail': e.message}, status=400)
+
+        serializer = SitePanelSerializer(site_panel)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
 
 class SitePanelDetail(
@@ -528,6 +598,26 @@ class CytometerDetail(
 
     model = Cytometer
     serializer_class = CytometerSerializer
+
+
+class MarkerList(generics.ListAPIView):
+    """
+    API endpoint representing a list of flow cytometry markers.
+    """
+
+    model = Marker
+    serializer_class = MarkerSerializer
+    filter_fields = ('marker_abbreviation', 'marker_name')
+
+
+class FluorochromeList(generics.ListAPIView):
+    """
+    API endpoint representing a list of flow cytometry fluorochromes.
+    """
+
+    model = Fluorochrome
+    serializer_class = FluorochromeSerializer
+    filter_fields = ('fluorochrome_abbreviation', 'fluorochrome_name')
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):

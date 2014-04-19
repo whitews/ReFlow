@@ -51,7 +51,7 @@ $(document).ready(function()
   <ul class="breadcrumb">
     {% breadcrumb_url 'Home' 'home' %}
     {% breadcrumb_url project.project_name 'view_project' project.id %}
-    {% breadcrumb 'Project Panels' %}
+    {% breadcrumb 'Panel Templates' %}
   </ul>
 {% endblock %}
 
@@ -64,12 +64,12 @@ $(document).ready(function()
         <tr>
           <th colspan="50" class="center">
             <div style="position:relative">
-              <h4>Project Panels <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
+              <h4>Panel Templates <span class="badge badge-inverse align-top">{{ panels|length }}</span></h4>
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
                 <a class="btn btn-default btn-sm" href="{% url 'add_project_panel' project.id %}">
-                  Add Project Panel
+                  Add Panel Template
                 </a>
               </div>
               {% endif %}

@@ -11,7 +11,13 @@ handler403 = TemplateView.as_view(template_name='403.html')
 # API routes
 urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/?$', 'repository_api_root', name='repository-api-root'),
+
+    url(r'^api/repository/markers/?$', MarkerList.as_view(), name='marker-list'),
+    url(r'^api/repository/fluorochromes/?$', FluorochromeList.as_view(), name='fluorochrome-list'),
     url(r'^api/repository/specimens/?$', SpecimenList.as_view(), name='specimen-list'),
+    url(r'^api/repository/parameter_functions/?$', get_parameter_functions, name='get_parameter_functions'),
+    url(r'^api/repository/parameter_value_types/?$', get_parameter_value_types,
+        name='get_parameter_value_types'),
 
     url(r'^api/repository/projects/?$', ProjectList.as_view(), name='project-list'),
     url(r'^api/repository/projects/(?P<pk>\d+)/?$', ProjectDetail.as_view(), name='project-detail'),
@@ -133,11 +139,7 @@ urlpatterns += patterns('repository.views',
     url(r'^visit_types/(?P<visit_type_id>\d+)/edit/$', 'edit_visit_type', name='edit_visit_type'),
 
     url(r'^project/(?P<project_id>\d+)/site_panels/$', 'view_project_site_panels', name='view_project_site_panels'),
-    url(r'^project/(?P<project_id>\d+)/site_panels/add/$', 'add_project_site_panel', name='add_project_site_panel'),
-    url(r'^project/(?P<project_id>\d+)/site_panels/process_site_panel_post/$', 'process_site_panel_post', name='process_site_panel_post'),
     url(r'^site_panel/(?P<panel_id>\d+)/edit/$', 'edit_site_panel_comments', name='edit_site_panel_comments'),
-    url(r'^site_panel/(?P<panel_id>\d+)/parameters/edit/$', 'edit_site_panel_parameters', name='edit_site_panel_parameters'),
-    url(r'^parameter/(?P<panel_parameter_id>\d+)/remove/$', 'remove_panel_parameter', name='remove_panel_parameter'),
 
     url(r'^project/(?P<project_id>\d+)/subject_groups/$', 'view_subject_groups', name='subject_groups'),
     url(r'^project/(?P<project_id>\d+)/subject_groups/add/$', 'add_subject_group', name='add_subject_group'),

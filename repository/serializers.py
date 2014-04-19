@@ -57,6 +57,18 @@ class SubjectSerializer(serializers.ModelSerializer):
             'project',)
 
 
+class MarkerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Marker
+
+
+class FluorochromeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Fluorochrome
+
+
 class SpecimenSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -64,6 +76,9 @@ class SpecimenSerializer(serializers.ModelSerializer):
 
 
 class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
+    marker_id = serializers.CharField(
+        source='marker.id',
+        read_only=True)
     name = serializers.CharField(
         source='marker.marker_abbreviation',
         read_only=True)
@@ -74,6 +89,7 @@ class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
 
 
 class ProjectPanelParameterSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='name', read_only=True)
     markers = ProjectPanelParameterMarkerSerializer(
         source='projectpanelparametermarker_set')
     fluorochrome_abbreviation = serializers.CharField(
@@ -84,6 +100,7 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
         model = ProjectPanelParameter
         fields = (
             'id',
+            'name',
             'parameter_type',
             'parameter_value_type',
             'markers',
@@ -145,13 +162,16 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
 
 
 class SitePanelSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer(source='site.project')
-    site = SiteSerializer(source='site')
-    parameters = SitePanelParameterSerializer(source='sitepanelparameter_set')
+    project = ProjectSerializer(source='site.project', read_only=True)
+    parameters = SitePanelParameterSerializer(
+        source='sitepanelparameter_set',
+        read_only=True
+    )
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
-    name = serializers.CharField(source='name')
+    name = serializers.CharField(source='name', read_only=True)
     project_panel_name = serializers.CharField(
-        source='project_panel.panel_name')
+        source='project_panel.panel_name',
+        read_only=True)
 
     class Meta:
         model = SitePanel
@@ -161,6 +181,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'project',
             'site',
             'project_panel',
+            'site_panel_comments',
             'project_panel_name',
             'name',
             'parameters')
