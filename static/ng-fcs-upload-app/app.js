@@ -2,13 +2,24 @@
  * Created by swhite on 2/25/14.
  */
 
-var app = angular.module('FCSUploadApp', ['ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'reflowService', 'angularFileUpload']);
+var app = angular.module(
+    'FCSUploadApp',
+    [
+        'ngRoute',
+        'ngSanitize',
+        'ngCookies',
+        'ui.bootstrap',
+        'ui.select2',
+        'reflowService',
+        'angularFileUpload'
+    ]
+);
 
 app.config(function ($routeProvider) {
     $routeProvider
         .when('/',
         {
-            controller: 'UploadController',
+            controller: 'MainController',
             templateUrl: '/static/ng-fcs-upload-app/partials/upload_samples.html'
         });
 });
@@ -24,4 +35,14 @@ app.filter('bytes', function() {
 			number = Math.floor(Math.log(bytes) / Math.log(1024));
 		return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) +  ' ' + units[number];
 	}
+});
+
+app.directive('closeModal', function (){
+   return function(scope, elem, attrs) {
+     scope.$watch('model.close_modal', function(val) {
+        if(val) {
+           elem.modal('hide');
+        }
+     });
+   }
 });

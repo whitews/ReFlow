@@ -19,7 +19,7 @@ from guardian.shortcuts import get_objects_for_user, get_users_with_perms
 from guardian.models import UserObjectPermission
 from rest_framework.authtoken.models import Token
 
-import fcm
+import flowio
 import numpy as np
 
 
@@ -388,9 +388,15 @@ class ProjectPanelParameter(ProtectedModel):
         """
         Returns the parameter name with value type.
         """
-        return '%s-%s' % (
+        name_string = '%s_%s' % (
             self.parameter_type,
             self.parameter_value_type)
+        if (self.projectpanelparametermarker_set.count() > 0):
+            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.projectpanelparametermarker_set.all()]))
+            name_string += '_' + marker_string
+        if (self.fluorochrome):
+            name_string += '_' + self.fluorochrome.fluorochrome_abbreviation
+        return name_string
 
     name = property(_get_name)
 
@@ -1309,10 +1315,9 @@ class Sample(ProtectedModel):
         # Verify the file is an FCS file
         if hasattr(self.sample_file.file, 'temporary_file_path'):
             try:
-                fcm_obj = fcm.loadFCS(
+                fcm_obj = flowio.FlowData(
                     self.sample_file.file.temporary_file_path(),
-                    transform=None,
-                    auto_comp=False)
+                )
             except:
                 raise ValidationError(
                     "Chosen file does not appear to be an FCS file."
@@ -1320,10 +1325,8 @@ class Sample(ProtectedModel):
         else:
             self.sample_file.seek(0)
             try:
-                fcm_obj = fcm.loadFCS(io.BytesIO(
-                    self.sample_file.read()),
-                    transform=None,
-                    auto_comp=False)
+                fcm_obj = flowio.FlowData(io.BytesIO(
+                    self.sample_file.read()))
             except:
                 raise ValidationError(
                     "Chosen file does not appear to be an FCS file."
@@ -1332,7 +1335,7 @@ class Sample(ProtectedModel):
         # Read the FCS text segment and get the number of parameters
         # save the dictionary for saving SampleMetadata instances
         # after saving the Sample instance
-        self.sample_metadata_dict = fcm_obj.notes.text
+        self.sample_metadata_dict = fcm_obj.text
 
         if 'par' in self.sample_metadata_dict:
             if not self.sample_metadata_dict['par'].isdigit():
@@ -1406,7 +1409,7 @@ class Sample(ProtectedModel):
         # The result is stored as a numpy object in a file field.
         # To ensure room for the indices and preserve precision for values,
         # we save as float32
-        numpy_data = fcm_obj.view().astype(np.float32)
+        numpy_data = n = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
         index_array = np.arange(len(numpy_data))
         np.random.shuffle(index_array)
         random_subsample = numpy_data[index_array[:10000]]
