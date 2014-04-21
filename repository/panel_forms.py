@@ -5,14 +5,10 @@ from collections import Counter
 
 from repository.models import \
     Marker, \
-    Project, \
-    Site, \
     ProjectPanel, \
     SitePanel, \
     ProjectPanelParameter, \
-    ProjectPanelParameterMarker,\
-    SitePanelParameter, \
-    SitePanelParameterMarker
+    ProjectPanelParameterMarker
 
 
 class EditSitePanelForm(forms.ModelForm):
@@ -68,6 +64,9 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
         elif staining == 'US':
             can_have_uns = True
             can_have_iso = False
+        elif staining == 'CB':
+            can_have_uns = False
+            can_have_iso = False
         else:
             raise ValidationError(
                 "Invalid staining type '%s'" % staining)
@@ -99,6 +98,18 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                     "Only Isotype control panels can include an " +
                     "isotype control parameter")
 
+            # comp bead panels can only have
+            if staining == 'CB':
+                if param_type not in ['FSC', 'SSC', 'BEA', 'TIME']:
+                    raise ValidationError(
+                        "Only scatter, bead, and time channels are allowed " +
+                        "in bead panels"
+                    )
+                if len(marker_set) > 0:
+                    raise ValidationError(
+                        "Markers are not allowed in bead panels"
+                    )
+
             # value type is NOT required for project panels,
             # allows site panel implementations to have different values types
             value_type = form.data[form.add_prefix('parameter_value_type')]
@@ -111,6 +122,10 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
             if param_type == 'EXC' and not fluorochrome_id:
                 raise ValidationError(
                     "An exclusion channel must include a fluorochrome.")
+
+            if param_type == 'BEA' and not fluorochrome_id:
+                raise ValidationError(
+                    "A bead channel must include a fluorochrome.")
 
             # check for fluoro or markers in scatter channels
             if param_type == 'FSC' or param_type == 'SSC':
@@ -206,6 +221,13 @@ class ProjectPanelForm(forms.ModelForm):
             elif parent_panel.staining != 'FS':
                 raise ValidationError(
                     "Isotype control panels require a parent full stain panel")
+        elif staining == 'CB':
+            if not parent_panel:
+                raise ValidationError(
+                    "Compensation bead panels require a parent full stain panel")
+            elif parent_panel.staining != 'FS':
+                raise ValidationError(
+                    "Compensation bead panels require a parent full stain panel")
         return self.cleaned_data
 
 

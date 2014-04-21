@@ -55,6 +55,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/sample_collections/(?P<pk>\d+)/?$', SampleCollectionDetail.as_view(), name='sample-collection-detail'),
     url(r'^api/repository/sample_collection_members/?$', SampleCollectionMemberList.as_view(), name='sample-collection-member-list'),
 
+    url(r'^api/repository/beads/?$', BeadList.as_view(), name='bead-list'),
 
     url(r'^api/repository/compensations/?$', CompensationList.as_view(), name='compensation-list'),
     url(r'^api/repository/compensations/add/?$', CreateCompensation.as_view(), name='create-compensation'),
@@ -83,6 +84,7 @@ urlpatterns = patterns('repository.api_views',
 # Angular web routes
 urlpatterns += patterns('repository.views',
     url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
+    url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
     url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
 )
 
@@ -153,6 +155,8 @@ urlpatterns += patterns('repository.views',
     url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
     url(r'^sample/(?P<sample_id>\d+)/parameters/$', 'render_sample_parameters', name='render_sample_parameters'),
     url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
+
+    url(r'^project/(?P<project_id>\d+)/beads/$', 'view_beads', name='view_beads'),
 
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 

@@ -449,6 +449,50 @@ class SampleCollectionDetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'project', 'members')
 
 
+class BeadSampleSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='bead-detail')
+    project = serializers.IntegerField(
+        source='site_panel.project_panel.project_id',
+        read_only=True)
+    site = serializers.CharField(
+        source='site_panel.site_id',
+        read_only=True)
+    site_name = serializers.CharField(
+        source='site_panel.site.site_name',
+        read_only=True)
+    project_panel = serializers.IntegerField(
+        source='site_panel.project_panel_id',
+        read_only=True)
+    panel_name = serializers.CharField(
+        source='site_panel.project_panel.panel_name',
+        read_only=True)
+    upload_date = serializers.DateTimeField(
+        source='upload_date',
+        format='%Y-%m-%d %H:%M:%S',
+        read_only=True)
+
+    class Meta:
+        model = BeadSample
+        fields = (
+            'id',
+            'url',
+            'acquisition_date',
+            'upload_date',
+            'cytometer',
+            'project_panel',
+            'panel_name',
+            'site_panel',
+            'site',
+            'site_name',
+            'project',
+            'original_filename',
+            'exclude',
+            'sha1'
+        )
+        read_only_fields = ('original_filename', 'sha1')
+        exclude = ('bead_file',)
+
+
 class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:

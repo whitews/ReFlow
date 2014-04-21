@@ -36,6 +36,7 @@ def repository_api_root(request):
     """
 
     return Response({
+        'beads': reverse('bead-list', request=request),
         'create_compensation': reverse('create-compensation', request=request),
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
@@ -833,6 +834,55 @@ class SampleCollectionDetail(
 
     model = SampleCollection
     serializer_class = SampleCollectionDetailSerializer
+
+
+class BeadFilter(django_filters.FilterSet):
+    project_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProjectPanel.objects.all(),
+        name='site_panel__project_panel')
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site_panel__site')
+    site_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=SitePanel.objects.all())
+    cytometer = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cytometer.objects.all())
+    original_filename = django_filters.CharFilter(lookup_type="icontains")
+
+    class Meta:
+        model = BeadSample
+        fields = [
+            'site_panel__project_panel__project',
+            'site_panel',
+            'site_panel__site',
+            'site_panel__project_panel',
+            'acquisition_date',
+            'original_filename',
+            'cytometer',
+            'sha1'
+        ]
+
+
+class BeadList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of samples.
+    """
+
+    model = BeadSample
+    serializer_class = BeadSampleSerializer
+    filter_class = BeadFilter
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
+        queryset = BeadSample.objects.filter(
+            site_panel__site__in=user_sites)
+
+        return queryset
+
 
 
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):

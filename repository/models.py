@@ -114,6 +114,7 @@ PARAMETER_TYPE_CHOICES = (
     ('VIA', 'Viability'),
     ('ICM', 'Isotope Conjugated Marker'),
     ('TIM', 'Time'),
+    ('BEA', 'Bead'),
     ('NUL', 'Null')
 )
 
@@ -124,11 +125,12 @@ PARAMETER_VALUE_TYPE_CHOICES = (
     ('T', 'Time')
 )
 
-STAINING_CHOICES = (
+PANEL_TEMPLATE_TYPE_CHOICES = (
     ('FS', 'Full Stain'),
     ('US', 'Unstained'),
     ('FM', 'Fluorescence Minus One'),
-    ('IS', 'Isotype Control')
+    ('IS', 'Isotype Control'),
+    ('CB', 'Compensation Bead')
 )
 
 PRETREATMENT_CHOICES = (
@@ -328,7 +330,7 @@ class ProjectPanel(ProtectedModel):
         help_text="A short description of the panel")
     staining = models.CharField(
         max_length=2,
-        choices=STAINING_CHOICES,
+        choices=PANEL_TEMPLATE_TYPE_CHOICES,
         null=False,
         blank=False)
     parent_panel = models.ForeignKey(
@@ -1554,6 +1556,9 @@ class BeadSample(ProtectedModel):
         null=False,
         blank=False
     )
+    signal_channel = models.IntegerField(
+        null=False,
+        blank=False)
     bead_file = models.FileField(
         upload_to=bead_file_path,
         null=False,
