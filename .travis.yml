@@ -2,12 +2,12 @@ language: python
 virtualenv:
   system_site_packages: true
 before_install:
- - sudo apt-get install -qq python-numpy python-scipy python-matplotlib mercurial
+ - sudo apt-get install -qq python-numpy
+ - pip install git+https://github.com/whitews/FlowIO.git
 python:
   - "2.7"
 install:
   - pip install -q -r requirements/travis-ci.txt --use-mirrors
-  - pip install -q fcm
   - cp reflow/settings_tests.py reflow/settings.py
 script: python manage_tests.py test repository
 notifications:
