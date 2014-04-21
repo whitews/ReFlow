@@ -441,6 +441,13 @@ class SitePanelFilter(django_filters.FilterSet):
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='project_panel__project')
+    fluorochrome = django_filters.ModelMultipleChoiceFilter(
+        queryset=Fluorochrome.objects.all(),
+        name='sitepanelparameter__fluorochrome'
+    )
+    fluorochrome_abbreviation = django_filters.CharFilter(
+        name='sitepanelparameter__fluorochrome__fluorochrome_abbreviation'
+    )
 
     class Meta:
         model = SitePanel
@@ -448,7 +455,8 @@ class SitePanelFilter(django_filters.FilterSet):
             'site',
             'project_panel',
             'project_panel__project',
-
+            'fluorochrome',
+            'fluorochrome_abbreviation'
         ]
 
 
