@@ -148,7 +148,7 @@ app.controller(
                         fcs_opt_text: c.pns,
                         parameter_type: c.function,
                         parameter_value_type: c.value_type,
-                        markers: null,
+                        markers: [],
                         fluorochrome: c.fluorochrome || null
                     })
                 });
