@@ -48,6 +48,15 @@
                   </div>
                 </td>
             </tr>
+            <tr>
+                <td><strong>Compensation Channel:</strong></td>
+                  <td>
+                  <div ng-controller="SitePanelQueryController">
+                    <select class="form-control" ng-model="current_" ng-disabled="model.current_site_panel == null || model.site_panels.length == 0" ng-required="true" ng-options="f.fluorochrome_abbreviation for f in model.panel_fluorochromes">
+                    </select>
+                  </div>
+                </td>
+            </tr>
         </table>
       </div>
       <div class="col-md-8">
@@ -231,7 +240,7 @@
           <th>Acquisition Date</th>
           <th>Cytometer</th>
           <th>Site Panel</th>
-          <th>Signal Channel</th>
+          <th>Compensation Channel</th>
       </tr>
     </thead>
     <tbody>
@@ -329,7 +338,7 @@
         <td>{{ f.acquisition_date | date }}</td>
         <td>{{ f.cytometer.cytometer_name }}</td>
         <td>{{ f.site_panel.name }}</td>
-        <td>{{ f.signal_channel.fluorochrome }}</td>
+        <td>{{ f.compensation_channel.fluorochrome }}</td>
       </tr>
     </tbody>
   </table>
