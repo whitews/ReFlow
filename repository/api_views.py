@@ -913,6 +913,17 @@ class BeadList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
+class BeadDetail(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    generics.RetrieveAPIView):
+    """
+    API endpoint representing a single FCS sample.
+    """
+
+    model = BeadSample
+    serializer_class = BeadSampleSerializer
+
 
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
     """

@@ -471,6 +471,9 @@ class BeadSampleSerializer(serializers.ModelSerializer):
     panel_name = serializers.CharField(
         source='site_panel.project_panel.panel_name',
         read_only=True)
+    compensation_channel_name = serializers.CharField(
+        source='compensation_channel.fluorochrome_abbreviation',
+        read_only=True)
     upload_date = serializers.DateTimeField(
         source='upload_date',
         format='%Y-%m-%d %H:%M:%S',
@@ -487,6 +490,8 @@ class BeadSampleSerializer(serializers.ModelSerializer):
             'project_panel',
             'panel_name',
             'site_panel',
+            'compensation_channel',
+            'compensation_channel_name',
             'site',
             'site_name',
             'project',
@@ -515,7 +520,7 @@ class BeadSamplePOSTSerializer(serializers.ModelSerializer):
         return fields
 
     class Meta:
-        model = Sample
+        model = BeadSample
         fields = (
             'id', 'url', 'site_panel', 'project', 'original_filename',
             'bead_file', 'compensation_channel'

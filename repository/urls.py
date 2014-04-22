@@ -57,6 +57,7 @@ urlpatterns = patterns('repository.api_views',
 
     url(r'^api/repository/beads/?$', BeadList.as_view(), name='bead-list'),
     url(r'^api/repository/beads/add/?$', CreateBeadList.as_view(), name='create-bead-list'),
+    url(r'^api/repository/beads/(?P<pk>\d+)/?$', BeadDetail.as_view(), name='bead-detail'),
 
     url(r'^api/repository/compensations/?$', CompensationList.as_view(), name='compensation-list'),
     url(r'^api/repository/compensations/add/?$', CreateCompensation.as_view(), name='create-compensation'),
