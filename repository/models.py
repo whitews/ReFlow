@@ -1556,7 +1556,8 @@ class BeadSample(ProtectedModel):
         null=False,
         blank=False
     )
-    signal_channel = models.IntegerField(
+    compensation_channel = models.ForeignKey(
+        Fluorochrome,
         null=False,
         blank=False)
     bead_file = models.FileField(

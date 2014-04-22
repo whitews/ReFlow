@@ -56,6 +56,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/sample_collection_members/?$', SampleCollectionMemberList.as_view(), name='sample-collection-member-list'),
 
     url(r'^api/repository/beads/?$', BeadList.as_view(), name='bead-list'),
+    url(r'^api/repository/beads/add/?$', CreateBeadList.as_view(), name='create-bead-list'),
 
     url(r'^api/repository/compensations/?$', CompensationList.as_view(), name='compensation-list'),
     url(r'^api/repository/compensations/add/?$', CreateCompensation.as_view(), name='create-compensation'),

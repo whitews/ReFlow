@@ -498,6 +498,32 @@ class BeadSampleSerializer(serializers.ModelSerializer):
         exclude = ('bead_file',)
 
 
+class BeadSamplePOSTSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='bead-detail')
+    project = serializers.IntegerField(
+        source='site_panel.project_panel.project_id',
+        read_only=True)
+
+    def get_fields(self):
+        fields = super(BeadSamplePOSTSerializer, self).get_default_fields()
+        user = self.context['view'].request.user
+        user_projects = Project.objects.get_projects_user_can_view(user)
+        if 'site' in fields:
+            fields['site'].queryset = Site.objects.filter(
+                project__in=user_projects)
+
+        return fields
+
+    class Meta:
+        model = Sample
+        fields = (
+            'id', 'url', 'site_panel', 'project', 'original_filename',
+            'bead_file', 'compensation_channel'
+        )
+        read_only_fields = ('original_filename', 'sha1', 'subsample')
+        exclude = ('subsample',)
+
+
 class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:

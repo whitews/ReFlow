@@ -37,6 +37,7 @@ def repository_api_root(request):
 
     return Response({
         'beads': reverse('bead-list', request=request),
+        'create_beads': reverse('create-bead-list', request=request),
         'create_compensation': reverse('create-compensation', request=request),
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
@@ -837,6 +838,31 @@ class SampleCollectionDetail(
 
     model = SampleCollection
     serializer_class = SampleCollectionDetailSerializer
+
+
+class CreateBeadList(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = BeadSample
+    serializer_class = BeadSamplePOSTSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        Also removing the 'sample_file' field since it has the server path.
+        """
+        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
+        site = Site.objects.get(id=site_panel.site_id)
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        response = super(CreateBeadList, self).post(request, *args, **kwargs)
+        if hasattr(response, 'data'):
+            if 'bead_file' in response.data:
+                response.data.pop('bead_file')
+        return response
 
 
 class BeadFilter(django_filters.FilterSet):
