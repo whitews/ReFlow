@@ -1514,7 +1514,7 @@ class SampleCollectionMember(ProtectedModel):
 
 
 def bead_file_path(instance, filename):
-    project_id = instance.subject.project_id
+    project_id = instance.site_panel.project_panel.project_id
     site_id = instance.site_panel.site_id
 
     upload_dir = join([
@@ -1529,7 +1529,7 @@ def bead_file_path(instance, filename):
 
 
 def bead_subsample_file_path(instance, filename):
-    project_id = instance.subject.project_id
+    project_id = instance.site_panel.project_panel.project_id
     site_id = instance.site_panel.site_id
 
     upload_dir = join([
@@ -1669,7 +1669,7 @@ class BeadSample(ProtectedModel):
         self.metadata_dict = fcm_obj.text
 
         if 'par' in self.metadata_dict:
-            if not self.smetadata_dict['par'].isdigit():
+            if not self.metadata_dict['par'].isdigit():
                 raise ValidationError(
                     "FCS file reports non-numeric parameter count"
                 )
