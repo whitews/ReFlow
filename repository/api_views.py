@@ -439,6 +439,8 @@ class SitePanelFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
+    panel_type = django_filters.CharFilter(
+        name='project_panel__staining')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='project_panel__project')
@@ -454,6 +456,7 @@ class SitePanelFilter(django_filters.FilterSet):
         model = SitePanel
         fields = [
             'site',
+            'panel_type',
             'project_panel',
             'project_panel__project',
             'fluorochrome',

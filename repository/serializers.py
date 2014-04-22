@@ -172,6 +172,10 @@ class SitePanelSerializer(serializers.ModelSerializer):
     project_panel_name = serializers.CharField(
         source='project_panel.panel_name',
         read_only=True)
+    panel_type = serializers.CharField(
+        source='project_panel.staining',
+        read_only=True
+    )
 
     class Meta:
         model = SitePanel
@@ -181,6 +185,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'project',
             'site',
             'project_panel',
+            'panel_type',
             'site_panel_comments',
             'project_panel_name',
             'name',
