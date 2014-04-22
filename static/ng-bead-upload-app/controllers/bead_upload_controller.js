@@ -401,12 +401,7 @@ app.controller(
                     acquisition_date: null,
                     site_panel: null,
                     cytometer: null,
-                    subject: null,
-                    visit_type: null,
-                    stimulation: null,
-                    specimen: null,
-                    pretreatment: null,
-                    storage: null
+                    compensation_channel: null
                 });
             }
         };
@@ -486,12 +481,6 @@ app.controller(
             f.acquisition_date = null;
             f.site_panel = null;
             f.cytometer = null;
-            f.subject = null;
-            f.visit_type = null;
-            f.stimulation = null;
-            f.specimen = null;
-            f.pretreatment = null;
-            f.storage = null;
 
             // Add back to file queue
             $scope.model.file_queue.push(f);
@@ -523,15 +512,10 @@ app.controller(
             $scope.model.upload_queue[index].progress = 0;
             $scope.model.upload_queue[index].errors = null;
 
-            if (! $scope.model.upload_queue[index].subject ||
-                ! $scope.model.upload_queue[index].visit_type ||
-                ! $scope.model.upload_queue[index].specimen ||
-                ! $scope.model.upload_queue[index].pretreatment ||
-                ! $scope.model.upload_queue[index].storage ||
-                ! $scope.model.upload_queue[index].stimulation ||
-                ! $scope.model.upload_queue[index].site_panel ||
+            if (! $scope.model.upload_queue[index].site_panel ||
                 ! $scope.model.upload_queue[index].cytometer ||
-                ! $scope.model.upload_queue[index].acquisition_date)
+                ! $scope.model.upload_queue[index].acquisition_date ||
+                ! $scope.model.upload_queue[index].compensation_channel)
             {
                 $scope.model.upload_queue[index].errors = [];
                 $scope.model.upload_queue[index].errors.push(
@@ -546,17 +530,11 @@ app.controller(
             }
 
             $scope.model.upload_queue[index].upload = $upload.upload({
-                url : '/api/repository/samples/add/',
+                url : '/api/repository/beads/add/',
                 method: 'POST',
 
                 // FCS sample's REST API model fields here
                 data : {
-                    'subject': $scope.model.upload_queue[index].subject.id,
-                    'visit': $scope.model.upload_queue[index].visit_type.id,
-                    'specimen': $scope.model.upload_queue[index].specimen.id,
-                    'pretreatment': $scope.model.upload_queue[index].pretreatment.name,
-                    'storage': $scope.model.upload_queue[index].storage.name,
-                    'stimulation': $scope.model.upload_queue[index].stimulation.id,
                     'site_panel': $scope.model.upload_queue[index].site_panel.id,
                     'cytometer': $scope.model.upload_queue[index].cytometer.id,
                     'acquisition_date':
@@ -568,7 +546,7 @@ app.controller(
                 },
 
                 file: $scope.model.upload_queue[index].file,
-                fileFormDataName: 'sample_file'
+                fileFormDataName: 'bead_file'
             }).progress(function(evt) {
                 $scope.model.upload_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
             }).success(function(data, status, headers, config) {
