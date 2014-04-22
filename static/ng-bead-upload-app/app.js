@@ -1,9 +1,5 @@
-/**
- * Created by swhite on 2/25/14.
- */
-
 var app = angular.module(
-    'FCSUploadApp',
+    'BeadUploadApp',
     [
         'ngRoute',
         'ngSanitize',
@@ -20,7 +16,7 @@ app.config(function ($routeProvider) {
         .when('/',
         {
             controller: 'MainController',
-            templateUrl: '/static/ng-fcs-upload-app/partials/upload_beads.html'
+            templateUrl: '/static/ng-bead-upload-app/partials/upload_beads.html'
         });
 });
 app.run(function ($http, $cookies) {
