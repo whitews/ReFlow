@@ -47,6 +47,15 @@ app.controller(
                 );
             $scope.model.current_site_panel = null;
         });
+        $scope.$on('sitePanelChangedEvent', function () {
+            $scope.model.panel_fluorochromes = [];
+            $scope.model.current_site_panel.parameters.forEach(function (param) {
+                if (param.fluorochrome) {
+                    $scope.model.panel_fluorochromes.push(param.fluorochrome);
+                }
+            });
+            $scope.model.current_compensation_fluoro = null;
+        });
         $scope.$on('updateSitePanels', function (evt, id) {
             $scope.model.site_panels = SitePanel.query(
                     {
@@ -80,6 +89,11 @@ app.controller(
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
+        };
+
+        $scope.sitePanelChanged = function () {
+            $scope.$broadcast('sitePanelChangedEvent');
+            $scope.evaluateParameterMatch();
         };
 
         $scope.evaluateParameterMatch = function () {
@@ -423,12 +437,7 @@ app.controller(
                     $scope.model.file_queue[i].acquisition_date = $scope.current_acquisition_date;
                     $scope.model.file_queue[i].site_panel = $scope.model.current_site_panel;
                     $scope.model.file_queue[i].cytometer = $scope.model.current_cytometer;
-                    $scope.model.file_queue[i].subject = $scope.model.current_subject;
-                    $scope.model.file_queue[i].visit_type = $scope.model.current_visit;
-                    $scope.model.file_queue[i].stimulation = $scope.model.current_stimulation;
-                    $scope.model.file_queue[i].specimen = $scope.model.current_specimen;
-                    $scope.model.file_queue[i].pretreatment = $scope.model.current_pretreatment;
-                    $scope.model.file_queue[i].storage = $scope.model.current_storage;
+                    $scope.model.file_queue[i].compensation_channel = $scope.model.current_compensation_fluoro;
 
                     // Add to upload queue
                     $scope.model.upload_queue.push($scope.model.file_queue[i]);
@@ -481,6 +490,7 @@ app.controller(
             f.acquisition_date = null;
             f.site_panel = null;
             f.cytometer = null;
+            f.compensation_channel = null;
 
             // Add back to file queue
             $scope.model.file_queue.push(f);
@@ -537,6 +547,7 @@ app.controller(
                 data : {
                     'site_panel': $scope.model.upload_queue[index].site_panel.id,
                     'cytometer': $scope.model.upload_queue[index].cytometer.id,
+                    'compensation_channel': $scope.model.upload_queue[index].compensation_channel.id,
                     'acquisition_date':
                             $scope.model.upload_queue[index].acquisition_date.getFullYear().toString() +
                             "-" +

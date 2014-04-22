@@ -43,7 +43,7 @@
                 <td><strong>Site Panel:</strong></td>
                 <td>
                   <div ng-controller="SitePanelQueryController">
-                    <select class="form-control" ng-model="model.current_site_panel" ng-disabled="model.current_site == null || model.site_panels.length == 0" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="s.name for s in model.site_panels">
+                    <select class="form-control" ng-model="model.current_site_panel" ng-disabled="model.current_site == null || model.site_panels.length == 0" ng-required="true" ng-change="sitePanelChanged()" ng-options="s.name for s in model.site_panels">
                     </select>
                   </div>
                 </td>
@@ -52,7 +52,7 @@
                 <td><strong>Compensation Channel:</strong></td>
                   <td>
                   <div ng-controller="SitePanelQueryController">
-                    <select class="form-control" ng-model="current_" ng-disabled="model.current_site_panel == null || model.site_panels.length == 0" ng-required="true" ng-options="f.fluorochrome_abbreviation for f in model.panel_fluorochromes">
+                    <select class="form-control" ng-model="model.current_compensation_fluoro" ng-disabled="model.current_site_panel == null || model.site_panels.length == 0" ng-required="true" ng-options="f.fluorochrome_abbreviation for f in model.panel_fluorochromes">
                     </select>
                   </div>
                 </td>
@@ -338,7 +338,7 @@
         <td>{{ f.acquisition_date | date }}</td>
         <td>{{ f.cytometer.cytometer_name }}</td>
         <td>{{ f.site_panel.name }}</td>
-        <td>{{ f.compensation_channel.fluorochrome }}</td>
+        <td>{{ f.compensation_channel.fluorochrome_abbreviation }}</td>
       </tr>
     </tbody>
   </table>
