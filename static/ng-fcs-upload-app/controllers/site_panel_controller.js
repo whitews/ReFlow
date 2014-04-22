@@ -9,7 +9,7 @@ app.controller(
         'Fluorochrome',
         'SitePanel',
         function ($scope, Marker, Fluorochrome, SitePanel) {
-            $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_bead_site_panel.html';
+            $scope.model.site_panel_url = '/static/ng-fcs-upload-app/partials/create_site_panel.html';
             $scope.model.markers = Marker.query();
             $scope.model.fluorochromes = Fluorochrome.query();
             $scope.model.site_panel_errors = [];
