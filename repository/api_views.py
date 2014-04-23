@@ -374,6 +374,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = (
         'project',
         'panel_name',
+        'staining'
     )
 
     def get_queryset(self):
