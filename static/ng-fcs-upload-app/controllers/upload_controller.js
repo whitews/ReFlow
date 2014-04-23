@@ -44,7 +44,7 @@ app.controller(
         $scope.$on('siteChangedEvent', function () {
             $scope.model.site_panels = SitePanel.query(
                     {
-                        project_panel__project: $scope.model.current_project.id,
+                        project: $scope.model.current_project.id,
                         site: $scope.model.current_site.id,
                         panel_type: PANEL_TYPES
                     }
@@ -54,7 +54,7 @@ app.controller(
         $scope.$on('updateSitePanels', function (evt, id) {
             $scope.model.site_panels = SitePanel.query(
                     {
-                        project_panel__project: $scope.model.current_project.id,
+                        project: $scope.model.current_project.id,
                         site: $scope.model.current_site.id,
                         panel_type: PANEL_TYPES
                     }
