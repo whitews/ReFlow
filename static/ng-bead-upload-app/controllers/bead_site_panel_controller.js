@@ -203,7 +203,8 @@ app.controller(
             $scope.model.current_project_panel = null;
             $scope.model.project_panels = ProjectPanel.query(
                 {
-                    project: $scope.model.current_project.id
+                    project: $scope.model.current_project.id,
+                    staining: 'CB'
                 }
             );
             $scope.model.site_panel_sample = f;
