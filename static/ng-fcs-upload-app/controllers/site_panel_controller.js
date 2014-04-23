@@ -252,7 +252,18 @@ app.controller(
         'ParameterFunction',
         'ParameterValueType',
         function ($scope, ParameterFunction, ParameterValueType) {
-            $scope.model.parameter_functions = ParameterFunction.query();
+            // everything but bead functions
+            $scope.model.parameter_functions = [
+                ["FSC", "Forward Scatter"],
+                ["SSC", "Side Scatter"],
+                ["FCM", "Fluorochrome Conjugated Marker"],
+                ["UNS", "Unstained"],
+                ["ISO", "Isotype Control"],
+                ["EXC", "Exclusion"],
+                ["VIA", "Viability"],
+                ["TIM", "Time"],
+                ["NUL", "Null"]
+            ];
             $scope.model.parameter_value_types = ParameterValueType.query();
         }
     ]
@@ -265,9 +276,12 @@ app.controller(
         $scope.$on('initSitePanel', function (o, f) {
             $scope.model.close_modal = false;
             $scope.model.current_project_panel = null;
+
+            // get everything except bead templats
             $scope.model.project_panels = ProjectPanel.query(
                 {
-                    project: $scope.model.current_project.id
+                    project: $scope.model.current_project.id,
+                    staining: ['FS', 'US', 'FM', 'IS']
                 }
             );
             $scope.model.site_panel_sample = f;

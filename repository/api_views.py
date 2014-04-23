@@ -364,6 +364,23 @@ class SubjectDetail(
     serializer_class = SubjectSerializer
 
 
+class ProjectPanelFilter(django_filters.FilterSet):
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='project')
+    staining = django_filters.MultipleChoiceFilter(
+        choices=PANEL_TEMPLATE_TYPE_CHOICES,
+        name='staining')
+
+    class Meta:
+        model = ProjectPanel
+        fields = [
+            'project',
+            'panel_name',
+            'staining'
+        ]
+
+
 class ProjectPanelList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of project panels.
@@ -371,11 +388,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = ProjectPanel
     serializer_class = ProjectPanelSerializer
-    filter_fields = (
-        'project',
-        'panel_name',
-        'staining'
-    )
+    filter_class = ProjectPanelFilter
 
     def get_queryset(self):
         """
@@ -441,7 +454,8 @@ class SitePanelFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
-    panel_type = django_filters.CharFilter(
+    panel_type = django_filters.MultipleChoiceFilter(
+        choices=PANEL_TEMPLATE_TYPE_CHOICES,
         name='project_panel__staining')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
@@ -460,7 +474,7 @@ class SitePanelFilter(django_filters.FilterSet):
             'site',
             'panel_type',
             'project_panel',
-            'project_panel__project',
+            'project',
             'fluorochrome',
             'fluorochrome_abbreviation'
         ]
