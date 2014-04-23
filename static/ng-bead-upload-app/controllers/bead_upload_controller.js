@@ -42,7 +42,8 @@ app.controller(
             $scope.model.site_panels = SitePanel.query(
                     {
                         project_panel__project: $scope.model.current_project.id,
-                        site: $scope.model.current_site.id
+                        site: $scope.model.current_site.id,
+                        panel_type: 'CB'
                     }
                 );
             $scope.model.current_site_panel = null;
@@ -60,7 +61,8 @@ app.controller(
             $scope.model.site_panels = SitePanel.query(
                     {
                         project_panel__project: $scope.model.current_project.id,
-                        site: $scope.model.current_site.id
+                        site: $scope.model.current_site.id,
+                        panel_type: 'CB'
                     }
                 );
             $scope.model.site_panels.$promise.then(function (o) {
