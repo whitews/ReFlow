@@ -1015,7 +1015,8 @@ class Compensation(ProtectedModel):
     compensation_file = models.FileField(
         upload_to=compensation_file_path,
         null=False,
-        blank=False)
+        blank=False,
+        max_length=256)
     matrix_text = models.TextField(
         null=False,
         blank=False)
@@ -1210,7 +1211,8 @@ class Sample(ProtectedModel):
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,
-        blank=False)
+        blank=False,
+        max_length=256)
     original_filename = models.CharField(
         unique=False,
         null=False,
@@ -1220,7 +1222,8 @@ class Sample(ProtectedModel):
     subsample = models.FileField(
         upload_to=subsample_file_path,
         null=False,
-        blank=False)
+        blank=False,
+        max_length=256)
     sha1 = models.CharField(
         unique=False,
         null=False,
@@ -1563,7 +1566,8 @@ class BeadSample(ProtectedModel):
     bead_file = models.FileField(
         upload_to=bead_file_path,
         null=False,
-        blank=False)
+        blank=False,
+        max_length=256)
     original_filename = models.CharField(
         unique=False,
         null=False,
@@ -1573,7 +1577,8 @@ class BeadSample(ProtectedModel):
     subsample = models.FileField(
         upload_to=bead_subsample_file_path,
         null=False,
-        blank=False)
+        blank=False,
+        max_length=256)
     sha1 = models.CharField(
         unique=False,
         null=False,
@@ -2023,7 +2028,8 @@ class ProcessRequestOutput(ProtectedModel):
     value = models.FileField(
         upload_to=pr_output_path,
         null=False,
-        blank=False
+        blank=False,
+        max_length=256
     )
 
     def has_view_permission(self, user):
