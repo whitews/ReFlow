@@ -145,7 +145,7 @@ app.controller(
                     params.push({
                         fcs_number: c.channel,
                         fcs_text: c.pnn,
-                        fcs_opt_text: c.pns,
+                        fcs_opt_text: null,
                         parameter_type: c.function,
                         parameter_value_type: c.value_type,
                         markers: [],

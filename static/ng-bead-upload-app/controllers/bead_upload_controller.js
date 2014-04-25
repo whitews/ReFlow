@@ -179,15 +179,10 @@ app.controller(
                             channel[0].pnn);
                     }
 
-                    if (site_panel.parameters[i].fcs_opt_text != channel[0].pns) {
-                        mismatches.push(
-                            "PnS mismatch in channel " +
-                            site_panel.parameters[i].fcs_number +
-                            ": expected " +
-                            site_panel.parameters[i].fcs_opt_text +
-                            ", file has " +
-                            channel[0].pns);
-                    }
+                    // We don't validate PnS field because this field
+                    // is typically used to identify the signal channel
+                    // and we only want to have one site panel per comp
+                    // bead set
                 }
             }
 

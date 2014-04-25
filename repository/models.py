@@ -1717,21 +1717,9 @@ class BeadSample(ProtectedModel):
                     "Required FCS field PnN not found in file for channel '%s'"
                     % str(channel_number))
 
-            # Compare PnS field, not required but if panel version exists
-            # and file version doesn't we'll still error
-            if 's' in params[channel_number]:
-                if params[channel_number]['s'] != \
-                        panel_param.fcs_opt_text:
-                    raise ValidationError(
-                        "FCS PnS text for channel '%s' does not match panel"
-                        % str(channel_number))
-            else:
-                # file doesn't have PnS field, so panel param must be
-                # empty string
-                if panel_param.fcs_opt_text != '':
-                    raise ValidationError(
-                        "FCS PnS text for channel '%s' does not match panel"
-                        % str(channel_number))
+            # We don't compare PnS field as this field typically identifies
+            # which channel is the signal channel, and we only want one site
+            # panel per comp bead data set.
 
         # Save a sub-sample of the FCS data for more efficient retrieval
         # We'll save a random 10,000 events (non-duplicated) if possible
