@@ -156,6 +156,74 @@ def retrieve_subsample_as_numpy(request, pk):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
+def retrieve_bead_sample(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.bead_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % bead_sample.original_filename
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_bead_sample_as_pk(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.bead_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(bead_sample.id) + '.fcs'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_bead_subsample_as_csv(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.get_subsample_as_csv(),
+        content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(bead_sample.id) + '.csv'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_bead_subsample_as_numpy(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.subsample.file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(bead_sample.id) + '.npy'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
 def retrieve_compensation_as_csv(request, pk):
     compensation = get_object_or_404(Compensation, pk=pk)
 
