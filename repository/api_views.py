@@ -575,8 +575,8 @@ class CytometerFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
-    site_name = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
+    site_name = django_filters.MultipleChoiceFilter(
+        choices=Site.objects.all().values_list('site_name', 'id'),
         name='site__site_name')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
@@ -586,8 +586,8 @@ class CytometerFilter(django_filters.FilterSet):
         model = Cytometer
         fields = [
             'site',
-            'site__site_name',
-            'site__project',
+            'site_name',
+            'project',
             'cytometer_name',
             'serial_number'
         ]
@@ -720,42 +720,39 @@ class SampleFilter(django_filters.FilterSet):
     project_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=ProjectPanel.objects.all(),
         name='site_panel__project_panel')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='site_panel__project_panel__project')
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site_panel__site')
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
     cytometer = django_filters.ModelMultipleChoiceFilter(
-        queryset=Cytometer.objects.all())
+        queryset=Cytometer.objects.all(),
+        name='cytometer')
     subject = django_filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all())
     subject_group = django_filters.ModelMultipleChoiceFilter(
         queryset=SubjectGroup.objects.all(),
         name='subject__subject_group')
+    subject_code = django_filters.CharFilter(
+        name='subject__subject_code')
     visit = django_filters.ModelMultipleChoiceFilter(
-        queryset=VisitType.objects.all())
+        queryset=VisitType.objects.all(),
+        name='visit')
     specimen = django_filters.ModelMultipleChoiceFilter(
-        queryset=Specimen.objects.all())
+        queryset=Specimen.objects.all(),
+        name='specimen')
     stimulation = django_filters.ModelMultipleChoiceFilter(
-        queryset=Stimulation.objects.all())
+        queryset=Stimulation.objects.all(),
+        name='stimulation')
     original_filename = django_filters.CharFilter(lookup_type="icontains")
 
     class Meta:
         model = Sample
         fields = [
-            'subject__project',
-            'site_panel',
-            'site_panel__site',
-            'site_panel__project_panel',
-            'subject',
-            'subject__subject_code',
-            'subject__subject_group',
-            'visit',
-            'specimen',
-            'stimulation',
             'acquisition_date',
-            'original_filename',
-            'cytometer',
             'sha1'
         ]
 
@@ -962,6 +959,29 @@ class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
         return response
 
 
+class CompensationFilter(django_filters.FilterSet):
+
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site_panel__site')
+    site_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=SitePanel.objects.all(),
+        name='site_panel')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='site_panel__site__project')
+
+    class Meta:
+        model = Compensation
+        fields = [
+            'name',
+            'acquisition_date',
+            'site_panel',
+            'site',
+            'project'
+        ]
+
+
 class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of compensations.
@@ -969,12 +989,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Compensation
     serializer_class = CompensationSerializer
-    filter_fields = (
-        'name',
-        'acquisition_date',
-        'site_panel',
-        'site_panel__site',
-        'site_panel__site__project')
+    filter_class = CompensationFilter
 
     def get_queryset(self):
         """
