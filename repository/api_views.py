@@ -36,6 +36,8 @@ def repository_api_root(request):
     """
 
     return Response({
+        'beads': reverse('bead-list', request=request),
+        'create_beads': reverse('create-bead-list', request=request),
         'create_compensation': reverse('create-compensation', request=request),
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
@@ -148,6 +150,74 @@ def retrieve_subsample_as_numpy(request, pk):
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % str(sample.id) + '.npy'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_bead_sample(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.bead_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % bead_sample.original_filename
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_bead_sample_as_pk(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.bead_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(bead_sample.id) + '.fcs'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_bead_subsample_as_csv(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.get_subsample_as_csv(),
+        content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(bead_sample.id) + '.csv'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_bead_subsample_as_numpy(request, pk):
+    bead_sample = get_object_or_404(BeadSample, pk=pk)
+
+    if not bead_sample.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        bead_sample.subsample.file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(bead_sample.id) + '.npy'
     return response
 
 
@@ -362,6 +432,23 @@ class SubjectDetail(
     serializer_class = SubjectSerializer
 
 
+class ProjectPanelFilter(django_filters.FilterSet):
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='project')
+    staining = django_filters.MultipleChoiceFilter(
+        choices=PANEL_TEMPLATE_TYPE_CHOICES,
+        name='staining')
+
+    class Meta:
+        model = ProjectPanel
+        fields = [
+            'project',
+            'panel_name',
+            'staining'
+        ]
+
+
 class ProjectPanelList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of project panels.
@@ -369,10 +456,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListAPIView):
 
     model = ProjectPanel
     serializer_class = ProjectPanelSerializer
-    filter_fields = (
-        'project',
-        'panel_name',
-    )
+    filter_class = ProjectPanelFilter
 
     def get_queryset(self):
         """
@@ -438,6 +522,9 @@ class SitePanelFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
+    panel_type = django_filters.MultipleChoiceFilter(
+        choices=PANEL_TEMPLATE_TYPE_CHOICES,
+        name='project_panel__staining')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='project_panel__project')
@@ -453,8 +540,9 @@ class SitePanelFilter(django_filters.FilterSet):
         model = SitePanel
         fields = [
             'site',
+            'panel_type',
             'project_panel',
-            'project_panel__project',
+            'project',
             'fluorochrome',
             'fluorochrome_abbreviation'
         ]
@@ -555,8 +643,8 @@ class CytometerFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
-    site_name = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
+    site_name = django_filters.MultipleChoiceFilter(
+        choices=Site.objects.all().values_list('site_name', 'id'),
         name='site__site_name')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
@@ -566,8 +654,8 @@ class CytometerFilter(django_filters.FilterSet):
         model = Cytometer
         fields = [
             'site',
-            'site__site_name',
-            'site__project',
+            'site_name',
+            'project',
             'cytometer_name',
             'serial_number'
         ]
@@ -700,42 +788,39 @@ class SampleFilter(django_filters.FilterSet):
     project_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=ProjectPanel.objects.all(),
         name='site_panel__project_panel')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='site_panel__project_panel__project')
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site_panel__site')
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
     cytometer = django_filters.ModelMultipleChoiceFilter(
-        queryset=Cytometer.objects.all())
+        queryset=Cytometer.objects.all(),
+        name='cytometer')
     subject = django_filters.ModelMultipleChoiceFilter(
         queryset=Subject.objects.all())
     subject_group = django_filters.ModelMultipleChoiceFilter(
         queryset=SubjectGroup.objects.all(),
         name='subject__subject_group')
+    subject_code = django_filters.CharFilter(
+        name='subject__subject_code')
     visit = django_filters.ModelMultipleChoiceFilter(
-        queryset=VisitType.objects.all())
+        queryset=VisitType.objects.all(),
+        name='visit')
     specimen = django_filters.ModelMultipleChoiceFilter(
-        queryset=Specimen.objects.all())
+        queryset=Specimen.objects.all(),
+        name='specimen')
     stimulation = django_filters.ModelMultipleChoiceFilter(
-        queryset=Stimulation.objects.all())
+        queryset=Stimulation.objects.all(),
+        name='stimulation')
     original_filename = django_filters.CharFilter(lookup_type="icontains")
 
     class Meta:
         model = Sample
         fields = [
-            'subject__project',
-            'site_panel',
-            'site_panel__site',
-            'site_panel__project_panel',
-            'subject',
-            'subject__subject_code',
-            'subject__subject_group',
-            'visit',
-            'specimen',
-            'stimulation',
             'acquisition_date',
-            'original_filename',
-            'cytometer',
             'sha1'
         ]
 
@@ -835,6 +920,91 @@ class SampleCollectionDetail(
     serializer_class = SampleCollectionDetailSerializer
 
 
+class CreateBeadList(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for creating a new Sample.
+    """
+
+    model = BeadSample
+    serializer_class = BeadSamplePOSTSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        Also removing the 'sample_file' field since it has the server path.
+        """
+        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
+        site = Site.objects.get(id=site_panel.site_id)
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        response = super(CreateBeadList, self).post(request, *args, **kwargs)
+        if hasattr(response, 'data'):
+            if 'bead_file' in response.data:
+                response.data.pop('bead_file')
+        return response
+
+
+class BeadFilter(django_filters.FilterSet):
+    project_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProjectPanel.objects.all(),
+        name='site_panel__project_panel')
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site_panel__site')
+    site_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=SitePanel.objects.all())
+    cytometer = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cytometer.objects.all())
+    original_filename = django_filters.CharFilter(lookup_type="icontains")
+
+    class Meta:
+        model = BeadSample
+        fields = [
+            'site_panel__project_panel__project',
+            'site_panel',
+            'site_panel__site',
+            'site_panel__project_panel',
+            'acquisition_date',
+            'original_filename',
+            'cytometer',
+            'sha1'
+        ]
+
+
+class BeadList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of samples.
+    """
+
+    model = BeadSample
+    serializer_class = BeadSampleSerializer
+    filter_class = BeadFilter
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
+        queryset = BeadSample.objects.filter(
+            site_panel__site__in=user_sites)
+
+        return queryset
+
+
+class BeadDetail(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    generics.RetrieveAPIView):
+    """
+    API endpoint representing a single FCS sample.
+    """
+
+    model = BeadSample
+    serializer_class = BeadSampleSerializer
+
+
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
     """
     API endpoint for creating a new Sample.
@@ -857,6 +1027,29 @@ class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
         return response
 
 
+class CompensationFilter(django_filters.FilterSet):
+
+    site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        name='site_panel__site')
+    site_panel = django_filters.ModelMultipleChoiceFilter(
+        queryset=SitePanel.objects.all(),
+        name='site_panel')
+    project = django_filters.ModelMultipleChoiceFilter(
+        queryset=Project.objects.all(),
+        name='site_panel__site__project')
+
+    class Meta:
+        model = Compensation
+        fields = [
+            'name',
+            'acquisition_date',
+            'site_panel',
+            'site',
+            'project'
+        ]
+
+
 class CompensationList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of compensations.
@@ -864,12 +1057,7 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
 
     model = Compensation
     serializer_class = CompensationSerializer
-    filter_fields = (
-        'name',
-        'acquisition_date',
-        'site_panel',
-        'site_panel__site',
-        'site_panel__site__project')
+    filter_class = CompensationFilter
 
     def get_queryset(self):
         """

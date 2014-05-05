@@ -19,14 +19,20 @@ var URLS = {
     'SAMPLES':             '/api/repository/samples/',
     'CREATE_SAMPLES':      '/api/repository/samples/add/',
     'SAMPLE_METADATA':     '/api/repository/samplemetadata/',
+    'SAMPLE_COLLECTIONS':         '/api/repository/sample_collections/',
+    'SAMPLE_COLLECTION_MEMBERS':  '/api/repository/sample_collection_members/',
     'VISIT_TYPES':         '/api/repository/visit_types/',
     'PARAMETER_FUNCTIONS': '/api/repository/parameter_functions/',
     'PARAMETER_VALUE_TYPES': '/api/repository/parameter_value_types/',
 
     // Process related API URLs
     'WORKERS':                 '/api/repository/workers/',
+    'SUBPROCESS_CATEGORIES':      '/api/repository/subprocess_categories/',
+    'SUBPROCESS_IMPLEMENTATIONS': '/api/repository/subprocess_implementations/',
+    'SUBPROCESS_INPUTS':          '/api/repository/subprocess_inputs/',
     'VERIFY_WORKER':           '/api/repository/verify_worker/',
     'PROCESS_REQUESTS':        '/api/repository/process_requests/',
+    'PROCESS_REQUEST_INPUTS':     '/api/repository/process_request_inputs',
     'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
     'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
 };
@@ -75,6 +81,45 @@ service
     }])
     .factory('Sample', ['$resource', function ($resource) {
         return $resource(URLS.SAMPLES);
+    }])
+    .factory('SampleCollection', ['$resource', function ($resource) {
+        return $resource(URLS.SAMPLE_COLLECTIONS);
+    }])
+    .factory('SampleCollectionMember', ['$resource', function ($resource) {
+        return $resource(
+            URLS.SAMPLE_COLLECTION_MEMBERS,
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    isArray: true
+                }
+            }
+        );
+    }])
+    .factory('SubprocessCategory', ['$resource', function ($resource) {
+        return $resource(URLS.SUBPROCESS_CATEGORIES);
+    }])
+    .factory('SubprocessImplementation', ['$resource', function ($resource) {
+        return $resource(URLS.SUBPROCESS_IMPLEMENTATIONS);
+    }])
+    .factory('SubprocessInput', ['$resource', function ($resource) {
+        return $resource(URLS.SUBPROCESS_INPUTS);
+    }])
+    .factory('ProcessRequest', ['$resource', function ($resource) {
+        return $resource(URLS.PROCESS_REQUESTS);
+    }])
+    .factory('ProcessRequestInput', ['$resource', function ($resource) {
+        return $resource(
+            URLS.PROCESS_REQUEST_INPUTS,
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    isArray: true
+                }
+            }
+        );
     }])
     .factory('ParameterFunction', ['$resource', function ($resource) {
         return $resource(URLS.PARAMETER_FUNCTIONS);

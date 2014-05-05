@@ -418,7 +418,7 @@ select.app, input.app {
 }
 
 .instruction {
-    margin-top: 10%;
+    margin-top: 5%;
     font: 36px bold "Optima", "FreeSerif";
     font-weight: 900;
     color: #c6c6c6;

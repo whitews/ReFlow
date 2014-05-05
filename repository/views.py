@@ -45,6 +45,15 @@ def fcs_upload_app(request):
     )
 
 
+@login_required
+def bead_upload_app(request):
+    return render_to_response(
+        'bead_upload_app.html',
+        {},
+        context_instance=RequestContext(request)
+    )
+
+
 @user_passes_test(lambda u: u.is_superuser)
 def process_request_app(request):
     return render_to_response(
@@ -730,6 +739,35 @@ def render_sample_compensation(request, sample_id):
         'render_sample_compensation.html',
         {
             'sample': sample
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def view_beads(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    # samples are retrieved via AJAX using the sample list REST API driven
+    # by the following form
+    filter_form = BeadFilterForm(project_id=project_id, request=request)
+
+    can_add_project_data = project.has_add_permission(request.user)
+    can_modify_project_data = project.has_modify_permission(request.user)
+    user_add_sites = Site.objects.get_sites_user_can_add(
+        request.user, project).values_list('id', flat=True)
+    user_modify_sites = Site.objects.get_sites_user_can_modify(
+        request.user, project).values_list('id', flat=True)
+
+    return render_to_response(
+        'view_beads.html',
+        {
+            'project': project,
+            'can_add_project_data': can_add_project_data,
+            'can_modify_project_data': can_modify_project_data,
+            'user_add_sites': user_add_sites,
+            'user_modify_sites': user_modify_sites,
+            'filter_form': filter_form
         },
         context_instance=RequestContext(request)
     )
