@@ -35,9 +35,6 @@ app.controller(
 app.controller(
     'SitePanelQueryController',
     ['$scope', 'SitePanel', function ($scope, SitePanel) {
-        // everything but bead panels
-        var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
-
         $scope.$on('projectChangedEvent', function () {
             $scope.model.current_site_panel = null;
         });
@@ -46,17 +43,26 @@ app.controller(
                     {
                         project: $scope.model.current_project.id,
                         site: $scope.model.current_site.id,
-                        panel_type: PANEL_TYPES
+                        panel_type: 'CB'
                     }
                 );
             $scope.model.current_site_panel = null;
+        });
+        $scope.$on('sitePanelChangedEvent', function () {
+            $scope.model.panel_fluorochromes = [];
+            $scope.model.current_site_panel.parameters.forEach(function (param) {
+                if (param.fluorochrome) {
+                    $scope.model.panel_fluorochromes.push(param.fluorochrome);
+                }
+            });
+            $scope.model.current_compensation_fluoro = null;
         });
         $scope.$on('updateSitePanels', function (evt, id) {
             $scope.model.site_panels = SitePanel.query(
                     {
                         project: $scope.model.current_project.id,
                         site: $scope.model.current_site.id,
-                        panel_type: PANEL_TYPES
+                        panel_type: 'CB'
                     }
                 );
             $scope.model.site_panels.$promise.then(function (o) {
@@ -72,54 +78,7 @@ app.controller(
     }
 ]);
 
-app.controller(
-    'SubjectQueryController',
-    ['$scope', 'Subject', function ($scope, Subject) {
-        $scope.$on('projectChangedEvent', function () {
-            $scope.model.subjects = Subject.query({project: $scope.model.current_project.id});
-            $scope.model.current_subject = null;
-        });    }
-]);
 
-app.controller(
-    'VisitTypeQueryController',
-    ['$scope', 'VisitType', function ($scope, VisitType) {
-        $scope.$on('projectChangedEvent', function () {
-            $scope.model.visit_types = VisitType.query({project: $scope.model.current_project.id});
-            $scope.model.current_visit = null;
-        });    }
-]);
-
-app.controller(
-    'StimulationQueryController',
-    ['$scope', 'Stimulation', function ($scope, Stimulation) {
-        $scope.$on('projectChangedEvent', function () {
-            $scope.model.stimulations = Stimulation.query({project: $scope.model.current_project.id});
-            $scope.model.current_stimulation = null;
-        });
-    }
-]);
-
-app.controller(
-    'SpecimenQueryController',
-    ['$scope', 'Specimen', function ($scope, Specimen) {
-        $scope.model.specimens = Specimen.query();
-    }
-]);
-
-app.controller(
-    'PretreatmentQueryController',
-    ['$scope', 'Pretreatment', function ($scope, Pretreatment) {
-        $scope.model.pretreatments = Pretreatment.query();
-    }
-]);
-
-app.controller(
-    'StorageQueryController',
-    ['$scope', 'Storage', function ($scope, Storage) {
-        $scope.model.storages = Storage.query();
-    }
-]);
 
 app.controller(
     'CategorizationController',
@@ -132,6 +91,11 @@ app.controller(
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
+        };
+
+        $scope.sitePanelChanged = function () {
+            $scope.$broadcast('sitePanelChangedEvent');
+            $scope.evaluateParameterMatch();
         };
 
         $scope.evaluateParameterMatch = function () {
@@ -172,13 +136,7 @@ app.controller(
         function verifyCategories() {
             return $scope.model.current_cytometer &&
                 $scope.current_acquisition_date &&
-                $scope.model.current_site_panel &&
-                $scope.model.current_subject &&
-                $scope.model.current_visit &&
-                $scope.model.current_stimulation &&
-                $scope.model.current_specimen &&
-                $scope.model.current_pretreatment &&
-                $scope.model.current_storage;
+                $scope.model.current_site_panel
         }
 
         // site panel matching
@@ -221,15 +179,10 @@ app.controller(
                             channel[0].pnn);
                     }
 
-                    if (site_panel.parameters[i].fcs_opt_text != channel[0].pns) {
-                        mismatches.push(
-                            "PnS mismatch in channel " +
-                            site_panel.parameters[i].fcs_number +
-                            ": expected " +
-                            site_panel.parameters[i].fcs_opt_text +
-                            ", file has " +
-                            channel[0].pns);
-                    }
+                    // We don't validate PnS field because this field
+                    // is typically used to identify the signal channel
+                    // and we only want to have one site panel per comp
+                    // bead set
                 }
             }
 
@@ -459,12 +412,7 @@ app.controller(
                     acquisition_date: null,
                     site_panel: null,
                     cytometer: null,
-                    subject: null,
-                    visit_type: null,
-                    stimulation: null,
-                    specimen: null,
-                    pretreatment: null,
-                    storage: null
+                    compensation_channel: null
                 });
             }
         };
@@ -486,12 +434,7 @@ app.controller(
                     $scope.model.file_queue[i].acquisition_date = $scope.current_acquisition_date;
                     $scope.model.file_queue[i].site_panel = $scope.model.current_site_panel;
                     $scope.model.file_queue[i].cytometer = $scope.model.current_cytometer;
-                    $scope.model.file_queue[i].subject = $scope.model.current_subject;
-                    $scope.model.file_queue[i].visit_type = $scope.model.current_visit;
-                    $scope.model.file_queue[i].stimulation = $scope.model.current_stimulation;
-                    $scope.model.file_queue[i].specimen = $scope.model.current_specimen;
-                    $scope.model.file_queue[i].pretreatment = $scope.model.current_pretreatment;
-                    $scope.model.file_queue[i].storage = $scope.model.current_storage;
+                    $scope.model.file_queue[i].compensation_channel = $scope.model.current_compensation_fluoro;
 
                     // Add to upload queue
                     $scope.model.upload_queue.push($scope.model.file_queue[i]);
@@ -544,12 +487,7 @@ app.controller(
             f.acquisition_date = null;
             f.site_panel = null;
             f.cytometer = null;
-            f.subject = null;
-            f.visit_type = null;
-            f.stimulation = null;
-            f.specimen = null;
-            f.pretreatment = null;
-            f.storage = null;
+            f.compensation_channel = null;
 
             // Add back to file queue
             $scope.model.file_queue.push(f);
@@ -581,15 +519,10 @@ app.controller(
             $scope.model.upload_queue[index].progress = 0;
             $scope.model.upload_queue[index].errors = null;
 
-            if (! $scope.model.upload_queue[index].subject ||
-                ! $scope.model.upload_queue[index].visit_type ||
-                ! $scope.model.upload_queue[index].specimen ||
-                ! $scope.model.upload_queue[index].pretreatment ||
-                ! $scope.model.upload_queue[index].storage ||
-                ! $scope.model.upload_queue[index].stimulation ||
-                ! $scope.model.upload_queue[index].site_panel ||
+            if (! $scope.model.upload_queue[index].site_panel ||
                 ! $scope.model.upload_queue[index].cytometer ||
-                ! $scope.model.upload_queue[index].acquisition_date)
+                ! $scope.model.upload_queue[index].acquisition_date ||
+                ! $scope.model.upload_queue[index].compensation_channel)
             {
                 $scope.model.upload_queue[index].errors = [];
                 $scope.model.upload_queue[index].errors.push(
@@ -604,19 +537,14 @@ app.controller(
             }
 
             $scope.model.upload_queue[index].upload = $upload.upload({
-                url : '/api/repository/samples/add/',
+                url : '/api/repository/beads/add/',
                 method: 'POST',
 
                 // FCS sample's REST API model fields here
                 data : {
-                    'subject': $scope.model.upload_queue[index].subject.id,
-                    'visit': $scope.model.upload_queue[index].visit_type.id,
-                    'specimen': $scope.model.upload_queue[index].specimen.id,
-                    'pretreatment': $scope.model.upload_queue[index].pretreatment.name,
-                    'storage': $scope.model.upload_queue[index].storage.name,
-                    'stimulation': $scope.model.upload_queue[index].stimulation.id,
                     'site_panel': $scope.model.upload_queue[index].site_panel.id,
                     'cytometer': $scope.model.upload_queue[index].cytometer.id,
+                    'compensation_channel': $scope.model.upload_queue[index].compensation_channel.id,
                     'acquisition_date':
                             $scope.model.upload_queue[index].acquisition_date.getFullYear().toString() +
                             "-" +
@@ -626,7 +554,7 @@ app.controller(
                 },
 
                 file: $scope.model.upload_queue[index].file,
-                fileFormDataName: 'sample_file'
+                fileFormDataName: 'bead_file'
             }).progress(function(evt) {
                 $scope.model.upload_queue[index].progress = parseInt(100.0 * evt.loaded / evt.total);
             }).success(function(data, status, headers, config) {

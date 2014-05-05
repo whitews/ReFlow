@@ -172,6 +172,10 @@ class SitePanelSerializer(serializers.ModelSerializer):
     project_panel_name = serializers.CharField(
         source='project_panel.panel_name',
         read_only=True)
+    panel_type = serializers.CharField(
+        source='project_panel.staining',
+        read_only=True
+    )
 
     class Meta:
         model = SitePanel
@@ -181,6 +185,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'project',
             'site',
             'project_panel',
+            'panel_type',
             'site_panel_comments',
             'project_panel_name',
             'name',
@@ -447,6 +452,81 @@ class SampleCollectionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = SampleCollection
         fields = ('id', 'project', 'members')
+
+
+class BeadSampleSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='bead-detail')
+    project = serializers.IntegerField(
+        source='site_panel.project_panel.project_id',
+        read_only=True)
+    site = serializers.CharField(
+        source='site_panel.site_id',
+        read_only=True)
+    site_name = serializers.CharField(
+        source='site_panel.site.site_name',
+        read_only=True)
+    project_panel = serializers.IntegerField(
+        source='site_panel.project_panel_id',
+        read_only=True)
+    panel_name = serializers.CharField(
+        source='site_panel.project_panel.panel_name',
+        read_only=True)
+    compensation_channel_name = serializers.CharField(
+        source='compensation_channel.fluorochrome_abbreviation',
+        read_only=True)
+    upload_date = serializers.DateTimeField(
+        source='upload_date',
+        format='%Y-%m-%d %H:%M:%S',
+        read_only=True)
+
+    class Meta:
+        model = BeadSample
+        fields = (
+            'id',
+            'url',
+            'acquisition_date',
+            'upload_date',
+            'cytometer',
+            'project_panel',
+            'panel_name',
+            'site_panel',
+            'compensation_channel',
+            'compensation_channel_name',
+            'site',
+            'site_name',
+            'project',
+            'original_filename',
+            'exclude',
+            'sha1'
+        )
+        read_only_fields = ('original_filename', 'sha1')
+        exclude = ('bead_file',)
+
+
+class BeadSamplePOSTSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='bead-detail')
+    project = serializers.IntegerField(
+        source='site_panel.project_panel.project_id',
+        read_only=True)
+
+    def get_fields(self):
+        fields = super(BeadSamplePOSTSerializer, self).get_default_fields()
+        user = self.context['view'].request.user
+        user_projects = Project.objects.get_projects_user_can_view(user)
+        if 'site' in fields:
+            fields['site'].queryset = Site.objects.filter(
+                project__in=user_projects)
+
+        return fields
+
+    class Meta:
+        model = BeadSample
+        fields = (
+            'id', 'url', 'site_panel', 'project', 'original_filename',
+            'bead_file', 'compensation_channel'
+        )
+        read_only_fields = ('original_filename', 'sha1', 'subsample')
+        exclude = ('subsample',)
 
 
 class WorkerSerializer(serializers.ModelSerializer):

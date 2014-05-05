@@ -45,6 +45,11 @@ function toggle_fields(selector) {
             marker_add_link.hide();
             fl_selects.hide();
             fl_selects.val(0);
+        } else if ($(this).val() == 'BEA') {
+            marker_selects.hide();
+            marker_selects.val(0);
+            marker_add_link.hide();
+            fl_selects.show();
         } else {
             marker_selects.show();
             marker_add_link.show();
