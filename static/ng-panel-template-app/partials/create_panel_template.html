@@ -1,0 +1,99 @@
+<div ng-controller="MainController">
+  <div class="row" ng-controller="CreatePanelTemplateController">
+    <div class="col-md-3">
+
+      <div class="well">
+        Name:
+        <input type="text" class="form-control" ng-model="model.panel_name" ng-required="true">
+        </input>
+
+        Project:
+        <select class="form-control" ng-model="model.current_project" ng-required="true" ng-change="updateParentTemplates()" ng-options="p.project_name for p in model.projects">
+        </select>
+
+        Staining:
+        <select class="form-control" ng-model="model.current_staining" ng-required="true" ng-change="updateParentTemplates()" ng-options="s[0] as s[1] for s in model.panel_template_types">
+        </select>
+
+        <div ng-show="model.parent_template_required">
+        Parent Template:
+
+        <select class="form-control" ng-model="model.parent_template" ng-required="true" ng-options="p.panel_name for p in model.panel_templates">
+        </select>
+        </div>
+        <br/>
+        <ul class="list-unstyled" ng-show="model.parent_template">
+          <li ng-repeat="param in model.parent_template.parameters">
+            <span ng-show="param.match" class="glyphicon glyphicon-ok"></span>
+            <span ng-hide="param.match" class="glyphicon glyphicon-exclamation-sign danger"></span>
+            {{ param.parameter_type }},
+            {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
+            {{ m.name }}</span><span ng-show="param.fluorochrome">,
+            {{ param.fluorochrome_abbreviation }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="alert alert-danger" ng-show="model.errors">
+        <p data-ng-repeat="e in model.errors">{{ e }}</p>
+      </div>
+
+    </div>
+
+    <div class="col-md-9">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Value Type</th>
+            <th>Markers</th>
+            <th>Fluorochrome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat-start="channel in model.channels">
+            <td>
+              <div ng-controller="ParameterController">
+                <select class="form-control" ng-model="channel.function" ng-change="validatePanel()" ng-required="!channel.marker_disabled" ng-options="p[0] as p[1] for p in model.parameter_functions">
+                </select>
+              </div>
+            </td>
+            <td>
+              <div ng-controller="ParameterController">
+                <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-options="p[0] as p[1] for p in model.parameter_value_types">
+                </select>
+              </div>
+            </td>
+            <td>
+              <div ng-controller="ParameterController">
+                <select ui-select2="{}" multiple ng-model="channel.markers" ng-change="validatePanel()" ng-disabled="channel.marker_disabled">
+                  <option value="{{ m.id }}" data-ng-repeat="m in model.markers">{{ m.marker_abbreviation }}</option>
+                </select>
+              </div>
+            </td>
+            <td>
+              <div ng-controller="ParameterController">
+                <select class="form-control" ng-model="channel.fluorochrome" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
+                <option value=""></option>
+                </select>
+              </div>
+            </td>
+          </tr>
+          <tr ng-repeat-end ng-show="channel.errors">
+            <td colspan="50">
+              <div class="alert alert-danger">
+              <ul>
+                <li data-ng-repeat="e in channel.errors"><strong>{{ e }}</strong></li>
+              </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pull-right">
+    <button type="button" class="btn btn-success" ng-click="addChannel()">Add Channel</button>
+    <button type="button" class="btn btn-primary" ng-disabled="!model.site_panel_valid" ng-click="savePanel()">Save Template</button>
+  </div>
+</div>

@@ -98,7 +98,7 @@ class BaseProjectPanelParameterFormSet(BaseInlineFormSet):
                     "Only Isotype control panels can include an " +
                     "isotype control parameter")
 
-            # comp bead panels can only have
+            # comp bead panels can only have scatter, bead, and time channels
             if staining == 'CB':
                 if param_type not in ['FSC', 'SSC', 'BEA', 'TIME']:
                     raise ValidationError(

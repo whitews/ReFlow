@@ -92,6 +92,7 @@ urlpatterns += patterns('repository.views',
     url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
     url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
     url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
+    url(r'^panel_template/add/$', 'panel_template_app', name='panel_template_app'),
 )
 
 # Regular web routes
