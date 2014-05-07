@@ -1,10 +1,10 @@
 <div ng-controller="MainController">
-  <div class="row" ng-controller="CreatePanelTemplateController">
+  <div class="row">
     <div class="col-md-3">
 
       <div class="well">
         Name:
-        <input type="text" class="form-control" ng-model="model.panel_name" ng-required="true">
+        <input type="text" class="form-control" ng-model="model.panel_name" ng-change="validatePanel()" ng-required="true">
         </input>
 
         Project:
@@ -94,6 +94,6 @@
   </div>
   <div class="pull-right">
     <button type="button" class="btn btn-success" ng-click="addChannel()">Add Channel</button>
-    <button type="button" class="btn btn-primary" ng-disabled="!model.site_panel_valid" ng-click="savePanel()">Save Template</button>
+    <button type="button" class="btn btn-primary" ng-disabled="!model.template_valid" ng-click="savePanel()">Save Template</button>
   </div>
 </div>

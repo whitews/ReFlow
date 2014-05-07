@@ -4,6 +4,8 @@ app.controller(
         '$scope', 'Project', 'ProjectPanel', 'Marker', 'Fluorochrome',
         function ($scope, Project, ProjectPanel, Marker, Fluorochrome) {
             $scope.model = {};
+            $scope.model.parameter_errors = [];
+            $scope.model.template_valid = false;
             $scope.model.parent_template = null;
             $scope.model.markers = Marker.query();
             $scope.model.fluorochromes = Fluorochrome.query();
@@ -37,38 +39,17 @@ app.controller(
                         staining: staining
                     }
                 );
+                $scope.validatePanel();
             };
 
             $scope.addChannel = function() {
                 $scope.model.channels.push({markers:[]});
             };
-        }
-    ]
-);
-
-app.controller(
-    'CreatePanelTemplateController',
-    [
-        '$scope',
-        'Marker',
-        'Fluorochrome',
-        'ProjectPanel',
-        function ($scope, Marker, Fluorochrome, ProjectPanel) {
-            $scope.model.parameter_errors = [];
-            $scope.model.template_valid = false;
 
             $scope.validatePanel = function() {
                 // start with true and set to false on any error
                 var valid = true;
-
                 $scope.model.errors = [];
-
-                if (!$scope.model.parent_template) {
-                    $scope.model.errors.push('Please choose a panel template');
-                    valid = false;
-                    $scope.model.template_valid = valid;
-                    return valid;
-                }
 
                 /*
                 Validate the panel:
@@ -82,11 +63,31 @@ app.controller(
                 Validations against the parent panel template:
                     - Ensure all panel template parameters are present
                 */
-                var staining = $scope.model.parent_template.staining;
+
+                // Name, project, and staining are all required
+                if ($scope.model.current_staining == null || $scope.model.panel_name == null || $scope.model.current_project == null) {
+                    valid = false;
+                }
+
+                // For non full-stain panels, a parent panel is required
+                var check_parent_params = false;
+                if ($scope.model.current_staining != 'FS' && $scope.model.current_staining != null) {
+                    if (!$scope.model.parent_template) {
+                        $scope.model.errors.push('Please choose a panel template');
+                        valid = false;
+                        $scope.model.template_valid = valid;
+                        return valid;
+                    }
+                    check_parent_params = true;
+                    // reset all project param matches
+                    $scope.model.parent_template.parameters.forEach(function (p) {
+                        p.match = false;
+                    });
+                }
                 var can_have_uns = null;
                 var can_have_iso = null;
                 var fluoro_duplicates = [];
-                switch (staining) {
+                switch ($scope.model.current_staining) {
                     case 'IS':
                         can_have_uns = false;
                         can_have_iso = true;
@@ -95,11 +96,6 @@ app.controller(
                         can_have_uns = true;
                         can_have_iso = false;
                 }
-
-                // reset all project param matches
-                $scope.model.parent_template.parameters.forEach(function (p) {
-                    p.match = false;
-                });
 
                 $scope.model.channels.forEach(function (channel) {
                     channel.errors = [];
@@ -180,61 +176,66 @@ app.controller(
                         }
                     }
 
-                    // Check if we match a template parameter
-                    // starting with the function / value type combo
-                    for (var i = 0; i < $scope.model.parent_template.parameters.length; i++) {
-                        // param var is just for better readability
-                        var param = $scope.model.parent_template.parameters[i];
+                    // For non full-stain templates, match against the parent's
+                    // parameters starting with the function / value type combo
+                    if (check_parent_params) {
+                        for (var i = 0; i < $scope.model.parent_template.parameters.length; i++) {
+                            // param var is just for better readability
+                            var param = $scope.model.parent_template.parameters[i];
 
-                        // first, check function
-                        if (param.parameter_type != channel.function) {
-                            // no match
-                            continue;
-                        }
-
-                        // then value type
-                        if (param.parameter_value_type != channel.value_type) {
-                            // no match
-                            continue;
-                        }
-
-                        // if template has fluoro, check it
-                        if (param.fluorochrome) {
-                            if (param.fluorochrome != channel.fluorochrome) {
+                            // first, check function
+                            if (param.parameter_type != channel.function) {
                                 // no match
                                 continue;
                             }
-                        }
 
-                        // if template has markers, check them all
-                        if (param.markers.length > 0) {
-                            var marker_match = true;
-                            for (var j = 0; j < param.markers.length; j++) {
-                                if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
-                                    // no match
-                                    marker_match = false;
-                                    break;
-                                }
-                            }
-                            if (!marker_match) {
+                            // then value type
+                            if (param.parameter_value_type != channel.value_type) {
+                                // no match
                                 continue;
                             }
+
+                            // if template has fluoro, check it
+                            if (param.fluorochrome) {
+                                if (param.fluorochrome != channel.fluorochrome) {
+                                    // no match
+                                    continue;
+                                }
+                            }
+
+                            // if template has markers, check them all
+                            if (param.markers.length > 0) {
+                                var marker_match = true;
+                                for (var j = 0; j < param.markers.length; j++) {
+                                    if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
+                                        // no match
+                                        marker_match = false;
+                                        break;
+                                    }
+                                }
+                                if (!marker_match) {
+                                    continue;
+                                }
+                            }
+
+                            // if we get here everything in the template matched
+                            param.match = true;
                         }
 
-                        // if we get here everything in the template matched
-                        param.match = true;
-                    }
-
-                    if (channel.errors.length > 0 ) {
-                        valid = false;
+                        if (channel.errors.length > 0 ) {
+                            valid = false;
+                        }
                     }
                 });
 
-                $scope.model.parent_template.parameters.forEach(function (p) {
-                    if (!p.match) {
-                        valid = false;
-                    }
-                });
+                if (check_parent_params) {
+                    $scope.model.parent_template.parameters.forEach(function (p) {
+                        if (!p.match) {
+                            valid = false;
+                        }
+                    });
+                }
+
                 $scope.model.template_valid = valid;
                 return valid;
             };
