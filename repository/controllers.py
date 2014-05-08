@@ -1,7 +1,214 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from models import ProjectPanel, Site
+from models import Project, ProjectPanel, Site, Marker
 from collections import Counter
+
+
+def validate_panel_template_request(data, user):
+    """
+    Validate the panel:
+        - Ensure project and parent_panel (if present) belong to same project
+        - Ensure user has privileges to create panel template
+        - No duplicate markers in a parameter
+        - No fluorochromes in a scatter parameter
+        - No markers in a scatter parameter
+        - No duplicate fluorochrome + value type combinations
+        - No duplicate forward scatter + value type combinations
+        - No duplicate side scatter + value type combinations
+    """
+    errors = {}
+    parent_template = None
+    staining = None
+    can_have_uns = None
+    can_have_iso = None
+
+    try:
+        project = Project.objects.get(id=data['project'])
+    except ObjectDoesNotExist:
+        errors['project'] = ["Project does not exist"]
+        project = None
+
+    if project:
+        # check for project add permission
+        if not project.has_add_permission(user):
+            errors['project'] = ["Project add permission required"]
+
+    if not 'staining' in data:
+        errors['staining'] = ["Staining is required"]
+    else:
+        staining = data['staining']
+
+    if 'parent_template' in data:
+        try:
+            parent_template = ProjectPanel.objects.get(id=data['parent_panel'])
+        except ObjectDoesNotExist:
+            errors['parent_panel'] = ["Parent template does not exist"]
+
+    if len(errors) > 0:
+        return errors
+
+    if staining == 'FS' and parent_template:
+        errors['staining'] = ["Full stain templates cannot have parents"]
+    elif staining == 'FM':
+        if not parent_template:
+            errors['staining'] = ["FMO templates require full stain parent"]
+        elif parent_template.staining != 'FS':
+            errors['staining'] = ["FMO templates require full stain parent"]
+    elif staining == 'IS':
+        if not parent_template:
+            errors['staining'] = ["ISO templates require full stain parent"]
+        elif parent_template.staining != 'FS':
+            errors['staining'] = ["ISO templates require full stain parent"]
+    elif staining == 'CB':
+        if not parent_template:
+            errors['staining'] = [
+                "Compensation bead panels require a parent full stain panel"
+            ]
+        elif parent_template.staining != 'FS':
+            errors['staining'] = [
+                "Compensation bead panels require a parent full stain panel"
+            ]
+
+    # Parameter validation
+    if staining == 'FS':
+        can_have_uns = False
+        can_have_iso = False
+    elif staining == 'FM':
+        can_have_uns = True
+        can_have_iso = False
+    elif staining == 'IS':
+        can_have_uns = False
+        can_have_iso = True
+    elif staining == 'US':
+        can_have_uns = True
+        can_have_iso = False
+    elif staining == 'CB':
+        can_have_uns = False
+        can_have_iso = False
+    else:
+        errors['staining'] = ["Invalid staining type '%s'" % staining]
+
+    # template must have parameters
+    if not 'parameters' in data:
+        errors['parameters'] = ["Parameters are required"]
+    elif not len(data['parameters']) > 0:
+        errors['parameters'] = ["Specify at least one parameter"]
+
+    if len(errors) > 0:
+        return errors
+
+    param_counter = Counter()
+    param_errors = []
+    for param in data['parameters']:
+        skip = False  # used for continuing to next loop iteration
+        if not 'parameter_type' in param:
+            param_errors.append('Function is required')
+            skip = True
+        if not 'parameter_value_type' in param:
+            param_errors.append('Value type is required, use null for None')
+            skip = True
+        if not 'markers' in param:
+            param_errors.append(
+                'Markers is a required field, use an empty array for None')
+            skip = True
+        if not 'fluorochrome' in param:
+            param_errors.append(
+                'Fluorochrome is a required field, use null for None')
+            skip = True
+
+        if skip:
+            continue
+
+        # check for duplicate markers in a parameter
+        marker_set = set()
+        for marker in param['markers']:
+            if marker in marker_set:
+                param_errors.append("A parameter cannot have duplicate markers")
+            else:
+                marker_set.add(marker)
+
+        # parameter type is required
+        param_type = param['parameter_type']
+        if not param_type:
+            param_errors.append("Function is required")
+        if param_type == 'UNS' and not can_have_uns:
+            param_errors.append(
+                "Only FMO & Unstained panels can include an " +
+                "unstained parameter")
+        if param_type == 'ISO' and not can_have_iso:
+            param_errors.append(
+                "Only Isotype control panels can include an " +
+                "isotype control parameter")
+
+        # comp bead panels can only have scatter, bead, and time channels
+        if staining == 'CB':
+            if param_type not in ['FSC', 'SSC', 'BEA', 'TIME']:
+                param_errors.append(
+                    "Only scatter, bead, and time channels are allowed " +
+                    "in bead panels"
+                )
+            if len(marker_set) > 0:
+                param_errors.append(
+                    "Markers are not allowed in bead panels"
+                )
+
+        # value type is NOT required for project panels,
+        # allows site panel implementations to have different values types
+        value_type = param['parameter_value_type']
+
+        fluorochrome_id = param['fluorochrome']
+
+        # exclusion must be a fluorescence channel
+        if param_type == 'EXC' and not fluorochrome_id:
+            param_errors.append(
+                "An exclusion channel must include a fluorochrome.")
+
+        if param_type == 'BEA' and not fluorochrome_id:
+            param_errors.append(
+                "A bead channel must include a fluorochrome.")
+
+        # check for fluoro or markers in scatter channels
+        if param_type == 'FSC' or param_type == 'SSC':
+            if fluorochrome_id:
+                param_errors.append(
+                    "A scatter channel cannot have a fluorochrome.")
+            if len(marker_set) > 0:
+                param_errors.append(
+                    "A scatter channel cannot have an marker.")
+
+        # check that fluoro-conj-ab channels specify either a fluoro or a
+        # marker. If the fluoro is absent it means the project panel
+        # allows flexibility in the site panel implementation.
+        if param_type == 'FCM':
+            if not fluorochrome_id and len(marker_set) == 0:
+                param_errors.append(
+                    "A fluorescence conjugated marker channel must " +
+                    "specify either a fluorochrome or a marker (or both).")
+
+        # make a list of the combination for use in the Counter
+        param_components = [param_type, value_type]
+        if fluorochrome_id:
+            param_components.append(fluorochrome_id)
+        for marker_id in sorted(marker_set):
+            try:
+                marker = Marker.objects.get(id=marker_id)
+                param_components.append(marker.marker_abbreviation)
+            except ObjectDoesNotExist:
+                param_errors.append("Chosen marker doesn't exist")
+
+        param_counter.update([tuple(sorted(param_components))])
+
+    # check for duplicate parameters
+    if max(param_counter.values()) > 1:
+        error_string = "Duplicate parameters found: "
+        for p in param_counter:
+            if param_counter[p] > 1:
+                error_string += "(" + ", ".join(p) + ")"
+        raise param_errors.append(error_string)
+
+    if len(param_errors) > 0:
+        errors['parameters'] = param_errors
+    return errors
 
 
 def validate_site_panel_request(data, user):

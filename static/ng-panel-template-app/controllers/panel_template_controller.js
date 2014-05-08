@@ -1,8 +1,8 @@
 app.controller(
     'MainController',
     [
-        '$scope', 'Project', 'ProjectPanel', 'Marker', 'Fluorochrome',
-        function ($scope, Project, ProjectPanel, Marker, Fluorochrome) {
+        '$scope', '$window', 'Project', 'ProjectPanel', 'Marker', 'Fluorochrome',
+        function ($scope, $window, Project, ProjectPanel, Marker, Fluorochrome) {
             $scope.model = {};
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;
@@ -249,6 +249,9 @@ app.controller(
 
                 var params = [];
                 $scope.model.channels.forEach(function (c) {
+                    if (!c.value_type) {
+                        c.value_type = null;
+                    }
                     params.push({
                         parameter_type: c.function,
                         parameter_value_type: c.value_type,
@@ -256,17 +259,22 @@ app.controller(
                         fluorochrome: c.fluorochrome || null
                     })
                 });
+                var parent_template_id = null;
+                if ($scope.model.parent_template) {
+                    parent_template_id = $scope.model.parent_template.id;
+                }
                 var data = {
                     panel_name: $scope.model.panel_name,
                     project: $scope.model.current_project.id,
                     staining: $scope.model.current_staining,
-                    parent_panel: $scope.model.parent_template.id,
+                    parent_panel: parent_template_id,
                     parameters: params,
                     panel_description: ""
                 };
                 var panel_template = ProjectPanel.save(data);
                 panel_template.$promise.then(function (o) {
-                    // I guess re-direct to project's Panel template list
+                    // re-direct to project's Panel template list
+                    $window.location = '/project/' + $scope.model.current_project.id + '/panels/';
                 }, function(error) {
                     console.log(error);
                 });
