@@ -44,6 +44,7 @@
       <table class="table">
         <thead>
           <tr>
+            <th></th>
             <th>Function</th>
             <th>Value Type</th>
             <th>Markers</th>
@@ -52,6 +53,11 @@
         </thead>
         <tbody>
           <tr ng-repeat-start="channel in model.channels">
+            <td>
+              <button class="btn btn-sm btn-default" data-ng-click="removeChannel(channel)" popover="Remove Channel" popover-trigger="mouseenter">
+                  <i class="glyphicon glyphicon-remove danger"></i>
+              </button>
+            </td>
             <td>
               <div ng-controller="ParameterController">
                 <select class="form-control" ng-model="channel.function" ng-change="validatePanel()" ng-required="!channel.marker_disabled" ng-options="p[0] as p[1] for p in model.parameter_functions">

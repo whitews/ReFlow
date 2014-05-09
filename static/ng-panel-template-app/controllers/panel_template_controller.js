@@ -46,6 +46,10 @@ app.controller(
                 $scope.model.channels.push({markers:[]});
             };
 
+            $scope.removeChannel = function(channel) {
+                $scope.model.channels.splice($scope.model.channels.indexOf(channel), 1);
+            };
+
             $scope.validatePanel = function() {
                 // start with true and set to false on any error
                 var valid = true;
