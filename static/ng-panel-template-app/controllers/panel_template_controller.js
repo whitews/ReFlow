@@ -316,7 +316,7 @@ app.controller(
                 }
                 panel_template.$promise.then(function (o) {
                     // re-direct to project's Panel template list
-                    $window.location = '/project/' + $scope.model.current_project + '/panels/';
+                    $window.location = '/project/' + $scope.model.current_project + '/templates/';
                 }, function(error) {
                     console.log(error);
                 });
