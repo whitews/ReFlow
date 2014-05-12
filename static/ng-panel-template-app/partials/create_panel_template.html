@@ -8,7 +8,7 @@
         </input>
 
         Project:
-        <select class="form-control" ng-model="model.current_project" ng-required="true" ng-change="updateParentTemplates()" ng-options="p.project_name for p in model.projects">
+        <select class="form-control" ng-model="model.current_project" ng-required="true" ng-change="updateParentTemplates()" ng-options="p.id as p.project_name for p in model.projects">
         </select>
 
         Staining:

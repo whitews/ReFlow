@@ -12,7 +12,7 @@ var app = angular.module(
 
 app.config(function ($routeProvider) {
     $routeProvider
-        .when('/',
+        .when('/add/',
         {
             controller: 'MainController',
             templateUrl: '/static/ng-panel-template-app/partials/create_panel_template.html'

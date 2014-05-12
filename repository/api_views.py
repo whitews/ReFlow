@@ -474,7 +474,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         data = request.DATA
 
-        # validate all the site panel components
+        # validate all the template components
         errors = validate_panel_template_request(data, request.user)
         if len(errors) > 0:
             return Response(data=errors, status=400)
@@ -530,13 +530,68 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
 class ProjectPanelDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
-    API endpoint representing a single project panel.
+    API endpoint for retrieving or updating a single panel template.
     """
 
     model = ProjectPanel
     serializer_class = ProjectPanelSerializer
+
+    def put(self, request, *args, **kwargs):
+        data = request.DATA
+
+        # validate all the template components
+        errors = validate_panel_template_request(data, request.user)
+        if len(errors) > 0:
+            return Response(data=errors, status=400)
+
+        # we can create the PanelTemplate instance now, but we'll do so inside
+        # an atomic transaction
+        try:
+            panel_template = ProjectPanel.objects.get(id=kwargs['pk'])
+            project = Project.objects.get(id=data['project'])
+            if data['parent_panel']:
+                parent_panel = ProjectPanel.objects.get(id=data['parent_panel'])
+            else:
+                parent_panel = None
+
+            with transaction.atomic():
+                panel_template.project = project
+                panel_template.panel_name = data['panel_name']
+                panel_template.parent_panel = parent_panel
+                panel_template.staining = data['staining']
+                panel_template.panel_description = data['panel_description']
+
+                panel_template.clean()
+                panel_template.save()
+
+                panel_template.projectpanelparameter_set.all().delete()
+
+                for param in data['parameters']:
+                    if (param['fluorochrome']):
+                        param_fluoro = Fluorochrome.objects.get(
+                            id=param['fluorochrome'])
+                    else:
+                        param_fluoro = None
+
+                    ppp = ProjectPanelParameter.objects.create(
+                        project_panel=panel_template,
+                        parameter_type=param['parameter_type'],
+                        parameter_value_type=param['parameter_value_type'],
+                        fluorochrome=param_fluoro
+                    )
+                    for marker in param['markers']:
+                        ProjectPanelParameterMarker.objects.create(
+                            project_panel_parameter=ppp,
+                            marker=Marker.objects.get(id=marker)
+                        )
+        except Exception as e:  # catch any exception to rollback changes
+            return Response(data={'detail': e.message}, status=400)
+
+        serializer = ProjectPanelSerializer(panel_template)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class SiteList(LoginRequiredMixin, generics.ListAPIView):

@@ -71,7 +71,15 @@ service
         return $resource(URLS.CYTOMETERS);
     }])
     .factory('ProjectPanel', ['$resource', function ($resource) {
-        return $resource(URLS.PROJECT_PANELS);
+        return $resource(
+            URLS.PROJECT_PANELS + ':id',
+            {},
+            {
+                update: {
+                    method: 'PUT'
+                }
+            }
+        );
     }])
     .factory('SitePanel', ['$resource', function ($resource) {
         return $resource(URLS.SITE_PANELS);

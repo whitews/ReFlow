@@ -92,7 +92,7 @@ urlpatterns += patterns('repository.views',
     url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
     url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
     url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
-    url(r'^panel_template/add/$', 'panel_template_app', name='panel_template_app'),
+    url(r'^panel_templates/$', 'panel_template_app', name='panel_template_app'),
 )
 
 # Regular web routes
@@ -126,10 +126,10 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/stimulations/add/$', 'add_stimulation', name='add_stimulation'),
     url(r'^project/(?P<project_id>\d+)/stimulations/(?P<stimulation_id>\d+)/edit/$', 'add_stimulation', name='edit_stimulation'),
 
-    url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='view_project_panels'),
-    url(r'^project/(?P<project_id>\d+)/panels/add/$', 'add_project_panel', name='add_project_panel'),
-    url(r'^project/(?P<project_id>\d+)/panels/(?P<panel_id>\d+)/edit/$', 'add_project_panel', name='edit_project_panel'),
-    url(r'^project/(?P<project_id>\d+)/panels/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
+    url(r'^project/(?P<project_id>\d+)/templates/$', 'view_project_panels', name='view_project_panels'),
+    url(r'^project/(?P<project_id>\d+)/templates/#/add/$', 'add_project_panel', name='add_project_panel'),
+    url(r'^project/(?P<project_id>\d+)/templates/#/(?P<panel_id>\d+)/edit/$', 'add_project_panel', name='edit_project_panel'),
+    url(r'^project/(?P<project_id>\d+)/templates/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
 
     url(r'^project/(?P<project_id>\d+)/sites/$', 'view_project_sites', name='view_project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),

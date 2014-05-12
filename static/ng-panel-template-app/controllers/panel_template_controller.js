@@ -4,20 +4,10 @@ app.controller(
         '$scope', '$window', '$routeParams', 'Project', 'ProjectPanel', 'Marker', 'Fluorochrome',
         function ($scope, $window, $routeParams, Project, ProjectPanel, Marker, Fluorochrome) {
             $scope.model = {};
-
-            if ($routeParams['template_id']) {
-                $scope.model.template_id = $routeParams['template_id'];
-            }
-
-            $scope.model.parameter_errors = [];
-            $scope.model.template_valid = false;
-            $scope.model.parent_template = null;
             $scope.model.markers = Marker.query();
             $scope.model.fluorochromes = Fluorochrome.query();
-
             $scope.model.projects = Project.query();
-            $scope.model.channels = [{markers: []}];
-            
+
             $scope.model.panel_template_types = [
                 ["FS", "Full Stain"],
                 ["US", "Unstained"],
@@ -25,6 +15,45 @@ app.controller(
                 ["IS", "Isotype Control"],
                 ["CB", "Compensation Bead"]
             ];
+
+            $scope.model.parameter_errors = [];
+            $scope.model.template_valid = false;
+
+            if ($routeParams['template_id']) {
+                var template_id = $routeParams['template_id'];
+                $scope.model.template = ProjectPanel.get(
+                    {id: template_id},
+                    function () {
+                        $scope.model.panel_name = $scope.model.template.panel_name;
+                        $scope.model.current_staining = $scope.model.template.staining;
+                        $scope.model.current_project = $scope.model.template.project;
+                        $scope.model.channels = [];
+                        $scope.model.template.parameters.forEach(function (p) {
+                            var channel = {markers: []};
+                            if (p.parameter_type) {
+                                channel.function = p.parameter_type;
+                            }
+                            if (p.parameter_value_type) {
+                                channel.value_type = p.parameter_value_type;
+                            }
+                            if (p.markers.length > 0) {
+                                p.markers.forEach(function (m) {
+                                    channel.markers.push(m.marker_id);
+                                });
+                            }
+                            if (p.fluorochrome) {
+                                channel.fluorochrome = p.fluorochrome;
+                            }
+
+                            $scope.model.channels.push(channel);
+                        });
+                        $scope.validatePanel();
+                    }
+                );
+            } else {
+                $scope.model.parent_template = null;
+                $scope.model.channels = [{markers: []}];
+            }
 
             $scope.updateParentTemplates = function() {
                 // get all project panel templates
@@ -40,7 +69,7 @@ app.controller(
                 }
                 $scope.model.panel_templates = ProjectPanel.query(
                     {
-                        project: $scope.model.current_project.id,
+                        project: $scope.model.current_project,
                         staining: staining
                     }
                 );
@@ -274,16 +303,20 @@ app.controller(
                 }
                 var data = {
                     panel_name: $scope.model.panel_name,
-                    project: $scope.model.current_project.id,
+                    project: $scope.model.current_project,
                     staining: $scope.model.current_staining,
                     parent_panel: parent_template_id,
                     parameters: params,
                     panel_description: ""
                 };
-                var panel_template = ProjectPanel.save(data);
+                if ($scope.model.template) {
+                    var panel_template = ProjectPanel.update({id: template_id}, data);
+                } else {
+                    var panel_template = ProjectPanel.save(data);
+                }
                 panel_template.$promise.then(function (o) {
                     // re-direct to project's Panel template list
-                    $window.location = '/project/' + $scope.model.current_project.id + '/panels/';
+                    $window.location = '/project/' + $scope.model.current_project + '/panels/';
                 }, function(error) {
                     console.log(error);
                 });
