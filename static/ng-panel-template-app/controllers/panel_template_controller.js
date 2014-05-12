@@ -1,9 +1,14 @@
 app.controller(
     'MainController',
     [
-        '$scope', '$window', 'Project', 'ProjectPanel', 'Marker', 'Fluorochrome',
-        function ($scope, $window, Project, ProjectPanel, Marker, Fluorochrome) {
+        '$scope', '$window', '$routeParams', 'Project', 'ProjectPanel', 'Marker', 'Fluorochrome',
+        function ($scope, $window, $routeParams, Project, ProjectPanel, Marker, Fluorochrome) {
             $scope.model = {};
+
+            if ($routeParams['template_id']) {
+                $scope.model.template_id = $routeParams['template_id'];
+            }
+
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;
             $scope.model.parent_template = null;

@@ -16,6 +16,11 @@ app.config(function ($routeProvider) {
         {
             controller: 'MainController',
             templateUrl: '/static/ng-panel-template-app/partials/create_panel_template.html'
+        })
+        .when('/edit/:template_id',
+        {
+            controller: 'MainController',
+            templateUrl: '/static/ng-panel-template-app/partials/create_panel_template.html'
         });
 });
 app.run(function ($http, $cookies) {
