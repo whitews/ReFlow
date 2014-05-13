@@ -56,21 +56,22 @@ app.controller(
             }
 
             $scope.updateParentTemplates = function() {
-                // get all project panel templates
-                var staining;
+                // get all project panel templates matching full stain
+
+                // first check if a parent is required
                 if ($scope.model.current_staining) {
-                    staining = [$scope.model.current_staining];
-                    if (staining != 'FS') {
+                    if ($scope.model.current_staining != 'FS') {
                         $scope.model.parent_template_required = true;
+                    } else {
+                        $scope.model.parent_template_required = false;
                     }
                 } else {
-                    staining = ['FS', 'US', 'FM', 'IS'];
                     $scope.model.parent_template_required = false;
                 }
                 $scope.model.panel_templates = ProjectPanel.query(
                     {
                         project: $scope.model.current_project,
-                        staining: staining
+                        staining: ['FS']  // only full stain can be parents
                     }
                 );
                 $scope.validatePanel();
@@ -78,6 +79,7 @@ app.controller(
 
             $scope.addChannel = function() {
                 $scope.model.channels.push({markers:[]});
+                $scope.validatePanel();
             };
 
             $scope.removeChannel = function(channel) {
@@ -139,7 +141,9 @@ app.controller(
                     channel.errors = [];
                     // check for function
                     if (!channel.function) {
-                        channel.errors.push('Function is required');
+                        valid = false;
+                        $scope.model.template_valid = valid;
+                        return valid;
                     }
 
                     // Check for fluoro duplicates
@@ -212,7 +216,12 @@ app.controller(
                         if (channel.value_type != 'T') {
                             channel.errors.push('Time channel must have time value type')
                         }
+                    } else {
+                        if (channel.value_type == 'T') {
+                            channel.errors.push('Only Time channels can have time value type')
+                        }
                     }
+
 
                     // For non full-stain templates, match against the parent's
                     // parameters starting with the function / value type combo
@@ -259,10 +268,10 @@ app.controller(
                             // if we get here everything in the template matched
                             param.match = true;
                         }
+                    }
 
-                        if (channel.errors.length > 0 ) {
-                            valid = false;
-                        }
+                    if (channel.errors.length > 0 ) {
+                        valid = false;
                     }
                 });
 
@@ -318,7 +327,18 @@ app.controller(
                     // re-direct to project's Panel template list
                     $window.location = '/project/' + $scope.model.current_project + '/templates/';
                 }, function(error) {
-                    console.log(error);
+                    $scope.model.errors = [];
+                    for (var key in error.data) {
+                        if (error.data.hasOwnProperty(key)) {
+                            if (error.data[key] instanceof Array) {
+                                $scope.model.errors.push.apply(
+                                    $scope.model.errors, error.data[key]
+                                );
+                            } else {
+                                $scope.model.errors.push(error.data[key]);
+                            }
+                        }
+                    }
                 });
             };
         }
