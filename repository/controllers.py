@@ -156,6 +156,15 @@ def validate_panel_template_request(data, user):
         # allows site panel implementations to have different values types
         value_type = param['parameter_value_type']
 
+        # validate time channel, must have value type 'T', others cannot have
+        # value type 'T'
+        if param_type != 'TIM' and value_type == 'T':
+            param_errors.append(
+                "Only Time channels can have value type 'T'")
+        elif param_type == 'TIM' and value_type != 'T':
+            param_errors.append(
+                "Time channels must have value type 'T'")
+
         fluorochrome_id = param['fluorochrome']
 
         # exclusion must be a fluorescence channel
@@ -204,7 +213,7 @@ def validate_panel_template_request(data, user):
         for p in param_counter:
             if param_counter[p] > 1:
                 error_string += "(" + ", ".join(p) + ")"
-        raise param_errors.append(error_string)
+        param_errors.append(error_string)
 
     if len(param_errors) > 0:
         errors['parameters'] = param_errors
