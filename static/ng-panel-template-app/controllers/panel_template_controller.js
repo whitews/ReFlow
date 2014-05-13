@@ -19,6 +19,14 @@ app.controller(
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;
 
+            function findFluoroByID(id) {
+                for (var i = 0; i < $scope.model.fluorochromes.length; i++) {
+                    if ($scope.model.fluorochromes[i].id === id) {
+                        return $scope.model.fluorochromes[i].fluorochrome_abbreviation;
+                    }
+                }
+            }
+
             if ($routeParams['template_id']) {
                 var template_id = $routeParams['template_id'];
                 $scope.model.template = ProjectPanel.get(
@@ -84,6 +92,7 @@ app.controller(
 
             $scope.removeChannel = function(channel) {
                 $scope.model.channels.splice($scope.model.channels.indexOf(channel), 1);
+                $scope.validatePanel();
             };
 
             $scope.validatePanel = function() {
@@ -127,6 +136,7 @@ app.controller(
                 var can_have_uns = null;
                 var can_have_iso = null;
                 var fluoro_duplicates = [];
+                var channel_duplicates = [];
                 switch ($scope.model.current_staining) {
                     case 'IS':
                         can_have_uns = false;
@@ -220,6 +230,19 @@ app.controller(
                         if (channel.value_type == 'T') {
                             channel.errors.push('Only Time channels can have time value type')
                         }
+                    }
+
+                    // Check for duplicate channels
+                    var channel_string = [
+                        channel.function,
+                        channel.value_type,
+                        channel.markers.sort().join("-"),
+                        channel.fluorochrome
+                    ].join("_");
+                    if (channel_duplicates.indexOf(channel_string) >= 0) {
+                        channel.errors.push('Duplicate channels are not allowed');
+                    } else {
+                        channel_duplicates.push(channel_string);
                     }
 
 
