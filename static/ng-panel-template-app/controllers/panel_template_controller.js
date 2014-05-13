@@ -27,6 +27,7 @@ app.controller(
                 }
             }
 
+            // may be trying to edit an existing template
             if ($routeParams['template_id']) {
                 var template_id = $routeParams['template_id'];
                 $scope.model.template = ProjectPanel.get(
@@ -35,6 +36,25 @@ app.controller(
                         $scope.model.panel_name = $scope.model.template.panel_name;
                         $scope.model.current_staining = $scope.model.template.staining;
                         $scope.model.current_project = $scope.model.template.project;
+                        $scope.model.panel_templates = ProjectPanel.query(
+                            {
+                                project: $scope.model.current_project,
+                                staining: ['FS']  // only full stain can be parents
+                            },
+                            function () {
+                                if ($scope.model.template.parent_panel) {
+                                    $scope.model.parent_template_required = true;
+                                    for (var i = 0; i < $scope.model.panel_templates.length; i++) {
+                                        if ($scope.model.panel_templates[i].id == $scope.model.template.parent_panel) {
+                                            $scope.model.parent_template = $scope.model.panel_templates[i];
+                                            $scope.validatePanel();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        );
+
                         $scope.model.channels = [];
                         $scope.model.template.parameters.forEach(function (p) {
                             var channel = {markers: []};
@@ -255,8 +275,29 @@ app.controller(
 
                             // first, check function
                             if (param.parameter_type != channel.function) {
-                                // no match
-                                continue;
+                                // but it's not so simple, we need to allow
+                                // FMO panels to have unstained counterparts to
+                                // their parent Full stain template.
+                                // Likewise, Isotype Control templates can
+                                // have ISO channel counterparts.
+                                if ($scope.model.current_staining == 'FM') {
+                                    if (param.parameter_type == 'FCM' && channel.function == 'UNS') {
+                                        param.fmo_match = true;
+                                    } else {
+                                        // no match
+                                        continue;
+                                    }
+                                } else if ($scope.model.current_staining == 'IS') {
+                                    if (param.parameter_type == 'FCM' && channel.function == 'ISO') {
+                                        param.iso_match = true;
+                                    } else {
+                                        // no match
+                                        continue;
+                                    }
+                                } else {
+                                    // no match
+                                    continue;
+                                }
                             }
 
                             // then value type
@@ -265,8 +306,9 @@ app.controller(
                                 continue;
                             }
 
-                            // if template has fluoro, check it
-                            if (param.fluorochrome) {
+                            // if template has fluoro, check it, except for
+                            // unstained channels
+                            if (param.fluorochrome && channel.function != 'UNS') {
                                 if (param.fluorochrome != channel.fluorochrome) {
                                     // no match
                                     continue;
@@ -277,13 +319,14 @@ app.controller(
                             if (param.markers.length > 0) {
                                 var marker_match = true;
                                 for (var j = 0; j < param.markers.length; j++) {
-                                    if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
+                                    if (channel.markers.indexOf(param.markers[j].marker_id) == -1) {
                                         // no match
                                         marker_match = false;
                                         break;
                                     }
                                 }
                                 if (!marker_match) {
+                                    param.fmo_match = false;
                                     continue;
                                 }
                             }

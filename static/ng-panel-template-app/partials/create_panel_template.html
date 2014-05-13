@@ -18,7 +18,7 @@
         <div ng-show="model.parent_template_required">
         Parent Template:
 
-        <select class="form-control" ng-model="model.parent_template" ng-required="true" ng-options="p.panel_name for p in model.panel_templates">
+        <select class="form-control" ng-model="model.parent_template" ng-required="true" ng-change="validatePanel()" ng-options="p.panel_name for p in model.panel_templates">
         </select>
         </div>
         <br/>
@@ -30,6 +30,7 @@
             {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
             {{ m.name }}</span><span ng-show="param.fluorochrome">,
             {{ param.fluorochrome_abbreviation }}</span>
+            <span class="label label-info" ng-show="param.fmo_match == true">FMO</span>
           </li>
         </ul>
       </div>
