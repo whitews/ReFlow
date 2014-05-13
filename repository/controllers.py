@@ -38,7 +38,7 @@ def validate_panel_template_request(data, user):
     else:
         staining = data['staining']
 
-    if 'parent_template' in data:
+    if 'parent_panel' in data:
         try:
             parent_template = ProjectPanel.objects.get(id=data['parent_panel'])
         except ObjectDoesNotExist:
@@ -98,6 +98,8 @@ def validate_panel_template_request(data, user):
         return errors
 
     param_counter = Counter()
+    fmo_count = 0
+    iso_count = 0
     param_errors = []
     for param in data['parameters']:
         skip = False  # used for continuing to next loop iteration
@@ -127,10 +129,13 @@ def validate_panel_template_request(data, user):
             else:
                 marker_set.add(marker)
 
-        # parameter type is required
+        # validate param types
         param_type = param['parameter_type']
-        if not param_type:
-            param_errors.append("Function is required")
+        if param_type == 'FMO':
+            fmo_count += 1
+        if param_type == 'ISO':
+            iso_count += 1
+
         if param_type == 'UNS' and not can_have_uns:
             param_errors.append(
                 "Only FMO & Unstained panels can include an " +
@@ -214,6 +219,13 @@ def validate_panel_template_request(data, user):
             if param_counter[p] > 1:
                 error_string += "(" + ", ".join(p) + ")"
         param_errors.append(error_string)
+
+    # make sure FMO templates have at least one FMO channel &
+    # ISO templates have at least one ISO channel
+    if staining == 'FM' and fmo_count <= 0:
+        param_errors.append("FMO templates require at least 1 FMO channel")
+    elif staining == 'IS' and iso_count <= 0:
+        param_errors.append("ISO templates require at least 1 ISO channel")
 
     if len(param_errors) > 0:
         errors['parameters'] = param_errors
