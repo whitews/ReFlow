@@ -39,10 +39,11 @@ def validate_panel_template_request(data, user):
         staining = data['staining']
 
     if 'parent_panel' in data:
-        try:
-            parent_template = ProjectPanel.objects.get(id=data['parent_panel'])
-        except ObjectDoesNotExist:
-            errors['parent_panel'] = ["Parent template does not exist"]
+        if data['parent_panel']:  # may be None
+            try:
+                parent_template = ProjectPanel.objects.get(id=data['parent_panel'])
+            except ObjectDoesNotExist:
+                errors['parent_panel'] = ["Parent template does not exist"]
 
     if len(errors) > 0:
         return errors
