@@ -12,7 +12,7 @@
         </select>
 
         Staining:
-        <select class="form-control" ng-model="model.current_staining" ng-required="true" ng-change="updateParentTemplates()" ng-options="s[0] as s[1] for s in model.panel_template_types">
+        <select class="form-control" ng-model="model.current_staining" ng-required="true" ng-change="stainingChanged()" ng-options="s[0] as s[1] for s in model.panel_template_types">
         </select>
 
         <div ng-show="model.parent_template_required">
@@ -31,6 +31,7 @@
             {{ m.name }}</span><span ng-show="param.fluorochrome">,
             {{ param.fluorochrome_abbreviation }}</span>
             <span class="label label-info" ng-show="param.fmo_match == true">FMO</span>
+            <span class="label label-primary" ng-show="param.iso_match == true">ISO</span>
           </li>
         </ul>
       </div>

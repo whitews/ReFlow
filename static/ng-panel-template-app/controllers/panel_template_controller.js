@@ -83,10 +83,8 @@ app.controller(
                 $scope.model.channels = [{markers: []}];
             }
 
-            $scope.updateParentTemplates = function() {
-                // get all project panel templates matching full stain
-
-                // first check if a parent is required
+            $scope.stainingChanged = function() {
+                // check if a parent is required
                 if ($scope.model.current_staining) {
                     if ($scope.model.current_staining != 'FS') {
                         $scope.model.parent_template_required = true;
@@ -96,6 +94,11 @@ app.controller(
                 } else {
                     $scope.model.parent_template_required = false;
                 }
+                $scope.validatePanel();
+            };
+
+            $scope.updateParentTemplates = function() {
+                // get all project panel templates matching full stain
                 $scope.model.panel_templates = ProjectPanel.query(
                     {
                         project: $scope.model.current_project,
@@ -157,6 +160,8 @@ app.controller(
                 var can_have_iso = null;
                 var fluoro_duplicates = [];
                 var channel_duplicates = [];
+                var parent_iso_matches = [];
+                var parent_fmo_matches = [];
                 switch ($scope.model.current_staining) {
                     case 'IS':
                         can_have_uns = false;
@@ -196,7 +201,7 @@ app.controller(
                     }
 
                     if (!can_have_uns && channel.function == 'UNS') {
-                        channel.errors.push(staining + ' panels cannot have unstained channels');
+                        channel.errors.push($scope.model.current_staining + ' panels cannot have unstained channels');
                     }
                     if (!can_have_iso && channel.function == 'ISO') {
                         channel.errors.push('Only Iso panels can include iso channels');
@@ -272,6 +277,8 @@ app.controller(
                         for (var i = 0; i < $scope.model.parent_template.parameters.length; i++) {
                             // param var is just for better readability
                             var param = $scope.model.parent_template.parameters[i];
+                            var fmo_match = false;
+                            var iso_match = false;
 
                             // first, check function
                             if (param.parameter_type != channel.function) {
@@ -282,14 +289,14 @@ app.controller(
                                 // have ISO channel counterparts.
                                 if ($scope.model.current_staining == 'FM') {
                                     if (param.parameter_type == 'FCM' && channel.function == 'UNS') {
-                                        param.fmo_match = true;
+                                        fmo_match = true;
                                     } else {
                                         // no match
                                         continue;
                                     }
                                 } else if ($scope.model.current_staining == 'IS') {
                                     if (param.parameter_type == 'FCM' && channel.function == 'ISO') {
-                                        param.iso_match = true;
+                                        iso_match = true;
                                     } else {
                                         // no match
                                         continue;
@@ -315,8 +322,9 @@ app.controller(
                                 }
                             }
 
-                            // if template has markers, check them all
-                            if (param.markers.length > 0) {
+                            // if template has markers, check them all, except
+                            // for ISO channels
+                            if (param.markers.length > 0 && channel.function != 'ISO') {
                                 var marker_match = true;
                                 for (var j = 0; j < param.markers.length; j++) {
                                     if (channel.markers.indexOf(param.markers[j].marker_id) == -1) {
@@ -326,13 +334,21 @@ app.controller(
                                     }
                                 }
                                 if (!marker_match) {
-                                    param.fmo_match = false;
                                     continue;
                                 }
                             }
 
                             // if we get here everything in the template matched
                             param.match = true;
+
+                            // and save iso/fmo matches
+                            if (fmo_match) {
+                                parent_fmo_matches.push(i);
+                            }
+
+                            if (iso_match) {
+                                parent_iso_matches.push(i);
+                            }
                         }
                     }
 
@@ -342,11 +358,21 @@ app.controller(
                 });
 
                 if (check_parent_params) {
-                    $scope.model.parent_template.parameters.forEach(function (p) {
-                        if (!p.match) {
+                    for (var i = 0; i < $scope.model.parent_template.parameters.length; i++) {
+                        if (!$scope.model.parent_template.parameters[i].match) {
                             valid = false;
                         }
-                    });
+                        if (parent_fmo_matches.indexOf(i) > -1) {
+                            $scope.model.parent_template.parameters[i].fmo_match = true;
+                        } else {
+                            $scope.model.parent_template.parameters[i].fmo_match = false;
+                        }
+                        if (parent_iso_matches.indexOf(i) > -1) {
+                            $scope.model.parent_template.parameters[i].iso_match = true;
+                        } else {
+                            $scope.model.parent_template.parameters[i].iso_match = false;
+                        }
+                    }
                 }
 
                 $scope.model.template_valid = valid;
