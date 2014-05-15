@@ -146,7 +146,7 @@ app.controller(
                 if ($scope.model.current_staining != 'FS' && $scope.model.current_staining != null) {
                     if (!$scope.model.parent_template) {
                         $scope.model.errors.push(
-                            'Please choose the associated Full Stain panel template'
+                            'Please choose the associated Full Stain parent template'
                         );
                         valid = false;
                         $scope.model.template_valid = valid;
