@@ -132,7 +132,7 @@ def validate_panel_template_request(data, user):
 
         # validate param types
         param_type = param['parameter_type']
-        if param_type == 'FMO':
+        if param_type == 'UNS':
             fmo_count += 1
         if param_type == 'ISO':
             iso_count += 1
