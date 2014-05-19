@@ -66,7 +66,7 @@ app.controller(
                             }
                             if (p.markers.length > 0) {
                                 p.markers.forEach(function (m) {
-                                    channel.markers.push(m.marker_id);
+                                    channel.markers.push(m.marker_id.toString());
                                 });
                             }
                             if (p.fluorochrome) {
@@ -134,6 +134,8 @@ app.controller(
                     - No duplicate side scatter + value type combinations
                 Validations against the parent panel template:
                     - Ensure all panel template parameters are present
+                    - FMO templates must specify an UNS channel
+                    - ISO templates must specify an ISO channel
                 */
 
                 // Name, project, and staining are all required
@@ -375,6 +377,14 @@ app.controller(
                             $scope.model.parent_template.parameters[i].iso_match = false;
                         }
                     }
+                }
+
+                if ($scope.model.current_staining == 'FM' && parent_fmo_matches < 1) {
+                    valid = false;
+                    $scope.model.errors.push("FMO templates must specify at least one unstained channel.");
+                } else if ($scope.model.current_staining == 'IS' && parent_iso_matches < 1) {
+                    valid = false;
+                    $scope.model.errors.push("ISO templates must specify at least one ISO channel.");
                 }
 
                 $scope.model.template_valid = valid;
