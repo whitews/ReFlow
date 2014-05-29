@@ -364,7 +364,7 @@ class ProjectPanel(ProtectedModel):
                 id=self.id)
         if duplicates.count() > 0:
             raise ValidationError(
-                "A panel with this name already exists in this project."
+                "A template with this name already exists in this project."
             )
 
     def __unicode__(self):

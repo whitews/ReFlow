@@ -37,6 +37,15 @@ def home(request):
 
 
 @login_required
+def panel_template_app(request):
+    return render_to_response(
+        'create_panel_template_app.html',
+        {},
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def fcs_upload_app(request):
     return render_to_response(
         'fcs_upload_app.html',
@@ -527,83 +536,6 @@ def view_project_panels(request, project_id):
             'panels': panels,
             'can_add_project_data': can_add_project_data,
             'can_modify_project_data': can_modify_project_data,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def add_project_panel(request, project_id, panel_id=None):
-    project = get_object_or_404(Project, pk=project_id)
-    if panel_id:
-        panel = get_object_or_404(ProjectPanel, pk=panel_id)
-        add_or_edit = 'edit'
-        if panel.project != project:
-            raise PermissionDenied
-    else:
-        panel = ProjectPanel(project=project)
-        add_or_edit = 'add'
-
-    if not (project.has_add_permission(request.user)):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        panel_form = ProjectPanelForm(
-            request.POST,
-            instance=panel,
-            project_id=project.id)
-
-        if panel_form.is_valid():
-            panel_form.save(commit=False)
-            parameter_formset = ProjectParameterFormSet(
-                request.POST,
-                instance=panel)
-            marker_formsets_valid = True
-
-            for param_form in parameter_formset.forms:
-                if param_form.nested:
-                    if not param_form.nested[0].is_valid():
-                        marker_formsets_valid = False
-
-            if parameter_formset.is_valid() and marker_formsets_valid:
-                panel_form.save()
-
-                for param_form in parameter_formset.forms:
-                    # when manually saving the forms in a formset the
-                    # parent's id is not set
-                    param_form.instance.project_panel_id = panel.id
-                    parameter = param_form.save()
-                    param_form.nested[0].instance = parameter
-                    param_form.nested[0].save()
-
-                parameter_formset.save()
-
-                return HttpResponseRedirect(reverse(
-                    'view_project_panels',
-                    args=(project.id,)))
-        else:
-            parameter_formset = ProjectParameterFormSet(
-                request.POST,
-                instance=panel)
-
-    else:
-        panel_form = ProjectPanelForm(
-            instance=panel,
-            project_id=project.id)
-
-        #if add_or_edit == 'edit':
-        #    parameter_formset = ProjectParameterFormSetEdit(instance=panel)
-        #else:
-        parameter_formset = ProjectParameterFormSet(instance=panel)
-
-    return render_to_response(
-        'add_project_panel.html',
-        {
-            'panel_form': panel_form,
-            'parameter_formset': parameter_formset,
-            'project': project,
-            'add_or_edit': add_or_edit,
-            'panel_id': panel_id
         },
         context_instance=RequestContext(request)
     )

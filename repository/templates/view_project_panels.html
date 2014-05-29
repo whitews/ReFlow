@@ -68,7 +68,7 @@ $(document).ready(function()
 
               {% if can_add_project_data %}
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-default btn-sm" href="{% url 'add_project_panel' project.id %}">
+                <a class="btn btn-default btn-sm" href="{% url 'panel_template_app' %}#/add">
                   Add Panel Template
                 </a>
               </div>
@@ -94,7 +94,7 @@ $(document).ready(function()
         <tr>
           <td class="no-wrap">
             {% if can_modify_project_data %}
-            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'edit_project_panel' project.id panel.id %}" data-original-title="Edit" data-placement="bottom">
+            <a class="btn btn-default btn-xs" rel="tooltip" href="{% url 'panel_template_app' %}#/edit/{{ panel.id }}/" data-original-title="Edit" data-placement="bottom">
               <i style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></i>
             </a>
             {% endif %}
