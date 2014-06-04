@@ -171,6 +171,9 @@ app.controller(
                         can_have_uns = false;
                         can_have_iso = true;
                         break;
+                    case 'CB':
+                        can_have_uns = false;
+                        can_have_iso = false;
                     default :  // includes FS, FM, & US
                         can_have_uns = true;
                         can_have_iso = false;
@@ -244,6 +247,16 @@ app.controller(
                         }
                     }
 
+                    // Bead channels must specify a fluoro but no marker
+                    if (channel.function == 'BEA') {
+                        if (!channel.fluorochrome) {
+                            channel.errors.push('Bead channels must specify a fluorochrome');
+                        }
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Bead channels cannot have markers');
+                        }
+                    }
+
                     // Time channels cannot have a fluoro or Ab, must have value type 'T'
                     if (channel.function == 'TIM') {
                         if (channel.fluorochrome) {
@@ -291,6 +304,17 @@ app.controller(
                                 // their parent Full stain template.
                                 // Likewise, Isotype Control templates can
                                 // have ISO channel counterparts.
+
+                                // However, first we'll check the easy things
+                                // like scatter channels
+                                if (channel.function == 'FSC' && param.parameter_type != 'FSC') {
+                                    // no match
+                                    continue;
+                                } else if (channel.function == 'SSC' && param.parameter_type != 'SSC') {
+                                    // no match
+                                    continue;
+                                }
+
                                 if ($scope.model.current_staining == 'FM') {
                                     if (param.parameter_type == 'FCM' && channel.function == 'UNS') {
                                         fmo_match = true;
@@ -302,6 +326,13 @@ app.controller(
                                     if (param.parameter_type == 'FCM' && channel.function == 'ISO') {
                                         iso_match = true;
                                     } else {
+                                        // no match
+                                        continue;
+                                    }
+                                } else if ($scope.model.current_staining == 'CB') {
+                                    // For bead templates the function should
+                                    // be bead
+                                    if (param.parameter_type != 'FCM' && channel.function == 'BEA') {
                                         // no match
                                         continue;
                                     }
@@ -326,19 +357,28 @@ app.controller(
                                 }
                             }
 
+                            // Bead channels must have a fluoro, or it cannot
+                            // be any match
+                            if (channel.function == 'BEA' && !channel.fluorochrome) {
+                                // no match
+                                break;
+                            }
+
                             // if template has markers, check them all, except
-                            // for ISO channels
-                            if (param.markers.length > 0 && channel.function != 'ISO') {
-                                var marker_match = true;
-                                for (var j = 0; j < param.markers.length; j++) {
-                                    if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
-                                        // no match
-                                        marker_match = false;
-                                        break;
+                            // for ISO and Bead channels
+                            if (param.markers.length > 0) {
+                                if (channel.function != 'ISO' && channel.function != 'BEA') {
+                                    var marker_match = true;
+                                    for (var j = 0; j < param.markers.length; j++) {
+                                        if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
+                                            // no match
+                                            marker_match = false;
+                                            break;
+                                        }
                                     }
-                                }
-                                if (!marker_match) {
-                                    continue;
+                                    if (!marker_match) {
+                                        continue;
+                                    }
                                 }
                             }
 

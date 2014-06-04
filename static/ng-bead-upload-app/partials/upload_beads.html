@@ -57,6 +57,23 @@
                   </div>
                 </td>
             </tr>
+            <tr>
+                <td><strong>Negative Control:</strong></td>
+                  <td>
+                  <div ng-controller="SitePanelQueryController">
+                    <input type="checkbox" id="includes_negative_control" class="form-inline" ng-model="model.includes_negative_control" ng-disabled="model.is_negative_control" ng-required="true">
+                    <label for="includes_negative_control">
+                      Includes Negative Control
+                    </label>
+                  </div>
+                  <div ng-controller="SitePanelQueryController">
+                    <input type="checkbox" id="is_negative_control" class="form-inline" ng-model="model.is_negative_control" ng-disabled="model.includes_negative_control" ng-required="true" />
+                    <label for="is_negative_control">
+                      Is Negative Control
+                    </label>
+                  </div>
+                </td>
+            </tr>
         </table>
       </div>
       <div class="col-md-8">

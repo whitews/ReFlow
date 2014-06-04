@@ -1559,9 +1559,19 @@ class BeadSample(ProtectedModel):
         null=False,
         blank=False
     )
+    includes_negative_control = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False
+    )
+    negative_control = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False
+    )
     compensation_channel = models.ForeignKey(
         Fluorochrome,
-        null=False,
+        null=True,
         blank=False)
     bead_file = models.FileField(
         upload_to=bead_file_path,
