@@ -17,6 +17,8 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.views.generic.detail import SingleObjectMixin
 
+import json
+
 from repository.models import *
 from repository.serializers import *
 from controllers import *
@@ -73,6 +75,35 @@ def repository_api_root(request):
         'get_parameter_value_types': reverse('get_parameter_value_types',
                                            request=request)
     })
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def get_project_permissions(request, project):
+    project = get_object_or_404(Project, pk=project)
+
+    if not project.has_view_permission(request.user):
+        raise PermissionDenied
+
+    perms = project.get_user_permissions(request.user).values_list(
+        'permission__name', flat=True)
+
+    return Response({'permissions': perms})
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def get_site_permissions(request, site):
+    site = get_object_or_404(Site, pk=site)
+
+    if not site.has_view_permission(request.user):
+        raise PermissionDenied
+
+    perms = site.get_user_permissions(request.user)
+
+    return Response(perms)
 
 
 @api_view(['GET'])

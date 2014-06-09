@@ -41,7 +41,23 @@ var service = angular.module('reflowService', ['ngResource']);
 
 service
     .factory('Project', ['$resource', function ($resource) {
-        return $resource(URLS.PROJECTS);
+        var Project = $resource(URLS.PROJECTS);
+
+        Project.prototype.getUserPermissions = function() {
+            var perms = $resource(
+                URLS.PROJECTS + this.id + '/permissions/',
+                {},
+                {
+                    get: {
+                        isArray: false
+                    }
+                }
+            );
+            return perms.get();
+
+        };
+
+        return Project;
     }])
     .factory('Site', ['$resource', function ($resource) {
         return $resource(URLS.SITES);

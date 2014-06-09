@@ -21,11 +21,13 @@ urlpatterns = patterns('repository.api_views',
 
     url(r'^api/repository/projects/?$', ProjectList.as_view(), name='project-list'),
     url(r'^api/repository/projects/(?P<pk>\d+)/?$', ProjectDetail.as_view(), name='project-detail'),
+    url(r'^api/repository/projects/(?P<project>\d+)/permissions/?$', get_project_permissions, name='get-project-permissions'),
     url(r'^api/repository/project_panels/?$', ProjectPanelList.as_view(), name='project-panel-list'),
     url(r'^api/repository/project_panels/(?P<pk>\d+)/?$', ProjectPanelDetail.as_view(), name='project-panel-detail'),
 
     url(r'^api/repository/sites/?$', SiteList.as_view(), name='site-list'),
     url(r'^api/repository/sites/(?P<pk>\d+)/?$', SiteDetail.as_view(), name='site-detail'),
+    url(r'^api/repository/sites/(?P<site>\d+)/permissions/?$', get_site_permissions, name='get-site-permissions'),
     url(r'^api/repository/site_panels/?$', SitePanelList.as_view(), name='site-panel-list'),
     url(r'^api/repository/site_panels/(?P<pk>\d+)/?$', SitePanelDetail.as_view(), name='site-panel-detail'),
     url(r'^api/repository/cytometers/?$', CytometerList.as_view(), name='cytometer-list'),
@@ -89,6 +91,7 @@ urlpatterns = patterns('repository.api_views',
 
 # Angular web routes
 urlpatterns += patterns('repository.views',
+    url(r'^$', 'reflow_app', name='reflow_app'),
     url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
     url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
     url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
@@ -98,7 +101,7 @@ urlpatterns += patterns('repository.views',
 # Regular web routes
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
-    url(r'^$', 'home', name='home'),
+    # url(r'^$', 'home', name='home'),
     url(r'^reflow_admin/$', 'admin', name='admin'),
 
     url(r'^markers/$', 'view_markers', name='view_markers'),
