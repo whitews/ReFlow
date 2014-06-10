@@ -101,9 +101,10 @@ def get_site_permissions(request, site):
     if not site.has_view_permission(request.user):
         raise PermissionDenied
 
-    perms = site.get_user_permissions(request.user)
+    perms = site.get_user_permissions(request.user).values_list(
+        'permission__name', flat=True)
 
-    return Response(perms)
+    return Response({'permissions': perms})
 
 
 @api_view(['GET'])

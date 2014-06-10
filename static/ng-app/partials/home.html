@@ -24,7 +24,13 @@
             <p ng-repeat="perm in project.permissions">{{ perm }}</p>
           </td>
           <td>
-            site perms here
+            <ul>
+              <li ng-repeat="site in project.sites" ng-show="site.permissions.length > 0">{{ site.site_name }}
+              <ul>
+                <li ng-repeat="site_perm in site.permissions">{{ site_perm }}</li>
+              </ul>
+              </li>
+            </ul>
 
           </td>
         </tr>

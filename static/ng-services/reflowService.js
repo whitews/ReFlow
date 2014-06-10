@@ -54,13 +54,27 @@ service
                 }
             );
             return perms.get();
-
         };
 
         return Project;
     }])
     .factory('Site', ['$resource', function ($resource) {
-        return $resource(URLS.SITES);
+        var Site = $resource(URLS.SITES);
+
+        Site.prototype.getUserPermissions = function() {
+            var perms = $resource(
+                URLS.SITES + this.id + '/permissions/',
+                {},
+                {
+                    get: {
+                        isArray: false
+                    }
+                }
+            );
+            return perms.get();
+        };
+
+        return Site;
     }])
     .factory('Marker', ['$resource', function ($resource) {
         return $resource(URLS.MARKERS);
