@@ -24,11 +24,14 @@ app.controller(
                         p.sites.push(s);
                         s.getUserPermissions().$promise.then(function (value) {
                             s.permissions = value.permissions;
-                            console.log(s.permissions);
                         });
                     });
                 });
             });
         });
+
+        $scope.select_project = function (project) {
+            $scope.model.current_project = project;
+        }
     }
 ]);

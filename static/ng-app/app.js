@@ -21,6 +21,11 @@ app.config(function ($routeProvider) {
         {
             controller: 'MainController',
             templateUrl: '/static/ng-app/partials/home.html'
+        })
+        .when('/projects/:projectID',
+        {
+            controller: 'MainController',
+            templateUrl: '/static/ng-app/partials/project-detail.html'
         });
 });
 app.run(function ($http, $cookies) {
