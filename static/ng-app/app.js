@@ -5,7 +5,7 @@
 var app = angular.module(
     'ReFlowApp',
     [
-        'ngRoute',
+        'ui.router',
         'ngSanitize',
         'ngCookies',
         'ui.bootstrap',
@@ -16,17 +16,33 @@ var app = angular.module(
     ]
 );
 
-app.config(function ($routeProvider) {
-    $routeProvider
-        .when('/',
-        {
-            templateUrl: '/static/ng-app/partials/home.html'
-        })
-        .when('/projects/:projectID',
-        {
-            templateUrl: '/static/ng-app/partials/project-detail.html'
-        });
+//app.config(function ($routeProvider) {
+//    $routeProvider
+//        .when('/',
+//        {
+//            templateUrl: '/static/ng-app/partials/home.html'
+//        })
+//        .when('/projects/:projectID',
+//        {
+//            templateUrl: '/static/ng-app/partials/project-detail.html'
+//        });
+//});
+
+app.config(function ($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise("/");
+
+    $stateProvider.state({
+        name: 'home',
+        url: '/',
+        templateUrl: '/static/ng-app/partials/home.html'
+    }).state({
+        name: 'project-detail',
+        url: '/projects/:projectID',
+        templateUrl: '/static/ng-app/partials/project-detail.html'
+    });
 });
+
+
 app.run(function ($http, $cookies) {
     $http.defaults.headers.common['X-CSRFToken'] = $cookies['csrftoken'];
 });
