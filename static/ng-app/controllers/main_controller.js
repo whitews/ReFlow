@@ -1,13 +1,7 @@
 app.controller(
-    'MainController',
-    ['$scope', function ($scope) {
-        $scope.model = {};
-    }
-]);
-
-app.controller(
     'ProjectQueryController',
-    ['$scope', 'Project', 'Site', function ($scope, Project, Site) {
+    ['$scope', 'ModelService', 'Project', 'Site', function ($scope, ModelService, Project, Site) {
+        $scope.model = {};
         $scope.model.projects = Project.query();
 
         $scope.model.projects.$promise.then(function (projects) {
@@ -31,7 +25,14 @@ app.controller(
         });
 
         $scope.select_project = function (project) {
-            $scope.model.current_project = project;
+            ModelService.updateCurrentProject(project);
         }
+    }
+]);
+
+app.controller(
+    'ProjectDetailController',
+    ['$scope', 'ModelService', 'Project', 'Site', function ($scope, ModelService, Project, Site) {
+        $scope.current_project = ModelService.getCurrentProject();
     }
 ]);

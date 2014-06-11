@@ -11,6 +11,7 @@ var app = angular.module(
         'ui.bootstrap',
         'ui.select2',
         'reflowService',
+        'modelService',
         'angularFileUpload'
     ]
 );
@@ -19,12 +20,10 @@ app.config(function ($routeProvider) {
     $routeProvider
         .when('/',
         {
-            controller: 'MainController',
             templateUrl: '/static/ng-app/partials/home.html'
         })
         .when('/projects/:projectID',
         {
-            controller: 'MainController',
             templateUrl: '/static/ng-app/partials/project-detail.html'
         });
 });
