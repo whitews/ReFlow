@@ -10,23 +10,12 @@ var app = angular.module(
         'ngCookies',
         'ui.bootstrap',
         'ui.select2',
+        'ncy-angular-breadcrumb',
         'reflowService',
         'modelService',
         'angularFileUpload'
     ]
 );
-
-//app.config(function ($routeProvider) {
-//    $routeProvider
-//        .when('/',
-//        {
-//            templateUrl: '/static/ng-app/partials/home.html'
-//        })
-//        .when('/projects/:projectID',
-//        {
-//            templateUrl: '/static/ng-app/partials/project-detail.html'
-//        });
-//});
 
 app.config(function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/");
@@ -34,14 +23,21 @@ app.config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider.state({
         name: 'home',
         url: '/',
-        templateUrl: '/static/ng-app/partials/home.html'
+        templateUrl: '/static/ng-app/partials/home.html',
+        data: {
+            ncyBreadcrumbLabel: 'Projects'
+        }
     }).state({
         name: 'project-detail',
-        url: '/projects/:projectID',
-        templateUrl: '/static/ng-app/partials/project-detail.html'
+        url: '/project/',
+        templateUrl: '/static/ng-app/partials/project-detail.html',
+        controller: 'ProjectDetailController',
+        data: {
+            ncyBreadcrumbLabel: '{{current_project.project_name}}',
+            ncyBreadcrumbParent: 'home'
+        }
     });
 });
-
 
 app.run(function ($http, $cookies) {
     $http.defaults.headers.common['X-CSRFToken'] = $cookies['csrftoken'];
