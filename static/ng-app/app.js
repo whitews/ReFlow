@@ -5,9 +5,9 @@
 var app = angular.module(
     'ReFlowApp',
     [
-        'ui.router',
         'ngSanitize',
         'ngCookies',
+        'ui.router',
         'ui.bootstrap',
         'ui.select2',
         'ncy-angular-breadcrumb',
