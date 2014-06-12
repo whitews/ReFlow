@@ -446,6 +446,10 @@ ul.dropdown-menu > li > table > tbody > tr > td {
     padding: 0;
 }
 
+.breadcrumb>li+li:before {
+    content: "/";
+}
+
 /* Other stuff */
 #id_matrix_text {
   width: 412px;
