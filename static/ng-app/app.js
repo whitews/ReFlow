@@ -37,6 +37,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbParent: 'home'
         }
     }).state({
+        name: 'project-edit',
+        url: '/project/edit',
+        templateUrl: '/static/ng-app/partials/project-edit.html',
+        controller: 'ProjectDetailController',
+        data: {
+            ncyBreadcrumbLabel: 'Edit',
+            ncyBreadcrumbParent: 'project-detail'
+        }
+    }).state({
         name: 'subject-group-list',
         url: '/subject-groups/',
         templateUrl: '/static/ng-app/partials/subject-group-list.html',
