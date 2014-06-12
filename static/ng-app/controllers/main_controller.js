@@ -34,6 +34,18 @@ app.controller(
     'ProjectDetailController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
         $scope.current_project = ModelService.getCurrentProject();
+        $scope.can_view_project = false;
+        $scope.can_modify_project = false;
+        $scope.can_add_data = false;
+        $scope.can_manage_users = false;
+
+        if ($scope.current_project.permissions.indexOf('modify_project_data')) {
+            $scope.can_modify_project = true;
+        }
+        if ($scope.current_project.permissions.indexOf('manage_project_users')) {
+            $scope.can_manage_users = true;
+        }
+
     }
 ]);
 

@@ -7,8 +7,8 @@
               <h4>{{ current_project.project_name }}</h4>
 
               <div class="btn-group" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" href="{% url 'edit_project' project.id %}">Edit Project</a>
-                  <a class="btn btn-default btn-sm"  href="{% url 'view_project_users' project.id %}">Manage Users</a>
+                  <a class="btn btn-default btn-sm" ui-sref="project-edit" ng-show="can_modify_project">Edit Project</a>
+                  <a class="btn btn-default btn-sm"  ui-sref="project-manage-users" ng-show="can_manage_users">Manage Users</a>
               </div>
             </div>
           </th>

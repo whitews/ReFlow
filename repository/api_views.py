@@ -87,7 +87,7 @@ def get_project_permissions(request, project):
         raise PermissionDenied
 
     perms = project.get_user_permissions(request.user).values_list(
-        'permission__name', flat=True)
+        'permission__codename', flat=True)
 
     return Response({'permissions': perms})
 
@@ -102,7 +102,7 @@ def get_site_permissions(request, site):
         raise PermissionDenied
 
     perms = site.get_user_permissions(request.user).values_list(
-        'permission__name', flat=True)
+        'permission__codename', flat=True)
 
     return Response({'permissions': perms})
 
