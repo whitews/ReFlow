@@ -32,7 +32,77 @@ app.controller(
 
 app.controller(
     'ProjectDetailController',
-    ['$scope', 'ModelService', 'Project', 'Site', function ($scope, ModelService, Project, Site) {
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'SubjectGroupController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'SubjectController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'SiteController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'CytometerController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'VisitTypeController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'StimulationController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'PanelTemplateController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'SampleController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'BeadSampleController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.getCurrentProject();
+    }
+]);
+
+app.controller(
+    'CompensationController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
         $scope.current_project = ModelService.getCurrentProject();
     }
 ]);

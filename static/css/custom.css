@@ -448,6 +448,7 @@ ul.dropdown-menu > li > table > tbody > tr > td {
 
 .breadcrumb>li+li:before {
     content: "/";
+    padding: 0 9px;
 }
 
 /* Other stuff */
