@@ -3,13 +3,6 @@
  */
 
 app.controller(
-    'ProjectQueryController',
-    ['$scope', 'Project', function ($scope, Project) {
-        $scope.model.projects = Project.query();
-    }
-]);
-
-app.controller(
     'SiteQueryController',
     ['$scope', 'Site', function ($scope, Site) {
         $scope.$on('projectChangedEvent', function () {
@@ -692,7 +685,7 @@ app.controller(
 ]);
 
 app.controller(
-    'MainController',
+    'MainSampleUploadController',
     [
         '$scope',
         function ($scope) {

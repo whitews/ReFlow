@@ -20,7 +20,7 @@ app.config(function ($routeProvider) {
         .when('/',
         {
             controller: 'MainController',
-            templateUrl: '/static/ng-fcs-upload-app/partials/upload_samples.html'
+            templateUrl: '/static/ng-fcs-upload-app/partials/sample-upload.html'
         });
 });
 app.run(function ($http, $cookies) {

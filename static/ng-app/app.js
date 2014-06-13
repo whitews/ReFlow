@@ -184,18 +184,18 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         name: 'sample-list',
         url: '/samples/',
         templateUrl: '/static/ng-app/partials/sample-list.html',
-        controller: 'SampleController',
+        controller: 'MainSampleUploadController',
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
+            ncyBreadcrumbLabel: 'Samples',
             ncyBreadcrumbParent: 'project-detail'
         }
     }).state({
-        name: 'sample-add',
-        url: '/samples/add',
-        templateUrl: '/static/ng-app/partials/sample-add.html',
+        name: 'sample-upload',
+        url: '/samples/upload',
+        templateUrl: '/static/ng-app/partials/sample-upload.html',
         controller: 'SampleController',
         data: {
-            ncyBreadcrumbLabel: 'Add',
+            ncyBreadcrumbLabel: 'Upload',
             ncyBreadcrumbParent: 'sample-list'
         }
     }).state({
