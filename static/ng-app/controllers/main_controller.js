@@ -34,10 +34,8 @@ app.controller(
     'ProjectDetailController',
     [
         '$scope',
-        '$location',
         'ModelService',
-        'Project',
-        function ($scope, $location, ModelService, Project) {
+        function ($scope, ModelService) {
             $scope.current_project = ModelService.getCurrentProject();
             $scope.errors = [];
             $scope.can_view_project = false;
@@ -51,23 +49,37 @@ app.controller(
             if ($scope.current_project.permissions.indexOf('manage_project_users')) {
                 $scope.can_manage_users = true;
             }
+        }
+    ]
+);
+
+app.controller(
+    'ProjectEditController',
+    [
+        '$scope',
+        '$location',
+        'ModelService',
+        'Project',
+        function ($scope, $location, ModelService, Project) {
+            $scope.current_project = ModelService.getCurrentProject();
+            $scope.modified_project = angular.copy($scope.current_project);
+            $scope.errors = [];
 
             $scope.updateProject = function () {
                 $scope.errors = [];
                 var project = Project.update(
-                    {id:$scope.current_project.id },
-                    $scope.current_project
+                    {id:$scope.modified_project.id },
+                    $scope.modified_project
                 );
 
                 project.$promise.then(function (o) {
                     // re-direct to project detail
+                    ModelService.setCurrentProject($scope.modified_project);
                     $location.path('/project/');
                 }, function(error) {
-
                     $scope.errors = error.data;
                 });
             }
-
         }
     ]
 );

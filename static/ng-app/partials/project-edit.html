@@ -1,8 +1,8 @@
-<div ng-controller="ProjectDetailController">
+<div ng-controller="ProjectEditController">
 
   <div class="form-group">
     <label class="col-md-2 control-label">Project Name</label>
-    <input maxlength="128" type="text" ng-model="current_project.project_name" />
+    <input maxlength="128" type="text" ng-model="modified_project.project_name" />
     <strong ng-show="errors.project_name" class="help-inline text-danger">
       {{ errors.project_name.join(', ') }}
     </strong>
@@ -10,7 +10,7 @@
 
   <div class="form-group">
     <label class="col-md-2 control-label">Project Description</label>
-    <textarea cols="40" rows="10" ng-model="current_project.project_desc">
+    <textarea cols="40" rows="10" ng-model="modified_project.project_desc">
     </textarea>
     <strong ng-show="errors.project_desc" class="help-inline text-danger">
       {{ errors.project_desc.join(', ') }}
