@@ -25,29 +25,52 @@ app.controller(
         });
 
         $scope.select_project = function (project) {
-            ModelService.updateCurrentProject(project);
+            ModelService.setCurrentProject(project);
         }
     }
 ]);
 
 app.controller(
     'ProjectDetailController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
-        $scope.can_view_project = false;
-        $scope.can_modify_project = false;
-        $scope.can_add_data = false;
-        $scope.can_manage_users = false;
+    [
+        '$scope',
+        '$location',
+        'ModelService',
+        'Project',
+        function ($scope, $location, ModelService, Project) {
+            $scope.current_project = ModelService.getCurrentProject();
+            $scope.errors = [];
+            $scope.can_view_project = false;
+            $scope.can_modify_project = false;
+            $scope.can_add_data = false;
+            $scope.can_manage_users = false;
 
-        if ($scope.current_project.permissions.indexOf('modify_project_data')) {
-            $scope.can_modify_project = true;
-        }
-        if ($scope.current_project.permissions.indexOf('manage_project_users')) {
-            $scope.can_manage_users = true;
-        }
+            if ($scope.current_project.permissions.indexOf('modify_project_data')) {
+                $scope.can_modify_project = true;
+            }
+            if ($scope.current_project.permissions.indexOf('manage_project_users')) {
+                $scope.can_manage_users = true;
+            }
 
-    }
-]);
+            $scope.updateProject = function () {
+                $scope.errors = [];
+                var project = Project.update(
+                    {id:$scope.current_project.id },
+                    $scope.current_project
+                );
+
+                project.$promise.then(function (o) {
+                    // re-direct to project detail
+                    $location.path('/project/');
+                }, function(error) {
+
+                    $scope.errors = error.data;
+                });
+            }
+
+        }
+    ]
+);
 
 app.controller(
     'SubjectGroupController',

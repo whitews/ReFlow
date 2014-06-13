@@ -4,11 +4,11 @@
 
 var service = angular.module('modelService', []);
 
-service.factory('ModelService', function($rootScope) {
+service.factory('ModelService', function($rootScope, $location) {
     var model = {};
     model.current_project = null;
 
-    model.updateCurrentProject = function (value) {
+    model.setCurrentProject = function (value) {
         this.current_project = value;
         $rootScope.$broadcast('projectChanged');
     };

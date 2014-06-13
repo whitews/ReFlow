@@ -319,6 +319,8 @@ class PermissionRequiredMixin(SingleObjectMixin):
     """
 
     def get_object(self, *args, **kwargs):
+        # TODO: see if we can check HTTP method (GET, PUT, etc.) to reduce
+        # duplicate code for modifying resources
         obj = super(PermissionRequiredMixin, self).get_object(*args, **kwargs)
         if hasattr(self, 'request'):
             request = self.request
@@ -359,13 +361,23 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
 class ProjectDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single project.
     """
 
     model = Project
     serializer_class = ProjectSerializer
+
+    def put(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return status.HTTP_401_UNAUTHORIZED
+
+        return super(ProjectDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return status.HTTP_501_NOT_IMPLEMENTED
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):

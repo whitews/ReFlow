@@ -41,7 +41,13 @@ var service = angular.module('reflowService', ['ngResource']);
 
 service
     .factory('Project', ['$resource', function ($resource) {
-        var Project = $resource(URLS.PROJECTS);
+        var Project = $resource(
+            URLS.PROJECTS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
 
         Project.prototype.getUserPermissions = function() {
             var perms = $resource(
