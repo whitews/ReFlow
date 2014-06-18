@@ -9,22 +9,22 @@ app.controller(
         'Fluorochrome',
         'SitePanel',
         function ($scope, Marker, Fluorochrome, SitePanel) {
-            $scope.model.site_panel_url = '/static/ng-app/partials/create_site_panel.html';
-            $scope.model.markers = Marker.query();
-            $scope.model.fluorochromes = Fluorochrome.query();
-            $scope.model.site_panel_errors = [];
-            $scope.model.site_panel_valid = false;
+            $scope.sample_upload_model.site_panel_url = '/static/ng-app/partials/create_site_panel.html';
+            $scope.sample_upload_model.markers = Marker.query();
+            $scope.sample_upload_model.fluorochromes = Fluorochrome.query();
+            $scope.sample_upload_model.site_panel_errors = [];
+            $scope.sample_upload_model.site_panel_valid = false;
 
             $scope.validatePanel = function() {
                 // start with true and set to false on any error
                 var valid = true;
 
-                $scope.model.errors = [];
+                $scope.sample_upload_model.errors = [];
 
-                if (!$scope.model.current_project_panel) {
-                    $scope.model.errors.push('Please choose a panel template');
+                if (!$scope.sample_upload_model.current_project_panel) {
+                    $scope.sample_upload_model.errors.push('Please choose a panel template');
                     valid = false;
-                    $scope.model.site_panel_valid = valid;
+                    $scope.sample_upload_model.site_panel_valid = valid;
                     return valid;
                 }
 
@@ -40,7 +40,7 @@ app.controller(
                 Validations against the parent panel template:
                     - Ensure all panel template parameters are present
                 */
-                var staining = $scope.model.current_project_panel.staining;
+                var staining = $scope.sample_upload_model.current_project_panel.staining;
                 var can_have_uns = null;
                 var can_have_iso = null;
                 var fluoro_duplicates = [];
@@ -55,11 +55,11 @@ app.controller(
                 }
 
                 // reset all project param matches
-                $scope.model.current_project_panel.parameters.forEach(function (p) {
+                $scope.sample_upload_model.current_project_panel.parameters.forEach(function (p) {
                     p.match = false;
                 });
 
-                $scope.model.site_panel_sample.channels.forEach(function (channel) {
+                $scope.sample_upload_model.site_panel_sample.channels.forEach(function (channel) {
                     channel.errors = [];
                     // check for function
                     if (!channel.function) {
@@ -146,9 +146,9 @@ app.controller(
 
                     // Check if we match a template parameter
                     // starting with the required function / value type combo
-                    for (var i = 0; i < $scope.model.current_project_panel.parameters.length; i++) {
+                    for (var i = 0; i < $scope.sample_upload_model.current_project_panel.parameters.length; i++) {
                         // param var is just for better readability
-                        var param = $scope.model.current_project_panel.parameters[i];
+                        var param = $scope.sample_upload_model.current_project_panel.parameters[i];
 
                         // first, check function
                         if (param.parameter_type != channel.function) {
@@ -194,12 +194,12 @@ app.controller(
                     }
                 });
 
-                $scope.model.current_project_panel.parameters.forEach(function (p) {
+                $scope.sample_upload_model.current_project_panel.parameters.forEach(function (p) {
                     if (!p.match) {
                         valid = false;
                     }
                 });
-                $scope.model.site_panel_valid = valid;
+                $scope.sample_upload_model.site_panel_valid = valid;
                 return valid;
             };
 
@@ -211,7 +211,7 @@ app.controller(
                 }
 
                 var params = [];
-                $scope.model.site_panel_sample.channels.forEach(function (c) {
+                $scope.sample_upload_model.site_panel_sample.channels.forEach(function (c) {
                     params.push({
                         fcs_number: c.channel,
                         fcs_text: c.pnn,
@@ -223,14 +223,14 @@ app.controller(
                     })
                 });
                 var data = {
-                    site: $scope.model.current_site.id,
-                    project_panel: $scope.model.current_project_panel.id,
+                    site: $scope.sample_upload_model.current_site.id,
+                    project_panel: $scope.sample_upload_model.current_project_panel.id,
                     parameters: params,
                     site_panel_comments: ""
                 };
                 var site_panel = SitePanel.save(data);
                 site_panel.$promise.then(function (o) {
-                    $scope.model.close_modal = true;
+                    $scope.sample_upload_model.close_modal = true;
                     // broadcast to update site panels and set
                     // current site panel to this one, we broadcast to root
                     // b/c there's no relationship between this and site panel
@@ -253,7 +253,7 @@ app.controller(
         'ParameterValueType',
         function ($scope, ParameterFunction, ParameterValueType) {
             // everything but bead functions
-            $scope.model.parameter_functions = [
+            $scope.sample_upload_model.parameter_functions = [
                 ["FSC", "Forward Scatter"],
                 ["SSC", "Side Scatter"],
                 ["FCM", "Fluorochrome Conjugated Marker"],
@@ -264,7 +264,7 @@ app.controller(
                 ["TIM", "Time"],
                 ["NUL", "Null"]
             ];
-            $scope.model.parameter_value_types = ParameterValueType.query();
+            $scope.sample_upload_model.parameter_value_types = ParameterValueType.query();
         }
     ]
 );
@@ -274,19 +274,19 @@ app.controller(
     'SitePanelCreationProjectPanelController',
     ['$scope', 'ProjectPanel', function ($scope, ProjectPanel) {
         $scope.$on('initSitePanel', function (o, f) {
-            $scope.model.close_modal = false;
-            $scope.model.current_project_panel = null;
+            $scope.sample_upload_model.close_modal = false;
+            $scope.sample_upload_model.current_project_panel = null;
 
             // get everything except bead templats
-            $scope.model.project_panels = ProjectPanel.query(
+            $scope.sample_upload_model.project_panels = ProjectPanel.query(
                 {
-                    project: $scope.model.current_project.id,
+                    project: $scope.current_project.id,
                     staining: ['FS', 'US', 'FM', 'IS']
                 }
             );
-            $scope.model.site_panel_sample = f;
+            $scope.sample_upload_model.site_panel_sample = f;
 
-            $scope.model.site_panel_sample.channels.forEach(function (c) {
+            $scope.sample_upload_model.site_panel_sample.channels.forEach(function (c) {
                 c.function = null;
                 c.errors = [];
 
@@ -323,7 +323,7 @@ app.controller(
                     var words = (c.pnn + ' ' + c.pns).match(pattern);
 
                     // find matching markers
-                    $scope.model.markers.forEach(function(m) {
+                    $scope.sample_upload_model.markers.forEach(function(m) {
                         words.forEach(function(w) {
                             if (m.marker_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"") === w.replace(/[^A-Z,a-z,0-9]/g,"")) {
                                 c.markers.push(m.id.toString());
@@ -335,7 +335,7 @@ app.controller(
                     // we'll need to check against the longest match in the entire
                     // fcs_text first and then the words
                     var fl_match = '';
-                    $scope.model.fluorochromes.forEach(function(f) {
+                    $scope.sample_upload_model.fluorochromes.forEach(function(f) {
                         // strip out non-alphanumeric chars
                         fluoro_str = f.fluorochrome_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"");
                         pnn_str = c.pnn.replace(/[^A-Z,a-z,0-9]/g,"");
