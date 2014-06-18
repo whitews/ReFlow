@@ -230,7 +230,7 @@ app.controller(
                 };
                 var site_panel = SitePanel.save(data);
                 site_panel.$promise.then(function (o) {
-                    $scope.sample_upload_model.close_modal = true;
+                    $scope.close_modal = true;
                     // broadcast to update site panels and set
                     // current site panel to this one, we broadcast to root
                     // b/c there's no relationship between this and site panel
@@ -274,10 +274,10 @@ app.controller(
     'SitePanelCreationProjectPanelController',
     ['$scope', 'ProjectPanel', function ($scope, ProjectPanel) {
         $scope.$on('initSitePanel', function (o, f) {
-            $scope.sample_upload_model.close_modal = false;
+            $scope.close_modal = false;
             $scope.sample_upload_model.current_project_panel = null;
 
-            // get everything except bead templats
+            // get everything except bead templates
             $scope.sample_upload_model.project_panels = ProjectPanel.query(
                 {
                     project: $scope.current_project.id,

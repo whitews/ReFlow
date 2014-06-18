@@ -253,7 +253,7 @@ app.filter('bytes', function() {
 
 app.directive('closeModal', function (){
    return function(scope, elem, attrs) {
-     scope.$watch('model.close_modal', function(val) {
+     scope.$watch('close_modal', function(val) {
         if(val) {
            elem.modal('hide');
         }
