@@ -7,6 +7,10 @@ body {
   background-color: #ffffff;
 }
 
+.width-150 {
+    min-width: 450px;
+}
+
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 font-weight: bold;
 }
@@ -343,7 +347,7 @@ span.marker-field > select {
   vertical-align: top;
 }
 .align-middle {
-  vertical-align: middle;
+  vertical-align: middle !important;
 }
 .no-wrap {
   white-space: nowrap;
@@ -354,6 +358,7 @@ span.marker-field > select {
     font-size: 12px;
     line-height: 1.1;
     height: 30px;
+    min-width: 200px;
 }
 
 .form-group {

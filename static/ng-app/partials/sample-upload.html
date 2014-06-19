@@ -26,12 +26,6 @@
                   </td>
               </tr>
               <tr>
-                  <td><strong>Acquisition Date:</strong></td>
-                  <td>
-                    <input type="text" class="form-control" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="current_acquisition_date" is-open="opened" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
-                  </td>
-              </tr>
-              <tr>
                   <td><strong>Site Panel:</strong></td>
                   <td>
                     <div ng-controller="SitePanelQueryController">
@@ -124,7 +118,7 @@
             </thead>
             <tbody>
               <tr data-ng-repeat="f in sample_upload_model.file_queue">
-                <td class="no-wrap">
+                <td class="no-wrap align-middle">
                   <input type="checkbox" ng-model="f.selected" />
 
                   <script type="text/ng-template" id="sitePanelMismatchModal.html">
@@ -159,7 +153,7 @@
                     <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
                   </button>
                 </td>
-                <td>
+                <td class="align-middle">
 
                   <script type="text/ng-template" id="metadata_content.html">
                       <div class="modal-header">
@@ -231,9 +225,11 @@
                     </ul>
                   </li>
                 </td>
-                <td>{{ f.file.size | bytes }}</td>
-                <td>{{ f.channels.length }}</td>
-                <td>{{ f.date }}</td>
+                <td class="align-middle">{{ f.file.size | bytes }}</td>
+                <td class="align-middle">{{ f.channels.length }}</td>
+                <td class="align-middle">
+                  <input type="text" class="form-control" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="f.date" is-open="opened" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                </td>
               </tr>
             </tbody>
           </table>
