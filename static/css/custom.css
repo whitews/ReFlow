@@ -7,8 +7,8 @@ body {
   background-color: #ffffff;
 }
 
-.width-150 {
-    min-width: 450px;
+.width-200 {
+    min-width: 200px;
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -358,7 +358,6 @@ span.marker-field > select {
     font-size: 12px;
     line-height: 1.1;
     height: 30px;
-    min-width: 200px;
 }
 
 .form-group {
@@ -437,6 +436,18 @@ select.app, input.app {
 
 .danger {
   color: #D9534F;
+}
+
+.well-warning {
+  background-color: #ffd2d4;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.well-info {
+  background-color: #d9edf7;
+  line-height: 1.5;
+  font-size: 14px;
 }
 
 .modal-body {

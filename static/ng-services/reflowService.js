@@ -106,7 +106,7 @@ service
     .factory('Cytometer', ['$resource', function ($resource) {
         return $resource(URLS.CYTOMETERS);
     }])
-    .factory('ProjectPanel', ['$resource', function ($resource) {
+    .factory('PanelTemplate', ['$resource', function ($resource) {
         return $resource(
             URLS.PROJECT_PANELS + ':id',
             {},

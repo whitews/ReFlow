@@ -5,26 +5,23 @@ app.controller(
     'SitePanelController',
     [
         '$scope',
-        'Marker',
-        'Fluorochrome',
         'SitePanel',
-        function ($scope, Marker, Fluorochrome, SitePanel) {
-            $scope.sample_upload_model.site_panel_url = '/static/ng-app/partials/create_site_panel.html';
-            $scope.sample_upload_model.markers = Marker.query();
-            $scope.sample_upload_model.fluorochromes = Fluorochrome.query();
-            $scope.sample_upload_model.site_panel_errors = [];
-            $scope.sample_upload_model.site_panel_valid = false;
+        function ($scope, SitePanel) {
+
+            $scope.$on('validatePanel', function (o) {
+                $scope.validatePanel();
+            });
 
             $scope.validatePanel = function() {
                 // start with true and set to false on any error
                 var valid = true;
 
-                $scope.sample_upload_model.errors = [];
+                $scope.site_panel_model.errors = [];
 
-                if (!$scope.sample_upload_model.current_project_panel) {
-                    $scope.sample_upload_model.errors.push('Please choose a panel template');
+                if (!$scope.site_panel_model.current_panel_template) {
+                    $scope.site_panel_model.errors.push('Please choose a panel template');
                     valid = false;
-                    $scope.sample_upload_model.site_panel_valid = valid;
+                    $scope.site_panel_model.site_panel_valid = valid;
                     return valid;
                 }
 
@@ -40,7 +37,7 @@ app.controller(
                 Validations against the parent panel template:
                     - Ensure all panel template parameters are present
                 */
-                var staining = $scope.sample_upload_model.current_project_panel.staining;
+                var staining = $scope.site_panel_model.current_panel_template.staining;
                 var can_have_uns = null;
                 var can_have_iso = null;
                 var fluoro_duplicates = [];
@@ -55,11 +52,11 @@ app.controller(
                 }
 
                 // reset all project param matches
-                $scope.sample_upload_model.current_project_panel.parameters.forEach(function (p) {
+                $scope.site_panel_model.current_panel_template.parameters.forEach(function (p) {
                     p.match = false;
                 });
 
-                $scope.sample_upload_model.site_panel_sample.channels.forEach(function (channel) {
+                $scope.site_panel_model.site_panel_sample.channels.forEach(function (channel) {
                     channel.errors = [];
                     // check for function
                     if (!channel.function) {
@@ -146,9 +143,9 @@ app.controller(
 
                     // Check if we match a template parameter
                     // starting with the required function / value type combo
-                    for (var i = 0; i < $scope.sample_upload_model.current_project_panel.parameters.length; i++) {
+                    for (var i = 0; i < $scope.site_panel_model.current_panel_template.parameters.length; i++) {
                         // param var is just for better readability
-                        var param = $scope.sample_upload_model.current_project_panel.parameters[i];
+                        var param = $scope.site_panel_model.current_panel_template.parameters[i];
 
                         // first, check function
                         if (param.parameter_type != channel.function) {
@@ -194,12 +191,12 @@ app.controller(
                     }
                 });
 
-                $scope.sample_upload_model.current_project_panel.parameters.forEach(function (p) {
+                $scope.site_panel_model.current_panel_template.parameters.forEach(function (p) {
                     if (!p.match) {
                         valid = false;
                     }
                 });
-                $scope.sample_upload_model.site_panel_valid = valid;
+                $scope.site_panel_model.site_panel_valid = valid;
                 return valid;
             };
 
@@ -211,7 +208,7 @@ app.controller(
                 }
 
                 var params = [];
-                $scope.sample_upload_model.site_panel_sample.channels.forEach(function (c) {
+                $scope.site_panel_model.site_panel_sample.channels.forEach(function (c) {
                     params.push({
                         fcs_number: c.channel,
                         fcs_text: c.pnn,
@@ -223,8 +220,8 @@ app.controller(
                     })
                 });
                 var data = {
-                    site: $scope.sample_upload_model.current_site.id,
-                    project_panel: $scope.sample_upload_model.current_project_panel.id,
+                    site: $scope.site_panel_model.current_site.id,
+                    project_panel: $scope.site_panel_model.current_panel_template.id,
                     parameters: params,
                     site_panel_comments: ""
                 };
@@ -253,7 +250,7 @@ app.controller(
         'ParameterValueType',
         function ($scope, ParameterFunction, ParameterValueType) {
             // everything but bead functions
-            $scope.sample_upload_model.parameter_functions = [
+            $scope.site_panel_model.parameter_functions = [
                 ["FSC", "Forward Scatter"],
                 ["SSC", "Side Scatter"],
                 ["FCM", "Fluorochrome Conjugated Marker"],
@@ -264,102 +261,105 @@ app.controller(
                 ["TIM", "Time"],
                 ["NUL", "Null"]
             ];
-            $scope.sample_upload_model.parameter_value_types = ParameterValueType.query();
+            $scope.site_panel_model.parameter_value_types = ParameterValueType.query();
         }
     ]
 );
 
 
 app.controller(
-    'SitePanelCreationProjectPanelController',
-    ['$scope', 'ProjectPanel', function ($scope, ProjectPanel) {
-        $scope.$on('initSitePanel', function (o, f) {
-            $scope.close_modal = false;
-            $scope.sample_upload_model.current_project_panel = null;
+    'SitePanelCreationPanelTemplateController',
+    [
+        '$scope',
+        'Marker',
+        'Fluorochrome',
+        function ($scope, Marker, Fluorochrome) {
 
-            // get everything except bead templates
-            $scope.sample_upload_model.project_panels = ProjectPanel.query(
-                {
-                    project: $scope.current_project.id,
-                    staining: ['FS', 'US', 'FM', 'IS']
-                }
-            );
-            $scope.sample_upload_model.site_panel_sample = f;
+            $scope.$on('initSitePanel', function (o, f) {
+                $scope.site_panel_model = {};
+                $scope.close_modal = false;
+                $scope.site_panel_model.site_panel_sample = f;
+                $scope.site_panel_model.markers = Marker.query();
+                $scope.site_panel_model.fluorochromes = Fluorochrome.query();
+                $scope.site_panel_model.site_panel_errors = [];
+                $scope.site_panel_model.site_panel_valid = false;
 
-            $scope.sample_upload_model.site_panel_sample.channels.forEach(function (c) {
-                c.function = null;
-                c.errors = [];
+                $scope.site_panel_model.site_panel_sample.channels.forEach(function (c) {
+                    c.function = null;
+                    c.errors = [];
 
-                // Check the PnN field for 'FSC' or 'SSC'
-                if (c.pnn.substr(0, 3) == 'FSC') {
-                    c.function = 'FSC';
-                    c.marker_disabled = true;
-                    c.fluoro_disabled = true;
-                } else if (c.pnn.substr(0, 3) == 'SSC') {
-                    c.function = 'SSC';
-                    c.marker_disabled = true;
-                    c.fluoro_disabled = true;
-                } else if (c.pnn.substr(0, 4) == 'Time') {
-                    c.function = 'TIM';
-                    c.marker_disabled = true;
-                    c.fluoro_disabled = true;
-                    c.fluoro_disabled = true;
-                }
-
-                // Check the PnN field for value type using the last 2 letters
-                if (c.pnn.substr(-2) == '-A') {
-                    c.value_type = 'A';
-                } else if (c.pnn.substr(-2) == '-H') {
-                    c.value_type = 'H';
-                } else if (c.pnn.substr(-2) == '-W') {
-                    c.value_type = 'W';
-                } else if (c.pnn.substr(-2) == '-T' || c.pnn.substr(0, 4) == 'Time') {
-                    c.value_type = 'T';
-                }
-
-                c.markers = [];
-                if (!c.function) {
-                    var pattern = /\w+/g;
-                    var words = (c.pnn + ' ' + c.pns).match(pattern);
-
-                    // find matching markers
-                    $scope.sample_upload_model.markers.forEach(function(m) {
-                        words.forEach(function(w) {
-                            if (m.marker_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"") === w.replace(/[^A-Z,a-z,0-9]/g,"")) {
-                                c.markers.push(m.id.toString());
-                            }
-                        });
-                    });
-
-                    // for the fluorochromes, matching is a bit tricky b/c of tandem dyes
-                    // we'll need to check against the longest match in the entire
-                    // fcs_text first and then the words
-                    var fl_match = '';
-                    $scope.sample_upload_model.fluorochromes.forEach(function(f) {
-                        // strip out non-alphanumeric chars
-                        fluoro_str = f.fluorochrome_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"");
-                        pnn_str = c.pnn.replace(/[^A-Z,a-z,0-9]/g,"");
-                        pns_str = c.pns.replace(/[^A-Z,a-z,0-9]/g,"");
-
-                        if (pnn_str.indexOf(fluoro_str) >= 0) {
-                            if (fluoro_str.length > fl_match.length) {
-                                fl_match = fluoro_str;
-                                c.fluorochrome = f.id;
-                            }
-                        } else if (pns_str.indexOf(fluoro_str) >= 0) {
-                            if (fluoro_str.length > fl_match.length) {
-                                fl_match = fluoro_str;
-                                c.fluorochrome = f.id;
-                            }
-                        }
-                    });
-
-                    if (c.markers.length > 0 && c.fluorochrome != null) {
-                        c.function = 'FCM';
+                    // Check the PnN field for 'FSC' or 'SSC'
+                    if (c.pnn.substr(0, 3) == 'FSC') {
+                        c.function = 'FSC';
+                        c.marker_disabled = true;
+                        c.fluoro_disabled = true;
+                    } else if (c.pnn.substr(0, 3) == 'SSC') {
+                        c.function = 'SSC';
+                        c.marker_disabled = true;
+                        c.fluoro_disabled = true;
+                    } else if (c.pnn.substr(0, 4) == 'Time') {
+                        c.function = 'TIM';
+                        c.marker_disabled = true;
+                        c.fluoro_disabled = true;
+                        c.fluoro_disabled = true;
                     }
 
-                }
+                    // Check the PnN field for value type using the last 2 letters
+                    if (c.pnn.substr(-2) == '-A') {
+                        c.value_type = 'A';
+                    } else if (c.pnn.substr(-2) == '-H') {
+                        c.value_type = 'H';
+                    } else if (c.pnn.substr(-2) == '-W') {
+                        c.value_type = 'W';
+                    } else if (c.pnn.substr(-2) == '-T' || c.pnn.substr(0, 4) == 'Time') {
+                        c.value_type = 'T';
+                    }
+
+                    c.markers = [];
+                    if (!c.function) {
+                        var pattern = /\w+/g;
+                        var words = (c.pnn + ' ' + c.pns).match(pattern);
+
+                        // find matching markers
+                        $scope.site_panel_model.markers.forEach(function(m) {
+                            words.forEach(function(w) {
+                                if (m.marker_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"") === w.replace(/[^A-Z,a-z,0-9]/g,"")) {
+                                    c.markers.push(m.id.toString());
+                                }
+                            });
+                        });
+
+                        // for the fluorochromes, matching is a bit tricky b/c of tandem dyes
+                        // we'll need to check against the longest match in the entire
+                        // fcs_text first and then the words
+                        var fl_match = '';
+                        $scope.site_panel_model.fluorochromes.forEach(function(f) {
+                            // strip out non-alphanumeric chars
+                            fluoro_str = f.fluorochrome_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"");
+                            pnn_str = c.pnn.replace(/[^A-Z,a-z,0-9]/g,"");
+                            pns_str = c.pns.replace(/[^A-Z,a-z,0-9]/g,"");
+
+                            if (pnn_str.indexOf(fluoro_str) >= 0) {
+                                if (fluoro_str.length > fl_match.length) {
+                                    fl_match = fluoro_str;
+                                    c.fluorochrome = f.id;
+                                }
+                            } else if (pns_str.indexOf(fluoro_str) >= 0) {
+                                if (fluoro_str.length > fl_match.length) {
+                                    fl_match = fluoro_str;
+                                    c.fluorochrome = f.id;
+                                }
+                            }
+                        });
+
+                        if (c.markers.length > 0 && c.fluorochrome != null) {
+                            c.function = 'FCM';
+                        }
+
+                    }
+                });
+                $scope.$broadcast('validatePanel');
             });
-        });
-    }
-]);
+        }
+    ]
+);

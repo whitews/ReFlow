@@ -21,10 +21,18 @@ app.controller(
 ]);
 
 app.controller(
-    'SitePanelQueryController',
-    ['$scope', 'SitePanel', function ($scope, SitePanel) {
+    'PanelTemplateQueryController',
+    ['$scope', 'PanelTemplate', 'SitePanel', function ($scope, PanelTemplate, SitePanel) {
         // everything but bead panels
         var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
+
+        // get panel templates
+        $scope.sample_upload_model.panel_templates = PanelTemplate.query(
+            {
+                project: $scope.current_project.id,
+                staining: PANEL_TYPES
+            }
+        );
 
         $scope.$on('siteChangedEvent', function () {
             $scope.sample_upload_model.site_panels = SitePanel.query(
@@ -34,23 +42,16 @@ app.controller(
                         panel_type: PANEL_TYPES
                     }
                 );
-            $scope.sample_upload_model.current_site_panel = null;
         });
         $scope.$on('updateSitePanels', function (evt, id) {
             $scope.sample_upload_model.site_panels = SitePanel.query(
-                    {
-                        project: $scope.current_project.id,
-                        site: $scope.sample_upload_model.current_site.id,
-                        panel_type: PANEL_TYPES
-                    }
-                );
-            $scope.sample_upload_model.site_panels.$promise.then(function (o) {
-                for (var i = 0; i < o.length; i++) {
-                    if (o[i].id === id) {
-                        $scope.sample_upload_model.current_site_panel = o[i];
-                        break;
-                    }
+                {
+                    project: $scope.current_project.id,
+                    site: $scope.sample_upload_model.current_site.id,
+                    panel_type: PANEL_TYPES
                 }
+            );
+            $scope.sample_upload_model.site_panels.$promise.then(function (o) {
                 $scope.evaluateParameterMatch();
             });
         });
@@ -113,7 +114,13 @@ app.controller(
 
         $scope.evaluateParameterMatch = function () {
             for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
-                file_matches_panel(i, $scope.sample_upload_model.current_site_panel, true);
+                for (var j = 0; $scope.sample_upload_model.site_panels.length; j++) {
+                    if (file_matches_panel(i, $scope.sample_upload_model.site_panels[j])) {
+                        $scope.sample_upload_model.file_queue[i].site_panel = $scope.sample_upload_model.site_panels[j];
+                        break;
+                    }
+                }
+
             }
         };
 
@@ -148,7 +155,7 @@ app.controller(
 
         function verifyCategories() {
             return $scope.sample_upload_model.current_cytometer &&
-                $scope.sample_upload_model.current_site_panel &&
+                $scope.sample_upload_model.current_panel_template &&
                 $scope.sample_upload_model.current_subject &&
                 $scope.sample_upload_model.current_visit &&
                 $scope.sample_upload_model.current_stimulation &&
@@ -158,21 +165,9 @@ app.controller(
         }
 
         // site panel matching
-        function file_matches_panel(file_index, site_panel, flag_errors) {
-            if (flag_errors) {
-                $scope.sample_upload_model.file_queue[file_index].errors = [];
-            }
-
+        function file_matches_panel(file_index, site_panel) {
             // first make sure the number of params is the same
             if ($scope.sample_upload_model.file_queue[file_index].channels.length != site_panel.parameters.length) {
-                if (flag_errors) {
-                    $scope.sample_upload_model.file_queue[file_index].errors.push(
-                        {
-                            'key': 'Incompatible site panel',
-                            'value': "The number of parameters in chosen site panel and FCS file are not equal."
-                        }
-                    );
-                }
                 return false;
             }
 
@@ -210,14 +205,6 @@ app.controller(
             }
 
             if (mismatches.length > 0) {
-                if (flag_errors) {
-                    $scope.sample_upload_model.file_queue[file_index].errors.push(
-                        {
-                            'key': 'Incompatible site panel',
-                            'value': mismatches.join('<br />')
-                        }
-                    );
-                }
                 return false;
             }
             return true;
@@ -226,26 +213,15 @@ app.controller(
 
         // notify other controllers we want to start creating a site panel
         $scope.initSitePanel = function(f) {
-            $scope.$broadcast('initSitePanel', f);
-        };
-
-        $scope.open_site_panel_mismatch_modal = function (f) {
-            f.matching_panels = [];
-            $scope.sample_upload_model.site_panels.forEach(function (panel) {
-                if (file_matches_panel($scope.sample_upload_model.file_queue.indexOf(f), panel, false)) {
-                    f.matching_panels.push(panel);
-                }
-            });
-
-            var modalInstance = $modal.open({
-                templateUrl: 'sitePanelMismatchModal.html',
-                controller: ModalInstanceCtrl,
-                resolve: {
-                    file: function() {
-                        return f;
-                    }
-                }
-            });
+            // a little confusing but we want to trigger the site panel creation
+            // only when the user just selected the checkbox, so the selected
+            // field will still be false for this case
+            if (f.site_panel == null && f.selected == false) {
+                $modal.open({
+                    templateUrl: 'static/ng-app/partials/create_site_panel.html'
+                });
+                $scope.$broadcast('initSitePanel', f);
+            }
         };
 
         $scope.open_error_modal = function (f) {
@@ -414,8 +390,15 @@ app.controller(
                 // Using $apply here to trigger template update
                 $scope.$apply(function () {
                     $scope.sample_upload_model.file_queue.push(obj);
-                    if ($scope.sample_upload_model.current_site_panel != null) {
-                        file_matches_panel($scope.sample_upload_model.file_queue.length - 1, $scope.sample_upload_model.current_site_panel, true);
+                    if ($scope.sample_upload_model.current_panel_template != null) {
+                        // loop over site panels to find and set match
+                        $scope.sample_upload_model.site_panels.forEach(function (panel) {
+                            file_matches_panel(
+                                $scope.sample_upload_model.file_queue.length - 1,
+                                panel
+                            );
+
+                        });
                     }
                 });
             });
@@ -455,13 +438,12 @@ app.controller(
                         return false;
                     }
 
-                    // verify panel matches
-                    if (!file_matches_panel(i, $scope.sample_upload_model.current_site_panel, true)) {
+                    // verify site panel matches TODO: is this necessary
+                    if (!file_matches_panel(i, $scope.sample_upload_model.file_queue[i].site_panel)) {
                         continue;
                     }
 
                     // populate the file object properties
-                    $scope.sample_upload_model.file_queue[i].site_panel = $scope.sample_upload_model.current_site_panel;
                     $scope.sample_upload_model.file_queue[i].cytometer = $scope.sample_upload_model.current_cytometer;
                     $scope.sample_upload_model.file_queue[i].subject = $scope.sample_upload_model.current_subject;
                     $scope.sample_upload_model.file_queue[i].visit_type = $scope.sample_upload_model.current_visit;

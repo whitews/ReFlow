@@ -196,12 +196,12 @@ app.controller(
 
 
 app.controller(
-    'SitePanelCreationProjectPanelController',
-    ['$scope', 'ProjectPanel', function ($scope, ProjectPanel) {
+    'SitePanelCreationPanelTemplateController',
+    ['$scope', 'PanelTemplate', function ($scope, PanelTemplate) {
         $scope.$on('initSitePanel', function (o, f) {
             $scope.model.close_modal = false;
             $scope.model.current_project_panel = null;
-            $scope.model.project_panels = ProjectPanel.query(
+            $scope.model.project_panels = PanelTemplate.query(
                 {
                     project: $scope.model.current_project.id,
                     staining: 'CB'

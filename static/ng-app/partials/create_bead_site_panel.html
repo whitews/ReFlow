@@ -15,7 +15,7 @@
             <div class="well">
               Choose a Panel Template:
 
-              <div ng-controller="SitePanelCreationProjectPanelController">
+              <div ng-controller="SitePanelCreationPanelTemplateController">
                 <select class="form-control" ng-model="model.current_project_panel" ng-change="validatePanel()" ng-required="true" ng-options="p.panel_name for p in model.project_panels">
                 </select>
                 <br/>

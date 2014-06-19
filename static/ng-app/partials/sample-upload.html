@@ -11,7 +11,7 @@
                   <td><strong>Site:</strong></td>
                   <td>
                     <div ng-controller="SiteQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
+                      <select class="form-control width-200" ng-model="sample_upload_model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
                       </select>
                       </div>
                   </td>
@@ -26,10 +26,10 @@
                   </td>
               </tr>
               <tr>
-                  <td><strong>Site Panel:</strong></td>
+                  <td><strong>Panel:</strong></td>
                   <td>
-                    <div ng-controller="SitePanelQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_site_panel" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.site_panels.length == 0" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="s.name for s in sample_upload_model.site_panels">
+                    <div ng-controller="PanelTemplateQueryController">
+                      <select class="form-control" ng-model="sample_upload_model.current_panel_template" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="p.panel_name for p in sample_upload_model.panel_templates">
                       </select>
                     </div>
                   </td>
@@ -108,7 +108,13 @@
               </tr>
               <tr>
                 <th style="width:1%;">
+                  <div ng-controller="SitePanelCreationPanelTemplateController">
+
+                  <div ng-controller="SitePanelController">
                   <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
+
+                  </div>
+                    </div>
                 </th>
                 <th>File Name</th>
                 <th>Size</th>
@@ -119,39 +125,7 @@
             <tbody>
               <tr data-ng-repeat="f in sample_upload_model.file_queue">
                 <td class="no-wrap align-middle">
-                  <input type="checkbox" ng-model="f.selected" />
-
-                  <script type="text/ng-template" id="sitePanelMismatchModal.html">
-                      <div class="modal-header">
-                          <h3>Incompatible site panel for {{ file.filename }}</h3>
-                      </div>
-                      <div class="modal-body">
-                          <div class="text-warning">
-                            <ul>
-                              <li data-ng-repeat="error in file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
-                            </ul>
-                          </div>
-                          <div class="alert alert-info">
-                            <div ng-show="file.matching_panels.length > 0">
-                              The following site panels match this file's annotation:
-                              <ul>
-                                <li ng-repeat="panel in file.matching_panels">{{ panel.name }}</li>
-                              </ul>
-                            </div>
-                            <div ng-show="file.matching_panels.length == 0">
-                            There are no site panels in the chosen site that match this file.
-                            </div>
-                            <p>To create a new panel, choose <strong><em>Create Site Panel</em></strong> from the file's drop-down menu.</p>
-                          </div>
-                      </div>
-
-                      <div class="modal-footer">
-                          <button class="btn btn-primary" ng-click="ok()">OK</button>
-                      </div>
-                  </script>
-                  <button data-ng-show="f.errors.length > 0" data-ng-click="open_site_panel_mismatch_modal(f)" class="btn btn-default btn-xs">
-                    <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
-                  </button>
+                  <input type="checkbox" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.current_panel_template == null" ng-model="f.selected" ng-click="initSitePanel(f)" />
                 </td>
                 <td class="align-middle">
 
@@ -197,9 +171,6 @@
                           <button class="btn btn-primary" ng-click="ok()">OK</button>
                       </div>
                   </script>
-                  <div ng-controller="SitePanelController">
-                    <div ng-include="sample_upload_model.site_panel_url"></div>
-                  </div>
 
                   <li class="list-unstyled dropdown">
                     <a href="#" class="dropdown-toggle no-wrap">
@@ -211,12 +182,6 @@
                       </li>
                       <li class="btn-link">
                         <a data-ng-click="open_channels_modal(f)">View Channels</a>
-                      </li>
-                      <li class="divider" ng-hide="sample_upload_model.current_site == null"></li>
-                        <li class="btn-link" ng-hide="sample_upload_model.current_site == null">
-                          <a data-toggle="modal" ng-hide="sample_upload_model.current_site == null" data-target="#sitePanelModal" ng-click="initSitePanel(f)">
-                            Create Site Panel
-                          </a>
                       </li>
                       <li class="divider"></li>
                       <li class="btn-link">
