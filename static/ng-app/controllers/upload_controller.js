@@ -148,7 +148,6 @@ app.controller(
 
         function verifyCategories() {
             return $scope.sample_upload_model.current_cytometer &&
-                $scope.current_acquisition_date &&
                 $scope.sample_upload_model.current_site_panel &&
                 $scope.sample_upload_model.current_subject &&
                 $scope.sample_upload_model.current_visit &&
@@ -355,7 +354,13 @@ app.controller(
                     var index = null;
 
                     if (date_result) {
-                        obj.date = non_paired_list[i+1];
+                        // Try to parse into JS Date
+                        var date = new Date(non_paired_list[i+1]);
+                        if (isNaN(date)) {
+                            obj.acquisition_date = null;
+                        } else {
+                            obj.acquisition_date = date;
+                        }
                     }
 
                     if (pnn_result) {
@@ -420,14 +425,10 @@ app.controller(
         }
 
         $scope.onFileSelect = function($files) {
-
-            $scope.current_acquisition_date = "";
-
             for (var i = 0; i < $files.length; i++) {
                 setupReader({
                     filename: $files[i].name,
                     file: $files[i],
-                    date: "",
                     metadata: {},
                     selected: false,
                     progress: 0,
@@ -450,7 +451,7 @@ app.controller(
             for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
                 if ($scope.sample_upload_model.file_queue[i].selected) {
                     // ensure all the category fields have data
-                    if (! verifyCategories()) {
+                    if (! verifyCategories() || ! $scope.sample_upload_model.file_queue[i].acquisition_date) {
                         return false;
                     }
 
@@ -460,7 +461,6 @@ app.controller(
                     }
 
                     // populate the file object properties
-                    $scope.sample_upload_model.file_queue[i].acquisition_date = $scope.current_acquisition_date;
                     $scope.sample_upload_model.file_queue[i].site_panel = $scope.sample_upload_model.current_site_panel;
                     $scope.sample_upload_model.file_queue[i].cytometer = $scope.sample_upload_model.current_cytometer;
                     $scope.sample_upload_model.file_queue[i].subject = $scope.sample_upload_model.current_subject;
@@ -518,7 +518,6 @@ app.controller(
         $scope.recategorizeFile = function(f) {
 
             // clear the file object properties
-            f.acquisition_date = null;
             f.site_panel = null;
             f.cytometer = null;
             f.subject = null;

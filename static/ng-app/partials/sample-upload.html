@@ -228,7 +228,7 @@
                 <td class="align-middle">{{ f.file.size | bytes }}</td>
                 <td class="align-middle">{{ f.channels.length }}</td>
                 <td class="align-middle">
-                  <input type="text" class="form-control" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="f.date" is-open="opened" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                  <input type="text" class="form-control" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="opened" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
                 </td>
               </tr>
             </tbody>
