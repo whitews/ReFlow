@@ -64,6 +64,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbParent: 'subject-group-list'
         }
     }).state({
+        name: 'subject-group-edit',
+        url: '/subject-groups/edit',
+        templateUrl: '/static/ng-app/partials/subject-group-add.html',
+        controller: 'SubjectGroupController',
+        data: {
+            ncyBreadcrumbLabel: 'Edit',
+            ncyBreadcrumbParent: 'subject-group-list'
+        }
+    }).state({
         name: 'subject-list',
         url: '/subjects/',
         templateUrl: '/static/ng-app/partials/subject-list.html',

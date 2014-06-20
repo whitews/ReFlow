@@ -92,7 +92,6 @@ urlpatterns = patterns('repository.api_views',
 # Angular web routes
 urlpatterns += patterns('repository.views',
     url(r'^$', 'reflow_app', name='home'),
-    url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
     url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
     url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
     url(r'^panel_templates/$', 'panel_template_app', name='panel_template_app'),
@@ -149,7 +148,6 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/site_panels/$', 'view_project_site_panels', name='view_project_site_panels'),
     url(r'^site_panel/(?P<panel_id>\d+)/edit/$', 'edit_site_panel_comments', name='edit_site_panel_comments'),
 
-    url(r'^project/(?P<project_id>\d+)/subject_groups/$', 'view_subject_groups', name='subject_groups'),
     url(r'^project/(?P<project_id>\d+)/subject_groups/add/$', 'add_subject_group', name='add_subject_group'),
     url(r'^project/(?P<project_id>\d+)/subject_groups/(?P<subject_group_id>\d+)/edit/$', 'edit_subject_group', name='edit_subject_group'),
 

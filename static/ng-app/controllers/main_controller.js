@@ -43,6 +43,12 @@ app.controller(
             $scope.can_add_data = false;
             $scope.can_manage_users = false;
 
+            if ($scope.current_project.permissions.indexOf('view_project_data')) {
+                $scope.can_view_project = true;
+            }
+            if ($scope.current_project.permissions.indexOf('add_project_data')) {
+                $scope.can_add_data = true;
+            }
             if ($scope.current_project.permissions.indexOf('modify_project_data')) {
                 $scope.can_modify_project = true;
             }
@@ -86,8 +92,15 @@ app.controller(
 
 app.controller(
     'SubjectGroupController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
+    ['$scope', '$controller', 'ModelService', 'SubjectGroup', function ($scope, $controller, ModelService, SubjectGroup) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.subject_groups = SubjectGroup.query(
+            {
+                'project': $scope.current_project.id
+            }
+        );
     }
 ]);
 

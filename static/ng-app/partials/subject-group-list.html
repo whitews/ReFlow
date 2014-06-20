@@ -1,1 +1,37 @@
-Hello!
+<div ng-controller="SubjectGroupController">
+
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Subject Groups <span class="badge badge-inverse align-top">{{ subject_groups.length }}</span></h4>
+
+              <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ui-sref="subject-group-add">
+                      Add Subject Group
+                  </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Group Name</th>
+          <th>Group Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="group in subject_groups">
+          <td width="1%">
+              <a class="btn btn-default btn-xs" rel="tooltip" ng-show="can_modify_project" ui-sref="subject-group-edit" data-original-title="Edit" data-placement="bottom">
+                <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
+              </a>
+          </td>
+          <td>{{ group.group_name }}</td>
+          <td>{{ group.group_description }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+</div>
