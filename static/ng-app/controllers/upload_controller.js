@@ -409,14 +409,14 @@ app.controller(
                 // Using $apply here to trigger template update
                 $scope.$apply(function () {
                     $scope.sample_upload_model.file_queue.push(obj);
-                    if ($scope.sample_upload_model.current_panel_template != null) {
-                        // loop over site panels to find and set match
+                    // loop over site panels to find and set match
+                    if ($scope.sample_upload_model.site_panels.length > 0) {
                         $scope.sample_upload_model.site_panels.forEach(function (panel) {
-                            file_matches_panel(
-                                $scope.sample_upload_model.file_queue.length - 1,
-                                panel
-                            );
+                            var obj_index = $scope.sample_upload_model.file_queue.length - 1;
 
+                            if (file_matches_panel(obj_index, panel)) {
+                                obj.site_panel = panel;
+                            }
                         });
                     }
                 });
