@@ -105,7 +105,7 @@ app.controller(
 
 app.controller(
     'CategorizationController',
-    ['$scope', '$modal', function ($scope, $modal) {
+    ['$scope', '$modal', 'ModelService', function ($scope, $modal, ModelService) {
         $scope.sample_upload_model.file_queue = [];
         $scope.sample_upload_model.site_panel_url = '/static/ng-app/partials/create_site_panel.html';
 
@@ -217,17 +217,22 @@ app.controller(
             // only when the user just selected the checkbox, so the selected
             // field will still be false for this case
             if (f.site_panel == null && f.selected == false) {
-                // notify other controllers we want to start
-                // creating a site panel
-                 $modal.open({
-                     templateUrl: 'static/ng-app/partials/create_site_panel.html',
-                     controller: 'SitePanelModalController',
-                     resolve: {
-                         file: function () {
-                             return f;
-                         }
-                     }
-                 });
+                // set global current sample
+                ModelService.setCurrentSite($scope.sample_upload_model.current_site);
+                ModelService.setCurrentSample(f);
+                ModelService.setCurrentPanelTemplate($scope.sample_upload_model.current_panel_template);
+
+                // launch site panel creation modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/create_site_panel.html',
+                    controller: ModalInstanceCtrl,
+                    size: 'lg',
+                    resolve: {
+                        file: function() {
+                            return f;
+                        }
+                    }
+                });
             }
         };
 
@@ -672,12 +677,4 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, file) {
     $scope.ok = function () {
         $modalInstance.close();
     };
-};
-
-var SitePanelModalController = function ($scope, $modalInstance, file) {
-    $scope.file = file;
-    $scope.ok = function () {
-        $modalInstance.close();
-    };
-    $scope.$broadcast('initSitePanel', file);
 };
