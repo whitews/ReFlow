@@ -34,22 +34,22 @@ app.controller(
             }
         );
 
-        $scope.$on('siteChangedEvent', function () {
-            $scope.sample_upload_model.site_panels = SitePanel.query(
-                    {
-                        project: $scope.current_project.id,
-                        site: $scope.sample_upload_model.current_site.id,
-                        panel_type: PANEL_TYPES
-                    }
-                );
-        });
         $scope.$on('updateSitePanels', function (evt, id) {
+            var site_panel_query = {
+                project: $scope.current_project.id,
+                panel_type: PANEL_TYPES
+            };
+
+            if ($scope.sample_upload_model.current_panel_template) {
+                site_panel_query.site = $scope.sample_upload_model.current_site.id;
+            }
+
+            if ($scope.sample_upload_model.current_panel_template) {
+                site_panel_query.project_panel = $scope.sample_upload_model.current_panel_template.id;
+            }
+
             $scope.sample_upload_model.site_panels = SitePanel.query(
-                {
-                    project: $scope.current_project.id,
-                    site: $scope.sample_upload_model.current_site.id,
-                    panel_type: PANEL_TYPES
-                }
+                site_panel_query
             );
             $scope.sample_upload_model.site_panels.$promise.then(function (o) {
                 $scope.evaluateParameterMatch();
@@ -111,10 +111,14 @@ app.controller(
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
+            $scope.$broadcast('updateSitePanels');
         };
 
         $scope.evaluateParameterMatch = function () {
             for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
+                // Reset the file's site panel
+                $scope.sample_upload_model.file_queue[i].site_panel = null;
+
                 for (var j = 0; j < $scope.sample_upload_model.site_panels.length; j++) {
                     if (file_matches_panel(i, $scope.sample_upload_model.site_panels[j])) {
                         $scope.sample_upload_model.file_queue[i].site_panel = $scope.sample_upload_model.site_panels[j];
