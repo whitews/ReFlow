@@ -107,6 +107,7 @@ app.controller(
     'CategorizationController',
     ['$scope', '$modal', function ($scope, $modal) {
         $scope.sample_upload_model.file_queue = [];
+        $scope.sample_upload_model.site_panel_url = '/static/ng-app/partials/create_site_panel.html';
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
@@ -114,7 +115,7 @@ app.controller(
 
         $scope.evaluateParameterMatch = function () {
             for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
-                for (var j = 0; $scope.sample_upload_model.site_panels.length; j++) {
+                for (var j = 0; j < $scope.sample_upload_model.site_panels.length; j++) {
                     if (file_matches_panel(i, $scope.sample_upload_model.site_panels[j])) {
                         $scope.sample_upload_model.file_queue[i].site_panel = $scope.sample_upload_model.site_panels[j];
                         break;
@@ -211,16 +212,22 @@ app.controller(
         }
 
 
-        // notify other controllers we want to start creating a site panel
         $scope.initSitePanel = function(f) {
             // a little confusing but we want to trigger the site panel creation
             // only when the user just selected the checkbox, so the selected
             // field will still be false for this case
             if (f.site_panel == null && f.selected == false) {
-                $modal.open({
-                    templateUrl: 'static/ng-app/partials/create_site_panel.html'
-                });
-                $scope.$broadcast('initSitePanel', f);
+                // notify other controllers we want to start
+                // creating a site panel
+                 $modal.open({
+                     templateUrl: 'static/ng-app/partials/create_site_panel.html',
+                     controller: 'SitePanelModalController',
+                     resolve: {
+                         file: function () {
+                             return f;
+                         }
+                     }
+                 });
             }
         };
 
@@ -665,4 +672,12 @@ var ModalInstanceCtrl = function ($scope, $modalInstance, file) {
     $scope.ok = function () {
         $modalInstance.close();
     };
+};
+
+var SitePanelModalController = function ($scope, $modalInstance, file) {
+    $scope.file = file;
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+    $scope.$broadcast('initSitePanel', file);
 };

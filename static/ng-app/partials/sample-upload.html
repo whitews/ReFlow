@@ -108,13 +108,7 @@
               </tr>
               <tr>
                 <th style="width:1%;">
-                  <div ng-controller="SitePanelCreationPanelTemplateController">
-
-                  <div ng-controller="SitePanelController">
                   <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
-
-                  </div>
-                    </div>
                 </th>
                 <th>File Name</th>
                 <th>Size</th>
@@ -125,6 +119,9 @@
             <tbody>
               <tr data-ng-repeat="f in sample_upload_model.file_queue">
                 <td class="no-wrap align-middle">
+                  <div ng-controller="SitePanelCreationPanelTemplateController">
+                    <div ng-include="sample_upload_model.site_panel_url"></div>
+                  </div>
                   <input type="checkbox" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.current_panel_template == null" ng-model="f.selected" ng-click="initSitePanel(f)" />
                 </td>
                 <td class="align-middle">
