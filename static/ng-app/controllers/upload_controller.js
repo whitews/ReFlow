@@ -143,16 +143,19 @@ app.controller(
             $scope.dt = null;
         };
 
-        $scope.open = function($event) {
+        $scope.open = function($event, f) {
             $event.preventDefault();
             $event.stopPropagation();
 
-            $scope.opened = true;
+            var f_index = $scope.sample_upload_model.file_queue.indexOf(f);
+
+            $scope.sample_upload_model.file_queue[f_index].datepicker_open = true;
         };
 
         $scope.dateOptions = {
             'year-format': "'yy'",
-            'starting-day': 1
+            'starting-day': 1,
+            'show-weeks': false
         };
 
         $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'shortDate'];
@@ -428,6 +431,7 @@ app.controller(
                 setupReader({
                     filename: $files[i].name,
                     file: $files[i],
+                    datepicker_open: false,
                     metadata: {},
                     selected: false,
                     progress: 0,

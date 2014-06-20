@@ -111,9 +111,9 @@
                   <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
                 </th>
                 <th>File Name</th>
-                <th>Size</th>
-                <th>Channels</th>
                 <th>Date</th>
+                <th>Channels</th>
+                <th>Size</th>
               </tr>
             </thead>
             <tbody>
@@ -184,11 +184,11 @@
                     </ul>
                   </li>
                 </td>
-                <td class="align-middle">{{ f.file.size | bytes }}</td>
-                <td class="align-middle">{{ f.channels.length }}</td>
                 <td class="align-middle">
-                  <input type="text" class="form-control" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="opened" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                  <input type="text" class="form-control" ng-click="open($event, f)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="f.datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
                 </td>
+                <td class="align-middle">{{ f.channels.length }}</td>
+                <td class="align-middle">{{ f.file.size | bytes }}</td>
               </tr>
             </tbody>
           </table>
