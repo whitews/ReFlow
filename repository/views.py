@@ -545,35 +545,6 @@ def copy_project_panel(request, project_id, panel_id=None):
 
 
 @login_required
-def view_subjects(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    user_sites = Site.objects.get_sites_user_can_view(
-        request.user,
-        project=project)
-
-    if not project.has_view_permission(request.user) and not (
-            user_sites.count() > 0):
-                raise PermissionDenied
-
-    subjects = Subject.objects.filter(project=project).order_by('subject_code')
-
-    can_add_project_data = project.has_add_permission(request.user)
-    can_modify_project_data = project.has_modify_permission(request.user)
-
-    return render_to_response(
-        'view_project_subjects.html',
-        {
-            'project': project,
-            'can_add_project_data': can_add_project_data,
-            'can_modify_project_data': can_modify_project_data,
-            'subjects': subjects,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def view_samples(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_view_sites = Site.objects.get_sites_user_can_view(
