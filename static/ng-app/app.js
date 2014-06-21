@@ -145,6 +145,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbParent: 'cytometer-list'
         }
     }).state({
+        name: 'cytometer-edit',
+        url: '/cytometers/edit',
+        templateUrl: '/static/ng-app/partials/cytometer-add.html',
+        controller: 'CytometerController',
+        data: {
+            ncyBreadcrumbLabel: 'Edit',
+            ncyBreadcrumbParent: 'cytometer-list'
+        }
+    }).state({
         name: 'visit-type-list',
         url: '/visit-types/',
         templateUrl: '/static/ng-app/partials/visit-type-list.html',

@@ -134,8 +134,15 @@ app.controller(
 
 app.controller(
     'CytometerController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
+    ['$scope', '$controller', 'Cytometer', function ($scope, $controller, Cytometer) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.cytometers = Cytometer.query(
+            {
+                'project': $scope.current_project.id
+            }
+        );
     }
 ]);
 
