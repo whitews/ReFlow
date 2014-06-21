@@ -129,7 +129,6 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/templates/$', 'view_project_panels', name='view_project_panels'),
     url(r'^project/(?P<project_id>\d+)/templates/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
 
-    url(r'^project/(?P<project_id>\d+)/sites/$', 'view_project_sites', name='view_project_sites'),
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
     url(r'^site/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
 
