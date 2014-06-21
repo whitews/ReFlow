@@ -4,17 +4,14 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import \
-    HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.forms.models import inlineformset_factory
 
 from guardian.shortcuts import assign_perm
 
 from repository.models import *
 from repository.forms import *
-from repository.panel_forms import *
 
 
 @login_required
