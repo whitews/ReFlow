@@ -548,21 +548,6 @@ def view_samples(request, project_id):
 
 
 @login_required
-def render_sample_parameters(request, sample_id):
-    sample = get_object_or_404(Sample, pk=sample_id)
-    if not sample.has_view_permission(request.user):
-        raise PermissionDenied
-
-    return render_to_response(
-        'render_sample_parameters.html',
-        {
-            'sample': sample
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def render_sample_compensation(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     if not sample.has_view_permission(request.user):
