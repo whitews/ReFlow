@@ -126,6 +126,10 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
     fluorochrome_abbreviation = serializers.CharField(
         source="fluorochrome.fluorochrome_abbreviation",
         read_only=True)
+    parameter_type_name = serializers.CharField(
+        source="get_parameter_type_display",
+        read_only=True
+    )
 
     class Meta:
         model = ProjectPanelParameter
@@ -133,6 +137,7 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'parameter_type',
+            'parameter_type_name',
             'parameter_value_type',
             'markers',
             'fluorochrome',
