@@ -1,1 +1,33 @@
-Hello!
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Visit Types <span class="badge badge-inverse align-top">{{ visit_types.length }}</span></h4>
+
+              <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ui-sref="visit-type-add">
+                      Add Visit Type
+                  </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Visit Name</th>
+          <th>Visit Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="visit_type in visit_types">
+          <td width="1%">
+              <a class="btn btn-default btn-xs" rel="tooltip" ng-show="can_modify_project" ui-sref="visit-type-edit" data-original-title="Edit" data-placement="bottom">
+                <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
+              </a>
+          </td>
+          <td>{{ visit_type.visit_type_name }}</td>
+          <td>{{ visit_type.visit_type_description }}</td>
+        </tr>
+      </tbody>
+    </table>

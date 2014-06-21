@@ -159,7 +159,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         templateUrl: '/static/ng-app/partials/visit-type-list.html',
         controller: 'VisitTypeController',
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
+            ncyBreadcrumbLabel: 'Visit Types',
             ncyBreadcrumbParent: 'project-detail'
         }
     }).state({
@@ -169,6 +169,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         controller: 'VisitTypeController',
         data: {
             ncyBreadcrumbLabel: 'Add',
+            ncyBreadcrumbParent: 'visit-type-list'
+        }
+    }).state({
+        name: 'visit-type-edit',
+        url: '/visit-types/edit',
+        templateUrl: '/static/ng-app/partials/visit-type-add.html',
+        controller: 'VisitTypeController',
+        data: {
+            ncyBreadcrumbLabel: 'Edit',
             ncyBreadcrumbParent: 'visit-type-list'
         }
     }).state({

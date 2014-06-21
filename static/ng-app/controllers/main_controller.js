@@ -148,8 +148,15 @@ app.controller(
 
 app.controller(
     'VisitTypeController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
+    ['$scope', '$controller', 'VisitType', function ($scope, $controller, VisitType) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.visit_types = VisitType.query(
+            {
+                'project': $scope.current_project.id
+            }
+        );
     }
 ]);
 
