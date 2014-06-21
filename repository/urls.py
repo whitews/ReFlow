@@ -132,7 +132,6 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
     url(r'^site/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
 
-    url(r'^project/(?P<project_id>\d+)/cytometers/$', 'view_project_cytometers', name='view_project_cytometers'),
     url(r'^project/(?P<project_id>\d+)/cytometers/add/$', 'add_cytometer', name='add_cytometer'),
     url(r'^project/(?P<project_id>\d+)/cytometers/(?P<cytometer_id>\d+)/edit/$', 'add_cytometer', name='edit_cytometer'),
 
