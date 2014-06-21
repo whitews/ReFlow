@@ -44,6 +44,7 @@ class SubjectSerializer(serializers.ModelSerializer):
     subject_group_name = serializers.CharField(
         source='subject_group.group_name',
         read_only=True)
+    sample_count = serializers.IntegerField(source='sample_set.count', read_only=True)
 
     class Meta:
         model = Subject
@@ -54,7 +55,9 @@ class SubjectSerializer(serializers.ModelSerializer):
             'subject_group',
             'subject_group_name',
             'batch_control',
-            'project',)
+            'project',
+            'sample_count'
+        )
 
 
 class MarkerSerializer(serializers.ModelSerializer):

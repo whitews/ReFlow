@@ -92,7 +92,7 @@ app.controller(
 
 app.controller(
     'SubjectGroupController',
-    ['$scope', '$controller', 'ModelService', 'SubjectGroup', function ($scope, $controller, ModelService, SubjectGroup) {
+    ['$scope', '$controller', 'SubjectGroup', function ($scope, $controller, SubjectGroup) {
         // Inherits ProjectDetailController $scope
         $controller('ProjectDetailController', {$scope: $scope});
 
@@ -106,8 +106,15 @@ app.controller(
 
 app.controller(
     'SubjectController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
+    ['$scope', '$controller', 'Subject', function ($scope, $controller, Subject) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.subjects = Subject.query(
+            {
+                'project': $scope.current_project.id
+            }
+        );
     }
 ]);
 

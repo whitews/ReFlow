@@ -78,7 +78,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         templateUrl: '/static/ng-app/partials/subject-list.html',
         controller: 'SubjectController',
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
+            ncyBreadcrumbLabel: 'Subjects',
             ncyBreadcrumbParent: 'project-detail'
         }
     }).state({
@@ -88,6 +88,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         controller: 'SubjectController',
         data: {
             ncyBreadcrumbLabel: 'Add',
+            ncyBreadcrumbParent: 'subject-list'
+        }
+    }).state({
+        name: 'subject-edit',
+        url: '/subjects/edit',
+        templateUrl: '/static/ng-app/partials/subject-add.html',
+        controller: 'SubjectController',
+        data: {
+            ncyBreadcrumbLabel: 'Edit',
             ncyBreadcrumbParent: 'subject-list'
         }
     }).state({
