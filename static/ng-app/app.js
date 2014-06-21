@@ -186,7 +186,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         templateUrl: '/static/ng-app/partials/stimulation-list.html',
         controller: 'StimulationController',
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
+            ncyBreadcrumbLabel: 'Stimulations',
             ncyBreadcrumbParent: 'project-detail'
         }
     }).state({
@@ -196,6 +196,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         controller: 'StimulationController',
         data: {
             ncyBreadcrumbLabel: 'Add',
+            ncyBreadcrumbParent: 'stimulation-list'
+        }
+    }).state({
+        name: 'stimulation-edit',
+        url: '/stimulations/edit',
+        templateUrl: '/static/ng-app/partials/stimulation-add.html',
+        controller: 'StimulationController',
+        data: {
+            ncyBreadcrumbLabel: 'Edit',
             ncyBreadcrumbParent: 'stimulation-list'
         }
     }).state({

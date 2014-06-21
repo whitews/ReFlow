@@ -162,8 +162,15 @@ app.controller(
 
 app.controller(
     'StimulationController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
+    ['$scope', '$controller', 'Stimulation', function ($scope, $controller, Stimulation) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.stimulations = Stimulation.query(
+            {
+                'project': $scope.current_project.id
+            }
+        );
     }
 ]);
 
