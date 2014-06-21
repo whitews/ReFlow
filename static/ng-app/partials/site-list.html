@@ -1,1 +1,39 @@
-Hello!
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Sites <span class="badge badge-inverse align-top">{{ sites.length }}</span></h4>
+
+              <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ui-sref="site-add">
+                      Add Site
+                  </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+        <th>Site</th>
+        <th>Cytometers</th>
+        <th>FCS Sample Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="site in sites">
+          <td width="1%">
+              <a class="btn btn-default btn-xs" rel="tooltip" ng-show="can_modify_project" ui-sref="site-edit" data-original-title="Edit" data-placement="bottom">
+                <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
+              </a>
+          </td>
+          <td>{{ site.site_name }}</td>
+          <td>
+            <ul class="list-unstyled">
+              <li ng-repeat="cytometer in site.cytometers">{{ cytometer.cytometer_name }}</li>
+            </ul>
+          </td>
+          <td>{{ site.sample_count }}</td>
+        </tr>
+      </tbody>
+    </table>

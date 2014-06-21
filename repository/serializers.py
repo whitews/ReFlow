@@ -29,13 +29,38 @@ class SubjectGroupSerializer(serializers.ModelSerializer):
         model = SubjectGroup
 
 
+class CytometerFlatSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
+
+    class Meta:
+        model = Cytometer
+        fields = (
+            'id',
+            'url',
+            'cytometer_name',
+            'serial_number'
+        )
+
+
 class SiteSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(source='project')
     url = serializers.HyperlinkedIdentityField(view_name='site-detail')
+    cytometers = CytometerFlatSerializer(source='cytometer_set')
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
 
     class Meta:
         model = Site
-        fields = ('id', 'url', 'site_name', 'project')
+        fields = (
+            'id',
+            'url',
+            'site_name',
+            'cytometers',
+            'project',
+            'sample_count'
+        )
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -44,7 +69,10 @@ class SubjectSerializer(serializers.ModelSerializer):
     subject_group_name = serializers.CharField(
         source='subject_group.group_name',
         read_only=True)
-    sample_count = serializers.IntegerField(source='sample_set.count', read_only=True)
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Subject
@@ -208,7 +236,8 @@ class CytometerSerializer(serializers.ModelSerializer):
             'site',
             'site_name',
             'cytometer_name',
-            'serial_number')
+            'serial_number'
+        )
 
 
 class StimulationSerializer(serializers.ModelSerializer):

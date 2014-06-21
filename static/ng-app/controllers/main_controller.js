@@ -120,8 +120,15 @@ app.controller(
 
 app.controller(
     'SiteController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
+    ['$scope', '$controller', 'Site', function ($scope, $controller, Site) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.sites = Site.query(
+            {
+                'project': $scope.current_project.id
+            }
+        );
     }
 ]);
 
