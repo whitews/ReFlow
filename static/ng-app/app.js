@@ -213,7 +213,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         templateUrl: '/static/ng-app/partials/panel-template-list.html',
         controller: 'PanelTemplateController',
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
+            ncyBreadcrumbLabel: 'Panel Templates',
             ncyBreadcrumbParent: 'project-detail'
         }
     }).state({
@@ -223,6 +223,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         controller: 'PanelTemplateController',
         data: {
             ncyBreadcrumbLabel: 'Add',
+            ncyBreadcrumbParent: 'panel-template-list'
+        }
+    }).state({
+        name: 'panel-template-edit',
+        url: '/panel-templates/edit',
+        templateUrl: '/static/ng-app/partials/panel-template-add.html',
+        controller: 'PanelTemplateController',
+        data: {
+            ncyBreadcrumbLabel: 'Edit',
             ncyBreadcrumbParent: 'panel-template-list'
         }
     }).state({
