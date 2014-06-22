@@ -40,7 +40,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         name: 'project-edit',
         url: '/project/edit',
         templateUrl: '/static/ng-app/partials/project-edit.html',
-        controller: 'ProjectDetailController',
+        controller: 'ProjectEditController',
         data: {
             ncyBreadcrumbLabel: 'Edit',
             ncyBreadcrumbParent: 'project-detail'
