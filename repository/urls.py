@@ -34,6 +34,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/cytometers/(?P<pk>\d+)/?$', CytometerDetail.as_view(), name='cytometer-detail'),
 
     url(r'^api/repository/subject_groups/?$', SubjectGroupList.as_view(), name='subject-group-list'),
+    url(r'^api/repository/subject_groups/(?P<pk>\d+)/?$', SubjectGroupDetail.as_view(), name='subject-group-detail'),
     url(r'^api/repository/subjects/?$', SubjectList.as_view(), name='subject-list'),
     url(r'^api/repository/subjects/(?P<pk>\d+)/?$', SubjectDetail.as_view(), name='subject-detail'),
 

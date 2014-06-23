@@ -92,7 +92,15 @@ service
         return $resource(URLS.SPECIMENS);
     }])
     .factory('SubjectGroup', ['$resource', function ($resource) {
-        return $resource(URLS.SUBJECT_GROUPS);
+        var SubjectGroup = $resource(
+            URLS.SUBJECT_GROUPS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return SubjectGroup;
     }])
     .factory('Subject', ['$resource', function ($resource) {
         return $resource(URLS.SUBJECTS);

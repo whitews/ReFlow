@@ -891,6 +891,11 @@ class SubjectGroup(ProtectedModel):
             return True
         return False
 
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
     class Meta:
         unique_together = (('project', 'group_name'),)
 

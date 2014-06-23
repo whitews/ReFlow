@@ -1,3 +1,10 @@
+var ModalFormCtrl = function ($scope, $modalInstance, instance) {
+    $scope.instance = instance;
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+};
+
 app.controller(
     'ProjectQueryController',
     ['$scope', 'ModelService', 'Project', 'Site', function ($scope, ModelService, Project, Site) {
@@ -85,22 +92,83 @@ app.controller(
                 }, function(error) {
                     $scope.errors = error.data;
                 });
-            }
+            };
         }
     ]
 );
 
 app.controller(
     'SubjectGroupController',
-    ['$scope', '$controller', 'SubjectGroup', function ($scope, $controller, SubjectGroup) {
+    ['$scope', '$controller', '$modal', 'SubjectGroup', function ($scope, $controller, $modal, SubjectGroup) {
         // Inherits ProjectDetailController $scope
         $controller('ProjectDetailController', {$scope: $scope});
 
-        $scope.subject_groups = SubjectGroup.query(
-            {
-                'project': $scope.current_project.id
+        function get_list() {
+            return SubjectGroup.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+        }
+        $scope.subject_groups = get_list();
+
+        $scope.$on('updateSubjectGroups', function () {
+            $scope.subject_groups = get_list();
+        });
+
+        $scope.init_form = function(instance) {
+            var proposed_instance = angular.copy(instance);
+            $scope.errors = [];
+
+            // launch form modal
+            var modalInstance = $modal.open({
+                templateUrl: 'static/ng-app/partials/subject-group-form.html',
+                controller: ModalFormCtrl,
+                resolve: {
+                    instance: function() {
+                        return proposed_instance;
+                    }
+                }
+            });
+        };
+    }
+]);
+
+
+app.controller(
+    'SubjectGroupEditController',
+    ['$scope', '$rootScope', '$controller', 'SubjectGroup', function ($scope, $rootScope, $controller, SubjectGroup) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            var response;
+            if (instance.id) {
+                response = SubjectGroup.update(
+                    {id: instance.id },
+                    $scope.instance
+                );
+            } else {
+                instance.project = $scope.current_project.id;
+
+                response = SubjectGroup.save(
+                    $scope.instance
+                );
             }
-        );
+
+            response.$promise.then(function (o) {
+                // notify to update subject group list
+                $rootScope.$broadcast('updateSubjectGroups');
+
+                // close modal
+                $scope.ok();
+
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
     }
 ]);
 

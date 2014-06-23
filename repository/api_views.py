@@ -416,7 +416,7 @@ class VisitTypeDetail(
     serializer_class = VisitTypeSerializer
 
 
-class SubjectGroupList(LoginRequiredMixin, generics.ListAPIView):
+class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of subject groups.
     """
@@ -438,6 +438,35 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListAPIView):
         queryset = SubjectGroup.objects.filter(project__in=user_projects)
 
         return queryset
+
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return status.HTTP_401_UNAUTHORIZED
+
+        return super(SubjectGroupList, self).post(request, *args, **kwargs)
+
+
+class SubjectGroupDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single subject group.
+    """
+
+    model = SubjectGroup
+    serializer_class = SubjectGroupSerializer
+
+    def put(self, request, *args, **kwargs):
+        subject_group = SubjectGroup.objects.get(id=kwargs['pk'])
+        if not subject_group.has_modify_permission(request.user):
+            return status.HTTP_401_UNAUTHORIZED
+
+        return super(SubjectGroupDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return status.HTTP_501_NOT_IMPLEMENTED
 
 
 class SubjectList(LoginRequiredMixin, generics.ListAPIView):
