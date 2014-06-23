@@ -22,6 +22,12 @@
       </strong>
     </div>
 
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
   </div>
 
   <div class="modal-footer">

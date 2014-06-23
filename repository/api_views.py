@@ -444,7 +444,8 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not project.has_add_permission(request.user):
             return status.HTTP_401_UNAUTHORIZED
 
-        return super(SubjectGroupList, self).post(request, *args, **kwargs)
+        response = super(SubjectGroupList, self).post(request, *args, **kwargs)
+        return response
 
 
 class SubjectGroupDetail(
