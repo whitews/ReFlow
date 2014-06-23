@@ -2,7 +2,7 @@
  * Created by swhite on 6/11/14.
  */
 
-var service = angular.module('modelService', ['reflowService']);
+var service = angular.module('ReFlowApp');
 
 service.factory('ModelService', function($rootScope, Marker, Fluorochrome) {
     var model = {};

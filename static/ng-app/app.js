@@ -7,12 +7,11 @@ var app = angular.module(
     [
         'ngSanitize',
         'ngCookies',
+        'ngResource',
         'ui.router',
         'ui.bootstrap',
         'ui.select2',
         'ncy-angular-breadcrumb',
-        'reflowService',
-        'modelService',
         'angularFileUpload'
     ]
 );

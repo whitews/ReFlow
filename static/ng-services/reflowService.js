@@ -37,7 +37,7 @@ var URLS = {
     'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
 };
 
-var service = angular.module('reflowService', ['ngResource']);
+var service = angular.module('ReFlowApp');
 
 service
     .factory('Project', ['$resource', function ($resource) {
