@@ -620,7 +620,7 @@ app.controller(
 ]);
 
 app.controller(
-    'MainController',
+    'MainBeadController',
     [
         '$scope',
         function ($scope) {

@@ -1,10 +1,10 @@
-<div ng-controller="ProjectQueryController">
+<div ng-controller="ProjectListController">
 
-    <table id="project-table" class="table table-hover" ng-show="model.projects.length > 0">
+    <table id="project-table" class="table table-hover" ng-show="projects.length > 0">
       <thead>
         <tr>
           <th colspan="3" class="center">
-            <h4>Projects <span class="badge badge-inverse align-top">{{ model.projects.length }}</span></h4>
+            <h4>Projects <span class="badge badge-inverse align-top">{{ projects.length }}</span></h4>
           </th>
         </tr>
         <tr>
@@ -16,9 +16,9 @@
 
       <tbody>
 
-        <tr ng-repeat="project in model.projects">
+        <tr ng-repeat="project in projects">
           <td>
-            <a ui-sref="project-detail" ng-click="select_project(project)">{{ project.project_name }}</a>
+            <a ui-sref="project-detail({ projectId: project.id })">{{ project.project_name }}</a>
           </td>
           <td>
             <p ng-repeat="perm in project.permissions">{{ perm }}</p>
@@ -38,5 +38,5 @@
       </tbody>
     </table>
 
-    <p ng-show="model.projects.length == 0">You do not belong to any projects.</p>
+    <p ng-show="projects.length == 0">You do not belong to any projects.</p>
 </div>

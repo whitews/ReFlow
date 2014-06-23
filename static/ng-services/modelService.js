@@ -22,8 +22,25 @@ service.factory('ModelService', function($rootScope, Marker, Fluorochrome) {
         return this.fluorochromes;
     };
 
-    model.setCurrentProject = function (value) {
-        this.current_project = value;
+    model.setProjects = function (object) {
+        this.projects = object;
+        $rootScope.$broadcast('projectsChanged');
+    };
+
+    model.getProjects = function () {
+        return this.projects;
+    };
+
+    model.getProjectById = function(id) {
+        var project = $.grep(this.projects, function(e){ return e.id == id; });
+        if (project.length > 0) {
+            return project[0];
+        }
+        return null;
+    };
+
+    model.setCurrentProject = function (object) {
+        this.current_project = object;
         $rootScope.$broadcast('projectChanged');
     };
 

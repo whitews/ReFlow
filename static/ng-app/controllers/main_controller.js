@@ -6,12 +6,12 @@ var ModalFormCtrl = function ($scope, $modalInstance, instance) {
 };
 
 app.controller(
-    'ProjectQueryController',
-    ['$scope', 'ModelService', 'Project', 'Site', function ($scope, ModelService, Project, Site) {
-        $scope.model = {};
-        $scope.model.projects = Project.query();
+    'MainController',
+    ['ModelService', 'Project', 'Site', function (ModelService, Project, Site) {
 
-        $scope.model.projects.$promise.then(function (projects) {
+        var projects = Project.query();
+
+        projects.$promise.then(function (projects) {
             projects.forEach(function (p) {
                 p.getUserPermissions().$promise.then(function (value) {
                     p.permissions = value.permissions;
@@ -29,11 +29,20 @@ app.controller(
                     });
                 });
             });
+            ModelService.setProjects(projects);
         });
 
-        $scope.select_project = function (project) {
-            ModelService.setCurrentProject(project);
-        }
+
+    }
+]);
+
+app.controller(
+    'ProjectListController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.$on('projectsChanged', function () {
+            $scope.projects = ModelService.getProjects();
+        });
+        $scope.projects = ModelService.getProjects();
     }
 ]);
 
@@ -41,9 +50,15 @@ app.controller(
     'ProjectDetailController',
     [
         '$scope',
+        '$controller',
+        '$stateParams',
         'ModelService',
-        function ($scope, ModelService) {
-            $scope.current_project = ModelService.getCurrentProject();
+        function ($scope, $controller, $stateParams, ModelService) {
+            $scope.current_project = ModelService.getProjectById(
+                $stateParams.projectId
+            );
+
+
             $scope.errors = [];
             $scope.can_view_project = false;
             $scope.can_modify_project = false;
@@ -99,7 +114,7 @@ app.controller(
 
 app.controller(
     'SubjectGroupController',
-    ['$scope', '$controller', '$modal', 'SubjectGroup', function ($scope, $controller, $modal, SubjectGroup) {
+    ['$scope', '$controller', '$stateParams', '$modal', 'SubjectGroup', function ($scope, $controller, $stateParams, $modal, SubjectGroup) {
         // Inherits ProjectDetailController $scope
         $controller('ProjectDetailController', {$scope: $scope});
 
