@@ -46,7 +46,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         }
     }).state({
         name: 'subject-group-list',
-        url: '/project/{projectId}/subject-groups/',
+        url: '/project/:projectId/subject-groups/',
         templateUrl: '/static/ng-app/partials/subject-group-list.html',
         controller: 'SubjectGroupController',
         data: {

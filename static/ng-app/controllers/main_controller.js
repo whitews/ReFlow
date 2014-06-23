@@ -7,31 +7,7 @@ var ModalFormCtrl = function ($scope, $modalInstance, instance) {
 
 app.controller(
     'MainController',
-    ['ModelService', 'Project', 'Site', function (ModelService, Project, Site) {
-
-        var projects = Project.query();
-
-        projects.$promise.then(function (projects) {
-            projects.forEach(function (p) {
-                p.getUserPermissions().$promise.then(function (value) {
-                    p.permissions = value.permissions;
-                });
-
-                // Add user's sites
-                p.sites = [];
-                var sites = Site.query({project: p.id});
-                sites.$promise.then(function (sites) {
-                    sites.forEach(function (s) {
-                        p.sites.push(s);
-                        s.getUserPermissions().$promise.then(function (value) {
-                            s.permissions = value.permissions;
-                        });
-                    });
-                });
-            });
-            ModelService.setProjects(projects);
-        });
-
+    [function () {
 
     }
 ]);
@@ -39,9 +15,6 @@ app.controller(
 app.controller(
     'ProjectListController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.$on('projectsChanged', function () {
-            $scope.projects = ModelService.getProjects();
-        });
         $scope.projects = ModelService.getProjects();
     }
 ]);
