@@ -803,66 +803,6 @@ def edit_visit_type(request, visit_type_id):
 
 
 @login_required
-def add_subject_group(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if not project.has_add_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        subject_group = SubjectGroup(project=project)
-        form = SubjectGroupForm(request.POST, instance=subject_group)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'subject_groups',
-                args=(project_id,)))
-    else:
-        form = SubjectGroupForm()
-
-    return render_to_response(
-        'add_subject_group.html',
-        {
-            'form': form,
-            'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_subject_group(request, project_id, subject_group_id):
-    subject_group = get_object_or_404(
-        SubjectGroup,
-        pk=subject_group_id,
-        project_id=project_id)
-
-    if not subject_group.project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = SubjectGroupForm(request.POST, instance=subject_group)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'subject_groups',
-                args=(subject_group.project_id,)))
-    else:
-        form = SubjectGroupForm(instance=subject_group)
-
-    return render_to_response(
-        'edit_subject_group.html',
-        {
-            'form': form,
-            'subject_group': subject_group,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def add_subject(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 

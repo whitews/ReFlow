@@ -118,12 +118,6 @@ class VisitTypeForm(forms.ModelForm):
         exclude = ('project',)
 
 
-class SubjectGroupForm(forms.ModelForm):
-    class Meta:
-        model = SubjectGroup
-        exclude = ('project',)
-
-
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject

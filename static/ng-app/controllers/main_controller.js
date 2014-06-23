@@ -134,7 +134,6 @@ app.controller(
     }
 ]);
 
-
 app.controller(
     'SubjectGroupEditController',
     ['$scope', '$rootScope', '$controller', 'SubjectGroup', function ($scope, $rootScope, $controller, SubjectGroup) {
@@ -163,7 +162,6 @@ app.controller(
 
                 // close modal
                 $scope.ok();
-
 
             }, function (error) {
                 $scope.errors = error.data;
