@@ -380,7 +380,7 @@ class ProjectDetail(
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
+class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of panels.
     """
@@ -403,17 +403,35 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(VisitTypeList, self).post(request, *args, **kwargs)
+        return response
+
 
 class VisitTypeDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
-    API endpoint representing a single project.
+    API endpoint representing a single visit type.
     """
 
     model = VisitType
     serializer_class = VisitTypeSerializer
+
+    def put(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(VisitTypeDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):

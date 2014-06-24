@@ -409,8 +409,9 @@ app.controller(
                     }
                 });
             };
-    }
-]);
+        }
+    ]
+);
 
 app.controller(
     'CytometerEditController',
@@ -461,17 +462,87 @@ app.controller(
 
 app.controller(
     'VisitTypeController',
-    ['$scope', '$controller', 'VisitType', function ($scope, $controller, VisitType) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'VisitType',
+        function ($scope, $controller, $modal, VisitType) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
-        $scope.visit_types = VisitType.query(
-            {
-                'project': $scope.current_project.id
+            function get_list() {
+                return VisitType.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
             }
-        );
+            $scope.visit_types = get_list();
+
+            $scope.$on('updateVisitTypes', function () {
+                $scope.visit_types = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                $modal.open({
+                    templateUrl: 'static/ng-app/partials/visit-type-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
     }
 ]);
+
+app.controller(
+    'VisitTypeEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'VisitType',
+        function ($scope, $rootScope, $controller, VisitType) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = VisitType.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    instance.project = $scope.current_project.id;
+
+                    response = VisitType.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateVisitTypes');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
 
 app.controller(
     'StimulationController',

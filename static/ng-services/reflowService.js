@@ -120,7 +120,15 @@ service
         return Subject;
     }])
     .factory('VisitType', ['$resource', function ($resource) {
-        return $resource(URLS.VISIT_TYPES);
+        var VisitType = $resource(
+            URLS.VISIT_TYPES + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return VisitType;
     }])
     .factory('Stimulation', ['$resource', function ($resource) {
         return $resource(URLS.STIMULATIONS);
@@ -134,7 +142,7 @@ service
             }
         );
 
-        return Cytometer
+        return Cytometer;
     }])
     .factory('PanelTemplate', ['$resource', function ($resource) {
         return $resource(
