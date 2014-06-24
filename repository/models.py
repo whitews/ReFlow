@@ -650,6 +650,27 @@ class Cytometer(ProtectedModel):
         blank=False,
         max_length=256)
 
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.site.project):
+            return True
+        elif user.has_perm('view_site_data', self.site):
+            return True
+        return False
+
+    def has_add_permission(self, user):
+        if user.has_perm('add_project_data', self.site.project):
+            return True
+        elif user.has_perm('add_site_data', self.site):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.site.project):
+            return True
+        elif user.has_perm('modify_site_data', self.site):
+            return True
+        return False
+
     def clean(self):
         """
         Check for duplicate cytometer names within a site.
