@@ -6,7 +6,7 @@
               <h4>Cytometers <span class="badge badge-inverse align-top">{{ cytometers.length }}</span></h4>
 
               <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ui-sref="cytometer-add">
+                  <a class="btn btn-default btn-sm" ng-click="init_form(null)">
                       Add Cytometer
                   </a>
               </div>
@@ -24,13 +24,13 @@
       <tbody>
         <tr ng-repeat="cytometer in cytometers">
           <td width="1%">
-              <a class="btn btn-default btn-xs" ng-show="can_modify_project" ui-sref="cytometer-edit" tooltip="Edit" tooltip-placement="bottom">
+              <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(cytometer)" tooltip="Edit" tooltip-placement="bottom">
                 <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
               </a>
           </td>
           <td>{{ cytometer.cytometer_name }}</td>
           <td>{{ cytometer.serial_number }}</td>
-          <td>{{ cytometer.site.site_name }}</td>
+          <td>{{ cytometer.site_name }}</td>
           <td>{{ cytometer.sample_count }}</td>
         </tr>
       </tbody>

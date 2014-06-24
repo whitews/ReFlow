@@ -881,9 +881,9 @@ class CytometerFilter(django_filters.FilterSet):
         ]
 
 
-class CytometerList(LoginRequiredMixin, generics.ListAPIView):
+class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of site panels.
+    API endpoint representing a list of cytometers.
     """
 
     model = Cytometer
@@ -903,17 +903,36 @@ class CytometerList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        site = Project.objects.get(id=request.DATA['site'])
+        if not site.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(CytometerList, self).post(request, *args, **kwargs)
+        return response
+
 
 class CytometerDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
-    API endpoint representing a single site panel.
+    API endpoint representing a single cytometer.
     """
 
     model = Cytometer
     serializer_class = CytometerSerializer
+
+    def put(self, request, *args, **kwargs):
+        cytometer = Cytometer.objects.get(id=kwargs['pk'])
+        if not cytometer.site.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(CytometerDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class MarkerList(generics.ListAPIView):

@@ -372,17 +372,92 @@ app.controller(
 
 app.controller(
     'CytometerController',
-    ['$scope', '$controller', 'Cytometer', function ($scope, $controller, Cytometer) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Cytometer',
+        function ($scope, $controller, $modal, Cytometer) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
-        $scope.cytometers = Cytometer.query(
-            {
-                'project': $scope.current_project.id
+            function get_list() {
+                return Cytometer.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
             }
-        );
+            $scope.cytometers = get_list();
+
+            $scope.$on('updateCytometers', function () {
+                $scope.cytometers = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/cytometer-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
     }
 ]);
+
+app.controller(
+    'CytometerEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Cytometer',
+        'Site',
+        function ($scope, $rootScope, $controller, Cytometer, Site) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.sites = Site.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = Cytometer.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    response = Cytometer.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateCytometers');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
 
 app.controller(
     'VisitTypeController',

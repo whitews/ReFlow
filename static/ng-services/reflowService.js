@@ -126,7 +126,15 @@ service
         return $resource(URLS.STIMULATIONS);
     }])
     .factory('Cytometer', ['$resource', function ($resource) {
-        return $resource(URLS.CYTOMETERS);
+        var Cytometer = $resource(
+            URLS.CYTOMETERS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Cytometer
     }])
     .factory('PanelTemplate', ['$resource', function ($resource) {
         return $resource(
