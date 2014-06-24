@@ -37,20 +37,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/project-detail.html',
-                controller: 'ProjectDetailController',
+                controller: 'ProjectDetailController'
             }
         },
         data: {
             ncyBreadcrumbLabel: '{{current_project.project_name}}'
-        }
-    }).state({
-        name: 'project-edit',
-        url: '/project/edit',
-        templateUrl: '/static/ng-app/partials/project-edit.html',
-        controller: 'ProjectEditController',
-        data: {
-            ncyBreadcrumbLabel: 'Edit',
-            ncyBreadcrumbParent: 'project-detail'
         }
     }).state({
         name: 'subject-group-list',
@@ -59,7 +50,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/subject-group-list.html',
-                controller: 'SubjectGroupController',
+                controller: 'SubjectGroupController'
             }
         },
         data: {
@@ -67,228 +58,170 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         }
     }).state({
         name: 'subject-list',
+        parent: 'project-detail',
         url: '/subjects/',
-        templateUrl: '/static/ng-app/partials/subject-list.html',
-        controller: 'SubjectController',
+        views: {
+            '@': {
+            templateUrl: '/static/ng-app/partials/subject-list.html',
+            controller: 'SubjectController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Subjects',
-            ncyBreadcrumbParent: 'project-detail'
-        }
-    }).state({
-        name: 'subject-add',
-        url: '/subjects/add',
-        templateUrl: '/static/ng-app/partials/subject-add.html',
-        controller: 'SubjectController',
-        data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'subject-list'
-        }
-    }).state({
-        name: 'subject-edit',
-        url: '/subjects/edit',
-        templateUrl: '/static/ng-app/partials/subject-add.html',
-        controller: 'SubjectController',
-        data: {
-            ncyBreadcrumbLabel: 'Edit',
-            ncyBreadcrumbParent: 'subject-list'
+            ncyBreadcrumbLabel: 'Subjects'
         }
     }).state({
         name: 'site-list',
+        parent: 'project-detail',
         url: '/sites/',
-        templateUrl: '/static/ng-app/partials/site-list.html',
-        controller: 'SiteController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/site-list.html',
+                controller: 'SiteController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Sites',
-            ncyBreadcrumbParent: 'project-detail'
-        }
-    }).state({
-        name: 'site-add',
-        url: '/sites/add',
-        templateUrl: '/static/ng-app/partials/site-add.html',
-        controller: 'SiteController',
-        data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'site-list'
-        }
-    }).state({
-        name: 'site-edit',
-        url: '/sites/edit',
-        templateUrl: '/static/ng-app/partials/site-add.html',
-        controller: 'SiteController',
-        data: {
-            ncyBreadcrumbLabel: 'Edit',
-            ncyBreadcrumbParent: 'site-list'
+            ncyBreadcrumbLabel: 'Sites'
         }
     }).state({
         name: 'cytometer-list',
+        parent: 'project-detail',
         url: '/cytometers/',
-        templateUrl: '/static/ng-app/partials/cytometer-list.html',
-        controller: 'CytometerController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/cytometer-list.html',
+                controller: 'CytometerController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Cytometers',
-            ncyBreadcrumbParent: 'project-detail'
-        }
-    }).state({
-        name: 'cytometer-add',
-        url: '/cytometers/add',
-        templateUrl: '/static/ng-app/partials/cytometer-add.html',
-        controller: 'CytometerController',
-        data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'cytometer-list'
-        }
-    }).state({
-        name: 'cytometer-edit',
-        url: '/cytometers/edit',
-        templateUrl: '/static/ng-app/partials/cytometer-add.html',
-        controller: 'CytometerController',
-        data: {
-            ncyBreadcrumbLabel: 'Edit',
-            ncyBreadcrumbParent: 'cytometer-list'
+            ncyBreadcrumbLabel: 'Cytometers'
         }
     }).state({
         name: 'visit-type-list',
+        parent: 'project-detail',
         url: '/visit-types/',
-        templateUrl: '/static/ng-app/partials/visit-type-list.html',
-        controller: 'VisitTypeController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/visit-type-list.html',
+                controller: 'VisitTypeController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Visit Types',
-            ncyBreadcrumbParent: 'project-detail'
-        }
-    }).state({
-        name: 'visit-type-add',
-        url: '/visit-types/add',
-        templateUrl: '/static/ng-app/partials/visit-type-add.html',
-        controller: 'VisitTypeController',
-        data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'visit-type-list'
-        }
-    }).state({
-        name: 'visit-type-edit',
-        url: '/visit-types/edit',
-        templateUrl: '/static/ng-app/partials/visit-type-add.html',
-        controller: 'VisitTypeController',
-        data: {
-            ncyBreadcrumbLabel: 'Edit',
-            ncyBreadcrumbParent: 'visit-type-list'
+            ncyBreadcrumbLabel: 'Visit Types'
         }
     }).state({
         name: 'stimulation-list',
+        parent: 'project-detail',
         url: '/stimulations/',
-        templateUrl: '/static/ng-app/partials/stimulation-list.html',
-        controller: 'StimulationController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/stimulation-list.html',
+                controller: 'StimulationController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Stimulations',
-            ncyBreadcrumbParent: 'project-detail'
-        }
-    }).state({
-        name: 'stimulation-add',
-        url: '/stimulations/add',
-        templateUrl: '/static/ng-app/partials/stimulation-add.html',
-        controller: 'StimulationController',
-        data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'stimulation-list'
-        }
-    }).state({
-        name: 'stimulation-edit',
-        url: '/stimulations/edit',
-        templateUrl: '/static/ng-app/partials/stimulation-add.html',
-        controller: 'StimulationController',
-        data: {
-            ncyBreadcrumbLabel: 'Edit',
-            ncyBreadcrumbParent: 'stimulation-list'
+            ncyBreadcrumbLabel: 'Stimulations'
         }
     }).state({
         name: 'panel-template-list',
+        parent: 'project-detail',
         url: '/panel-templates/',
-        templateUrl: '/static/ng-app/partials/panel-template-list.html',
-        controller: 'PanelTemplateController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/panel-template-list.html',
+                controller: 'PanelTemplateController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Panel Templates',
-            ncyBreadcrumbParent: 'project-detail'
+            ncyBreadcrumbLabel: 'Panel Templates'
         }
     }).state({
         name: 'panel-template-add',
         url: '/panel-templates/add',
-        templateUrl: '/static/ng-app/partials/panel-template-add.html',
-        controller: 'PanelTemplateController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/panel-template-add.html',
+                controller: 'PanelTemplateController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'panel-template-list'
+            ncyBreadcrumbLabel: 'Add'
         }
     }).state({
         name: 'panel-template-edit',
         url: '/panel-templates/edit',
-        templateUrl: '/static/ng-app/partials/panel-template-add.html',
-        controller: 'PanelTemplateController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/panel-template-add.html',
+                controller: 'PanelTemplateController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Edit',
-            ncyBreadcrumbParent: 'panel-template-list'
-        }
-    }).state({
-        name: 'site-panel-list',
-        url: '/site-panels/',
-        templateUrl: '/static/ng-app/partials/site-panel-list.html',
-        controller: 'SitePanelController',
-        data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
-            ncyBreadcrumbParent: 'project-detail'
+            ncyBreadcrumbLabel: 'Edit'
         }
     }).state({
         name: 'sample-list',
+        parent: 'project-detail',
         url: '/samples/',
-        templateUrl: '/static/ng-app/partials/sample-list.html',
-        controller: 'SampleController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/sample-list.html',
+                controller: 'SampleController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Samples',
-            ncyBreadcrumbParent: 'project-detail'
+            ncyBreadcrumbLabel: 'Samples'
         }
     }).state({
         name: 'sample-upload',
+        parent: 'sample-list',
         url: '/samples/upload',
-        templateUrl: '/static/ng-app/partials/sample-upload.html',
-        controller: 'MainSampleUploadController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/sample-upload.html',
+                controller: 'MainSampleUploadController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Upload',
-            ncyBreadcrumbParent: 'sample-list'
+            ncyBreadcrumbLabel: 'Upload'
         }
     }).state({
         name: 'bead-sample-list',
+        parent: 'project-detail',
         url: '/bead-samples/',
-        templateUrl: '/static/ng-app/partials/bead-sample-list.html',
-        controller: 'BeadSampleController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/bead-sample-list.html',
+                controller: 'BeadSampleController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
-            ncyBreadcrumbParent: 'project-detail'
+            ncyBreadcrumbLabel: 'Subject Groups'
         }
     }).state({
         name: 'bead-sample-add',
+        parent: 'bead-sample-list',
         url: '/bead-samples/add',
-        templateUrl: '/static/ng-app/partials/bead-sample-add.html',
-        controller: 'BeadSampleController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/bead-sample-add.html',
+                controller: 'BeadSampleController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'bead-sample-list'
+            ncyBreadcrumbLabel: 'Add'
         }
     }).state({
         name: 'compensation-list',
+        parent: 'project-detail',
         url: '/compensations/',
-        templateUrl: '/static/ng-app/partials/compensation-list.html',
-        controller: 'CompensationController',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/compensation-list.html',
+                controller: 'CompensationController'
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
-            ncyBreadcrumbParent: 'project-detail'
-        }
-    }).state({
-        name: 'compensation-add',
-        url: '/compensations/add',
-        templateUrl: '/static/ng-app/partials/compensation-add.html',
-        controller: 'CompensationController',
-        data: {
-            ncyBreadcrumbLabel: 'Add',
-            ncyBreadcrumbParent: 'compensation-list'
+            ncyBreadcrumbLabel: 'Subject Groups'
         }
     });
 });
