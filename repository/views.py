@@ -647,63 +647,6 @@ def add_compensation(request, project_id, compensation_id=None):
 
 
 @login_required
-def add_visit_type(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if not project.has_add_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        visit_type = VisitType(project=project)
-        form = VisitTypeForm(request.POST, instance=visit_type)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'project_visit_types',
-                args=(project_id,)))
-    else:
-        form = VisitTypeForm()
-
-    return render_to_response(
-        'add_visit_type.html',
-        {
-            'form': form,
-            'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_visit_type(request, visit_type_id):
-    visit_type = get_object_or_404(VisitType, pk=visit_type_id)
-
-    if not visit_type.project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = VisitTypeForm(request.POST, instance=visit_type)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'project_visit_types',
-                args=(visit_type.project_id,)))
-    else:
-        form = VisitTypeForm(instance=visit_type)
-
-    return render_to_response(
-        'edit_visit_type.html',
-        {
-            'form': form,
-            'visit_type': visit_type,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def edit_sample(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
 
