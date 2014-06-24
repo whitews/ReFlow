@@ -287,17 +287,88 @@ app.controller(
 
 app.controller(
     'SiteController',
-    ['$scope', '$controller', 'Site', function ($scope, $controller, Site) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Site',
+        function ($scope, $controller, $modal, Site) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
-        $scope.sites = Site.query(
-            {
-                'project': $scope.current_project.id
+            function get_list() {
+                return Site.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
             }
-        );
-    }
-]);
+            $scope.sites = get_list();
+
+            $scope.$on('updateSites', function () {
+                $scope.sites = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                $modal.open({
+                    templateUrl: 'static/ng-app/partials/site-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'SiteEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Site',
+        function ($scope, $rootScope, $controller, Site) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = Site.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    instance.project = $scope.current_project.id;
+
+                    response = Site.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateSites');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
 
 app.controller(
     'CytometerController',

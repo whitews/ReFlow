@@ -686,7 +686,7 @@ class ProjectPanelDetail(
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class SiteList(LoginRequiredMixin, generics.ListAPIView):
+class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of sites.
     """
@@ -704,17 +704,35 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(SiteList, self).post(request, *args, **kwargs)
+        return response
+
 
 class SiteDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single site.
     """
 
     model = Site
     serializer_class = SiteSerializer
+
+    def put(self, request, *args, **kwargs):
+        site = Site.objects.get(id=kwargs['pk'])
+        if not site.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SiteDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SitePanelFilter(django_filters.FilterSet):

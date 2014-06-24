@@ -1,0 +1,28 @@
+<div ng-controller="SiteEditController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Create or Edit Site
+  </div>
+  <div class="modal-body">
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Site Name</label>
+      <input maxlength="128" type="text" ng-model="instance.site_name" />
+      <strong ng-show="errors.site_name" class="help-inline text-danger">
+        {{ errors.site_name.join(', ') }}
+      </strong>
+    </div>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-primary" ng-click="create_update(instance)">Save</button>
+  </div>
+</div>

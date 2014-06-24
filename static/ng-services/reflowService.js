@@ -65,7 +65,13 @@ service
         return Project;
     }])
     .factory('Site', ['$resource', function ($resource) {
-        var Site = $resource(URLS.SITES);
+        var Site = $resource(
+            URLS.SITES + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
 
         Site.prototype.getUserPermissions = function() {
             var perms = $resource(

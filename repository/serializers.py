@@ -43,9 +43,8 @@ class CytometerFlatSerializer(serializers.ModelSerializer):
 
 
 class SiteSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer(source='project')
     url = serializers.HyperlinkedIdentityField(view_name='site-detail')
-    cytometers = CytometerFlatSerializer(source='cytometer_set')
+    cytometers = CytometerFlatSerializer(source='cytometer_set', read_only=True)
     sample_count = serializers.IntegerField(
         source='get_sample_count',
         read_only=True
