@@ -499,8 +499,9 @@ app.controller(
                     }
                 });
             };
-    }
-]);
+        }
+    ]
+);
 
 app.controller(
     'VisitTypeEditController',
@@ -546,17 +547,87 @@ app.controller(
 
 app.controller(
     'StimulationController',
-    ['$scope', '$controller', 'Stimulation', function ($scope, $controller, Stimulation) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Stimulation',
+        function ($scope, $controller, $modal, Stimulation) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
-        $scope.stimulations = Stimulation.query(
-            {
-                'project': $scope.current_project.id
+            function get_list() {
+                return Stimulation.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
             }
-        );
+            $scope.stimulations = get_list();
+
+            $scope.$on('updateStimulations', function () {
+                $scope.stimulations = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                $modal.open({
+                    templateUrl: 'static/ng-app/partials/stimulation-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
     }
 ]);
+
+app.controller(
+    'StimulationEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Stimulation',
+        function ($scope, $rootScope, $controller, Stimulation) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = Stimulation.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    instance.project = $scope.current_project.id;
+
+                    response = Stimulation.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateStimulations');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
 
 app.controller(
     'PanelTemplateController',

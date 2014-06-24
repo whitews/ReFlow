@@ -131,7 +131,15 @@ service
         return VisitType;
     }])
     .factory('Stimulation', ['$resource', function ($resource) {
-        return $resource(URLS.STIMULATIONS);
+        var Stimulation = $resource(
+            URLS.STIMULATIONS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Stimulation;
     }])
     .factory('Cytometer', ['$resource', function ($resource) {
         var Cytometer = $resource(

@@ -983,7 +983,7 @@ class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
     filter_fields = ('specimen_name',)
 
 
-class StimulationList(LoginRequiredMixin, generics.ListAPIView):
+class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of stimulations.
     """
@@ -1003,17 +1003,35 @@ class StimulationList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(StimulationList, self).post(request, *args, **kwargs)
+        return response
+
 
 class StimulationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single stimulation.
     """
 
     model = Stimulation
     serializer_class = StimulationSerializer
+
+    def put(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(StimulationDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
