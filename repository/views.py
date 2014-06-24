@@ -560,64 +560,6 @@ def view_beads(request, project_id):
 
 
 @login_required
-def add_site(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if not project.has_add_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        site = Site(project=project)
-        form = SiteForm(request.POST, instance=site)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_project_sites',
-                args=(project_id,)))
-    else:
-        form = SiteForm()
-
-    return render_to_response(
-        'add_site.html',
-        {
-            'form': form,
-            'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def edit_site(request, site_id):
-    site = get_object_or_404(Site, pk=site_id)
-
-    if not site.project.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = SiteForm(request.POST, instance=site)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_sites',
-                args=(site.project_id,)))
-    else:
-        form = SiteForm(instance=site)
-
-    return render_to_response(
-        'edit_site.html',
-        {
-            'form': form,
-            'site': site,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def add_cytometer(request, project_id, cytometer_id=None):
     project = get_object_or_404(Project, pk=project_id)
 
