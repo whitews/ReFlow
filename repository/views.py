@@ -396,50 +396,6 @@ def manage_site_user(request, site_id, user_id):
 
 
 @login_required
-def add_stimulation(request, project_id, stimulation_id=None):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if stimulation_id:
-        stimulation = get_object_or_404(Stimulation, pk=stimulation_id)
-        add_or_edit = 'edit'
-
-        if stimulation.project != project:
-            return HttpResponseBadRequest()
-
-        if not project.has_modify_permission(request.user):
-            raise PermissionDenied
-
-    else:
-        stimulation = Stimulation(project=project)
-        add_or_edit = 'add'
-
-        if not project.has_add_permission(request.user):
-            raise PermissionDenied
-
-    if request.method == 'POST':
-        form = StimulationForm(request.POST, instance=stimulation)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_project_stimulations', args=(project_id,)))
-    else:
-        form = StimulationForm(instance=stimulation)
-
-    return render_to_response(
-        'add_project_stimulation.html',
-        {
-            'form': form,
-            'project': project,
-            'add_or_edit': add_or_edit,
-            'stimulation_id': stimulation_id,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def copy_project_panel(request, project_id, panel_id=None):
     project = get_object_or_404(Project, pk=project_id)
     panel = get_object_or_404(ProjectPanel, pk=panel_id)
