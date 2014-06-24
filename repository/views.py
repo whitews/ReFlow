@@ -560,47 +560,6 @@ def view_beads(request, project_id):
 
 
 @login_required
-def add_cytometer(request, project_id, cytometer_id=None):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if not project.has_add_permission(request.user):
-        raise PermissionDenied
-
-    if cytometer_id:
-        cytometer = get_object_or_404(Cytometer, pk=cytometer_id)
-        add_or_edit = 'edit'
-    else:
-        cytometer = Cytometer()
-        add_or_edit = 'add'
-
-    if request.method == 'POST':
-        form = CytometerForm(
-            request.POST,
-            instance=cytometer,
-            project_id=project_id)
-
-        if form.is_valid():
-            form.save()
-
-            return HttpResponseRedirect(reverse(
-                'view_project_cytometers',
-                args=(project_id,)))
-    else:
-        form = CytometerForm(instance=cytometer, project_id=project_id)
-
-    return render_to_response(
-        'add_cytometer.html',
-        {
-            'form': form,
-            'project': project,
-            'add_or_edit': add_or_edit,
-            'cytometer_id': cytometer_id,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def view_compensations(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user_view_sites = Site.objects.get_sites_user_can_view(

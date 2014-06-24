@@ -128,9 +128,6 @@ urlpatterns += patterns('repository.views',
 
     url(r'^project/(?P<project_id>\d+)/templates/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
 
-    url(r'^project/(?P<project_id>\d+)/cytometers/add/$', 'add_cytometer', name='add_cytometer'),
-    url(r'^project/(?P<project_id>\d+)/cytometers/(?P<cytometer_id>\d+)/edit/$', 'add_cytometer', name='edit_cytometer'),
-
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
     url(r'^project/(?P<project_id>\d+)/compensations/(?P<compensation_id>\d+)/edit/$', 'add_compensation', name='edit_compensation'),

@@ -925,7 +925,7 @@ class CytometerDetail(
 
     def put(self, request, *args, **kwargs):
         cytometer = Cytometer.objects.get(id=kwargs['pk'])
-        if not cytometer.site.has_modify_permission(request.user):
+        if not cytometer.has_modify_permission(request.user):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         response = super(CytometerDetail, self).put(request, *args, **kwargs)
