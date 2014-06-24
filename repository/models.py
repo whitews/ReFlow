@@ -924,6 +924,11 @@ class Subject(ProtectedModel):
             return True
         return False
 
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
     def clean(self):
         """
         Check for duplicate subject code in a project.

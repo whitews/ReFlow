@@ -105,7 +105,7 @@ app.controller(
                     );
                 }
 
-                response.$promise.then(function (o) {
+                response.$promise.then(function () {
                     // notify to update subject group list
                     $rootScope.$broadcast('updateProjects');
 
@@ -179,7 +179,7 @@ app.controller(
                 );
             }
 
-            response.$promise.then(function (o) {
+            response.$promise.then(function () {
                 // notify to update subject group list
                 $rootScope.$broadcast('updateSubjectGroups');
 
@@ -195,17 +195,89 @@ app.controller(
 
 app.controller(
     'SubjectController',
-    ['$scope', '$controller', 'Subject', function ($scope, $controller, Subject) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Subject',
+        function ($scope, $controller, $modal, Subject) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
-        $scope.subjects = Subject.query(
-            {
-                'project': $scope.current_project.id
+            function get_list() {
+                return Subject.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
             }
-        );
-    }
-]);
+            $scope.subjects = get_list();
+
+            $scope.$on('updateSubjects', function () {
+                $scope.subjects = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/subject-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'SubjectEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Subject',
+        function ($scope, $rootScope, $controller, Subject) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                instance.subject_group = parseInt(instance.subject_group);
+                var response;
+                if (instance.id) {
+                    response = Subject.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    instance.project = $scope.current_project.id;
+
+                    response = Subject.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateSubjects');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
 
 app.controller(
     'SiteController',
@@ -276,14 +348,14 @@ app.controller(
         );
 
         $scope.expand_params = [];
-        $scope.panel_templates.$promise.then(function (o) {
+        $scope.panel_templates.$promise.then(function () {
             $scope.panel_templates.forEach(function () {
                 $scope.expand_params.push(false);
             })
         });
 
         $scope.toggle_params = function (i) {
-            $scope.expand_params[i] = $scope.expand_params[i] == true ? false:true;
+            $scope.expand_params[i] = $scope.expand_params[i] != true;
         };
 
         $scope.expand_all_panels = function () {

@@ -372,12 +372,12 @@ class ProjectDetail(
     def put(self, request, *args, **kwargs):
         project = Project.objects.get(id=kwargs['pk'])
         if not project.has_modify_permission(request.user):
-            return status.HTTP_401_UNAUTHORIZED
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         return super(ProjectDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        return status.HTTP_501_NOT_IMPLEMENTED
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
@@ -442,7 +442,7 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return status.HTTP_401_UNAUTHORIZED
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         response = super(SubjectGroupList, self).post(request, *args, **kwargs)
         return response
@@ -462,15 +462,15 @@ class SubjectGroupDetail(
     def put(self, request, *args, **kwargs):
         subject_group = SubjectGroup.objects.get(id=kwargs['pk'])
         if not subject_group.has_modify_permission(request.user):
-            return status.HTTP_401_UNAUTHORIZED
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         return super(SubjectGroupDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        return status.HTTP_501_NOT_IMPLEMENTED
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-class SubjectList(LoginRequiredMixin, generics.ListAPIView):
+class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of panels.
     """
@@ -493,17 +493,35 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(SubjectList, self).post(request, *args, **kwargs)
+        return response
+
 
 class SubjectDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single subject.
     """
 
     model = Subject
     serializer_class = SubjectSerializer
+
+    def put(self, request, *args, **kwargs):
+        subject = Subject.objects.get(id=kwargs['pk'])
+        if not subject.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SubjectDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class ProjectPanelFilter(django_filters.FilterSet):

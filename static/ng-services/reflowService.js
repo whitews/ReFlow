@@ -103,7 +103,15 @@ service
         return SubjectGroup;
     }])
     .factory('Subject', ['$resource', function ($resource) {
-        return $resource(URLS.SUBJECTS);
+        var Subject = $resource(
+            URLS.SUBJECTS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Subject;
     }])
     .factory('VisitType', ['$resource', function ($resource) {
         return $resource(URLS.VISIT_TYPES);
