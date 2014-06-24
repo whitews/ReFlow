@@ -7,8 +7,10 @@ var ModalFormCtrl = function ($scope, $modalInstance, instance) {
 
 app.controller(
     'MainController',
-    [function () {
-
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.$on('updateProjects', function () {
+            ModelService.reloadProjects();
+        });
     }
 ]);
 
@@ -25,12 +27,20 @@ app.controller(
         '$scope',
         '$controller',
         '$stateParams',
+        '$modal',
         'ModelService',
-        function ($scope, $controller, $stateParams, ModelService) {
-            $scope.current_project = ModelService.getProjectById(
-                $stateParams.projectId
-            );
+        function ($scope, $controller, $stateParams, $modal, ModelService) {
+            function get_project() {
+                return ModelService.getProjectById(
+                    $stateParams.projectId
+                );
+            }
 
+            $scope.current_project = get_project();
+
+            $scope.$on('projectUpdated', function () {
+                $scope.current_project = get_project();
+            });
 
             $scope.errors = [];
             $scope.can_view_project = false;
@@ -50,6 +60,22 @@ app.controller(
             if ($scope.current_project.permissions.indexOf('manage_project_users')) {
                 $scope.can_manage_users = true;
             }
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/project-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
         }
     ]
 );
@@ -58,26 +84,35 @@ app.controller(
     'ProjectEditController',
     [
         '$scope',
-        '$location',
-        'ModelService',
+        '$rootScope',
+        '$controller',
         'Project',
-        function ($scope, $location, ModelService, Project) {
-            $scope.current_project = ModelService.getCurrentProject();
-            $scope.modified_project = angular.copy($scope.current_project);
-            $scope.errors = [];
+        function ($scope, $rootScope, $controller, Project) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
-            $scope.updateProject = function () {
+            $scope.create_update = function (instance) {
                 $scope.errors = [];
-                var project = Project.update(
-                    {id:$scope.modified_project.id },
-                    $scope.modified_project
-                );
+                var response;
+                if (instance.id) {
+                    response = Project.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    response = Project.save(
+                        $scope.instance
+                    );
+                }
 
-                project.$promise.then(function (o) {
-                    // re-direct to project detail
-                    ModelService.setCurrentProject($scope.modified_project);
-                    $location.path('/project/');
-                }, function(error) {
+                response.$promise.then(function (o) {
+                    // notify to update subject group list
+                    $rootScope.$broadcast('updateProjects');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
                     $scope.errors = error.data;
                 });
             };
