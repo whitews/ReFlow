@@ -243,13 +243,19 @@ app.controller(
         '$rootScope',
         '$controller',
         'Subject',
-        function ($scope, $rootScope, $controller, Subject) {
+        'SubjectGroup',
+        function ($scope, $rootScope, $controller, Subject, SubjectGroup) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
+            $scope.subject_groups = SubjectGroup.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
             $scope.create_update = function (instance) {
                 $scope.errors = [];
-                instance.subject_group = parseInt(instance.subject_group);
                 var response;
                 if (instance.id) {
                     response = Subject.update(
