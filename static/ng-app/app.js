@@ -22,18 +22,26 @@ app.config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider.state({
         name: 'home',
         url: '/',
-        templateUrl: '/static/ng-app/partials/home.html',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/home.html'
+            }
+        },
         data: {
             ncyBreadcrumbLabel: 'Projects'
         }
     }).state({
         name: 'project-detail',
-        url: '/project/:projectId',
-        templateUrl: '/static/ng-app/partials/project-detail.html',
-        controller: 'ProjectDetailController',
+        parent: 'home',
+        url: 'project/:projectId',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/project-detail.html',
+                controller: 'ProjectDetailController',
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: '{{current_project.project_name}}',
-            ncyBreadcrumbParent: 'home'
+            ncyBreadcrumbLabel: '{{current_project.project_name}}'
         }
     }).state({
         name: 'project-edit',
@@ -46,12 +54,16 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         }
     }).state({
         name: 'subject-group-list',
-        url: '/project/:projectId/subject-groups/',
-        templateUrl: '/static/ng-app/partials/subject-group-list.html',
-        controller: 'SubjectGroupController',
+        parent: 'project-detail',
+        url: '/subject-groups/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/subject-group-list.html',
+                controller: 'SubjectGroupController',
+            }
+        },
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups',
-            ncyBreadcrumbParent: 'project-detail'
+            ncyBreadcrumbLabel: 'Subject Groups'
         }
     }).state({
         name: 'subject-list',
