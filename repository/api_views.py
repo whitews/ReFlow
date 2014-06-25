@@ -80,6 +80,19 @@ def repository_api_root(request):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
+def get_user_details(request):
+    return Response(
+        {
+            'username': request.user.username,
+            'email': request.user.email,
+            'superuser': request.user.is_superuser
+        }
+    )
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
 def get_project_permissions(request, project):
     project = get_object_or_404(Project, pk=project)
 

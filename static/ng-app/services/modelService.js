@@ -4,12 +4,14 @@
 
 var service = angular.module('ReFlowApp');
 
-service.factory('ModelService', function($rootScope, Marker, Fluorochrome, Project, Site) {
+service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome, Project, Site) {
     var model = {};
     model.current_project = null;
     model.current_site = null;
     model.current_sample = null;
     model.current_panel_template = null;
+
+    model.user = User.get();
 
     function refresh_projects() {
         model.projects = Project.query();

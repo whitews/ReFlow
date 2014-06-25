@@ -3,6 +3,7 @@
  */
 
 var URLS = {
+    'USER':           '/api/repository/user/',
     'PROJECTS':            '/api/repository/projects/',
     'MARKERS':             '/api/repository/markers/',
     'FLUOROCHROMES':       '/api/repository/fluorochromes/',
@@ -40,6 +41,9 @@ var URLS = {
 var service = angular.module('ReFlowApp');
 
 service
+    .factory('User', ['$resource', function ($resource) {
+        return $resource(URLS.USER);
+    }])
     .factory('Project', ['$resource', function ($resource) {
         var Project = $resource(
             URLS.PROJECTS + ':id',
