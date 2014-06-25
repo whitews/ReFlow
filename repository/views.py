@@ -4,11 +4,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-
-from guardian.shortcuts import assign_perm
 
 from repository.models import *
 from repository.forms import *
@@ -244,49 +242,6 @@ def add_fluorochrome(request, fluorochrome_id=None):
 ##############################
 ### Project specific views ###
 ##############################
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def add_project(request, project_id=None):
-    if project_id:
-        project = get_object_or_404(Project, pk=project_id)
-        add_or_edit = 'edit'
-    else:
-        project = Project()
-        add_or_edit = 'add'
-
-    if request.method == 'POST':
-        form = ProjectForm(request.POST, instance=project)
-
-        if form.is_valid():
-            project = form.save()
-
-            # Automatically add the request user to the project with all
-            # permissions...it's the polite thing to do
-            assign_perm('view_project_data', request.user, project)
-            assign_perm('add_project_data', request.user, project)
-            assign_perm('modify_project_data', request.user, project)
-            assign_perm('manage_project_users', request.user, project)
-
-            return HttpResponseRedirect(reverse(
-                'view_project', args=(project.id,)))
-    else:
-        form = ProjectForm(instance=project)
-
-    return render_to_response(
-        'add_project.html',
-        {
-            'form': form,
-            'add_or_edit': add_or_edit,
-            'project_id': project_id,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
 @login_required
 def view_project_users(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
