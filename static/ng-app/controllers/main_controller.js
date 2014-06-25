@@ -11,15 +11,43 @@ app.controller(
         $scope.$on('updateProjects', function () {
             ModelService.reloadProjects();
         });
+        $scope.$on('projectUpdated', function () {
+            $scope.projects = ModelService.getProjects();
+        });
+        $scope.user = ModelService.user;
+        $scope.projects = ModelService.getProjects();
     }
 ]);
 
 app.controller(
     'ProjectListController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.projects = ModelService.getProjects();
-    }
-]);
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'ModelService',
+        function ($scope, $controller, $modal, ModelService) {
+            // Inherits MainController $scope
+            $controller('MainController', {$scope: $scope});
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/project-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
 
 app.controller(
     'ProjectDetailController',
@@ -85,11 +113,8 @@ app.controller(
     [
         '$scope',
         '$rootScope',
-        '$controller',
         'Project',
-        function ($scope, $rootScope, $controller, Project) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+        function ($scope, $rootScope, Project) {
 
             $scope.create_update = function (instance) {
                 $scope.errors = [];

@@ -354,7 +354,7 @@ class PermissionRequiredMixin(SingleObjectMixin):
         return obj
 
 
-class ProjectList(LoginRequiredMixin, generics.ListAPIView):
+class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of projects.
     """
@@ -369,6 +369,13 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
         """
         queryset = Project.objects.get_projects_user_can_view(self.request.user)
         return queryset
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(ProjectList, self).post(request, *args, **kwargs)
+        return response
 
 
 class ProjectDetail(
