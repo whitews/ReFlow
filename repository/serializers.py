@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from repository.models import *
+from django.contrib.auth.models import User
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -9,6 +10,14 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ('id', 'url', 'project_name', 'project_desc')
+
+
+class ProjectUserSerializer(serializers.ModelSerializer):
+    users = serializers.Field(source='get_project_users')
+
+    class Meta:
+        model = User
+        fields = ('id', 'project_name', 'users')
 
 
 class VisitTypeSerializer(serializers.ModelSerializer):

@@ -43,7 +43,22 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         data: {
             ncyBreadcrumbLabel: '{{current_project.project_name}}'
         }
-    }).state({
+    })
+        .state({
+        name: 'user-list',
+        parent: 'project-detail',
+        url: '/users/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/user-list.html',
+                controller: 'UserController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Subject Groups'
+        }
+    })
+        .state({
         name: 'subject-group-list',
         parent: 'project-detail',
         url: '/subject-groups/',

@@ -146,6 +146,44 @@ app.controller(
 );
 
 app.controller(
+    'UserController',
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'User',
+        function ($scope, $controller, $modal, User) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            function get_list() {
+                return User.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
+            }
+            $scope.subject_groups = get_list();
+
+            $scope.$on('updateSubjectGroups', function () {
+                $scope.subject_groups = get_list();
+            });
+
+            // launch form modal
+            var modalInstance = $modal.open({
+                templateUrl: 'static/ng-app/partials/project-form.html',
+                controller: ModalFormCtrl,
+                resolve: {
+                    instance: function() {
+                        return proposed_instance;
+                    }
+                }
+            });
+        }
+    ]
+);
+
+app.controller(
     'SubjectGroupController',
     ['$scope', '$controller', '$stateParams', '$modal', 'SubjectGroup', function ($scope, $controller, $stateParams, $modal, SubjectGroup) {
         // Inherits ProjectDetailController $scope

@@ -3,8 +3,9 @@
  */
 
 var URLS = {
-    'USER':           '/api/repository/user/',
+    'USER':                '/api/repository/user/',
     'PROJECTS':            '/api/repository/projects/',
+    'PROJECT_USERS':       '/api/repository/users/',
     'MARKERS':             '/api/repository/markers/',
     'FLUOROCHROMES':       '/api/repository/fluorochromes/',
     'SPECIMENS':           '/api/repository/specimens/',

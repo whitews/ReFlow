@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 import django_filters
 
+from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -398,6 +399,27 @@ class ProjectDetail(
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class ProjectUserDetail(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing the users within a single project.
+    """
+
+    model = Project
+    serializer_class = ProjectUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+
+        if not project.has_user_management_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(ProjectUserDetail, self).get(request, *args, **kwargs)
+        return response
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
