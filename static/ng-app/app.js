@@ -43,8 +43,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         data: {
             ncyBreadcrumbLabel: '{{current_project.project_name}}'
         }
-    })
-        .state({
+    }).state({
         name: 'user-list',
         parent: 'project-detail',
         url: '/users/',
@@ -57,8 +56,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         data: {
             ncyBreadcrumbLabel: 'Users'
         }
-    })
-        .state({
+    }).state({
         name: 'subject-group-list',
         parent: 'project-detail',
         url: '/subject-groups/',

@@ -2,6 +2,24 @@ from rest_framework import serializers
 
 from repository.models import *
 from django.contrib.auth.models import User
+from guardian.models import UserObjectPermission
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    model = serializers.CharField(source='content_type.model')
+    username = serializers.CharField(source='user.username')
+    permission_name = serializers.CharField(source='permission.codename')
+
+    class Meta:
+        model = UserObjectPermission
+        fields = (
+            'id',
+            'model',
+            'object_pk',
+            'username',
+            'permission',
+            'permission_name'
+        )
 
 
 class ProjectSerializer(serializers.ModelSerializer):

@@ -21,6 +21,7 @@ from django.views.generic.detail import SingleObjectMixin
 import json
 
 from repository.models import *
+from guardian.models import UserObjectPermission
 from repository.serializers import *
 from controllers import *
 
@@ -49,6 +50,7 @@ def repository_api_root(request):
         'markers': reverse('marker-list', request=request),
         'fluorochromes': reverse('fluorochrome-list', request=request),
         'specimens': reverse('specimen-list', request=request),
+        'permissions': reverse('permission-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
@@ -353,6 +355,65 @@ class PermissionRequiredMixin(SingleObjectMixin):
                 raise PermissionDenied
 
         return obj
+
+
+class PermissionFilter(django_filters.FilterSet):
+    model = django_filters.CharFilter(name='content_type__model')
+    username = django_filters.CharFilter(name='user__username')
+    permission_name = django_filters.CharFilter(name='permission__codename')
+
+    class Meta:
+        model = UserObjectPermission
+        fields = [
+            'object_pk',
+            'model'
+        ]
+
+
+class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of projects.
+    """
+
+    model = UserObjectPermission
+    serializer_class = PermissionSerializer
+    filter_class = PermissionFilter
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to filter permissions related to projects
+        for which the requesting user has user management permissions.
+        """
+
+        # get list of project IDs the user has user management privileges for
+        projects = Project.objects.get_projects_user_can_manage_users(
+            self.request.user).values_list('id', flat=True)
+
+        # get list of sites for those projects
+        sites = Site.objects.filter(project__in=projects)\
+            .values_list('id', flat=True)
+
+        # get project related permissions
+        project_perms = UserObjectPermission.objects.filter(
+            content_type__model='project',
+            object_pk__in=projects
+        )
+
+        # get site related permissions
+        site_perms = UserObjectPermission.objects.filter(
+            content_type__model='site',
+            object_pk__in=sites
+        )
+
+        return project_perms | site_perms
+
+    def post(self, request, *args, **kwargs):
+        # TODO: finish implementation of post
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(PermissionList, self).post(request, *args, **kwargs)
+        return response
 
 
 class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):

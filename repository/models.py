@@ -194,6 +194,19 @@ class ProjectManager(models.Manager):
 
         return projects | site_projects
 
+    @staticmethod
+    def get_projects_user_can_manage_users(user):
+        """
+        Return a list of projects for which the given user has user management
+        permissions.
+        """
+        projects = get_objects_for_user(
+            user,
+            'manage_project_users',
+            klass=Project)
+
+        return projects
+
 
 class Project(ProtectedModel):
     project_name = models.CharField(
