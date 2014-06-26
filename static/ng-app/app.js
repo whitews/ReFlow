@@ -55,7 +55,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             }
         },
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups'
+            ncyBreadcrumbLabel: 'Users'
         }
     })
         .state({

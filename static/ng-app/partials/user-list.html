@@ -20,8 +20,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="user in users">
-          <td class="middle">{{ user.username }}</td>
+        <tr ng-repeat="user in users.users">
+          <td class="middle">{{ user }}</td>
           <td>
           <ul class="list-unstyled">
             <li ng-repeat="perm in user.permissions">

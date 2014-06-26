@@ -151,34 +151,37 @@ app.controller(
         '$scope',
         '$controller',
         '$modal',
-        'User',
-        function ($scope, $controller, $modal, User) {
+        'ProjectUser',
+        function ($scope, $controller, $modal, ProjectUser) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
             function get_list() {
-                return User.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                return ProjectUser.get(
+                    { 'id': $scope.current_project.id }
                 );
             }
-            $scope.subject_groups = get_list();
+            $scope.users = get_list();
 
-            $scope.$on('updateSubjectGroups', function () {
-                $scope.subject_groups = get_list();
+            $scope.$on('updateUsers', function () {
+                $scope.users = get_list();
             });
 
-            // launch form modal
-            var modalInstance = $modal.open({
-                templateUrl: 'static/ng-app/partials/project-form.html',
-                controller: ModalFormCtrl,
-                resolve: {
-                    instance: function() {
-                        return proposed_instance;
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/user-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
                     }
-                }
-            });
+                });
+            };
         }
     ]
 );

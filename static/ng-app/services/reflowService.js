@@ -5,7 +5,7 @@
 var URLS = {
     'USER':                '/api/repository/user/',
     'PROJECTS':            '/api/repository/projects/',
-    'PROJECT_USERS':       '/api/repository/users/',
+    'PROJECT_USERS':       '/api/repository/projects/:id/users/',
     'MARKERS':             '/api/repository/markers/',
     'FLUOROCHROMES':       '/api/repository/fluorochromes/',
     'SPECIMENS':           '/api/repository/specimens/',
@@ -68,6 +68,18 @@ service
         };
 
         return Project;
+    }])
+    .factory('ProjectUser', ['$resource', function ($resource) {
+        var ProjectUser = $resource(
+            URLS.PROJECT_USERS,
+            {},
+            {
+                get: { isArray: false },
+                update: { method: 'PUT' }
+            }
+        );
+
+        return ProjectUser;
     }])
     .factory('Site', ['$resource', function ($resource) {
         var Site = $resource(

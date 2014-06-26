@@ -17,7 +17,7 @@ class ProjectUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'project_name', 'users')
+        fields = ('id', 'users')
 
 
 class VisitTypeSerializer(serializers.ModelSerializer):
