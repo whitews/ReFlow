@@ -22,14 +22,17 @@
       <tbody>
         <tr ng-repeat="user in users">
           <td class="middle">
+            <a class="btn btn-default btn-xs" ng-show="can_manage_users" ng-click="init_form(user)" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
+            </a>
             {{ user.username }}
-            <a class="pull-right" ng-show="can_manage_users">Edit</a>
           </td>
           <td>
-          <ul class="list-unstyled">
-            <li ng-repeat="perm in user.project_permissions">
-              {{ perm.permission_name }}
-            </li>
+            <ul class="list-unstyled">
+              <li ng-repeat="perm in user.project_permissions">
+                {{ perm.permission_name }}
+              </li>
+            </ul>
           </td>
           <td>
             <ul class="list-unstyled">

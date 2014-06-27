@@ -82,3 +82,39 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'UserEditController',
+    ['$scope', '$rootScope', '$controller', 'UserPermissions', function ($scope, $rootScope, $controller, UserPermissions) {
+        // Inherits ProjectDetailController $scope
+        $controller('UserController', {$scope: $scope});
+
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            var response;
+            if (instance.id) {
+                response = UserPermissions.update(
+                    {id: instance.id },
+                    $scope.instance
+                );
+            } else {
+                instance.project = $scope.current_project.id;
+
+                response = UserPermissions.save(
+                    $scope.instance
+                );
+            }
+
+            response.$promise.then(function () {
+                // notify to update subject group list
+                $rootScope.$broadcast('updateUserPermissions');
+
+                // close modal
+                $scope.ok();
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
