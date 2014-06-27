@@ -8,7 +8,8 @@ from guardian.models import UserObjectPermission
 class PermissionSerializer(serializers.ModelSerializer):
     model = serializers.CharField(source='content_type.model')
     username = serializers.CharField(source='user.username')
-    permission_name = serializers.CharField(source='permission.codename')
+    permission_codename = serializers.CharField(source='permission.codename')
+    permission_name = serializers.CharField(source='permission.name')
 
     class Meta:
         model = UserObjectPermission
@@ -18,6 +19,7 @@ class PermissionSerializer(serializers.ModelSerializer):
             'object_pk',
             'username',
             'permission',
+            'permission_codename',
             'permission_name'
         )
 

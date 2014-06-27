@@ -372,7 +372,9 @@ class PermissionFilter(django_filters.FilterSet):
 
 class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of projects.
+    API endpoint representing a list of object permissions at both the project
+    and site level for all users in all projects for which the requesting user
+    has user management permissions.
     """
 
     model = UserObjectPermission
