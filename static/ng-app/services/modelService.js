@@ -6,7 +6,6 @@ var service = angular.module('ReFlowApp');
 
 service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome, Project, Site) {
     var model = {};
-    model.current_project = null;
     model.current_site = null;
     model.current_sample = null;
     model.current_panel_template = null;
@@ -63,15 +62,6 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
             return project[0];
         }
         return null;
-    };
-
-    model.setCurrentProject = function (object) {
-        this.current_project = object;
-        $rootScope.$broadcast('projectChanged');
-    };
-
-    model.getCurrentProject = function () {
-        return this.current_project;
     };
 
     model.setCurrentSite = function (value) {

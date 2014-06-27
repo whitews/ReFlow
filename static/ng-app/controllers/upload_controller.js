@@ -672,10 +672,11 @@ app.controller(
 app.controller(
     'MainSampleUploadController',
     [
-        '$scope', 'ModelService',
-        function ($scope, ModelService) {
+        '$scope', '$controller', 'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
             $scope.sample_upload_model = {};
-            $scope.current_project = ModelService.getCurrentProject();
         }
     ]
 );

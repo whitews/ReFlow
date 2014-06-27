@@ -695,20 +695,17 @@ app.controller(
 app.controller(
     'SampleController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
     }
 ]);
 
 app.controller(
     'BeadSampleController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
     }
 ]);
 
 app.controller(
     'CompensationController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.current_project = ModelService.getCurrentProject();
     }
 ]);
