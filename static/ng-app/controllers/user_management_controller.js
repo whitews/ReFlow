@@ -48,8 +48,9 @@ app.controller(
                             );
                             site_perm_response.$promise.then(function (perms) {
                                 if (perms.length > 0) {
-                                    site.permissions = perms;
-                                    user.sites.push(site);
+                                    var site_copy = angular.copy(site);
+                                    site_copy.permissions = perms;
+                                    user.sites.push(site_copy);
                                 }
                             })
                         });
