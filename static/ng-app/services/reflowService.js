@@ -4,6 +4,7 @@
 
 var URLS = {
     'USER':                '/api/repository/user/',
+    'USER_PERMISSIONS':    '/api/repository/permissions/',
     'PROJECTS':            '/api/repository/projects/',
     'PROJECT_USERS':       '/api/repository/projects/:id/users/',
     'MARKERS':             '/api/repository/markers/',
@@ -44,6 +45,9 @@ var service = angular.module('ReFlowApp');
 service
     .factory('User', ['$resource', function ($resource) {
         return $resource(URLS.USER);
+    }])
+    .factory('UserPermissions', ['$resource', function ($resource) {
+        return $resource(URLS.USER_PERMISSIONS);
     }])
     .factory('Project', ['$resource', function ($resource) {
         var Project = $resource(

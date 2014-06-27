@@ -20,12 +20,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="user in users.users">
-          <td class="middle">{{ user }}</td>
+        <tr ng-repeat="user in users">
+          <td class="middle">{{ user.username }}</td>
           <td>
           <ul class="list-unstyled">
-            <li ng-repeat="perm in user.permissions">
-              {{ perm.permission.name }}
+            <li ng-repeat="perm in user.project_permissions">
+              {{ perm.permission_name }}
             </li>
           </ul>
             <a ng-show="can_manage_users" ng-click="init_form(user)">
@@ -34,14 +34,15 @@
           </td>
           <td>
             <ul class="list-unstyled">
-              <li ng-repeat="site in current_project.sites">
+              <li ng-repeat="site in user.sites">
                 {{ site.site_name }}
                 <a class="pull-right" ng-show="can_manage_users">Edit</a>
-                <ul>
-                  <li ng-repeat="perm in site.permissions">{{ perm.permission.name }}</li>
+                <ul class="">
+
+                  <li ng-repeat="perm in site.permissions">{{ perm.permission_name }}</li>
                 </ul>
+                <div ng-hide="$last"><hr/></div>
               </li>
-              <div ng-hide="$last"><hr/></div>
             </ul>
           </td>
         </tr>
