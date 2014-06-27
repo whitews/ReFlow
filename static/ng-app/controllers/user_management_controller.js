@@ -34,9 +34,6 @@ app.controller(
                                 'username': user.username
                             }
                         );
-                        user.project_permissions.$promise.then(function (data) {
-                            console.log('asdf');
-                        });
 
                         // get user's site-level  permissions for sites in the
                         // current project

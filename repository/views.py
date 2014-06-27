@@ -243,29 +243,6 @@ def add_fluorochrome(request, fluorochrome_id=None):
 ### Project specific views ###
 ##############################
 @login_required
-def view_project_users(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    can_manage_project_users = project.has_user_management_permission(
-        request.user)
-
-    if not can_manage_project_users:
-        raise PermissionDenied
-
-    project_users = project.get_project_users()
-
-    return render_to_response(
-        'view_project_users.html',
-        {
-            'project': project,
-            'project_users': project_users,
-            'can_manage_project_users': can_manage_project_users,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def add_user_permissions(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -290,60 +267,6 @@ def add_user_permissions(request, project_id):
         'add_user_permissions.html',
         {
             'project': project,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def manage_project_user(request, project_id, user_id):
-    project = get_object_or_404(Project, pk=project_id)
-    user = get_object_or_404(User, pk=user_id)
-
-    if not project.has_user_management_permission(request.user):
-        raise PermissionDenied
-
-    form = CustomUserObjectPermissionForm(user, project, request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save_obj_perms()
-        return HttpResponseRedirect(reverse(
-            'view_project_users', args=(project.id,)))
-
-    return render_to_response(
-        'manage_project_user.html',
-        {
-            'project': project,
-            'project_user': user,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def manage_site_user(request, site_id, user_id):
-    site = get_object_or_404(Site, pk=site_id)
-    user = get_object_or_404(User, pk=user_id)
-
-    if not site.project.has_user_management_permission(request.user):
-        raise PermissionDenied
-    if site.has_user_management_permission(request.user):
-        raise PermissionDenied
-
-    form = CustomUserObjectPermissionForm(user, site, request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save_obj_perms()
-        return HttpResponseRedirect(reverse(
-            'view_project_users', args=(site.project_id,)))
-
-    return render_to_response(
-        'manage_site_user.html',
-        {
-            'site': site,
-            'site_user': user,
             'form': form,
         },
         context_instance=RequestContext(request)

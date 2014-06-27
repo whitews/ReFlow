@@ -119,10 +119,7 @@ urlpatterns += patterns('repository.views',
     url(r'^specimens/add/$', 'add_specimen', name='add_specimen'),
     url(r'^specimens/(?P<specimen_id>\d+)/edit/$', 'edit_specimen', name='edit_specimen'),
 
-    url(r'^project/(?P<project_id>\d+)/users/$', 'view_project_users', name='view_project_users'),
     url(r'^project/(?P<project_id>\d+)/users/add/$', 'add_user_permissions', name='add_user_permissions'),
-    url(r'^project/(?P<project_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_project_user', name='manage_project_user'),
-    url(r'^site/(?P<site_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_site_user', name='manage_site_user'),
 
     url(r'^project/(?P<project_id>\d+)/templates/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
 
