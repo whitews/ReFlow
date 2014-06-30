@@ -89,6 +89,49 @@ app.controller(
         // Inherits ProjectDetailController $scope
         $controller('UserController', {$scope: $scope});
 
+        // Build user management form values
+        $scope.project_permissions = {
+            'view_project_data': {'name': 'View Project Data', 'value': false },
+            'add_project_data': {'name': 'Add Project Data', 'value': false },
+            'modify_project_data': {'name': 'Modify Project Data', 'value': false },
+            'manage_project_users': {'name': 'Manage Project Users', 'value': false }
+        };
+
+        $scope.instance.project_permissions.forEach(function (user_perm) {
+            if ($scope.project_permissions.hasOwnProperty(user_perm.permission_codename)) {
+                $scope.project_permissions[user_perm.permission_codename].value = true;
+            }
+        });
+
+        var site_perms = {
+            'view_site_data': {'name': 'View Site Data', 'value': false },
+            'add_site_data': {'name': 'Add Site Data', 'value': false },
+            'modify_site_data': {'name': 'Modify Site Data', 'value': false }
+        };
+
+        $scope.site_permissions = {};
+
+        // build default site perms
+        $scope.current_project.sites.forEach(function (site) {
+            var site_perm_obj = {
+                'site_name': site.site_name,
+                'permissions': angular.copy(site_perms)
+            };
+
+            $scope.site_permissions[site.id] = site_perm_obj;
+        });
+
+        // now populate with any site perms the current user instance has
+        $scope.instance.sites.forEach(function (site) {
+            if ($scope.site_permissions.hasOwnProperty(site.id)) {
+                site.permissions.forEach(function (site_perm) {
+                    if ($scope.site_permissions[site.id].permissions.hasOwnProperty(site_perm.permission_codename)) {
+                        $scope.site_permissions[site.id].permissions[site_perm.permission_codename].value = true;
+                    }
+                });
+            }
+        });
+
         $scope.create_update = function (instance) {
             $scope.errors = [];
             var response;

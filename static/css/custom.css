@@ -97,6 +97,10 @@ textarea {
     min-width: 360px !important;
 }
 
+label {
+  font-weight: 500;
+}
+
 .lead {
   margin-bottom: 20px;
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
