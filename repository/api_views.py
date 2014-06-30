@@ -13,7 +13,8 @@ import django_filters
 
 from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist, \
+    MultipleObjectsReturned
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.views.generic.detail import SingleObjectMixin
@@ -22,6 +23,7 @@ import json
 
 from repository.models import *
 from guardian.models import UserObjectPermission
+from guardian.shortcuts import assign_perm, remove_perm
 from repository.serializers import *
 from controllers import *
 
@@ -410,12 +412,56 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
         return project_perms | site_perms
 
     def post(self, request, *args, **kwargs):
-        # TODO: finish implementation of post
-        if not request.user.is_superuser:
+        project_perms = [
+            'view_project_data',
+            'add_project_data',
+            'modify_project_data',
+            'manage_project_users'
+        ]
+
+        site_perms = [
+            'view_site_data',
+            'add_site_data',
+            'modify_site_data'
+        ]
+
+        # determine if model is 'site' or 'project'
+        # also check that the a valid permission was provided
+        if request.DATA['model'] == 'project':
+            project = Project.objects.get(id=request.DATA['object_pk'])
+            if request.DATA['permission_codename'] not in project_perms:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            obj = project
+        elif request.DATA['model'] == 'site':
+            try:
+                obj = Site.objects.get(id=request.DATA['object_pk'])
+                project = obj.project
+            except ObjectDoesNotExist:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            if request.DATA['permission_codename'] not in site_perms:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # verify user is valid
+        try:
+            user = User.objects.get(username=request.DATA['username'])
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # ensure requesting user has user management permission for this project
+        if not project.has_user_management_permission(request.user):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        response = super(PermissionList, self).post(request, *args, **kwargs)
-        return response
+        # save the permission
+        assign_perm(
+            request.DATA['permission_codename'],
+            user,
+            obj
+        )
+
+        return Response(status.HTTP_201_CREATED)
 
 
 class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):

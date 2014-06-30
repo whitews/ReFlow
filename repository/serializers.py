@@ -9,7 +9,7 @@ class PermissionSerializer(serializers.ModelSerializer):
     model = serializers.CharField(source='content_type.model')
     username = serializers.CharField(source='user.username')
     permission_codename = serializers.CharField(source='permission.codename')
-    permission_name = serializers.CharField(source='permission.name')
+    permission_name = serializers.CharField(source='permission.name', read_only=True)
 
     class Meta:
         model = UserObjectPermission
@@ -22,6 +22,7 @@ class PermissionSerializer(serializers.ModelSerializer):
             'permission_codename',
             'permission_name'
         )
+        read_only_fields = ('permission',)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
