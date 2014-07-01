@@ -9,7 +9,7 @@
 
     <div ng-repeat="(codename, perm) in project_permissions">
       <label>
-        <input type="checkbox" ng-model="perm.value" />
+        <input type="checkbox" ng-model="perm.value" ng-click="checkbox_changed(codename, perm, 'project', current_project.id)"/>
         {{ perm.name }}
       </label>
     </div>

@@ -98,6 +98,17 @@ def get_user_details(request):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
+def is_user(request, username):
+    try:
+        User.objects.get(username=username)
+    except ObjectDoesNotExist:
+        return Response(status.HTTP_404_NOT_FOUND)
+    return Response(status.HTTP_302_FOUND)
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
 def get_project_permissions(request, project):
     project = get_object_or_404(Project, pk=project)
 

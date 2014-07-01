@@ -60,9 +60,26 @@ app.controller(
             }
             $scope.users = get_list();
 
-            $scope.$on('updateUsers', function () {
+            $scope.$on('updateUserPermissions', function () {
                 $scope.users = get_list();
             });
+
+            $scope.add_user = function() {
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/user-choose.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: null
+                    }
+                });
+            };
+
+            $scope.query_user = function() {
+                $scope.username
+            }
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
@@ -99,6 +116,7 @@ app.controller(
 
         $scope.instance.project_permissions.forEach(function (user_perm) {
             if ($scope.project_permissions.hasOwnProperty(user_perm.permission_codename)) {
+                $scope.project_permissions[user_perm.permission_codename].id = user_perm.id;
                 $scope.project_permissions[user_perm.permission_codename].value = true;
             }
         });
