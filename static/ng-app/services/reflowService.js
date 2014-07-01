@@ -47,7 +47,7 @@ service
         return $resource(URLS.USER);
     }])
     .factory('UserPermissions', ['$resource', function ($resource) {
-        return $resource(URLS.USER_PERMISSIONS);
+        return $resource(URLS.USER_PERMISSIONS + ':id');
     }])
     .factory('Project', ['$resource', function ($resource) {
         var Project = $resource(

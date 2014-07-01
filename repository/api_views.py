@@ -372,6 +372,38 @@ class PermissionFilter(django_filters.FilterSet):
         ]
 
 
+class PermissionDetail(LoginRequiredMixin, generics.DestroyAPIView):
+    """
+    API endpoint for deleting user permissions for which the requesting user
+    has user management permissions.
+    """
+
+    model = UserObjectPermission
+    serializer_class = PermissionSerializer
+
+    def delete(self, request, *args, **kwargs):
+        # get permission instance and user
+        try:
+            perm = UserObjectPermission.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if perm.content_type.name == 'project':
+            project = perm.content_object
+        elif perm.content_type.name == 'site':
+            project = perm.content_object.project
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # ensure requesting user has user management permission for this project
+        if not project.has_user_management_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        remove_perm(perm.permission.codename, perm.user, perm.content_object)
+
+        return Response(status=status.HTTP_200_OK)
+
+
 class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of object permissions at both the project
@@ -461,7 +493,17 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
             obj
         )
 
-        return Response(status.HTTP_201_CREATED)
+        perm = UserObjectPermission.objects.get(
+            user=user,
+            object_pk=obj.id,
+            permission__codename=request.DATA['permission_codename']
+        )
+
+        serializer = self.get_serializer(perm)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
 
 class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):

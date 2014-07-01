@@ -22,7 +22,7 @@
       <h5>{{ site.site_name }}</h5>
       <div ng-repeat="(codename, perm) in site.permissions">
         <label>
-          <input type="checkbox" ng-model="perm.value" />
+          <input type="checkbox" ng-model="perm.value" ng-click="checkbox_changed(codename, perm, 'site', site.obj_id)"/>
           {{ perm.name }}
         </label>
       </div>

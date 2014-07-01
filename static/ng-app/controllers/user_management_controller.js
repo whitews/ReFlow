@@ -114,6 +114,8 @@ app.controller(
         // build default site perms
         $scope.current_project.sites.forEach(function (site) {
             var site_perm_obj = {
+                'id': null,
+                'obj_id': site.id,
                 'site_name': site.site_name,
                 'permissions': angular.copy(site_perms)
             };
@@ -126,37 +128,37 @@ app.controller(
             if ($scope.site_permissions.hasOwnProperty(site.id)) {
                 site.permissions.forEach(function (site_perm) {
                     if ($scope.site_permissions[site.id].permissions.hasOwnProperty(site_perm.permission_codename)) {
+                        $scope.site_permissions[site.id].permissions[site_perm.permission_codename].id = site_perm.id;
                         $scope.site_permissions[site.id].permissions[site_perm.permission_codename].value = true;
                     }
                 });
             }
         });
 
-        $scope.create_update = function (instance) {
-            $scope.errors = [];
+        $scope.checkbox_changed = function (codename, perm, model, obj_id) {
+            perm.errors = [];
             var response;
-            if (instance.id) {
-                response = UserPermissions.update(
-                    {id: instance.id },
-                    $scope.instance
+            if (perm.value) {
+                response = UserPermissions.delete(
+                    {id: perm.id }
                 );
             } else {
-                instance.project = $scope.current_project.id;
-
                 response = UserPermissions.save(
-                    $scope.instance
+                    {
+                        'username': $scope.instance.username,
+                        'model': model,
+                        'object_pk': obj_id,
+                        'permission_codename': codename
+                    }
                 );
             }
 
-            response.$promise.then(function () {
-                // notify to update subject group list
+            response.$promise.then(function (o) {
+                perm.id = o.id;
+                // notify to update user permissions list
                 $rootScope.$broadcast('updateUserPermissions');
-
-                // close modal
-                $scope.ok();
-
             }, function (error) {
-                $scope.errors = error.data;
+                perm.errors = error.data;
             });
         };
     }
