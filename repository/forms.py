@@ -4,13 +4,8 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from repository.models import Project, Site, Subject, VisitType, Sample, \
     Cytometer, Compensation, ProjectPanel, SitePanel, \
-    Fluorochrome, SitePanelParameter, \
-    Specimen, SubjectGroup, Stimulation, Worker
-
-
-class SpecimenForm(forms.ModelForm):
-    class Meta:
-        model = Specimen
+    SitePanelParameter, \
+    SubjectGroup, Stimulation, Worker
 
 
 class SampleEditForm(forms.ModelForm):

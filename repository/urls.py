@@ -111,10 +111,6 @@ urlpatterns += patterns('repository.views',
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
 
-    url(r'^specimens/$', 'view_specimens', name='view_specimens'),
-    url(r'^specimens/add/$', 'add_specimen', name='add_specimen'),
-    url(r'^specimens/(?P<specimen_id>\d+)/edit/$', 'edit_specimen', name='edit_specimen'),
-
     url(r'^project/(?P<project_id>\d+)/templates/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
 
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
