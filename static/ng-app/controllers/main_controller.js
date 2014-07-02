@@ -27,6 +27,87 @@ app.controller(
 ]);
 
 app.controller(
+    'MarkerController',
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Marker',
+        function ($scope, $controller, $modal, Marker) {
+            // Inherits MainController $scope
+            $controller('MainController', {$scope: $scope});
+
+            function get_list() {
+                return Marker.query(
+                    {}
+                );
+            }
+            $scope.markers = get_list();
+
+            $scope.$on('updateMarkers', function () {
+                $scope.markers = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/marker-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'MarkerEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Marker',
+        function ($scope, $rootScope, $controller, Marker) {
+            // Inherits ProjectDetailController $scope
+            $controller('MarkerController', {$scope: $scope});
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = Marker.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    response = Marker.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateMarkers');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'ProjectListController',
     [
         '$scope',

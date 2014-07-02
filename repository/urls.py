@@ -18,6 +18,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/user/(?P<username>\w+)/?$', is_user, name='is_user'),
 
     url(r'^api/repository/markers/?$', MarkerList.as_view(), name='marker-list'),
+    url(r'^api/repository/markers/(?P<pk>\d+)/?$', MarkerDetail.as_view(), name='marker-detail'),
     url(r'^api/repository/fluorochromes/?$', FluorochromeList.as_view(), name='fluorochrome-list'),
     url(r'^api/repository/specimens/?$', SpecimenList.as_view(), name='specimen-list'),
     url(r'^api/repository/parameter_functions/?$', get_parameter_functions, name='get_parameter_functions'),

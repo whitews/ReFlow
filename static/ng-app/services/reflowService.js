@@ -120,7 +120,15 @@ service
         return Site;
     }])
     .factory('Marker', ['$resource', function ($resource) {
-        return $resource(URLS.MARKERS);
+        var Marker = $resource(
+            URLS.MARKERS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Marker;
     }])
     .factory('Fluorochrome', ['$resource', function ($resource) {
         return $resource(URLS.FLUOROCHROMES);

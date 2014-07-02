@@ -1157,7 +1157,7 @@ class CytometerDetail(
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-class MarkerList(generics.ListAPIView):
+class MarkerList(generics.ListCreateAPIView):
     """
     API endpoint representing a list of flow cytometry markers.
     """
@@ -1165,6 +1165,37 @@ class MarkerList(generics.ListAPIView):
     model = Marker
     serializer_class = MarkerSerializer
     filter_fields = ('marker_abbreviation', 'marker_name')
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(MarkerList, self).post(request, *args, **kwargs)
+        return response
+
+
+class MarkerDetail(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single marker.
+    """
+
+    model = Marker
+    serializer_class = MarkerSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            Marker.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(MarkerDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class FluorochromeList(generics.ListAPIView):
