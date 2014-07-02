@@ -123,57 +123,6 @@ def edit_specimen(request, specimen_id):
     )
 
 
-@login_required
-def view_fluorochromes(request):
-
-    fluorochromes = Fluorochrome.objects.all().values(
-        'id',
-        'fluorochrome_abbreviation',
-        'fluorochrome_name',
-        'fluorochrome_description',
-    )
-
-    return render_to_response(
-        'view_fluorochromes.html',
-        {
-            'fluorochromes': fluorochromes,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def add_fluorochrome(request, fluorochrome_id=None):
-    if fluorochrome_id:
-        fluorochrome = get_object_or_404(Fluorochrome, pk=fluorochrome_id)
-        add_or_edit = 'edit'
-    else:
-        fluorochrome = Fluorochrome()
-        add_or_edit = 'add'
-
-    if request.method == 'POST':
-        form = FluorochromeForm(request.POST, instance=fluorochrome)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_fluorochromes'))
-    else:
-        form = FluorochromeForm(instance=fluorochrome)
-
-    return render_to_response(
-        'add_fluorochrome.html',
-        {
-            'form': form,
-            'add_or_edit': add_or_edit,
-            'fluorochrome_id': fluorochrome_id,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
 ##############################
 ### Project specific views ###
 ##############################

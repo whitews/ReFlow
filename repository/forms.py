@@ -8,11 +8,6 @@ from repository.models import Project, Site, Subject, VisitType, Sample, \
     Specimen, SubjectGroup, Stimulation, Worker
 
 
-class FluorochromeForm(forms.ModelForm):
-    class Meta:
-        model = Fluorochrome
-
-
 class SpecimenForm(forms.ModelForm):
     class Meta:
         model = Specimen
