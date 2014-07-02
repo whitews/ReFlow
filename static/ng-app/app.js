@@ -44,6 +44,19 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbLabel: 'Admin'
         }
     }).state({
+        name: 'specimen-list',
+        parent: 'admin',
+        url: 'specimens/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/specimen-list.html',
+                controller: 'SpecimenController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Specimens'
+        }
+    }).state({
         name: 'marker-list',
         parent: 'admin',
         url: 'markers/',

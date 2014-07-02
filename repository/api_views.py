@@ -1239,7 +1239,7 @@ class FluorochromeDetail(generics.RetrieveUpdateAPIView):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
+class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of specimen types.
     """
@@ -1247,6 +1247,37 @@ class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
     model = Specimen
     serializer_class = SpecimenSerializer
     filter_fields = ('specimen_name',)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(SpecimenList, self).post(request, *args, **kwargs)
+        return response
+
+
+class SpecimenDetail(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single fluorochrome.
+    """
+
+    model = Specimen
+    serializer_class = SpecimenSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            Specimen.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(SpecimenDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):

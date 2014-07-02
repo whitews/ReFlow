@@ -22,6 +22,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/fluorochromes/?$', FluorochromeList.as_view(), name='fluorochrome-list'),
     url(r'^api/repository/fluorochromes/(?P<pk>\d+)/?$', FluorochromeDetail.as_view(), name='fluorochrome-detail'),
     url(r'^api/repository/specimens/?$', SpecimenList.as_view(), name='specimen-list'),
+    url(r'^api/repository/specimens/(?P<pk>\d+)/?$', SpecimenDetail.as_view(), name='specimen-detail'),
     url(r'^api/repository/parameter_functions/?$', get_parameter_functions, name='get_parameter_functions'),
     url(r'^api/repository/parameter_value_types/?$', get_parameter_value_types,
         name='get_parameter_value_types'),
@@ -109,10 +110,6 @@ urlpatterns += patterns('repository.views',
 # Regular web routes
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
-
-    url(r'^fluorochromes/$', 'view_fluorochromes', name='view_fluorochromes'),
-    url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
-    url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'add_fluorochrome', name='edit_fluorochrome'),
 
     url(r'^specimens/$', 'view_specimens', name='view_specimens'),
     url(r'^specimens/add/$', 'add_specimen', name='add_specimen'),

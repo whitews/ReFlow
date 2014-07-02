@@ -142,7 +142,15 @@ service
         return Fluorochrome;
     }])
     .factory('Specimen', ['$resource', function ($resource) {
-        return $resource(URLS.SPECIMENS);
+        var Specimen = $resource(
+            URLS.SPECIMENS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Specimen;
     }])
     .factory('SubjectGroup', ['$resource', function ($resource) {
         var SubjectGroup = $resource(

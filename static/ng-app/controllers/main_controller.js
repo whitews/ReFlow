@@ -27,6 +27,87 @@ app.controller(
 ]);
 
 app.controller(
+    'SpecimenController',
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Specimen',
+        function ($scope, $controller, $modal, Specimen) {
+            // Inherits MainController $scope
+            $controller('MainController', {$scope: $scope});
+
+            function get_list() {
+                return Specimen.query(
+                    {}
+                );
+            }
+            $scope.specimens = get_list();
+
+            $scope.$on('updateSpecimens', function () {
+                $scope.specimens = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/specimen-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'SpecimenEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Specimen',
+        function ($scope, $rootScope, $controller, Specimen) {
+            // Inherits ProjectDetailController $scope
+            $controller('SpecimenController', {$scope: $scope});
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = Specimen.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    response = Specimen.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateSpecimens');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'MarkerController',
     [
         '$scope',
