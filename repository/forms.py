@@ -1,35 +1,11 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.contrib.auth.models import User
-from guardian.forms import UserObjectPermissionsForm
 
 from repository.models import Project, Site, Subject, VisitType, Sample, \
     Cytometer, Compensation, ProjectPanel, SitePanel, \
     Fluorochrome, Marker, SitePanelParameter, \
     Specimen, SubjectGroup, Stimulation, Worker
-
-
-class ProjectForm(forms.ModelForm):
-    class Meta:
-        model = Project
-
-
-class CustomUserObjectPermissionForm(UserObjectPermissionsForm):
-    """
-    Subclass guardian's UserObjectPermissionsForm to exclude
-    Django's default model permissions.
-    """
-    def get_obj_perms_field_widget(self):
-        """
-        Override to select a CheckboxSelectMultiple (default is SelectMultiple).
-        """
-        return forms.CheckboxSelectMultiple
-
-    def get_obj_perms_field_choices(self):
-        choices = super(
-            CustomUserObjectPermissionForm, self).get_obj_perms_field_choices()
-        return list(set(choices).intersection(self.obj._meta.permissions))
 
 
 class MarkerForm(forms.ModelForm):
@@ -47,103 +23,6 @@ class SpecimenForm(forms.ModelForm):
         model = Specimen
 
 
-class UserSelectForm(forms.Form):
-    username = forms.CharField(label='Username')
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # now it's safe to call the parent init
-        super(UserSelectForm, self).__init__(*args, **kwargs)
-
-        # finally, the reason we're here...
-        # make sure only the project's sites are the available choices
-        if project_id:
-            sites = Site.objects.filter(
-                project__id=project_id).order_by('site_name')
-            self.fields['site'] = forms.ModelChoiceField(
-                sites,
-                required=False,
-                empty_label='Project Level - All Sites')
-
-    def clean(self):
-        """
-        Validate user exists.
-        """
-        if not 'username' in self.cleaned_data:
-            raise ValidationError("No user specified.")
-
-        try:
-            user = User.objects.get(username=self.cleaned_data['username'])
-        except ObjectDoesNotExist:
-            raise ValidationError("User does not exist.")
-
-        self.cleaned_data['user'] = user.id
-
-        return self.cleaned_data  # never forget this! ;o)
-
-
-class SiteForm(forms.ModelForm):
-    class Meta:
-        model = Site
-        exclude = ('project',)
-
-
-class CytometerForm(forms.ModelForm):
-    class Meta:
-        model = Cytometer
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # now it's safe to call the parent init
-        super(CytometerForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's sites are the
-        # available choices
-        if project_id:
-            sites = Site.objects.filter(project__id=project_id)
-
-        else:
-            sites = Site.objects.none()
-
-        self.fields['site'] = forms.ModelChoiceField(sites)
-
-
-class VisitTypeForm(forms.ModelForm):
-    class Meta:
-        model = VisitType
-        exclude = ('project',)
-
-
-class SubjectForm(forms.ModelForm):
-    class Meta:
-        model = Subject
-        exclude = ('project',)
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # now it's safe to call the parent init
-        super(SubjectForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's subject groups are the
-        # available choices
-        if project_id:
-            subject_groups = SubjectGroup.objects.filter(project__id=project_id)
-            self.fields['subject_group'] = forms.ModelChoiceField(
-                subject_groups)
-
-
-class StimulationForm(forms.ModelForm):
-    class Meta:
-        model = Stimulation
-        exclude = ('project',)
-
-
 class SampleEditForm(forms.ModelForm):
     class Meta:
         model = Sample
@@ -154,7 +33,7 @@ class SampleEditForm(forms.ModelForm):
         project_id = kwargs.pop('project_id', None)
 
         # likewise for 'request' arg
-        request = kwargs.pop('request', None)
+        kwargs.pop('request', None)
 
         # now it's safe to call the parent init
         super(SampleEditForm, self).__init__(*args, **kwargs)
