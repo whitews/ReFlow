@@ -102,8 +102,8 @@ def is_user(request, username):
     try:
         User.objects.get(username=username)
     except ObjectDoesNotExist:
-        return Response(status.HTTP_404_NOT_FOUND)
-    return Response(status.HTTP_302_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

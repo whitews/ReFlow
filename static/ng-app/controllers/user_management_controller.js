@@ -6,7 +6,8 @@ app.controller(
         '$modal',
         'ProjectUser',
         'UserPermissions',
-        function ($scope, $controller, $modal, ProjectUser, UserPermissions) {
+        'User',
+        function ($scope, $controller, $modal, ProjectUser, UserPermissions, User) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -77,9 +78,28 @@ app.controller(
                 });
             };
 
-            $scope.query_user = function() {
-                $scope.username
-            }
+            $scope.user_test == null;
+
+            $scope.query_user = function(username) {
+                var user_test = User.is_user(
+                    {
+                        'username': username
+                    }
+                );
+
+                user_test.$promise.then(function (o) {
+                    $scope.user = new User(
+                        {
+                            username: username,
+                            project_permissions: [],
+                            sites: []
+                        }
+                    );
+                    $scope.user_test = true;
+                }, function (error) {
+                    $scope.user_test = false;
+                });
+            };
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
