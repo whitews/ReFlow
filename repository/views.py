@@ -124,57 +124,6 @@ def edit_specimen(request, specimen_id):
 
 
 @login_required
-def view_markers(request):
-
-    markers = Marker.objects.all().values(
-        'id',
-        'marker_abbreviation',
-        'marker_name',
-        'marker_description',
-    )
-
-    return render_to_response(
-        'view_markers.html',
-        {
-            'markers': markers,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def add_marker(request, marker_id=None):
-    if marker_id:
-        marker = get_object_or_404(Marker, pk=marker_id)
-        add_or_edit = 'edit'
-    else:
-        marker = Marker()
-        add_or_edit = 'add'
-
-    if request.method == 'POST':
-        form = MarkerForm(request.POST, instance=marker)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('view_markers'))
-    else:
-        form = MarkerForm(instance=marker)
-
-    return render_to_response(
-        'add_marker.html',
-        {
-            'form': form,
-            'add_or_edit': add_or_edit,
-            'marker_id': marker_id,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def view_fluorochromes(request):
 
     fluorochromes = Fluorochrome.objects.all().values(

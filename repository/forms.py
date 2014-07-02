@@ -4,13 +4,8 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from repository.models import Project, Site, Subject, VisitType, Sample, \
     Cytometer, Compensation, ProjectPanel, SitePanel, \
-    Fluorochrome, Marker, SitePanelParameter, \
+    Fluorochrome, SitePanelParameter, \
     Specimen, SubjectGroup, Stimulation, Worker
-
-
-class MarkerForm(forms.ModelForm):
-    class Meta:
-        model = Marker
 
 
 class FluorochromeForm(forms.ModelForm):

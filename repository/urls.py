@@ -109,10 +109,6 @@ urlpatterns += patterns('repository.views',
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
 
-    url(r'^markers/$', 'view_markers', name='view_markers'),
-    url(r'^markers/add/$', 'add_marker', name='add_marker'),
-    url(r'^markers/(?P<marker_id>\d+)/edit/$', 'add_marker', name='edit_marker'),
-
     url(r'^fluorochromes/$', 'view_fluorochromes', name='view_fluorochromes'),
     url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
     url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'add_fluorochrome', name='edit_fluorochrome'),
