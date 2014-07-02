@@ -20,6 +20,13 @@ app.controller(
 ]);
 
 app.controller(
+    'AdminController',
+    ['$scope', function ($scope) {
+
+    }
+]);
+
+app.controller(
     'ProjectListController',
     [
         '$scope',

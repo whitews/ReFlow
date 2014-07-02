@@ -27,7 +27,7 @@
                 <p class="navbar-text">{{ user.username }}</p>
                 {% if user.is_superuser %}
                 <p class="navbar-text">
-                    <a href="{% url 'admin' %}" class="navbar-link">Admin</a>
+                    <a href="#/admin/" class="navbar-link">Admin</a>
                 </p>
                 {% endif %}
                 <p class="navbar-text"><a href="{% static 'docs/html/index.html' %}" target="_blank" class="navbar-link">Documentation</a></p>

@@ -31,6 +31,19 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbLabel: 'Projects'
         }
     }).state({
+        name: 'admin',
+        parent: 'home',
+        url: 'admin/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/admin.html',
+                controller: 'AdminController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Admin'
+        }
+    }).state({
         name: 'project-detail',
         parent: 'home',
         url: 'project/:projectId',
