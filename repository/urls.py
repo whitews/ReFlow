@@ -107,7 +107,6 @@ urlpatterns += patterns('repository.views',
 # Regular web routes
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
-    url(r'^reflow_admin/$', 'admin', name='admin'),
 
     url(r'^markers/$', 'view_markers', name='view_markers'),
     url(r'^markers/add/$', 'add_marker', name='add_marker'),

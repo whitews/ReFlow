@@ -56,19 +56,6 @@ def process_request_app(request):
 ### Non-project views ###
 #########################
 
-
-@user_passes_test(
-    lambda user: user.is_superuser,
-    login_url='/403',
-    redirect_field_name=None)
-def admin(request):
-    return render_to_response(
-        'admin.html',
-        {},
-        context_instance=RequestContext(request)
-    )
-
-
 @login_required
 def view_specimens(request):
 
