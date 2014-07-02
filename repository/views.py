@@ -1,7 +1,6 @@
 from operator import attrgetter
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -242,37 +241,6 @@ def add_fluorochrome(request, fluorochrome_id=None):
 ##############################
 ### Project specific views ###
 ##############################
-@login_required
-def add_user_permissions(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if not project.has_user_management_permission(request.user):
-        raise PermissionDenied
-
-    form = UserSelectForm(request.POST or None, project_id=project_id)
-
-    if request.method == 'POST' and form.is_valid():
-        # is_valid calls clean so user should exist,
-        # the id is now in cleaned_data
-        if request.POST['site']:
-            return HttpResponseRedirect(reverse(
-                'manage_site_user',
-                args=(request.POST['site'], form.cleaned_data['user'])))
-        else:
-            return HttpResponseRedirect(reverse(
-                'manage_project_user',
-                args=(project.id, form.cleaned_data['user'])))
-
-    return render_to_response(
-        'add_user_permissions.html',
-        {
-            'project': project,
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
 @login_required
 def copy_project_panel(request, project_id, panel_id=None):
     project = get_object_or_404(Project, pk=project_id)
