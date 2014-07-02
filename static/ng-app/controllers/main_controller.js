@@ -107,6 +107,89 @@ app.controller(
     ]
 );
 
+
+app.controller(
+    'FluorochromeController',
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Fluorochrome',
+        function ($scope, $controller, $modal, Fluorochrome) {
+            // Inherits MainController $scope
+            $controller('MainController', {$scope: $scope});
+
+            function get_list() {
+                return Fluorochrome.query(
+                    {}
+                );
+            }
+            $scope.fluorochromes = get_list();
+
+            $scope.$on('updateFluorochromes', function () {
+                $scope.fluorochromes = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: 'static/ng-app/partials/fluorochrome-form.html',
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'FluorochromeEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Fluorochrome',
+        function ($scope, $rootScope, $controller, Fluorochrome) {
+            // Inherits ProjectDetailController $scope
+            $controller('FluorochromeController', {$scope: $scope});
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = Fluorochrome.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    response = Fluorochrome.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateFluorochromes');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+
 app.controller(
     'ProjectListController',
     [

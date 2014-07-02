@@ -131,7 +131,15 @@ service
         return Marker;
     }])
     .factory('Fluorochrome', ['$resource', function ($resource) {
-        return $resource(URLS.FLUOROCHROMES);
+        var Fluorochrome = $resource(
+            URLS.FLUOROCHROMES + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Fluorochrome;
     }])
     .factory('Specimen', ['$resource', function ($resource) {
         return $resource(URLS.SPECIMENS);

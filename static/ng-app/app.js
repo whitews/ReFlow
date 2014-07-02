@@ -57,6 +57,19 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbLabel: 'Markers'
         }
     }).state({
+        name: 'fluorochrome-list',
+        parent: 'admin',
+        url: 'fluorochromes/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/fluorochrome-list.html',
+                controller: 'FluorochromeController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Fluorochromes'
+        }
+    }).state({
         name: 'project-detail',
         parent: 'home',
         url: 'project/:projectId',

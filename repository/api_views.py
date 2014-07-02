@@ -1198,7 +1198,7 @@ class MarkerDetail(generics.RetrieveUpdateAPIView):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-class FluorochromeList(generics.ListAPIView):
+class FluorochromeList(generics.ListCreateAPIView):
     """
     API endpoint representing a list of flow cytometry fluorochromes.
     """
@@ -1206,6 +1206,37 @@ class FluorochromeList(generics.ListAPIView):
     model = Fluorochrome
     serializer_class = FluorochromeSerializer
     filter_fields = ('fluorochrome_abbreviation', 'fluorochrome_name')
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(FluorochromeList, self).post(request, *args, **kwargs)
+        return response
+
+
+class FluorochromeDetail(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single fluorochrome.
+    """
+
+    model = Fluorochrome
+    serializer_class = FluorochromeSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            Fluorochrome.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(FluorochromeDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
