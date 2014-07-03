@@ -30,10 +30,10 @@
         <tr ng-repeat="panel in panel_templates">
           <td class="no-wrap">
             <a class="btn btn-default btn-xs" ng-show="can_modify_project" ui-sref="panel-template-edit" tooltip="Edit" tooltip-placement="bottom">
-              <span style="opacity: 0.4" class="glyphicon glyphicon-pencil align-middle"></span>
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
             </a>
             <a class="btn btn-default btn-xs" ng-show="can_modify_project" href="#" ng-click="copy_panel_template(panel)" tooltip="Copy" tooltip-placement="bottom">
-              <span style="opacity: 0.4" class="glyphicon glyphicon-repeat align-middle"></span>
+              <span style="opacity: 0.4" class="fa fa-copy align-middle"></span>
             </a>
           </td>
           <td>{{ panel.panel_name }}</td>

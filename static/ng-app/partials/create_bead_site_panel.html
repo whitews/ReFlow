@@ -21,8 +21,8 @@
                 <br/>
                 <ul class="list-unstyled" ng-show="model.current_project_panel">
                   <li ng-repeat="param in model.current_project_panel.parameters">
-                    <span ng-show="param.match" class="glyphicon glyphicon-ok"></span>
-                    <span ng-hide="param.match" class="glyphicon glyphicon-exclamation-sign danger"></span>
+                    <span ng-show="param.match" class="fa fa-check"></span>
+                    <span ng-hide="param.match" class="fa fa-exclamation-triangle danger"></span>
                     {{ param.parameter_type }},
                     {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
                     {{ m.name }}</span><span ng-show="param.fluorochrome">,

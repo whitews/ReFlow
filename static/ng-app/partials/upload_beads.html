@@ -136,7 +136,7 @@
                     </div>
                 </script>
                 <button data-ng-show="f.errors.length > 0" data-ng-click="open_site_panel_mismatch_modal(f)" class="btn btn-default btn-xs">
-                  <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
+                  <span class="fa fa-exclamation-triangle danger"></span> Error
                 </button>
               </td>
               <td>
@@ -265,7 +265,7 @@
         <td>
           <input ng-hide="f.uploaded || f.uploading" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
           <img data-ng-show="f.uploading && ! f.uploaded" src="/static/whirligig.gif">
-          <span data-ng-show="f.uploaded" class="glyphicon glyphicon-ok"></span>
+          <span data-ng-show="f.uploaded" class="fa fa-check"></span>
 
           <script type="text/ng-template" id="myModalContent.html">
               <div class="modal-header">
@@ -283,7 +283,7 @@
               </div>
           </script>
           <button data-ng-show="f.errors" data-ng-click="open_error_modal(f)" class="btn btn-default btn-xs">
-            <span class="glyphicon glyphicon-exclamation-sign danger"></span> Error
+            <span class="fa fa-exclamation-triangle danger"></span> Error
           </button>
 
         </td>

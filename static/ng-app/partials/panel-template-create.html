@@ -27,8 +27,8 @@
         <br/>
         <ul class="list-unstyled" ng-show="model.parent_template">
           <li ng-repeat="param in model.parent_template.parameters">
-            <span ng-show="param.match" class="glyphicon glyphicon-ok"></span>
-            <span ng-hide="param.match" class="glyphicon glyphicon-exclamation-sign danger"></span>
+            <span ng-show="param.match" class="fa fa-check"></span>
+            <span ng-hide="param.match" class="fa fa-exclamation-triangle danger"></span>
             {{ param.parameter_type }},
             {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
             {{ m.name }}</span><span ng-show="param.fluorochrome">,
@@ -60,7 +60,7 @@
           <tr ng-repeat-start="channel in model.channels">
             <td>
               <button class="btn btn-sm btn-default" data-ng-click="removeChannel(channel)" popover="Remove Channel" popover-trigger="mouseenter">
-                  <i class="glyphicon glyphicon-remove danger"></i>
+                  <i class="fa fa-times danger"></i>
               </button>
             </td>
             <td>
