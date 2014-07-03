@@ -262,20 +262,20 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             }
         },
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups'
+            ncyBreadcrumbLabel: 'Bead Samples'
         }
     }).state({
-        name: 'bead-sample-add',
+        name: 'bead-sample-upload',
         parent: 'bead-sample-list',
-        url: '/bead-samples/add',
+        url: '/bead-samples/upload',
         views: {
             '@': {
-                templateUrl: '/static/ng-app/partials/bead-sample-add.html',
-                controller: 'BeadSampleController'
+                templateUrl: '/static/ng-app/partials/bead-sample-upload.html',
+                controller: 'MainSampleUploadController'
             }
         },
         data: {
-            ncyBreadcrumbLabel: 'Add'
+            ncyBreadcrumbLabel: 'Upload'
         }
     }).state({
         name: 'compensation-list',

@@ -102,7 +102,6 @@ urlpatterns = patterns('repository.api_views',
 # Angular web routes
 urlpatterns += patterns('repository.views',
     url(r'^$', 'reflow_app', name='home'),
-    url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
     url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
 )
 
