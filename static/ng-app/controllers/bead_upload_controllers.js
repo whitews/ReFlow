@@ -3,7 +3,7 @@
  */
 
 app.controller(
-    'BeadSitePanelQueryController',
+    'BeadPanelTemplateQueryController',
     ['$scope', 'PanelTemplate', 'SitePanel', function ($scope, PanelTemplate, SitePanel) {
         // everything but bead panels
         var PANEL_TYPES = ['CB'];
@@ -142,7 +142,6 @@ app.controller(
             }
             return true;
         }
-
 
         $scope.initSitePanel = function(f) {
             // a little confusing but we want to trigger the site panel creation

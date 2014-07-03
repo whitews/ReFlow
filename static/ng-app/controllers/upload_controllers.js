@@ -154,7 +154,6 @@ app.controller(
             return true;
         }
 
-
         $scope.initSitePanel = function(f) {
             // a little confusing but we want to trigger the site panel creation
             // only when the user just selected the checkbox, so the selected

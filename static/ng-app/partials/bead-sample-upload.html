@@ -11,7 +11,7 @@
                   <td><strong>Site:</strong></td>
                   <td>
                     <div ng-controller="SiteQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_site" ng-disabled="sample_upload_model.current_project == null || sample_upload_model.sites.length == 0" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
+                      <select class="form-control width-200" ng-model="sample_upload_model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
                       </select>
                       </div>
                   </td>
@@ -26,16 +26,10 @@
                   </td>
               </tr>
               <tr>
-                  <td><strong>Acquisition Date:</strong></td>
+                  <td><strong>Panel:</strong></td>
                   <td>
-                    <input type="text" class="form-control" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="current_acquisition_date" is-open="opened" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
-                  </td>
-              </tr>
-              <tr>
-                  <td><strong>Site Panel:</strong></td>
-                  <td>
-                    <div ng-controller="BeadSitePanelQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_site_panel" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.site_panels.length == 0" ng-required="true" ng-change="sitePanelChanged()" ng-options="s.name for s in sample_upload_model.site_panels">
+                    <div ng-controller="BeadPanelTemplateQueryController">
+                      <select class="form-control" ng-model="sample_upload_model.current_panel_template" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="p.panel_name for p in sample_upload_model.panel_templates">
                       </select>
                     </div>
                   </td>
@@ -43,8 +37,8 @@
               <tr>
                   <td><strong>Compensation Channel:</strong></td>
                     <td>
-                    <div ng-controller="BeadSitePanelQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_compensation_fluoro" ng-disabled="sample_upload_model.current_site_panel == null || sample_upload_model.site_panels.length == 0" ng-required="true" ng-options="f.fluorochrome_abbreviation for f in sample_upload_model.panel_fluorochromes">
+                    <div ng-controller="BeadPanelTemplateQueryController">
+                      <select class="form-control" ng-model="sample_upload_model.current_compensation_fluoro" ng-disabled="sample_upload_model.current_panel_template == null || sample_upload_model.site_panels.length == 0" ng-required="true" ng-options="f.fluorochrome_abbreviation for f in sample_upload_model.panel_fluorochromes">
                       </select>
                     </div>
                   </td>
@@ -52,13 +46,13 @@
               <tr>
                   <td><strong>Negative Control:</strong></td>
                     <td>
-                    <div ng-controller="BeadSitePanelQueryController">
+                    <div ng-controller="BeadPanelTemplateQueryController">
                       <input type="checkbox" id="includes_negative_control" class="form-inline" ng-model="sample_upload_model.includes_negative_control" ng-disabled="sample_upload_model.is_negative_control" ng-required="true">
                       <label for="includes_negative_control">
                         Includes Negative Control
                       </label>
                     </div>
-                    <div ng-controller="BeadSitePanelQueryController">
+                    <div ng-controller="BeadPanelTemplateQueryController">
                       <input type="checkbox" id="is_negative_control" class="form-inline" ng-model="sample_upload_model.is_negative_control" ng-disabled="sample_upload_model.includes_negative_control" ng-required="true" />
                       <label for="is_negative_control">
                         Is Negative Control
@@ -89,49 +83,17 @@
                   <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
                 </th>
                 <th>File Name</th>
-                <th>Size</th>
-                <th>Channels</th>
                 <th>Date</th>
+                <th>Channels</th>
+                <th>Size</th>
               </tr>
             </thead>
             <tbody>
               <tr data-ng-repeat="f in sample_upload_model.file_queue">
-                <td class="no-wrap">
-                  <input type="checkbox" ng-model="f.selected" />
-
-                  <script type="text/ng-template" id="sitePanelMismatchModal.html">
-                      <div class="modal-header">
-                          <h3>Incompatible site panel for {{ file.filename }}</h3>
-                      </div>
-                      <div class="modal-body">
-                          <div class="text-warning">
-                            <ul>
-                              <li data-ng-repeat="error in file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
-                            </ul>
-                          </div>
-                          <div class="alert alert-info">
-                            <div ng-show="file.matching_panels.length > 0">
-                              The following site panels match this file's annotation:
-                              <ul>
-                                <li ng-repeat="panel in file.matching_panels">{{ panel.name }}</li>
-                              </ul>
-                            </div>
-                            <div ng-show="file.matching_panels.length == 0">
-                            There are no site panels in the chosen site that match this file.
-                            </div>
-                            <p>To create a new panel, choose <strong><em>Create Site Panel</em></strong> from the file's drop-down menu.</p>
-                          </div>
-                      </div>
-
-                      <div class="modal-footer">
-                          <button class="btn btn-primary" ng-click="ok()">OK</button>
-                      </div>
-                  </script>
-                  <button data-ng-show="f.errors.length > 0" data-ng-click="open_site_panel_mismatch_modal(f)" class="btn btn-default btn-xs">
-                    <span class="fa fa-exclamation-triangle danger"></span> Error
-                  </button>
+                <td class="no-wrap align-middle">
+                  <input type="checkbox" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.current_panel_template == null" ng-model="f.selected" ng-click="initSitePanel(f)" />
                 </td>
-                <td>
+                <td class="align-middle">
 
                   <script type="text/ng-template" id="metadata_content.html">
                       <div class="modal-header">
@@ -175,9 +137,6 @@
                           <button class="btn btn-primary" ng-click="ok()">OK</button>
                       </div>
                   </script>
-                  <div ng-controller="SitePanelController">
-                    <div ng-include="sample_upload_model.site_panel_url"></div>
-                  </div>
 
                   <li class="list-unstyled dropdown">
                     <a href="#" class="dropdown-toggle no-wrap">
@@ -190,12 +149,6 @@
                       <li class="btn-link">
                         <a data-ng-click="open_channels_modal(f)">View Channels</a>
                       </li>
-                      <li class="divider" ng-hide="sample_upload_model.current_site == null"></li>
-                        <li class="btn-link" ng-hide="sample_upload_model.current_site == null">
-                          <a data-toggle="modal" ng-hide="sample_upload_model.current_site == null" data-target="#sitePanelModal" ng-click="initSitePanel(f)">
-                            Create Site Panel
-                          </a>
-                      </li>
                       <li class="divider"></li>
                       <li class="btn-link">
                         <a data-ng-click="removeFromFileQueue(f)">Remove</a>
@@ -203,9 +156,11 @@
                     </ul>
                   </li>
                 </td>
-                <td>{{ f.file.size | bytes }}</td>
-                <td>{{ f.channels.length }}</td>
-                <td>{{ f.date }}</td>
+                <td class="align-middle">
+                  <input type="text" class="form-control" ng-click="open($event, f)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="f.datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                </td>
+                <td class="align-middle">{{ f.channels.length }}</td>
+                <td class="align-middle">{{ f.file.size | bytes }}</td>
               </tr>
             </tbody>
           </table>
@@ -325,23 +280,24 @@
             </script>
 
             <li class="list-unstyled dropdown">
-            <progressbar class="progress" value="f.progress" type="warning">
+              <progressbar class="progress" value="f.progress" type="warning">
                 <a href="#" class="dropdown-toggle no-wrap">
                   <strong>{{ f.filename }}</strong> <b class="caret"></b>
                 </a>
-                <ul class="dropdown-menu">
-                    <li class="btn-link">
-                      <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
-                    </li>
-                    <li class="btn-link">
-                      <a data-ng-click="open_channels_modal(f)">View Channels</a>
-                    </li>
-                    <li class="divider"></li>
-                    <li class="btn-link">
-                      <a data-ng-click="recategorizeFile(f)">Move to File List</a>
-                    </li>
-                </ul>
-            </progressbar>
+              </progressbar>
+
+              <ul class="dropdown-menu">
+                <li class="btn-link">
+                  <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
+                </li>
+                <li class="btn-link">
+                  <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                </li>
+                <li class="divider"></li>
+                <li class="btn-link">
+                  <a data-ng-click="recategorizeFile(f)">Move to File List</a>
+                </li>
+              </ul>
             </li>
           </td>
           <td>{{ f.acquisition_date | date }}</td>

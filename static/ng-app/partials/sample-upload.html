@@ -312,25 +312,25 @@
             </script>
 
             <li class="list-unstyled dropdown">
-            <progressbar class="progress" value="f.progress" type="warning">
-              <a href="#" class="dropdown-toggle no-wrap">
-                <strong>{{ f.filename }}</strong> <b class="caret"></b>
-              </a>
-            </progressbar>
+              <progressbar class="progress" value="f.progress" type="warning">
+                <a href="#" class="dropdown-toggle no-wrap">
+                  <strong>{{ f.filename }}</strong> <b class="caret"></b>
+                </a>
+              </progressbar>
 
-            <ul class="dropdown-menu">
-              <li class="btn-link">
-                <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
-              </li>
-              <li class="btn-link">
-                <a data-ng-click="open_channels_modal(f)">View Channels</a>
-              </li>
-              <li class="divider"></li>
-              <li class="btn-link">
-                <a data-ng-click="recategorizeFile(f)">Move to File List</a>
-              </li>
-            </ul>
-          </li>
+              <ul class="dropdown-menu">
+                <li class="btn-link">
+                  <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
+                </li>
+                <li class="btn-link">
+                  <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                </li>
+                <li class="divider"></li>
+                <li class="btn-link">
+                  <a data-ng-click="recategorizeFile(f)">Move to File List</a>
+                </li>
+              </ul>
+            </li>
           </td>
           <td>{{ f.acquisition_date | date }}</td>
           <td>{{ f.site_panel.name }}</td>
