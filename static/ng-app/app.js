@@ -200,23 +200,25 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbLabel: 'Panel Templates'
         }
     }).state({
-        name: 'panel-template-add',
-        url: '/panel-templates/add',
+        name: 'panel-template-create',
+        parent: 'panel-template-list',
+        url: 'create',
         views: {
             '@': {
-                templateUrl: '/static/ng-app/partials/panel-template-add.html',
-                controller: 'PanelTemplateController'
+                templateUrl: '/static/ng-app/partials/panel-template-create.html',
+                controller: 'PanelTemplateCreateController'
             }
         },
         data: {
-            ncyBreadcrumbLabel: 'Add'
+            ncyBreadcrumbLabel: 'Create'
         }
     }).state({
         name: 'panel-template-edit',
-        url: '/panel-templates/edit',
+        parent: 'panel-template-list',
+        url: '/panel-templates/:templateID/edit',
         views: {
             '@': {
-                templateUrl: '/static/ng-app/partials/panel-template-add.html',
+                templateUrl: '/static/ng-app/partials/panel-template-create.html',
                 controller: 'PanelTemplateController'
             }
         },

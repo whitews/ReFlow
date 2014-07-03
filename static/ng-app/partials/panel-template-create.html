@@ -1,19 +1,22 @@
-<div ng-controller="MainController">
   <div class="row">
     <div class="col-md-3">
 
       <div class="well">
-        Name:
-        <input type="text" class="form-control" ng-model="model.panel_name" ng-change="validatePanel()" ng-required="true">
-        </input>
+        <div>
+          Name:
+          <input type="text" class="form-control" ng-model="model.panel_name" ng-change="validatePanel()" ng-required="true">
+          </input>
+        </div>
 
-        Project:
-        <select class="form-control" ng-model="model.current_project" ng-required="true" ng-change="updateParentTemplates()" ng-options="p.id as p.project_name for p in model.projects">
-        </select>
+        <br/>
 
-        Staining:
-        <select class="form-control" ng-model="model.current_staining" ng-required="true" ng-change="stainingChanged()" ng-options="s[0] as s[1] for s in model.panel_template_types">
-        </select>
+        <div>
+          Staining:
+          <select class="form-control" ng-model="model.current_staining" ng-required="true" ng-change="stainingChanged()" ng-options="s[0] as s[1] for s in model.panel_template_types">
+          </select>
+        </div>
+
+        <br/>
 
         <div ng-show="model.parent_template_required">
         Parent Template:
@@ -61,26 +64,26 @@
               </button>
             </td>
             <td>
-              <div ng-controller="ParameterController">
+              <div ng-controller="TemplateParameterController">
                 <select class="form-control" ng-model="channel.function" ng-change="validatePanel()" ng-required="!channel.marker_disabled" ng-options="p[0] as p[1] for p in model.parameter_functions">
                 </select>
               </div>
             </td>
             <td>
-              <div ng-controller="ParameterController">
+              <div ng-controller="TemplateParameterController">
                 <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-options="p[0] as p[1] for p in model.parameter_value_types">
                 </select>
               </div>
             </td>
             <td>
-              <div ng-controller="ParameterController">
+              <div ng-controller="TemplateParameterController">
                 <select ui-select2="{}" multiple ng-model="channel.markers" ng-change="validatePanel()" ng-disabled="channel.marker_disabled">
                   <option value="{{ m.id }}" data-ng-repeat="m in model.markers">{{ m.marker_abbreviation }}</option>
                 </select>
               </div>
             </td>
             <td>
-              <div ng-controller="ParameterController">
+              <div ng-controller="TemplateParameterController">
                 <select class="form-control" ng-model="channel.fluorochrome" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
                 <option value=""></option>
                 </select>
@@ -104,4 +107,3 @@
     <button type="button" class="btn btn-success" ng-click="addChannel()">Add Channel</button>
     <button type="button" class="btn btn-primary" ng-disabled="!model.template_valid" ng-click="savePanel()">Save Template</button>
   </div>
-</div>

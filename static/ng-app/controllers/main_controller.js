@@ -270,7 +270,6 @@ app.controller(
     ]
 );
 
-
 app.controller(
     'ProjectListController',
     [
@@ -906,43 +905,6 @@ app.controller(
         }
     ]
 );
-
-app.controller(
-    'PanelTemplateController',
-    ['$scope', '$controller', 'PanelTemplate', function ($scope, $controller, PanelTemplate) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
-
-        $scope.panel_templates = PanelTemplate.query(
-            {
-                'project': $scope.current_project.id
-            }
-        );
-
-        $scope.expand_params = [];
-        $scope.panel_templates.$promise.then(function () {
-            $scope.panel_templates.forEach(function () {
-                $scope.expand_params.push(false);
-            })
-        });
-
-        $scope.toggle_params = function (i) {
-            $scope.expand_params[i] = $scope.expand_params[i] != true;
-        };
-
-        $scope.expand_all_panels = function () {
-            for (var i = 0; i < $scope.panel_templates.length; i++) {
-                $scope.expand_params[i] = true;
-            }
-        };
-
-        $scope.collapse_all_panels = function () {
-            for (var i = 0; i < $scope.panel_templates.length; i++) {
-                $scope.expand_params[i] = false;
-            }
-        };
-    }
-]);
 
 app.controller(
     'SampleController',

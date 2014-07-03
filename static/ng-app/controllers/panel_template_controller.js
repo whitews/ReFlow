@@ -1,12 +1,51 @@
 app.controller(
-    'MainController',
+    'PanelTemplateController',
+    ['$scope', '$controller', 'PanelTemplate', function ($scope, $controller, PanelTemplate) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        $scope.panel_templates = PanelTemplate.query(
+            {
+                'project': $scope.current_project.id
+            }
+        );
+
+        $scope.expand_params = [];
+        $scope.panel_templates.$promise.then(function () {
+            $scope.panel_templates.forEach(function () {
+                $scope.expand_params.push(false);
+            })
+        });
+
+        $scope.toggle_params = function (i) {
+            $scope.expand_params[i] = $scope.expand_params[i] != true;
+        };
+
+        $scope.expand_all_panels = function () {
+            for (var i = 0; i < $scope.panel_templates.length; i++) {
+                $scope.expand_params[i] = true;
+            }
+        };
+
+        $scope.collapse_all_panels = function () {
+            for (var i = 0; i < $scope.panel_templates.length; i++) {
+                $scope.expand_params[i] = false;
+            }
+        };
+    }
+]);
+
+app.controller(
+    'PanelTemplateCreateController',
     [
-        '$scope', '$window', '$routeParams', 'Project', 'ProjectPanel', 'Marker', 'Fluorochrome',
-        function ($scope, $window, $routeParams, Project, ProjectPanel, Marker, Fluorochrome) {
+        '$scope', '$state', '$controller', '$stateParams', 'PanelTemplate', 'Marker', 'Fluorochrome',
+        function ($scope, $state, $controller, $stateParams, PanelTemplate, Marker, Fluorochrome) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
             $scope.model = {};
             $scope.model.markers = Marker.query();
             $scope.model.fluorochromes = Fluorochrome.query();
-            $scope.model.projects = Project.query();
 
             $scope.model.panel_template_types = [
                 ["FS", "Full Stain"],
@@ -28,17 +67,16 @@ app.controller(
             }
 
             // may be trying to edit an existing template
-            if ($routeParams['template_id']) {
-                var template_id = $routeParams['template_id'];
-                $scope.model.template = ProjectPanel.get(
+            if ($stateParams.templateID) {
+                var template_id = $stateParams.templateID;
+                $scope.model.template = PanelTemplate.get(
                     {id: template_id},
                     function () {
                         $scope.model.panel_name = $scope.model.template.panel_name;
                         $scope.model.current_staining = $scope.model.template.staining;
-                        $scope.model.current_project = $scope.model.template.project;
-                        $scope.model.panel_templates = ProjectPanel.query(
+                        $scope.model.panel_templates = PanelTemplate.query(
                             {
-                                project: $scope.model.current_project,
+                                project: $scope.current_project,
                                 staining: ['FS']  // only full stain can be parents
                             },
                             function () {
@@ -97,16 +135,13 @@ app.controller(
                 $scope.validatePanel();
             };
 
-            $scope.updateParentTemplates = function() {
-                // get all project panel templates matching full stain
-                $scope.model.panel_templates = ProjectPanel.query(
-                    {
-                        project: $scope.model.current_project,
-                        staining: ['FS']  // only full stain can be parents
-                    }
-                );
-                $scope.validatePanel();
-            };
+            // get all project panel templates matching full stain
+            $scope.model.panel_templates = PanelTemplate.query(
+                {
+                    project: $scope.current_project.id,
+                    staining: ['FS']  // only full stain can be parents
+                }
+            );
 
             $scope.addChannel = function() {
                 $scope.model.channels.push({markers:[]});
@@ -139,7 +174,7 @@ app.controller(
                 */
 
                 // Name, project, and staining are all required
-                if ($scope.model.current_staining == null || $scope.model.panel_name == null || $scope.model.current_project == null) {
+                if ($scope.model.current_staining == null || $scope.model.panel_name == null || $scope.current_project == null) {
                     valid = false;
                 }
 
@@ -456,20 +491,20 @@ app.controller(
                 }
                 var data = {
                     panel_name: $scope.model.panel_name,
-                    project: $scope.model.current_project,
+                    project: $scope.current_project.id,
                     staining: $scope.model.current_staining,
                     parent_panel: parent_template_id,
                     parameters: params,
                     panel_description: ""
                 };
                 if ($scope.model.template) {
-                    var panel_template = ProjectPanel.update({id: template_id}, data);
+                    var panel_template = PanelTemplate.update({id: template_id}, data);
                 } else {
-                    var panel_template = ProjectPanel.save(data);
+                    var panel_template = PanelTemplate.save(data);
                 }
                 panel_template.$promise.then(function (o) {
-                    // re-direct to project's Panel template list
-                    $window.location = '/project/' + $scope.model.current_project + '/templates/';
+                    // change to project's Panel template list
+                    $state.go('panel-template-list')
                 }, function(error) {
                     $scope.model.errors = [];
                     for (var key in error.data) {
@@ -489,9 +524,8 @@ app.controller(
     ]
 );
 
-
 app.controller(
-    'ParameterController',
+    'TemplateParameterController',
     [
         '$scope',
         'ParameterFunction',
