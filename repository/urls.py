@@ -104,7 +104,6 @@ urlpatterns += patterns('repository.views',
     url(r'^$', 'reflow_app', name='home'),
     url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
     url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
-    url(r'^panel_templates/$', 'panel_template_app', name='panel_template_app'),
 )
 
 # Regular web routes

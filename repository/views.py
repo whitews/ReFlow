@@ -26,15 +26,6 @@ def reflow_app(request):
 
 
 @login_required
-def panel_template_app(request):
-    return render_to_response(
-        'create_panel_template_app.html',
-        {},
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def bead_upload_app(request):
     return render_to_response(
         'bead_upload_app.html',
