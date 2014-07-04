@@ -44,7 +44,7 @@ app.controller(
     'CategorizationController',
     ['$scope', '$modal', 'ModelService', function ($scope, $modal, ModelService) {
         $scope.sample_upload_model.file_queue = [];
-        $scope.sample_upload_model.site_panel_url = '/static/ng-app/partials/create_site_panel.html';
+        $scope.sample_upload_model.site_panels = [];
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');

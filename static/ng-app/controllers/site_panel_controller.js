@@ -20,6 +20,7 @@ app.controller(
                 ["TIM", "Time"],
                 ["NUL", "Null"]
             ];
+
             $scope.site_panel_model.parameter_value_types = ParameterValueType.query();
         }
     ]
