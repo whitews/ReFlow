@@ -7,6 +7,10 @@ body {
   background-color: #ffffff;
 }
 
+.width-full {
+    min-width: 100%;
+}
+
 .width-200 {
     min-width: 200px;
 }
