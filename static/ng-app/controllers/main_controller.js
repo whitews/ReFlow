@@ -34,8 +34,22 @@ app.controller(
 
 app.controller(
     'AdminController',
-    ['$scope', function ($scope) {
+    ['$scope', '$modal', function ($scope, $modal) {
+        $scope.init_form = function(instance, form_type) {
+            var proposed_instance = angular.copy(instance);
+            $scope.errors = [];
 
+            // launch form modal
+            var modalInstance = $modal.open({
+                templateUrl: FORM_URLS[form_type],
+                controller: ModalFormCtrl,
+                resolve: {
+                    instance: function() {
+                        return proposed_instance;
+                    }
+                }
+            });
+        };
     }
 ]);
 
