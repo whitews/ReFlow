@@ -1,3 +1,16 @@
+var FORM_URLS = {
+    'SUBJECT_GROUP':      'static/ng-app/partials/subject-group-form.html',
+    'SUBJECT':            'static/ng-app/partials/subject-form.html',
+    'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
+    'MARKER':             'static/ng-app/partials/marker-form.html',
+    'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
+    'PROJECT':            'static/ng-app/partials/project-form.html',
+    'SITE':               'static/ng-app/partials/site-form.html',
+    'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
+    'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
+    'STIMULATION':        'static/ng-app/partials/stimulation-form.html'
+};
+
 var ModalFormCtrl = function ($scope, $modalInstance, instance) {
     $scope.instance = instance;
     $scope.ok = function () {
@@ -54,7 +67,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/specimen-form.html',
+                    templateUrl: FORM_URLS.SPECIMEN,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -135,7 +148,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/marker-form.html',
+                    templateUrl: FORM_URLS.MARKER,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -217,7 +230,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/fluorochrome-form.html',
+                    templateUrl: FORM_URLS.FLUOROCHROME,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -287,7 +300,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/project-form.html',
+                    templateUrl: FORM_URLS.PROJECT,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -346,7 +359,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/project-form.html',
+                    templateUrl: FORM_URLS.PROJECT,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -422,7 +435,7 @@ app.controller(
 
             // launch form modal
             var modalInstance = $modal.open({
-                templateUrl: 'static/ng-app/partials/subject-group-form.html',
+                templateUrl: FORM_URLS.SUBJECT_GROUP,
                 controller: ModalFormCtrl,
                 resolve: {
                     instance: function() {
@@ -500,7 +513,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/subject-form.html',
+                    templateUrl: FORM_URLS.SUBJECT,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -592,7 +605,7 @@ app.controller(
 
                 // launch form modal
                 $modal.open({
-                    templateUrl: 'static/ng-app/partials/site-form.html',
+                    templateUrl: FORM_URLS.SITE,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -677,7 +690,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/cytometer-form.html',
+                    templateUrl: FORM_URLS.CYTOMETER,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -767,7 +780,7 @@ app.controller(
 
                 // launch form modal
                 $modal.open({
-                    templateUrl: 'static/ng-app/partials/visit-type-form.html',
+                    templateUrl: FORM_URLS.VISIT_TYPE,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -852,7 +865,7 @@ app.controller(
 
                 // launch form modal
                 $modal.open({
-                    templateUrl: 'static/ng-app/partials/stimulation-form.html',
+                    templateUrl: FORM_URLS.STIMULATION,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
