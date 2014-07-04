@@ -86,12 +86,12 @@ class Marker(models.Model):
 
 class Fluorochrome(models.Model):
     fluorochrome_abbreviation = models.CharField(
-        unique=False,
+        unique=True,
         null=False,
         blank=False,
         max_length=32)
     fluorochrome_name = models.CharField(
-        unique=False,
+        unique=True,
         null=False,
         blank=False,
         max_length=128)
