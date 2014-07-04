@@ -353,13 +353,13 @@ app.controller(
                 $scope.can_manage_users = true;
             }
 
-            $scope.init_form = function(instance) {
+            $scope.init_form = function(instance, form_type) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS.PROJECT,
+                    templateUrl: FORM_URLS[form_type],
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {

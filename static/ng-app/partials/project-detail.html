@@ -6,7 +6,7 @@
               <h4>{{ current_project.project_name }}</h4>
 
               <div class="btn-group" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(current_project)" ng-show="can_modify_project">Edit Project</a>
+                  <a class="btn btn-default btn-sm" ng-click="init_form(current_project, 'PROJECT')" ng-show="can_modify_project">Edit Project</a>
                   <a class="btn btn-default btn-sm"  ui-sref="user-list" ng-show="can_manage_users">Manage Users</a>
               </div>
             </div>
@@ -24,14 +24,14 @@
           <h4>Subject Groups</h4>
 
               <a ui-sref="subject-group-list({projectId: current_project.id })">View</a><br/>
-              <a ui-sref="subject-group-add">Add Subject Group</a><br/>
+              <a href="" ng-click="init_form(null, 'SUBJECT_GROUP')">Add Subject Group</a><br/>
 
         </div>
         <div class="col-md-5">
           <h4>Subjects</h4>
 
               <a ui-sref="subject-list({projectId: current_project.id })">View</a><br/>
-              <a ui-sref="subject-add">Add Subject</a><br/>
+              <a href="" ng-click="init_form(null, 'SUBJECT')">Add Subject</a><br/>
 
         </div>
       </div>
@@ -45,14 +45,14 @@
           <h4>Sites</h4>
 
               <a ui-sref="site-list({ projectId: current_project.id })">View</a><br/>
-              <a ui-sref="site-add">Add Site</a><br/>
+              <a href="" ng-click="init_form(null, 'SITE')">Add Site</a><br/>
 
         </div>
         <div class="col-md-5">
           <h4>Cytometers</h4>
 
               <a ui-sref="cytometer-list({ projectId: current_project.id })">View</a><br/>
-              <a ui-sref="cytometer-add">Add Cytometer</a><br/>
+              <a href="" ng-click="init_form(null, 'CYTOMETER')">Add Cytometer</a><br/>
 
         </div>
       </div>
@@ -66,14 +66,14 @@
           <h4>Visit Types</h4>
 
               <a ui-sref="visit-type-list({ projectId: current_project.id })">View</a><br/>
-              <a ui-sref="visit-type-add">Add Visit Type</a><br/>
+              <a href="" ng-click="init_form(null, 'VISIT_TYPE')">Add Visit Type</a><br/>
 
         </div>
         <div class="col-md-5">
           <h4>Stimulations</h4>
 
               <a ui-sref="stimulation-list({ projectId: current_project.id })">View</a><br/>
-              <a ui-sref="stimulation-list">Add Stimulation</a><br/>
+              <a href="" ng-click="init_form(null, 'STIMULATION')">Add Stimulation</a><br/>
 
         </div>
       </div>
@@ -87,7 +87,7 @@
           <h4>Panel Templates</h4>
 
               <a ui-sref="panel-template-list({ projectId: current_project.id })">View</a><br/>
-              <a ui-sref="panel-template-add">Add Panel Template</a><br/>
+              <a ui-sref="panel-template-create">Add Panel Template</a><br/>
 
         </div>
         <div class="col-md-5">
