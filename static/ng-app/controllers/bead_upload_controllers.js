@@ -16,6 +16,17 @@ app.controller(
             }
         );
 
+        $scope.panelChanged = function () {
+            $scope.sample_upload_model.panel_fluorochromes = [];
+            $scope.sample_upload_model.current_panel_template.parameters.forEach(function (param) {
+                if (param.fluorochrome) {
+                    $scope.sample_upload_model.panel_fluorochromes.push(param.fluorochrome);
+                }
+            });
+            $scope.sample_upload_model.current_compensation_fluoro = null;
+            $scope.evaluateParameterMatch();
+        };
+
         $scope.$on('updateSitePanels', function (evt, id) {
             var site_panel_query = {
                 project: $scope.current_project.id,
@@ -44,7 +55,7 @@ app.controller(
     'BeadCategorizationController',
     ['$scope', '$modal', 'ModelService', function ($scope, $modal, ModelService) {
         $scope.sample_upload_model.file_queue = [];
-        $scope.sample_upload_model.site_panel_url = '/static/ng-app/partials/create_site_panel.html';
+        $scope.sample_upload_model.site_panels = [];
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
@@ -137,11 +148,9 @@ app.controller(
                 }
             }
 
-            if (mismatches.length > 0) {
-                return false;
-            }
-            return true;
+            return mismatches.length <= 0;
         }
+
 
         $scope.initSitePanel = function(f) {
             // a little confusing but we want to trigger the site panel creation
@@ -155,7 +164,7 @@ app.controller(
 
                 // launch site panel creation modal
                 var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/create_site_panel.html',
+                    templateUrl: 'static/ng-app/partials/create_bead_site_panel.html',
                     controller: ModalInstanceCtrl,
                     size: 'lg',
                     resolve: {

@@ -1,98 +1,99 @@
-<div class="modal fade" close-modal id="sitePanelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">
-          Create Site Panel for {{ model.current_project.project_name }} using
-          {{ model.site_panel_sample.filename }}
-        </h4>
+  <div ng-controller="BeadSitePanelController">
+
+    <div class="modal-header">
+      <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+      <h4 class="modal-title" id="myModalLabel">
+        {{ site_panel_model.site_panel_sample.filename }}
+      </h4>
+    </div>
+    <div class="modal-body">
+      <div class="well well-info">
+          No existing panels match this file's parameter text.<br />
+          Please annotate the parameters and ReFlow will remember it for you next time.
       </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-3">
+      <div class="row">
+        <div class="col-md-3">
 
-            <div class="well">
-              Choose a Panel Template:
+          <div class="well">
 
-              <div ng-controller="SitePanelCreationPanelTemplateController">
-                <select class="form-control" ng-model="model.current_project_panel" ng-change="validatePanel()" ng-required="true" ng-options="p.panel_name for p in model.project_panels">
-                </select>
-                <br/>
-                <ul class="list-unstyled" ng-show="model.current_project_panel">
-                  <li ng-repeat="param in model.current_project_panel.parameters">
-                    <span ng-show="param.match" class="fa fa-check"></span>
-                    <span ng-hide="param.match" class="fa fa-exclamation-triangle danger"></span>
-                    {{ param.parameter_type }},
-                    {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
-                    {{ m.name }}</span><span ng-show="param.fluorochrome">,
-                    {{ param.fluorochrome_abbreviation }}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <p>
+              <strong>
+                {{ site_panel_model.current_panel_template.panel_name }}
+              </strong>
+            </p>
 
-            <div class="alert alert-danger" ng-show="model.errors">
-              <p data-ng-repeat="e in model.errors">{{ e }}</p>
-            </div>
-
+            Parameters to match:
+            <ul class="list-unstyled" ng-show="site_panel_model.current_panel_template">
+              <li ng-repeat="param in site_panel_model.current_panel_template.parameters">
+                <span ng-show="param.match" class="fa fa-check"></span>
+                <span ng-hide="param.match" class="fa fa-exclamation-triangle danger"></span>
+                {{ param.parameter_type }},
+                {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
+                {{ m.name }}</span><span ng-show="param.fluorochrome">,
+                {{ param.fluorochrome_abbreviation }}</span>
+              </li>
+            </ul>
           </div>
 
-          <div class="col-md-9">
-            <table class="table-condensed" style="width: 100%">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>PnN</th>
-                  <th>PnS</th>
-                  <th>Function</th>
-                  <th>Value Type</th>
-                  <th>Fluorochrome</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat-start="channel in model.site_panel_sample.channels">
-                  <td class="no-wrap">{{ channel.channel }}</td>
-                  <td class="no-wrap">{{ channel.pnn }}</td>
-                  <td class="no-wrap">{{ channel.pns }}</td>
-                  <td>
-                    <div ng-controller="ParameterController">
-                      <select class="form-control" ng-model="channel.function" ng-change="validatePanel()" ng-required="!channel.marker_disabled" ng-options="p[0] as p[1] for p in model.parameter_functions">
-                      </select>
-                    </div>
-                  </td>
-                  <td>
-                    <div ng-controller="ParameterController">
-                      <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-options="p[0] as p[1] for p in model.parameter_value_types">
-                      </select>
-                    </div>
-                  </td>
-                  <td>
-                    <div ng-controller="ParameterController">
-                      <select class="form-control" ng-model="channel.fluorochrome" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
-                      <option value=""></option>
-                      </select>
-                    </div>
-                  </td>
-                </tr>
-                <tr ng-repeat-end ng-show="channel.errors">
-                  <td colspan="50">
-                    <div class="alert alert-danger">
-                    <ul>
-                      <li data-ng-repeat="e in channel.errors"><strong>{{ e }}</strong></li>
-                    </ul>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="alert alert-danger" ng-show="site_panel_model.errors">
+            <p data-ng-repeat="e in site_panel_model.errors">{{ e }}</p>
           </div>
+
+        </div>
+
+        <div class="col-md-9">
+          <table class="table-condensed width-full">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>PnN</th>
+                <th>PnS</th>
+                <th>Function</th>
+                <th>Value Type</th>
+                <th>Fluorochrome</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat-start="channel in site_panel_model.site_panel_sample.channels">
+                <td class="no-wrap">{{ channel.channel }}</td>
+                <td class="no-wrap">{{ channel.pnn }}</td>
+                <td class="no-wrap">{{ channel.pns }}</td>
+                <td>
+                  <div ng-controller="BeadParameterController">
+                    <select class="form-control" ng-model="channel.function" ng-change="validatePanel()" ng-required="!channel.marker_disabled" ng-options="p[0] as p[1] for p in site_panel_model.parameter_functions">
+                    </select>
+                  </div>
+                </td>
+                <td>
+                  <div ng-controller="BeadParameterController">
+                    <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-options="p[0] as p[1] for p in site_panel_model.parameter_value_types">
+                    </select>
+                  </div>
+                </td>
+                <td>
+                  <div ng-controller="BeadParameterController">
+                    <select class="form-control" ng-model="channel.fluorochrome" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in site_panel_model.fluorochromes">
+                    <option value=""></option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+              <tr ng-repeat-end ng-show="channel.errors">
+                <td colspan="50">
+                  <div class="alert alert-danger">
+                  <ul>
+                    <li data-ng-repeat="e in channel.errors"><strong>{{ e }}</strong></li>
+                  </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" ng-disabled="!model.site_panel_valid" ng-click="savePanel()">Save Panel</button>
-      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+      <button type="button" class="btn btn-primary" ng-disabled="!site_panel_model.site_panel_valid" ng-click="savePanel()">Save Panel</button>
     </div>
   </div>
-</div>

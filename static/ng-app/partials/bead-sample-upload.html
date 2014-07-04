@@ -29,7 +29,7 @@
                   <td><strong>Panel:</strong></td>
                   <td>
                     <div ng-controller="BeadPanelTemplateQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_panel_template" ng-required="true" ng-change="evaluateParameterMatch()" ng-options="p.panel_name for p in sample_upload_model.panel_templates">
+                      <select class="form-control" ng-model="sample_upload_model.current_panel_template" ng-required="true" ng-change="panelChanged()" ng-options="p.panel_name for p in sample_upload_model.panel_templates">
                       </select>
                     </div>
                   </td>
