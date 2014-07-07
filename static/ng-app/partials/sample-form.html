@@ -1,0 +1,93 @@
+<div ng-controller="SampleEditController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Edit Sample ({{ instance.original_filename }})
+  </div>
+  <div class="modal-body">
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Subject</label>
+      <select ng-model="instance.subject" ng-required="true" ng-options="s.id as s.subject_code for s in subjects">
+      </select>
+      <strong ng-show="errors.subject" class="help-inline text-danger">
+        {{ errors.subject.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Visit</label>
+      <select ng-model="instance.visit" ng-required="true" ng-options="v.id as v.visit_type_name for v in visit_types">
+      </select>
+      <strong ng-show="errors.visit_type" class="help-inline text-danger">
+        {{ errors.visit.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+    
+    <div class="form-group">
+      <label class="col-md-3 control-label">Stimulation</label>
+      <select ng-model="instance.stimulation" ng-required="true" ng-options="s.id as s.stimulation_name for s in stimulations">
+      </select>
+      <strong ng-show="errors.stimulation" class="help-inline text-danger">
+        {{ errors.stimulation.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+    
+    <div class="form-group">
+      <label class="col-md-3 control-label">Specimen</label>
+      <select ng-model="instance.specimen" ng-required="true" ng-options="s.id as s.specimen_description for s in specimens">
+      </select>
+      <strong ng-show="errors.specimen" class="help-inline text-danger">
+        {{ errors.specimen.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+    
+    <div class="form-group">
+      <label class="col-md-3 control-label">Pre-treatment</label>
+      <select ng-model="instance.pretreatment" ng-required="true" ng-options="p.name as p.name for p in pretreatments">
+      </select>
+      <strong ng-show="errors.pretreatment" class="help-inline text-danger">
+        {{ errors.pretreatment.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+    
+    <div class="form-group">
+      <label class="col-md-3 control-label">Storage</label>
+      <select ng-model="instance.storage" ng-required="true" ng-options="s.name as s.name for s in storages">
+      </select>
+      <strong ng-show="errors.storage" class="help-inline text-danger">
+        {{ errors.storage.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Exclude</label>
+      <input type="checkbox" ng-model="instance.exclude" />
+    </div>
+
+    <br/>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-primary" ng-click="update(instance)">Save</button>
+  </div>
+</div>

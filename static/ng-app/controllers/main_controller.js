@@ -9,7 +9,8 @@ var MODAL_URLS = {
     'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
     'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
     'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
-    'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html'
+    'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
+    'SAMPLE':             'static/ng-app/partials/sample-form.html'
 };
 
 var ModalFormCtrl = function ($scope, $modalInstance, instance) {
@@ -1068,6 +1069,84 @@ app.controller(
                             return instance;
                         }
                     }
+                });
+            };
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.SAMPLE,
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'SampleEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Sample',
+        'Subject',
+        'VisitType',
+        'Specimen',
+        'Stimulation',
+        'Pretreatment',
+        'Storage',
+        function ($scope, $rootScope, $controller, Sample, Subject, VisitType, Specimen, Stimulation, Pretreatment, Storage) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.subjects = Subject.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.visit_types = VisitType.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.stimulations = Stimulation.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.specimens = Specimen.query();
+            $scope.pretreatments = Pretreatment.query();
+            $scope.storages = Storage.query();
+
+            $scope.update = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = Sample.update(
+                    {id: instance.id },
+                    $scope.instance
+                );
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateSamples');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
                 });
             };
         }

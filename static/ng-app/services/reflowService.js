@@ -233,7 +233,15 @@ service
         return $resource(URLS.COMPENSATIONS);
     }])
     .factory('Sample', ['$resource', function ($resource) {
-        return $resource(URLS.SAMPLES);
+        var Sample = $resource(
+            URLS.SAMPLES + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Sample;
     }])
     .factory('SampleCollection', ['$resource', function ($resource) {
         return $resource(URLS.SAMPLE_COLLECTIONS);
