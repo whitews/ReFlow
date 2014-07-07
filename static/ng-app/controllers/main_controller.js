@@ -935,9 +935,127 @@ app.controller(
 
 app.controller(
     'SampleController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-    }
-]);
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        'Sample',
+        'PanelTemplate',
+        'Site',
+        'Subject',
+        'SubjectGroup',
+        'VisitType',
+        'Stimulation',
+        function (
+            $scope,
+            $controller,
+            ModelService,
+            Sample,
+            PanelTemplate,
+            Site,
+            Subject,
+            SubjectGroup,
+            VisitType,
+            Stimulation
+        ) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.panels = PanelTemplate.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.sites = Site.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.subjects = Subject.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.subject_groups = SubjectGroup.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.visit_types = VisitType.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.stimulations = Stimulation.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.apply_filter = function () {
+                $scope.errors = [];
+
+                var panels = [];
+                $scope.panels.forEach(function (p) {
+                    if (p.query) {
+                        panels.push(p.id);
+                    }
+                });
+
+                var subject_groups = [];
+                $scope.subject_groups.forEach(function (s) {
+                    if (s.query) {
+                        subject_groups.push(s.id);
+                    }
+                });
+
+                var subjects = [];
+                $scope.subjects.forEach(function (s) {
+                    if (s.query) {
+                        subjects.push(s.id);
+                    }
+                });
+
+                var sites = [];
+                $scope.sites.forEach(function (s) {
+                    if (s.query) {
+                        sites.push(s.id);
+                    }
+                });
+
+                var visits = [];
+                $scope.visit_types.forEach(function (v) {
+                    if (v.query) {
+                        visits.push(v.id);
+                    }
+                });
+
+                var stimulations = [];
+                $scope.stimulations.forEach(function (s) {
+                    if (s.query) {
+                        stimulations.push(s.id);
+                    }
+                });
+
+                $scope.samples = Sample.query(
+                    {
+                        'panel': panels,
+                        'subject_group': subject_groups,
+                        'subject': subjects,
+                        'site': sites,
+                        'visit': visits,
+                        'stimulation': stimulations
+                    }
+                )
+            };
+        }
+    ]
+);
 
 app.controller(
     'BeadSampleController',

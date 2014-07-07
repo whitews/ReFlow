@@ -1357,7 +1357,7 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 
 class SampleFilter(django_filters.FilterSet):
-    project_panel = django_filters.ModelMultipleChoiceFilter(
+    panel = django_filters.ModelMultipleChoiceFilter(
         queryset=ProjectPanel.objects.all(),
         name='site_panel__project_panel')
     project = django_filters.ModelMultipleChoiceFilter(
