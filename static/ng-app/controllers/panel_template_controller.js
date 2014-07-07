@@ -4,11 +4,15 @@ app.controller(
         // Inherits ProjectDetailController $scope
         $controller('ProjectDetailController', {$scope: $scope});
 
-        $scope.panel_templates = PanelTemplate.query(
-            {
-                'project': $scope.current_project.id
-            }
-        );
+        function get_list() {
+            return PanelTemplate.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+        }
+
+        $scope.panel_templates = get_list();
 
         $scope.expand_params = [];
         $scope.panel_templates.$promise.then(function () {
@@ -31,6 +35,25 @@ app.controller(
             for (var i = 0; i < $scope.panel_templates.length; i++) {
                 $scope.expand_params[i] = false;
             }
+        };
+
+        $scope.copy_panel = function (panel) {
+            var new_panel = angular.copy(panel);
+
+            delete new_panel.id;
+            new_panel.panel_name = new_panel.panel_name + ' [copy]';
+
+            new_panel.parameters.forEach(function(param) {
+                delete param.id;
+            });
+
+            var response = PanelTemplate.save(new_panel);
+
+            response.$promise.then(function() {
+                $scope.panel_templates = get_list();
+            }, function (error) {
+                $scope.errors = error.data;
+            });
         };
     }
 ]);

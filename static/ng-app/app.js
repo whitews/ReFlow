@@ -215,11 +215,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
     }).state({
         name: 'panel-template-edit',
         parent: 'panel-template-list',
-        url: '/panel-templates/:templateID/edit',
+        url: ':templateID/edit',
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/panel-template-create.html',
-                controller: 'PanelTemplateController'
+                controller: 'PanelTemplateCreateController'
             }
         },
         data: {
