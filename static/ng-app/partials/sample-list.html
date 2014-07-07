@@ -6,7 +6,7 @@
               <h4>Samples <span class="badge badge-inverse align-top">{{ samples.length }}</span></h4>
 
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-default btn-sm" ui-sref="samples-upload">
+                <a class="btn btn-default btn-sm" ui-sref="sample-upload">
                   Upload Samples
                 </a>
               </div>
@@ -118,7 +118,23 @@
           </thead>
           <tbody>
             <tr ng-repeat="s in samples">
-              <td></td>
+              <td>
+                <a class="btn btn-default btn-xs" ng-click="show_parameters(s.id)" tooltip="Show Parameters" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-list-alt align-middle"></i>
+                </a>
+                <a class="btn btn-default btn-xs" ng-click="show_compensation(s.id)" tooltip="Show Compensation" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-sliders align-middle"></i>
+                </a>
+                <a class="btn btn-default btn-xs" href="/api/repository/samples/{{ s.id }}/fcs_original/" tooltip="Download FCS File" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
+                </a>
+                <a class="btn btn-default btn-xs" href="/api/repository/samples/{{ s.id }}/csv/" tooltip="Download Subsampled CSV File" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
+                </a>
+                <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(s)" tooltip="Edit" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-pencil align-middle"></i>
+                </a>
+              </td>
               <td>{{ s.original_filename }}</td>
               <td>{{ s.upload_date }}</td>
               <td>{{ s.acquisition_date }}</td>

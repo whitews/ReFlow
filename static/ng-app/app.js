@@ -241,7 +241,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
     }).state({
         name: 'sample-upload',
         parent: 'sample-list',
-        url: '/samples/upload',
+        url: 'upload',
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/sample-upload.html',
