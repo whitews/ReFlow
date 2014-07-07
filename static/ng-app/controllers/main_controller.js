@@ -967,7 +967,8 @@ app.controller(
 
             $scope.panels = PanelTemplate.query(
                 {
-                    'project': $scope.current_project.id
+                    'project': $scope.current_project.id,
+                    'staining': ['FS', 'US', 'FM', 'IS']
                 }
             );
 
@@ -1175,9 +1176,96 @@ app.controller(
 
 app.controller(
     'BeadSampleController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-    }
-]);
+    [
+        '$scope',
+        '$modal',
+        '$controller',
+        'ModelService',
+        'BeadSample',
+        'PanelTemplate',
+        'Site',
+        function (
+            $scope,
+            $modal,
+            $controller,
+            ModelService,
+            BeadSample,
+            PanelTemplate,
+            Site
+        ) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.panels = PanelTemplate.query(
+                {
+                    'project': $scope.current_project.id,
+                    'staining': ['CB']
+                }
+            );
+
+            $scope.sites = Site.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.apply_filter = function () {
+                $scope.errors = [];
+
+                var panels = [];
+                $scope.panels.forEach(function (p) {
+                    if (p.query) {
+                        panels.push(p.id);
+                    }
+                });
+
+                var sites = [];
+                $scope.sites.forEach(function (s) {
+                    if (s.query) {
+                        sites.push(s.id);
+                    }
+                });
+
+                $scope.samples = BeadSample.query(
+                    {
+                        'panel': panels,
+                        'site': sites
+                    }
+                )
+            };
+
+            $scope.show_parameters = function(instance) {
+                // launch modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.SAMPLE_PARAMETERS,
+                    controller: 'SampleParametersController',
+                    size: 'lg',
+                    resolve: {
+                        instance: function() {
+                            return instance;
+                        }
+                    }
+                });
+            };
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.BEAD_SAMPLE,
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
 
 app.controller(
     'CompensationController',
