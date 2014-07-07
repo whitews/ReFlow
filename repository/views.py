@@ -82,38 +82,6 @@ def copy_project_panel(request, project_id, panel_id=None):
 
 
 @login_required
-def view_samples(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-    user_view_sites = Site.objects.get_sites_user_can_view(
-        request.user,
-        project=project)
-
-    # samples are retrieved via AJAX using the sample list REST API driven
-    # by the following form
-    filter_form = SampleFilterForm(project_id=project_id, request=request)
-
-    can_add_project_data = project.has_add_permission(request.user)
-    can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(
-        request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(
-        request.user, project).values_list('id', flat=True)
-
-    return render_to_response(
-        'view_project_samples.html',
-        {
-            'project': project,
-            'can_add_project_data': can_add_project_data,
-            'can_modify_project_data': can_modify_project_data,
-            'user_add_sites': user_add_sites,
-            'user_modify_sites': user_modify_sites,
-            'filter_form': filter_form
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def render_sample_compensation(request, sample_id):
     sample = get_object_or_404(Sample, pk=sample_id)
     if not sample.has_view_permission(request.user):
