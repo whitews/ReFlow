@@ -1586,6 +1586,16 @@ class BeadDetail(
     model = BeadSample
     serializer_class = BeadSampleSerializer
 
+    def put(self, request, *args, **kwargs):
+        bead_sample = BeadSample.objects.get(id=request.DATA['id'])
+        if not bead_sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(BeadDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
 
 class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
     """
