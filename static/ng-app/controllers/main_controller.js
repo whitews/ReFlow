@@ -1,4 +1,4 @@
-var FORM_URLS = {
+var MODAL_URLS = {
     'SUBJECT_GROUP':      'static/ng-app/partials/subject-group-form.html',
     'SUBJECT':            'static/ng-app/partials/subject-form.html',
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
@@ -8,7 +8,8 @@ var FORM_URLS = {
     'SITE':               'static/ng-app/partials/site-form.html',
     'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
     'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
-    'STIMULATION':        'static/ng-app/partials/stimulation-form.html'
+    'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
+    'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html'
 };
 
 var ModalFormCtrl = function ($scope, $modalInstance, instance) {
@@ -41,7 +42,7 @@ app.controller(
 
             // launch form modal
             var modalInstance = $modal.open({
-                templateUrl: FORM_URLS[form_type],
+                templateUrl: MODAL_URLS[form_type],
                 controller: ModalFormCtrl,
                 resolve: {
                     instance: function() {
@@ -81,7 +82,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS.SPECIMEN,
+                    templateUrl: MODAL_URLS.SPECIMEN,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -162,7 +163,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS.MARKER,
+                    templateUrl: MODAL_URLS.MARKER,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -244,7 +245,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS.FLUOROCHROME,
+                    templateUrl: MODAL_URLS.FLUOROCHROME,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -314,7 +315,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS.PROJECT,
+                    templateUrl: MODAL_URLS.PROJECT,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -373,7 +374,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS[form_type],
+                    templateUrl: MODAL_URLS[form_type],
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -449,7 +450,7 @@ app.controller(
 
             // launch form modal
             var modalInstance = $modal.open({
-                templateUrl: FORM_URLS.SUBJECT_GROUP,
+                templateUrl: MODAL_URLS.SUBJECT_GROUP,
                 controller: ModalFormCtrl,
                 resolve: {
                     instance: function() {
@@ -527,7 +528,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS.SUBJECT,
+                    templateUrl: MODAL_URLS.SUBJECT,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -619,7 +620,7 @@ app.controller(
 
                 // launch form modal
                 $modal.open({
-                    templateUrl: FORM_URLS.SITE,
+                    templateUrl: MODAL_URLS.SITE,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -704,7 +705,7 @@ app.controller(
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: FORM_URLS.CYTOMETER,
+                    templateUrl: MODAL_URLS.CYTOMETER,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -794,7 +795,7 @@ app.controller(
 
                 // launch form modal
                 $modal.open({
-                    templateUrl: FORM_URLS.VISIT_TYPE,
+                    templateUrl: MODAL_URLS.VISIT_TYPE,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -879,7 +880,7 @@ app.controller(
 
                 // launch form modal
                 $modal.open({
-                    templateUrl: FORM_URLS.STIMULATION,
+                    templateUrl: MODAL_URLS.STIMULATION,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
@@ -937,6 +938,7 @@ app.controller(
     'SampleController',
     [
         '$scope',
+        '$modal',
         '$controller',
         'ModelService',
         'Sample',
@@ -948,6 +950,7 @@ app.controller(
         'Stimulation',
         function (
             $scope,
+            $modal,
             $controller,
             ModelService,
             Sample,
@@ -1053,6 +1056,40 @@ app.controller(
                     }
                 )
             };
+            
+            $scope.show_parameters = function(instance) {
+                // launch modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.SAMPLE_PARAMETERS,
+                    controller: 'SampleParametersController',
+                    size: 'lg',
+                    resolve: {
+                        instance: function() {
+                            return instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'SampleParametersController',
+    [
+        '$scope',
+        '$modalInstance',
+        'instance',
+        'SitePanel',
+        function ($scope, $modalInstance, instance, SitePanel) {
+            $scope.instance = instance;
+            $scope.ok = function () {
+                $modalInstance.close();
+            };
+
+            $scope.site_panel = SitePanel.get(
+                {id: $scope.instance.site_panel }
+            );
         }
     ]
 );

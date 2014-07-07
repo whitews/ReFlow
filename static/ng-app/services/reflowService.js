@@ -219,7 +219,15 @@ service
         );
     }])
     .factory('SitePanel', ['$resource', function ($resource) {
-        return $resource(URLS.SITE_PANELS);
+        var SitePanel = $resource(
+            URLS.SITE_PANELS + ':id',
+            {},
+            {
+                get: { isArray: false }
+            }
+        );
+
+        return SitePanel;
     }])
     .factory('Compensation', ['$resource', function ($resource) {
         return $resource(URLS.COMPENSATIONS);
