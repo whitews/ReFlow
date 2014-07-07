@@ -1277,6 +1277,16 @@ class Sample(ProtectedModel):
 
         return False
 
+    def has_modify_permission(self, user):
+
+        if self.subject.project.has_modify_permission(user):
+            return True
+        elif self.site_panel is not None:
+            if user.has_perm('modify_site_data', self.site_panel.site):
+                return True
+
+        return False
+
     def get_subsample_as_csv(self):
         csv_string = StringIO()
         subsample_array = np.load(self.subsample.file)
