@@ -1646,9 +1646,16 @@ class BeadSample(ProtectedModel):
 
         if self.site_panel.project_panel.project.has_view_permission(user):
             return True
-        elif self.site_panel is not None:
-            if user.has_perm('view_site_data', self.site_panel.site):
-                return True
+        elif user.has_perm('view_site_data', self.site_panel.site):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if self.site_panel.project_panel.project.has_modify_permission(user):
+            return True
+        elif user.has_perm('modify_site_data', self.site_panel.site):
+            return True
 
         return False
 
