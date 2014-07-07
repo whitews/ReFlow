@@ -81,6 +81,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/compensations/(?P<pk>\d+)/csv/?$', retrieve_compensation_as_csv, name='retrieve_compensation_as_csv'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/npy/?$', retrieve_compensation_as_numpy, name='retrieve_compensation_as_numpy'),
 
+    url(r'^api/repository/workers/(?P<pk>\d+)/?$', WorkerDetail.as_view(), name='worker-detail'),
     url(r'^api/repository/workers/?$', WorkerList.as_view(), name='worker-list'),
     url(r'^api/repository/subprocess_categories/?$', SubprocessCategoryList.as_view(), name='subprocess-category-list'),
     url(r'^api/repository/subprocess_implementations/?$', SubprocessImplementationList.as_view(), name='subprocess-implementation-list'),
