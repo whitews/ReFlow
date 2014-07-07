@@ -157,27 +157,6 @@ def process_dashboard(request):
     )
 
 
-@user_passes_test(lambda u: u.is_superuser)
-def add_worker(request):
-    if request.method == 'POST':
-        form = WorkerForm(request.POST)
-
-        if form.is_valid():
-            worker = form.save()
-
-            return HttpResponseRedirect(reverse('process_dashboard'))
-    else:
-        form = WorkerForm()
-
-    return render_to_response(
-        'add_worker.html',
-        {
-            'form': form,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
 @login_required
 def view_process_request(request, process_request_id):
     process_request = get_object_or_404(ProcessRequest, pk=process_request_id)

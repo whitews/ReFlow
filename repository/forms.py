@@ -3,8 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from repository.models import Project, Site, \
-    Compensation, SitePanel, \
-    SitePanelParameter, Worker
+    Compensation, SitePanel, SitePanelParameter
 
 
 class CompensationForm(forms.ModelForm):
@@ -105,8 +104,3 @@ class CompensationForm(forms.ModelForm):
                 return self.cleaned_data
 
         return self.cleaned_data  # never forget this! ;o)
-
-
-class WorkerForm(forms.ModelForm):
-    class Meta:
-        model = Worker

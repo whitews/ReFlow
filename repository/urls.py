@@ -100,15 +100,14 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/process_request_outputs/(?P<pk>\d+)/download/?$', retrieve_process_request_output_value, name='retrieve_process_request_output'),
 )
 
-# Angular web routes
-urlpatterns += patterns('repository.views',
-    url(r'^$', 'reflow_app', name='home'),
-    url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
-)
-
-# Regular web routes
+# Non-API routes
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
+    url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
+
+    url(r'^$', 'reflow_app', name='home'),
+
+    url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
 
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
@@ -116,9 +115,6 @@ urlpatterns += patterns('repository.views',
 
     url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
 
-    url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
-
     url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),
-    url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
     url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
 )
