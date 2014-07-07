@@ -213,41 +213,6 @@ def add_compensation(request, project_id, compensation_id=None):
 
 
 @login_required
-def edit_sample(request, sample_id):
-    sample = get_object_or_404(Sample, pk=sample_id)
-
-    if not sample.site_panel.site.has_modify_permission(request.user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form = SampleEditForm(
-            request.POST,
-            request.FILES,
-            instance=sample,
-            request=request)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse(
-                'view_project_samples',
-                args=(sample.visit.project_id,)))
-    else:
-        form = SampleEditForm(
-            instance=sample,
-            project_id=sample.subject.project_id,
-            request=request)
-
-    return render_to_response(
-        'edit_sample.html',
-        {
-            'form': form,
-            'sample': sample,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def process_dashboard(request):
 
     workers = Worker.objects.all()

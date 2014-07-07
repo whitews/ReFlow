@@ -115,7 +115,6 @@ urlpatterns += patterns('repository.views',
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
     url(r'^project/(?P<project_id>\d+)/compensations/(?P<compensation_id>\d+)/edit/$', 'add_compensation', name='edit_compensation'),
 
-    url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
     url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
 
     url(r'^project/(?P<project_id>\d+)/beads/$', 'view_beads', name='view_beads'),

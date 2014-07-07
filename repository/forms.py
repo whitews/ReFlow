@@ -2,44 +2,9 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
-from repository.models import Project, Site, Subject, VisitType, Sample, \
+from repository.models import Project, Site, \
     Cytometer, Compensation, ProjectPanel, SitePanel, \
-    SitePanelParameter, \
-    SubjectGroup, Stimulation, Worker
-
-
-class SampleEditForm(forms.ModelForm):
-    class Meta:
-        model = Sample
-        exclude = ('original_filename', 'sample_file', 'sha1', 'subsample')
-
-    def __init__(self, *args, **kwargs):
-        # pop our 'project_id' key since parent's init is not expecting it
-        project_id = kwargs.pop('project_id', None)
-
-        # likewise for 'request' arg
-        kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(SampleEditForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure only project's visit types are the
-        # available choices
-        if project_id:
-            site_panels = SitePanel.objects.filter(
-                site=self.instance.site_panel.site)
-            self.fields['site_panel'] = forms.ModelChoiceField(site_panels)
-
-            visit_types = VisitType.objects.filter(project__id=project_id)
-            self.fields['visit'] = forms.ModelChoiceField(visit_types)
-
-            stimulations = Stimulation.objects.filter(
-                project__id=project_id).order_by('stimulation_name')
-            self.fields['stimulation'] = forms.ModelChoiceField(stimulations)
-
-            compensations = Compensation.objects.filter(
-                site_panel__site__project__id=project_id).order_by('name')
-            self.fields['compensation'] = forms.ModelChoiceField(compensations)
+    SitePanelParameter, Worker
 
 
 class CompensationForm(forms.ModelForm):
@@ -145,89 +110,6 @@ class CompensationForm(forms.ModelForm):
 class WorkerForm(forms.ModelForm):
     class Meta:
         model = Worker
-
-
-class SampleFilterForm(forms.Form):
-    """
-    Note the naming of these fields corresponds to the REST API
-    URL parameter filter text strings for the various Sample relationships
-    See the custom filter in the SampleList in api_views.py
-    """
-
-    project_panel = forms.ModelMultipleChoiceField(
-        queryset=ProjectPanel.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    site = forms.ModelMultipleChoiceField(
-        queryset=Site.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    site_panel = forms.ModelMultipleChoiceField(
-        queryset=SitePanel.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    subject = forms.ModelMultipleChoiceField(
-        queryset=Subject.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    subject_group = forms.ModelMultipleChoiceField(
-        queryset=SubjectGroup.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    visit = forms.ModelMultipleChoiceField(
-        queryset=VisitType.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    stimulation = forms.ModelMultipleChoiceField(
-        queryset=Stimulation.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    cytometer = forms.ModelMultipleChoiceField(
-        queryset=Cytometer.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-
-    def __init__(self, *args, **kwargs):
-        # pop 'project_id' & 'request' keys, parent init doesn't expect them
-        project_id = kwargs.pop('project_id', None)
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(SampleFilterForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure the available choices belong to the project
-        if project_id:
-            project = Project.objects.get(id=project_id)
-
-            project_panels = ProjectPanel.objects.filter(project=project)
-            self.fields['project_panel'].queryset = project_panels
-
-            sites = Site.objects.get_sites_user_can_view(
-                request.user,
-                project=project
-            )
-            self.fields['site'].queryset = sites
-
-            site_panels = SitePanel.objects.filter(site__in=sites)
-            self.fields['site_panel'].queryset = site_panels
-
-            subject_groups = SubjectGroup.objects.filter(project_id=project_id)
-            self.fields['subject_group'].queryset = subject_groups
-
-            self.fields['subject'].queryset = Subject.objects.filter(
-                project_id=project_id
-            )
-
-            self.fields['visit'].queryset = VisitType.objects.filter(
-                project_id=project_id
-            )
-
-            self.fields['stimulation'].queryset = Stimulation.objects.filter(
-                project_id=project_id
-            )
-
-            cytometers = Cytometer.objects.filter(site__in=sites)
-            self.fields['cytometer'].queryset = cytometers
 
 
 class BeadFilterForm(forms.Form):
