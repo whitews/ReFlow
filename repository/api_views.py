@@ -1421,13 +1421,23 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
 class SampleDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single FCS sample.
     """
 
     model = Sample
     serializer_class = SampleSerializer
+
+    def put(self, request, *args, **kwargs):
+        sample = Sample.objects.get(id=request.DATA['id'])
+        if not sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SampleDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):

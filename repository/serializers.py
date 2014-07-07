@@ -450,7 +450,9 @@ class SampleSerializer(serializers.ModelSerializer):
             'sha1',
             'compensation'
         )
-        read_only_fields = ('original_filename', 'sha1')
+        read_only_fields = (
+            'original_filename', 'sha1', 'site_panel', 'cytometer'
+        )
         exclude = ('sample_file',)
 
 
