@@ -207,6 +207,10 @@ class SitePanelParameterMarkerSerializer(serializers.ModelSerializer):
 
 class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
+    parameter_type_name = serializers.CharField(
+        source="get_parameter_type_display",
+        read_only=True
+    )
     markers = SitePanelParameterMarkerSerializer(
         source='sitepanelparametermarker_set')
 
@@ -219,6 +223,7 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
             'fcs_opt_text',
             'name',
             'parameter_type',
+            'parameter_type_name',
             'parameter_value_type',
             'markers',
             'fluorochrome')
