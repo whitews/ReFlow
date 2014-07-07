@@ -153,6 +153,17 @@ service
 
         return Specimen;
     }])
+    .factory('Worker', ['$resource', function ($resource) {
+        var Worker = $resource(
+            URLS.WORKERS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return Worker;
+    }])
     .factory('SubjectGroup', ['$resource', function ($resource) {
         var SubjectGroup = $resource(
             URLS.SUBJECT_GROUPS + ':id',

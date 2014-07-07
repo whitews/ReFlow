@@ -83,6 +83,19 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbLabel: 'Fluorochromes'
         }
     }).state({
+        name: 'worker-list',
+        parent: 'admin',
+        url: 'workers/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/worker-list.html',
+                controller: 'WorkerController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Workers'
+        }
+    }).state({
         name: 'project-detail',
         parent: 'home',
         url: 'project/:projectId',
