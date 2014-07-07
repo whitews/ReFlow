@@ -20,7 +20,12 @@ app.controller(
             $scope.sample_upload_model.panel_fluorochromes = [];
             $scope.sample_upload_model.current_panel_template.parameters.forEach(function (param) {
                 if (param.fluorochrome) {
-                    $scope.sample_upload_model.panel_fluorochromes.push(param.fluorochrome);
+                    $scope.sample_upload_model.panel_fluorochromes.push(
+                        {
+                            'id': param.fluorochrome,
+                            'abbreviation': param.fluorochrome_abbreviation
+                        }
+                    );
                 }
             });
             $scope.sample_upload_model.current_compensation_fluoro = null;

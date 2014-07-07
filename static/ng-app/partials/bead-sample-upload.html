@@ -38,7 +38,7 @@
                   <td><strong>Compensation Channel:</strong></td>
                     <td>
                     <div ng-controller="BeadPanelTemplateQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_compensation_fluoro" ng-disabled="sample_upload_model.current_panel_template == null || sample_upload_model.site_panels.length == 0" ng-required="true" ng-options="f.fluorochrome_abbreviation for f in sample_upload_model.panel_fluorochromes">
+                      <select class="form-control" ng-model="sample_upload_model.current_compensation_fluoro" ng-disabled="sample_upload_model.current_panel_template == null || sample_upload_model.site_panels.length == 0" ng-required="true" ng-options="f as f.abbreviation for f in sample_upload_model.panel_fluorochromes">
                       </select>
                     </div>
                   </td>
@@ -303,7 +303,7 @@
           <td>{{ f.acquisition_date | date }}</td>
           <td>{{ f.cytometer.cytometer_name }}</td>
           <td>{{ f.site_panel.name }}</td>
-          <td>{{ f.compensation_channel.fluorochrome_abbreviation }}</td>
+          <td>{{ f.compensation_channel.abbreviation }}</td>
         </tr>
       </tbody>
     </table>
