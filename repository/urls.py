@@ -117,8 +117,6 @@ urlpatterns += patterns('repository.views',
 
     url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
 
-    url(r'^project/(?P<project_id>\d+)/beads/$', 'view_beads', name='view_beads'),
-
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
 
     url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),

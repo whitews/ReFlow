@@ -3,7 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from repository.models import Project, Site, \
-    Cytometer, Compensation, ProjectPanel, SitePanel, \
+    Compensation, SitePanel, \
     SitePanelParameter, Worker
 
 
@@ -110,55 +110,3 @@ class CompensationForm(forms.ModelForm):
 class WorkerForm(forms.ModelForm):
     class Meta:
         model = Worker
-
-
-class BeadFilterForm(forms.Form):
-    """
-    Note the naming of these fields corresponds to the REST API
-    URL parameter filter text strings for the various Sample relationships
-    See the custom filter in the SampleList in api_views.py
-    """
-
-    project_panel = forms.ModelMultipleChoiceField(
-        queryset=ProjectPanel.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    site = forms.ModelMultipleChoiceField(
-        queryset=Site.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    site_panel = forms.ModelMultipleChoiceField(
-        queryset=SitePanel.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-    cytometer = forms.ModelMultipleChoiceField(
-        queryset=Cytometer.objects.none(),
-        required=False,
-        widget=forms.widgets.CheckboxSelectMultiple())
-
-    def __init__(self, *args, **kwargs):
-        # pop 'project_id' & 'request' keys, parent init doesn't expect them
-        project_id = kwargs.pop('project_id', None)
-        request = kwargs.pop('request', None)
-
-        # now it's safe to call the parent init
-        super(BeadFilterForm, self).__init__(*args, **kwargs)
-
-        # finally, make sure the available choices belong to the project
-        if project_id:
-            project = Project.objects.get(id=project_id)
-
-            project_panels = ProjectPanel.objects.filter(project=project)
-            self.fields['project_panel'].queryset = project_panels
-
-            sites = Site.objects.get_sites_user_can_view(
-                request.user,
-                project=project
-            )
-            self.fields['site'].queryset = sites
-
-            site_panels = SitePanel.objects.filter(site__in=sites)
-            self.fields['site_panel'].queryset = site_panels
-
-            cytometers = Cytometer.objects.filter(site__in=sites)
-            self.fields['cytometer'].queryset = cytometers
