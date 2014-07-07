@@ -188,6 +188,7 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
             'url',
             'project',
             'panel_name',
+            'panel_description',
             'staining',
             'staining_name',
             'parent_panel',

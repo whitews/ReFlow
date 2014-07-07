@@ -45,6 +45,11 @@ app.controller(
 
             new_panel.parameters.forEach(function(param) {
                 delete param.id;
+                var markers = [];
+                param.markers.forEach(function(m) {
+                    markers.push(m.id);
+                });
+                param.markers = markers;
             });
 
             var response = PanelTemplate.save(new_panel);
