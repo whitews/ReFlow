@@ -109,6 +109,19 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbLabel: '{{current_project.project_name}}'
         }
     }).state({
+        name: 'process-request-form',
+        parent: 'project-detail',
+        url: '/process_request/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/pr/process-request-form.html',
+                controller: 'ProcessRequestController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Process Request'
+        }
+    }).state({
         name: 'user-list',
         parent: 'project-detail',
         url: '/users/',

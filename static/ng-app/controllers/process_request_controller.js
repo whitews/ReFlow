@@ -6,45 +6,46 @@ var process_steps = [
     {
         "name": "filter_site_panels",
         "title": "Choose Site Panels",
-        "url": "/static/ng-process-request-app/partials/choose_site_panels.html"
+        "url": "/static/ng-app/partials/pr/choose_site_panels.html"
     },
     {
         "name": "filter_samples",
         "title": "Choose Samples",
-        "url": "/static/ng-process-request-app/partials/choose_samples.html"
+        "url": "/static/ng-app/partials/pr/choose_samples.html"
     },
     {
         "name": "filter_parameters",
         "title": "Choose Parameters",
-        "url": "/static/ng-process-request-app/partials/choose_parameters.html"
+        "url": "/static/ng-app/partials/pr/choose_parameters.html"
     },
     {
         "name": "transformation_options",
         "title": "Transformation Options",
-        "url": "/static/ng-process-request-app/partials/transformation_options.html"
+        "url": "/static/ng-app/partials/pr/transformation_options.html"
     },
     {
         "name": "clustering_options",
         "title": "Clustering Options",
-        "url": "/static/ng-process-request-app/partials/clustering_options.html"
+        "url": "/static/ng-app/partials/pr/clustering_options.html"
     },
     {
         "name": "process_request_options",
         "title": "Process Request Options",
-        "url": "/static/ng-process-request-app/partials/request_options.html"
+        "url": "/static/ng-app/partials/pr/request_options.html"
     }
 ];
 
-var success_url = '/static/ng-process-request-app/partials/success.html';
+var success_url = '/static/ng-app/partials/pr/success.html';
 
 app.controller(
     'ProcessRequestController',
     [
         '$scope',
+        '$controller',
         '$modal',
         'Project',
         'Site',
-        'ProjectPanel',
+        'PanelTemplate',
         'SitePanel',
         'Sample',
         'SampleCollection',
@@ -60,10 +61,11 @@ app.controller(
         'ProcessRequestInput',
         function (
                 $scope,
+                $controller,
                 $modal,
                 Project,
                 Site,
-                ProjectPanel,
+                PanelTemplate,
                 SitePanel,
                 Sample,
                 SampleCollection,
@@ -86,6 +88,9 @@ app.controller(
                 sites: null,
                 site_panels: null
             };
+
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.current_step_index = 0;
             $scope.step_count = process_steps.length;
@@ -348,7 +353,7 @@ app.controller(
             }
 
             $scope.projectChanged = function () {
-                $scope.model.project_panels = ProjectPanel.query({project: $scope.model.current_project.id});
+                $scope.model.project_panels = PanelTemplate.query({project: $scope.model.current_project.id});
                 $scope.model.sites = Site.query({project: $scope.model.current_project.id});
                 $scope.model.site_panels = null;
                 $scope.model.samples = null;
