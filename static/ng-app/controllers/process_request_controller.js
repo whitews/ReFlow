@@ -217,19 +217,18 @@ app.controller(
                             panel_match_count++;
                         }
                     });
-                });
-
-                $scope.model.parameters = [];
-                for (var i = 0; i < master_parameter_list.length; i++) {
-                    if (indices_to_exclude.indexOf(i) == -1) {
-                        $scope.model.parameters.push(
-                            {
-                                parameter: master_parameter_list[i],
-                                selected: true
-                            }
-                        );
+                    $scope.model.parameters = [];
+                    for (var i = 0; i < master_parameter_list.length; i++) {
+                        if (indices_to_exclude.indexOf(i) == -1) {
+                            $scope.model.parameters.push(
+                                {
+                                    parameter: master_parameter_list[i],
+                                    selected: true
+                                }
+                            );
+                        }
                     }
-                }
+                });
             }
 
             function initializeTransformation () {

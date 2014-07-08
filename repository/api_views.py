@@ -1007,8 +1007,16 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
+        # need to filter by multiple IDs but django-filter doesn't seem to like
+        # that, so we'll do it ourselves here
+
         # filter on user's projects
         queryset = SitePanel.objects.filter(site__in=user_sites)
+
+        id_value = self.request.QUERY_PARAMS.get('id', None)
+        if id_value:
+            id_list = id_value.split(',')
+            queryset = queryset.filter(id__in=id_list)
 
         # TODO: implement filtering by channel info: fluoro, marker, scatter
 
