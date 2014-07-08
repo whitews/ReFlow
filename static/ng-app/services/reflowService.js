@@ -235,7 +235,8 @@ service
             URLS.SITE_PANELS + ':id',
             {},
             {
-                get: { isArray: false }
+                get: { isArray: false },
+                query: { url: URLS.SITE_PANELS, isArray: true }
             }
         );
 

@@ -411,7 +411,7 @@ class SampleSerializer(serializers.ModelSerializer):
     stimulation_name = serializers.CharField(
         source='stimulation.stimulation_name',
         read_only=True)
-    project_panel = serializers.IntegerField(
+    panel = serializers.IntegerField(
         source='site_panel.project_panel_id',
         read_only=True)
     panel_name = serializers.CharField(
@@ -440,7 +440,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'cytometer',
             'stimulation',
             'stimulation_name',
-            'project_panel',
+            'panel',
             'panel_name',
             'site_panel',
             'site',

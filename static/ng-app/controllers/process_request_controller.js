@@ -4,11 +4,6 @@
 
 var process_steps = [
     {
-        "name": "filter_site_panels",
-        "title": "Choose Site Panels",
-        "url": "/static/ng-app/partials/pr/choose_site_panels.html"
-    },
-    {
         "name": "filter_samples",
         "title": "Choose Samples",
         "url": "/static/ng-app/partials/pr/choose_samples.html"
@@ -80,24 +75,53 @@ app.controller(
                 ProcessRequest,
                 ProcessRequestInput) {
 
-            $scope.model = {
-                projects: Project.query(),
-                current_project: null,
-                project_panels: null,
-                current_project_panel: null,
-                sites: null,
-                site_panels: null
-            };
-
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.model = {};
+
+            // Populate our sample filters
+            $scope.model.panel_templates = PanelTemplate.query({project: $scope.current_project.id});
+            $scope.model.site_panels = []; // depends on chosen template
+            $scope.model.sites = Site.query({project: $scope.current_project.id});
+            $scope.model.subjects = Subject.query({project: $scope.current_project.id});
+            $scope.model.visits = VisitType.query({project: $scope.current_project.id});
+            $scope.model.stimulations = Stimulation.query({project: $scope.current_project.id});
+            $scope.model.cytometers = []; // depends on chosen sites
+            $scope.model.pretreatments = Pretreatment.query();
+
+            $scope.model.current_panel_template = null;
+
+            $scope.panelTemplateChanged = function () {
+                $scope.model.samples = Sample.query({panel: $scope.model.current_panel_template.id});
+
+                $scope.model.samples.$promise.then(function (data) {
+                    data.forEach(function (sample) {
+                        sample.ignore = false;
+                        sample.selected = true;
+                    });
+
+                    $scope.updateSamples();
+                })
+            };
+
+            $scope.siteSelectionChanged = function () {
+                var site_list = [];
+                $scope.model.sites.forEach(function(site) {
+                    if (site.selected) {
+                        site_list.push(site.id);
+                    }
+                });
+                $scope.model.cytometers = Cytometer.query({site: site_list});
+                $scope.updateSamples();
+            };
 
             $scope.current_step_index = 0;
             $scope.step_count = process_steps.length;
             $scope.current_step = process_steps[$scope.current_step_index];
             initializeStep();
 
-            function initializeFiltering () {
+            function initializeSamples () {
                 var category_name = 'filtering';
                 var implementation_name = 'parameters';
                 var subproc_name = 'parameter';
@@ -122,50 +146,6 @@ app.controller(
                 ); // there should only be one 'parameter' subproc input
             }
 
-            function initializeSamples () {
-                var site_panel_list = [];
-                $scope.model.site_panels.forEach(function(site_panel) {
-                    if (site_panel.selected) {
-                        site_panel_list.push(site_panel.id);
-                    }
-                });
-
-                if (site_panel_list == 0) {
-                    $scope.model.samples = null;
-                } else {
-                    $scope.model.samples = Sample.query(
-                        {site_panel: site_panel_list},
-                        function (data) {  // success
-                            data.forEach(function (sample) {
-                                sample.ignore = false;
-                                sample.selected = true;
-                            });
-                        }
-                    );
-                }
-
-                // Add ignore=false, selected=true to all samples
-                $scope.model.samples.forEach(function (sample) {
-                    sample.ignore = false;
-                    sample.selected = true;
-                });
-
-                var site_list = [];
-                $scope.model.sites.forEach(function(site) {
-                    if (site.selected) {
-                        site_list.push(site.id);
-                    }
-                });
-
-                // Populate our sample filters
-                $scope.model.subjects = Subject.query({project: $scope.model.current_project.id});
-                $scope.model.visits = VisitType.query({project: $scope.model.current_project.id});
-                $scope.model.stimulations = Stimulation.query({project: $scope.model.current_project.id});
-                $scope.model.cytometers = Cytometer.query({site: site_list});
-                $scope.model.pretreatments = Pretreatment.query();
-
-            }
-
             function initializeParameters () {
                 // Iterate samples that are both selected and not ignored
                 // to collect distinct site panels
@@ -188,50 +168,55 @@ app.controller(
                 var master_parameter_list = [];
                 var panel_match_count = 0;
                 var indices_to_exclude = [];
-                $scope.model.site_panels.forEach (function (site_panel) {
-                    var parameter_list = [];
 
-                    if (site_panel_list.indexOf(site_panel.id) != -1) {
-                        site_panel.parameters.forEach(function (parameter) {
-                            // since multiple markers are possible in a param
-                            // we'll get those first, sorted alphabetically
-                            var marker_list = [];
-                            var marker_string = null;
-                            parameter.markers.forEach(function (marker) {
-                                marker_list.push(marker.name);
-                            });
-                            if (marker_list.length > 0) {
-                                marker_string = marker_list.sort().join('_');
-                            }
-                            var param_string = parameter.parameter_type + "_" +
-                                parameter.parameter_value_type;
-                            if (marker_string) {
-                                param_string = param_string + "_" + marker_string;
-                            }
-                            if (parameter.fluorochrome) {
-                                param_string = param_string + "_" + parameter.fluorochrome.fluorochrome_abbreviation;
-                            }
-                            parameter_list.push(param_string);
-                        });
+                $scope.model.site_panels = SitePanel.query({'id': site_panel_list});
 
-                        // if it's our first rodeo save to master list
-                        if (panel_match_count == 0) {
-                            parameter_list.forEach(function (p) {
-                                master_parameter_list.push(p);
+                $scope.model.site_panels.$promise.then(function(data) {
+                    data.forEach (function (site_panel) {
+                        var parameter_list = [];
+
+                        if (site_panel_list.indexOf(site_panel.id) != -1) {
+                            site_panel.parameters.forEach(function (parameter) {
+                                // since multiple markers are possible in a param
+                                // we'll get those first, sorted alphabetically
+                                var marker_list = [];
+                                var marker_string = null;
+                                parameter.markers.forEach(function (marker) {
+                                    marker_list.push(marker.name);
+                                });
+                                if (marker_list.length > 0) {
+                                    marker_string = marker_list.sort().join('_');
+                                }
+                                var param_string = parameter.parameter_type + "_" +
+                                    parameter.parameter_value_type;
+                                if (marker_string) {
+                                    param_string = param_string + "_" + marker_string;
+                                }
+                                if (parameter.fluorochrome) {
+                                    param_string = param_string + "_" + parameter.fluorochrome.fluorochrome_abbreviation;
+                                }
+                                parameter_list.push(param_string);
                             });
-                        } else {
-                            // compare the parameter_list against our master parameters list
-                            // if the master list contains a param not in this panel,
-                            // remove it from the master list
-                            for (var i = 0; i < master_parameter_list.length; i++) {
-                                if (parameter_list.indexOf(master_parameter_list[i]) == -1) {
-                                    indices_to_exclude.push(i);
+
+                            // if it's our first rodeo save to master list
+                            if (panel_match_count == 0) {
+                                parameter_list.forEach(function (p) {
+                                    master_parameter_list.push(p);
+                                });
+                            } else {
+                                // compare the parameter_list against our master parameters list
+                                // if the master list contains a param not in this panel,
+                                // remove it from the master list
+                                for (var i = 0; i < master_parameter_list.length; i++) {
+                                    if (parameter_list.indexOf(master_parameter_list[i]) == -1) {
+                                        indices_to_exclude.push(i);
+                                    }
                                 }
                             }
+                            // either way we had a match so count it
+                            panel_match_count++;
                         }
-                        // either way we had a match so count it
-                        panel_match_count++;
-                    }
+                    });
                 });
 
                 $scope.model.parameters = [];
@@ -311,9 +296,6 @@ app.controller(
 
             function initializeStep () {
                 switch ($scope.current_step.name) {
-                    case "filter_site_panels":
-                        initializeFiltering();
-                        break;
                     case "filter_samples":
                         initializeSamples();
                         break;
@@ -346,45 +328,6 @@ app.controller(
                 }
             };
 
-            function preselectSites() {
-                $scope.model.sites.forEach(function(site) {
-                    site.selected = true;
-                });
-            }
-
-            $scope.projectChanged = function () {
-                $scope.model.project_panels = PanelTemplate.query({project: $scope.model.current_project.id});
-                $scope.model.sites = Site.query({project: $scope.model.current_project.id});
-                $scope.model.site_panels = null;
-                $scope.model.samples = null;
-                preselectSites();
-            };
-
-            $scope.updateSitePanels = function () {
-                var site_id_list = [];
-                $scope.model.sites.forEach(function(site) {
-                    if (site.selected) {
-                        site_id_list.push(site.id);
-                    }
-                });
-
-                if (site_id_list == 0) {
-                    $scope.model.site_panels = null;
-                } else {
-                    $scope.model.site_panels = SitePanel.query(
-                    {
-                        project_panel: $scope.model.current_project_panel.id,
-                        site: site_id_list
-                    });
-                }
-            };
-
-            $scope.toggleAllSitePanels = function () {
-                $scope.model.site_panels.forEach(function(site_panel) {
-                    site_panel.selected = $scope.model.master_site_panel_checkbox;
-                });
-            };
-
             $scope.toggleAllSamples = function () {
                 $scope.model.samples.forEach(function(sample) {
                     sample.selected = $scope.model.master_sample_checkbox;
@@ -399,6 +342,13 @@ app.controller(
 
             $scope.updateSamples = function () {
                 // Check the various categories and collect the checks! Ka-ching!
+
+                var site_list = [];
+                $scope.model.sites.forEach(function(site) {
+                    if (site.selected) {
+                        site_list.push(site.id);
+                    }
+                });
 
                 var subject_list = [];
                 $scope.model.subjects.forEach(function(subject) {
@@ -440,6 +390,11 @@ app.controller(
                 // a category, else we won't filter
                 $scope.model.samples.forEach(function (sample) {
                     var ignore = false;
+                    if (site_list.length > 0) {
+                        if (site_list.indexOf(sample.site) == -1) {
+                            ignore = true;
+                        }
+                    }
                     if (subject_list.length > 0) {
                         if (subject_list.indexOf(sample.subject) == -1) {
                             ignore = true;
@@ -475,7 +430,7 @@ app.controller(
                 // first, we'll create the sample collection using the project ID
                 var collection = SampleCollection.save(
                     {
-                        project: $scope.model.current_project.id
+                        project: $scope.current_project.id
                     }
                 );
 
@@ -501,7 +456,7 @@ app.controller(
                     .then(function () {  // Create the PR before the inputs
                         var pr = new ProcessRequest(
                             {
-                                project: $scope.model.current_project.id,
+                                project: $scope.current_project.id,
                                 sample_collection: collection.id,
                                 description: $scope.model.request_description
                             }
@@ -563,10 +518,7 @@ app.controller(
                             $scope.model.submitted_pr_inputs = data;
                     })
                 });
-
-
             }
-
         }
     ]
 );

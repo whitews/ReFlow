@@ -1,6 +1,23 @@
   <div class="row">
     <div class="col-md-4">
 
+      <strong>Panel Template:</strong>
+      <select class="form-control" ng-required="true" ng-model="model.current_panel_template" ng-change="panelTemplateChanged()" ng-options="p.panel_name for p in model.panel_templates">
+      </select>
+
+      <br/>
+
+      <div class="top"><strong>Sites:</strong></div>
+
+      <div data-ng-repeat="site in model.sites">
+          <label>
+              <input type="checkbox" ng-model="site.selected" ng-disabled="model.current_panel_template==null" ng-change="siteSelectionChanged()" />
+          {{ site.site_name }}
+          </label>
+      </div>
+
+      <br/>
+
       <accordion close-others="false">
         <accordion-group>
             <accordion-heading>
@@ -61,7 +78,7 @@
 
     </div>
     <div class="col-md-8">
-        <table class="table table-hover">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th colspan="50">
@@ -91,6 +108,6 @@
             <td>{{ s.stimulation_name }}</td>
           </tr>
         </tbody>
-        </table>
+      </table>
     </div>
   </div>
