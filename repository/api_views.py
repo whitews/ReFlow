@@ -74,8 +74,8 @@ def repository_api_root(request):
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
-        'create_process_request_output': reverse(
-            'create-process-request-output', request=request),
+        'process_request_outputs': reverse(
+            'process-request-output-list', request=request),
         'get_parameter_functions': reverse('get_parameter_functions', request=request),
         'get_parameter_value_types': reverse('get_parameter_value_types',
                                            request=request)
@@ -1880,7 +1880,7 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('worker', 'request_user')
+    filter_fields = ('project', 'worker', 'request_user')
 
     def create(self, request, *args, **kwargs):
         # add required fields for the user and status
@@ -2021,11 +2021,11 @@ class ProcessRequestAssignmentUpdate(
         return Response(data={'detail': 'Bad request'}, status=400)
 
 
-class CreateProcessRequestOutput(
+class ProcessRequestOutputList(
         LoginRequiredMixin,
-        generics.CreateAPIView):
+        generics.ListCreateAPIView):
     """
-    API endpoint for creating a new Sample.
+    API endpoint for listing and creating a ProcessRequestOutput.
     """
 
     model = ProcessRequestOutput
@@ -2053,7 +2053,7 @@ class CreateProcessRequestOutput(
                     status=400)
 
             # if we get here, the worker is bonafide! "He's a suitor!"
-            response = super(CreateProcessRequestOutput, self).post(
+            response = super(ProcessRequestOutputList, self).post(
                 request, *args, **kwargs)
             return response
         return Response(data={'detail': 'Bad request'}, status=400)
