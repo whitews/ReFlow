@@ -107,8 +107,6 @@ urlpatterns += patterns('repository.views',
 
     url(r'^$', 'reflow_app', name='home'),
 
-    url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
-
     url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
     url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
     url(r'^project/(?P<project_id>\d+)/compensations/(?P<compensation_id>\d+)/edit/$', 'add_compensation', name='edit_compensation'),

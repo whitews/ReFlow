@@ -25,15 +25,6 @@ def reflow_app(request):
     )
 
 
-@user_passes_test(lambda u: u.is_superuser)
-def process_request_app(request):
-    return render_to_response(
-        'process_request_app.html',
-        {},
-        context_instance=RequestContext(request)
-    )
-
-
 ##############################
 ### Project specific views ###
 ##############################
