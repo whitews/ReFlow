@@ -1,6 +1,4 @@
-from operator import attrgetter
-
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -125,39 +123,6 @@ def add_compensation(request, project_id, compensation_id=None):
             'project': project,
             'add_or_edit': add_or_edit,
             'compensation_id': compensation_id
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def process_dashboard(request):
-
-    workers = Worker.objects.all()
-    requests = ProcessRequest.objects.filter(
-        project__in=Project.objects.get_projects_user_can_view(
-            request.user))
-
-    return render_to_response(
-        'process_dashboard.html',
-        {
-            'workers': sorted(workers, key=attrgetter('worker_name')),
-            'requests': requests,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def view_process_request(request, process_request_id):
-    process_request = get_object_or_404(ProcessRequest, pk=process_request_id)
-    sample_members = process_request.sample_collection.samplecollectionmember_set.all()
-
-    return render_to_response(
-        'view_process_request.html',
-        {
-            'process_request': process_request,
-            'sample_members': sample_members
         },
         context_instance=RequestContext(request)
     )
