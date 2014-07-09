@@ -667,6 +667,14 @@ class SubprocessInputSerializer(serializers.ModelSerializer):
 class ProcessRequestSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
+    request_username = serializers.CharField(
+        source='request_user.username',
+        read_only=True
+    )
+    worker_name = serializers.CharField(
+        source='worker.worker_name',
+        read_only=True
+    )
 
     class Meta:
         model = ProcessRequest
@@ -678,10 +686,12 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'description',
             'predefined',
             'request_user',
+            'request_username',
             'request_date',
             'assignment_date',
             'completion_date',
             'worker',
+            'worker_name',
             'status'
         )
 
