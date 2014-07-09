@@ -37,6 +37,7 @@ var URLS = {
     'VERIFY_WORKER':           '/api/repository/verify_worker/',
     'PROCESS_REQUESTS':        '/api/repository/process_requests/',
     'PROCESS_REQUEST_INPUTS':     '/api/repository/process_request_inputs',
+    'PROCESS_REQUEST_OUTPUTS':     '/api/repository/process_request_outputs',
     'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
     'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
 };
@@ -292,7 +293,15 @@ service
         return $resource(URLS.SUBPROCESS_INPUTS);
     }])
     .factory('ProcessRequest', ['$resource', function ($resource) {
-        return $resource(URLS.PROCESS_REQUESTS);
+        var ProcessRequest = $resource(
+            URLS.PROCESS_REQUESTS + ':id',
+            {},
+            {
+                get: { isArray: false },
+            }
+        );
+
+        return ProcessRequest;
     }])
     .factory('ProcessRequestInput', ['$resource', function ($resource) {
         return $resource(
@@ -305,6 +314,9 @@ service
                 }
             }
         );
+    }])
+    .factory('ProcessRequestOutput', ['$resource', function ($resource) {
+        return $resource(URLS.PROCESS_REQUEST_OUTPUTS);
     }])
     .factory('ParameterFunction', ['$resource', function ($resource) {
         return $resource(URLS.PARAMETER_FUNCTIONS);

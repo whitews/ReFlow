@@ -2,6 +2,45 @@
  * Created by swhite on 2/25/14.
  */
 
+app.controller(
+    'ProcessRequestController',
+    [
+        '$scope',
+        '$controller',
+        'ProcessRequest',
+        function ($scope, $controller, ProcessRequest) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.process_requests = ProcessRequest.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+        }
+    ]
+);
+
+app.controller(
+    'ProcessRequestDetailController',
+    [
+        '$scope',
+        '$controller',
+        '$stateParams',
+        'ProcessRequest',
+        'ProcessRequestInput',
+        'ProcessRequestOutput',
+        function ($scope, $controller, $stateParams, ProcessRequest, ProcessRequestInput, ProcessRequestOutput) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.process_request = ProcessRequest.get(
+                { id: $stateParams.requestId }
+            );
+        }
+    ]
+);
+
 var process_steps = [
     {
         "name": "filter_samples",
@@ -33,7 +72,7 @@ var process_steps = [
 var success_url = '/static/ng-app/partials/pr/success.html';
 
 app.controller(
-    'ProcessRequestController',
+    'ProcessRequestFormController',
     [
         '$scope',
         '$controller',

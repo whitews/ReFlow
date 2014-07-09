@@ -742,6 +742,14 @@ class ProcessRequestOutputSerializer(serializers.ModelSerializer):
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
+    request_username = serializers.CharField(
+        source='request_user.username',
+        read_only=True
+    )
+    worker_name = serializers.CharField(
+        source='worker.worker_name',
+        read_only=True
+    )
     inputs = ProcessRequestInputSerializer(
         source='processrequestinput_set')
     outputs = ProcessRequestOutputSerializer(
@@ -757,10 +765,12 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'description',
             'predefined',
             'request_user',
+            'request_username',
             'request_date',
             'assignment_date',
             'completion_date',
             'worker',
+            'worker_name',
             'status',
             'inputs',
             'outputs'

@@ -327,7 +327,7 @@ def retrieve_process_request_output_value(request, pk):
 
     response = HttpResponse(
         pr_output.value.file,
-        content_type='application/octet-stream')
+        content_type='application/')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         %  pr_output.key
     return response

@@ -109,17 +109,43 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             ncyBreadcrumbLabel: '{{current_project.project_name}}'
         }
     }).state({
-        name: 'process-request-form',
+        name: 'process-request-list',
         parent: 'project-detail',
         url: '/process_request/',
         views: {
             '@': {
+            templateUrl: '/static/ng-app/partials/process-request-list.html',
+            controller: 'ProcessRequestController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Process Requests'
+        }
+    }).state({
+        name: 'process-request-form',
+        parent: 'project-detail',
+        url: '/process_request/create',
+        views: {
+            '@': {
                 templateUrl: '/static/ng-app/partials/pr/process-request-form.html',
-                controller: 'ProcessRequestController'
+                controller: 'ProcessRequestFormController'
             }
         },
         data: {
             ncyBreadcrumbLabel: 'Process Request'
+        }
+    }).state({
+        name: 'process-request-detail',
+        parent: 'process-request-list',
+        url: ':requestId',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/process-request-detail.html',
+                controller: 'ProcessRequestDetailController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: '{{process_request.description}}'
         }
     }).state({
         name: 'user-list',
