@@ -44,7 +44,6 @@ def repository_api_root(request):
     return Response({
         'beads': reverse('bead-list', request=request),
         'create_beads': reverse('create-bead-list', request=request),
-        'create_compensation': reverse('create-compensation', request=request),
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
@@ -1606,28 +1605,6 @@ class BeadDetail(
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
-    """
-    API endpoint for creating a new Sample.
-    """
-
-    model = Compensation
-    serializer_class = CompensationSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Override post to ensure user has permission to add data to the site.
-        """
-        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
-        site = Site.objects.get(id=site_panel.site_id)
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
-
-        response = super(
-            CreateCompensation, self).post(request, *args, **kwargs)
-        return response
-
-
 class CompensationFilter(django_filters.FilterSet):
 
     site = django_filters.ModelMultipleChoiceFilter(
@@ -1651,9 +1628,9 @@ class CompensationFilter(django_filters.FilterSet):
         ]
 
 
-class CompensationList(LoginRequiredMixin, generics.ListAPIView):
+class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of compensations.
+    API endpoint for listing/creating compensations.
     """
 
     model = Compensation
@@ -1665,7 +1642,6 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects
         to which the user belongs.
         """
-
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's sites
@@ -1673,17 +1649,39 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
             site_panel__site__in=user_sites)
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        """
+        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
+        site = Site.objects.get(id=site_panel.site_id)
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+        response = super(CompensationList, self).post(request, *args, **kwargs)
+        return response
+
 
 class CompensationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single FCS sample.
     """
 
     model = Compensation
     serializer_class = CompensationSerializer
+
+    def put(self, request, *args, **kwargs):
+        bead_sample = BeadSample.objects.get(id=request.DATA['id'])
+        if not bead_sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(BeadDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SubprocessCategoryFilter(django_filters.FilterSet):
