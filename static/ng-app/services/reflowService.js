@@ -17,7 +17,6 @@ var URLS = {
     'SITE_PANELS':         '/api/repository/site_panels/',
     'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
-    'CREATE_COMPENSATION': '/api/repository/compensations/add/',
     'STIMULATIONS':        '/api/repository/stimulations/',
     'SAMPLES':             '/api/repository/samples/',
     'CREATE_SAMPLES':      '/api/repository/samples/add/',
