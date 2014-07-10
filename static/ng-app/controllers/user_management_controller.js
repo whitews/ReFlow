@@ -131,6 +131,7 @@ app.controller(
             'view_project_data': {'name': 'View Project Data', 'value': false },
             'add_project_data': {'name': 'Add Project Data', 'value': false },
             'modify_project_data': {'name': 'Modify Project Data', 'value': false },
+            'submit_process_requests': {'name': 'Submit Process Requests', 'value': false},
             'manage_project_users': {'name': 'Manage Project Users', 'value': false }
         };
 

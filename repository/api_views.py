@@ -459,6 +459,7 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
             'view_project_data',
             'add_project_data',
             'modify_project_data',
+            'submit_process_requests',
             'manage_project_users'
         ]
 

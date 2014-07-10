@@ -36,6 +36,9 @@ class ProtectedModel(models.Model):
     def has_modify_permission(self, user):
         return False
 
+    def has_process_permission(self, user):
+        return False
+
     def has_user_management_permission(self, user):
         return False
 
@@ -228,6 +231,7 @@ class Project(ProtectedModel):
             ('view_project_data', 'View Project Data'),
             ('add_project_data', 'Add Project Data'),
             ('modify_project_data', 'Modify/Delete Project Data'),
+            ('submit_process_requests', 'Submit Process Requests'),
             ('manage_project_users', 'Manage Project Users'),
         )
 
@@ -246,6 +250,11 @@ class Project(ProtectedModel):
 
     def has_modify_permission(self, user):
         if user.has_perm('modify_project_data', self):
+            return True
+        return False
+
+    def has_process_permission(self, user):
+        if user.has_perm('submit_process_requests', self):
             return True
         return False
 
