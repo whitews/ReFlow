@@ -1,0 +1,49 @@
+<div ng-controller="CompensationEditController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Create or Edit Compensation Matrix
+  </div>
+  <div class="modal-body">
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Label</label>
+      <input maxlength="128" type="text" ng-model="instance.name" />
+      <strong ng-show="errors.name" class="help-inline text-danger">
+        {{ errors.name.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+
+    <div class="form-group" ng-hide="instance.id">
+      <label class="col-md-3 control-label">Site</label>
+      <select ng-model="instance.site" ng-required="true" ng-options="s.id as s.site_name for s in sites">
+      </select>
+      <strong ng-show="errors.site" class="help-inline text-danger">
+        {{ errors.site.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Acquisition Date</label>
+      <input type="text" ng-click="open($event)" datepicker-popup="{{format}}" ng-model="instance.acquisition_date" is-open="datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+      <strong ng-show="errors.acquisition_date" class="help-inline text-danger">
+        {{ errors.acquisition_date.join(', ') }}
+      </strong>
+    </div>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-primary" ng-click="create_update(instance)">Save</button>
+  </div>
+</div>

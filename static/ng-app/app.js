@@ -26,6 +26,7 @@ var MODAL_URLS = {
     'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
+    'COMPENSATIONS':      'static/ng-app/partials/compensation-form.html',
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
     'MARKER':             'static/ng-app/partials/marker-form.html',
     'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
@@ -356,7 +357,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             }
         },
         data: {
-            ncyBreadcrumbLabel: 'Subject Groups'
+            ncyBreadcrumbLabel: 'Compensation Matrices'
         }
     });
 });

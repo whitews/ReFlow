@@ -616,8 +616,9 @@ app.controller(
                     }
                 });
             };
-    }
-]);
+        }
+    ]
+);
 
 app.controller(
     'StimulationEditController',
@@ -995,6 +996,117 @@ app.controller(
 
 app.controller(
     'CompensationController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-    }
-]);
+    [
+        '$scope',
+        '$controller',
+        '$modal',
+        'Compensation',
+        function ($scope, $controller, $modal, Compensation) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            function get_list() {
+                return Compensation.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
+            }
+            $scope.compensations = get_list();
+
+            $scope.$on('updateCompensations', function () {
+                $scope.compensations = get_list();
+            });
+
+            $scope.init_form = function(instance) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.COMPENSATIONS,
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'CompensationEditController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Compensation',
+        'Site',
+        function ($scope, $rootScope, $controller, Compensation, Site) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            // Date picker stuff
+            $scope.today = function() {
+                $scope.dt = new Date();
+            };
+            $scope.today();
+
+            $scope.clear = function () {
+                $scope.dt = null;
+            };
+
+            $scope.open = function($event, f) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                $scope.datepicker_open = true;
+            };
+
+            $scope.dateOptions = {
+                'year-format': "'yy'",
+                'starting-day': 1,
+                'show-weeks': false
+            };
+
+            $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'shortDate'];
+            $scope.format = $scope.formats[0];
+            // End date picker stuff
+
+            $scope.sites = Site.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response;
+                if (instance.id) {
+                    response = Compensation.update(
+                        {id: instance.id },
+                        $scope.instance
+                    );
+                } else {
+                    response = Compensation.save(
+                        $scope.instance
+                    );
+                }
+
+                response.$promise.then(function () {
+                    // notify to update subject list
+                    $rootScope.$broadcast('updateCompensations');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
