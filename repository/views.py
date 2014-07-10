@@ -42,47 +42,6 @@ def render_sample_compensation(request, sample_id):
 
 
 @login_required
-def view_compensations(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-    user_view_sites = Site.objects.get_sites_user_can_view(
-        request.user,
-        project=project)
-
-    if project.has_view_permission(request.user):
-        compensations = Compensation.objects\
-            .select_related()\
-            .filter(site_panel__site__project=project)\
-            .order_by('name')
-    elif user_view_sites.count() > 0:
-        compensations = Compensation.objects\
-            .select_related()\
-            .filter(site_panel__site__in=user_view_sites)\
-            .order_by('name')
-    else:
-        raise PermissionDenied
-
-    can_add_project_data = project.has_add_permission(request.user)
-    can_modify_project_data = project.has_modify_permission(request.user)
-    user_add_sites = Site.objects.get_sites_user_can_add(
-        request.user, project).values_list('id', flat=True)
-    user_modify_sites = Site.objects.get_sites_user_can_modify(
-        request.user, project).values_list('id', flat=True)
-
-    return render_to_response(
-        'view_project_compensations.html',
-        {
-            'project': project,
-            'compensations': compensations,
-            'can_add_project_data': can_add_project_data,
-            'can_modify_project_data': can_modify_project_data,
-            'user_add_sites': user_add_sites,
-            'user_modify_sites': user_modify_sites
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def add_compensation(request, project_id, compensation_id=None):
     project = get_object_or_404(Project, pk=project_id)
 
