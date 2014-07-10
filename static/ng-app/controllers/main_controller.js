@@ -1,15 +1,3 @@
-var MODAL_URLS = {
-    'SUBJECT_GROUP':      'static/ng-app/partials/subject-group-form.html',
-    'SUBJECT':            'static/ng-app/partials/subject-form.html',
-    'PROJECT':            'static/ng-app/partials/project-form.html',
-    'SITE':               'static/ng-app/partials/site-form.html',
-    'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
-    'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
-    'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
-    'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
-    'SAMPLE':             'static/ng-app/partials/sample-form.html'
-};
-
 var ModalFormCtrl = function ($scope, $modalInstance, instance) {
     $scope.instance = instance;
     $scope.ok = function () {

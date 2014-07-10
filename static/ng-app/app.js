@@ -16,6 +16,22 @@ var app = angular.module(
     ]
 );
 
+var MODAL_URLS = {
+    'SUBJECT_GROUP':      'static/ng-app/partials/subject-group-form.html',
+    'SUBJECT':            'static/ng-app/partials/subject-form.html',
+    'PROJECT':            'static/ng-app/partials/project-form.html',
+    'SITE':               'static/ng-app/partials/site-form.html',
+    'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
+    'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
+    'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
+    'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
+    'SAMPLE':             'static/ng-app/partials/sample-form.html',
+    'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
+    'MARKER':             'static/ng-app/partials/marker-form.html',
+    'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
+    'WORKER':             'static/ng-app/partials/worker-form.html'
+};
+
 app.config(function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/");
 

@@ -1,10 +1,3 @@
-var MODAL_URLS = {
-    'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
-    'MARKER':             'static/ng-app/partials/marker-form.html',
-    'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
-    'WORKER':             'static/ng-app/partials/worker-form.html'
-};
-
 var ModalFormCtrl = function ($scope, $modalInstance, instance) {
     $scope.instance = instance;
     $scope.ok = function () {
