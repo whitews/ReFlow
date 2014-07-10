@@ -31,8 +31,8 @@ app.controller(
         'ProcessRequestInput',
         'ProcessRequestOutput',
         function ($scope, $controller, $stateParams, ProcessRequest, ProcessRequestInput, ProcessRequestOutput) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+            // Inherits ProcessRequestController $scope
+            $controller('ProcessRequestController', {$scope: $scope});
 
             $scope.process_request = ProcessRequest.get(
                 { id: $stateParams.requestId }
