@@ -1069,6 +1069,9 @@ class Compensation(ProtectedModel):
             if user.has_perm('view_site_data', site):
                 return True
 
+    def get_sample_count(self):
+        return Sample.objects.filter(compensation=self).count()
+
     def get_compensation_as_csv(self):
         csv_string = StringIO()
         compensation_array = np.load(self.compensation_file.file)

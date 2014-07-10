@@ -289,13 +289,29 @@ class StimulationSerializer(serializers.ModelSerializer):
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
-    project = ProjectSerializer(
-        source='site_panel.site.project',
+    project = serializers.IntegerField(
+        source='site_panel.site.project_id',
         read_only=True)
-    site = SiteSerializer(source='site_panel.site', read_only=True)
+    panel = serializers.IntegerField(
+        source='site_panel.project_panel_id',
+        read_only=True
+    )
+    panel_name = serializers.CharField(
+        source='site_panel.project_panel.panel_name',
+        read_only=True
+    )
+    site = serializers.IntegerField(source='site_panel.site_id', read_only=True)
+    site_name = serializers.CharField(
+        source='site_panel.site.site_name',
+        read_only=True
+    )
     compensation_file = serializers.FileField(
         source='compensation_file',
         read_only=True)
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
 
     class Meta:
         model = Compensation
@@ -305,10 +321,14 @@ class CompensationSerializer(serializers.ModelSerializer):
             'name',
             'matrix_text',
             'project',
+            'panel',
+            'panel_name',
             'site',
+            'site_name',
             'site_panel',
             'acquisition_date',
-            'compensation_file'
+            'compensation_file',
+            'sample_count'
         )
 
     def validate(self, attrs):
