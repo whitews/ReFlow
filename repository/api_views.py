@@ -1884,6 +1884,11 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
     filter_fields = ('project', 'worker', 'request_user')
 
     def create(self, request, *args, **kwargs):
+        # check permission for submitting process requests for this project
+        project = get_object_or_404(Project, pk=request.DATA['project'])
+        if not project.has_process_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
         # add required fields for the user and status
         request.DATA['request_user'] = request.user.id
         request.DATA['status'] = 'Pending'
