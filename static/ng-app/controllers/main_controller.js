@@ -58,6 +58,9 @@ app.controller(
         '$modal',
         'ModelService',
         function ($scope, $controller, $stateParams, $modal, ModelService) {
+            // Inherits MainController $scope
+            $controller('MainController', {$scope: $scope});
+
             function get_project() {
                 return ModelService.getProjectById(
                     $stateParams.projectId
@@ -76,16 +79,19 @@ app.controller(
             $scope.can_add_data = false;
             $scope.can_manage_users = false;
 
-            if ($scope.current_project.permissions.indexOf('view_project_data')) {
+            if ($scope.current_project.permissions.indexOf('view_project_data') != -1 || $scope.user.superuser) {
                 $scope.can_view_project = true;
             }
-            if ($scope.current_project.permissions.indexOf('add_project_data')) {
+            if ($scope.current_project.permissions.indexOf('add_project_data') != -1 || $scope.user.superuser) {
                 $scope.can_add_data = true;
             }
-            if ($scope.current_project.permissions.indexOf('modify_project_data')) {
+            if ($scope.current_project.permissions.indexOf('modify_project_data') != -1 || $scope.user.superuser) {
                 $scope.can_modify_project = true;
             }
-            if ($scope.current_project.permissions.indexOf('manage_project_users')) {
+            if ($scope.current_project.permissions.indexOf('submit_process_requests') != -1 || $scope.user.superuser) {
+                $scope.can_process_data = true;
+            }
+            if ($scope.current_project.permissions.indexOf('manage_project_users') != -1 || $scope.user.superuser) {
                 $scope.can_manage_users = true;
             }
 
