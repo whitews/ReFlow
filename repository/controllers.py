@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from models import Project, ProjectPanel, Site, Marker
+from models import Project, ProjectPanel, SitePanel, Site, Marker
 from collections import Counter
 
 
@@ -539,3 +539,14 @@ def validate_site_panel_request(data, user):
     if len(param_errors) > 0:
         errors['parameters'] = param_errors
     return errors
+
+
+def find_matching_site_panel(pnn_list, project_panel, site):
+    site_panel_prospects = SitePanel.objects.filter(
+        project_panel=project_panel,
+        site=site
+    )
+
+    for pnn in pnn_list:
+        for site_panel in site_panel_prospects:
+            print site_panel

@@ -1045,9 +1045,26 @@ app.controller(
         '$controller',
         'Compensation',
         'Site',
-        function ($scope, $rootScope, $controller, Compensation, Site) {
+        'PanelTemplate',
+        function ($scope, $rootScope, $controller, Compensation, Site, PanelTemplate) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.sites = Site.query(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            // everything but bead panels
+            var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
+
+            $scope.panel_templates = PanelTemplate.query(
+                {
+                    'project': $scope.current_project.id,
+                    'staining': PANEL_TYPES
+                }
+            );
 
             // Date picker stuff
             $scope.today = function() {
@@ -1076,14 +1093,47 @@ app.controller(
             $scope.format = $scope.formats[0];
             // End date picker stuff
 
-            $scope.sites = Site.query(
-                {
-                    'project': $scope.current_project.id
+            function validateCompMatrix(comp_obj) {
+                // check the row count and row element counts match header
+                var header_length = comp_obj.headers.length;
+                if (comp_obj.data.length != header_length) {
+                    $scope.errors.push('Number of rows does not match the number of parameters');
                 }
-            );
+                comp_obj.data.forEach(function(row) {
+                    if (row.length != header_length) {
+                        $scope.errors.push('Number of columns does not match the number of parameters');
+                        return false;
+                    }
+                });
+                return true;
+            }
+
+            function parseCompMatrix(f) {
+                var reader = new FileReader();
+                var comp_obj = {
+                    headers: [],
+                    data: []
+                };
+                reader.addEventListener("loadend", function(evt) {
+                    var rows = evt.target.result.split('\n');
+                    var header_row = rows.shift();
+                    comp_obj.headers = header_row.split('\t');
+
+                    // parse data rows
+                    rows.forEach(function (row) {
+                        comp_obj.data.push(row.split('\t'));
+                    });
+                    if (validateCompMatrix(comp_obj)) {
+                        $scope.instance.matrix_text = evt.target.result
+                    }
+                });
+                reader.readAsText(f);
+            }
 
             $scope.onFileSelect = function ($files) {
-                console.log($files.length);
+                if ($files.length > 0) {
+                    parseCompMatrix($files[0]);
+                }
             };
 
             $scope.create_update = function (instance) {

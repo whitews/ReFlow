@@ -1653,10 +1653,23 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         """
         Override post to ensure user has permission to add data to the site.
         """
-        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
-        site = Site.objects.get(id=site_panel.site_id)
+        panel_template = get_object_or_404(
+            ProjectPanel, id=request.DATA['panel_template'])
+        site = get_object_or_404(Site, id=request.DATA['site'])
         if not site.has_add_permission(request.user):
             raise PermissionDenied
+
+
+        matrix_text = request.DATA['matrix_text'].splitlines(False)
+        if not len(matrix_text) > 1:
+            raise ValidationError("Too few rows.")
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        pnn_list = re.split('\t|,\s*', matrix_text[0])
+
+        site_panels = find_matching_site_panel(pnn_list, panel_template, site)
 
         response = super(CompensationList, self).post(request, *args, **kwargs)
         return response
