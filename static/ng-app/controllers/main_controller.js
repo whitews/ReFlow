@@ -1082,6 +1082,10 @@ app.controller(
                 }
             );
 
+            $scope.onFileSelect = function ($files) {
+                console.log($files.length);
+            };
+
             $scope.create_update = function (instance) {
                 $scope.errors = [];
                 var response;

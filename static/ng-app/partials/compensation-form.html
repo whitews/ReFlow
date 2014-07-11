@@ -1,7 +1,7 @@
 <div ng-controller="CompensationEditController">
   <div class="modal-header">
     <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
-    Create or Edit Compensation Matrix
+    Upload Compensation Matrix
   </div>
   <div class="modal-body">
 
@@ -33,6 +33,10 @@
         {{ errors.acquisition_date.join(', ') }}
       </strong>
     </div>
+
+    <br/>
+
+    <input type="file" ng-file-select="onFileSelect($files)" />
 
     <div class="well well-warning" ng-show="errors.__all__">
       <ul class="list-unstyled">
