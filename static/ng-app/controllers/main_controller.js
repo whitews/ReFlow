@@ -1049,6 +1049,11 @@ app.controller(
         function ($scope, $rootScope, $controller, Compensation, Site, PanelTemplate) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
+            $scope.errors = [];
+
+            if (!$scope.instance) {
+                $scope.instance = {};
+            }
 
             $scope.sites = Site.query(
                 {
@@ -1136,19 +1141,11 @@ app.controller(
                 }
             };
 
-            $scope.create_update = function (instance) {
+            $scope.create = function (instance) {
                 $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Compensation.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Compensation.save(
-                        $scope.instance
-                    );
-                }
+                var response = Compensation.save(
+                    $scope.instance
+                );
 
                 response.$promise.then(function () {
                     // notify to update subject list
