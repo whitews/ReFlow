@@ -7,6 +7,14 @@ body {
   background-color: #ffffff;
 }
 
+.width-full {
+    min-width: 100%;
+}
+
+.width-200 {
+    min-width: 200px;
+}
+
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 font-weight: bold;
 }
@@ -93,6 +101,10 @@ textarea {
     min-width: 360px !important;
 }
 
+label {
+  font-weight: 500;
+}
+
 .lead {
   margin-bottom: 20px;
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -170,10 +182,6 @@ hr {
   border-radius: 4px;
   font-size: 18px;
   font-weight: 200;
-}
-
-.glyphicon-large {
-  font-size: 18px;
 }
 
 .tooltip-inner {
@@ -343,7 +351,7 @@ span.marker-field > select {
   vertical-align: top;
 }
 .align-middle {
-  vertical-align: middle;
+  vertical-align: middle !important;
 }
 .no-wrap {
   white-space: nowrap;
@@ -434,6 +442,18 @@ select.app, input.app {
   color: #D9534F;
 }
 
+.well-warning {
+  background-color: #ffd2d4;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.well-info {
+  background-color: #d9edf7;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
 .modal-body {
   font-size: 14px;
 }
@@ -444,6 +464,11 @@ select.app, input.app {
 
 ul.dropdown-menu > li > table > tbody > tr > td {
     padding: 0;
+}
+
+.breadcrumb>li+li:before {
+    content: "/";
+    padding: 0 9px;
 }
 
 /* Other stuff */

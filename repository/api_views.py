@@ -11,13 +11,19 @@ from rest_framework.response import Response
 
 import django_filters
 
+from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist, \
+    MultipleObjectsReturned
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.views.generic.detail import SingleObjectMixin
 
+import json
+
 from repository.models import *
+from guardian.models import UserObjectPermission
+from guardian.shortcuts import assign_perm, remove_perm
 from repository.serializers import *
 from controllers import *
 
@@ -38,7 +44,6 @@ def repository_api_root(request):
     return Response({
         'beads': reverse('bead-list', request=request),
         'create_beads': reverse('create-bead-list', request=request),
-        'create_compensation': reverse('create-compensation', request=request),
         'compensations': reverse('compensation-list', request=request),
         'project-panels': reverse('project-panel-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
@@ -46,6 +51,7 @@ def repository_api_root(request):
         'markers': reverse('marker-list', request=request),
         'fluorochromes': reverse('fluorochrome-list', request=request),
         'specimens': reverse('specimen-list', request=request),
+        'permissions': reverse('permission-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
@@ -67,12 +73,66 @@ def repository_api_root(request):
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
-        'create_process_request_output': reverse(
-            'create-process-request-output', request=request),
+        'process_request_outputs': reverse(
+            'process-request-output-list', request=request),
         'get_parameter_functions': reverse('get_parameter_functions', request=request),
         'get_parameter_value_types': reverse('get_parameter_value_types',
                                            request=request)
     })
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def get_user_details(request):
+    return Response(
+        {
+            'username': request.user.username,
+            'email': request.user.email,
+            'superuser': request.user.is_superuser
+        }
+    )
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def is_user(request, username):
+    try:
+        User.objects.get(username=username)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def get_project_permissions(request, project):
+    project = get_object_or_404(Project, pk=project)
+
+    if not project.has_view_permission(request.user):
+        raise PermissionDenied
+
+    perms = project.get_user_permissions(request.user).values_list(
+        'permission__codename', flat=True)
+
+    return Response({'permissions': perms})
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def get_site_permissions(request, site):
+    site = get_object_or_404(Site, pk=site)
+
+    if not site.has_view_permission(request.user):
+        raise PermissionDenied
+
+    perms = site.get_user_permissions(request.user).values_list(
+        'permission__codename', flat=True)
+
+    return Response({'permissions': perms})
 
 
 @api_view(['GET'])
@@ -266,7 +326,7 @@ def retrieve_process_request_output_value(request, pk):
 
     response = HttpResponse(
         pr_output.value.file,
-        content_type='application/octet-stream')
+        content_type='application/')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         %  pr_output.key
     return response
@@ -287,6 +347,8 @@ class PermissionRequiredMixin(SingleObjectMixin):
     """
 
     def get_object(self, *args, **kwargs):
+        # TODO: see if we can check HTTP method (GET, PUT, etc.) to reduce
+        # duplicate code for modifying resources
         obj = super(PermissionRequiredMixin, self).get_object(*args, **kwargs)
         if hasattr(self, 'request'):
             request = self.request
@@ -307,7 +369,155 @@ class PermissionRequiredMixin(SingleObjectMixin):
         return obj
 
 
-class ProjectList(LoginRequiredMixin, generics.ListAPIView):
+class PermissionFilter(django_filters.FilterSet):
+    model = django_filters.CharFilter(name='content_type__model')
+    username = django_filters.CharFilter(name='user__username')
+    permission_name = django_filters.CharFilter(name='permission__codename')
+
+    class Meta:
+        model = UserObjectPermission
+        fields = [
+            'object_pk',
+            'model'
+        ]
+
+
+class PermissionDetail(LoginRequiredMixin, generics.DestroyAPIView):
+    """
+    API endpoint for deleting user permissions for which the requesting user
+    has user management permissions.
+    """
+
+    model = UserObjectPermission
+    serializer_class = PermissionSerializer
+
+    def delete(self, request, *args, **kwargs):
+        # get permission instance and user
+        try:
+            perm = UserObjectPermission.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if perm.content_type.name == 'project':
+            project = perm.content_object
+        elif perm.content_type.name == 'site':
+            project = perm.content_object.project
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # ensure requesting user has user management permission for this project
+        if not project.has_user_management_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        remove_perm(perm.permission.codename, perm.user, perm.content_object)
+
+        return Response(status=status.HTTP_200_OK)
+
+
+class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of object permissions at both the project
+    and site level for all users in all projects for which the requesting user
+    has user management permissions.
+    """
+
+    model = UserObjectPermission
+    serializer_class = PermissionSerializer
+    filter_class = PermissionFilter
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to filter permissions related to projects
+        for which the requesting user has user management permissions.
+        """
+
+        # get list of project IDs the user has user management privileges for
+        projects = Project.objects.get_projects_user_can_manage_users(
+            self.request.user).values_list('id', flat=True)
+
+        # get list of sites for those projects
+        sites = Site.objects.filter(project__in=projects)\
+            .values_list('id', flat=True)
+
+        # get project related permissions
+        project_perms = UserObjectPermission.objects.filter(
+            content_type__model='project',
+            object_pk__in=projects
+        )
+
+        # get site related permissions
+        site_perms = UserObjectPermission.objects.filter(
+            content_type__model='site',
+            object_pk__in=sites
+        )
+
+        return project_perms | site_perms
+
+    def post(self, request, *args, **kwargs):
+        project_perms = [
+            'view_project_data',
+            'add_project_data',
+            'modify_project_data',
+            'submit_process_requests',
+            'manage_project_users'
+        ]
+
+        site_perms = [
+            'view_site_data',
+            'add_site_data',
+            'modify_site_data'
+        ]
+
+        # determine if model is 'site' or 'project'
+        # also check that the a valid permission was provided
+        if request.DATA['model'] == 'project':
+            project = Project.objects.get(id=request.DATA['object_pk'])
+            if request.DATA['permission_codename'] not in project_perms:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            obj = project
+        elif request.DATA['model'] == 'site':
+            try:
+                obj = Site.objects.get(id=request.DATA['object_pk'])
+                project = obj.project
+            except ObjectDoesNotExist:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            if request.DATA['permission_codename'] not in site_perms:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # verify user is valid
+        try:
+            user = User.objects.get(username=request.DATA['username'])
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # ensure requesting user has user management permission for this project
+        if not project.has_user_management_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        # save the permission
+        assign_perm(
+            request.DATA['permission_codename'],
+            user,
+            obj
+        )
+
+        perm = UserObjectPermission.objects.get(
+            user=user,
+            object_pk=obj.id,
+            permission__codename=request.DATA['permission_codename']
+        )
+
+        serializer = self.get_serializer(perm)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+
+class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of projects.
     """
@@ -323,11 +533,18 @@ class ProjectList(LoginRequiredMixin, generics.ListAPIView):
         queryset = Project.objects.get_projects_user_can_view(self.request.user)
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(ProjectList, self).post(request, *args, **kwargs)
+        return response
+
 
 class ProjectDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single project.
     """
@@ -335,8 +552,39 @@ class ProjectDetail(
     model = Project
     serializer_class = ProjectSerializer
 
+    def put(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
+        return super(ProjectDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class ProjectUserDetail(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing the users within a single project.
+    """
+
+    model = Project
+    serializer_class = ProjectUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+
+        if not project.has_user_management_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(ProjectUserDetail, self).get(request, *args, **kwargs)
+        return response
+
+
+class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of panels.
     """
@@ -359,20 +607,38 @@ class VisitTypeList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(VisitTypeList, self).post(request, *args, **kwargs)
+        return response
+
 
 class VisitTypeDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
-    API endpoint representing a single project.
+    API endpoint representing a single visit type.
     """
 
     model = VisitType
     serializer_class = VisitTypeSerializer
 
+    def put(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class SubjectGroupList(LoginRequiredMixin, generics.ListAPIView):
+        return super(VisitTypeDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of subject groups.
     """
@@ -395,8 +661,38 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class SubjectList(LoginRequiredMixin, generics.ListAPIView):
+        response = super(SubjectGroupList, self).post(request, *args, **kwargs)
+        return response
+
+
+class SubjectGroupDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single subject group.
+    """
+
+    model = SubjectGroup
+    serializer_class = SubjectGroupSerializer
+
+    def put(self, request, *args, **kwargs):
+        subject_group = SubjectGroup.objects.get(id=kwargs['pk'])
+        if not subject_group.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SubjectGroupDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of panels.
     """
@@ -419,17 +715,35 @@ class SubjectList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(SubjectList, self).post(request, *args, **kwargs)
+        return response
+
 
 class SubjectDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single subject.
     """
 
     model = Subject
     serializer_class = SubjectSerializer
+
+    def put(self, request, *args, **kwargs):
+        subject = Subject.objects.get(id=kwargs['pk'])
+        if not subject.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SubjectDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class ProjectPanelFilter(django_filters.FilterSet):
@@ -594,7 +908,7 @@ class ProjectPanelDetail(
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class SiteList(LoginRequiredMixin, generics.ListAPIView):
+class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of sites.
     """
@@ -612,17 +926,35 @@ class SiteList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(SiteList, self).post(request, *args, **kwargs)
+        return response
+
 
 class SiteDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single site.
     """
 
     model = Site
     serializer_class = SiteSerializer
+
+    def put(self, request, *args, **kwargs):
+        site = Site.objects.get(id=kwargs['pk'])
+        if not site.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SiteDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SitePanelFilter(django_filters.FilterSet):
@@ -675,8 +1007,16 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
+        # need to filter by multiple IDs but django-filter doesn't seem to like
+        # that, so we'll do it ourselves here
+
         # filter on user's projects
         queryset = SitePanel.objects.filter(site__in=user_sites)
+
+        id_value = self.request.QUERY_PARAMS.get('id', None)
+        if id_value:
+            id_list = id_value.split(',')
+            queryset = queryset.filter(id__in=id_list)
 
         # TODO: implement filtering by channel info: fluoro, marker, scatter
 
@@ -771,9 +1111,9 @@ class CytometerFilter(django_filters.FilterSet):
         ]
 
 
-class CytometerList(LoginRequiredMixin, generics.ListAPIView):
+class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of site panels.
+    API endpoint representing a list of cytometers.
     """
 
     model = Cytometer
@@ -793,20 +1133,39 @@ class CytometerList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        site = Project.objects.get(id=request.DATA['site'])
+        if not site.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(CytometerList, self).post(request, *args, **kwargs)
+        return response
+
 
 class CytometerDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
-    API endpoint representing a single site panel.
+    API endpoint representing a single cytometer.
     """
 
     model = Cytometer
     serializer_class = CytometerSerializer
 
+    def put(self, request, *args, **kwargs):
+        cytometer = Cytometer.objects.get(id=kwargs['pk'])
+        if not cytometer.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class MarkerList(generics.ListAPIView):
+        response = super(CytometerDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class MarkerList(generics.ListCreateAPIView):
     """
     API endpoint representing a list of flow cytometry markers.
     """
@@ -815,8 +1174,39 @@ class MarkerList(generics.ListAPIView):
     serializer_class = MarkerSerializer
     filter_fields = ('marker_abbreviation', 'marker_name')
 
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class FluorochromeList(generics.ListAPIView):
+        response = super(MarkerList, self).post(request, *args, **kwargs)
+        return response
+
+
+class MarkerDetail(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single marker.
+    """
+
+    model = Marker
+    serializer_class = MarkerSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            Marker.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(MarkerDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class FluorochromeList(generics.ListCreateAPIView):
     """
     API endpoint representing a list of flow cytometry fluorochromes.
     """
@@ -825,8 +1215,39 @@ class FluorochromeList(generics.ListAPIView):
     serializer_class = FluorochromeSerializer
     filter_fields = ('fluorochrome_abbreviation', 'fluorochrome_name')
 
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
+        response = super(FluorochromeList, self).post(request, *args, **kwargs)
+        return response
+
+
+class FluorochromeDetail(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single fluorochrome.
+    """
+
+    model = Fluorochrome
+    serializer_class = FluorochromeSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            Fluorochrome.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(FluorochromeDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of specimen types.
     """
@@ -835,8 +1256,39 @@ class SpecimenList(LoginRequiredMixin, generics.ListAPIView):
     serializer_class = SpecimenSerializer
     filter_fields = ('specimen_name',)
 
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class StimulationList(LoginRequiredMixin, generics.ListAPIView):
+        response = super(SpecimenList, self).post(request, *args, **kwargs)
+        return response
+
+
+class SpecimenDetail(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single fluorochrome.
+    """
+
+    model = Specimen
+    serializer_class = SpecimenSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            Specimen.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(SpecimenDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of stimulations.
     """
@@ -856,17 +1308,35 @@ class StimulationList(LoginRequiredMixin, generics.ListAPIView):
 
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(StimulationList, self).post(request, *args, **kwargs)
+        return response
+
 
 class StimulationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single stimulation.
     """
 
     model = Stimulation
     serializer_class = StimulationSerializer
+
+    def put(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(StimulationDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
@@ -895,7 +1365,7 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 
 class SampleFilter(django_filters.FilterSet):
-    project_panel = django_filters.ModelMultipleChoiceFilter(
+    panel = django_filters.ModelMultipleChoiceFilter(
         queryset=ProjectPanel.objects.all(),
         name='site_panel__project_panel')
     project = django_filters.ModelMultipleChoiceFilter(
@@ -959,13 +1429,23 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
 class SampleDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single FCS sample.
     """
 
     model = Sample
     serializer_class = SampleSerializer
+
+    def put(self, request, *args, **kwargs):
+        sample = Sample.objects.get(id=request.DATA['id'])
+        if not sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SampleDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
@@ -1114,27 +1594,15 @@ class BeadDetail(
     model = BeadSample
     serializer_class = BeadSampleSerializer
 
+    def put(self, request, *args, **kwargs):
+        bead_sample = BeadSample.objects.get(id=request.DATA['id'])
+        if not bead_sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class CreateCompensation(LoginRequiredMixin, generics.CreateAPIView):
-    """
-    API endpoint for creating a new Sample.
-    """
+        return super(BeadDetail, self).put(request, *args, **kwargs)
 
-    model = Compensation
-    serializer_class = CompensationSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Override post to ensure user has permission to add data to the site.
-        """
-        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
-        site = Site.objects.get(id=site_panel.site_id)
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
-
-        response = super(
-            CreateCompensation, self).post(request, *args, **kwargs)
-        return response
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class CompensationFilter(django_filters.FilterSet):
@@ -1160,9 +1628,9 @@ class CompensationFilter(django_filters.FilterSet):
         ]
 
 
-class CompensationList(LoginRequiredMixin, generics.ListAPIView):
+class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of compensations.
+    API endpoint for listing/creating compensations.
     """
 
     model = Compensation
@@ -1174,7 +1642,6 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict panels to projects
         to which the user belongs.
         """
-
         user_sites = Site.objects.get_sites_user_can_view(self.request.user)
 
         # filter on user's sites
@@ -1182,17 +1649,58 @@ class CompensationList(LoginRequiredMixin, generics.ListAPIView):
             site_panel__site__in=user_sites)
         return queryset
 
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user has permission to add data to the site.
+        """
+        panel_template = get_object_or_404(
+            ProjectPanel, id=request.DATA['panel_template'])
+        site = get_object_or_404(Site, id=request.DATA['site'])
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
+
+
+        matrix_text = request.DATA['matrix_text'].splitlines(False)
+        if not len(matrix_text) > 1:
+            raise ValidationError("Too few rows.")
+
+        # first row should be headers matching the PnN value (fcs_text field)
+        # may be tab or comma delimited
+        # (spaces can't be delimiters b/c they are allowed in the PnN value)
+        pnn_list = re.split('\t|,\s*', matrix_text[0])
+
+        site_panel = find_matching_site_panel(pnn_list, panel_template, site)
+
+        if site_panel:
+            request.DATA['site_panel'] = site_panel.id
+
+        response = super(CompensationList, self).post(request, *args, **kwargs)
+
+        if not site_panel and response.status_code != 201:
+            response.data['site_panel_match'] = False
+        return response
+
 
 class CompensationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single FCS sample.
     """
 
     model = Compensation
     serializer_class = CompensationSerializer
+
+    def put(self, request, *args, **kwargs):
+        bead_sample = BeadSample.objects.get(id=request.DATA['id'])
+        if not bead_sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(CompensationDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class SubprocessCategoryFilter(django_filters.FilterSet):
@@ -1342,7 +1850,31 @@ def verify_process_request_assignment(request, pk):
     return Response(status=status.HTTP_200_OK, data=data)
 
 
-class WorkerList(LoginRequiredMixin, generics.ListAPIView):
+class WorkerDetail(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint representing a single worker.
+    """
+
+    model = Worker
+    serializer_class = WorkerSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            Worker.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(WorkerDetail, self).put(request, *args, **kwargs)
+        return response
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+class WorkerList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of workers.
     """
@@ -1350,6 +1882,13 @@ class WorkerList(LoginRequiredMixin, generics.ListAPIView):
     model = Worker
     serializer_class = WorkerSerializer
     filter_fields = ('worker_name',)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        response = super(WorkerList, self).post(request, *args, **kwargs)
+        return response
 
 
 class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -1359,9 +1898,14 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('worker', 'request_user')
+    filter_fields = ('project', 'worker', 'request_user')
 
     def create(self, request, *args, **kwargs):
+        # check permission for submitting process requests for this project
+        project = get_object_or_404(Project, pk=request.DATA['project'])
+        if not project.has_process_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
         # add required fields for the user and status
         request.DATA['request_user'] = request.user.id
         request.DATA['status'] = 'Pending'
@@ -1500,11 +2044,11 @@ class ProcessRequestAssignmentUpdate(
         return Response(data={'detail': 'Bad request'}, status=400)
 
 
-class CreateProcessRequestOutput(
+class ProcessRequestOutputList(
         LoginRequiredMixin,
-        generics.CreateAPIView):
+        generics.ListCreateAPIView):
     """
-    API endpoint for creating a new Sample.
+    API endpoint for listing and creating a ProcessRequestOutput.
     """
 
     model = ProcessRequestOutput
@@ -1532,7 +2076,7 @@ class CreateProcessRequestOutput(
                     status=400)
 
             # if we get here, the worker is bonafide! "He's a suitor!"
-            response = super(CreateProcessRequestOutput, self).post(
+            response = super(ProcessRequestOutputList, self).post(
                 request, *args, **kwargs)
             return response
         return Response(data={'detail': 'Bad request'}, status=400)

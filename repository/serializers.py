@@ -1,6 +1,28 @@
 from rest_framework import serializers
 
 from repository.models import *
+from django.contrib.auth.models import User
+from guardian.models import UserObjectPermission
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    model = serializers.CharField(source='content_type.model')
+    username = serializers.CharField(source='user.username')
+    permission_codename = serializers.CharField(source='permission.codename')
+    permission_name = serializers.CharField(source='permission.name', read_only=True)
+
+    class Meta:
+        model = UserObjectPermission
+        fields = (
+            'id',
+            'model',
+            'object_pk',
+            'username',
+            'permission',
+            'permission_codename',
+            'permission_name'
+        )
+        read_only_fields = ('permission',)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -9,6 +31,14 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ('id', 'url', 'project_name', 'project_desc')
+
+
+class ProjectUserSerializer(serializers.ModelSerializer):
+    users = serializers.Field(source='get_project_users')
+
+    class Meta:
+        model = User
+        fields = ('id', 'users')
 
 
 class VisitTypeSerializer(serializers.ModelSerializer):
@@ -29,21 +59,48 @@ class SubjectGroupSerializer(serializers.ModelSerializer):
         model = SubjectGroup
 
 
+class CytometerFlatSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
+
+    class Meta:
+        model = Cytometer
+        fields = (
+            'id',
+            'url',
+            'cytometer_name',
+            'serial_number'
+        )
+
+
 class SiteSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer(source='project')
     url = serializers.HyperlinkedIdentityField(view_name='site-detail')
+    cytometers = CytometerFlatSerializer(source='cytometer_set', read_only=True)
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
 
     class Meta:
         model = Site
-        fields = ('id', 'url', 'site_name', 'project')
+        fields = (
+            'id',
+            'url',
+            'site_name',
+            'cytometers',
+            'project',
+            'sample_count'
+        )
 
 
 class SubjectSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer(source='project')
     url = serializers.HyperlinkedIdentityField(view_name='subject-detail')
     subject_group_name = serializers.CharField(
         source='subject_group.group_name',
         read_only=True)
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Subject
@@ -54,7 +111,9 @@ class SubjectSerializer(serializers.ModelSerializer):
             'subject_group',
             'subject_group_name',
             'batch_control',
-            'project',)
+            'project',
+            'sample_count'
+        )
 
 
 class MarkerSerializer(serializers.ModelSerializer):
@@ -95,6 +154,10 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
     fluorochrome_abbreviation = serializers.CharField(
         source="fluorochrome.fluorochrome_abbreviation",
         read_only=True)
+    parameter_type_name = serializers.CharField(
+        source="get_parameter_type_display",
+        read_only=True
+    )
 
     class Meta:
         model = ProjectPanelParameter
@@ -102,6 +165,7 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'parameter_type',
+            'parameter_type_name',
             'parameter_value_type',
             'markers',
             'fluorochrome',
@@ -124,6 +188,7 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
             'url',
             'project',
             'panel_name',
+            'panel_description',
             'staining',
             'staining_name',
             'parent_panel',
@@ -143,6 +208,10 @@ class SitePanelParameterMarkerSerializer(serializers.ModelSerializer):
 
 class SitePanelParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
+    parameter_type_name = serializers.CharField(
+        source="get_parameter_type_display",
+        read_only=True
+    )
     markers = SitePanelParameterMarkerSerializer(
         source='sitepanelparametermarker_set')
 
@@ -155,6 +224,7 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
             'fcs_opt_text',
             'name',
             'parameter_type',
+            'parameter_type_name',
             'parameter_value_type',
             'markers',
             'fluorochrome')
@@ -193,8 +263,8 @@ class SitePanelSerializer(serializers.ModelSerializer):
 
 
 class CytometerSerializer(serializers.ModelSerializer):
-    site = SiteSerializer(source='site')
-    site_name = serializers.CharField(source='site.site_name')
+    site_name = serializers.CharField(source='site.site_name', read_only=True)
+    sample_count = serializers.IntegerField(source='sample_set.count', read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
 
     class Meta:
@@ -205,7 +275,9 @@ class CytometerSerializer(serializers.ModelSerializer):
             'site',
             'site_name',
             'cytometer_name',
-            'serial_number')
+            'serial_number',
+            'sample_count'
+        )
 
 
 class StimulationSerializer(serializers.ModelSerializer):
@@ -217,13 +289,29 @@ class StimulationSerializer(serializers.ModelSerializer):
 
 class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
-    project = ProjectSerializer(
-        source='site_panel.site.project',
+    project = serializers.IntegerField(
+        source='site_panel.site.project_id',
         read_only=True)
-    site = SiteSerializer(source='site_panel.site', read_only=True)
+    panel = serializers.IntegerField(
+        source='site_panel.project_panel_id',
+        read_only=True
+    )
+    panel_name = serializers.CharField(
+        source='site_panel.project_panel.panel_name',
+        read_only=True
+    )
+    site = serializers.IntegerField(source='site_panel.site_id', read_only=True)
+    site_name = serializers.CharField(
+        source='site_panel.site.site_name',
+        read_only=True
+    )
     compensation_file = serializers.FileField(
         source='compensation_file',
         read_only=True)
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
 
     class Meta:
         model = Compensation
@@ -233,10 +321,14 @@ class CompensationSerializer(serializers.ModelSerializer):
             'name',
             'matrix_text',
             'project',
+            'panel',
+            'panel_name',
             'site',
+            'site_name',
             'site_panel',
             'acquisition_date',
-            'compensation_file'
+            'compensation_file',
+            'sample_count'
         )
 
     def validate(self, attrs):
@@ -339,7 +431,7 @@ class SampleSerializer(serializers.ModelSerializer):
     stimulation_name = serializers.CharField(
         source='stimulation.stimulation_name',
         read_only=True)
-    project_panel = serializers.IntegerField(
+    panel = serializers.IntegerField(
         source='site_panel.project_panel_id',
         read_only=True)
     panel_name = serializers.CharField(
@@ -368,7 +460,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'cytometer',
             'stimulation',
             'stimulation_name',
-            'project_panel',
+            'panel',
             'panel_name',
             'site_panel',
             'site',
@@ -379,7 +471,9 @@ class SampleSerializer(serializers.ModelSerializer):
             'sha1',
             'compensation'
         )
-        read_only_fields = ('original_filename', 'sha1')
+        read_only_fields = (
+            'original_filename', 'sha1', 'site_panel', 'cytometer'
+        )
         exclude = ('sample_file',)
 
 
@@ -593,6 +687,14 @@ class SubprocessInputSerializer(serializers.ModelSerializer):
 class ProcessRequestSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
+    request_username = serializers.CharField(
+        source='request_user.username',
+        read_only=True
+    )
+    worker_name = serializers.CharField(
+        source='worker.worker_name',
+        read_only=True
+    )
 
     class Meta:
         model = ProcessRequest
@@ -604,10 +706,12 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'description',
             'predefined',
             'request_user',
+            'request_username',
             'request_date',
             'assignment_date',
             'completion_date',
             'worker',
+            'worker_name',
             'status'
         )
 
@@ -658,6 +762,14 @@ class ProcessRequestOutputSerializer(serializers.ModelSerializer):
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
+    request_username = serializers.CharField(
+        source='request_user.username',
+        read_only=True
+    )
+    worker_name = serializers.CharField(
+        source='worker.worker_name',
+        read_only=True
+    )
     inputs = ProcessRequestInputSerializer(
         source='processrequestinput_set')
     outputs = ProcessRequestOutputSerializer(
@@ -673,10 +785,12 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'description',
             'predefined',
             'request_user',
+            'request_username',
             'request_date',
             'assignment_date',
             'completion_date',
             'worker',
+            'worker_name',
             'status',
             'inputs',
             'outputs'

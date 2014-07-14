@@ -1,0 +1,94 @@
+    <table class="table">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Bead Samples <span class="badge badge-inverse align-top">{{ samples.length }}</span></h4>
+
+              <div style="position:absolute; right:0;top:0;">
+                <a class="btn btn-default btn-sm" ui-sref="bead-sample-upload">
+                  Upload Samples
+                </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+    </table>
+
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="well">
+          <form class="unstyled-checkboxes" id="sample-filter-form" method="get">
+            <div style="position: relative">
+              <h4>Filter</h4>
+              <div style="position: absolute; right:0;top:0;">
+                <button class="btn btn-default btn-sm" ng-click="apply_filter()">
+                  Apply
+                </button>
+              </div>
+            </div>
+
+            <hr/>
+
+            <b>Panel</b>
+            <ul>
+              <li ng-repeat="p in panels">
+                <label>
+                  <input type="checkbox" ng-model="p.query" />
+                  {{ p.panel_name }}
+                </label>
+              </li>
+            </ul>
+
+            <hr/>
+
+            <b>Site</b>
+            <ul>
+              <li ng-repeat="s in sites">
+                <label>
+                  <input type="checkbox" ng-model="s.query" />
+                  {{ s.site_name }}
+                </label>
+              </li>
+            </ul>
+
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <table id="data-table" class="table table-hover">
+          <thead>
+            <tr>
+                <th></th>
+                <th>File name</th>
+                <th>Upload Date</th>
+                <th>Acquisition Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="s in samples">
+              <td>
+                <a class="btn btn-default btn-xs" ng-click="show_parameters(s)" tooltip="Show Parameters" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-list-alt align-middle"></i>
+                </a>
+                <a class="btn btn-default btn-xs" ng-click="show_compensation(s.id)" tooltip="Show Compensation" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-sliders align-middle"></i>
+                </a>
+                <a class="btn btn-default btn-xs" href="/api/repository/beads/{{ s.id }}/fcs_original/" tooltip="Download FCS File" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
+                </a>
+                <a class="btn btn-default btn-xs" href="/api/repository/beads/{{ s.id }}/csv/" tooltip="Download Subsampled CSV File" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
+                </a>
+              </td>
+              <td>{{ s.original_filename }}</td>
+              <td>{{ s.upload_date }}</td>
+              <td>{{ s.acquisition_date }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>

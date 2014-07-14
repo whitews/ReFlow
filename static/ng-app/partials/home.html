@@ -1,0 +1,47 @@
+<div ng-controller="ProjectListController">
+
+    <table id="project-table" class="table table-hover" ng-show="projects.length > 0">
+      <thead>
+        <tr>
+          <th colspan="3" class="center">
+            <div style="position:relative">
+              <h4>Projects <span class="badge badge-inverse align-top">{{ projects.length }}</span></h4>
+              <div class="btn-group" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ng-click="init_form(null)" ng-show="user.superuser">Add Project</a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th>Project Name</th>
+          <th>Project Permissions</th>
+          <th>Site Permissions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr ng-repeat="project in projects">
+          <td>
+            <a ui-sref="project-detail({ projectId: project.id })">{{ project.project_name }}</a>
+          </td>
+          <td>
+            <p ng-repeat="perm in project.permissions">{{ perm }}</p>
+          </td>
+          <td>
+            <ul>
+              <li ng-repeat="site in project.sites" ng-show="site.permissions.length > 0">{{ site.site_name }}
+              <ul>
+                <li ng-repeat="site_perm in site.permissions">{{ site_perm }}</li>
+              </ul>
+              </li>
+            </ul>
+
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <p ng-show="projects.length == 0">You do not belong to any projects.</p>
+</div>

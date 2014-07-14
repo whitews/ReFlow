@@ -36,6 +36,9 @@ class ProtectedModel(models.Model):
     def has_modify_permission(self, user):
         return False
 
+    def has_process_permission(self, user):
+        return False
+
     def has_user_management_permission(self, user):
         return False
 
@@ -86,12 +89,12 @@ class Marker(models.Model):
 
 class Fluorochrome(models.Model):
     fluorochrome_abbreviation = models.CharField(
-        unique=False,
+        unique=True,
         null=False,
         blank=False,
         max_length=32)
     fluorochrome_name = models.CharField(
-        unique=False,
+        unique=True,
         null=False,
         blank=False,
         max_length=128)
@@ -194,6 +197,19 @@ class ProjectManager(models.Manager):
 
         return projects | site_projects
 
+    @staticmethod
+    def get_projects_user_can_manage_users(user):
+        """
+        Return a list of projects for which the given user has user management
+        permissions.
+        """
+        projects = get_objects_for_user(
+            user,
+            'manage_project_users',
+            klass=Project)
+
+        return projects
+
 
 class Project(ProtectedModel):
     project_name = models.CharField(
@@ -215,6 +231,7 @@ class Project(ProtectedModel):
             ('view_project_data', 'View Project Data'),
             ('add_project_data', 'Add Project Data'),
             ('modify_project_data', 'Modify/Delete Project Data'),
+            ('submit_process_requests', 'Submit Process Requests'),
             ('manage_project_users', 'Manage Project Users'),
         )
 
@@ -233,6 +250,11 @@ class Project(ProtectedModel):
 
     def has_modify_permission(self, user):
         if user.has_perm('modify_project_data', self):
+            return True
+        return False
+
+    def has_process_permission(self, user):
+        if user.has_perm('submit_process_requests', self):
             return True
         return False
 
@@ -393,10 +415,10 @@ class ProjectPanelParameter(ProtectedModel):
         name_string = '%s_%s' % (
             self.parameter_type,
             self.parameter_value_type)
-        if (self.projectpanelparametermarker_set.count() > 0):
+        if self.projectpanelparametermarker_set.count() > 0:
             marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.projectpanelparametermarker_set.all()]))
             name_string += '_' + marker_string
-        if (self.fluorochrome):
+        if self.fluorochrome:
             name_string += '_' + self.fluorochrome.fluorochrome_abbreviation
         return name_string
 
@@ -496,8 +518,8 @@ class SiteManager(models.Manager):
                 if project.has_view_permission(user):
                     site_id_list.extend([s.id for s in project.site_set.all()])
                 else:
-                    site_id_list.extend([s.id for s in
-                        get_objects_for_user(
+                    site_id_list.extend([
+                        s.id for s in get_objects_for_user(
                             user,
                             'view_site_data',
                             klass=Site
@@ -550,22 +572,6 @@ class SiteManager(models.Manager):
 
         return sites
 
-    @staticmethod
-    def get_sites_user_can_manage_users(user, project):
-        """
-        Returns project sites for which the given user has modify permissions
-        """
-        if project.has_user_management_permission(user):
-            sites = Site.objects.filter(project=project)
-        else:
-            sites = get_objects_for_user(
-                user,
-                'manage_site_users',
-                klass=Site).filter(
-                    project=project)
-
-        return sites
-
 
 class Site(ProtectedModel):
     project = models.ForeignKey(Project)
@@ -581,8 +587,7 @@ class Site(ProtectedModel):
         permissions = (
             ('view_site_data', 'View Site'),
             ('add_site_data', 'Add Site Data'),
-            ('modify_site_data', 'Modify/Delete Site Data'),
-            ('manage_site_users', 'Manage Site Users')
+            ('modify_site_data', 'Modify/Delete Site Data')
         )
 
     def get_sample_count(self):
@@ -649,6 +654,27 @@ class Cytometer(ProtectedModel):
         null=False,
         blank=False,
         max_length=256)
+
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.site.project):
+            return True
+        elif user.has_perm('view_site_data', self.site):
+            return True
+        return False
+
+    def has_add_permission(self, user):
+        if user.has_perm('add_project_data', self.site.project):
+            return True
+        elif user.has_perm('add_site_data', self.site):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.site.project):
+            return True
+        elif user.has_perm('modify_site_data', self.site):
+            return True
+        return False
 
     def clean(self):
         """
@@ -891,6 +917,11 @@ class SubjectGroup(ProtectedModel):
             return True
         return False
 
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
     class Meta:
         unique_together = (('project', 'group_name'),)
 
@@ -916,6 +947,11 @@ class Subject(ProtectedModel):
 
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
             return True
         return False
 
@@ -1032,6 +1068,9 @@ class Compensation(ProtectedModel):
         elif site is not None:
             if user.has_perm('view_site_data', site):
                 return True
+
+    def get_sample_count(self):
+        return Sample.objects.filter(compensation=self).count()
 
     def get_compensation_as_csv(self):
         csv_string = StringIO()
@@ -1246,6 +1285,16 @@ class Sample(ProtectedModel):
             return True
         elif self.site_panel is not None:
             if user.has_perm('view_site_data', self.site_panel.site):
+                return True
+
+        return False
+
+    def has_modify_permission(self, user):
+
+        if self.subject.project.has_modify_permission(user):
+            return True
+        elif self.site_panel is not None:
+            if user.has_perm('modify_site_data', self.site_panel.site):
                 return True
 
         return False
@@ -1609,9 +1658,16 @@ class BeadSample(ProtectedModel):
 
         if self.site_panel.project_panel.project.has_view_permission(user):
             return True
-        elif self.site_panel is not None:
-            if user.has_perm('view_site_data', self.site_panel.site):
-                return True
+        elif user.has_perm('view_site_data', self.site_panel.site):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if self.site_panel.project_panel.project.has_modify_permission(user):
+            return True
+        elif user.has_perm('modify_site_data', self.site_panel.site):
+            return True
 
         return False
 
@@ -1629,7 +1685,6 @@ class BeadSample(ProtectedModel):
             - Save  original file name, since it may already exist on our side.
             - Save SHA-1 hash and check for duplicate FCS files in this project.
         """
-
 
         self.original_filename = self.bead_file.name.split('/')[-1]
         # get the hash

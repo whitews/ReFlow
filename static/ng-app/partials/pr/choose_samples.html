@@ -1,0 +1,113 @@
+  <div class="row">
+    <div class="col-md-4">
+
+      <strong>Panel Template:</strong>
+      <select class="form-control" ng-required="true" ng-model="model.current_panel_template" ng-change="panelTemplateChanged()" ng-options="p.panel_name for p in model.panel_templates">
+      </select>
+
+      <br/>
+
+      <div class="top"><strong>Sites:</strong></div>
+
+      <div data-ng-repeat="site in model.sites">
+          <label>
+              <input type="checkbox" ng-model="site.selected" ng-disabled="model.current_panel_template==null" ng-change="siteSelectionChanged()" />
+          {{ site.site_name }}
+          </label>
+      </div>
+
+      <br/>
+
+      <accordion close-others="false">
+        <accordion-group>
+            <accordion-heading>
+                Subjects <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopen, 'glyphicon-chevron-right': !isopen}"></i>
+            </accordion-heading>
+            <div data-ng-repeat="subject in model.subjects">
+              <label>
+                  <input type="checkbox" ng-model="subject.selected" ng-change="updateSamples()" />
+              {{ subject.subject_code }}
+              </label>
+            </div>
+        </accordion-group>
+        <accordion-group>
+            <accordion-heading>
+                Visits <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopen, 'glyphicon-chevron-right': !isopen}"></i>
+            </accordion-heading>
+            <div data-ng-repeat="visit in model.visits">
+              <label>
+                  <input type="checkbox" ng-model="visit.selected" ng-change="updateSamples()" />
+              {{ visit.visit_type_name }}
+              </label>
+            </div>
+        </accordion-group>
+        <accordion-group>
+            <accordion-heading>
+                Stimulation <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopen, 'glyphicon-chevron-right': !isopen}"></i>
+            </accordion-heading>
+            <div data-ng-repeat="stim in model.stimulations">
+              <label>
+                  <input type="checkbox" ng-model="stim.selected" ng-change="updateSamples()" />
+              {{ stim.stimulation_name }}
+              </label>
+            </div>
+        </accordion-group>
+        <accordion-group>
+            <accordion-heading>
+                Cytometer <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopen, 'glyphicon-chevron-right': !isopen}"></i>
+            </accordion-heading>
+            <div data-ng-repeat="cytometer in model.cytometers">
+              <label>
+                  <input type="checkbox" ng-model="cytometer.selected" ng-change="updateSamples()" />
+              {{ cytometer.cytometer_name }}
+              </label>
+            </div>
+        </accordion-group>
+        <accordion-group>
+            <accordion-heading>
+                Pre-treatment <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopen, 'glyphicon-chevron-right': !isopen}"></i>
+            </accordion-heading>
+            <div data-ng-repeat="pretreatment in model.pretreatments">
+              <label>
+                  <input type="checkbox" ng-model="pretreatment.selected" ng-change="updateSamples()" />
+              {{ pretreatment.name }}
+              </label>
+            </div>
+        </accordion-group>
+      </accordion>
+
+    </div>
+    <div class="col-md-8">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50">
+              <div class=" text-center">
+                <h4>Samples</h4>
+              </div>
+            </th>
+          </tr>
+          <tr>
+            <th style="width:1%;">
+              <input type="checkbox" ng-model="model.master_sample_checkbox" ng-change="toggleAllSamples()"/>
+            </th>
+            <th>File Name</th>
+            <th>Site</th>
+            <th>Subject</th>
+            <th>Stimulation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-ng-repeat="s in model.samples" ng-if="s.ignore == false">
+            <td class="no-wrap">
+              <input type="checkbox" ng-model="s.selected" />
+            </td>
+            <td>{{ s.original_filename }}</td>
+            <td>{{ s.site_name }}</td>
+            <td>{{ s.subject_code }}</td>
+            <td>{{ s.stimulation_name }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

@@ -1,0 +1,41 @@
+<div ng-controller="StimulationEditController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Create or Edit Stimulation
+  </div>
+  <div class="modal-body">
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Name</label>
+      <input maxlength="128" type="text" ng-model="instance.stimulation_name" />
+      <strong ng-show="errors.stimulation_name" class="help-inline text-danger">
+        {{ errors.stimulation_name.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Description</label>
+      <textarea cols="40" rows="10" ng-model="instance.stimulation_description">
+      </textarea>
+      <strong ng-show="errors.stimulation_description" class="help-inline text-danger">
+        {{ errors.stimulation_description.join(', ') }}
+      </strong>
+    </div>
+
+    <br/>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-primary" ng-click="create_update(instance)">Save</button>
+  </div>
+</div>

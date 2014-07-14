@@ -1,0 +1,311 @@
+<div ng-controller="MainSampleUploadController">
+  <div ng-controller="BeadCategorizationController">
+    <div ng-show="!dropSupported">HTML5 Drop File is not supported on this browser</div>
+
+    <div class="drop-box" ng-show="dropSupported" ng-file-drop="onFileSelect($files);" ng-file-drop-available="dropSupported=true">
+
+      <div class="row">
+        <div class="col-md-4">
+          <table>
+              <tr>
+                  <td><strong>Site:</strong></td>
+                  <td>
+                    <div ng-controller="SiteQueryController">
+                      <select class="form-control width-200" ng-model="sample_upload_model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
+                      </select>
+                      </div>
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong>Cytometer:</strong></td>
+                  <td>
+                    <div ng-controller="CytometerQueryController">
+                      <select class="form-control" ng-model="sample_upload_model.current_cytometer" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.cytometers.length == 0" ng-required="true" ng-options="c.cytometer_name for c in sample_upload_model.cytometers">
+                      </select>
+                    </div>
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong>Panel:</strong></td>
+                  <td>
+                    <div ng-controller="BeadPanelTemplateQueryController">
+                      <select class="form-control" ng-model="sample_upload_model.current_panel_template" ng-required="true" ng-change="panelChanged()" ng-options="p.panel_name for p in sample_upload_model.panel_templates">
+                      </select>
+                    </div>
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong>Compensation Channel:</strong></td>
+                    <td>
+                    <div ng-controller="BeadPanelTemplateQueryController">
+                      <select class="form-control" ng-model="sample_upload_model.current_compensation_fluoro" ng-disabled="sample_upload_model.current_panel_template == null || sample_upload_model.site_panels.length == 0" ng-required="true" ng-options="f as f.abbreviation for f in sample_upload_model.panel_fluorochromes">
+                      </select>
+                    </div>
+                  </td>
+              </tr>
+              <tr>
+                  <td><strong>Negative Control:</strong></td>
+                    <td>
+                    <div ng-controller="BeadPanelTemplateQueryController">
+                      <input type="checkbox" id="includes_negative_control" class="form-inline" ng-model="sample_upload_model.includes_negative_control" ng-disabled="sample_upload_model.is_negative_control" ng-required="true">
+                      <label for="includes_negative_control">
+                        Includes Negative Control
+                      </label>
+                    </div>
+                    <div ng-controller="BeadPanelTemplateQueryController">
+                      <input type="checkbox" id="is_negative_control" class="form-inline" ng-model="sample_upload_model.is_negative_control" ng-disabled="sample_upload_model.includes_negative_control" ng-required="true" />
+                      <label for="is_negative_control">
+                        Is Negative Control
+                      </label>
+                    </div>
+                  </td>
+              </tr>
+          </table>
+        </div>
+        <div class="col-md-8">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th colspan="50">
+                  <div class=" text-center" style="position: relative">
+                    <div style="position: absolute; left:0; padding-left: inherit;">
+                      <input type="file" ng-file-select="onFileSelect($files)" multiple />
+                    </div>
+                    <h4>FCS Files</h4>
+                    <div class="pull-right" style="position: absolute; right:0; top:0;">
+                      <button class="btn btn-default btn-sm" data-ng-click="addSelectedToUploadQueue()">Add to Queue</button>
+                    </div>
+                  </div>
+                </th>
+              </tr>
+              <tr>
+                <th style="width:1%;">
+                  <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
+                </th>
+                <th>File Name</th>
+                <th>Date</th>
+                <th>Channels</th>
+                <th>Size</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-ng-repeat="f in sample_upload_model.file_queue">
+                <td class="no-wrap align-middle">
+                  <input type="checkbox" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.current_panel_template == null" ng-model="f.selected" ng-click="initSitePanel(f)" />
+                </td>
+                <td class="align-middle">
+
+                  <script type="text/ng-template" id="metadata_content.html">
+                      <div class="modal-header">
+                          <h3>Metadata from {{ file.filename }}</h3>
+                      </div>
+                      <div class="modal-body">
+                          <div>
+                            <ul>
+                              <li data-ng-repeat="field in file.metadata">{{ field.key }}: {{ field.value }}</li>
+                            </ul>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button class="btn btn-primary" ng-click="ok()">OK</button>
+                      </div>
+                  </script>
+
+                  <script type="text/ng-template" id="channels_content.html">
+                      <div class="modal-header">
+                          <h3>Channel annotation from {{ file.filename }}</h3>
+                      </div>
+                      <div class="modal-body">
+                        <table class="table-condensed">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>PnN</th>
+                              <th>PnS</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr data-ng-repeat="channel in file.channels">
+                              <td>{{ channel.channel }}</td>
+                              <td>{{ channel.pnn }}</td>
+                              <td>{{ channel.pns }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="modal-footer">
+                          <button class="btn btn-primary" ng-click="ok()">OK</button>
+                      </div>
+                  </script>
+
+                  <li class="list-unstyled dropdown">
+                    <a href="#" class="dropdown-toggle no-wrap">
+                      <strong>{{ f.filename }}</strong> <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li class="btn-link">
+                        <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
+                      </li>
+                      <li class="btn-link">
+                        <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                      </li>
+                      <li class="divider"></li>
+                      <li class="btn-link">
+                        <a data-ng-click="removeFromFileQueue(f)">Remove</a>
+                      </li>
+                    </ul>
+                  </li>
+                </td>
+                <td class="align-middle">
+                  <input type="text" class="form-control" ng-click="open($event, f)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="f.datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                </td>
+                <td class="align-middle">{{ f.channels.length }}</td>
+                <td class="align-middle">{{ f.file.size | bytes }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="text-center instruction" ng-hide="sample_upload_model.file_queue.length > 0"><em>Drop files here</em></h3>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div ng-controller="BeadUploadQueueController">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+            <th colspan="50" class="center">
+              <div style="position:relative">
+                <h4>Upload Queue <span class="badge badge-inverse align-top">{{ upload_queue.length }}</span></h4>
+                <div style="position:absolute; left:0;top:0;">
+                  <button class="btn btn-default btn-sm" data-ng-click="clearUploaded()">
+                    Clear Uploaded
+                  </button>
+                  <button class="btn btn-default btn-sm" data-ng-click="clearSelected()">
+                    Clear Selected
+                  </button>
+                </div>
+                <div style="position:absolute; right:0;top:0;">
+                  <button class="btn btn-default btn-sm" data-ng-click="uploadSelected()">
+                    Upload Selected
+                  </button>
+                </div>
+              </div>
+            </th>
+        </tr>
+        <tr>
+            <th>
+                <input type="checkbox" ng-model="master_upload_queue_checkbox" ng-change="toggleAllUploadQueue()"/>
+            </th>
+            <th>File Name</th>
+            <th>Acquisition Date</th>
+            <th>Cytometer</th>
+            <th>Site Panel</th>
+            <th>Compensation Channel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-ng-repeat="f in sample_upload_model.upload_queue">
+          <td>
+            <input ng-hide="f.uploaded || f.uploading" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
+            <img data-ng-show="f.uploading && ! f.uploaded" src="/static/whirligig.gif">
+            <span data-ng-show="f.uploaded" class="fa fa-check"></span>
+
+            <script type="text/ng-template" id="myModalContent.html">
+                <div class="modal-header">
+                    <h3>Error uploading {{ file.filename }}</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="text-warning">
+                      <ul>
+                        <li data-ng-repeat="error in file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
+                      </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" ng-click="ok()">OK</button>
+                </div>
+            </script>
+            <button data-ng-show="f.errors" data-ng-click="open_error_modal(f)" class="btn btn-default btn-xs">
+              <span class="fa fa-exclamation-triangle danger"></span> Error
+            </button>
+
+          </td>
+          <td>
+
+            <script type="text/ng-template" id="metadata_content.html">
+                <div class="modal-header">
+                    <h3>Metadata from {{ file.filename }}</h3>
+                </div>
+                <div class="modal-body">
+                    <div>
+                      <ul>
+                        <li data-ng-repeat="field in file.metadata">{{ field.key }}: {{ field.value }}</li>
+                      </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" ng-click="ok()">OK</button>
+                </div>
+            </script>
+
+            <script type="text/ng-template" id="channels_content.html">
+                <div class="modal-header">
+                    <h3>Channel annotation from {{ file.filename }}</h3>
+                </div>
+                <div class="modal-body">
+                  <table class="table-condensed">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>PnN</th>
+                        <th>PnS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr data-ng-repeat="channel in file.channels">
+                        <td>{{ channel.channel }}</td>
+                        <td>{{ channel.pnn }}</td>
+                        <td>{{ channel.pns }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" ng-click="ok()">OK</button>
+                </div>
+            </script>
+
+            <li class="list-unstyled dropdown">
+              <progressbar class="progress" value="f.progress" type="warning">
+                <a href="#" class="dropdown-toggle no-wrap">
+                  <strong>{{ f.filename }}</strong> <b class="caret"></b>
+                </a>
+              </progressbar>
+
+              <ul class="dropdown-menu">
+                <li class="btn-link">
+                  <a data-ng-click="open_metadata_modal(f)">View Metadata</a>
+                </li>
+                <li class="btn-link">
+                  <a data-ng-click="open_channels_modal(f)">View Channels</a>
+                </li>
+                <li class="divider"></li>
+                <li class="btn-link">
+                  <a data-ng-click="recategorizeFile(f)">Move to File List</a>
+                </li>
+              </ul>
+            </li>
+          </td>
+          <td>{{ f.acquisition_date | date }}</td>
+          <td>{{ f.cytometer.cytometer_name }}</td>
+          <td>{{ f.site_panel.name }}</td>
+          <td>{{ f.compensation_channel.abbreviation }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

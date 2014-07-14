@@ -1,0 +1,127 @@
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="center" colspan="50">
+            <div style="position:relative">
+              <h4>{{ current_project.project_name }}</h4>
+
+              <div class="btn-group" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ng-click="init_form(current_project, 'PROJECT')" ng-show="can_modify_project">Edit Project</a>
+                  <a class="btn btn-default btn-sm"  ui-sref="user-list" ng-show="can_manage_users">Manage Users</a>
+              </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tr>
+        <td colspan="50">{{ current_project.project_desc }}</td>
+      </tr>
+    </table>
+    <div class="well">
+
+      <div class="row">
+        <div class="col-md-3">
+          <h4>Subject Groups</h4>
+
+              <a ui-sref="subject-group-list({projectId: current_project.id })">View</a><br/>
+              <a href="" ng-show="can_add_data" ng-click="init_form(null, 'SUBJECT_GROUP')">Add Subject Group</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Subjects</h4>
+
+              <a ui-sref="subject-list({projectId: current_project.id })">View</a><br/>
+              <a href="" ng-show="can_add_data" ng-click="init_form(null, 'SUBJECT')">Add Subject</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Visit Types</h4>
+
+              <a ui-sref="visit-type-list({ projectId: current_project.id })">View</a><br/>
+              <a href="" ng-show="can_add_data" ng-click="init_form(null, 'VISIT_TYPE')">Add Visit Type</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Stimulations</h4>
+
+              <a ui-sref="stimulation-list({ projectId: current_project.id })">View</a><br/>
+              <a href="" ng-show="can_add_data" ng-click="init_form(null, 'STIMULATION')">Add Stimulation</a><br/>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <br/>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3">
+          <h4>Panel Templates</h4>
+
+              <a ui-sref="panel-template-list({ projectId: current_project.id })">View</a><br/>
+              <a ng-show="can_add_data" ui-sref="panel-template-create">Add Panel Template</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Sites</h4>
+
+              <a ui-sref="site-list({ projectId: current_project.id })">View</a><br/>
+              <a href="" ng-show="can_add_data" ng-click="init_form(null, 'SITE')">Add Site</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Cytometers</h4>
+
+              <a ui-sref="cytometer-list({ projectId: current_project.id })">View</a><br/>
+              <a href="" ng-click="init_form(null, 'CYTOMETER')">Add Cytometer</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Compensation Matrices</h4>
+
+              <a ui-sref="compensation-list">View</a><br/>
+              <a href="" ng-click="init_form(null, 'COMPENSATION')">Create Compensation Matrix</a><br/>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <br/>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3">
+          <h4>Samples</h4>
+
+              <a ui-sref="sample-list">View</a><br/>
+              <a ui-sref="sample-upload">Upload Samples</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Compensation Beads</h4>
+
+              <a ui-sref="bead-sample-list">View</a><br/>
+              <a ui-sref="bead-sample-upload">Upload Bead Samples</a><br/>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <br/>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3">
+          <h4>Process Requests</h4>
+
+              <a ui-sref="process-request-list">View</a><br/>
+              <a ui-sref="process-request-form" ng-show="can_process_data">Submit New Process Request</a><br/>
+
+        </div>
+        <div class="col-md-3">
+
+
+        </div>
+      </div>
+
+    </div>
