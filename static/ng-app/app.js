@@ -27,6 +27,7 @@ var MODAL_URLS = {
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
     'COMPENSATIONS':      'static/ng-app/partials/compensation-form.html',
+    'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
     'MARKER':             'static/ng-app/partials/marker-form.html',
     'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',

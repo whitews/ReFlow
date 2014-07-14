@@ -25,7 +25,7 @@
       <tbody>
         <tr ng-repeat="comp in compensations">
           <td>
-            <a class="btn btn-default btn-xs" ng-click="show_compensation(comp)" tooltip="Show Compensation" tooltip-placement="bottom">
+            <a class="btn btn-default btn-xs" ng-click="show_matrix(comp)" tooltip="Show Compensation" tooltip-placement="bottom">
               <i style="opacity: 0.4" class="fa fa-eye align-middle"></i>
             </a>
             <a class="btn btn-default btn-xs" href="/api/repository/compensations/{{ comp.id }}/csv/" tooltip="Download" tooltip-placement="bottom">

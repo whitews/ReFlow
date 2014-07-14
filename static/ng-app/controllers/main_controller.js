@@ -1033,6 +1033,22 @@ app.controller(
                     }
                 });
             };
+
+            $scope.show_matrix = function(instance) {
+                $scope.errors = [];
+
+                // launch form modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.COMPENSATION_MATRIX,
+                    controller: ModalFormCtrl,
+                    size: 'lg',
+                    resolve: {
+                        instance: function() {
+                            return instance;
+                        }
+                    }
+                });
+            };
         }
     ]
 );
