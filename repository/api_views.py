@@ -1691,7 +1691,7 @@ class CompensationDetail(
         if not bead_sample.has_modify_permission(request.user):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        return super(BeadDetail, self).put(request, *args, **kwargs)
+        return super(CompensationDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
