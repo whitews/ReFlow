@@ -1103,6 +1103,7 @@ app.controller(
                 var header_length = comp_obj.headers.length;
                 if (comp_obj.data.length != header_length) {
                     $scope.errors.push('Number of rows does not match the number of parameters');
+                    return false;
                 }
                 comp_obj.data.forEach(function(row) {
                     if (row.length != header_length) {
@@ -1137,14 +1138,27 @@ app.controller(
 
             $scope.onFileSelect = function ($files) {
                 if ($files.length > 0) {
+                    $scope.instance.name = $files[0].name;
                     parseCompMatrix($files[0]);
                 }
             };
 
-            $scope.create = function (instance) {
+            $scope.create = function () {
                 $scope.errors = [];
+                var data = {
+                    'name': $scope.instance.name,
+                    'panel_template': $scope.instance.panel_template,
+                    'site': $scope.instance.site,
+                    'matrix_text': $scope.instance.matrix_text,
+                    'acquisition_date':
+                            $scope.instance.acquisition_date.getFullYear().toString() +
+                            "-" +
+                            ($scope.instance.acquisition_date.getMonth() + 1) +
+                            "-" +
+                            $scope.instance.acquisition_date.getDate().toString()
+                };
                 var response = Compensation.save(
-                    $scope.instance
+                    data
                 );
 
                 response.$promise.then(function () {
