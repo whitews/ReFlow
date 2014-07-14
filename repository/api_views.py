@@ -1669,9 +1669,15 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
         pnn_list = re.split('\t|,\s*', matrix_text[0])
 
-        site_panels = find_matching_site_panel(pnn_list, panel_template, site)
+        site_panel = find_matching_site_panel(pnn_list, panel_template, site)
+
+        if site_panel:
+            request.DATA['site_panel'] = site_panel.id
 
         response = super(CompensationList, self).post(request, *args, **kwargs)
+
+        if not site_panel and response.status_code != 201:
+            response.data['site_panel_match'] = False
         return response
 
 

@@ -547,6 +547,13 @@ def find_matching_site_panel(pnn_list, project_panel, site):
         site=site
     )
 
-    for pnn in pnn_list:
-        for site_panel in site_panel_prospects:
-            print site_panel
+    for site_panel in site_panel_prospects:
+        panel_text_set = set(
+            site_panel.sitepanelparameter_set.all().exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL']
+            ).values_list('fcs_text', flat=True)
+        )
+        if len(panel_text_set.symmetric_difference(pnn_list)) == 0:
+            return site_panel
+
+    return None

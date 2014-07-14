@@ -39,7 +39,17 @@
 
     <input type="file" ng-file-select="onFileSelect($files)" />
 
-    <div class="well well-warning" ng-show="errors.__all__">
+    <div class="well well-warning" ng-show="errors.__all__ || errors.site_panel">
+      <span ng-show="errors.site_panel_match == false">
+        <p>
+          <strong>No matching samples were found for the chosen panel and site.</strong>
+        </p>
+
+        <p>
+          Upload the corresponding samples first and ensure that the
+          compensation matrix header matches the files' annotation.
+        </p>
+      </span>
       <ul class="list-unstyled">
         <li ng-repeat="error in errors.__all__">{{ error }}</li>
       </ul>
@@ -49,6 +59,6 @@
 
   <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
-    <button type="button" class="btn btn-primary" ng-click="create(instance)" ng-disabled="instance.complete">Save</button>
+    <button type="button" class="btn btn-primary" ng-click="create()" ng-disabled="instance.complete">Save</button>
   </div>
 </div>
