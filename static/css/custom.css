@@ -25,6 +25,11 @@ button > i {
     opacity: 0.8;
 }
 
+i.fa {
+  min-width: 12px;
+  min-height: 12px;
+}
+
 select,
 textarea,
 input[type="text"],

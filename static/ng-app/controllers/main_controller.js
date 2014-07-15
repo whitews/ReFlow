@@ -507,15 +507,24 @@ app.controller(
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.SAMPLE,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
                             return proposed_instance;
+                        }
+                    }
+                });
+            };
+
+            $scope.init_delete = function(instance) {
+                $modal.open({
+                    templateUrl: MODAL_URLS.SAMPLE_DELETE,
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return instance;
                         }
                     }
                 });
