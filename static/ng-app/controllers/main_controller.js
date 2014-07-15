@@ -205,17 +205,8 @@ app.controller(
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return Site.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
-                );
-            }
-            $scope.sites = get_list();
-
             $scope.$on('updateSites', function () {
-                $scope.sites = get_list();
+                $scope.current_project.update_sites();
             });
 
             $scope.init_form = function(instance) {
@@ -403,12 +394,6 @@ app.controller(
                 }
             );
 
-            $scope.sites = Site.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
-
             $scope.subjects = Subject.query(
                 {
                     'project': $scope.current_project.id
@@ -458,7 +443,7 @@ app.controller(
                 });
 
                 var sites = [];
-                $scope.sites.forEach(function (s) {
+                $scope.current_project.sites.forEach(function (s) {
                     if (s.query) {
                         sites.push(s.id);
                     }
@@ -487,7 +472,16 @@ app.controller(
                         'visit': visits,
                         'stimulation': stimulations
                     }
-                )
+                );
+
+                $scope.samples.$promise.then(function (samples) {
+                    samples.forEach(function (s) {
+                        s.can_modify = false;
+                        if ($scope.can_modify_project) {
+                            s.can_modify = true;
+                        }
+                    });
+                })
             };
             
             $scope.show_parameters = function(instance) {
@@ -572,12 +566,6 @@ app.controller(
                 }
             );
 
-            $scope.sites = Site.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
-
             $scope.apply_filter = function () {
                 $scope.errors = [];
 
@@ -589,7 +577,7 @@ app.controller(
                 });
 
                 var sites = [];
-                $scope.sites.forEach(function (s) {
+                $scope.current_project.sites.forEach(function (s) {
                     if (s.query) {
                         sites.push(s.id);
                     }

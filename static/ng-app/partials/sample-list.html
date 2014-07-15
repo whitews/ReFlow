@@ -46,7 +46,7 @@
 
             <b>Site</b>
             <ul>
-              <li ng-repeat="s in sites">
+              <li ng-repeat="s in current_project.sites">
                 <label>
                   <input type="checkbox" ng-model="s.query" />
                   {{ s.site_name }}

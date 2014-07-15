@@ -21,17 +21,22 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
                     p.permissions = value.permissions;
                 });
 
-                // Add user's sites
-                p.sites = [];
-                var sites = Site.query({project: p.id});
-                sites.$promise.then(function (sites) {
-                    sites.forEach(function (s) {
-                        p.sites.push(s);
-                        s.getUserPermissions().$promise.then(function (value) {
-                            s.permissions = value.permissions;
+                p.update_sites = function() {
+                    // Add user's sites
+                    p.sites = [];
+                    var sites = Site.query({project: p.id});
+                    sites.$promise.then(function (sites) {
+                        sites.forEach(function (s) {
+                            p.sites.push(s);
+                            s.getUserPermissions().$promise.then(function (value) {
+                                s.permissions = value.permissions;
+                            });
                         });
                     });
-                });
+                };
+
+                p.update_sites();
+
             });
             $rootScope.$broadcast('projectUpdated');
         });
