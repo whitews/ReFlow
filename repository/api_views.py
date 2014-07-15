@@ -19,11 +19,9 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.views.generic.detail import SingleObjectMixin
 
-import json
-
-from repository.models import *
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
+from repository.models import *
 from repository.serializers import *
 from controllers import *
 
