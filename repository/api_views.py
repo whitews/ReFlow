@@ -1427,7 +1427,7 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
 class SampleDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -1444,6 +1444,13 @@ class SampleDetail(
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        sample = Sample.objects.get(id=kwargs['pk'])
+        if not sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(SampleDetail, self).delete(request, *args, **kwargs)
 
 
 class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
