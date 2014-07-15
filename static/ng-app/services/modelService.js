@@ -27,11 +27,25 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
                     var sites = Site.query({project: p.id});
                     sites.$promise.then(function (sites) {
                         sites.forEach(function (s) {
+                            s.can_modify = false;
                             p.sites.push(s);
                             s.getUserPermissions().$promise.then(function (value) {
                                 s.permissions = value.permissions;
+                                if (value.hasOwnProperty('permissions')) {
+                                    value.permissions.forEach(function (p) {
+                                        if (p === 'modify_site_data') {
+                                            s.can_modify = true;
+                                        }
+                                    });
+                                }
                             });
                         });
+
+                        // create site lookup by primary key
+                        p.site_lookup = {};
+                        for (var i = 0, len = p.sites.length; i < len; i++) {
+                            p.site_lookup[p.sites[i].id] = p.sites[i];
+                        }
                     });
                 };
 

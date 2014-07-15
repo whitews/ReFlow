@@ -131,7 +131,7 @@
                 <a class="btn btn-default btn-xs" href="/api/repository/samples/{{ s.id }}/csv/" tooltip="Download Subsampled CSV File" tooltip-placement="bottom">
                   <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
                 </a>
-                <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(s)" tooltip="Edit" tooltip-placement="bottom">
+                <a class="btn btn-default btn-xs" ng-show="s.can_modify" ng-click="init_form(s)" tooltip="Edit" tooltip-placement="bottom">
                   <i style="opacity: 0.4" class="fa fa-pencil align-middle"></i>
                 </a>
               </td>

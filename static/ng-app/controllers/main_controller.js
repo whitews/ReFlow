@@ -479,6 +479,13 @@ app.controller(
                         s.can_modify = false;
                         if ($scope.can_modify_project) {
                             s.can_modify = true;
+                        } else {
+                            var site = $scope.current_project.site_lookup[s.site];
+                            if (site) {
+                                if (site.can_modify) {
+                                    s.can_modify = true;
+                                }
+                            }
                         }
                     });
                 })
