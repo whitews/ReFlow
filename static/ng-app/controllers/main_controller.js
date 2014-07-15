@@ -661,7 +661,7 @@ app.controller(
 
                 // launch form modal
                 $modal.open({
-                    templateUrl: MODAL_URLS.COMPENSATIONS,
+                    templateUrl: MODAL_URLS.COMPENSATION,
                     controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
