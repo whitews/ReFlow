@@ -16,6 +16,18 @@ var app = angular.module(
     ]
 );
 
+app.factory('LoginRedirectInterceptor', function($q, $window) {
+    return {
+        responseError: function(rejection) {
+            if (rejection.status == 401) {
+                $window.location.assign('/login');
+            } else {
+                return $q.reject(rejection);
+            }
+        }
+    };
+});
+
 var MODAL_URLS = {
     'SUBJECT_GROUP':      'static/ng-app/partials/subject-group-form.html',
     'SUBJECT':            'static/ng-app/partials/subject-form.html',
@@ -38,7 +50,9 @@ var MODAL_URLS = {
     'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html'
 };
 
-app.config(function ($stateProvider, $urlRouterProvider) {
+app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
+    $httpProvider.interceptors.push('LoginRedirectInterceptor');
+
     $urlRouterProvider.otherwise("/");
 
     $stateProvider.state({
