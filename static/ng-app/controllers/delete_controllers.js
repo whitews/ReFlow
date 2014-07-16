@@ -15,7 +15,7 @@ app.controller(
                 response = Sample.delete({id: instance.id });
 
                 response.$promise.then(function () {
-                    // notify to update subject list
+                    // notification to update samples
                     $rootScope.$broadcast('updateSamples');
 
                     // close modal

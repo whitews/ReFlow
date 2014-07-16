@@ -490,6 +490,10 @@ app.controller(
                     });
                 })
             };
+
+            $scope.$on('updateSamples', function () {
+                $scope.apply_filter();
+            });
             
             $scope.show_parameters = function(instance) {
                 // launch modal
