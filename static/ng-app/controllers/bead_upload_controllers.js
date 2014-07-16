@@ -67,6 +67,10 @@ app.controller(
             $scope.$broadcast('updateSitePanels');
         };
 
+        $scope.$on('recheckSitePanels', function () {
+            $scope.evaluateParameterMatch();
+        });
+
         $scope.evaluateParameterMatch = function () {
             for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
                 // Reset the file's site panel
@@ -155,7 +159,6 @@ app.controller(
 
             return mismatches.length <= 0;
         }
-
 
         $scope.initSitePanel = function(f) {
             // a little confusing but we want to trigger the site panel creation
@@ -414,7 +417,7 @@ app.controller(
 
 app.controller(
     'BeadUploadQueueController',
-    ['$scope', '$upload', '$modal', function ($scope, $upload, $modal) {
+    ['$scope', '$rootScope', '$upload', '$modal', function ($scope, $rootScope, $upload, $modal) {
         $scope.sample_upload_model.upload_queue = [];
 
         $scope.clearUploaded = function() {
@@ -447,15 +450,24 @@ app.controller(
         $scope.recategorizeFile = function(f) {
 
             // clear the file object properties
-            f.site_panel = null;
             f.cytometer = null;
             f.compensation_channel = null;
+
+            // reset site panel and de-select. this is necessary b/c a different
+            // panel template than this site panel's parent may now be chosen
+            // and we need to de-select b/c the site panel matching and assignment
+            // occurs on checking the checkbox in the file queue
+            f.site_panel = null;
+            f.selected = false;
 
             // Add back to file queue
             $scope.sample_upload_model.file_queue.push(f);
 
             // Remove from upload queue
             $scope.sample_upload_model.upload_queue.splice($scope.sample_upload_model.upload_queue.indexOf(f), 1);
+
+            // re-check site panel matches
+            $rootScope.$broadcast('recheckSitePanels');
 
         };
 
