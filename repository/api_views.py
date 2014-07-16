@@ -1589,9 +1589,9 @@ class BeadList(LoginRequiredMixin, generics.ListAPIView):
 
 
 class BeadDetail(
-    LoginRequiredMixin,
-    PermissionRequiredMixin,
-    generics.RetrieveAPIView):
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -1608,6 +1608,13 @@ class BeadDetail(
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        bead_sample = BeadSample.objects.get(id=kwargs['pk'])
+        if not bead_sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return super(BeadDetail, self).delete(request, *args, **kwargs)
 
 
 class CompensationFilter(django_filters.FilterSet):
