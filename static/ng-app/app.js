@@ -34,7 +34,8 @@ var MODAL_URLS = {
     'WORKER':             'static/ng-app/partials/worker-form.html',
 
     // delete modals
-    'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html'
+    'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
+    'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider) {

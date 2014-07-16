@@ -608,8 +608,28 @@ app.controller(
                         'panel': panels,
                         'site': sites
                     }
-                )
+                );
+
+                $scope.samples.$promise.then(function (samples) {
+                    samples.forEach(function (s) {
+                        s.can_modify = false;
+                        if ($scope.can_modify_project) {
+                            s.can_modify = true;
+                        } else {
+                            var site = $scope.current_project.site_lookup[s.site];
+                            if (site) {
+                                if (site.can_modify) {
+                                    s.can_modify = true;
+                                }
+                            }
+                        }
+                    });
+                })
             };
+
+            $scope.$on('updateBeadSamples', function () {
+                $scope.apply_filter();
+            });
 
             $scope.show_parameters = function(instance) {
                 // launch modal
@@ -636,6 +656,18 @@ app.controller(
                     resolve: {
                         instance: function() {
                             return proposed_instance;
+                        }
+                    }
+                });
+            };
+
+            $scope.init_delete = function(instance) {
+                $modal.open({
+                    templateUrl: MODAL_URLS.BEAD_SAMPLE_DELETE,
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return instance;
                         }
                     }
                 });
