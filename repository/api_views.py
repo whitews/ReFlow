@@ -31,6 +31,21 @@ from controllers import *
 # of objects by user
 
 
+from rest_framework.views import exception_handler
+from rest_framework.exceptions import NotAuthenticated
+
+def custom_exception_handler(exc):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    if isinstance(exc, NotAuthenticated):
+        response = Response({'detail': 'Not authenticated'},
+                        status=status.HTTP_401_UNAUTHORIZED,
+                        exception=True)
+    else:
+        response = exception_handler(exc)
+
+    return response
+
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
