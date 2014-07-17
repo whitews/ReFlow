@@ -15,7 +15,6 @@ app.controller(
                 response = Sample.delete({id: instance.id });
 
                 response.$promise.then(function () {
-                    // notification to update samples
                     $rootScope.$broadcast('updateSamples');
 
                     // close modal
@@ -46,7 +45,6 @@ app.controller(
                 response = BeadSample.delete({id: instance.id });
 
                 response.$promise.then(function () {
-                    // notification to update samples
                     $rootScope.$broadcast('updateBeadSamples');
 
                     // close modal
@@ -77,8 +75,37 @@ app.controller(
                 response = Compensation.delete({id: instance.id });
 
                 response.$promise.then(function () {
-                    // notification to update samples
                     $rootScope.$broadcast('updateCompensations');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'CytometerDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Cytometer',
+        function ($scope, $rootScope, $controller, Cytometer) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = Cytometer.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updateCytometers');
 
                     // close modal
                     $scope.ok();

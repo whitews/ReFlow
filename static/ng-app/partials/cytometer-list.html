@@ -19,19 +19,24 @@
           <th>Serial Number</th>
           <th>Site</th>
           <th>FCS Sample Count</th>
+          <th>Bead Count</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="cytometer in cytometers">
-          <td width="1%">
-              <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(cytometer)" tooltip="Edit" tooltip-placement="bottom">
-                <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
-              </a>
+          <td>
+            <a class="btn btn-default btn-xs" ng-show="cytometer.can_modify" ng-click="init_form(cytometer)" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="cytometer.can_modify" ng-click="init_delete(cytometer, 'CYTOMETER_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>{{ cytometer.cytometer_name }}</td>
           <td>{{ cytometer.serial_number }}</td>
           <td>{{ cytometer.site_name }}</td>
           <td>{{ cytometer.sample_count }}</td>
+          <td>{{ cytometer.bead_sample_count }}</td>
         </tr>
       </tbody>
     </table>
