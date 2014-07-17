@@ -59,3 +59,34 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'CompensationDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Compensation',
+        function ($scope, $rootScope, $controller, Compensation) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = Compensation.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    // notification to update samples
+                    $rootScope.$broadcast('updateCompensations');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);

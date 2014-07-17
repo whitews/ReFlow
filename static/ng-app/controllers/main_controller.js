@@ -624,7 +624,7 @@ app.controller(
                             }
                         }
                     });
-                })
+                });
             };
 
             $scope.$on('updateBeadSamples', function () {
@@ -688,11 +688,28 @@ app.controller(
             $controller('ProjectDetailController', {$scope: $scope});
 
             function get_list() {
-                return Compensation.query(
+                var response = Compensation.query(
                     {
                         'project': $scope.current_project.id
                     }
                 );
+                response.$promise.then(function (objects) {
+                    objects.forEach(function (o) {
+                        o.can_modify = false;
+                        if ($scope.can_modify_project) {
+                            o.can_modify = true;
+                        } else {
+                            var site = $scope.current_project.site_lookup[o.site];
+                            if (site) {
+                                if (site.can_modify) {
+                                    o.can_modify = true;
+                                }
+                            }
+                        }
+                    });
+                });
+
+                return response;
             }
             $scope.compensations = get_list();
 
@@ -724,6 +741,18 @@ app.controller(
                     templateUrl: MODAL_URLS.COMPENSATION_MATRIX,
                     controller: ModalFormCtrl,
                     size: 'lg',
+                    resolve: {
+                        instance: function() {
+                            return instance;
+                        }
+                    }
+                });
+            };
+
+            $scope.init_delete = function(instance) {
+                $modal.open({
+                    templateUrl: MODAL_URLS.COMPENSATION_DELETE,
+                    controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
                             return instance;

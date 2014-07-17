@@ -31,8 +31,8 @@
             <a class="btn btn-default btn-xs" href="/api/repository/compensations/{{ comp.id }}/csv/" tooltip="Download" tooltip-placement="bottom">
               <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
             </a>
-            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(comp)" tooltip="Edit" tooltip-placement="bottom">
-              <i style="opacity: 0.4" class="fa fa-pencil align-middle"></i>
+            <a class="btn btn-default btn-xs" ng-show="comp.can_modify" ng-click="init_delete(comp)" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
             </a>
           </td>
           <td>{{ comp.name }}</td>

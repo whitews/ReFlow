@@ -47,7 +47,8 @@ var MODAL_URLS = {
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
-    'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html'
+    'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html',
+    'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
