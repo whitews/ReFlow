@@ -9,7 +9,10 @@ class PermissionSerializer(serializers.ModelSerializer):
     model = serializers.CharField(source='content_type.model')
     username = serializers.CharField(source='user.username')
     permission_codename = serializers.CharField(source='permission.codename')
-    permission_name = serializers.CharField(source='permission.name', read_only=True)
+    permission_name = serializers.CharField(
+        source='permission.name',
+        read_only=True
+    )
 
     class Meta:
         model = UserObjectPermission
@@ -264,8 +267,14 @@ class SitePanelSerializer(serializers.ModelSerializer):
 
 class CytometerSerializer(serializers.ModelSerializer):
     site_name = serializers.CharField(source='site.site_name', read_only=True)
-    sample_count = serializers.IntegerField(source='sample_set.count', read_only=True)
-    bead_sample_count = serializers.IntegerField(source='beadsample_set.count', read_only=True)
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='beadsample_set.count',
+        read_only=True
+    )
     url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
 
     class Meta:
@@ -284,6 +293,10 @@ class CytometerSerializer(serializers.ModelSerializer):
 
 class StimulationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='stimulation-detail')
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Stimulation
