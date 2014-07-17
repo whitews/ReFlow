@@ -632,7 +632,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
 class VisitTypeDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single visit type.
     """
@@ -649,6 +649,13 @@ class VisitTypeDetail(
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        visit_type = VisitType.objects.get(id=kwargs['pk'])
+        if not visit_type.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(VisitTypeDetail, self).delete(request, *args, **kwargs)
 
 
 class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):

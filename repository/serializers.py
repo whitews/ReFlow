@@ -46,6 +46,10 @@ class ProjectUserSerializer(serializers.ModelSerializer):
 
 class VisitTypeSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='visittype-detail')
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = VisitType
@@ -54,7 +58,9 @@ class VisitTypeSerializer(serializers.ModelSerializer):
             'url',
             'visit_type_name',
             'visit_type_description',
-            'project')
+            'project',
+            'sample_count'
+        )
 
 
 class SubjectGroupSerializer(serializers.ModelSerializer):
