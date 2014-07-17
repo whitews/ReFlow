@@ -249,8 +249,8 @@ table.key-value, td {
   text-align: left;
 }
 
-td.middle {
-  vertical-align: middle;
+td {
+  vertical-align: middle !important;
 }
 td.center {
   text-align: center;
