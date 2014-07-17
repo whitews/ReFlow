@@ -663,16 +663,12 @@ class Cytometer(ProtectedModel):
         return False
 
     def has_add_permission(self, user):
-        if user.has_perm('add_project_data', self.site.project):
-            return True
-        elif user.has_perm('add_site_data', self.site):
+        if self.site.has_add_permission(user):
             return True
         return False
 
     def has_modify_permission(self, user):
-        if user.has_perm('modify_project_data', self.site.project):
-            return True
-        elif user.has_perm('modify_site_data', self.site):
+        if self.site.has_modify_permission(user):
             return True
         return False
 
