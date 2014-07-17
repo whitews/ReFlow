@@ -1062,12 +1062,14 @@ class Compensation(ProtectedModel):
     )
 
     def has_view_permission(self, user):
-        site = self.site_panel.site
-        if site.project.has_view_permission(user):
+        if self.site_panel.site.has_view_permission(user):
             return True
-        elif site is not None:
-            if user.has_perm('view_site_data', site):
-                return True
+        return False
+
+    def has_modify_permission(self, user):
+        if self.site_panel.site.has_modify_permission(user):
+            return True
+        return False
 
     def get_sample_count(self):
         return Sample.objects.filter(compensation=self).count()
