@@ -124,7 +124,7 @@ def is_user(request, username):
 def get_project_permissions(request, project):
     project = get_object_or_404(Project, pk=project)
 
-    if not project.has_view_permission(request.user):
+    if not request.user in project.get_project_users():
         raise PermissionDenied
 
     perms = project.get_user_permissions(request.user).values_list(
