@@ -110,6 +110,18 @@ app.controller(
                     }
                 });
             };
+
+            $scope.init_delete = function(instance, form_type) {
+                $modal.open({
+                    templateUrl: MODAL_URLS[form_type],
+                    controller: ModalFormCtrl,
+                    resolve: {
+                        instance: function() {
+                            return instance;
+                        }
+                    }
+                });
+            };
         }
     ]
 );
@@ -240,11 +252,29 @@ app.controller(
             $controller('ProjectDetailController', {$scope: $scope});
 
             function get_list() {
-                return Cytometer.query(
+                var response = Cytometer.query(
                     {
                         'project': $scope.current_project.id
                     }
                 );
+
+                response.$promise.then(function (objects) {
+                    objects.forEach(function (o) {
+                        o.can_modify = false;
+                        if ($scope.can_modify_project) {
+                            o.can_modify = true;
+                        } else {
+                            var site = $scope.current_project.site_lookup[o.site];
+                            if (site) {
+                                if (site.can_modify) {
+                                    o.can_modify = true;
+                                }
+                            }
+                        }
+                    });
+                });
+
+                return response;
             }
             $scope.cytometers = get_list();
 
@@ -521,18 +551,6 @@ app.controller(
                     }
                 });
             };
-
-            $scope.init_delete = function(instance) {
-                $modal.open({
-                    templateUrl: MODAL_URLS.SAMPLE_DELETE,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -660,18 +678,6 @@ app.controller(
                     }
                 });
             };
-
-            $scope.init_delete = function(instance) {
-                $modal.open({
-                    templateUrl: MODAL_URLS.BEAD_SAMPLE_DELETE,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -741,18 +747,6 @@ app.controller(
                     templateUrl: MODAL_URLS.COMPENSATION_MATRIX,
                     controller: ModalFormCtrl,
                     size: 'lg',
-                    resolve: {
-                        instance: function() {
-                            return instance;
-                        }
-                    }
-                });
-            };
-
-            $scope.init_delete = function(instance) {
-                $modal.open({
-                    templateUrl: MODAL_URLS.COMPENSATION_DELETE,
-                    controller: ModalFormCtrl,
                     resolve: {
                         instance: function() {
                             return instance;
