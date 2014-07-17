@@ -420,7 +420,7 @@ class PermissionDetail(LoginRequiredMixin, generics.DestroyAPIView):
 
         # ensure requesting user has user management permission for this project
         if not project.has_user_management_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         remove_perm(perm.permission.codename, perm.user, perm.content_object)
 
@@ -508,7 +508,7 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         # ensure requesting user has user management permission for this project
         if not project.has_user_management_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         # save the permission
         assign_perm(
@@ -548,7 +548,7 @@ class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(ProjectList, self).post(request, *args, **kwargs)
         return response
@@ -568,7 +568,7 @@ class ProjectDetail(
     def put(self, request, *args, **kwargs):
         project = Project.objects.get(id=kwargs['pk'])
         if not project.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(ProjectDetail, self).put(request, *args, **kwargs)
 
@@ -591,7 +591,7 @@ class ProjectUserDetail(
         project = Project.objects.get(id=kwargs['pk'])
 
         if not project.has_user_management_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(ProjectUserDetail, self).get(request, *args, **kwargs)
         return response
@@ -623,7 +623,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(VisitTypeList, self).post(request, *args, **kwargs)
         return response
@@ -643,7 +643,7 @@ class VisitTypeDetail(
     def put(self, request, *args, **kwargs):
         project = Project.objects.get(id=kwargs['pk'])
         if not project.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(VisitTypeDetail, self).put(request, *args, **kwargs)
 
@@ -677,7 +677,7 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SubjectGroupList, self).post(request, *args, **kwargs)
         return response
@@ -697,7 +697,7 @@ class SubjectGroupDetail(
     def put(self, request, *args, **kwargs):
         subject_group = SubjectGroup.objects.get(id=kwargs['pk'])
         if not subject_group.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SubjectGroupDetail, self).put(request, *args, **kwargs)
 
@@ -731,7 +731,7 @@ class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SubjectList, self).post(request, *args, **kwargs)
         return response
@@ -751,7 +751,7 @@ class SubjectDetail(
     def put(self, request, *args, **kwargs):
         subject = Subject.objects.get(id=kwargs['pk'])
         if not subject.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SubjectDetail, self).put(request, *args, **kwargs)
 
@@ -942,7 +942,7 @@ class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SiteList, self).post(request, *args, **kwargs)
         return response
@@ -962,7 +962,7 @@ class SiteDetail(
     def put(self, request, *args, **kwargs):
         site = Site.objects.get(id=kwargs['pk'])
         if not site.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SiteDetail, self).put(request, *args, **kwargs)
 
@@ -1149,7 +1149,7 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         site = Project.objects.get(id=request.DATA['site'])
         if not site.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(CytometerList, self).post(request, *args, **kwargs)
         return response
@@ -1169,7 +1169,7 @@ class CytometerDetail(
     def put(self, request, *args, **kwargs):
         cytometer = Cytometer.objects.get(id=kwargs['pk'])
         if not cytometer.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(CytometerDetail, self).put(request, *args, **kwargs)
         return response
@@ -1195,7 +1195,7 @@ class MarkerList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerList, self).post(request, *args, **kwargs)
         return response
@@ -1211,7 +1211,7 @@ class MarkerDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Marker.objects.get(id=kwargs['pk'])
@@ -1236,7 +1236,7 @@ class FluorochromeList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeList, self).post(request, *args, **kwargs)
         return response
@@ -1252,7 +1252,7 @@ class FluorochromeDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Fluorochrome.objects.get(id=kwargs['pk'])
@@ -1277,7 +1277,7 @@ class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SpecimenList, self).post(request, *args, **kwargs)
         return response
@@ -1293,7 +1293,7 @@ class SpecimenDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Specimen.objects.get(id=kwargs['pk'])
@@ -1330,7 +1330,7 @@ class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(StimulationList, self).post(request, *args, **kwargs)
         return response
@@ -1339,7 +1339,7 @@ class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
 class StimulationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single stimulation.
     """
@@ -1350,12 +1350,19 @@ class StimulationDetail(
     def put(self, request, *args, **kwargs):
         project = Project.objects.get(id=kwargs['pk'])
         if not project.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(StimulationDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        stimulation = Stimulation.objects.get(id=kwargs['pk'])
+        if not stimulation.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(StimulationDetail, self).delete(request, *args, **kwargs)
 
 
 class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
@@ -1459,7 +1466,7 @@ class SampleDetail(
     def put(self, request, *args, **kwargs):
         sample = Sample.objects.get(id=request.DATA['id'])
         if not sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SampleDetail, self).put(request, *args, **kwargs)
 
@@ -1469,7 +1476,7 @@ class SampleDetail(
     def delete(self, request, *args, **kwargs):
         sample = Sample.objects.get(id=kwargs['pk'])
         if not sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SampleDetail, self).delete(request, *args, **kwargs)
 
@@ -1623,7 +1630,7 @@ class BeadDetail(
     def put(self, request, *args, **kwargs):
         bead_sample = BeadSample.objects.get(id=request.DATA['id'])
         if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(BeadDetail, self).put(request, *args, **kwargs)
 
@@ -1633,7 +1640,7 @@ class BeadDetail(
     def delete(self, request, *args, **kwargs):
         bead_sample = BeadSample.objects.get(id=kwargs['pk'])
         if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(BeadDetail, self).delete(request, *args, **kwargs)
 
@@ -1900,7 +1907,7 @@ class WorkerDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Worker.objects.get(id=kwargs['pk'])
@@ -1925,7 +1932,7 @@ class WorkerList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(WorkerList, self).post(request, *args, **kwargs)
         return response
@@ -1944,7 +1951,7 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
         # check permission for submitting process requests for this project
         project = get_object_or_404(Project, pk=request.DATA['project'])
         if not project.has_process_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         # add required fields for the user and status
         request.DATA['request_user'] = request.user.id
