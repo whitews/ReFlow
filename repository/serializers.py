@@ -265,6 +265,7 @@ class SitePanelSerializer(serializers.ModelSerializer):
 class CytometerSerializer(serializers.ModelSerializer):
     site_name = serializers.CharField(source='site.site_name', read_only=True)
     sample_count = serializers.IntegerField(source='sample_set.count', read_only=True)
+    bead_sample_count = serializers.IntegerField(source='beadsample_set.count', read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
 
     class Meta:
@@ -276,7 +277,8 @@ class CytometerSerializer(serializers.ModelSerializer):
             'site_name',
             'cytometer_name',
             'serial_number',
-            'sample_count'
+            'sample_count',
+            'bead_sample_count'
         )
 
 
