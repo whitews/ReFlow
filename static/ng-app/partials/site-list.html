@@ -22,16 +22,14 @@
       </thead>
       <tbody>
         <tr ng-repeat="site in current_project.sites">
-          <td width="1%">
+          <td class="no-wrap" width="1%">
               <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(site)" tooltip="Edit" tooltip-placement="bottom">
                 <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
               </a>
           </td>
           <td>{{ site.site_name }}</td>
           <td>
-            <ul class="list-unstyled">
-              <li ng-repeat="cytometer in site.cytometers">{{ cytometer.cytometer_name }}</li>
-            </ul>
+              <span ng-repeat="cytometer in site.cytometers">{{ cytometer.cytometer_name }}<br/></span>
           </td>
           <td>{{ site.sample_count }}</td>
         </tr>
