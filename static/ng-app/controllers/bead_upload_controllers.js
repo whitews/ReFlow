@@ -29,7 +29,7 @@ app.controller(
                 }
             });
             $scope.sample_upload_model.current_compensation_fluoro = null;
-            $scope.evaluateParameterMatch();
+            $scope.$broadcast('updateSitePanels');
         };
 
         $scope.$on('updateSitePanels', function (evt, id) {
