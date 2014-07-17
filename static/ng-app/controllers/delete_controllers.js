@@ -117,3 +117,33 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'StimulationDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Stimulation',
+        function ($scope, $rootScope, $controller, Stimulation) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = Stimulation.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updateStimulations');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);

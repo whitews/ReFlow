@@ -49,7 +49,8 @@ var MODAL_URLS = {
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
     'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html',
     'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
-    'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html'
+    'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
+    'STIMULATION_DELETE': 'static/ng-app/partials/stimulation-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
