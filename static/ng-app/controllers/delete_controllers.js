@@ -147,3 +147,33 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'VisitTypeDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'VisitType',
+        function ($scope, $rootScope, $controller, VisitType) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = VisitType.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updateVisitTypes');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
