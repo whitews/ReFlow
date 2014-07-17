@@ -1711,7 +1711,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
 class CompensationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -1722,12 +1722,19 @@ class CompensationDetail(
     def put(self, request, *args, **kwargs):
         bead_sample = BeadSample.objects.get(id=request.DATA['id'])
         if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(CompensationDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        compensation = Compensation.objects.get(id=kwargs['pk'])
+        if not compensation.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CompensationDetail, self).delete(request, *args, **kwargs)
 
 
 class SubprocessCategoryFilter(django_filters.FilterSet):
