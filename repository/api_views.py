@@ -1158,7 +1158,7 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
 class CytometerDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single cytometer.
     """
@@ -1177,6 +1177,12 @@ class CytometerDetail(
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
+    def delete(self, request, *args, **kwargs):
+        cytometer = Cytometer.objects.get(id=kwargs['pk'])
+        if not cytometer.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CytometerDetail, self).delete(request, *args, **kwargs)
 
 class MarkerList(generics.ListCreateAPIView):
     """
