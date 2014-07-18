@@ -54,7 +54,8 @@ var MODAL_URLS = {
     'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
     'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
     'PANEL_DELETE':       'static/ng-app/partials/panel-template-delete.html',
-    'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html'
+    'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html',
+    'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {

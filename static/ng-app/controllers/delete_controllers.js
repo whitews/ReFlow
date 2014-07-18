@@ -267,3 +267,33 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'SubjectGroupDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'SubjectGroup',
+        function ($scope, $rootScope, $controller, SubjectGroup) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = SubjectGroup.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updateSubjectGroups');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
