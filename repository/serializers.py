@@ -64,6 +64,16 @@ class VisitTypeSerializer(serializers.ModelSerializer):
 
 
 class SubjectGroupSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='subject-group-detail')
+    subject_count = serializers.IntegerField(
+        source='subject_set.count',
+        read_only=True
+    )
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+
     class Meta:
         model = SubjectGroup
 

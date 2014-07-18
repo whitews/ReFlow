@@ -947,6 +947,10 @@ class SubjectGroup(ProtectedModel):
             return True
         return False
 
+    def get_sample_count(self):
+        sample_count = Sample.objects.filter(subject__in=self.subject_set.all()).count()
+        return sample_count
+
     class Meta:
         unique_together = (('project', 'group_name'),)
 
