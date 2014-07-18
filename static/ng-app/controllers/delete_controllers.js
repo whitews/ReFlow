@@ -207,3 +207,33 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'PanelTemplateDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'PanelTemplate',
+        function ($scope, $rootScope, $controller, PanelTemplate) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = PanelTemplate.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updatePanelTemplates');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);

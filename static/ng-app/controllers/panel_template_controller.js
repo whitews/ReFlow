@@ -14,6 +14,10 @@ app.controller(
 
         $scope.panel_templates = get_list();
 
+        $scope.$on('updatePanelTemplates', function () {
+            $scope.panel_templates = get_list();
+        });
+
         $scope.expand_params = [];
         $scope.panel_templates.$promise.then(function () {
             $scope.panel_templates.forEach(function () {

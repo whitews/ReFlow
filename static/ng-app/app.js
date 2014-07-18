@@ -52,7 +52,8 @@ var MODAL_URLS = {
     'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
     'STIMULATION_DELETE': 'static/ng-app/partials/stimulation-delete.html',
     'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
-    'SITE_DELETE':        'static/ng-app/partials/site-delete.html'
+    'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
+    'PANEL_DELETE':        'static/ng-app/partials/panel-template-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
