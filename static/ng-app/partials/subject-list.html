@@ -24,9 +24,12 @@
       <tbody>
         <tr ng-repeat="subject in subjects">
           <td class="no-wrap" width="1%">
-              <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(subject)" tooltip="Edit" tooltip-placement="bottom">
-                <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
-              </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(subject)" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(subject, 'SUBJECT_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>{{ subject.subject_code }}</td>
           <td>{{ subject.subject_group_name }}</td>

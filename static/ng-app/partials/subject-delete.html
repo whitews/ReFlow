@@ -1,0 +1,34 @@
+<div ng-controller="SubjectDeleteController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Delete Subject: {{ instance.subject_code }}
+  </div>
+  <div class="modal-body">
+
+    <h4>Are you sure you want to delete this subject?</h4>
+
+    <div class="well well-info">
+      <ul>
+        <li ng-show="instance.sample_count > 0">
+          {{ instance.sample_count }} sample(s) belong to this subject. These
+          <strong>WILL</strong> be deleted if you remove this subject.
+        </li>
+        <li ng-show="instance.sample_count == 0">
+          There are no regular FCS samples that belong to this subject.
+        </li>
+      </ul>
+    </div>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Cancel</button>
+    <button type="button" class="btn btn-danger" ng-click="destroy(instance)">Delete</button>
+  </div>
+</div>
