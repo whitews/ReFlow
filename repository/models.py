@@ -367,6 +367,23 @@ class ProjectPanel(ProtectedModel):
 
         return False
 
+    def get_sample_count(self):
+        site_panels = SitePanel.objects.filter(project_panel=self)
+        sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_bead_sample_count(self):
+        site_panels = SitePanel.objects.filter(project_panel=self)
+        sample_count = BeadSample.objects.filter(
+            site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_compensation_count(self):
+        site_panels = SitePanel.objects.filter(project_panel=self)
+        compensations = Compensation.objects.filter(
+            site_panel__in=site_panels).count()
+        return compensations
+
     def clean(self):
         """
         Check for duplicate panel names within a project.

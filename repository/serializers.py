@@ -204,6 +204,18 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
     staining_name = serializers.CharField(
         source='get_staining_display',
         read_only=True)
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='get_bead_sample_count',
+        read_only=True
+    )
+    compensation_count = serializers.IntegerField(
+        source='get_compensation_count',
+        read_only=True
+    )
 
     class Meta:
         model = ProjectPanel
@@ -216,7 +228,10 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
             'staining',
             'staining_name',
             'parent_panel',
-            'parameters'
+            'parameters',
+            'sample_count',
+            'bead_sample_count',
+            'compensation_count'
         )
 
 
