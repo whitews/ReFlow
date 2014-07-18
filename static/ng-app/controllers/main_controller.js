@@ -31,9 +31,6 @@ app.controller(
         '$modal',
         'ModelService',
         function ($scope, $controller, $modal, ModelService) {
-            // Inherits MainController $scope
-            $controller('MainController', {$scope: $scope});
-
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
@@ -62,9 +59,6 @@ app.controller(
         '$modal',
         'ModelService',
         function ($scope, $controller, $stateParams, $modal, ModelService) {
-            // Inherits MainController $scope
-            $controller('MainController', {$scope: $scope});
-
             function get_project() {
                 return ModelService.getProjectById(
                     $stateParams.projectId
