@@ -693,7 +693,7 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
 class SubjectGroupDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single subject group.
     """
@@ -710,6 +710,13 @@ class SubjectGroupDetail(
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        subject_group = SubjectGroup.objects.get(id=kwargs['pk'])
+        if not subject_group.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SubjectGroupDetail, self).delete(request, *args, **kwargs)
 
 
 class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
