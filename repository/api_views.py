@@ -864,7 +864,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
 class ProjectPanelDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint for retrieving or updating a single panel template.
     """
@@ -926,6 +926,16 @@ class ProjectPanelDetail(
         serializer = ProjectPanelSerializer(panel_template)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        panel_template = ProjectPanel.objects.get(id=kwargs['pk'])
+        if not panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ProjectPanelDetail, self).delete(request, *args, **kwargs)
 
 
 class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
