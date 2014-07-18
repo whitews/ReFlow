@@ -84,8 +84,20 @@ class CytometerFlatSerializer(serializers.ModelSerializer):
 class SiteSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='site-detail')
     cytometers = CytometerFlatSerializer(source='cytometer_set', read_only=True)
+    cytometer_count = serializers.IntegerField(
+        source='cytometer_set.count',
+        read_only=True
+    )
     sample_count = serializers.IntegerField(
         source='get_sample_count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='get_bead_sample_count',
+        read_only=True
+    )
+    compensation_count = serializers.IntegerField(
+        source='get_compensation_count',
         read_only=True
     )
 
@@ -97,7 +109,10 @@ class SiteSerializer(serializers.ModelSerializer):
             'site_name',
             'cytometers',
             'project',
-            'sample_count'
+            'cytometer_count',
+            'sample_count',
+            'bead_sample_count',
+            'compensation_count'
         )
 
 
