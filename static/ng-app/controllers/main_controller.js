@@ -20,7 +20,6 @@ app.controller(
         }
 
         $scope.user = ModelService.user;
-        console.log('asdf');
     }
 ]);
 
