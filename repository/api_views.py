@@ -8,6 +8,8 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
+from rest_framework.views import exception_handler
+from rest_framework.exceptions import NotAuthenticated
 
 import django_filters
 
@@ -21,18 +23,16 @@ from django.views.generic.detail import SingleObjectMixin
 
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
+
 from repository.models import *
 from repository.serializers import *
-from controllers import *
+from repository.controllers import *
 
 # Design Note: For any detail view the PermissionRequiredMixin will
 # restrict access to users of that project
 # For any List view, the view itself will have to restrict the list
 # of objects by user
 
-
-from rest_framework.views import exception_handler
-from rest_framework.exceptions import NotAuthenticated
 
 def custom_exception_handler(exc):
     # Call REST framework's default exception handler first,
@@ -958,7 +958,7 @@ class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
 class SiteDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single site.
     """
@@ -975,6 +975,13 @@ class SiteDetail(
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        site = Site.objects.get(id=kwargs['pk'])
+        if not site.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SiteDetail, self).delete(request, *args, **kwargs)
 
 
 class SitePanelFilter(django_filters.FilterSet):
