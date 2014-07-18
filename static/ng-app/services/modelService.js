@@ -52,10 +52,9 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
                 p.update_sites();
 
             });
-            $rootScope.$broadcast('projectUpdated');
+            $rootScope.$broadcast('projectsUpdated');
         });
     }
-    refresh_projects();
 
     model.markers = Marker.query();
     model.fluorochromes = Fluorochrome.query();
