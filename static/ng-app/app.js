@@ -51,7 +51,8 @@ var MODAL_URLS = {
     'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
     'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
     'STIMULATION_DELETE': 'static/ng-app/partials/stimulation-delete.html',
-    'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html'
+    'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
+    'SITE_DELETE':        'static/ng-app/partials/site-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {

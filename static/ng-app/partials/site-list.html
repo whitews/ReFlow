@@ -15,23 +15,28 @@
         </tr>
         <tr>
           <th></th>
-        <th>Site</th>
-        <th>Cytometers</th>
-        <th>FCS Sample Count</th>
+          <th>Site</th>
+          <th>Cytometers</th>
+          <th>FCS Sample Count</th>
+          <th>Bead Count</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="site in current_project.sites">
           <td class="no-wrap" width="1%">
-              <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(site)" tooltip="Edit" tooltip-placement="bottom">
-                <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
-              </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(site)" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(site, 'SITE_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>{{ site.site_name }}</td>
           <td>
               <span ng-repeat="cytometer in site.cytometers">{{ cytometer.cytometer_name }}<br/></span>
           </td>
           <td>{{ site.sample_count }}</td>
+          <td>{{ site.bead_sample_count }}</td>
         </tr>
       </tbody>
     </table>

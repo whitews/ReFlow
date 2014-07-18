@@ -177,3 +177,33 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'SiteDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'Site',
+        function ($scope, $rootScope, $controller, Site) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = Site.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updateSites');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
