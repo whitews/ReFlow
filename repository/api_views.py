@@ -557,7 +557,7 @@ class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
 class ProjectDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single project.
     """
@@ -574,6 +574,13 @@ class ProjectDetail(
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ProjectDetail, self).delete(request, *args, **kwargs)
 
 
 class ProjectUserDetail(
