@@ -14,6 +14,7 @@
           </th>
         </tr>
         <tr>
+          <th></th>
           <th>Label</th>
           <th>Request Date</th>
           <th>Requesting User</th>
@@ -25,6 +26,11 @@
       </thead>
       <tbody>
         <tr ng-repeat="request in process_requests">
+          <td class="no-wrap" width="1%">
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(request, 'PROCESS_REQUEST_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
+          </td>
           <td>
             <a ui-sref="process-request-detail({ requestId: request.id })">
               {{ request.description }}

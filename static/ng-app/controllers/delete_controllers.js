@@ -333,3 +333,33 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'ProcessRequestDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        'ProcessRequest',
+        function ($scope, $rootScope, $controller, ProcessRequest) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = ProcessRequest.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updateProcessRequests');
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
