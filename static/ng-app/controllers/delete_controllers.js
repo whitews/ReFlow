@@ -297,3 +297,39 @@ app.controller(
         }
     ]
 );
+
+app.controller(
+    'ProjectDeleteController',
+    [
+        '$scope',
+        '$rootScope',
+        '$controller',
+        '$state',
+        'Project',
+        function ($scope, $rootScope, $controller, $state, Project) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            // refresh project so user sees the any recent changes
+            $scope.instance = Project.get({id: $scope.instance.id});
+
+            $scope.destroy = function (instance) {
+                $scope.errors = [];
+                var response;
+                response = Project.delete({id: instance.id });
+
+                response.$promise.then(function () {
+                    $rootScope.$broadcast('updateProjects');
+
+                    // close modal
+                    $scope.ok();
+
+                    $state.go('home');
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);

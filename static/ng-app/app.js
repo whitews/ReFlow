@@ -55,7 +55,8 @@ var MODAL_URLS = {
     'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
     'PANEL_DELETE':       'static/ng-app/partials/panel-template-delete.html',
     'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html',
-    'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html'
+    'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
+    'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
