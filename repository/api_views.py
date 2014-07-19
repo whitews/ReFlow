@@ -2081,13 +2081,22 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 class ProcessRequestDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveDestroyAPIView):
     """
     API endpoint representing a single process request.
     """
 
     model = ProcessRequest
     serializer_class = ProcessRequestDetailSerializer
+
+    def delete(self, request, *args, **kwargs):
+        process_request = ProcessRequest.objects.get(id=kwargs['pk'])
+        if not process_request.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ProcessRequestDetail, self).delete(
+            request, *args, **kwargs
+        )
 
 
 class ProcessRequestAssignmentUpdate(
