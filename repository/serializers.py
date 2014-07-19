@@ -30,10 +30,41 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='project-detail')
+    subject_count = serializers.IntegerField(
+        source='subject_set.count',
+        read_only=True
+    )
+    visit_type_count = serializers.IntegerField(
+        source='visittype_set.count',
+        read_only=True
+    )
+    panel_count = serializers.IntegerField(
+        source='projectpanel_set.count',
+        read_only=True
+    )
+    site_count = serializers.IntegerField(
+        source='site_set.count',
+        read_only=True
+    )
+    cytometer_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='get_bead_sample_count',
+        read_only=True
+    )
+    compensation_count = serializers.IntegerField(
+        source='get_compensation_count',
+        read_only=True
+    )
 
     class Meta:
         model = Project
-        fields = ('id', 'url', 'project_name', 'project_desc')
 
 
 class ProjectUserSerializer(serializers.ModelSerializer):

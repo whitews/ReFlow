@@ -277,20 +277,17 @@ class Project(ProtectedModel):
             content_type=ContentType.objects.get_for_model(Project),
             object_pk=self.id)
 
-    def get_visit_type_count(self):
-        return VisitType.objects.filter(project=self).count()
-
-    def get_panel_count(self):
-        return SitePanel.objects.filter(site__project=self).count()
-
-    def get_subject_count(self):
-        return Subject.objects.filter(project=self).count()
+    def get_cytometer_count(self):
+        return Cytometer.objects.filter(site__project=self).count()
 
     def get_sample_count(self):
         return Sample.objects.filter(subject__project=self).count()
 
     def get_compensation_count(self):
-        return Compensation.objects.filter(site__project=self).count()
+        return Compensation.objects.filter(site_panel__site__project=self).count()
+
+    def get_bead_sample_count(self):
+        return BeadSample.objects.filter(cytometer__site__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
