@@ -16,6 +16,7 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
         model.projects = Project.query();
 
         model.projects.$promise.then(function (projects) {
+            $rootScope.projects = projects;
             projects.forEach(function (p) {
                 p.getUserPermissions().$promise.then(function (value) {
                     p.permissions = value.permissions;
@@ -68,14 +69,14 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
     };
 
     model.getProjects = function () {
-        return this.projects;
+        return $rootScope.projects;
     };
     model.reloadProjects = function () {
         refresh_projects();
     };
 
     model.getProjectById = function(id) {
-        var project = $.grep(this.projects, function(e){ return e.id == id; });
+        var project = $.grep($rootScope.projects, function(e){ return e.id == id; });
         if (project.length > 0) {
             return project[0];
         }

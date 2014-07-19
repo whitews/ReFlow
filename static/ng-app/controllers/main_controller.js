@@ -65,9 +65,7 @@ app.controller(
                 );
             }
 
-            if ($scope.projects === undefined) {
-                ModelService.reloadProjects();
-            } else {
+            if ($scope.projects != undefined) {
                 $scope.current_project = get_project();
             }
 
@@ -153,10 +151,11 @@ app.controller(
 
         if ($scope.current_project != undefined) {
             $scope.subject_groups = get_list();
+        } else {
+            $scope.$on('currentProjectSet', function () {
+                $scope.subject_groups = get_list();
+            });
         }
-        $scope.$on('currentProjectSet', function () {
-            $scope.subject_groups = get_list();
-        });
 
         $scope.$on('updateSubjectGroups', function () {
             $scope.subject_groups = get_list();
@@ -198,11 +197,14 @@ app.controller(
                     }
                 );
             }
-            $scope.subjects = get_list();
 
-            $scope.$on('updateSubjects', function () {
+            if ($scope.current_project != undefined) {
                 $scope.subjects = get_list();
-            });
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    $scope.subjects = get_list();
+                });
+            }
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
@@ -293,11 +295,14 @@ app.controller(
 
                 return response;
             }
-            $scope.cytometers = get_list();
 
-            $scope.$on('updateCytometers', function () {
+            if ($scope.current_project != undefined) {
                 $scope.cytometers = get_list();
-            });
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    $scope.cytometers = get_list();
+                });
+            }
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
@@ -336,11 +341,14 @@ app.controller(
                     }
                 );
             }
-            $scope.visit_types = get_list();
 
-            $scope.$on('updateVisitTypes', function () {
+            if ($scope.current_project != undefined) {
                 $scope.visit_types = get_list();
-            });
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    $scope.visit_types = get_list();
+                });
+            }
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
@@ -379,11 +387,14 @@ app.controller(
                     }
                 );
             }
-            $scope.stimulations = get_list();
 
-            $scope.$on('updateStimulations', function () {
+            if ($scope.current_project != undefined) {
                 $scope.stimulations = get_list();
-            });
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    $scope.stimulations = get_list();
+                });
+            }
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
@@ -434,36 +445,46 @@ app.controller(
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            $scope.panels = PanelTemplate.query(
-                {
-                    'project': $scope.current_project.id,
-                    'staining': ['FS', 'US', 'FM', 'IS']
-                }
-            );
+            if ($scope.current_project != undefined) {
+                init_filter();
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    init_filter();
+                });
+            }
 
-            $scope.subjects = Subject.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+            function init_filter () {
+                $scope.panels = PanelTemplate.query(
+                    {
+                        'project': $scope.current_project.id,
+                        'staining': ['FS', 'US', 'FM', 'IS']
+                    }
+                );
 
-            $scope.subject_groups = SubjectGroup.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+                $scope.subjects = Subject.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
 
-            $scope.visit_types = VisitType.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+                $scope.subject_groups = SubjectGroup.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
 
-            $scope.stimulations = Stimulation.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+                $scope.visit_types = VisitType.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
+
+                $scope.stimulations = Stimulation.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
+            }
 
             $scope.apply_filter = function () {
                 $scope.errors = [];
@@ -614,12 +635,22 @@ app.controller(
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            $scope.panels = PanelTemplate.query(
-                {
-                    'project': $scope.current_project.id,
-                    'staining': ['CB']
-                }
-            );
+            if ($scope.current_project != undefined) {
+                init_filter();
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    init_filter();
+                });
+            }
+
+            function init_filter () {
+                $scope.panels = PanelTemplate.query(
+                    {
+                        'project': $scope.current_project.id,
+                        'staining': ['CB']
+                    }
+                );
+            }
 
             $scope.apply_filter = function () {
                 $scope.errors = [];
@@ -734,11 +765,14 @@ app.controller(
 
                 return response;
             }
-            $scope.compensations = get_list();
 
-            $scope.$on('updateCompensations', function () {
+            if ($scope.current_project != undefined) {
                 $scope.compensations = get_list();
-            });
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    $scope.compensations = get_list();
+                });
+            }
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);

@@ -5,24 +5,31 @@ app.controller(
         $controller('ProjectDetailController', {$scope: $scope});
 
         function get_list() {
-            return PanelTemplate.query(
+            var response = PanelTemplate.query(
                 {
                     'project': $scope.current_project.id
                 }
             );
+
+            $scope.expand_params = [];
+            response.$promise.then(function (panel_templates) {
+                panel_templates.forEach(function () {
+                    $scope.expand_params.push(false);
+                })
+            });
+            return response;
         }
 
-        $scope.panel_templates = get_list();
+        if ($scope.current_project != undefined) {
+            $scope.panel_templates = get_list();
+        } else {
+            $scope.$on('currentProjectSet', function () {
+                $scope.panel_templates = get_list();
+            });
+        }
 
         $scope.$on('updatePanelTemplates', function () {
             $scope.panel_templates = get_list();
-        });
-
-        $scope.expand_params = [];
-        $scope.panel_templates.$promise.then(function () {
-            $scope.panel_templates.forEach(function () {
-                $scope.expand_params.push(false);
-            })
         });
 
         $scope.toggle_params = function (i) {
