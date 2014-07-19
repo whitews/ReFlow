@@ -18,8 +18,6 @@ app.controller(
         if ($scope.projects === undefined) {
             ModelService.reloadProjects();
         }
-
-        $scope.user = ModelService.user;
     }
 ]);
 
@@ -86,19 +84,19 @@ app.controller(
 
             function update_permissions() {
                 if ($scope.current_project != null) {
-                    if ($scope.current_project.permissions.indexOf('view_project_data') != -1 || $scope.user.superuser) {
+                    if ($scope.current_project.permissions.indexOf('view_project_data') != -1 || ModelService.user.superuser) {
                         $scope.can_view_project = true;
                     }
-                    if ($scope.current_project.permissions.indexOf('add_project_data') != -1 || $scope.user.superuser) {
+                    if ($scope.current_project.permissions.indexOf('add_project_data') != -1 || ModelService.user.superuser) {
                         $scope.can_add_data = true;
                     }
-                    if ($scope.current_project.permissions.indexOf('modify_project_data') != -1 || $scope.user.superuser) {
+                    if ($scope.current_project.permissions.indexOf('modify_project_data') != -1 || ModelService.user.superuser) {
                         $scope.can_modify_project = true;
                     }
-                    if ($scope.current_project.permissions.indexOf('submit_process_requests') != -1 || $scope.user.superuser) {
+                    if ($scope.current_project.permissions.indexOf('submit_process_requests') != -1 || ModelService.user.superuser) {
                         $scope.can_process_data = true;
                     }
-                    if ($scope.current_project.permissions.indexOf('manage_project_users') != -1 || $scope.user.superuser) {
+                    if ($scope.current_project.permissions.indexOf('manage_project_users') != -1 || ModelService.user.superuser) {
                         $scope.can_manage_users = true;
                     }
                 }
