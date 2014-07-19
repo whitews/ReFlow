@@ -28,12 +28,15 @@
       </thead>
       <tbody>
         <tr ng-repeat="panel in panel_templates">
-          <td class="no-wrap">
+          <td class="no-wrap" width="1%">
             <a class="btn btn-default btn-xs" ng-show="can_modify_project" ui-sref="panel-template-edit({templateID: panel.id})" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
             </a>
             <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="copy_panel(panel)" tooltip="Copy" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-copy align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(panel, 'PANEL_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
             </a>
           </td>
           <td>{{ panel.panel_name }}</td>

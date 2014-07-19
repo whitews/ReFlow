@@ -25,6 +25,11 @@ button > i {
     opacity: 0.8;
 }
 
+i.fa {
+  min-width: 12px;
+  min-height: 12px;
+}
+
 select,
 textarea,
 input[type="text"],
@@ -70,8 +75,7 @@ input[type="color"],
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
-        line-height: 1.1 !important;
-
+    line-height: 1.1 !important;
 }
 
 select,
@@ -245,8 +249,8 @@ table.key-value, td {
   text-align: left;
 }
 
-td.middle {
-  vertical-align: middle;
+td {
+  vertical-align: middle !important;
 }
 td.center {
   text-align: center;

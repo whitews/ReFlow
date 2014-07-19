@@ -12,11 +12,25 @@ app.controller(
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            $scope.process_requests = ProcessRequest.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+            function get_list() {
+                return ProcessRequest.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
+            }
+
+            if ($scope.current_project != undefined) {
+                $scope.process_requests = get_list();
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    $scope.process_requests = get_list();
+                });
+            }
+
+            $scope.$on('updateProcessRequests', function () {
+                $scope.process_requests = get_list();
+            });
         }
     ]
 );

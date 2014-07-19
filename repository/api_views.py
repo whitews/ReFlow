@@ -8,6 +8,8 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
+from rest_framework.views import exception_handler
+from rest_framework.exceptions import NotAuthenticated
 
 import django_filters
 
@@ -19,19 +21,30 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.views.generic.detail import SingleObjectMixin
 
-import json
-
-from repository.models import *
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
+
+from repository.models import *
 from repository.serializers import *
-from controllers import *
+from repository.controllers import *
 
 # Design Note: For any detail view the PermissionRequiredMixin will
 # restrict access to users of that project
 # For any List view, the view itself will have to restrict the list
 # of objects by user
 
+
+def custom_exception_handler(exc):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    if isinstance(exc, NotAuthenticated):
+        response = Response({'detail': 'Not authenticated'},
+                        status=status.HTTP_401_UNAUTHORIZED,
+                        exception=True)
+    else:
+        response = exception_handler(exc)
+
+    return response
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
@@ -111,7 +124,7 @@ def is_user(request, username):
 def get_project_permissions(request, project):
     project = get_object_or_404(Project, pk=project)
 
-    if not project.has_view_permission(request.user):
+    if not (request.user in project.get_project_users() or request.user.is_superuser):
         raise PermissionDenied
 
     perms = project.get_user_permissions(request.user).values_list(
@@ -407,7 +420,7 @@ class PermissionDetail(LoginRequiredMixin, generics.DestroyAPIView):
 
         # ensure requesting user has user management permission for this project
         if not project.has_user_management_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         remove_perm(perm.permission.codename, perm.user, perm.content_object)
 
@@ -495,7 +508,7 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         # ensure requesting user has user management permission for this project
         if not project.has_user_management_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         # save the permission
         assign_perm(
@@ -535,7 +548,7 @@ class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(ProjectList, self).post(request, *args, **kwargs)
         return response
@@ -544,7 +557,7 @@ class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
 class ProjectDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single project.
     """
@@ -555,12 +568,19 @@ class ProjectDetail(
     def put(self, request, *args, **kwargs):
         project = Project.objects.get(id=kwargs['pk'])
         if not project.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(ProjectDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        project = Project.objects.get(id=kwargs['pk'])
+        if not project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ProjectDetail, self).delete(request, *args, **kwargs)
 
 
 class ProjectUserDetail(
@@ -578,7 +598,7 @@ class ProjectUserDetail(
         project = Project.objects.get(id=kwargs['pk'])
 
         if not project.has_user_management_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(ProjectUserDetail, self).get(request, *args, **kwargs)
         return response
@@ -610,7 +630,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(VisitTypeList, self).post(request, *args, **kwargs)
         return response
@@ -619,7 +639,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
 class VisitTypeDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single visit type.
     """
@@ -630,12 +650,19 @@ class VisitTypeDetail(
     def put(self, request, *args, **kwargs):
         project = Project.objects.get(id=kwargs['pk'])
         if not project.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(VisitTypeDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        visit_type = VisitType.objects.get(id=kwargs['pk'])
+        if not visit_type.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(VisitTypeDetail, self).delete(request, *args, **kwargs)
 
 
 class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -664,7 +691,7 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SubjectGroupList, self).post(request, *args, **kwargs)
         return response
@@ -673,7 +700,7 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
 class SubjectGroupDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single subject group.
     """
@@ -684,12 +711,19 @@ class SubjectGroupDetail(
     def put(self, request, *args, **kwargs):
         subject_group = SubjectGroup.objects.get(id=kwargs['pk'])
         if not subject_group.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SubjectGroupDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        subject_group = SubjectGroup.objects.get(id=kwargs['pk'])
+        if not subject_group.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SubjectGroupDetail, self).delete(request, *args, **kwargs)
 
 
 class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -718,7 +752,7 @@ class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SubjectList, self).post(request, *args, **kwargs)
         return response
@@ -727,7 +761,7 @@ class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
 class SubjectDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single subject.
     """
@@ -738,12 +772,19 @@ class SubjectDetail(
     def put(self, request, *args, **kwargs):
         subject = Subject.objects.get(id=kwargs['pk'])
         if not subject.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SubjectDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        subject = Subject.objects.get(id=kwargs['pk'])
+        if not subject.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SubjectDetail, self).delete(request, *args, **kwargs)
 
 
 class ProjectPanelFilter(django_filters.FilterSet):
@@ -844,7 +885,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
 class ProjectPanelDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint for retrieving or updating a single panel template.
     """
@@ -907,6 +948,16 @@ class ProjectPanelDetail(
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        panel_template = ProjectPanel.objects.get(id=kwargs['pk'])
+        if not panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ProjectPanelDetail, self).delete(request, *args, **kwargs)
+
 
 class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
@@ -929,7 +980,7 @@ class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SiteList, self).post(request, *args, **kwargs)
         return response
@@ -938,7 +989,7 @@ class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
 class SiteDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single site.
     """
@@ -949,12 +1000,19 @@ class SiteDetail(
     def put(self, request, *args, **kwargs):
         site = Site.objects.get(id=kwargs['pk'])
         if not site.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SiteDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        site = Site.objects.get(id=kwargs['pk'])
+        if not site.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SiteDetail, self).delete(request, *args, **kwargs)
 
 
 class SitePanelFilter(django_filters.FilterSet):
@@ -1136,7 +1194,7 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         site = Project.objects.get(id=request.DATA['site'])
         if not site.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(CytometerList, self).post(request, *args, **kwargs)
         return response
@@ -1145,7 +1203,7 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
 class CytometerDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single cytometer.
     """
@@ -1156,7 +1214,7 @@ class CytometerDetail(
     def put(self, request, *args, **kwargs):
         cytometer = Cytometer.objects.get(id=kwargs['pk'])
         if not cytometer.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(CytometerDetail, self).put(request, *args, **kwargs)
         return response
@@ -1164,6 +1222,12 @@ class CytometerDetail(
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
+    def delete(self, request, *args, **kwargs):
+        cytometer = Cytometer.objects.get(id=kwargs['pk'])
+        if not cytometer.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CytometerDetail, self).delete(request, *args, **kwargs)
 
 class MarkerList(generics.ListCreateAPIView):
     """
@@ -1176,7 +1240,7 @@ class MarkerList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerList, self).post(request, *args, **kwargs)
         return response
@@ -1192,7 +1256,7 @@ class MarkerDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Marker.objects.get(id=kwargs['pk'])
@@ -1217,7 +1281,7 @@ class FluorochromeList(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeList, self).post(request, *args, **kwargs)
         return response
@@ -1233,7 +1297,7 @@ class FluorochromeDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Fluorochrome.objects.get(id=kwargs['pk'])
@@ -1258,7 +1322,7 @@ class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SpecimenList, self).post(request, *args, **kwargs)
         return response
@@ -1274,7 +1338,7 @@ class SpecimenDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Specimen.objects.get(id=kwargs['pk'])
@@ -1311,7 +1375,7 @@ class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         project = Project.objects.get(id=request.DATA['project'])
         if not project.has_add_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(StimulationList, self).post(request, *args, **kwargs)
         return response
@@ -1320,7 +1384,7 @@ class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
 class StimulationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single stimulation.
     """
@@ -1331,12 +1395,19 @@ class StimulationDetail(
     def put(self, request, *args, **kwargs):
         project = Project.objects.get(id=kwargs['pk'])
         if not project.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(StimulationDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        stimulation = Stimulation.objects.get(id=kwargs['pk'])
+        if not stimulation.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(StimulationDetail, self).delete(request, *args, **kwargs)
 
 
 class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
@@ -1429,7 +1500,7 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
 class SampleDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -1440,12 +1511,19 @@ class SampleDetail(
     def put(self, request, *args, **kwargs):
         sample = Sample.objects.get(id=request.DATA['id'])
         if not sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(SampleDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        sample = Sample.objects.get(id=kwargs['pk'])
+        if not sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SampleDetail, self).delete(request, *args, **kwargs)
 
 
 class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
@@ -1584,9 +1662,9 @@ class BeadList(LoginRequiredMixin, generics.ListAPIView):
 
 
 class BeadDetail(
-    LoginRequiredMixin,
-    PermissionRequiredMixin,
-    generics.RetrieveAPIView):
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -1597,12 +1675,19 @@ class BeadDetail(
     def put(self, request, *args, **kwargs):
         bead_sample = BeadSample.objects.get(id=request.DATA['id'])
         if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(BeadDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        bead_sample = BeadSample.objects.get(id=kwargs['pk'])
+        if not bead_sample.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(BeadDetail, self).delete(request, *args, **kwargs)
 
 
 class CompensationFilter(django_filters.FilterSet):
@@ -1684,7 +1769,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
 class CompensationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single FCS sample.
     """
@@ -1695,12 +1780,19 @@ class CompensationDetail(
     def put(self, request, *args, **kwargs):
         bead_sample = BeadSample.objects.get(id=request.DATA['id'])
         if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(CompensationDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        compensation = Compensation.objects.get(id=kwargs['pk'])
+        if not compensation.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CompensationDetail, self).delete(request, *args, **kwargs)
 
 
 class SubprocessCategoryFilter(django_filters.FilterSet):
@@ -1860,7 +1952,7 @@ class WorkerDetail(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             Worker.objects.get(id=kwargs['pk'])
@@ -1885,7 +1977,7 @@ class WorkerList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(WorkerList, self).post(request, *args, **kwargs)
         return response
@@ -1904,7 +1996,7 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
         # check permission for submitting process requests for this project
         project = get_object_or_404(Project, pk=request.DATA['project'])
         if not project.has_process_permission(request.user):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         # add required fields for the user and status
         request.DATA['request_user'] = request.user.id
@@ -1989,13 +2081,22 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 class ProcessRequestDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveDestroyAPIView):
     """
     API endpoint representing a single process request.
     """
 
     model = ProcessRequest
     serializer_class = ProcessRequestDetailSerializer
+
+    def delete(self, request, *args, **kwargs):
+        process_request = ProcessRequest.objects.get(id=kwargs['pk'])
+        if not process_request.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ProcessRequestDetail, self).delete(
+            request, *args, **kwargs
+        )
 
 
 class ProcessRequestAssignmentUpdate(

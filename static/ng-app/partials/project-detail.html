@@ -4,10 +4,15 @@
           <th class="center" colspan="50">
             <div style="position:relative">
               <h4>{{ current_project.project_name }}</h4>
+              <div style="position:absolute; right:0;top:0;">
+                <div class="btn-group">
+                    <a class="btn btn-danger btn-sm" ng-click="init_delete(current_project, 'PROJECT_DELETE')" ng-show="can_modify_project">Delete Project</a>
+                </div>
 
-              <div class="btn-group" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(current_project, 'PROJECT')" ng-show="can_modify_project">Edit Project</a>
-                  <a class="btn btn-default btn-sm"  ui-sref="user-list" ng-show="can_manage_users">Manage Users</a>
+                <div class="btn-group">
+                    <a class="btn btn-default btn-sm" ng-click="init_form(current_project, 'PROJECT')" ng-show="can_modify_project">Edit Project</a>
+                    <a class="btn btn-default btn-sm"  ui-sref="user-list" ng-show="can_manage_users">Manage Users</a>
+                </div>
               </div>
             </div>
           </th>

@@ -1,0 +1,55 @@
+<div ng-controller="SiteDeleteController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Delete Site: {{ instance.site_name }}
+  </div>
+  <div class="modal-body">
+
+    <h4>Are you sure you want to delete this site?</h4>
+
+    <div class="well well-info">
+      <ul>
+        <li ng-show="instance.cytometer_count > 0">
+          {{ instance.cytometer_count }} cytometer(s) belong to this site. These
+          <strong>WILL</strong> be deleted if you remove this site.
+        </li>
+        <li ng-show="instance.cytometer_count == 0">
+          There are no cytometers that belong to this site.
+        </li>
+        <li ng-show="instance.sample_count > 0">
+          {{ instance.sample_count }} sample(s) belong to this site. These
+          <strong>WILL</strong> be deleted if you remove this site.
+        </li>
+        <li ng-show="instance.sample_count == 0">
+          There are no regular FCS samples that belong to this site.
+        </li>
+        <li ng-show="instance.bead_sample_count > 0">
+          {{ instance.bead_sample_count }} bead sample(s) belong to this site. These
+          <strong>WILL</strong> be deleted if you remove this site.
+        </li>
+        <li ng-show="instance.bead_sample_count == 0">
+          There are no bead samples that belong to this site.
+        </li>
+        <li ng-show="instance.compensation_count > 0">
+          {{ instance.compensation_count }} compensation(s) belong to this site. These
+          <strong>WILL</strong> be deleted if you remove this site.
+        </li>
+        <li ng-show="instance.compensation_count == 0">
+          There are no compensation matrices that belong to this site.
+        </li>
+      </ul>
+    </div>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Cancel</button>
+    <button type="button" class="btn btn-danger" ng-click="destroy(instance)">Delete</button>
+  </div>
+</div>

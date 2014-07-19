@@ -9,7 +9,10 @@ class PermissionSerializer(serializers.ModelSerializer):
     model = serializers.CharField(source='content_type.model')
     username = serializers.CharField(source='user.username')
     permission_codename = serializers.CharField(source='permission.codename')
-    permission_name = serializers.CharField(source='permission.name', read_only=True)
+    permission_name = serializers.CharField(
+        source='permission.name',
+        read_only=True
+    )
 
     class Meta:
         model = UserObjectPermission
@@ -27,10 +30,41 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='project-detail')
+    subject_count = serializers.IntegerField(
+        source='subject_set.count',
+        read_only=True
+    )
+    visit_type_count = serializers.IntegerField(
+        source='visittype_set.count',
+        read_only=True
+    )
+    panel_count = serializers.IntegerField(
+        source='projectpanel_set.count',
+        read_only=True
+    )
+    site_count = serializers.IntegerField(
+        source='site_set.count',
+        read_only=True
+    )
+    cytometer_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='get_bead_sample_count',
+        read_only=True
+    )
+    compensation_count = serializers.IntegerField(
+        source='get_compensation_count',
+        read_only=True
+    )
 
     class Meta:
         model = Project
-        fields = ('id', 'url', 'project_name', 'project_desc')
 
 
 class ProjectUserSerializer(serializers.ModelSerializer):
@@ -43,6 +77,10 @@ class ProjectUserSerializer(serializers.ModelSerializer):
 
 class VisitTypeSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='visittype-detail')
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = VisitType
@@ -51,10 +89,22 @@ class VisitTypeSerializer(serializers.ModelSerializer):
             'url',
             'visit_type_name',
             'visit_type_description',
-            'project')
+            'project',
+            'sample_count'
+        )
 
 
 class SubjectGroupSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='subject-group-detail')
+    subject_count = serializers.IntegerField(
+        source='subject_set.count',
+        read_only=True
+    )
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+
     class Meta:
         model = SubjectGroup
 
@@ -75,8 +125,20 @@ class CytometerFlatSerializer(serializers.ModelSerializer):
 class SiteSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='site-detail')
     cytometers = CytometerFlatSerializer(source='cytometer_set', read_only=True)
+    cytometer_count = serializers.IntegerField(
+        source='cytometer_set.count',
+        read_only=True
+    )
     sample_count = serializers.IntegerField(
         source='get_sample_count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='get_bead_sample_count',
+        read_only=True
+    )
+    compensation_count = serializers.IntegerField(
+        source='get_compensation_count',
         read_only=True
     )
 
@@ -88,7 +150,10 @@ class SiteSerializer(serializers.ModelSerializer):
             'site_name',
             'cytometers',
             'project',
-            'sample_count'
+            'cytometer_count',
+            'sample_count',
+            'bead_sample_count',
+            'compensation_count'
         )
 
 
@@ -180,6 +245,18 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
     staining_name = serializers.CharField(
         source='get_staining_display',
         read_only=True)
+    sample_count = serializers.IntegerField(
+        source='get_sample_count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='get_bead_sample_count',
+        read_only=True
+    )
+    compensation_count = serializers.IntegerField(
+        source='get_compensation_count',
+        read_only=True
+    )
 
     class Meta:
         model = ProjectPanel
@@ -192,7 +269,10 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
             'staining',
             'staining_name',
             'parent_panel',
-            'parameters'
+            'parameters',
+            'sample_count',
+            'bead_sample_count',
+            'compensation_count'
         )
 
 
@@ -264,7 +344,14 @@ class SitePanelSerializer(serializers.ModelSerializer):
 
 class CytometerSerializer(serializers.ModelSerializer):
     site_name = serializers.CharField(source='site.site_name', read_only=True)
-    sample_count = serializers.IntegerField(source='sample_set.count', read_only=True)
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='beadsample_set.count',
+        read_only=True
+    )
     url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
 
     class Meta:
@@ -276,12 +363,17 @@ class CytometerSerializer(serializers.ModelSerializer):
             'site_name',
             'cytometer_name',
             'serial_number',
-            'sample_count'
+            'sample_count',
+            'bead_sample_count'
         )
 
 
 class StimulationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='stimulation-detail')
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Stimulation

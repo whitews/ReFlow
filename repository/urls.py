@@ -103,10 +103,5 @@ urlpatterns = patterns('repository.api_views',
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
-
     url(r'^$', 'reflow_app', name='home'),
-
-    url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
-    url(r'^project/(?P<project_id>\d+)/compensations/(?P<compensation_id>\d+)/edit/$', 'add_compensation', name='edit_compensation'),
-    url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation')
 )

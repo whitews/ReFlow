@@ -156,10 +156,7 @@ app.controller(
                 }
             }
 
-            if (mismatches.length > 0) {
-                return false;
-            }
-            return true;
+            return mismatches.length <= 0;
         }
 
         $scope.initSitePanel = function(f) {

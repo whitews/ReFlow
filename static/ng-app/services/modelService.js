@@ -16,27 +16,46 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
         model.projects = Project.query();
 
         model.projects.$promise.then(function (projects) {
+            $rootScope.projects = projects;
             projects.forEach(function (p) {
                 p.getUserPermissions().$promise.then(function (value) {
                     p.permissions = value.permissions;
                 });
 
-                // Add user's sites
-                p.sites = [];
-                var sites = Site.query({project: p.id});
-                sites.$promise.then(function (sites) {
-                    sites.forEach(function (s) {
-                        p.sites.push(s);
-                        s.getUserPermissions().$promise.then(function (value) {
-                            s.permissions = value.permissions;
+                p.update_sites = function() {
+                    // Add user's sites
+                    p.sites = [];
+                    var sites = Site.query({project: p.id});
+                    sites.$promise.then(function (sites) {
+                        sites.forEach(function (s) {
+                            s.can_modify = false;
+                            p.sites.push(s);
+                            s.getUserPermissions().$promise.then(function (value) {
+                                s.permissions = value.permissions;
+                                if (value.hasOwnProperty('permissions')) {
+                                    value.permissions.forEach(function (p) {
+                                        if (p === 'modify_site_data') {
+                                            s.can_modify = true;
+                                        }
+                                    });
+                                }
+                            });
                         });
+
+                        // create site lookup by primary key
+                        p.site_lookup = {};
+                        for (var i = 0, len = p.sites.length; i < len; i++) {
+                            p.site_lookup[p.sites[i].id] = p.sites[i];
+                        }
                     });
-                });
+                };
+
+                p.update_sites();
+
             });
-            $rootScope.$broadcast('projectUpdated');
+            $rootScope.$broadcast('projectsUpdated');
         });
     }
-    refresh_projects();
 
     model.markers = Marker.query();
     model.fluorochromes = Fluorochrome.query();
@@ -50,14 +69,14 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
     };
 
     model.getProjects = function () {
-        return this.projects;
+        return $rootScope.projects;
     };
     model.reloadProjects = function () {
         refresh_projects();
     };
 
     model.getProjectById = function(id) {
-        var project = $.grep(this.projects, function(e){ return e.id == id; });
+        var project = $.grep($rootScope.projects, function(e){ return e.id == id; });
         if (project.length > 0) {
             return project[0];
         }

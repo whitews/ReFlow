@@ -277,20 +277,17 @@ class Project(ProtectedModel):
             content_type=ContentType.objects.get_for_model(Project),
             object_pk=self.id)
 
-    def get_visit_type_count(self):
-        return VisitType.objects.filter(project=self).count()
-
-    def get_panel_count(self):
-        return SitePanel.objects.filter(site__project=self).count()
-
-    def get_subject_count(self):
-        return Subject.objects.filter(project=self).count()
+    def get_cytometer_count(self):
+        return Cytometer.objects.filter(site__project=self).count()
 
     def get_sample_count(self):
         return Sample.objects.filter(subject__project=self).count()
 
     def get_compensation_count(self):
-        return Compensation.objects.filter(site__project=self).count()
+        return Compensation.objects.filter(site_panel__site__project=self).count()
+
+    def get_bead_sample_count(self):
+        return BeadSample.objects.filter(cytometer__site__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
@@ -366,6 +363,23 @@ class ProjectPanel(ProtectedModel):
             return True
 
         return False
+
+    def get_sample_count(self):
+        site_panels = SitePanel.objects.filter(project_panel=self)
+        sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_bead_sample_count(self):
+        site_panels = SitePanel.objects.filter(project_panel=self)
+        sample_count = BeadSample.objects.filter(
+            site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_compensation_count(self):
+        site_panels = SitePanel.objects.filter(project_panel=self)
+        compensations = Compensation.objects.filter(
+            site_panel__in=site_panels).count()
+        return compensations
 
     def clean(self):
         """
@@ -595,6 +609,18 @@ class Site(ProtectedModel):
         sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
         return sample_count
 
+    def get_bead_sample_count(self):
+        site_panels = SitePanel.objects.filter(site=self)
+        sample_count = BeadSample.objects.filter(
+            site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_compensation_count(self):
+        site_panels = SitePanel.objects.filter(site=self)
+        compensations = Compensation.objects.filter(
+            site_panel__in=site_panels).count()
+        return compensations
+
     def get_user_permissions(self, user):
         return UserObjectPermission.objects.filter(
             user=user,
@@ -663,16 +689,12 @@ class Cytometer(ProtectedModel):
         return False
 
     def has_add_permission(self, user):
-        if user.has_perm('add_project_data', self.site.project):
-            return True
-        elif user.has_perm('add_site_data', self.site):
+        if self.site.has_add_permission(user):
             return True
         return False
 
     def has_modify_permission(self, user):
-        if user.has_perm('modify_project_data', self.site.project):
-            return True
-        elif user.has_perm('modify_site_data', self.site):
+        if self.site.has_modify_permission(user):
             return True
         return False
 
@@ -922,6 +944,10 @@ class SubjectGroup(ProtectedModel):
             return True
         return False
 
+    def get_sample_count(self):
+        sample_count = Sample.objects.filter(subject__in=self.subject_set.all()).count()
+        return sample_count
+
     class Meta:
         unique_together = (('project', 'group_name'),)
 
@@ -1062,12 +1088,14 @@ class Compensation(ProtectedModel):
     )
 
     def has_view_permission(self, user):
-        site = self.site_panel.site
-        if site.project.has_view_permission(user):
+        if self.site_panel.site.has_view_permission(user):
             return True
-        elif site is not None:
-            if user.has_perm('view_site_data', site):
-                return True
+        return False
+
+    def has_modify_permission(self, user):
+        if self.site_panel.site.has_modify_permission(user):
+            return True
+        return False
 
     def get_sample_count(self):
         return Sample.objects.filter(compensation=self).count()

@@ -243,7 +243,7 @@ service
         return SitePanel;
     }])
     .factory('Compensation', ['$resource', function ($resource) {
-        return $resource(URLS.COMPENSATIONS);
+        return $resource(URLS.COMPENSATIONS + ':id');
     }])
     .factory('Sample', ['$resource', function ($resource) {
         var Sample = $resource(

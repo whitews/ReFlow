@@ -16,6 +16,18 @@ var app = angular.module(
     ]
 );
 
+app.factory('LoginRedirectInterceptor', function($q, $window) {
+    return {
+        responseError: function(rejection) {
+            if (rejection.status == 401) {
+                $window.location.assign('/login');
+            } else {
+                return $q.reject(rejection);
+            }
+        }
+    };
+});
+
 var MODAL_URLS = {
     'SUBJECT_GROUP':      'static/ng-app/partials/subject-group-form.html',
     'SUBJECT':            'static/ng-app/partials/subject-form.html',
@@ -26,15 +38,31 @@ var MODAL_URLS = {
     'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
-    'COMPENSATIONS':      'static/ng-app/partials/compensation-form.html',
+    'COMPENSATION':       'static/ng-app/partials/compensation-form.html',
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
     'MARKER':             'static/ng-app/partials/marker-form.html',
     'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
-    'WORKER':             'static/ng-app/partials/worker-form.html'
+    'WORKER':             'static/ng-app/partials/worker-form.html',
+
+    // delete modals
+    'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
+    'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html',
+    'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
+    'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
+    'STIMULATION_DELETE': 'static/ng-app/partials/stimulation-delete.html',
+    'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
+    'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
+    'PANEL_DELETE':       'static/ng-app/partials/panel-template-delete.html',
+    'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html',
+    'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
+    'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html',
+    'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html'
 };
 
-app.config(function ($stateProvider, $urlRouterProvider) {
+app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
+    $httpProvider.interceptors.push('LoginRedirectInterceptor');
+
     $urlRouterProvider.otherwise("/");
 
     $stateProvider.state({
