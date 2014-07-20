@@ -455,13 +455,13 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
         # get project related permissions
         project_perms = UserObjectPermission.objects.filter(
             content_type__model='project',
-            object_pk__in=projects
+            object_pk__in=[str(p_id) for p_id in projects]
         )
 
         # get site related permissions
         site_perms = UserObjectPermission.objects.filter(
             content_type__model='site',
-            object_pk__in=sites
+            object_pk__in=[str(s_id) for s_id in sites]
         )
 
         return project_perms | site_perms
