@@ -5,7 +5,7 @@
 app.controller(
     'BeadPanelTemplateQueryController',
     ['$scope', 'PanelTemplate', 'SitePanel', function ($scope, PanelTemplate, SitePanel) {
-        // everything but bead panels
+        // only bead panels
         var PANEL_TYPES = ['CB'];
 
         // get panel templates
