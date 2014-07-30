@@ -18,6 +18,8 @@ app.controller(
         if ($scope.projects === undefined) {
             ModelService.reloadProjects();
         }
+
+        $scope.user = ModelService.user;
     }
 ]);
 
