@@ -78,7 +78,7 @@ app.controller(
                 });
             };
 
-            $scope.user_test == null;
+            $scope.user_test = null;
 
             $scope.query_user = function(username) {
                 var user_test = User.is_user(
