@@ -716,10 +716,14 @@ class BeadSamplePOSTSerializer(serializers.ModelSerializer):
 
 
 class WorkerSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(
+        source='user.auth_token.key',
+        read_only=True
+    )
 
     class Meta:
         model = Worker
-        fields = ('id', 'worker_name', 'worker_hostname')
+        fields = ('id', 'worker_name', 'worker_hostname', 'token')
 
 
 class SubprocessCategorySerializer(serializers.ModelSerializer):

@@ -354,6 +354,15 @@ class LoginRequiredMixin(object):
     permission_classes = (IsAuthenticated,)
 
 
+class AdminRequiredMixin(object):
+    """
+    View mixin to verify a user is an administrator.
+    """
+
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+
 class PermissionRequiredMixin(SingleObjectMixin):
     """
     View mixin to verify a user has permission to a resource.
@@ -1942,7 +1951,7 @@ def verify_process_request_assignment(request, pk):
     return Response(status=status.HTTP_200_OK, data=data)
 
 
-class WorkerDetail(generics.RetrieveUpdateAPIView):
+class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateAPIView):
     """
     API endpoint representing a single worker.
     """
@@ -1966,7 +1975,7 @@ class WorkerDetail(generics.RetrieveUpdateAPIView):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-class WorkerList(LoginRequiredMixin, generics.ListCreateAPIView):
+class WorkerList(AdminRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of workers.
     """
