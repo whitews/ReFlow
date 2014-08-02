@@ -259,7 +259,7 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = ProjectPanel
+        model = PanelTemplate
         fields = (
             'id',
             'url',

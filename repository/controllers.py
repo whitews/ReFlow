@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from models import Project, ProjectPanel, SitePanel, Site, Marker
+from models import Project, PanelTemplate, SitePanel, Site, Marker
 from collections import Counter
 
 
@@ -41,7 +41,7 @@ def validate_panel_template_request(data, user):
     if 'parent_panel' in data:
         if data['parent_panel']:  # may be None
             try:
-                parent_template = ProjectPanel.objects.get(id=data['parent_panel'])
+                parent_template = PanelTemplate.objects.get(id=data['parent_panel'])
             except ObjectDoesNotExist:
                 errors['parent_panel'] = ["Parent template does not exist"]
 
@@ -266,7 +266,7 @@ def validate_site_panel_request(data, user):
 
     if 'project_panel' in data:
         try:
-            project_panel = ProjectPanel.objects.get(id=data['project_panel'])
+            project_panel = PanelTemplate.objects.get(id=data['project_panel'])
             user_sites = Site.objects.get_sites_user_can_add(
                 user, project_panel.project).order_by('site_name')
         except ObjectDoesNotExist:

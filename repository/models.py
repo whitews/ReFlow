@@ -335,7 +335,7 @@ class Stimulation(ProtectedModel):
         return u'%s' % self.stimulation_name
 
 
-class ProjectPanel(ProtectedModel):
+class PanelTemplate(ProtectedModel):
     project = models.ForeignKey(Project, null=False, blank=False)
     panel_name = models.CharField(
         unique=False,
@@ -394,7 +394,7 @@ class ProjectPanel(ProtectedModel):
         except ObjectDoesNotExist:
             return  # Project is required and will get caught by Form.is_valid()
 
-        duplicates = ProjectPanel.objects.filter(
+        duplicates = PanelTemplate.objects.filter(
             panel_name=self.panel_name,
             project=self.project).exclude(
                 id=self.id)
@@ -408,7 +408,7 @@ class ProjectPanel(ProtectedModel):
 
 
 class ProjectPanelParameter(ProtectedModel):
-    project_panel = models.ForeignKey(ProjectPanel)
+    project_panel = models.ForeignKey(PanelTemplate)
     parameter_type = models.CharField(
         max_length=3,
         choices=PARAMETER_TYPE_CHOICES)
@@ -720,10 +720,10 @@ class Cytometer(ProtectedModel):
 
 
 class SitePanel(ProtectedModel):
-    # a SitePanel must be "based" off of a ProjectPanel
+    # a SitePanel must be "based" off of a PanelTemplate
     # and is required to have at least the parameters specified in the
-    # its ProjectPanel
-    project_panel = models.ForeignKey(ProjectPanel, null=False, blank=False)
+    # its PanelTemplate
+    project_panel = models.ForeignKey(PanelTemplate, null=False, blank=False)
     site = models.ForeignKey(Site, null=False, blank=False)
 
     # We don't allow site panels to have their own name,
@@ -759,7 +759,7 @@ class SitePanel(ProtectedModel):
     def clean(self):
         try:
             Site.objects.get(id=self.site_id)
-            ProjectPanel.objects.get(id=self.project_panel_id)
+            PanelTemplate.objects.get(id=self.project_panel_id)
         except ObjectDoesNotExist:
             # site & project panel are required...
             # will get caught by Form.is_valid()

@@ -27,7 +27,7 @@ admin.site.register(VisitType)
 admin.site.register(SubjectGroup)
 admin.site.register(Subject)
 
-admin.site.register(ProjectPanel)
+admin.site.register(PanelTemplate)
 admin.site.register(ProjectPanelParameter)
 admin.site.register(ProjectPanelParameterMarker)
 

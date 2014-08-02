@@ -805,7 +805,7 @@ class ProjectPanelFilter(django_filters.FilterSet):
         name='staining')
 
     class Meta:
-        model = ProjectPanel
+        model = PanelTemplate
         fields = [
             'project',
             'panel_name',
@@ -818,7 +818,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
     API endpoint representing a list of project panels.
     """
 
-    model = ProjectPanel
+    model = PanelTemplate
     serializer_class = ProjectPanelSerializer
     filter_class = ProjectPanelFilter
 
@@ -831,7 +831,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
             self.request.user)
 
         # filter on user's projects
-        queryset = ProjectPanel.objects.filter(project__in=user_projects)
+        queryset = PanelTemplate.objects.filter(project__in=user_projects)
 
         return queryset
 
@@ -848,12 +848,12 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         try:
             project = Project.objects.get(id=data['project'])
             if data['parent_panel']:
-                parent_panel = ProjectPanel.objects.get(id=data['parent_panel'])
+                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
             else:
                 parent_panel = None
 
             with transaction.atomic():
-                panel_template = ProjectPanel(
+                panel_template = PanelTemplate(
                     project=project,
                     panel_name=data['panel_name'],
                     parent_panel=parent_panel,
@@ -899,7 +899,7 @@ class ProjectPanelDetail(
     API endpoint for retrieving or updating a single panel template.
     """
 
-    model = ProjectPanel
+    model = PanelTemplate
     serializer_class = ProjectPanelSerializer
 
     def put(self, request, *args, **kwargs):
@@ -913,10 +913,10 @@ class ProjectPanelDetail(
         # we can create the PanelTemplate instance now, but we'll do so inside
         # an atomic transaction
         try:
-            panel_template = ProjectPanel.objects.get(id=kwargs['pk'])
+            panel_template = PanelTemplate.objects.get(id=kwargs['pk'])
             project = Project.objects.get(id=data['project'])
             if data['parent_panel']:
-                parent_panel = ProjectPanel.objects.get(id=data['parent_panel'])
+                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
             else:
                 parent_panel = None
 
@@ -961,7 +961,7 @@ class ProjectPanelDetail(
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def delete(self, request, *args, **kwargs):
-        panel_template = ProjectPanel.objects.get(id=kwargs['pk'])
+        panel_template = PanelTemplate.objects.get(id=kwargs['pk'])
         if not panel_template.project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1026,7 +1026,7 @@ class SiteDetail(
 
 class SitePanelFilter(django_filters.FilterSet):
     project_panel = django_filters.ModelMultipleChoiceFilter(
-        queryset=ProjectPanel.objects.all(),
+        queryset=PanelTemplate.objects.all(),
         name='project_panel')
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -1101,7 +1101,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         # an atomic transaction
         try:
             site = Site.objects.get(id=data['site'])
-            project_panel = ProjectPanel.objects.get(id=data['project_panel'])
+            project_panel = PanelTemplate.objects.get(id=data['project_panel'])
 
             with transaction.atomic():
                 site_panel = SitePanel(
@@ -1446,7 +1446,7 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 
 class SampleFilter(django_filters.FilterSet):
     panel = django_filters.ModelMultipleChoiceFilter(
-        queryset=ProjectPanel.objects.all(),
+        queryset=PanelTemplate.objects.all(),
         name='site_panel__project_panel')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
@@ -1624,7 +1624,7 @@ class CreateBeadList(LoginRequiredMixin, generics.CreateAPIView):
 
 class BeadFilter(django_filters.FilterSet):
     project_panel = django_filters.ModelMultipleChoiceFilter(
-        queryset=ProjectPanel.objects.all(),
+        queryset=PanelTemplate.objects.all(),
         name='site_panel__project_panel')
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -1748,7 +1748,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         Override post to ensure user has permission to add data to the site.
         """
         panel_template = get_object_or_404(
-            ProjectPanel, id=request.DATA['panel_template'])
+            PanelTemplate, id=request.DATA['panel_template'])
         site = get_object_or_404(Site, id=request.DATA['site'])
         if not site.has_add_permission(request.user):
             raise PermissionDenied
