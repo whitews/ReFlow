@@ -322,7 +322,7 @@ app.controller(
             });
             var data = {
                 site: $scope.site_panel_model.current_site.id,
-                project_panel: $scope.site_panel_model.current_panel_template.id,
+                panel_template: $scope.site_panel_model.current_panel_template.id,
                 parameters: params,
                 site_panel_comments: ""
             };

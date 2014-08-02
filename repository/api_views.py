@@ -871,7 +871,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                         param_fluoro = None
 
                     ppp = ProjectPanelParameter.objects.create(
-                        project_panel=panel_template,
+                        panel_template=panel_template,
                         parameter_type=param['parameter_type'],
                         parameter_value_type=param['parameter_value_type'],
                         fluorochrome=param_fluoro
@@ -940,7 +940,7 @@ class ProjectPanelDetail(
                         param_fluoro = None
 
                     ppp = ProjectPanelParameter.objects.create(
-                        project_panel=panel_template,
+                        panel_template=panel_template,
                         parameter_type=param['parameter_type'],
                         parameter_value_type=param['parameter_value_type'],
                         fluorochrome=param_fluoro
@@ -1025,18 +1025,18 @@ class SiteDetail(
 
 
 class SitePanelFilter(django_filters.FilterSet):
-    project_panel = django_filters.ModelMultipleChoiceFilter(
+    panel_template = django_filters.ModelMultipleChoiceFilter(
         queryset=PanelTemplate.objects.all(),
-        name='project_panel')
+        name='panel_template')
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
     panel_type = django_filters.MultipleChoiceFilter(
         choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        name='project_panel__staining')
+        name='panel_template__staining')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
-        name='project_panel__project')
+        name='panel_template__project')
     fluorochrome = django_filters.ModelMultipleChoiceFilter(
         queryset=Fluorochrome.objects.all(),
         name='sitepanelparameter__fluorochrome'
@@ -1050,7 +1050,7 @@ class SitePanelFilter(django_filters.FilterSet):
         fields = [
             'site',
             'panel_type',
-            'project_panel',
+            'panel_template',
             'project',
             'fluorochrome',
             'fluorochrome_abbreviation'
@@ -1101,12 +1101,12 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         # an atomic transaction
         try:
             site = Site.objects.get(id=data['site'])
-            project_panel = PanelTemplate.objects.get(id=data['project_panel'])
+            panel_template = PanelTemplate.objects.get(id=data['panel_template'])
 
             with transaction.atomic():
                 site_panel = SitePanel(
                     site=site,
-                    project_panel=project_panel,
+                    panel_template=panel_template,
                     site_panel_comments=data['site_panel_comments']
                 )
                 site_panel.clean()
@@ -1447,10 +1447,10 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
 class SampleFilter(django_filters.FilterSet):
     panel = django_filters.ModelMultipleChoiceFilter(
         queryset=PanelTemplate.objects.all(),
-        name='site_panel__project_panel')
+        name='site_panel__panel_template')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
-        name='site_panel__project_panel__project')
+        name='site_panel__panel_template__project')
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site_panel__site')
@@ -1623,9 +1623,9 @@ class CreateBeadList(LoginRequiredMixin, generics.CreateAPIView):
 
 
 class BeadFilter(django_filters.FilterSet):
-    project_panel = django_filters.ModelMultipleChoiceFilter(
+    panel_template = django_filters.ModelMultipleChoiceFilter(
         queryset=PanelTemplate.objects.all(),
-        name='site_panel__project_panel')
+        name='site_panel__panel_template')
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site_panel__site')
@@ -1638,10 +1638,10 @@ class BeadFilter(django_filters.FilterSet):
     class Meta:
         model = BeadSample
         fields = [
-            'site_panel__project_panel__project',
+            'site_panel__panel_template__project',
             'site_panel',
             'site_panel__site',
-            'site_panel__project_panel',
+            'site_panel__panel_template',
             'acquisition_date',
             'original_filename',
             'cytometer',

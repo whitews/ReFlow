@@ -258,21 +258,21 @@ def validate_site_panel_request(data, user):
     An empty dictionary means successful validation
     """
     errors = {}
-    project_panel = None
+    panel_template = None
     site = None
     user_sites = None
     can_have_uns = None
     can_have_iso = None
 
-    if 'project_panel' in data:
+    if 'panel_template' in data:
         try:
-            project_panel = PanelTemplate.objects.get(id=data['project_panel'])
+            panel_template = PanelTemplate.objects.get(id=data['panel_template'])
             user_sites = Site.objects.get_sites_user_can_add(
-                user, project_panel.project).order_by('site_name')
+                user, panel_template.project).order_by('site_name')
         except ObjectDoesNotExist:
-            errors['project_panel'] = ["Project panel does not exist"]
+            errors['panel_template'] = ["Panel template does not exist"]
     else:
-        errors['project_panel'] = ["Project panel is required"]
+        errors['panel_template'] = ["Panel template is required"]
 
     if 'site' in data:
         try:
@@ -291,13 +291,13 @@ def validate_site_panel_request(data, user):
             "You do not have permission to create panels for this site"]
 
     # validate project panel and site are in same project
-    if site.project_id != project_panel.project_id:
-        errors['project_panel'] = ["Project panel is required"]
+    if site.project_id != panel_template.project_id:
+        errors['panel_template'] = ["Panel template is required"]
 
     if len(errors) > 0:
         return errors
 
-    staining = project_panel.staining
+    staining = panel_template.staining
     if staining == 'FS':
         can_have_uns = True
         can_have_iso = False
@@ -314,7 +314,7 @@ def validate_site_panel_request(data, user):
         can_have_uns = False
         can_have_iso = False
     else:
-        errors['project_panel'] = ["Invalid staining type '%s'" % staining]
+        errors['panel_template'] = ["Invalid staining type '%s'" % staining]
 
     # site panel must have parameters
     if not 'parameters' in data:
@@ -488,7 +488,7 @@ def validate_site_panel_request(data, user):
         param_errors.append("Cannot have duplicate parameters")
 
     # Finally, check that all the project parameters are accounted for
-    project_panel_parameters = project_panel.projectpanelparameter_set.all()
+    project_panel_parameters = panel_template.projectpanelparameter_set.all()
     matching_ids = []
     for ppp in project_panel_parameters:
         # first look for parameter type matches
@@ -530,10 +530,10 @@ def validate_site_panel_request(data, user):
     project_panel_parameters = project_panel_parameters.exclude(
         id__in=matching_ids)
     for ppp in project_panel_parameters:
-        if not 'project_panel' in errors:
-            errors['project_panel'] = []
+        if not 'panel_template' in errors:
+            errors['panel_template'] = []
 
-        errors['project_panel'].append(
+        errors['panel_template'].append(
             "Project parameter id %d was not used" % ppp.id)
 
     if len(param_errors) > 0:
@@ -541,9 +541,9 @@ def validate_site_panel_request(data, user):
     return errors
 
 
-def find_matching_site_panel(pnn_list, project_panel, site):
+def find_matching_site_panel(pnn_list, panel_template, site):
     site_panel_prospects = SitePanel.objects.filter(
-        project_panel=project_panel,
+        panel_template=panel_template,
         site=site
     )
 

@@ -31,7 +31,7 @@ app.controller(
             }
 
             if ($scope.sample_upload_model.current_panel_template) {
-                site_panel_query.project_panel = $scope.sample_upload_model.current_panel_template.id;
+                site_panel_query.panel_template = $scope.sample_upload_model.current_panel_template.id;
             }
 
             $scope.sample_upload_model.site_panels = SitePanel.query(

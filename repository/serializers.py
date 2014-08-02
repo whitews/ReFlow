@@ -319,11 +319,11 @@ class SitePanelSerializer(serializers.ModelSerializer):
     )
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
     name = serializers.CharField(source='name', read_only=True)
-    project_panel_name = serializers.CharField(
-        source='project_panel.panel_name',
+    panel_template_name = serializers.CharField(
+        source='panel_template.panel_name',
         read_only=True)
     panel_type = serializers.CharField(
-        source='project_panel.staining',
+        source='panel_template.staining',
         read_only=True
     )
 
@@ -334,10 +334,10 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'url',
             'project',
             'site',
-            'project_panel',
+            'panel_template',
             'panel_type',
             'site_panel_comments',
-            'project_panel_name',
+            'panel_template_name',
             'name',
             'parameters')
 
@@ -385,11 +385,11 @@ class CompensationSerializer(serializers.ModelSerializer):
         source='site_panel.site.project_id',
         read_only=True)
     panel = serializers.IntegerField(
-        source='site_panel.project_panel_id',
+        source='site_panel.panel_template_id',
         read_only=True
     )
     panel_name = serializers.CharField(
-        source='site_panel.project_panel.panel_name',
+        source='site_panel.panel_template.panel_name',
         read_only=True
     )
     site = serializers.IntegerField(source='site_panel.site_id', read_only=True)
@@ -524,10 +524,10 @@ class SampleSerializer(serializers.ModelSerializer):
         source='stimulation.stimulation_name',
         read_only=True)
     panel = serializers.IntegerField(
-        source='site_panel.project_panel_id',
+        source='site_panel.panel_template_id',
         read_only=True)
     panel_name = serializers.CharField(
-        source='site_panel.project_panel.panel_name',
+        source='site_panel.panel_template.panel_name',
         read_only=True)
     upload_date = serializers.DateTimeField(
         source='upload_date',
@@ -643,7 +643,7 @@ class SampleCollectionDetailSerializer(serializers.ModelSerializer):
 class BeadSampleSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='bead-detail')
     project = serializers.IntegerField(
-        source='site_panel.project_panel.project_id',
+        source='site_panel.panel_template.project_id',
         read_only=True)
     site = serializers.CharField(
         source='site_panel.site_id',
@@ -651,11 +651,11 @@ class BeadSampleSerializer(serializers.ModelSerializer):
     site_name = serializers.CharField(
         source='site_panel.site.site_name',
         read_only=True)
-    project_panel = serializers.IntegerField(
-        source='site_panel.project_panel_id',
+    panel_template = serializers.IntegerField(
+        source='site_panel.panel_template_id',
         read_only=True)
     panel_name = serializers.CharField(
-        source='site_panel.project_panel.panel_name',
+        source='site_panel.panel_template.panel_name',
         read_only=True)
     compensation_channel_name = serializers.CharField(
         source='compensation_channel.fluorochrome_abbreviation',
@@ -673,7 +673,7 @@ class BeadSampleSerializer(serializers.ModelSerializer):
             'acquisition_date',
             'upload_date',
             'cytometer',
-            'project_panel',
+            'panel_template',
             'panel_name',
             'site_panel',
             'compensation_channel',
@@ -692,7 +692,7 @@ class BeadSampleSerializer(serializers.ModelSerializer):
 class BeadSamplePOSTSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='bead-detail')
     project = serializers.IntegerField(
-        source='site_panel.project_panel.project_id',
+        source='site_panel.panel_template.project_id',
         read_only=True)
 
     def get_fields(self):
