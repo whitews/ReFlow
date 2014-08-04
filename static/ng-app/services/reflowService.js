@@ -13,7 +13,7 @@ var URLS = {
     'SUBJECT_GROUPS':      '/api/repository/subject_groups/',
     'SITES':               '/api/repository/sites/',
     'SUBJECTS':            '/api/repository/subjects/',
-    'PROJECT_PANELS':      '/api/repository/project_panels/',
+    'PANEL_TEMPLATES':     '/api/repository/panel_templates/',
     'SITE_PANELS':         '/api/repository/site_panels/',
     'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
@@ -221,7 +221,7 @@ service
     }])
     .factory('PanelTemplate', ['$resource', function ($resource) {
         return $resource(
-            URLS.PROJECT_PANELS + ':id',
+            URLS.PANEL_TEMPLATES + ':id',
             {},
             {
                 update: {
