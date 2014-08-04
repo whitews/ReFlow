@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('repository', '0003_rename_project_panel_fields'),
+        ('repository', '0002_rename_project_panel'),
     ]
 
     operations = [
