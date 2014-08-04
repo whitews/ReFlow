@@ -239,7 +239,7 @@ class PanelTemplateParameterSerializer(serializers.ModelSerializer):
 
 class PanelTemplateSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name='project-panel-detail')
+        view_name='panel-template-detail')
     parameters = PanelTemplateParameterSerializer(
         source='paneltemplateparameter_set')
     staining_name = serializers.CharField(
