@@ -728,7 +728,7 @@ class SitePanel(ProtectedModel):
 
     # We don't allow site panels to have their own name,
     # so we use implementation version to differentiate site panels
-    # which are based on the same project panel for the same site
+    # which are based on the same panel template for the same site
     implementation = models.IntegerField(editable=False, null=False)
     site_panel_comments = models.TextField(
         "Site Panel Comments",
@@ -761,16 +761,16 @@ class SitePanel(ProtectedModel):
             Site.objects.get(id=self.site_id)
             PanelTemplate.objects.get(id=self.panel_template_id)
         except ObjectDoesNotExist:
-            # site & project panel are required...
+            # site & panel template are required...
             # will get caught by Form.is_valid()
             return
 
-        # project panel must be in the same project as the site
+        # panel template must be in the same project as the site
         if self.site.project_id != self.panel_template.project_id:
             raise ValidationError(
-                "Chosen project panel is not in site's project.")
+                "Chosen panel is not in site's project.")
 
-        # Get count of site panels for the project panel / site combo
+        # Get count of site panels for the panel template / site combo
         # to figure out the implementation number
         if not self.implementation:
             current_implementations = SitePanel.objects.filter(

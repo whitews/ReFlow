@@ -158,7 +158,7 @@ def validate_panel_template_request(data, user):
                     "Markers are not allowed in bead panels"
                 )
 
-        # value type is NOT required for project panels,
+        # value type is NOT required for panel templates,
         # allows site panel implementations to have different values types
         value_type = param['parameter_value_type']
 
@@ -192,7 +192,7 @@ def validate_panel_template_request(data, user):
                     "A scatter channel cannot have an marker.")
 
         # check that fluoro-conj-ab channels specify either a fluoro or a
-        # marker. If the fluoro is absent it means the project panel
+        # marker. If the fluoro is absent it means the panel template
         # allows flexibility in the site panel implementation.
         if param_type == 'FCM':
             if not fluorochrome_id and len(marker_set) == 0:
@@ -237,9 +237,9 @@ def validate_site_panel_request(data, user):
     """
     Validate a proposed site panel from HTTP request data. Nothing is saved
     here, just validated using the following rules
-        - Ensure project panel and site belong to same project
+        - Ensure panel template and site belong to same project
         - Ensure user has proper privileges to create site panel
-        - Ensure all project panel parameters are present
+        - Ensure all panel template parameters are present
         - No duplicate markers in a parameter
         - No fluorochromes in a scatter parameter
         - No markers in a scatter parameter
@@ -290,7 +290,7 @@ def validate_site_panel_request(data, user):
         errors['site'] = [
             "You do not have permission to create panels for this site"]
 
-    # validate project panel and site are in same project
+    # validate panel template and site are in same project
     if site.project_id != panel_template.project_id:
         errors['panel_template'] = ["Panel template is required"]
 

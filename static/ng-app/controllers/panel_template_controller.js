@@ -174,7 +174,7 @@ app.controller(
                 $scope.validatePanel();
             };
 
-            // get all project panel templates matching full stain
+            // get all project's panel templates matching full stain
             $scope.model.panel_templates = PanelTemplate.query(
                 {
                     project: $scope.current_project.id,

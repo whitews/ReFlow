@@ -815,7 +815,7 @@ class PanelTemplateFilter(django_filters.FilterSet):
 
 class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of project panels.
+    API endpoint representing a list of panel templates.
     """
 
     model = PanelTemplate
@@ -824,7 +824,7 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         """
-        Restrict project panels to projects for which
+        Restrict panel templates to projects for which
         the user has view permission.
         """
         user_projects = Project.objects.get_projects_user_can_view(
