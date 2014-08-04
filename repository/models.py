@@ -429,8 +429,8 @@ class PanelTemplateParameter(ProtectedModel):
         name_string = '%s_%s' % (
             self.parameter_type,
             self.parameter_value_type)
-        if self.projectpanelparametermarker_set.count() > 0:
-            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.projectpanelparametermarker_set.all()]))
+        if self.paneltemplateparametermarker_set.count() > 0:
+            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.paneltemplateparametermarker_set.all()]))
             name_string += '_' + marker_string
         if self.fluorochrome:
             name_string += '_' + self.fluorochrome.fluorochrome_abbreviation
@@ -467,13 +467,13 @@ class PanelTemplateParameter(ProtectedModel):
         ppm_duplicates = PanelTemplateParameter.objects.filter(
             panel_template=self.panel_template,
             fluorochrome=self.fluorochrome,
-            projectpanelparametermarker__in=self.projectpanelparametermarker_set.all(),
+            paneltemplateparametermarker__in=self.paneltemplateparametermarker_set.all(),
             parameter_type=self.parameter_type,
             parameter_value_type=self.parameter_value_type).exclude(
                 id=self.id)
         ppm_duplicates = ppm_duplicates.annotate(
-            num_markers=models.Count('projectpanelparametermarker')).filter(
-                num_markers=self.projectpanelparametermarker_set.all().count())
+            num_markers=models.Count('paneltemplateparametermarker')).filter(
+                num_markers=self.paneltemplateparametermarker_set.all().count())
 
         if ppm_duplicates.count() > 0:
             raise ValidationError(
