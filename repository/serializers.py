@@ -39,7 +39,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only=True
     )
     panel_count = serializers.IntegerField(
-        source='projectpanel_set.count',
+        source='paneltemplate_set.count',
         read_only=True
     )
     site_count = serializers.IntegerField(
