@@ -58,7 +58,7 @@ def repository_api_root(request):
         'beads': reverse('bead-list', request=request),
         'create_beads': reverse('create-bead-list', request=request),
         'compensations': reverse('compensation-list', request=request),
-        'project-panels': reverse('project-panel-list', request=request),
+        'panel-templates': reverse('panel-template-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
         'markers': reverse('marker-list', request=request),
