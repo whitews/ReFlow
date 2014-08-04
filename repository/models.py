@@ -407,7 +407,7 @@ class PanelTemplate(ProtectedModel):
         return u'%s' % self.panel_name
 
 
-class ProjectPanelParameter(ProtectedModel):
+class PanelTemplateParameter(ProtectedModel):
     panel_template = models.ForeignKey(PanelTemplate)
     parameter_type = models.CharField(
         max_length=3,
@@ -464,7 +464,7 @@ class ProjectPanelParameter(ProtectedModel):
         # i.e. these are duplicates: CD3+CD8 & CD8+CD3
         # We're using a an annotation approach by combining
         # '__in' with a matching count of the markers
-        ppm_duplicates = ProjectPanelParameter.objects.filter(
+        ppm_duplicates = PanelTemplateParameter.objects.filter(
             panel_template=self.panel_template,
             fluorochrome=self.fluorochrome,
             projectpanelparametermarker__in=self.projectpanelparametermarker_set.all(),
@@ -489,7 +489,7 @@ class ProjectPanelParameter(ProtectedModel):
 
 
 class ProjectPanelParameterMarker(models.Model):
-    project_panel_parameter = models.ForeignKey(ProjectPanelParameter)
+    project_panel_parameter = models.ForeignKey(PanelTemplateParameter)
     marker = models.ForeignKey(Marker)
 
     # override clean to prevent duplicate Ab's for a parameter...

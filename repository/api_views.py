@@ -870,7 +870,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                     else:
                         param_fluoro = None
 
-                    ppp = ProjectPanelParameter.objects.create(
+                    ppp = PanelTemplateParameter.objects.create(
                         panel_template=panel_template,
                         parameter_type=param['parameter_type'],
                         parameter_value_type=param['parameter_value_type'],
@@ -939,7 +939,7 @@ class ProjectPanelDetail(
                     else:
                         param_fluoro = None
 
-                    ppp = ProjectPanelParameter.objects.create(
+                    ppp = PanelTemplateParameter.objects.create(
                         panel_template=panel_template,
                         parameter_type=param['parameter_type'],
                         parameter_value_type=param['parameter_value_type'],

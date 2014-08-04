@@ -225,7 +225,7 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = ProjectPanelParameter
+        model = PanelTemplateParameter
         fields = (
             'id',
             'name',

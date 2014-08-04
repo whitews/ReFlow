@@ -28,7 +28,7 @@ admin.site.register(SubjectGroup)
 admin.site.register(Subject)
 
 admin.site.register(PanelTemplate)
-admin.site.register(ProjectPanelParameter)
+admin.site.register(PanelTemplateParameter)
 admin.site.register(ProjectPanelParameterMarker)
 
 admin.site.register(SitePanel)
