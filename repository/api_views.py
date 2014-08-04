@@ -796,7 +796,7 @@ class SubjectDetail(
         return super(SubjectDetail, self).delete(request, *args, **kwargs)
 
 
-class ProjectPanelFilter(django_filters.FilterSet):
+class PanelTemplateFilter(django_filters.FilterSet):
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='project')
@@ -813,14 +813,14 @@ class ProjectPanelFilter(django_filters.FilterSet):
         ]
 
 
-class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
+class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of project panels.
     """
 
     model = PanelTemplate
     serializer_class = PanelTemplateSerializer
-    filter_class = ProjectPanelFilter
+    filter_class = PanelTemplateFilter
 
     def get_queryset(self):
         """
@@ -891,7 +891,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                         headers=headers)
 
 
-class ProjectPanelDetail(
+class PanelTemplateDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
         generics.RetrieveUpdateDestroyAPIView):
@@ -965,7 +965,7 @@ class ProjectPanelDetail(
         if not panel_template.project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return super(ProjectPanelDetail, self).delete(request, *args, **kwargs)
+        return super(PanelTemplateDetail, self).delete(request, *args, **kwargs)
 
 
 class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
