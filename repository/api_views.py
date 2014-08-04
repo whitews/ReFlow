@@ -819,7 +819,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
 
     model = PanelTemplate
-    serializer_class = ProjectPanelSerializer
+    serializer_class = PanelTemplateSerializer
     filter_class = ProjectPanelFilter
 
     def get_queryset(self):
@@ -884,7 +884,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
-        serializer = ProjectPanelSerializer(panel_template)
+        serializer = PanelTemplateSerializer(panel_template)
         headers = self.get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED,
@@ -900,7 +900,7 @@ class ProjectPanelDetail(
     """
 
     model = PanelTemplate
-    serializer_class = ProjectPanelSerializer
+    serializer_class = PanelTemplateSerializer
 
     def put(self, request, *args, **kwargs):
         data = request.DATA
@@ -953,7 +953,7 @@ class ProjectPanelDetail(
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
-        serializer = ProjectPanelSerializer(panel_template)
+        serializer = PanelTemplateSerializer(panel_template)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

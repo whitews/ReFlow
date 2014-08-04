@@ -199,7 +199,7 @@ class SpecimenSerializer(serializers.ModelSerializer):
         model = Specimen
 
 
-class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
+class PanelTemplateParameterMarkerSerializer(serializers.ModelSerializer):
     marker_id = serializers.CharField(
         source='marker.id',
         read_only=True)
@@ -212,9 +212,9 @@ class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
         exclude = ('parameter', 'marker')
 
 
-class ProjectPanelParameterSerializer(serializers.ModelSerializer):
+class PanelTemplateParameterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
-    markers = ProjectPanelParameterMarkerSerializer(
+    markers = PanelTemplateParameterMarkerSerializer(
         source='paneltemplateparametermarker_set')
     fluorochrome_abbreviation = serializers.CharField(
         source="fluorochrome.fluorochrome_abbreviation",
@@ -237,10 +237,10 @@ class ProjectPanelParameterSerializer(serializers.ModelSerializer):
             'fluorochrome_abbreviation')
 
 
-class ProjectPanelSerializer(serializers.ModelSerializer):
+class PanelTemplateSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='project-panel-detail')
-    parameters = ProjectPanelParameterSerializer(
+    parameters = PanelTemplateParameterSerializer(
         source='paneltemplateparameter_set')
     staining_name = serializers.CharField(
         source='get_staining_display',
