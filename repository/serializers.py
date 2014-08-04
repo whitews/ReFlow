@@ -208,7 +208,7 @@ class ProjectPanelParameterMarkerSerializer(serializers.ModelSerializer):
         read_only=True)
 
     class Meta:
-        model = ProjectPanelParameterMarker
+        model = PanelTemplateParameterMarker
         exclude = ('parameter', 'marker')
 
 

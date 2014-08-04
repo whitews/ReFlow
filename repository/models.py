@@ -488,7 +488,7 @@ class PanelTemplateParameter(ProtectedModel):
         )
 
 
-class ProjectPanelParameterMarker(models.Model):
+class PanelTemplateParameterMarker(models.Model):
     panel_template_parameter = models.ForeignKey(PanelTemplateParameter)
     marker = models.ForeignKey(Marker)
 
@@ -499,7 +499,7 @@ class ProjectPanelParameterMarker(models.Model):
         Verify the parameter & marker combo doesn't already exist
         """
 
-        qs = ProjectPanelParameterMarker.objects.filter(
+        qs = PanelTemplateParameterMarker.objects.filter(
             panel_template_parameter=self.panel_template_parameter,
             marker=self.marker).exclude(id=self.id)
 

@@ -877,7 +877,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                         fluorochrome=param_fluoro
                     )
                     for marker in param['markers']:
-                        ProjectPanelParameterMarker.objects.create(
+                        PanelTemplateParameterMarker.objects.create(
                             panel_template_parameter=ppp,
                             marker=Marker.objects.get(id=marker)
                         )
@@ -946,7 +946,7 @@ class ProjectPanelDetail(
                         fluorochrome=param_fluoro
                     )
                     for marker in param['markers']:
-                        ProjectPanelParameterMarker.objects.create(
+                        PanelTemplateParameterMarker.objects.create(
                             panel_template_parameter=ppp,
                             marker=Marker.objects.get(id=marker)
                         )
