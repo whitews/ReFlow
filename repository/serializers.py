@@ -241,7 +241,7 @@ class ProjectPanelSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='project-panel-detail')
     parameters = ProjectPanelParameterSerializer(
-        source='projectpanelparameter_set')
+        source='paneltemplateparameter_set')
     staining_name = serializers.CharField(
         source='get_staining_display',
         read_only=True)

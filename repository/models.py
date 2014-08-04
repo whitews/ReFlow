@@ -489,7 +489,7 @@ class PanelTemplateParameter(ProtectedModel):
 
 
 class ProjectPanelParameterMarker(models.Model):
-    project_panel_parameter = models.ForeignKey(PanelTemplateParameter)
+    panel_template_parameter = models.ForeignKey(PanelTemplateParameter)
     marker = models.ForeignKey(Marker)
 
     # override clean to prevent duplicate Ab's for a parameter...
@@ -500,7 +500,7 @@ class ProjectPanelParameterMarker(models.Model):
         """
 
         qs = ProjectPanelParameterMarker.objects.filter(
-            project_panel_parameter=self.project_panel_parameter,
+            panel_template_parameter=self.panel_template_parameter,
             marker=self.marker).exclude(id=self.id)
 
         if qs.exists():
@@ -509,7 +509,7 @@ class ProjectPanelParameterMarker(models.Model):
             )
 
     def __unicode__(self):
-        return u'%s: %s' % (self.project_panel_parameter, self.marker)
+        return u'%s: %s' % (self.panel_template_parameter, self.marker)
 
 
 class SiteManager(models.Manager):

@@ -878,7 +878,7 @@ class ProjectPanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                     )
                     for marker in param['markers']:
                         ProjectPanelParameterMarker.objects.create(
-                            project_panel_parameter=ppp,
+                            panel_template_parameter=ppp,
                             marker=Marker.objects.get(id=marker)
                         )
         except Exception as e:  # catch any exception to rollback changes
@@ -930,7 +930,7 @@ class ProjectPanelDetail(
                 panel_template.clean()
                 panel_template.save()
 
-                panel_template.projectpanelparameter_set.all().delete()
+                panel_template.paneltemplateparameter_set.all().delete()
 
                 for param in data['parameters']:
                     if (param['fluorochrome']):
@@ -947,7 +947,7 @@ class ProjectPanelDetail(
                     )
                     for marker in param['markers']:
                         ProjectPanelParameterMarker.objects.create(
-                            project_panel_parameter=ppp,
+                            panel_template_parameter=ppp,
                             marker=Marker.objects.get(id=marker)
                         )
         except Exception as e:  # catch any exception to rollback changes

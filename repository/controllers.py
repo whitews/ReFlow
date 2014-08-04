@@ -488,9 +488,9 @@ def validate_site_panel_request(data, user):
         param_errors.append("Cannot have duplicate parameters")
 
     # Finally, check that all the project parameters are accounted for
-    project_panel_parameters = panel_template.projectpanelparameter_set.all()
+    panel_template_parameters = panel_template.paneltemplateparameter_set.all()
     matching_ids = []
-    for ppp in project_panel_parameters:
+    for ppp in panel_template_parameters:
         # first look for parameter type matches
         for d in param_dict:
             if ppp.parameter_type != param_dict[d]['parameter_type']:
@@ -507,14 +507,14 @@ def validate_site_panel_request(data, user):
                     # no match
                     continue
 
-            if ppp.projectpanelparametermarker_set.count() > 0:
-                if ppp.projectpanelparametermarker_set.count() != len(
+            if ppp.paneltemplateparameter_set.count() > 0:
+                if ppp.paneltemplateparameter_set.count() != len(
                         param_dict[d]['marker_id_set']):
                     # no match
                     continue
 
                 should_continue = False
-                for ppp_marker in ppp.projectpanelparametermarker_set.all():
+                for ppp_marker in ppp.paneltemplateparameter_set.all():
                     if str(ppp_marker.marker.id) not in param_dict[d]['marker_id_set']:
                         # no match
                         should_continue = True
@@ -527,9 +527,9 @@ def validate_site_panel_request(data, user):
 
     # At the end there should be no project parameters on our list,
     # they all must be implemented by the site panel
-    project_panel_parameters = project_panel_parameters.exclude(
+    panel_template_parameters = panel_template_parameters.exclude(
         id__in=matching_ids)
-    for ppp in project_panel_parameters:
+    for ppp in panel_template_parameters:
         if not 'panel_template' in errors:
             errors['panel_template'] = []
 
