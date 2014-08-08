@@ -1088,7 +1088,9 @@ class Compensation(ProtectedModel):
     )
 
     def has_view_permission(self, user):
-        if self.site_panel.site.has_view_permission(user):
+        if self.site_panel.site.project.has_view_permission(user):
+            return True
+        elif self.site_panel.site.has_view_permission(user):
             return True
         return False
 
