@@ -724,6 +724,7 @@ class WorkerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Worker
         fields = ('id', 'worker_name', 'worker_hostname', 'token')
+        exclude = ('user',)
 
 
 class SubprocessCategorySerializer(serializers.ModelSerializer):
