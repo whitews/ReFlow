@@ -72,8 +72,8 @@ Cytometer                A cytometer device, associated with a specific Site.
 Visit Type               Categorizes samples into temporal groups, such as “Send out 3” for a proficiency test project or “Baseline” for a clinical trial project. Not the same as the FCS acquisition date.
 Stimulation              In vitro conditions used to prepare cells from which an FCS file was produced.
 Sample                   An FCS file.
-Project Panel            A collection of flow parameters used as a master template for specific site panel implementations. Must specify a staining type and a stimulation.
-Site Panel               A specific implementation of a project panel. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the project panel.
+Panel Template           A collection of flow parameters used as a master template for specific site panel implementations. Must specify a staining type and a stimulation.
+Site Panel               A specific implementation of a panel template. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the panel template.
 Compensation             A compensation matrix that can optionally be associated with one or more Samples.
 =======================  ===========
 

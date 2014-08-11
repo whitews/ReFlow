@@ -1,0 +1,53 @@
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Process Requests <span class="badge badge-inverse align-top">{{ process_requests.length }}</span></h4>
+
+              <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ui-sref="process-request-form">
+                      New Process Request
+                  </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Label</th>
+          <th>Request Date</th>
+          <th>Requesting User</th>
+          <th>Status</th>
+          <th>Worker</th>
+          <th>Assignment Date</th>
+          <th>Completion Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="request in process_requests">
+          <td class="no-wrap" width="1%">
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(request, 'PROCESS_REQUEST_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
+          </td>
+          <td>
+            <a ui-sref="process-request-detail({ requestId: request.id })">
+              {{ request.description }}
+            </a>
+          </td>
+          <td>{{ request.request_date }}</td>
+          <td>{{ request.request_username }}</td>
+          <td>{{ request.status }}</td>
+          <td>{{ request.worker_name }}</td>
+          <td>
+            <span ng-hide="request.assignment_date==null">{{ request.assignment_date }}</span>
+            <span ng-show="request.assignment_date==null">Not assigned</span>
+          </td>
+          <td>
+            <span ng-hide="request.completion_date==null">{{ request.completion_date }}</span>
+            <span ng-show="request.completion_date==null">Not completed</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>

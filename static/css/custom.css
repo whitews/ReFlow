@@ -7,8 +7,27 @@ body {
   background-color: #ffffff;
 }
 
+.width-full {
+    min-width: 100%;
+}
+
+.width-200 {
+    min-width: 200px;
+}
+
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 font-weight: bold;
+}
+
+button > i {
+    vertical-align: top;
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+i.fa {
+  min-width: 12px;
+  min-height: 12px;
 }
 
 select,
@@ -56,8 +75,7 @@ input[type="color"],
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
-        line-height: 1.1 !important;
-
+    line-height: 1.1 !important;
 }
 
 select,
@@ -85,6 +103,10 @@ textarea {
 
 .input-lg {
     min-width: 360px !important;
+}
+
+label {
+  font-weight: 500;
 }
 
 .lead {
@@ -166,10 +188,6 @@ hr {
   font-weight: 200;
 }
 
-.glyphicon-large {
-  font-size: 18px;
-}
-
 .tooltip-inner {
   max-width: 200px;
   padding: 3px 8px;
@@ -231,8 +249,8 @@ table.key-value, td {
   text-align: left;
 }
 
-td.middle {
-  vertical-align: middle;
+td {
+  vertical-align: middle !important;
 }
 td.center {
   text-align: center;
@@ -337,7 +355,7 @@ span.marker-field > select {
   vertical-align: top;
 }
 .align-middle {
-  vertical-align: middle;
+  vertical-align: middle !important;
 }
 .no-wrap {
   white-space: nowrap;
@@ -428,6 +446,18 @@ select.app, input.app {
   color: #D9534F;
 }
 
+.well-warning {
+  background-color: #ffd2d4;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.well-info {
+  background-color: #d9edf7;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
 .modal-body {
   font-size: 14px;
 }
@@ -438,6 +468,11 @@ select.app, input.app {
 
 ul.dropdown-menu > li > table > tbody > tr > td {
     padding: 0;
+}
+
+.breadcrumb>li+li:before {
+    content: "/";
+    padding: 0 9px;
 }
 
 /* Other stuff */

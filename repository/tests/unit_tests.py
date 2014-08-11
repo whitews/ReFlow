@@ -11,7 +11,6 @@ from django.core.urlresolvers import reverse
 from guardian.shortcuts import assign_perm
 
 from repository.models import *
-from repository.forms import *
 from repository.tests import constants
 
 

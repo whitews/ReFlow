@@ -1,0 +1,38 @@
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Stimulations <span class="badge badge-inverse align-top">{{ stimulations.length }}</span></h4>
+
+              <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ng-click="init_form(null)">
+                      Add Stimulation
+                  </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Stimulation Name</th>
+          <th>Stimulation Description</th>
+          <th>Sample Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="stimulation in stimulations">
+          <td class="no-wrap" width="1%">
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(stimulation)" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(stimulation, 'STIMULATION_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
+          </td>
+          <td>{{ stimulation.stimulation_name }}</td>
+          <td>{{ stimulation.stimulation_description }}</td>
+          <td>{{ stimulation.sample_count }}</td>
+        </tr>
+      </tbody>
+    </table>

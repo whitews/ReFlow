@@ -1,0 +1,82 @@
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Panel Templates <span class="badge badge-inverse align-top">{{ panel_templates.length }}</span></h4>
+
+              <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ui-sref="panel-template-create">
+                      Add Panel Template
+                  </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Panel Name</th>
+          <th>Staining</th>
+          <th>Description</th>
+          <th>
+            Parameters
+            <span class="pull-right">
+                <a href ng-click="expand_all_panels()">Show All</a> | <a href ng-click="collapse_all_panels()">Hide All</a>
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="panel in panel_templates">
+          <td class="no-wrap" width="1%">
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ui-sref="panel-template-edit({templateID: panel.id})" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="copy_panel(panel)" tooltip="Copy" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-copy align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(panel, 'PANEL_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
+          </td>
+          <td>{{ panel.panel_name }}</td>
+          <td>{{ panel.staining_name }}</td>
+          <td>{{ panel.panel_description }}</td>
+          <td width="60%">
+            <a href ng-click="toggle_params($index)">Show/Hide</a>
+            <div class="params" ng-show="expand_params[$index]">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>Function</th>
+                    <th>Markers</th>
+                    <th>Fluorochrome</th>
+                    <th>Value Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="param in panel.parameters">
+                    <td width="33%">
+                      {{ param.parameter_type_name }}
+                    </td>
+                    <td>
+                      <ul class="list-unstyled">
+                        <li ng-repeat="marker in param.markers">
+                          {{ marker.name }}
+                        </li>
+                      </ul>
+                    </td>
+                    <td>
+                        {{ param.fluorochrome_abbreviation }}
+                    </td>
+                    <td>
+                      {{ param.parameter_value_type }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>

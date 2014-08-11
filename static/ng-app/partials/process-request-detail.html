@@ -1,0 +1,105 @@
+  <div class="container">
+    <table class="key-value">
+
+      <tr>
+        <td>Requested by:</td>
+        <td>{{ process_request.request_username }}</td>
+      </tr>
+
+      <tr>
+        <td>Requested on:</td>
+        <td>{{ process_request.request_date }}</td>
+      </tr>
+
+      <tr>
+        <td>Status:</td>
+        <td>{{ process_request.status }}</td>
+      </tr>
+
+      <tr>
+        <td>Sample Collection:</td>
+        <td>
+          {{ process_request.sample_collection }}<br/>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Worker:</td>
+        <td>
+          <span id="worker">
+            {{ process_request.worker_name }}
+              <a ng-show="superuser" class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+                <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
+              </a>
+            <span id="error_message"></span>
+          </span>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Assigned on:</td>
+        <td>{{ process_request.assignment_date }}</td>
+      </tr>
+
+      <tr>
+        <td>Completion Date:</td>
+        <td>{{ process_request.completion_date }}</td>
+      </tr>
+
+    </table>
+
+    </br>
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="40" class="center">
+            <h4>
+              Process Request Input Values
+              <span class="badge badge-inverse align-top">{{ process_request.inputs.length }}</span>
+            </h4>
+          </th>
+        </tr>
+        <tr>
+            <th>Category</th>
+            <th>Implementation</th>
+            <th>Input Name</th>
+            <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="request_input in process_request.inputs">
+          <td>{{ request_input.category_name }}</td>
+          <td>{{ request_input.implementation_name }}</td>
+          <td>{{ request_input.input_name }}</td>
+          <td>{{ request_input.value }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="4" class="center">
+            <h4>
+              Process Request Outputs
+              <span class="badge badge-inverse align-top">{{ process_request.outputs.length }}</span>
+            </h4>
+          </th>
+        </tr>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="request_output in process_request.outputs">
+          <td>{{ request_output.key }}</td>
+          <td>
+            <a href="api/repository/process_request_outputs/{{ request_output.id }}/download/" download>
+              Download
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

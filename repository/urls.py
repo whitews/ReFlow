@@ -12,26 +12,38 @@ handler403 = TemplateView.as_view(template_name='403.html')
 urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/?$', 'repository_api_root', name='repository-api-root'),
 
+    url(r'^api/repository/permissions/?$', PermissionList.as_view(), name='permission-list'),
+    url(r'^api/repository/permissions/(?P<pk>\d+)/?$', PermissionDetail.as_view(), name='permission-detail'),
+    url(r'^api/repository/user/?$', get_user_details, name='get_user_details'),
+    url(r'^api/repository/user/(?P<username>\w+)/?$', is_user, name='is_user'),
+
     url(r'^api/repository/markers/?$', MarkerList.as_view(), name='marker-list'),
+    url(r'^api/repository/markers/(?P<pk>\d+)/?$', MarkerDetail.as_view(), name='marker-detail'),
     url(r'^api/repository/fluorochromes/?$', FluorochromeList.as_view(), name='fluorochrome-list'),
+    url(r'^api/repository/fluorochromes/(?P<pk>\d+)/?$', FluorochromeDetail.as_view(), name='fluorochrome-detail'),
     url(r'^api/repository/specimens/?$', SpecimenList.as_view(), name='specimen-list'),
+    url(r'^api/repository/specimens/(?P<pk>\d+)/?$', SpecimenDetail.as_view(), name='specimen-detail'),
     url(r'^api/repository/parameter_functions/?$', get_parameter_functions, name='get_parameter_functions'),
     url(r'^api/repository/parameter_value_types/?$', get_parameter_value_types,
         name='get_parameter_value_types'),
 
     url(r'^api/repository/projects/?$', ProjectList.as_view(), name='project-list'),
     url(r'^api/repository/projects/(?P<pk>\d+)/?$', ProjectDetail.as_view(), name='project-detail'),
-    url(r'^api/repository/project_panels/?$', ProjectPanelList.as_view(), name='project-panel-list'),
-    url(r'^api/repository/project_panels/(?P<pk>\d+)/?$', ProjectPanelDetail.as_view(), name='project-panel-detail'),
+    url(r'^api/repository/projects/(?P<project>\d+)/permissions/?$', get_project_permissions, name='get-project-permissions'),
+    url(r'^api/repository/projects/(?P<pk>\d+)/users/?$', ProjectUserDetail.as_view(), name='project-user-detail'),
+    url(r'^api/repository/panel_templates/?$', PanelTemplateList.as_view(), name='panel-template-list'),
+    url(r'^api/repository/panel_templates/(?P<pk>\d+)/?$', PanelTemplateDetail.as_view(), name='panel-template-detail'),
 
     url(r'^api/repository/sites/?$', SiteList.as_view(), name='site-list'),
     url(r'^api/repository/sites/(?P<pk>\d+)/?$', SiteDetail.as_view(), name='site-detail'),
+    url(r'^api/repository/sites/(?P<site>\d+)/permissions/?$', get_site_permissions, name='get-site-permissions'),
     url(r'^api/repository/site_panels/?$', SitePanelList.as_view(), name='site-panel-list'),
     url(r'^api/repository/site_panels/(?P<pk>\d+)/?$', SitePanelDetail.as_view(), name='site-panel-detail'),
     url(r'^api/repository/cytometers/?$', CytometerList.as_view(), name='cytometer-list'),
     url(r'^api/repository/cytometers/(?P<pk>\d+)/?$', CytometerDetail.as_view(), name='cytometer-detail'),
 
     url(r'^api/repository/subject_groups/?$', SubjectGroupList.as_view(), name='subject-group-list'),
+    url(r'^api/repository/subject_groups/(?P<pk>\d+)/?$', SubjectGroupDetail.as_view(), name='subject-group-detail'),
     url(r'^api/repository/subjects/?$', SubjectList.as_view(), name='subject-list'),
     url(r'^api/repository/subjects/(?P<pk>\d+)/?$', SubjectDetail.as_view(), name='subject-detail'),
 
@@ -64,11 +76,11 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/beads/(?P<pk>\d+)/npy/?$', retrieve_bead_subsample_as_numpy, name='retrieve_bead_subsample_as_numpy'),
 
     url(r'^api/repository/compensations/?$', CompensationList.as_view(), name='compensation-list'),
-    url(r'^api/repository/compensations/add/?$', CreateCompensation.as_view(), name='create-compensation'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/?$', CompensationDetail.as_view(), name='compensation-detail'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/csv/?$', retrieve_compensation_as_csv, name='retrieve_compensation_as_csv'),
     url(r'^api/repository/compensations/(?P<pk>\d+)/npy/?$', retrieve_compensation_as_numpy, name='retrieve_compensation_as_numpy'),
 
+    url(r'^api/repository/workers/(?P<pk>\d+)/?$', WorkerDetail.as_view(), name='worker-detail'),
     url(r'^api/repository/workers/?$', WorkerList.as_view(), name='worker-list'),
     url(r'^api/repository/subprocess_categories/?$', SubprocessCategoryList.as_view(), name='subprocess-category-list'),
     url(r'^api/repository/subprocess_implementations/?$', SubprocessImplementationList.as_view(), name='subprocess-implementation-list'),
@@ -83,90 +95,13 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/process_requests/(?P<pk>\d+)/revoke_assignment/?$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/verify_assignment/?$', verify_process_request_assignment, name='verify-process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/complete_assignment/?$', complete_process_request_assignment, name='complete-process-request-assignment'),
-    url(r'^api/repository/process_request_outputs/add/?$', CreateProcessRequestOutput.as_view(), name='create-process-request-output'),
+    url(r'^api/repository/process_request_outputs/?$', ProcessRequestOutputList.as_view(), name='process-request-output-list'),
     url(r'^api/repository/process_request_outputs/(?P<pk>\d+)/download/?$', retrieve_process_request_output_value, name='retrieve_process_request_output'),
 )
 
-# Angular web routes
-urlpatterns += patterns('repository.views',
-    url(r'^samples/upload/$', 'fcs_upload_app', name='fcs_upload_app'),
-    url(r'^beads/upload/$', 'bead_upload_app', name='bead_upload_app'),
-    url(r'^processing/request/$', 'process_request_app', name='process_request_app'),
-)
-
-# Regular web routes
+# Non-API routes
 urlpatterns += patterns('repository.views',
     url(r'^403$', 'permission_denied', name='permission_denied'),
-    url(r'^$', 'home', name='home'),
-    url(r'^reflow_admin/$', 'admin', name='admin'),
-
-    url(r'^markers/$', 'view_markers', name='view_markers'),
-    url(r'^markers/add/$', 'add_marker', name='add_marker'),
-    url(r'^markers/(?P<marker_id>\d+)/edit/$', 'add_marker', name='edit_marker'),
-
-    url(r'^fluorochromes/$', 'view_fluorochromes', name='view_fluorochromes'),
-    url(r'^fluorochromes/add/$', 'add_fluorochrome', name='add_fluorochrome'),
-    url(r'^fluorochromes/(?P<fluorochrome_id>\d+)/edit/$', 'add_fluorochrome', name='edit_fluorochrome'),
-
-    url(r'^specimens/$', 'view_specimens', name='view_specimens'),
-    url(r'^specimens/add/$', 'add_specimen', name='add_specimen'),
-    url(r'^specimens/(?P<specimen_id>\d+)/edit/$', 'edit_specimen', name='edit_specimen'),
-
-    url(r'^project/(?P<project_id>\d+)/$', 'view_project', name='view_project'),
-    url(r'^project/add/$', 'add_project', name='add_project'),
-    url(r'^project/(?P<project_id>\d+)/edit/$', 'add_project', name='edit_project'),
-
-    url(r'^project/(?P<project_id>\d+)/users/$', 'view_project_users', name='view_project_users'),
-    url(r'^project/(?P<project_id>\d+)/users/add/$', 'add_user_permissions', name='add_user_permissions'),
-    url(r'^project/(?P<project_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_project_user', name='manage_project_user'),
-    url(r'^site/(?P<site_id>\d+)/users/(?P<user_id>-?\d+)/manage/$', 'manage_site_user', name='manage_site_user'),
-
-    url(r'^project/(?P<project_id>\d+)/stimulations/$', 'view_project_stimulations', name='view_project_stimulations'),
-    url(r'^project/(?P<project_id>\d+)/stimulations/add/$', 'add_stimulation', name='add_stimulation'),
-    url(r'^project/(?P<project_id>\d+)/stimulations/(?P<stimulation_id>\d+)/edit/$', 'add_stimulation', name='edit_stimulation'),
-
-    url(r'^project/(?P<project_id>\d+)/panels/$', 'view_project_panels', name='view_project_panels'),
-    url(r'^project/(?P<project_id>\d+)/panels/add/$', 'add_project_panel', name='add_project_panel'),
-    url(r'^project/(?P<project_id>\d+)/panels/(?P<panel_id>\d+)/edit/$', 'add_project_panel', name='edit_project_panel'),
-    url(r'^project/(?P<project_id>\d+)/panels/(?P<panel_id>\d+)/copy/$', 'copy_project_panel', name='copy_project_panel'),
-
-    url(r'^project/(?P<project_id>\d+)/sites/$', 'view_project_sites', name='view_project_sites'),
-    url(r'^project/(?P<project_id>\d+)/sites/add/$', 'add_site', name='add_site'),
-    url(r'^site/(?P<site_id>\d+)/edit/$', 'edit_site', name='edit_site'),
-
-    url(r'^project/(?P<project_id>\d+)/cytometers/$', 'view_project_cytometers', name='view_project_cytometers'),
-    url(r'^project/(?P<project_id>\d+)/cytometers/add/$', 'add_cytometer', name='add_cytometer'),
-    url(r'^project/(?P<project_id>\d+)/cytometers/(?P<cytometer_id>\d+)/edit/$', 'add_cytometer', name='edit_cytometer'),
-
-    url(r'^project/(?P<project_id>\d+)/compensations/$', 'view_compensations', name='project_compensations'),
-    url(r'^project/(?P<project_id>\d+)/compensations/add/$', 'add_compensation', name='add_compensation'),
-    url(r'^project/(?P<project_id>\d+)/compensations/(?P<compensation_id>\d+)/edit/$', 'add_compensation', name='edit_compensation'),
-
-    url(r'^project/(?P<project_id>\d+)/visit_types/$', 'view_visit_types', name='project_visit_types'),
-    url(r'^project/(?P<project_id>\d+)/visit_types/add/$', 'add_visit_type', name='add_visit_type'),
-    url(r'^visit_types/(?P<visit_type_id>\d+)/edit/$', 'edit_visit_type', name='edit_visit_type'),
-
-    url(r'^project/(?P<project_id>\d+)/site_panels/$', 'view_project_site_panels', name='view_project_site_panels'),
-    url(r'^site_panel/(?P<panel_id>\d+)/edit/$', 'edit_site_panel_comments', name='edit_site_panel_comments'),
-
-    url(r'^project/(?P<project_id>\d+)/subject_groups/$', 'view_subject_groups', name='subject_groups'),
-    url(r'^project/(?P<project_id>\d+)/subject_groups/add/$', 'add_subject_group', name='add_subject_group'),
-    url(r'^project/(?P<project_id>\d+)/subject_groups/(?P<subject_group_id>\d+)/edit/$', 'edit_subject_group', name='edit_subject_group'),
-
-    url(r'^project/(?P<project_id>\d+)/subjects/$', 'view_subjects', name='view_subjects'),
-    url(r'^project/(?P<project_id>\d+)/subjects/add/$', 'add_subject', name='add_subject'),
-    url(r'^subject/(?P<subject_id>\d+)/edit/$', 'edit_subject', name='edit_subject'),
-
-    url(r'^project/(?P<project_id>\d+)/samples/$', 'view_samples', name='view_project_samples'),
-    url(r'^sample/(?P<sample_id>\d+)/edit/$', 'edit_sample', name='edit_sample'),
-    url(r'^sample/(?P<sample_id>\d+)/parameters/$', 'render_sample_parameters', name='render_sample_parameters'),
-    url(r'^sample/(?P<sample_id>\d+)/compensation/$', 'render_sample_compensation', name='render_sample_compensation'),
-
-    url(r'^project/(?P<project_id>\d+)/beads/$', 'view_beads', name='view_beads'),
-
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
-
-    url(r'^processing/dashboard/$', 'process_dashboard', name='process_dashboard'),
-    url(r'^processing/worker/add/$', 'add_worker', name='add_worker'),
-    url(r'^processing/process_requests/(?P<process_request_id>\d+)/$', 'view_process_request', name='view_process_request'),
+    url(r'^$', 'reflow_app', name='home'),
 )

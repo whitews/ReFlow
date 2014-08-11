@@ -36,6 +36,9 @@ class ProtectedModel(models.Model):
     def has_modify_permission(self, user):
         return False
 
+    def has_process_permission(self, user):
+        return False
+
     def has_user_management_permission(self, user):
         return False
 
@@ -86,12 +89,12 @@ class Marker(models.Model):
 
 class Fluorochrome(models.Model):
     fluorochrome_abbreviation = models.CharField(
-        unique=False,
+        unique=True,
         null=False,
         blank=False,
         max_length=32)
     fluorochrome_name = models.CharField(
-        unique=False,
+        unique=True,
         null=False,
         blank=False,
         max_length=128)
@@ -194,6 +197,19 @@ class ProjectManager(models.Manager):
 
         return projects | site_projects
 
+    @staticmethod
+    def get_projects_user_can_manage_users(user):
+        """
+        Return a list of projects for which the given user has user management
+        permissions.
+        """
+        projects = get_objects_for_user(
+            user,
+            'manage_project_users',
+            klass=Project)
+
+        return projects
+
 
 class Project(ProtectedModel):
     project_name = models.CharField(
@@ -215,6 +231,7 @@ class Project(ProtectedModel):
             ('view_project_data', 'View Project Data'),
             ('add_project_data', 'Add Project Data'),
             ('modify_project_data', 'Modify/Delete Project Data'),
+            ('submit_process_requests', 'Submit Process Requests'),
             ('manage_project_users', 'Manage Project Users'),
         )
 
@@ -233,6 +250,11 @@ class Project(ProtectedModel):
 
     def has_modify_permission(self, user):
         if user.has_perm('modify_project_data', self):
+            return True
+        return False
+
+    def has_process_permission(self, user):
+        if user.has_perm('submit_process_requests', self):
             return True
         return False
 
@@ -255,20 +277,17 @@ class Project(ProtectedModel):
             content_type=ContentType.objects.get_for_model(Project),
             object_pk=self.id)
 
-    def get_visit_type_count(self):
-        return VisitType.objects.filter(project=self).count()
-
-    def get_panel_count(self):
-        return SitePanel.objects.filter(site__project=self).count()
-
-    def get_subject_count(self):
-        return Subject.objects.filter(project=self).count()
+    def get_cytometer_count(self):
+        return Cytometer.objects.filter(site__project=self).count()
 
     def get_sample_count(self):
         return Sample.objects.filter(subject__project=self).count()
 
     def get_compensation_count(self):
-        return Compensation.objects.filter(site__project=self).count()
+        return Compensation.objects.filter(site_panel__site__project=self).count()
+
+    def get_bead_sample_count(self):
+        return BeadSample.objects.filter(cytometer__site__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
@@ -316,7 +335,7 @@ class Stimulation(ProtectedModel):
         return u'%s' % self.stimulation_name
 
 
-class ProjectPanel(ProtectedModel):
+class PanelTemplate(ProtectedModel):
     project = models.ForeignKey(Project, null=False, blank=False)
     panel_name = models.CharField(
         unique=False,
@@ -345,6 +364,23 @@ class ProjectPanel(ProtectedModel):
 
         return False
 
+    def get_sample_count(self):
+        site_panels = SitePanel.objects.filter(panel_template=self)
+        sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_bead_sample_count(self):
+        site_panels = SitePanel.objects.filter(panel_template=self)
+        sample_count = BeadSample.objects.filter(
+            site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_compensation_count(self):
+        site_panels = SitePanel.objects.filter(panel_template=self)
+        compensations = Compensation.objects.filter(
+            site_panel__in=site_panels).count()
+        return compensations
+
     def clean(self):
         """
         Check for duplicate panel names within a project.
@@ -358,21 +394,21 @@ class ProjectPanel(ProtectedModel):
         except ObjectDoesNotExist:
             return  # Project is required and will get caught by Form.is_valid()
 
-        duplicates = ProjectPanel.objects.filter(
+        duplicates = PanelTemplate.objects.filter(
             panel_name=self.panel_name,
             project=self.project).exclude(
                 id=self.id)
         if duplicates.count() > 0:
             raise ValidationError(
-                "A panel with this name already exists in this project."
+                "A template with this name already exists in this project."
             )
 
     def __unicode__(self):
         return u'%s' % self.panel_name
 
 
-class ProjectPanelParameter(ProtectedModel):
-    project_panel = models.ForeignKey(ProjectPanel)
+class PanelTemplateParameter(ProtectedModel):
+    panel_template = models.ForeignKey(PanelTemplate)
     parameter_type = models.CharField(
         max_length=3,
         choices=PARAMETER_TYPE_CHOICES)
@@ -393,10 +429,10 @@ class ProjectPanelParameter(ProtectedModel):
         name_string = '%s_%s' % (
             self.parameter_type,
             self.parameter_value_type)
-        if (self.projectpanelparametermarker_set.count() > 0):
-            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.projectpanelparametermarker_set.all()]))
+        if self.paneltemplateparametermarker_set.count() > 0:
+            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.paneltemplateparametermarker_set.all()]))
             name_string += '_' + marker_string
-        if (self.fluorochrome):
+        if self.fluorochrome:
             name_string += '_' + self.fluorochrome.fluorochrome_abbreviation
         return name_string
 
@@ -413,8 +449,8 @@ class ProjectPanelParameter(ProtectedModel):
 
         # first check that there are no empty values
         error_message = []
-        if not hasattr(self, 'project_panel'):
-            error_message.append("Project Panel is required")
+        if not hasattr(self, 'panel_template'):
+            error_message.append("Panel template is required")
         if not hasattr(self, 'parameter_type'):
             error_message.append("Parameter type is required")
 
@@ -428,16 +464,16 @@ class ProjectPanelParameter(ProtectedModel):
         # i.e. these are duplicates: CD3+CD8 & CD8+CD3
         # We're using a an annotation approach by combining
         # '__in' with a matching count of the markers
-        ppm_duplicates = ProjectPanelParameter.objects.filter(
-            project_panel=self.project_panel,
+        ppm_duplicates = PanelTemplateParameter.objects.filter(
+            panel_template=self.panel_template,
             fluorochrome=self.fluorochrome,
-            projectpanelparametermarker__in=self.projectpanelparametermarker_set.all(),
+            paneltemplateparametermarker__in=self.paneltemplateparametermarker_set.all(),
             parameter_type=self.parameter_type,
             parameter_value_type=self.parameter_value_type).exclude(
                 id=self.id)
         ppm_duplicates = ppm_duplicates.annotate(
-            num_markers=models.Count('projectpanelparametermarker')).filter(
-                num_markers=self.projectpanelparametermarker_set.all().count())
+            num_markers=models.Count('paneltemplateparametermarker')).filter(
+                num_markers=self.paneltemplateparametermarker_set.all().count())
 
         if ppm_duplicates.count() > 0:
             raise ValidationError(
@@ -446,14 +482,14 @@ class ProjectPanelParameter(ProtectedModel):
 
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s-%s' % (
-            self.project_panel,
+            self.panel_template,
             self.parameter_type,
             self.parameter_value_type
         )
 
 
-class ProjectPanelParameterMarker(models.Model):
-    project_panel_parameter = models.ForeignKey(ProjectPanelParameter)
+class PanelTemplateParameterMarker(models.Model):
+    panel_template_parameter = models.ForeignKey(PanelTemplateParameter)
     marker = models.ForeignKey(Marker)
 
     # override clean to prevent duplicate Ab's for a parameter...
@@ -463,8 +499,8 @@ class ProjectPanelParameterMarker(models.Model):
         Verify the parameter & marker combo doesn't already exist
         """
 
-        qs = ProjectPanelParameterMarker.objects.filter(
-            project_panel_parameter=self.project_panel_parameter,
+        qs = PanelTemplateParameterMarker.objects.filter(
+            panel_template_parameter=self.panel_template_parameter,
             marker=self.marker).exclude(id=self.id)
 
         if qs.exists():
@@ -473,7 +509,7 @@ class ProjectPanelParameterMarker(models.Model):
             )
 
     def __unicode__(self):
-        return u'%s: %s' % (self.project_panel_parameter, self.marker)
+        return u'%s: %s' % (self.panel_template_parameter, self.marker)
 
 
 class SiteManager(models.Manager):
@@ -496,8 +532,8 @@ class SiteManager(models.Manager):
                 if project.has_view_permission(user):
                     site_id_list.extend([s.id for s in project.site_set.all()])
                 else:
-                    site_id_list.extend([s.id for s in
-                        get_objects_for_user(
+                    site_id_list.extend([
+                        s.id for s in get_objects_for_user(
                             user,
                             'view_site_data',
                             klass=Site
@@ -550,22 +586,6 @@ class SiteManager(models.Manager):
 
         return sites
 
-    @staticmethod
-    def get_sites_user_can_manage_users(user, project):
-        """
-        Returns project sites for which the given user has modify permissions
-        """
-        if project.has_user_management_permission(user):
-            sites = Site.objects.filter(project=project)
-        else:
-            sites = get_objects_for_user(
-                user,
-                'manage_site_users',
-                klass=Site).filter(
-                    project=project)
-
-        return sites
-
 
 class Site(ProtectedModel):
     project = models.ForeignKey(Project)
@@ -581,14 +601,25 @@ class Site(ProtectedModel):
         permissions = (
             ('view_site_data', 'View Site'),
             ('add_site_data', 'Add Site Data'),
-            ('modify_site_data', 'Modify/Delete Site Data'),
-            ('manage_site_users', 'Manage Site Users')
+            ('modify_site_data', 'Modify/Delete Site Data')
         )
 
     def get_sample_count(self):
         site_panels = SitePanel.objects.filter(site=self)
         sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
         return sample_count
+
+    def get_bead_sample_count(self):
+        site_panels = SitePanel.objects.filter(site=self)
+        sample_count = BeadSample.objects.filter(
+            site_panel__in=site_panels).count()
+        return sample_count
+
+    def get_compensation_count(self):
+        site_panels = SitePanel.objects.filter(site=self)
+        compensations = Compensation.objects.filter(
+            site_panel__in=site_panels).count()
+        return compensations
 
     def get_user_permissions(self, user):
         return UserObjectPermission.objects.filter(
@@ -650,6 +681,23 @@ class Cytometer(ProtectedModel):
         blank=False,
         max_length=256)
 
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.site.project):
+            return True
+        elif user.has_perm('view_site_data', self.site):
+            return True
+        return False
+
+    def has_add_permission(self, user):
+        if self.site.has_add_permission(user):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if self.site.has_modify_permission(user):
+            return True
+        return False
+
     def clean(self):
         """
         Check for duplicate cytometer names within a site.
@@ -672,15 +720,15 @@ class Cytometer(ProtectedModel):
 
 
 class SitePanel(ProtectedModel):
-    # a SitePanel must be "based" off of a ProjectPanel
+    # a SitePanel must be "based" off of a PanelTemplate
     # and is required to have at least the parameters specified in the
-    # its ProjectPanel
-    project_panel = models.ForeignKey(ProjectPanel, null=False, blank=False)
+    # its PanelTemplate
+    panel_template = models.ForeignKey(PanelTemplate, null=False, blank=False)
     site = models.ForeignKey(Site, null=False, blank=False)
 
     # We don't allow site panels to have their own name,
     # so we use implementation version to differentiate site panels
-    # which are based on the same project panel for the same site
+    # which are based on the same panel template for the same site
     implementation = models.IntegerField(editable=False, null=False)
     site_panel_comments = models.TextField(
         "Site Panel Comments",
@@ -693,7 +741,7 @@ class SitePanel(ProtectedModel):
         Returns the parameter name with value type.
         """
         return '%s (%d)' % (
-            self.project_panel.panel_name,
+            self.panel_template.panel_name,
             self.implementation)
 
     name = property(_get_name)
@@ -711,23 +759,23 @@ class SitePanel(ProtectedModel):
     def clean(self):
         try:
             Site.objects.get(id=self.site_id)
-            ProjectPanel.objects.get(id=self.project_panel_id)
+            PanelTemplate.objects.get(id=self.panel_template_id)
         except ObjectDoesNotExist:
-            # site & project panel are required...
+            # site & panel template are required...
             # will get caught by Form.is_valid()
             return
 
-        # project panel must be in the same project as the site
-        if self.site.project_id != self.project_panel.project_id:
+        # panel template must be in the same project as the site
+        if self.site.project_id != self.panel_template.project_id:
             raise ValidationError(
-                "Chosen project panel is not in site's project.")
+                "Chosen panel is not in site's project.")
 
-        # Get count of site panels for the project panel / site combo
+        # Get count of site panels for the panel template / site combo
         # to figure out the implementation number
         if not self.implementation:
             current_implementations = SitePanel.objects.filter(
                 site=self.site,
-                project_panel=self.project_panel).values_list(
+                panel_template=self.panel_template).values_list(
                     'implementation', flat=True)
 
             proposed_number = len(current_implementations) + 1
@@ -741,7 +789,7 @@ class SitePanel(ProtectedModel):
     def __unicode__(self):
         return u'%s: %s (%d)' % (
             self.site.site_name,
-            self.project_panel.panel_name,
+            self.panel_template.panel_name,
             self.implementation)
 
 
@@ -891,6 +939,15 @@ class SubjectGroup(ProtectedModel):
             return True
         return False
 
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
+    def get_sample_count(self):
+        sample_count = Sample.objects.filter(subject__in=self.subject_set.all()).count()
+        return sample_count
+
     class Meta:
         unique_together = (('project', 'group_name'),)
 
@@ -916,6 +973,11 @@ class Subject(ProtectedModel):
 
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
             return True
         return False
 
@@ -1026,12 +1088,19 @@ class Compensation(ProtectedModel):
     )
 
     def has_view_permission(self, user):
-        site = self.site_panel.site
-        if site.project.has_view_permission(user):
+        if self.site_panel.site.project.has_view_permission(user):
             return True
-        elif site is not None:
-            if user.has_perm('view_site_data', site):
-                return True
+        elif self.site_panel.site.has_view_permission(user):
+            return True
+        return False
+
+    def has_modify_permission(self, user):
+        if self.site_panel.site.has_modify_permission(user):
+            return True
+        return False
+
+    def get_sample_count(self):
+        return Sample.objects.filter(compensation=self).count()
 
     def get_compensation_as_csv(self):
         csv_string = StringIO()
@@ -1246,6 +1315,16 @@ class Sample(ProtectedModel):
             return True
         elif self.site_panel is not None:
             if user.has_perm('view_site_data', self.site_panel.site):
+                return True
+
+        return False
+
+    def has_modify_permission(self, user):
+
+        if self.subject.project.has_modify_permission(user):
+            return True
+        elif self.site_panel is not None:
+            if user.has_perm('modify_site_data', self.site_panel.site):
                 return True
 
         return False
@@ -1517,7 +1596,7 @@ class SampleCollectionMember(ProtectedModel):
 
 
 def bead_file_path(instance, filename):
-    project_id = instance.site_panel.project_panel.project_id
+    project_id = instance.site_panel.panel_template.project_id
     site_id = instance.site_panel.site_id
 
     upload_dir = join([
@@ -1532,7 +1611,7 @@ def bead_file_path(instance, filename):
 
 
 def bead_subsample_file_path(instance, filename):
-    project_id = instance.site_panel.project_panel.project_id
+    project_id = instance.site_panel.panel_template.project_id
     site_id = instance.site_panel.site_id
 
     upload_dir = join([
@@ -1559,9 +1638,19 @@ class BeadSample(ProtectedModel):
         null=False,
         blank=False
     )
+    includes_negative_control = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False
+    )
+    negative_control = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False
+    )
     compensation_channel = models.ForeignKey(
         Fluorochrome,
-        null=False,
+        null=True,
         blank=False)
     bead_file = models.FileField(
         upload_to=bead_file_path,
@@ -1597,11 +1686,18 @@ class BeadSample(ProtectedModel):
 
     def has_view_permission(self, user):
 
-        if self.site_panel.project_panel.project.has_view_permission(user):
+        if self.site_panel.panel_template.project.has_view_permission(user):
             return True
-        elif self.site_panel is not None:
-            if user.has_perm('view_site_data', self.site_panel.site):
-                return True
+        elif user.has_perm('view_site_data', self.site_panel.site):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if self.site_panel.panel_template.project.has_modify_permission(user):
+            return True
+        elif user.has_perm('modify_site_data', self.site_panel.site):
+            return True
 
         return False
 
@@ -1620,7 +1716,6 @@ class BeadSample(ProtectedModel):
             - Save SHA-1 hash and check for duplicate FCS files in this project.
         """
 
-
         self.original_filename = self.bead_file.name.split('/')[-1]
         # get the hash
         file_hash = hashlib.sha1(self.bead_file.read())
@@ -1637,7 +1732,7 @@ class BeadSample(ProtectedModel):
         # if so delete the temp file and raise ValidationError
         self.sha1 = file_hash.hexdigest()
         other_sha_values_in_project = BeadSample.objects.filter(
-            site_panel__project_panel__project=self.site_panel.project_panel.project).exclude(
+            site_panel__panel_template__project=self.site_panel.panel_template.project).exclude(
                 id=self.id).values_list('sha1', flat=True)
         if self.sha1 in other_sha_values_in_project:
             if hasattr(self.bead_file.file, 'temporary_file_path'):
@@ -1768,7 +1863,7 @@ class BeadSample(ProtectedModel):
 
     def __unicode__(self):
         return u'Project: %s, Bead File: %s' % (
-            self.site_panel.project_panel.project.project_name,
+            self.site_panel.panel_template.project.project_name,
             self.original_filename)
 
 

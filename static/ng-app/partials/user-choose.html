@@ -1,0 +1,29 @@
+<div ng-controller="UserController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    <h4>Select User by Username</h4>
+  </div>
+  <div class="modal-body">
+
+    <h4>Enter Username:</h4>
+
+    <div class="form-group">
+      <input maxlength="128" type="text" ng-model="username" />
+      <button type="button" class="btn btn-success" ng-click="query_user(username)">Query</button>
+    </div>
+
+    <div class="well" ng-show="user_test">
+      User found
+    </div>
+
+    <div class="well well-warning" ng-show="user_test==false">
+      User not found
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-default" ng-show="user_test" ng-click="init_form(user)">Choose User</button>
+  </div>
+</div>

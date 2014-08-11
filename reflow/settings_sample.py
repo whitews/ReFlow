@@ -166,7 +166,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'repository.api_views.custom_exception_handler'
 }
 
 INTERNAL_IPS = ('127.0.0.1',)
