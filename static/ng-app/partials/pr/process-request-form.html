@@ -3,7 +3,7 @@
     <li class="previous" ng-hide="current_step_index == 0">
       <a href="" ng-click="prevStep()">&larr; Previous</a>
     </li>
-    <li class="next" ng-hide="current_step_index == step_count - 1">
+    <li class="next" ng-hide="current_step_index >= step_count - 2">
       <a href="" ng-click="nextStep()">Next &rarr;</a>
     </li>
   </ul>

@@ -1,4 +1,5 @@
   <div class="row">
     <h4>Success!</h4>
-    <a href="/processing/process_requests/{{ model.submitted_pr.id }}/">View process details</a>
+    <a ui-sref="process-request-detail({ requestId: model.submitted_pr.id })">View process details</a><br/>
+    <a href="" ng-click="firstStep()">Submit New Process Request</a><br/>
   </div>

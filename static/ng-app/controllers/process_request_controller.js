@@ -80,10 +80,13 @@ var process_steps = [
         "name": "process_request_options",
         "title": "Process Request Options",
         "url": "/static/ng-app/partials/pr/request_options.html"
+    },
+    {
+        "name": "success",
+        "title": "Process Request Submitted",
+        "url": "/static/ng-app/partials/pr/success.html"
     }
 ];
-
-var success_url = '/static/ng-app/partials/pr/success.html';
 
 app.controller(
     'ProcessRequestFormController',
@@ -362,6 +365,8 @@ app.controller(
                         break;
                     case "process_request_options":
                         break;
+                    case "success":
+                        break;
                 }
             }
 
@@ -378,6 +383,11 @@ app.controller(
                     $scope.current_step = process_steps[$scope.current_step_index];
                     initializeStep();
                 }
+            };
+            $scope.firstStep = function () {
+                $scope.current_step_index = 0;
+                $scope.current_step = process_steps[$scope.current_step_index];
+                initializeStep();
             };
 
             $scope.toggleAllSamples = function () {
@@ -565,7 +575,7 @@ app.controller(
                     ProcessRequestInput.save(
                         pr_inputs,
                         function (data) {  // success
-                            $scope.current_step.url = success_url;
+                            $scope.nextStep();
                             $scope.model.submitted_pr = pr;
                             $scope.model.submitted_pr_inputs = data;
                     })
