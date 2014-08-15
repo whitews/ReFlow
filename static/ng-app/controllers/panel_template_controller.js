@@ -115,7 +115,7 @@ app.controller(
                         $scope.model.current_staining = $scope.model.template.staining;
                         $scope.model.panel_templates = PanelTemplate.query(
                             {
-                                project: $scope.current_project,
+                                project: $scope.current_project.id,
                                 staining: ['FS']  // only full stain can be parents
                             },
                             function () {
@@ -158,6 +158,13 @@ app.controller(
             } else {
                 $scope.model.parent_template = null;
                 $scope.model.channels = [{markers: []}];
+                // get all project's panel templates matching full stain
+                $scope.model.panel_templates = PanelTemplate.query(
+                    {
+                        project: $scope.current_project.id,
+                        staining: ['FS']  // only full stain can be parents
+                    }
+                );
             }
 
             $scope.stainingChanged = function() {
@@ -173,14 +180,6 @@ app.controller(
                 }
                 $scope.validatePanel();
             };
-
-            // get all project's panel templates matching full stain
-            $scope.model.panel_templates = PanelTemplate.query(
-                {
-                    project: $scope.current_project.id,
-                    staining: ['FS']  // only full stain can be parents
-                }
-            );
 
             $scope.addChannel = function() {
                 $scope.model.channels.push({markers:[]});
