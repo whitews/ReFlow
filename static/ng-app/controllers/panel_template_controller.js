@@ -492,10 +492,10 @@ app.controller(
                     }
                 }
 
-                if ($scope.model.current_staining == 'FM' && parent_fmo_matches < 1) {
+                if ($scope.model.current_staining == 'FM' && parent_fmo_matches.length < 1) {
                     valid = false;
                     $scope.model.errors.push("FMO templates must specify at least one unstained channel.");
-                } else if ($scope.model.current_staining == 'IS' && parent_iso_matches < 1) {
+                } else if ($scope.model.current_staining == 'IS' && parent_iso_matches.length < 1) {
                     valid = false;
                     $scope.model.errors.push("ISO templates must specify at least one ISO channel.");
                 }
