@@ -58,7 +58,7 @@ app.controller(
                 delete param.id;
                 var markers = [];
                 param.markers.forEach(function(m) {
-                    markers.push(m.id);
+                    markers.push(m.marker_id);
                 });
                 param.markers = markers;
             });
