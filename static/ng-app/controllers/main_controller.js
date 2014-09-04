@@ -206,6 +206,10 @@ app.controller(
                 });
             }
 
+            $scope.$on('updateSubjects', function () {
+                $scope.subjects = get_list();
+            });
+
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
@@ -304,6 +308,10 @@ app.controller(
                 });
             }
 
+            $scope.$on('updateCytometers', function () {
+                $scope.cytometers = get_list();
+            });
+
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
@@ -350,6 +358,10 @@ app.controller(
                 });
             }
 
+            $scope.$on('updateVisitTypes', function () {
+                $scope.visit_types = get_list();
+            });
+
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
@@ -395,6 +407,10 @@ app.controller(
                     $scope.stimulations = get_list();
                 });
             }
+
+            $scope.$on('updateStimulations', function () {
+                $scope.stimulations = get_list();
+            });
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
@@ -773,6 +789,10 @@ app.controller(
                     $scope.compensations = get_list();
                 });
             }
+
+            $scope.$on('updateCompensations', function () {
+                $scope.compensations = get_list();
+            });
 
             $scope.init_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
