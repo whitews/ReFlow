@@ -1239,6 +1239,7 @@ class CytometerDetail(
 
         return super(CytometerDetail, self).delete(request, *args, **kwargs)
 
+
 class MarkerList(generics.ListCreateAPIView):
     """
     API endpoint representing a list of flow cytometry markers.

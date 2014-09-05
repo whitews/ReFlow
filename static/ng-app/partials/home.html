@@ -7,7 +7,7 @@
             <div style="position:relative">
               <h4>Projects <span class="badge badge-inverse align-top">{{ projects.length }}</span></h4>
               <div class="btn-group" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(null)" ng-show="user.staff">Add Project</a>
+                  <a class="btn btn-default btn-sm" ng-click="init_form(null)" ng-show="user.superuser">Add Project</a>
               </div>
             </div>
           </th>
@@ -45,6 +45,6 @@
 
     <div ng-show="projects.length == 0">
       <p>You do not belong to any projects.</p>
-      <a class="btn btn-default btn-sm" ng-click="init_form(null)" ng-show="user.staff">Add Project</a>
+      <a class="btn btn-default btn-sm" ng-click="init_form(null)" ng-show="user.superuser">Add Project</a>
     </div>
 </div>
