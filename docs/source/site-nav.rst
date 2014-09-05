@@ -13,26 +13,24 @@ Login to the ReFlow server using the web address and user credentials provided b
 Home Page
 =========
 
-The home page is a dashboard view of all the projects to which you belong as well as the user permissions you have for each project. You will not see any projects to which you do not have view permissions.
-
-The main logo in the upper left corner will always link back to this home page. In the upper right corner of the page you will find your username and a 'Logout' link to log out of the system. Note, you will be automatically logged off after 15 minutes of inactivity.
+The home page is a dashboard view of all the projects to which you belong as well as the user permissions you have for each project. You will not see any projects to which you do not have view permissions. In the upper right corner of the page you will find your username and a 'Logout' link to log out of the system. Note the 'Documentation' link to access general ReFlow usage documentation. ReFlow administrators will have an additional 'Admin' link to manage administrative tasks such as adding new markers, fluorochromes, etc.
 
 .. image:: images/home.png
    :width: 1000
 
-============
-Project Home
-============
+==============
+Project Detail
+==============
 
-The project home page is a dashboard view with links to all data categories within a project. Some categories are related to others, and this is shown by grouping them together, for example a particular cytometer belongs to a particular site, so they are grouped to convey this relationship.
+The project detail page is a dashboard view with links to all data categories within a project. Some categories are related to others, for example, a particular cytometer belongs to a particular site. Note the "breadcrumb" path directly below the ReFlow logo. This area displays your current browsing location, with links to that location's parent pages. There are also links for the most common actions under each data category.
 
-The exception to this is the Sample link. Samples represent individual FCS files and are related to several other categories. Therefore, the link to project samples is not grouped with other categories.
+.. image:: images/project-detail.png
 
-.. image:: images/project-home.png
+Note that some pages within ReFlow will be displayed slightly different depending on user permissions. For example, on the project home page, users with "Manage users" permission for that project will see a "Manage Users" link to the right of the project name. Likewise, users with "Edit project" permission for that project will see an "Edit Project" link. A non-admin user would see the project detail view as:
 
-Note that some pages within ReFlow will be displayed slightly different depending on user permissions. On the project home page, users with "Manage users" permission for that project will see a "Manage Users" link to the right of the project name. Likewise, users with "Edit project" permission for that project will see an "Edit Project" link. Users with both permissions will see both:
+.. image:: images/project-detail-non-admin-user.png
 
-.. image:: images/project-home-admin-user.png
+:doc:`tutorials/add-project`
 
 ================================
 Project Category - Subject Group
