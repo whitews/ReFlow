@@ -102,7 +102,8 @@ def get_user_details(request):
         {
             'username': request.user.username,
             'email': request.user.email,
-            'superuser': request.user.is_superuser
+            'superuser': request.user.is_superuser,
+            'staff': request.user.is_staff
         }
     )
 
