@@ -36,7 +36,7 @@ Note that some pages within ReFlow will be displayed slightly different dependin
 Project Category - Subject Group
 ================================
 
-Subject groups are simply a way to group subjects. There are no rules governing what the subject group represents and the subject group name can be any text string. However, duplicate subject group names are not allowed.
+Subject groups are simply a way to group subjects. There are no rules governing what the subject group represents and the subject group name can be any text string. However, duplicate subject group names are not allowed within a project.
 
 :doc:`tutorials/add-subject-group`
 
