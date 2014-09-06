@@ -505,6 +505,9 @@ class SampleSerializer(serializers.ModelSerializer):
     project = serializers.IntegerField(
         source='subject.project_id',
         read_only=True)
+    project_name = serializers.CharField(
+        source='subject.project.project_name',
+        read_only=True)
     subject_code = serializers.CharField(
         source='subject.subject_code',
         read_only=True)
@@ -558,6 +561,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'site',
             'site_name',
             'project',
+            'project_name',
             'original_filename',
             'exclude',
             'sha1',
