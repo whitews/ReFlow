@@ -21,4 +21,4 @@ Tutorial - Adding a Subject Group
 
     .. note:: If there were validation errors with the submitted form, the form will be re-displayed along with the validation errors.
 
-#.  Once the new project is created, the modal window will close and the project list will automatically update showing the new project.
+#.  Once the new subject group is created, the modal window will close.
