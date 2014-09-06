@@ -26,7 +26,9 @@ The project detail page is a dashboard view with links to all data categories wi
 
 .. image:: images/project-detail.png
 
-Note that some pages within ReFlow will be displayed slightly different depending on user permissions. For example, on the project home page, users with "Manage users" permission for that project will see a "Manage Users" link to the right of the project name. Likewise, users with "Edit project" permission for that project will see an "Edit Project" link. A non-admin user would see the project detail view as:
+.. note:: Some pages within ReFlow will be displayed slightly different depending on user permissions. For example, on the project home page, users with "Manage users" permission for that project will see a "Manage Users" link to the right of the project name. Likewise, users with "Edit project" permission for that project will see an "Edit Project" link.
+
+A non-admin user would see the project detail view as:
 
 .. image:: images/project-detail-non-admin-user.png
 
@@ -54,9 +56,9 @@ Project Category - Site
 
 Sites are locations at which FCS samples are created. There are no rules governing what the site represents, it could be an institution or a particular laboratory. The site name can be any text string. However, duplicate site names within a Project are not allowed.
 
-Sites are not shared across projects. While the same site name may be found in 2 different projects, it is purely coincidental. There is no formal relationship between those 2 sites, and user permissions are not shared between them.
-
 There are also site-level permissions which restrict access for site users. Users with access to one site within a project will not have access to data in other sites within the project. See :doc:`../permissions` for more information.
+
+.. note:: Sites are not shared across projects. While the same site name may be used in 2 different projects, it is purely coincidental. There is no formal relationship between sites with the same name across different projects, and user permissions are not shared between them.
 
 :doc:`tutorials/add-site`
 
@@ -72,3 +74,22 @@ Several categories within ReFlow are not defined within projects and their value
 * Staining
 * Parameter Functions
 * Parameter Value Types
+
+To view or modify data for these categories requires superuser privileges. To navigate to the non-project category views, click on the **Admin** link in the upper right (only available for superusers).
+
+.. image:: images/admin-view.png
+
+Specimens
+---------
+
+A specimen represents a type of biological tissue from which an FCS sample was acquired. There are several specimens included by default in ReFlow, but the list may be modified when deploying a ReFlow server. The default list includes:
+
+====  ===========
+Name  Description
+====  ===========
+BAL   Bronchoalveolar Lavage
+BM    Bone Marrow
+LNC	  Lymph Node Cells
+PBMC  Peripheral Blood Mononuclear Cells
+WB    Whole Blood
+====  ===========
