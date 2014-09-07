@@ -3,10 +3,6 @@ Server Setup
 
 Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.
 
-Why Ubuntu Server 12.04 LTS?
-
-The short answer is because SciPy is available from the official repository. CentOS 6 does not provide a pre-built SciPy package, and it is a rather involved process to build SciPy from source. Also, Amazon EC2 has a micro instance for Ubuntu Server 12.04 LTS which qualifies for it's Free Tier program (i.e. free for a year).
-
 ============
 Installation
 ============
@@ -23,27 +19,13 @@ Installation
 
     ``apt-get install libapache2-mod-wsgi``
 
-#.  Install NumPy, matplotlib, and SciPy
+#.  Install NumPy and pip
 
     ``apt-get install python-numpy``
 
-    ``apt-get install python-matplotlib``
-
-    ``apt-get install python-scipy``
-
-#.  We need Mercurial and pip to get the latest py-fcm
-
-    ``apt-get install mercurial``
-
     ``apt-get install python-pip``
 
-#.  Install py-fcm from the Mercurial repository.
-
-    **Note: Do not pip install fcm. You will get errors due to the missing logicle.h file.**
-
-    ``pip install hg+https://code.google.com/p/py-fcm/#egg=fcm``
-
-#.  Use pip to install Django to get version 1.4. *You'll get v1.3 using apt-get*
+#.  Use pip to install Django to get version 1.7. *You'll get a previous version using apt-get*
 
     ``pip install django``
 
@@ -54,6 +36,8 @@ Installation
     ``pip install djangorestframework``
 
     ``pip install django-filter``
+
+    ``pip install django-guardian``
 
 #.  Install git to get ReFlow
 
@@ -298,6 +282,6 @@ Enable Apache VirtualHost
 
 #.  Restart apache:
 
-``service apache2 restart``
+    ``service apache2 restart``
 
 That's it! If everything was configured correctly you should see the ReFlow login screen at your server's URL.

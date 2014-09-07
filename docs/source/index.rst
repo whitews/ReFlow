@@ -13,6 +13,8 @@ Contents:
 
    intro
    site-nav
+   panels
    permissions
    tutorials-index
    server-setup
+   worker-setup
