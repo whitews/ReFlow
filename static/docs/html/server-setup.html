@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -19,21 +20,6 @@
 
   
   
-
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:'',
-        VERSION:'0.1',
-        COLLAPSE_INDEX:false,
-        FILE_SUFFIX:'.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
     
 
   
@@ -41,33 +27,38 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <script type="text/javascript" src="_static/js/theme.js"></script>
   
 
+  
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
     <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
+        <link rel="next" title="Worker Setup" href="worker-setup.html"/>
         <link rel="prev" title="Tutorial - Adding a Subject" href="tutorials/add-subject.html"/> 
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="icon icon-home"> ReFlow</a>
-        <form class="wy-form" action="search.html" method="get">
-  <input type="text" name="q" placeholder="Search docs" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
+        <a href="index.html" class="fa fa-home"> ReFlow</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
       </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
             <ul class="current">
@@ -81,19 +72,21 @@
 <li class="toctree-l1"><a class="reference internal" href="site-nav.html">Site Navigation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#login-screen">Login Screen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#home-page">Home Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-home">Project Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-detail">Project Detail</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject">Project Category - Subject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-site">Project Category - Site</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#non-project-categories">Non-project Categories</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="panels.html">Panels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="permissions.html#project-permissions">Project Permissions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="permissions.html#site-permissions">Site Permissions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-project.html">Tutorial - Adding a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
 </ul>
@@ -104,6 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="worker-setup.html">Worker Setup</a></li>
 </ul>
 
         
@@ -114,28 +108,33 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top">
-        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
-        <a href="/">ReFlow</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ReFlow</a>
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <ul class="wy-breadcrumbs">
-  <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href="">Server Setup</a></li>
-  
-</ul>
-<hr/>
-
-          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Server Setup</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/server-setup.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
   <div class="section" id="server-setup">
 <h1>Server Setup<a class="headerlink" href="#server-setup" title="Permalink to this headline">¶</a></h1>
 <p>Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.</p>
-<p>Why Ubuntu Server 12.04 LTS?</p>
-<p>The short answer is because SciPy is available from the official repository. CentOS 6 does not provide a pre-built SciPy package, and it is a rather involved process to build SciPy from source. Also, Amazon EC2 has a micro instance for Ubuntu Server 12.04 LTS which qualifies for it&#8217;s Free Tier program (i.e. free for a year).</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
@@ -148,26 +147,18 @@
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">apache2</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libapache2-mod-wsgi</span></tt></p>
 </li>
-<li><p class="first">Install NumPy, matplotlib, and SciPy</p>
+<li><p class="first">Install NumPy and pip</p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-numpy</span></tt></p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-matplotlib</span></tt></p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-scipy</span></tt></p>
-</li>
-<li><p class="first">We need Mercurial and pip to get the latest py-fcm</p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">mercurial</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-pip</span></tt></p>
 </li>
-<li><p class="first">Install py-fcm from the Mercurial repository.</p>
-<p><strong>Note: Do not pip install fcm. You will get errors due to the missing logicle.h file.</strong></p>
-<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">hg+https://code.google.com/p/py-fcm/#egg=fcm</span></tt></p>
-</li>
-<li><p class="first">Use pip to install Django to get version 1.4. <em>You&#8217;ll get v1.3 using apt-get</em></p>
+<li><p class="first">Use pip to install Django to get version 1.7. <em>You&#8217;ll get a previous version using apt-get</em></p>
 <p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django</span></tt></p>
 </li>
 <li><p class="first">Install Django app dependencies</p>
 <p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-extensions</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">djangorestframework</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-filter</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django-guardian</span></tt></p>
 </li>
 <li><p class="first">Install git to get ReFlow</p>
 <p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></tt></p>
@@ -215,7 +206,7 @@
 <p><tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">cp</span> <span class="pre">/etc/apache2/sites-available/default</span> <span class="pre">/etc/apache2/sites-available/reflow</span></tt></p>
 </li>
 <li><p class="first">The new VirtualHost file should look like this:</p>
-<div class="highlight-python"><pre>&lt;VirtualHost *:80&gt;
+<div class="highlight-python"><div class="highlight"><pre>&lt;VirtualHost *:80&gt;
     ServerAdmin webmaster@localhost
 
     WSGIScriptAlias / /srv/django-projects/ReFlow/reflow/wsgi.py
@@ -241,7 +232,8 @@
     LogLevel warn
 
     CustomLog ${APACHE_LOG_DIR}/reflow-access.log combined
-&lt;/VirtualHost&gt;</pre>
+&lt;/VirtualHost&gt;
+</pre></div>
 </div>
 </li>
 <li><p class="first">Edit apache2.conf file</p>
@@ -381,31 +373,36 @@
 <p><tt class="docutils literal"><span class="pre">a2ensite</span> <span class="pre">reflow</span></tt></p>
 </li>
 <li><p class="first">Restart apache:</p>
+<p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">apache2</span> <span class="pre">restart</span></tt></p>
 </li>
 </ol>
-<p><tt class="docutils literal"><span class="pre">service</span> <span class="pre">apache2</span> <span class="pre">restart</span></tt></p>
 <p>That&#8217;s it! If everything was configured correctly you should see the ReFlow login screen at your server&#8217;s URL.</p>
 </div>
 </div>
 
 
+          </div>
           <footer>
   
-    <div class="rst-footer-buttons">
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="worker-setup.html" class="btn btn-neutral float-right" title="Worker Setup"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorials/add-subject.html" class="btn btn-neutral" title="Tutorial - Adding a Subject"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="tutorials/add-subject.html" class="btn btn-neutral" title="Tutorial - Adding a Subject"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
 
   <hr/>
 
-  <p>
-      &copy; Copyright 2013, Scott White.
-  </p>
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Scott White.
+    </p>
+  </div>
 
-  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
 </footer>
         </div>
       </div>
@@ -414,6 +411,39 @@
 
   </div>
   
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
 
 </body>
 </html>

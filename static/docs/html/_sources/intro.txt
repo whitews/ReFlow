@@ -7,10 +7,10 @@ What is ReFlow?
 
 ReFlow is a web-based repository for flow cytometry data (i.e.
 FCS files), with a primary focus on reproducible automated analysis. While
-other online repositories for flow cytometry exist,
-most are focused on providing data sharing using software as a service (SaaS).
-While ReFlow can be considered as a SaaS system, it was developed
-to be deployed within an organization, institution, or laboratory.
+other online repositories exist for flow cytometry data, most are focused on
+data sharing under a software as a service (SaaS) model. ReFlow is not a
+solitary SaaS application, and is meant to be deployed within an organization,
+institution, or laboratory.
 
 =====================
 Why was ReFlow built?
@@ -25,12 +25,12 @@ manual analysis is subject to inter-operator variability,
 especially when attempting to find rare cell subsets. As a result,
 it is difficult to harmonize assays and interpret results across institutions.
 Automated analysis of flow cytometry data across different laboratories
-would provide a more object basis for the identification of these cell subsets.
+would provide a more objective basis for the identification of these cell subsets.
 
 However, when implementing the automated analysis pipeline,
 problems arose in identifying the individual channels within the flow
 cytometry data files. The Flow Cytometry Standard (FCS) defines which
-metadata fields contain channel information but do not specify how individual
+metadata fields contain channel information but not how individual
 channels must be labelled. As a result, annotation varies across AND within
 laboratories. For example, one FCS file may contain a channel labelled "CD14
 PB vAmine" whereas another FCS file with the same "panel" may be labelled
@@ -66,14 +66,14 @@ Name                     Description
 =======================  ===========
 Project                  Sequesters data for an experiment from other experiments in the system. This is the top level of the ReFlow hierarchy.
 Subject Group            Categorizes subjects into groups, useful for differentiating a “normal” from a “control”, etc.
-Subject                  The individual from which the biological specimen was taken. A subject must belong to a subject group.
-Site                     The location where an FCS file was produced. May be a laboratory name, institution, etc.
-Cytometer                A cytometer device, associated with a specific Site.
-Visit Type               Categorizes samples into temporal groups, such as “Send out 3” for a proficiency test project or “Baseline” for a clinical trial project. Not the same as the FCS acquisition date.
+Subject                  The individual from which the biological specimen was taken. A subject may optionally belong to a subject group.
+Site                     The location where an FCS file was produced, such as a laboratory name, institution, etc.
+Cytometer                A cytometer device, which must be associated with a specific Site.
+Visit Type               Categorizes samples into temporal groups, such as “Send out 3” for a proficiency test project or “Baseline” for a clinical trial project. Note this is not the same as the FCS acquisition date.
 Stimulation              In vitro conditions used to prepare cells from which an FCS file was produced.
 Sample                   An FCS file.
 Panel Template           A collection of flow parameters used as a master template for specific site panel implementations. Must specify a staining type and a stimulation.
-Site Panel               A specific implementation of a project panel template. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the panel template.
+Site Panel               A specific implementation of a panel template. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the panel template.
 Compensation             A compensation matrix that can optionally be associated with one or more Samples.
 =======================  ===========
 
