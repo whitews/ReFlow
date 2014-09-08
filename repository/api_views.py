@@ -1208,7 +1208,7 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        site = Project.objects.get(id=request.DATA['site'])
+        site = Site.objects.get(id=request.DATA['site'])
         if not site.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
