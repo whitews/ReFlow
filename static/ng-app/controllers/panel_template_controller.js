@@ -77,8 +77,8 @@ app.controller(
 app.controller(
     'PanelTemplateCreateController',
     [
-        '$scope', '$state', '$controller', '$stateParams', 'PanelTemplate', 'Marker', 'Fluorochrome',
-        function ($scope, $state, $controller, $stateParams, PanelTemplate, Marker, Fluorochrome) {
+        '$scope', '$state', '$controller', '$stateParams', 'PanelTemplate', 'Marker', 'Fluorochrome', 'ParameterValueType',
+        function ($scope, $state, $controller, $stateParams, PanelTemplate, Marker, Fluorochrome, ParameterValueType) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -93,6 +93,21 @@ app.controller(
                 ["IS", "Isotype Control"],
                 ["CB", "Compensation Bead"]
             ];
+
+            // everything but bead functions
+            $scope.model.parameter_functions = [
+                ["FSC", "Forward Scatter"],
+                ["SSC", "Side Scatter"],
+                ["BEA", "Bead"],
+                ["FCM", "Fluorochrome Conjugated Marker"],
+                ["UNS", "Unstained"],
+                ["ISO", "Isotype Control"],
+                ["EXC", "Exclusion"],
+                ["VIA", "Viability"],
+                ["TIM", "Time"],
+                ["NUL", "Null"]
+            ];
+            $scope.model.parameter_value_types = ParameterValueType.query();
 
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;
@@ -558,31 +573,6 @@ app.controller(
                     }
                 });
             };
-        }
-    ]
-);
-
-app.controller(
-    'TemplateParameterController',
-    [
-        '$scope',
-        'ParameterFunction',
-        'ParameterValueType',
-        function ($scope, ParameterFunction, ParameterValueType) {
-            // everything but bead functions
-            $scope.model.parameter_functions = [
-                ["FSC", "Forward Scatter"],
-                ["SSC", "Side Scatter"],
-                ["BEA", "Bead"],
-                ["FCM", "Fluorochrome Conjugated Marker"],
-                ["UNS", "Unstained"],
-                ["ISO", "Isotype Control"],
-                ["EXC", "Exclusion"],
-                ["VIA", "Viability"],
-                ["TIM", "Time"],
-                ["NUL", "Null"]
-            ];
-            $scope.model.parameter_value_types = ParameterValueType.query();
         }
     ]
 );
