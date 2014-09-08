@@ -957,7 +957,10 @@ class PanelTemplateDetail(
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
-        serializer = PanelTemplateSerializer(panel_template)
+        serializer = PanelTemplateSerializer(
+            panel_template,
+            context={'request': request}
+        )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
