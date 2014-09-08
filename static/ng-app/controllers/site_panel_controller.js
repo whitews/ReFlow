@@ -2,43 +2,45 @@
  * Created by swhite on 4/7/14.
  */
 app.controller(
-    'ParameterController',
-    [
-        '$scope',
-        'ParameterFunction',
-        'ParameterValueType',
-        function ($scope, ParameterFunction, ParameterValueType) {
-            // everything but bead functions
-            $scope.site_panel_model.parameter_functions = [
-                ["FSC", "Forward Scatter"],
-                ["SSC", "Side Scatter"],
-                ["FCM", "Fluorochrome Conjugated Marker"],
-                ["UNS", "Unstained"],
-                ["ISO", "Isotype Control"],
-                ["EXC", "Exclusion"],
-                ["VIA", "Viability"],
-                ["TIM", "Time"],
-                ["NUL", "Null"]
-            ];
-
-            $scope.site_panel_model.parameter_value_types = ParameterValueType.query();
-        }
-    ]
-);
-
-app.controller(
     'SitePanelController',
-    ['$scope', 'ModelService', 'SitePanel', function ($scope, ModelService, SitePanel) {
+    ['$scope', '$q', 'ModelService', 'SitePanel', function ($scope, $q, ModelService, SitePanel) {
 
         $scope.site_panel_model = {};
         $scope.close_modal = false;
         $scope.site_panel_model.current_site = ModelService.getCurrentSite();
         $scope.site_panel_model.site_panel_sample = ModelService.getCurrentSample();
         $scope.site_panel_model.current_panel_template = ModelService.getCurrentPanelTemplate();
+
         $scope.site_panel_model.markers = ModelService.getMarkers();
         $scope.site_panel_model.fluorochromes = ModelService.getFluorochromes();
+
+        // everything but bead functions
+        // TODO: convert to ModelService call
+        $scope.site_panel_model.parameter_functions = [
+            ["FSC", "Forward Scatter"],
+            ["SSC", "Side Scatter"],
+            ["FCM", "Fluorochrome Conjugated Marker"],
+            ["UNS", "Unstained"],
+            ["ISO", "Isotype Control"],
+            ["EXC", "Exclusion"],
+            ["VIA", "Viability"],
+            ["TIM", "Time"],
+            ["NUL", "Null"]
+        ];
+
+        $scope.site_panel_model.parameter_value_types = ModelService.getParameterValueTypes();
+
         $scope.site_panel_model.site_panel_errors = [];
         $scope.site_panel_model.site_panel_valid = false;
+
+        // wait for all promises to return then initialize the site panel
+        $q.all([
+            $scope.site_panel_model.markers.$promise,
+            $scope.site_panel_model.fluorochromes.$promise,
+            $scope.site_panel_model.parameter_value_types.$promise
+        ]).then(function(result) {
+            initSitePanel();
+        });
 
         $scope.validatePanel = function() {
             // start with true and set to false on any error
@@ -220,8 +222,6 @@ app.controller(
             $scope.site_panel_model.site_panel_valid = valid;
             return valid;
         };
-
-        initSitePanel();
 
         function initSitePanel() {
             $scope.site_panel_model.site_panel_sample.channels.forEach(function (c) {

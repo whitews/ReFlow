@@ -87,10 +87,7 @@ def repository_api_root(request):
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
         'process_request_outputs': reverse(
-            'process-request-output-list', request=request),
-        'get_parameter_functions': reverse('get_parameter_functions', request=request),
-        'get_parameter_value_types': reverse('get_parameter_value_types',
-                                           request=request)
+            'process-request-output-list', request=request)
     })
 
 

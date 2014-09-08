@@ -4,7 +4,7 @@
 
 var service = angular.module('ReFlowApp');
 
-service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome, Project, Site) {
+service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome, Project, Site, ParameterFunction, ParameterValueType) {
     var model = {};
     model.current_site = null;
     model.current_sample = null;
@@ -57,15 +57,27 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
         });
     }
 
-    model.markers = Marker.query();
-    model.fluorochromes = Fluorochrome.query();
-
-    model.getMarkers = function () {
-        return this.markers;
+    //model.markers = Marker.query();
+    model.getMarkers = function() {
+        return Marker.query();
     };
+
+    model.fluorochromes = Fluorochrome.query();
 
     model.getFluorochromes = function () {
         return this.fluorochromes;
+    };
+
+    model.getParameterFunctions = function() {
+        return ParameterFunction.query(
+            {}
+        );
+    };
+
+    model.getParameterValueTypes = function() {
+        return ParameterValueType.query(
+            {}
+        );
     };
 
     model.getProjects = function () {
