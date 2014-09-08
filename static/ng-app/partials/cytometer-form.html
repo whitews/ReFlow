@@ -18,7 +18,7 @@
 
     <div class="form-group">
       <label class="col-md-3 control-label">Cytometer Name</label>
-      <input maxlength="128" type="text" ng-model="instance.cytometer_name" />
+      <input maxlength="128" type="text" ng-required="true" ng-model="instance.cytometer_name" />
       <strong ng-show="errors.cytometer_name" class="help-inline text-danger">
         {{ errors.cytometer_name.join(', ') }}
       </strong>
@@ -28,7 +28,7 @@
 
     <div class="form-group">
       <label class="col-md-3 control-label">Serial Number</label>
-      <input maxlength="128" type="text" ng-model="instance.serial_number" />
+      <input maxlength="128" type="text" ng-required="true" ng-model="instance.serial_number" />
       <strong ng-show="errors.serial_number" class="help-inline text-danger">
         {{ errors.serial_number.join(', ') }}
       </strong>
