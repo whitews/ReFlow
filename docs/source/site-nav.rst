@@ -82,7 +82,9 @@ Visit types can represent any temporal separation of data acquisition within a p
 Project Category - Stimulation
 ==============================
 
-A stimulation represents... The stimulation name is required and must be unique within a project. The description is optional.
+A stimulation represents the use of a stimulant on a specimen prior to acquiring the FCS sample in order to evaluate activation of cell subsets in intracellular staining (ICS) or proliferation assays. Typically, the stimulant is a pathogen- or cancer-specific mixture of antigenic peptides designed to bind to and activate antigen-specific cells, but non-specific stimulants such as the SEB super antigen may also be used as positive controls.
+
+The stimulation name is required and must be unique within a project. The description is optional. Since the stimulation category is required for uploaded samples, non-stimulated conditions can be represented by any text string such as "Unstimulated", "No stim", or any other preferred text string.
 
 :doc:`tutorials/add-stimulation`
 
