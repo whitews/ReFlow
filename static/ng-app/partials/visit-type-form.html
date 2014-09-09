@@ -7,7 +7,7 @@
 
     <div class="form-group">
       <label class="col-md-3 control-label">Name</label>
-      <input maxlength="128" type="text" ng-model="instance.visit_type_name" />
+      <input maxlength="128" type="text" ng-required="true" ng-model="instance.visit_type_name" />
       <strong ng-show="errors.visit_type_name" class="help-inline text-danger">
         {{ errors.visit_type_name.join(', ') }}
       </strong>
