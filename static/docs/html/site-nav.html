@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -20,6 +21,21 @@
 
   
   
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:'',
+        VERSION:'0.1',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
     
 
   
@@ -27,6 +43,7 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
   
 
   
@@ -36,29 +53,26 @@
         <link rel="next" title="Panels" href="panels.html"/>
         <link rel="prev" title="Introduction" href="intro.html"/> 
 
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> ReFlow</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
+        <a href="index.html" class="icon icon-home"> ReFlow</a>
+        <form class="wy-form" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search docs" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
       </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix">
         
         
             <ul class="current">
@@ -95,6 +109,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-site.html">Tutorial - Adding a Site</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-cytometer.html">Tutorial - Adding a Cytometer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/upload-samples.html">Tutorial - Uploading Samples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
@@ -114,30 +130,23 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">ReFlow</a>
+      <nav class="wy-nav-top">
+        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
+        <a href="/">ReFlow</a>
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Site Navigation</li>
-      <li class="wy-breadcrumbs-aside">
-        
-          <a href="_sources/site-nav.txt" rel="nofollow"> View page source</a>
-        
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main">
-            
+          <ul class="wy-breadcrumbs">
+  <li><a href="index.html">Docs</a> &raquo;</li>
+  <li><a href="">Site Navigation</a></li>
+  
+</ul>
+<hr/>
+
+          
   <div class="section" id="site-navigation">
 <h1>Site Navigation<a class="headerlink" href="#site-navigation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="login-screen">
@@ -148,7 +157,7 @@
 <div class="section" id="home-page">
 <h2>Home Page<a class="headerlink" href="#home-page" title="Permalink to this headline">¶</a></h2>
 <p>The home page is a dashboard view of all the projects to which you belong as well as the user permissions you have for each project. You will not see any projects to which you do not have view permissions. In the upper right corner of the page you will find your username and a &#8216;Logout&#8217; link to log out of the system. Note the &#8216;Documentation&#8217; link to access general ReFlow usage documentation. ReFlow administrators will have an additional &#8216;Admin&#8217; link to manage administrative tasks such as adding new markers, fluorochromes, etc.</p>
-<a class="reference internal image-reference" href="_images/home.png"><img alt="_images/home.png" src="_images/home.png" style="width: 1000px;" /></a>
+<img alt="_images/home.png" src="_images/home.png" style="width: 1000px;" />
 </div>
 <div class="section" id="project-detail">
 <h2>Project Detail<a class="headerlink" href="#project-detail" title="Permalink to this headline">¶</a></h2>
@@ -189,13 +198,14 @@
 </div>
 <div class="section" id="project-category-visit-type">
 <h2>Project Category - Visit Type<a class="headerlink" href="#project-category-visit-type" title="Permalink to this headline">¶</a></h2>
-<p>Visit types can represent any temporal separation of data acquistion within a project. For clinical trials a visit type may represent subject time points such as a baseline or 3 month follow-up. For proficiency tests, a visit type may represent a specific send out. The visit type name is required and must be unique within a project. The description is optional.</p>
+<p>Visit types can represent any temporal separation of data acquisition within a project. For clinical trials, a visit type may represent subject time points such as a baseline or 3 month follow-up. For proficiency tests, a visit type may represent a specific send out. The visit type name is required and must be unique within a project. The description is optional.</p>
 <p><a class="reference internal" href="tutorials/add-visit-type.html"><em>Tutorial - Adding a Visit Type</em></a></p>
 </div>
 <div class="section" id="project-category-stimulation">
 <h2>Project Category - Stimulation<a class="headerlink" href="#project-category-stimulation" title="Permalink to this headline">¶</a></h2>
-<p>Cytometers represent specific flow cytometers used to acquire FCS samples. A cytometer must belong to a pre-defined site, and the cytometer name and serial number fields are required. A cytometer name must be unique within a site.</p>
-<p><a class="reference internal" href="tutorials/add-cytometer.html"><em>Tutorial - Adding a Cytometer</em></a></p>
+<p>A stimulation represents the use of a stimulant on a specimen prior to acquiring the FCS sample in order to evaluate activation of cell subsets in intracellular staining (ICS) or proliferation assays. Typically, the stimulant is a pathogen- or cancer-specific mixture of antigenic peptides designed to bind to and activate antigen-specific cells, but non-specific stimulants such as the SEB super antigen may also be used as positive controls.</p>
+<p>The stimulation name is required and must be unique within a project. The description is optional. Since the stimulation category is required for uploaded samples, non-stimulated conditions can be represented by any text string such as &#8220;Unstimulated&#8221;, &#8220;No stim&#8221;, or any other preferred text string.</p>
+<p><a class="reference internal" href="tutorials/add-stimulation.html"><em>Tutorial - Adding a Stimulation</em></a></p>
 </div>
 <div class="section" id="non-project-categories">
 <h2>Non-project Categories<a class="headerlink" href="#non-project-categories" title="Permalink to this headline">¶</a></h2>
@@ -252,28 +262,25 @@
 </div>
 
 
-          </div>
           <footer>
   
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    <div class="rst-footer-buttons">
       
-        <a href="panels.html" class="btn btn-neutral float-right" title="Panels"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="panels.html" class="btn btn-neutral float-right" title="Panels"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="intro.html" class="btn btn-neutral" title="Introduction"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="intro.html" class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
 
   <hr/>
 
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2013, Scott White.
-    </p>
-  </div>
+  <p>
+      &copy; Copyright 2013, Scott White.
+  </p>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
 </footer>
         </div>
       </div>
@@ -282,39 +289,6 @@
 
   </div>
   
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
-      });
-  </script>
-   
 
 </body>
 </html>

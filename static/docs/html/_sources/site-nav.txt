@@ -74,7 +74,7 @@ Cytometers represent specific flow cytometers used to acquire FCS samples. A cyt
 Project Category - Visit Type
 =============================
 
-Visit types can represent any temporal separation of data acquistion within a project. For clinical trials a visit type may represent subject time points such as a baseline or 3 month follow-up. For proficiency tests, a visit type may represent a specific send out. The visit type name is required and must be unique within a project. The description is optional.
+Visit types can represent any temporal separation of data acquisition within a project. For clinical trials, a visit type may represent subject time points such as a baseline or 3 month follow-up. For proficiency tests, a visit type may represent a specific send out. The visit type name is required and must be unique within a project. The description is optional.
 
 :doc:`tutorials/add-visit-type`
 
@@ -82,9 +82,11 @@ Visit types can represent any temporal separation of data acquistion within a pr
 Project Category - Stimulation
 ==============================
 
-Cytometers represent specific flow cytometers used to acquire FCS samples. A cytometer must belong to a pre-defined site, and the cytometer name and serial number fields are required. A cytometer name must be unique within a site.
+A stimulation represents the use of a stimulant on a specimen prior to acquiring the FCS sample in order to evaluate activation of cell subsets in intracellular staining (ICS) or proliferation assays. Typically, the stimulant is a pathogen- or cancer-specific mixture of antigenic peptides designed to bind to and activate antigen-specific cells, but non-specific stimulants such as the SEB super antigen may also be used as positive controls.
 
-:doc:`tutorials/add-cytometer`
+The stimulation name is required and must be unique within a project. The description is optional. Since the stimulation category is required for uploaded samples, non-stimulated conditions can be represented by any text string such as "Unstimulated", "No stim", or any other preferred text string.
+
+:doc:`tutorials/add-stimulation`
 
 ======================
 Non-project Categories

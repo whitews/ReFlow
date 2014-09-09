@@ -7,7 +7,7 @@
 
     <div class="form-group">
       <label class="col-md-3 control-label">Name</label>
-      <input maxlength="128" type="text" ng-model="instance.stimulation_name" />
+      <input maxlength="128" type="text" ng-required="true" ng-model="instance.stimulation_name" />
       <strong ng-show="errors.stimulation_name" class="help-inline text-danger">
         {{ errors.stimulation_name.join(', ') }}
       </strong>
