@@ -62,6 +62,30 @@ There are also site-level permissions which restrict access for site users. User
 
 :doc:`tutorials/add-site`
 
+============================
+Project Category - Cytometer
+============================
+
+Cytometers represent specific flow cytometers used to acquire FCS samples. A cytometer must belong to a pre-defined site, and the cytometer name and serial number fields are required. A cytometer name must be unique within a site.
+
+:doc:`tutorials/add-cytometer`
+
+=============================
+Project Category - Visit Type
+=============================
+
+Visit types can represent any temporal separation of data acquisition within a project. For clinical trials, a visit type may represent subject time points such as a baseline or 3 month follow-up. For proficiency tests, a visit type may represent a specific send out. The visit type name is required and must be unique within a project. The description is optional.
+
+:doc:`tutorials/add-visit-type`
+
+==============================
+Project Category - Stimulation
+==============================
+
+A stimulation represents... The stimulation name is required and must be unique within a project. The description is optional.
+
+:doc:`tutorials/add-stimulation`
+
 ======================
 Non-project Categories
 ======================
