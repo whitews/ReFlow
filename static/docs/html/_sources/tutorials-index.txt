@@ -12,3 +12,4 @@ Tutorials
    tutorials/add-visit-type
    tutorials/add-stimulation
    tutorials/upload-samples
+   tutorials/labelling-fcs-data

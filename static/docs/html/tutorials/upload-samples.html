@@ -51,7 +51,7 @@
   
     <link rel="top" title="ReFlow 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorials" href="../tutorials-index.html"/>
-        <link rel="next" title="Server Setup" href="../server-setup.html"/>
+        <link rel="next" title="Tutorial - Labelling FCS Data" href="labelling-fcs-data.html"/>
         <link rel="prev" title="Tutorial - Adding a Stimulation" href="add-stimulation.html"/> 
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -112,6 +112,7 @@
 <li class="toctree-l2"><a class="reference internal" href="add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Uploading Samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labelling-fcs-data.html">Tutorial - Labelling FCS Data</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../server-setup.html">Server Setup</a><ul>
@@ -168,46 +169,34 @@
 <img alt="../_images/sample-upload-new-samples.png" src="../_images/sample-upload-new-samples.png" />
 </li>
 <li><p class="first">Choose the appropriate categories from the drop-down menus on the left for the first file in the list.</p>
+<img alt="../_images/sample-upload-pre-site-panel.png" src="../_images/sample-upload-pre-site-panel.png" />
+</li>
+<li><p class="first">Once all the category selections have been made, click the checkbox for the first file.</p>
+<p>If ReFlow has previously seen a file with matching annotation for this site and panel template combination, it will automatically associate the file with that annotation. In this case, continue with the next step to add the file to the upload queue.</p>
+<p>However, if this is the first time this annotation set has been seen by ReFlow, a new dialog window will appear to identify all the channels present in the file. In this case, follow the instructions in <a class="reference internal" href="labelling-fcs-data.html"><em>Tutorial - Labelling FCS Data</em></a></p>
+<img alt="../_images/sample-upload-create-site-panel.png" src="../_images/sample-upload-create-site-panel.png" />
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Any other files in the list that also match the categories can also be selected by clicking their checkboxes and adding the upload queue.</p>
 </div>
-<img alt="../_images/sample-upload-pre-site-panel.png" src="../_images/sample-upload-pre-site-panel.png" />
 </li>
-<li><p class="first">Once all the category selections have been made, click the checkbox for the first file. If ReFlow has previously seen a file with matching annotation for the selected site within the project, it will automatically associate the file with that annotation. If this is the first time this set of annotations has been seen by ReFlow, a new dialog window will appear to identify all the channels present in the file.</p>
-<img alt="../_images/sample-upload-create-site-panel.png" src="../_images/sample-upload-create-site-panel.png" />
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Skip the next step if the file annotation was recognized by ReFlow.</p>
-</div>
-</li>
-<li></li>
 <li><p class="first">Click the <strong>Add to Queue</strong> button and the file will be added to the upload queue below.</p>
 <p>After adding to the upload queue</p>
-<img alt="tutorials/images/reflow-upload-app-categorized.png" src="tutorials/images/reflow-upload-app-categorized.png" style="width: 100%;" />
+<img alt="../_images/sample-upload-file-queued.png" src="../_images/sample-upload-file-queued.png" />
+</li>
+<li><p class="first">Once all the files have been added to the upload queue, verify they have been categorized correctly <strong>before</strong> uploading. If a file is categorized incorrectly, click on the file name and choose <strong>Move to File List</strong> from the drop-down menu. This will place the file back in the FCS File List above. From there it can be re-categorized and added back to the upload queue.</p>
+<img alt="../_images/sample-upload-file-queue-menu.png" src="../_images/sample-upload-file-queue-menu.png" />
 </li>
 </ol>
-<ol class="arabic" start="11">
-<li><p class="first">Once all 8 files from the both labs have been added to the upload queue, verify they have been categorized correctly <strong>before</strong> uploading. If you need to edit the categories, well, I didn&#8217;t have time to implement modifying items in the upload queue, so you&#8217;ll have to check the items in the upload queue and click the <strong>Clear Selected</strong> button. Then, re-add the file to the top section. This will be improved in the future.</p>
-</li>
-<li><p class="first">If all the files are correct, start uploading by clicking on the <strong>Upload</strong> button. For each file uploaded the progress bar for each file will update.</p>
-<img alt="tutorials/images/reflow-upload-app-uploading.png" src="tutorials/images/reflow-upload-app-uploading.png" style="width: 100%;" />
+<ol class="arabic" start="12">
+<li><p class="first">Once all the files are correct, start uploading by clicking on the <strong>Upload</strong> button. For each file uploaded the progress bar for each file will update.</p>
+<img alt="../_images/sample-upload-uploading.png" src="../_images/sample-upload-uploading.png" />
 <p>And the view when all uploads are complete:</p>
-<img alt="tutorials/images/reflow-upload-app-finished.png" src="tutorials/images/reflow-upload-app-finished.png" style="width: 100%;" />
+<img alt="../_images/sample-upload-finished.png" src="../_images/sample-upload-finished.png" />
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">ReFlow will not allow duplicate files within the same project, so if you try to re-upload duplicate files, you will see an error in the upload queue.</p>
 </div>
-</li>
-<li><p class="first">Navigate back to the test project by clicking the <strong>Home</strong> link, then choosing the project link. Go to the <strong>Samples</strong> view.</p>
-</li>
-</ol>
-<ol class="arabic" start="14">
-<li><p class="first">From the <strong>Samples</strong> view, click the checkboxes for both project panels in the filter, then click the <strong>Apply</strong> button. You should see the list update with the FCS samples you just uploaded.</p>
-<img alt="tutorials/images/reflow-samples-filter02.png" src="tutorials/images/reflow-samples-filter02.png" style="width: 100%;" />
-</li>
-<li><p class="first">Show the parameters for each sample by clicking on the first icon in the row. Notice how we have mapped the FCS file&#8217;s channel annotation (the PnN and PnS columns) to ReFlow&#8217;s standard convention for classifying parameters (the function, markers, fluorochrome, and value type columns). This is the core concept allowing automated analysis of many files across different laboratories, regardless of the labs&#8217; FCS file annotation or the channel number used for any particular parameters.</p>
-<img alt="tutorials/images/reflow-sample-parameters.png" src="tutorials/images/reflow-sample-parameters.png" style="width: 100%;" />
 </li>
 </ol>
 </div>
@@ -217,7 +206,7 @@
   
     <div class="rst-footer-buttons">
       
-        <a href="../server-setup.html" class="btn btn-neutral float-right" title="Server Setup"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="labelling-fcs-data.html" class="btn btn-neutral float-right" title="Tutorial - Labelling FCS Data"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="add-stimulation.html" class="btn btn-neutral" title="Tutorial - Adding a Stimulation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
