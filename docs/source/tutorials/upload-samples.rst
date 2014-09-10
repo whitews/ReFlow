@@ -21,57 +21,34 @@ Tutorial - Uploading Samples
 
 #.  Choose the appropriate categories from the drop-down menus on the left for the first file in the list.
 
-    .. note:: Any other files in the list that also match the categories can also be selected by clicking their checkboxes and adding the upload queue.
-
     .. image:: ../images/sample-upload-pre-site-panel.png
 
-#.  Once all the category selections have been made, click the checkbox for the first file. If ReFlow has previously seen a file with matching annotation for the selected site within the project, it will automatically associate the file with that annotation. If this is the first time this set of annotations has been seen by ReFlow, a new dialog window will appear to identify all the channels present in the file.
+#.  Once all the category selections have been made, click the checkbox for the first file.
+
+    If ReFlow has previously seen a file with matching annotation for this site and panel template combination, it will automatically associate the file with that annotation. In this case, continue with the next step to add the file to the upload queue.
+
+    However, if this is the first time this annotation set has been seen by ReFlow, a new dialog window will appear to identify all the channels present in the file. In this case, follow the instructions in :doc:`../tutorials/labelling-fcs-data`
 
     .. image:: ../images/sample-upload-create-site-panel.png
 
-    .. note:: Skip the next step if the file annotation was recognized by ReFlow.
-
-#.
+    .. note:: Any other files in the list that also match the categories can also be selected by clicking their checkboxes and adding the upload queue.
 
 #.  Click the **Add to Queue** button and the file will be added to the upload queue below.
 
     After adding to the upload queue
 
-    .. image:: images/reflow-upload-app-categorized.png
-        :width: 100%
+    .. image:: ../images/sample-upload-file-queued.png
 
-.. raw:: pdf
+#.  Once all the files have been added to the upload queue, verify they have been categorized correctly **before** uploading. If a file is categorized incorrectly, click on the file name and choose **Move to File List** from the drop-down menu. This will place the file back in the FCS File List above. From there it can be re-categorized and added back to the upload queue.
 
-    PageBreak
+    .. image:: ../images/sample-upload-file-queue-menu.png
 
-11. Once all 8 files from the both labs have been added to the upload queue, verify they have been categorized correctly **before** uploading. If you need to edit the categories, well, I didn't have time to implement modifying items in the upload queue, so you'll have to check the items in the upload queue and click the **Clear Selected** button. Then, re-add the file to the top section. This will be improved in the future.
+12. Once all the files are correct, start uploading by clicking on the **Upload** button. For each file uploaded the progress bar for each file will update.
 
-
-
-12. If all the files are correct, start uploading by clicking on the **Upload** button. For each file uploaded the progress bar for each file will update.
-
-    .. image:: images/reflow-upload-app-uploading.png
-        :width: 100%
+    .. image:: ../images/sample-upload-uploading.png
 
     And the view when all uploads are complete:
 
-    .. image:: images/reflow-upload-app-finished.png
-        :width: 100%
+    .. image:: ../images/sample-upload-finished.png
 
     .. note:: ReFlow will not allow duplicate files within the same project, so if you try to re-upload duplicate files, you will see an error in the upload queue.
-
-13. Navigate back to the test project by clicking the **Home** link, then choosing the project link. Go to the **Samples** view.
-
-.. raw:: pdf
-
-    PageBreak
-
-14. From the **Samples** view, click the checkboxes for both project panels in the filter, then click the **Apply** button. You should see the list update with the FCS samples you just uploaded.
-
-    .. image:: images/reflow-samples-filter02.png
-        :width: 100%
-
-15. Show the parameters for each sample by clicking on the first icon in the row. Notice how we have mapped the FCS file's channel annotation (the PnN and PnS columns) to ReFlow's standard convention for classifying parameters (the function, markers, fluorochrome, and value type columns). This is the core concept allowing automated analysis of many files across different laboratories, regardless of the labs' FCS file annotation or the channel number used for any particular parameters.
-
-    .. image:: images/reflow-sample-parameters.png
-        :width: 100%
