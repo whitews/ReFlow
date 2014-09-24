@@ -262,6 +262,7 @@ app.controller(
                     case 'CB':
                         can_have_uns = false;
                         can_have_iso = false;
+                        break;
                     default :  // includes FS, FM, & US
                         can_have_uns = true;
                         can_have_iso = false;
@@ -420,7 +421,7 @@ app.controller(
                                 } else if ($scope.model.current_staining == 'CB') {
                                     // For bead templates the function should
                                     // be bead
-                                    if (param.parameter_type != 'FCM' && channel.function == 'BEA') {
+                                    if (!(param.parameter_type == 'FCM' || param.parameter_type == 'VIA') && channel.function == 'BEA') {
                                         // no match
                                         continue;
                                     }
