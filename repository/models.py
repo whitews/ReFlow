@@ -1844,10 +1844,12 @@ class BeadSample(ProtectedModel):
             File(subsample_file),
             save=False)
 
-    def save(self, *args, **kwargs):
-        """ Populate upload date on save """
-        if not self.id:
-            self.upload_date = datetime.datetime.today()
+
+def save(self, *args, **kwargs):
+    """ Populate upload date on save """
+    if not self.id:
+        self.upload_date = datetime.datetime.today()
+
 
         super(BeadSample, self).save(*args, **kwargs)
 

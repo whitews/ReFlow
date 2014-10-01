@@ -1761,7 +1761,6 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
-
         matrix_text = request.DATA['matrix_text'].splitlines(False)
         if not len(matrix_text) > 1:
             raise ValidationError("Too few rows.")
