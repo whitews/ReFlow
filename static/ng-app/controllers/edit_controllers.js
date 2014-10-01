@@ -368,6 +368,7 @@ app.controller(
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
             $scope.errors = [];
+            $scope.matrix_errors = [];
 
             if (!$scope.instance) {
                 $scope.instance = {};
@@ -420,15 +421,15 @@ app.controller(
                 // check the row count and row element counts match header
                 var header_length = comp_obj.headers.length;
                 if (comp_obj.data.length != header_length) {
-                    $scope.errors.push('Number of rows does not match the number of parameters');
+                    $scope.matrix_errors.push('Number of rows does not match the number of parameters');
                     return false;
                 }
-                comp_obj.data.forEach(function(row) {
-                    if (row.length != header_length) {
-                        $scope.errors.push('Number of columns does not match the number of parameters');
+                for (var i = 0; i < comp_obj.data.length; i++) {
+                    if (comp_obj.data[i].length != header_length) {
+                        $scope.matrix_errors.push('Number of columns does not match the number of parameters');
                         return false;
                     }
-                });
+                }
                 return true;
             }
 
@@ -438,6 +439,8 @@ app.controller(
                     headers: [],
                     data: []
                 };
+                $scope.errors = [];
+                $scope.matrix_errors = [];
                 reader.addEventListener("loadend", function(evt) {
                     var rows = evt.target.result.split('\n');
                     var header_row = rows.shift();
@@ -450,6 +453,7 @@ app.controller(
                     if (validateCompMatrix(comp_obj)) {
                         $scope.instance.matrix_text = evt.target.result
                     }
+                    $scope.$apply();
                 });
                 reader.readAsText(f);
             }

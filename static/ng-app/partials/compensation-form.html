@@ -39,6 +39,12 @@
 
     <input type="file" ng-file-select="onFileSelect($files)" />
 
+    <div class="well well-warning" ng-show="matrix_errors.length > 0">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in matrix_errors">{{ error }}</li>
+      </ul>
+    </div>
+
     <div class="well well-warning" ng-show="errors.__all__ || errors.site_panel">
       <span ng-show="errors.site_panel_match == false">
         <p>
