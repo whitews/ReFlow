@@ -292,7 +292,7 @@ app.controller(
                 // so we'll go ahead to retrieve the inputs for that
                 // implementation
                 var category_name = 'transformation';
-                var implementation_name = 'logicle';
+                var implementation_name = 'asinh';
                 SubprocessImplementation.query(
                     {
                         category_name: category_name,
@@ -530,7 +530,7 @@ app.controller(
                     var pr_inputs = [];
 
                     // first retrieve the chosen parameters
-                    var param_subproc = $scope.model.parameter_inputs[0]
+                    var param_subproc = $scope.model.parameter_inputs[0];
                     $scope.model.parameters.forEach(function (param) {
                         if (param.selected) {
                             pr_inputs.push(
