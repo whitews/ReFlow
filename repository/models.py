@@ -2139,3 +2139,87 @@ class ProcessRequestOutput(ProtectedModel):
             self.process_request.get_process_display(),
             self.process_request_id,
             self.key)
+
+
+class Cluster(ProtectedModel):
+    """
+    All processes must produce one or more clusters (if they succeed)
+    """
+    process_request = models.ForeignKey(ProcessRequest)
+    index = models.IntegerField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.process_request.has_view_permission(user):
+            return True
+
+        return False
+
+
+class SampleClusterMode(models.Model):
+    """
+    Used to group related SampleCLuster instances into a mode. The mode
+    itself has a different location from any of its SampleCluster members,
+    and the location of the SampleClusterMode is in the
+    SampleClusterModeParameter set
+    """
+    index = models.IntegerField(null=False, blank=False)
+
+
+class SampleClusterModeParameter(models.Model):
+    """
+    Used to store the location of a SampleClusterMode.
+    Each parameter identifies a channel in the Sample along with the
+    coordinate for the SampleClusterMode.
+    """
+    mode = models.ForeignKey(SampleClusterMode)
+    channel = models.IntegerField(null=False, blank=False)
+    location = models.FloatField(null=False, blank=False)
+
+
+class SampleCluster(ProtectedModel):
+    """
+    Each sample in a SampleCollection tied to a ProcessRequest will have
+    its own version of each cluster. The location of the SampleCluster is
+    in the SampleClusterParameter set. Additionally, there is an optional
+    SampleClusterMode to which one or more SampleCluster instances from the
+    same Sample may belong
+    """
+    cluster = models.ForeignKey(Cluster)
+    sample = models.ForeignKey(Sample)
+
+    def has_view_permission(self, user):
+        if self.cluster.has_view_permission(user):
+            return True
+
+        return False
+
+
+class SampleClusterParameter(ProtectedModel):
+    """
+    Used to store the location of a SampleCluster.
+    Each parameter identifies a channel in the Sample along with the
+    coordinate for the SampleCluster.
+    """
+    sample_cluster = models.ForeignKey(SampleCluster)
+    channel = models.IntegerField(null=False, blank=False)
+    location = models.FloatField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.sample_cluster.has_view_permission(user):
+            return True
+
+        return False
+
+
+class EventClassification(ProtectedModel):
+    """
+    Ties a Sample event index to a particular SampleCluster
+    """
+    sample_cluster = models.ForeignKey(SampleCluster)
+    event_index = models.IntegerField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.sample_cluster.has_view_permission(user):
+            return True
+
+        return False
