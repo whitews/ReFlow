@@ -862,7 +862,8 @@ class ProcessRequestOutputSerializer(serializers.ModelSerializer):
 
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name='process-request-detail')
+        view_name='process-request-detail'
+    )
     request_username = serializers.CharField(
         source='request_user.username',
         read_only=True
@@ -872,9 +873,11 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
         read_only=True
     )
     inputs = ProcessRequestInputSerializer(
-        source='processrequestinput_set')
+        source='processrequestinput_set'
+    )
     outputs = ProcessRequestOutputSerializer(
-        source='processrequestoutput_set')
+        source='processrequestoutput_set'
+    )
 
     class Meta:
         model = ProcessRequest
@@ -895,4 +898,63 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'status',
             'inputs',
             'outputs'
+        )
+
+
+class ClusterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cluster
+        fields = (
+            'id',
+            'process_request',
+            'index'
+        )
+
+
+class SampleClusterParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleClusterParameter
+        fields = (
+            'id',
+            'sample_cluster',
+            'channel',
+            'location'
+        )
+
+
+class EventClassificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventClassification
+        fields = (
+            'event_index',
+        )
+
+
+class SampleClusterSerializer(serializers.ModelSerializer):
+    # url = serializers.HyperlinkedIdentityField(
+    #     view_name='sample-cluster-detail'
+    # )
+    process_request = serializers.CharField(
+        source='cluster.process_request_id',
+        read_only=True
+    )
+    parameters = SampleClusterParameterSerializer(
+        source='sampleclusterparameter_set',
+        read_only=True
+    )
+    event_indices = EventClassificationSerializer(
+        source='eventclassification_set',
+        read_only=True
+    )
+
+    class Meta:
+        model = SampleCluster
+        fields = (
+            'id',
+            #'url',
+            'process_request',
+            'sample',
+            'cluster',
+            'parameters',
+            'event_indices'
         )

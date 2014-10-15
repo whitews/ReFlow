@@ -87,7 +87,9 @@ def repository_api_root(request):
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
         'process_request_outputs': reverse(
-            'process-request-output-list', request=request)
+            'process-request-output-list', request=request),
+        'clusters': reverse('cluster-list', request=request),
+        'sample_clusters': reverse('sample-cluster-list', request=request)
     })
 
 
@@ -2167,14 +2169,12 @@ class ProcessRequestOutputList(
     """
     API endpoint for listing and creating a ProcessRequestOutput.
     """
-
     model = ProcessRequestOutput
     serializer_class = ProcessRequestOutputSerializer
 
     def post(self, request, *args, **kwargs):
         """
         Override post to ensure user is a worker.
-        Also removing the 'sample_file' field since it has the server path.
         """
         if hasattr(self.request.user, 'worker'):
             try:
@@ -2196,4 +2196,75 @@ class ProcessRequestOutputList(
             response = super(ProcessRequestOutputList, self).post(
                 request, *args, **kwargs)
             return response
+        return Response(data={'detail': 'Bad request'}, status=400)
+
+
+class ClusterList(
+        LoginRequiredMixin,
+        generics.ListCreateAPIView
+    ):
+    """
+    API endpoint for listing and creating a Cluster.
+    """
+    model = Cluster
+    serializer_class = ClusterSerializer
+    filter_fields = ('process_request',)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user is a worker.
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                process_request = ProcessRequest.objects.get(
+                    id=request.DATA['process_request'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # ensure ProcessRequest is assigned to this worker
+            if process_request.worker != worker:
+                return Response(
+                    data={
+                        'detail': 'Request is not assigned to this worker'
+                    },
+                    status=400)
+
+            # if we get here, the worker is bonafide! "He's a suitor!"
+            response = super(ClusterList, self).post(request, *args, **kwargs)
+            return response
+        return Response(data={'detail': 'Bad request'}, status=400)
+
+
+class SampleClusterFilter(django_filters.FilterSet):
+    process_request = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProcessRequest.objects.all(),
+        name='cluster__process_request')
+
+    class Meta:
+        model = SampleCluster
+        fields = [
+            'process_request',
+            'cluster',
+            'sample'
+        ]
+
+
+class SampleClusterList(
+        LoginRequiredMixin,
+        generics.ListCreateAPIView
+    ):
+    """
+    API endpoint for listing and creating a SampleCluster.
+    """
+    model = SampleCluster
+    serializer_class = SampleClusterSerializer
+    filter_class = SampleClusterFilter
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user is a worker.
+        """
+        if hasattr(self.request.user, 'worker'):
+            pass
         return Response(data={'detail': 'Bad request'}, status=400)

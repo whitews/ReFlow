@@ -97,6 +97,8 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/process_requests/(?P<pk>\d+)/complete_assignment/?$', complete_process_request_assignment, name='complete-process-request-assignment'),
     url(r'^api/repository/process_request_outputs/?$', ProcessRequestOutputList.as_view(), name='process-request-output-list'),
     url(r'^api/repository/process_request_outputs/(?P<pk>\d+)/download/?$', retrieve_process_request_output_value, name='retrieve_process_request_output'),
+    url(r'^api/repository/clusters/?$', ClusterList.as_view(), name='cluster-list'),
+    url(r'^api/repository/sample_clusters/?$', SampleClusterList.as_view(), name='sample-cluster-list'),
 )
 
 # Non-API routes
