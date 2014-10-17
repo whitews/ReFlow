@@ -2239,13 +2239,19 @@ class ClusterList(
 class SampleClusterFilter(django_filters.FilterSet):
     process_request = django_filters.ModelMultipleChoiceFilter(
         queryset=ProcessRequest.objects.all(),
-        name='cluster__process_request')
+        name='cluster__process_request'
+    )
+    cluster_index = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        name='cluster__cluster_index'
+    )
 
     class Meta:
         model = SampleCluster
         fields = [
             'process_request',
             'cluster',
+            'cluster_index',
             'sample'
         ]
 

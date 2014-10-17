@@ -938,6 +938,10 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         source='cluster.process_request_id',
         read_only=True
     )
+    cluster_index = serializers.IntegerField(
+        source='cluster.index',
+        read_only=True
+    )
     parameters = SampleClusterParameterSerializer(
         source='sampleclusterparameter_set',
         read_only=True
@@ -956,6 +960,7 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'process_request',
             'sample',
             'cluster',
+            'cluster_index',
             'parameters',
             'event_indices'
         )
