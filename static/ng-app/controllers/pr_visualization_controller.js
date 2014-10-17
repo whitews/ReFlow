@@ -9,8 +9,8 @@ app.controller(
             // Inherits ProcessRequestController $scope
             $controller('ProcessRequestController', {$scope: $scope});
 
-            $scope.process_request = ProcessRequest.get(
-                { id: $stateParams.requestId }
+            $scope.process_request = ModelService.getProcessRequest(
+                $stateParams.requestId
             );
         }
     ]

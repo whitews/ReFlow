@@ -195,8 +195,8 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         }
     }).state({
         name: 'pr-visualization-detail',
-        parent: 'process-request-list',
-        url: ':requestId/visualize',
+        parent: 'process-request-detail',
+        url: '/visualize',
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/pr-visualization-detail.html',
@@ -204,7 +204,7 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
             }
         },
         data: {
-            ncyBreadcrumbLabel: '{{process_request.description}}'
+            ncyBreadcrumbLabel: 'Visualize'
         }
     }).state({
         name: 'user-list',

@@ -129,6 +129,42 @@ service.factory('ModelService', function(
     service.getCurrentPanelTemplate = function () {
         return this.current_panel_template;
     };
+    
+    // ProcessRequest services
+    service.getProcessRequests = function() {
+        return ProcessRequest.query(
+            {}
+        );
+    };
+
+    service.getProcessRequest = function(process_request_id) {
+        return ProcessRequest.get(
+            { id: process_request_id }
+        );
+    };
+
+    service.createUpdateProcessRequest = function(instance) {
+        var errors = null;
+        var response;
+
+        if (instance.id) {
+            response = ProcessRequest.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = ProcessRequest.save(instance);
+        }
+
+        response.$promise.then(function () {
+            // let everyone know the process_requestss have changed
+            $rootScope.$broadcast('process_requestss:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
 
     return service;
 });
