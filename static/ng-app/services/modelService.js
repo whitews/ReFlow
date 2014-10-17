@@ -4,18 +4,27 @@
 
 var service = angular.module('ReFlowApp');
 
-service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome, Project, Site, ParameterFunction, ParameterValueType) {
-    var model = {};
-    model.current_site = null;
-    model.current_sample = null;
-    model.current_panel_template = null;
+service.factory('ModelService', function(
+        $rootScope,
+        User,
+        Marker,
+        Fluorochrome,
+        Project,
+        Site,
+        ParameterFunction,
+        ParameterValueType,
+        ProcessRequest) {
+    var service = {};
+    service.current_site = null;
+    service.current_sample = null;
+    service.current_panel_template = null;
 
-    model.user = User.get();
+    service.user = User.get();
 
     function refresh_projects() {
-        model.projects = Project.query();
+        service.projects = Project.query();
 
-        model.projects.$promise.then(function (projects) {
+        service.projects.$promise.then(function (projects) {
             $rootScope.projects = projects;
             projects.forEach(function (p) {
                 p.getUserPermissions().$promise.then(function (value) {
@@ -57,37 +66,36 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
         });
     }
 
-    //model.markers = Marker.query();
-    model.getMarkers = function() {
+    service.getMarkers = function() {
         return Marker.query();
     };
 
-    model.fluorochromes = Fluorochrome.query();
+    service.fluorochromes = Fluorochrome.query();
 
-    model.getFluorochromes = function () {
+    service.getFluorochromes = function () {
         return this.fluorochromes;
     };
 
-    model.getParameterFunctions = function() {
+    service.getParameterFunctions = function() {
         return ParameterFunction.query(
             {}
         );
     };
 
-    model.getParameterValueTypes = function() {
+    service.getParameterValueTypes = function() {
         return ParameterValueType.query(
             {}
         );
     };
 
-    model.getProjects = function () {
+    service.getProjects = function () {
         return $rootScope.projects;
     };
-    model.reloadProjects = function () {
+    service.reloadProjects = function () {
         refresh_projects();
     };
 
-    model.getProjectById = function(id) {
+    service.getProjectById = function(id) {
         var project = $.grep($rootScope.projects, function(e){ return e.id == id; });
         if (project.length > 0) {
             return project[0];
@@ -95,32 +103,32 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
         return null;
     };
 
-    model.setCurrentSite = function (value) {
+    service.setCurrentSite = function (value) {
         this.current_site = value;
         $rootScope.$broadcast('siteChanged');
     };
 
-    model.getCurrentSite = function () {
+    service.getCurrentSite = function () {
         return this.current_site;
     };
 
-    model.setCurrentSample = function (value) {
+    service.setCurrentSample = function (value) {
         this.current_sample = value;
         $rootScope.$broadcast('sampleChanged');
     };
 
-    model.getCurrentSample = function () {
+    service.getCurrentSample = function () {
         return this.current_sample;
     };
 
-    model.setCurrentPanelTemplate = function (value) {
+    service.setCurrentPanelTemplate = function (value) {
         this.current_panel_template = value;
         $rootScope.$broadcast('panelTemplateChanged');
     };
 
-    model.getCurrentPanelTemplate = function () {
+    service.getCurrentPanelTemplate = function () {
         return this.current_panel_template;
     };
 
-    return model;
+    return service;
 });
