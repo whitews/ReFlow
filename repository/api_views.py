@@ -2263,8 +2263,64 @@ class SampleClusterList(
 
     def post(self, request, *args, **kwargs):
         """
-        Override post to ensure user is a worker.
+        Override post to ensure user is a worker and matches the
+        ProcessRequest and save all relations in an atomic transaction
         """
         if hasattr(self.request.user, 'worker'):
-            pass
-        return Response(data={'detail': 'Bad request'}, status=400)
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                cluster = Cluster.objects.get(id=request.DATA['cluster_id'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # ensure ProcessRequest is assigned to this worker
+            if cluster.process_request.worker != worker:
+                return Response(
+                    data={
+                        'detail': 'Request is not assigned to this worker'
+                    },
+                    status=400)
+        else:
+            # only workers can post SampleClusters
+            return Response(data={'detail': 'Bad request'}, status=400)
+
+        # if we get here, the worker is bonafide! "He's a suitor!"
+        # we can create the SampleCluster instance now,
+        # but we'll do so inside an atomic transaction
+        try:
+            sample = Sample.objects.get(id=request.DATA['sample_id'])
+
+            with transaction.atomic():
+                sample_cluster = SampleCluster(
+                    cluster=cluster,
+                    sample=sample,
+                )
+                sample_cluster.clean()
+                sample_cluster.save()
+
+                # now create SampleClusterParameter instances
+                for param in request.DATA['parameters']:
+                    scp = SampleClusterParameter.objects.create(
+                        sample_cluster=sample_cluster,
+                        channel=param,
+                        location=request.DATA['parameters'][param]
+                    )
+
+                # and finally the EventClassification instances
+                for event_index in request.DATA['event_indices']:
+                    scp = EventClassification.objects.create(
+                        sample_cluster=sample_cluster,
+                        event_index=event_index,
+                    )
+
+        except Exception as e:  # catch any exception to rollback changes
+            return Response(data={'detail': e.message}, status=400)
+
+        serializer = SampleClusterSerializer(
+            sample_cluster,
+            context={'request': request}
+        )
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
