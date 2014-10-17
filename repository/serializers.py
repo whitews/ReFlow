@@ -942,9 +942,10 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         source='sampleclusterparameter_set',
         read_only=True
     )
-    event_indices = EventClassificationSerializer(
+    event_indices = serializers.RelatedField(
         source='eventclassification_set',
-        read_only=True
+        read_only=True,
+        many=True
     )
 
     class Meta:

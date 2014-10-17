@@ -2223,3 +2223,6 @@ class EventClassification(ProtectedModel):
             return True
 
         return False
+
+    def __unicode__(self):
+        return "%d" % self.event_index
