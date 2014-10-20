@@ -38,7 +38,8 @@ var URLS = {
     'PROCESS_REQUEST_INPUTS':     '/api/repository/process_request_inputs',
     'PROCESS_REQUEST_OUTPUTS':     '/api/repository/process_request_outputs',
     'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
-    'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
+    'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/',
+    'SAMPLE_CLUSTERS':  '/api/repository/sample_clusters/'
 };
 
 var service = angular.module('ReFlowApp');
@@ -316,6 +317,9 @@ service
     }])
     .factory('ProcessRequestOutput', ['$resource', function ($resource) {
         return $resource(URLS.PROCESS_REQUEST_OUTPUTS);
+    }])
+    .factory('SampleCluster', ['$resource', function ($resource) {
+        return $resource(URLS.SAMPLE_CLUSTERS);
     }])
     .factory('ParameterFunction', ['$resource', function ($resource) {
         return $resource(URLS.PARAMETER_FUNCTIONS);
