@@ -549,6 +549,7 @@ app.controller(
 
                 $scope.samples = Sample.query(
                     {
+                        'project': $scope.current_project.id,
                         'panel': panels,
                         'subject_group': subject_groups,
                         'subject': subjects,
