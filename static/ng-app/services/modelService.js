@@ -13,7 +13,9 @@ service.factory('ModelService', function(
         Site,
         ParameterFunction,
         ParameterValueType,
-        ProcessRequest) {
+        ProcessRequest,
+        SampleCollectionMember,
+        SampleCluster) {
     var service = {};
     service.current_site = null;
     service.current_sample = null;
@@ -143,27 +145,23 @@ service.factory('ModelService', function(
         );
     };
 
-    service.createUpdateProcessRequest = function(instance) {
-        var errors = null;
-        var response;
+    // SampleCollectionMember services
+    service.getSampleCollectionMembers = function(sample_collection_id) {
+        return SampleCollectionMember.query(
+            {
+                'sample_collection': sample_collection_id
+            }
+        );
+    };
 
-        if (instance.id) {
-            response = ProcessRequest.update(
-                {id: instance.id },
-                instance
-            );
-        } else {
-            response = ProcessRequest.save(instance);
-        }
-
-        response.$promise.then(function () {
-            // let everyone know the process_requestss have changed
-            $rootScope.$broadcast('process_requestss:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
+    // SampleCluster services
+    service.getSampleClusters = function(pr_id, sample_id) {
+        return SampleCluster.query(
+            {
+                'process_request': pr_id,
+                'sample': sample_id
+            }
+        );
     };
 
     return service;
