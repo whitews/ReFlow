@@ -613,9 +613,18 @@ class SampleMetadataSerializer(serializers.ModelSerializer):
 
 
 class SampleCollectionMemberSerializer(serializers.ModelSerializer):
+    filename = serializers.CharField(
+        source='sample.original_filename'
+    )
+
     class Meta:
         model = SampleCollectionMember
-        fields = ('id', 'sample_collection', 'sample')
+        fields = (
+            'id',
+            'sample_collection',
+            'sample',
+            'filename'
+        )
 
 
 class SampleCollectionMemberDetailSerializer(serializers.ModelSerializer):
