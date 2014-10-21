@@ -36,6 +36,9 @@ app.directive('prscatterplot', function() {
                 return;
             }
 
+            // reset the parameter list
+            scope.parameter_list = [];
+
             // Grab our column names
             scope.data[0].parameters.forEach(function (p) {
                 scope.parameter_list.push(p.channel);
