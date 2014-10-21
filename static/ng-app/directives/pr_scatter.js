@@ -34,6 +34,14 @@ app.directive('prscatterplot', function() {
         scope.prev_position = [];         // prev_position [x, y, color] pairs
         scope.transition_count = 0;       // used to cancel old transitions
 
+        // A tooltip for displaying the point's event values
+        var tooltip = d3.select("body")
+            .append("div")
+            .attr("id", "tooltip")
+            .style("position", "absolute")
+            .style("z-index", "100")
+            .style("visibility", "hidden");
+
         scope.$watch('data', function(data) {
             if (!data) {
                 return;
@@ -68,7 +76,22 @@ app.directive('prscatterplot', function() {
                     .attr("r", cluster_radius)
                     .on("mouseover", function(d) {  // setup our mouseover
                         tooltip.style("visibility", "visible");
-                        tooltip.text("something");
+
+                        var popup_text = "";
+
+                        // find x_cat value
+                        d.parameters.forEach(function (p) {
+                            if (p.channel == scope.x_cat) {
+                                popup_text = popup_text + "x: " + (Math.round(p.location * 100) / 100).toString();
+                            }
+                        });
+                        d.parameters.forEach(function (p) {
+                            if (p.channel == scope.y_cat) {
+                                popup_text = popup_text + " y: " + (Math.round(p.location * 100) / 100).toString();
+                            }
+                        });
+
+                        tooltip.text(popup_text);
                     })
                     .on("mousemove", function(){return tooltip.style("top",
                         (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10) + "px");})
@@ -80,7 +103,8 @@ app.directive('prscatterplot', function() {
         scope.svg = d3.select("#scatterplot")
             .append("svg")
             .attr("width", width)
-            .attr("height", height);
+            .attr("height", height)
+            .attr("style", "z-index: 1000");
 
         // create canvas for plot, it'll just be square as the axes will be drawn
         // using svg...will have a top and right margin though
