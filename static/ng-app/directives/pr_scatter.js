@@ -108,6 +108,7 @@ app.directive('prscatterplot', function() {
         d3.select("#scatterplot")
             .append("canvas")
             .attr("id", "heat_map_canvas")
+            .attr("style", "position:absolute;left: " + margin.left + "px; top: " + margin.top + "px;")
             .attr("width", scope.canvas_width)
             .attr("height", scope.canvas_height);
 
