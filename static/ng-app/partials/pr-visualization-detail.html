@@ -17,18 +17,21 @@
 
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-9">
+
       <div class="text-center" ng-show="retrieving_data">
+        <br/>
+        <br/>
         <h4><em>Retrieving data...</em></h4>
         <img src="/static/giant_whirligig.gif">
       </div>
-      <ul class="list-unstyled">
-        <li ng-repeat="sc in sample_clusters">
-          Cluster: {{ sc.cluster_index }}
-        </li>
-      </ul>
+
+      <div ng-hide="retrieving_data || !chosen_sample_id">
+
+        <prscatterplot data="plot_data"></prscatterplot>
+
+      </div>
+
     </div>
 
-
   </div>
-

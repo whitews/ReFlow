@@ -1,0 +1,72 @@
+.axis .ticks line.minor {
+    stroke: #ccc;
+    stroke-width: 1px;
+}
+
+.axis path {
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 2px;
+}
+
+.axis line {
+    stroke: #999;
+    stroke-width: 1px;
+}
+
+#radarchart .axis line, #parallelplot .axis line {
+    z-index: -1;
+    stroke: #aaa;
+    stroke-width: 2px;
+    stroke-dasharray: 2, 6;
+}
+
+.data-line {
+    stroke-width: 1.5px;
+    stroke-opacity: 0.3;
+    fill: none;
+    shape-rendering: "crispEdges";
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+    color: #eee;
+}
+
+.axis-label, #tooltip {
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+#scatterplot, #radarchart {
+    position: relative;
+}
+
+svg, canvas {
+  position: absolute;
+}
+svg {
+  left: 0;
+  top: 0;
+}
+
+circle, ellipse {
+    z-index: 100;
+    fill: #99c3d1;
+    stroke: #466d9f;
+    stroke-width: 1.5px;
+}
+
+circle.selected {
+    fill: yellow;
+    stroke: lime;
+}
+
+.brush .extent {
+    z-index: -1;
+    stroke: #bbb;
+    stroke-width: 1.5px;
+    fill-opacity: .02;
+}

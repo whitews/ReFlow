@@ -31,9 +31,10 @@ app.controller(
                 $scope.sample_clusters = ModelService.getSampleClusters(
                     $scope.process_request.id,
                     $scope.chosen_sample_id
-                )
+                );
 
                 $scope.sample_clusters.$promise.then(function() {
+                    $scope.plot_data = $scope.sample_clusters;
                     $scope.retrieving_data = false;
                 });
             }
