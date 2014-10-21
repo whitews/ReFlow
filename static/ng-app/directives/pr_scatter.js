@@ -17,6 +17,9 @@ app.directive('prscatterplot', function() {
         scope.show_heat = false;    // whether to show heat map
         scope.x_pre_scale;          // pre-scale factor for x data
         scope.y_pre_scale;          // pre-scale factor for y data
+        scope.clusters;
+        var cluster_radius = 4.5;
+        scope.transition_ms = 2000;
         var x_data;               // x data series to plot
         var y_data;               // y data series to plot
         var x_range;              // used for "auto-range" for chosen x category
@@ -50,11 +53,26 @@ app.directive('prscatterplot', function() {
             scope.x_pre_scale = '0.01';
             scope.y_pre_scale = '0.01';
 
-            // render initial data points
+            // render initial data points in the center of plot
             scope.prev_position = scope.data.map(function (d) {
                 return [scope.canvas_width / 2, scope.canvas_height / 2, "rgba(96, 96, 212, 1.0)"];
             });
             scope.prev_position.forEach(scope.circle);
+
+            scope.clusters = cluster_plot_area.selectAll("circle").data(data);
+
+            scope.clusters.enter()
+                .append("circle")
+                    .attr("cx", 0)
+                    .attr("cy", 0)
+                    .attr("r", cluster_radius)
+                    .on("mouseover", function(d) {  // setup our mouseover
+                        tooltip.style("visibility", "visible");
+                        tooltip.text("something");
+                    })
+                    .on("mousemove", function(){return tooltip.style("top",
+                        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10) + "px");})
+                    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
             scope.render_plot();
         });
@@ -77,7 +95,7 @@ app.directive('prscatterplot', function() {
 
         scope.ctx = canvas.getContext('2d');
 
-        // render circle [x,y,color]
+        // render circle in canvas for each data point
         scope.circle = function (pos) {
             scope.ctx.strokeStyle = pos[2];
             scope.ctx.globalAlpha = 1;
@@ -89,6 +107,10 @@ app.directive('prscatterplot', function() {
 
         var plot_area = scope.svg.append("g")
             .attr("id", "plot-area");
+
+        var cluster_plot_area = plot_area.append("g")
+            .attr("id", "cluster-plot-area")
+            .attr("transform", "translate(" + margin.left + ", " + 0 + ")");
 
         scope.x_axis = plot_area.append("g")
             .attr("class", "axis")
@@ -193,6 +215,23 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         $scope.heat_map_ctx.clearRect(
             0, 0, $scope.heat_map_ctx.canvas.width, $scope.heat_map_ctx.canvas.height);
         $scope.heat_map_data = [];
+
+        // transition clusters
+        $scope.clusters.transition().duration($scope.transition_ms)
+            .attr("cx", function (d) {
+                for (var i=0; i < d.parameters.length; i++) {
+                    if (d.parameters[i].channel == $scope.x_cat) {
+                        return x_scale(d.parameters[i].location);
+                    }
+                }
+            })
+            .attr("cy", function (d) {
+                for (var i=0; i < d.parameters.length; i++) {
+                    if (d.parameters[i].channel == $scope.y_cat) {
+                        return y_scale(d.parameters[i].location);
+                    }
+                }
+            });
 
         transition(++$scope.transition_count);
     };
