@@ -47,11 +47,14 @@ app.directive('prscatterplot', function() {
                 return;
             }
 
+            // TODO: check data properties and warn user if they
+            // don't look right
+
             // reset the parameter list
             scope.parameter_list = [];
 
             // Grab our column names
-            scope.data[0].parameters.forEach(function (p) {
+            scope.data.cluster_data[0].parameters.forEach(function (p) {
                 scope.parameter_list.push(p.channel);
             });
 
@@ -62,40 +65,53 @@ app.directive('prscatterplot', function() {
             scope.y_pre_scale = '0.01';
 
             // render initial data points in the center of plot
-            scope.prev_position = scope.data.map(function (d) {
+            scope.prev_position = scope.data.cluster_data.map(function (d) {
                 return [scope.canvas_width / 2, scope.canvas_height / 2, "rgba(96, 96, 212, 1.0)"];
             });
             scope.prev_position.forEach(scope.circle);
 
-            scope.clusters = cluster_plot_area.selectAll("circle").data(data);
+            scope.clusters = cluster_plot_area.selectAll("circle").data(scope.data.cluster_data);
 
             scope.clusters.enter()
                 .append("circle")
-                    .attr("cx", 0)
-                    .attr("cy", 0)
-                    .attr("r", cluster_radius)
-                    .on("mouseover", function(d) {  // setup our mouseover
-                        tooltip.style("visibility", "visible");
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("r", cluster_radius)
+                .on("mouseover", function(d) {
+                    tooltip.style("visibility", "visible");
 
-                        var popup_text = "";
+                    var popup_text = "";
 
-                        // find x_cat value
-                        d.parameters.forEach(function (p) {
-                            if (p.channel == scope.x_cat) {
-                                popup_text = popup_text + "x: " + (Math.round(p.location * 100) / 100).toString();
-                            }
-                        });
-                        d.parameters.forEach(function (p) {
-                            if (p.channel == scope.y_cat) {
-                                popup_text = popup_text + " y: " + (Math.round(p.location * 100) / 100).toString();
-                            }
-                        });
+                    // find x_cat value
+                    d.parameters.forEach(function (p) {
+                        if (p.channel == scope.x_cat) {
+                            popup_text = popup_text + "x: " + (Math.round(p.location * 100) / 100).toString();
+                        }
+                    });
+                    d.parameters.forEach(function (p) {
+                        if (p.channel == scope.y_cat) {
+                            popup_text = popup_text + " y: " + (Math.round(p.location * 100) / 100).toString();
+                        }
+                    });
 
-                        tooltip.text(popup_text);
-                    })
-                    .on("mousemove", function(){return tooltip.style("top",
-                        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10) + "px");})
-                    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+                    tooltip.text(popup_text);
+                })
+                .on("mousemove", function() {
+                    return tooltip
+                        .style(
+                        "top",
+                            (d3.event.pageY - 10) + "px")
+                        .style(
+                        "left",
+                            (d3.event.pageX + 10) + "px"
+                    );
+                })
+                .on("mouseout", function() {
+                    return tooltip.style("visibility", "hidden");
+                })
+                .on("click", function(cluster, index) {
+                    console.log("clicked a cluster!");
+                });
 
             scope.render_plot();
         });
@@ -202,8 +218,8 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         y_data = [];
 
         // Populate x_data and y_data using chosen x & y parameters
-        for (var i=0, len=$scope.data.length; i<len; i++) {
-            $scope.data[i].parameters.forEach(function (p) {
+        for (var i=0, len=$scope.data.cluster_data.length; i<len; i++) {
+            $scope.data.cluster_data[i].parameters.forEach(function (p) {
                 if (p.channel == $scope.x_cat) {
                     x_data[i] = p.location;
                 }
@@ -263,7 +279,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
     function transition(count) {
         // calculate next positions
         var next_position = [];
-        for (var i = 0, len = $scope.data.length; i < len; i++) {
+        for (var i = 0, len = $scope.data.cluster_data.length; i < len; i++) {
             var x = x_scale(x_data[i]);
             var y = y_scale(y_data[i]);
             var color = "rgba(96, 96, 212, 1.0)";

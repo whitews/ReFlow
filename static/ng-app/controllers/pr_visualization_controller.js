@@ -34,8 +34,17 @@ app.controller(
                 );
 
                 $scope.sample_clusters.$promise.then(function() {
-                    $scope.plot_data = $scope.sample_clusters;
-                    $scope.retrieving_data = false;
+                     ModelService.getSampleCSV($scope.chosen_sample_id)
+                        .success(function (data, status, headers) {
+                            $scope.plot_data = {
+                                'cluster_data': $scope.sample_clusters,
+                                'event_data': data
+                            };
+                             $scope.retrieving_data = false;
+                        }).error(function (data, status, headers, config) {
+                            $scope.event_data = -1;
+                            $scope.retrieving_data = false;
+                        });
                 });
             }
         }
