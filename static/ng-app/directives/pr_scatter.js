@@ -219,6 +219,8 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
 
         event_csv = header + "\n" + event_csv;
 
+        // TODO: need to transform the data here, but we need the site panel
+        // info to avoid scaling scatter and time channels
         $scope.event_objects = d3.csv.parse(event_csv);
     };
 
@@ -273,7 +275,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             0, 0, $scope.heat_map_ctx.canvas.width, $scope.heat_map_ctx.canvas.height);
         $scope.heat_map_data = [];
 
-        // transition clusters
+        // transition SVG clusters
         $scope.clusters.transition().duration($scope.transition_ms)
             .attr("cx", function (d) {
                 for (var i=0; i < d.parameters.length; i++) {
@@ -290,21 +292,40 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                 }
             });
 
-        transition(++$scope.transition_count);
+        transition_canvas_events(++$scope.transition_count);
     };
 
-    function transition(count) {
+    function transition_canvas_events(count) {
         // calculate next positions
         var next_position = [];
-        for (var i = 0, len = $scope.data.cluster_data.length; i < len; i++) {
-            var x = x_scale(x_data[i]);
-            var y = y_scale(y_data[i]);
-            var color = "rgba(96, 96, 212, 1.0)";
+        var x;
+        var y;
+        var color;
+        var interpolator;
 
-            next_position.push([x, y, color]);
+        // iterate through clusters that are marked for display
+        for (var i = 0, len = $scope.data.cluster_data.length; i < len; i++) {
+            if ($scope.data.cluster_data[i].display_events) {
+                // TODO: replace the contents of this if statement with
+                // the code to lookup the matching events in event_data for
+                // this cluster
+
+                x = x_scale(x_data[i]);
+                y = y_scale(y_data[i]);
+                color = "rgba(96, 96, 212, 1.0)";
+
+                next_position.push([x, y, color]);
+            }
         }
 
-        var interpolator = d3.interpolate($scope.prev_position, next_position);
+        if (next_position.length == 0) {
+            // there's nothing for us to transition
+            return;
+        }
+
+        // TODO: this is tricky b/c the prev_position count and the next_position
+        // counts may be different if someone toggles a cluster's event display
+        interpolator = d3.interpolate($scope.prev_position, next_position);
 
         // run transition
         d3.timer(function (t) {
