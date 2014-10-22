@@ -1,5 +1,5 @@
 app.directive('prscatterplot', function() {
-    function link(scope, el, attr) {
+    function link(scope) {
         var width = 620;         // width of the svg element
         var height = 580;         // height of the svg element
         scope.canvas_width = 540;   // width of the canvas
@@ -10,25 +10,10 @@ app.directive('prscatterplot', function() {
             bottom: height - scope.canvas_height,
             left: width - scope.canvas_width
         };
-        scope.x_cat;                // chosen plot parameter for x-axis
-        scope.y_cat;                // chosen plot parameter for y-axis
-        scope.x_transform;          // chosen transform for x-data
-        scope.y_transform;          // chosen transform for y-data
-        scope.show_heat = false;    // whether to show heat map
-        scope.x_pre_scale;          // pre-scale factor for x data
-        scope.y_pre_scale;          // pre-scale factor for y data
-        scope.clusters;
         var cluster_radius = 4.5;
         scope.transition_ms = 2000;
-        var x_data;               // x data series to plot
-        var y_data;               // y data series to plot
-        var x_range;              // used for "auto-range" for chosen x category
-        var y_range;              // used for "auto-range" for chosen y category
-        var x_scale;              // function to convert x data to svg pixels
-        var y_scale;              // function to convert y data to svg pixels
-        var flow_data;            // FCS data
         scope.parameter_list = [];  // flow data column names
-        var subsample_count = 10000;  // Number of events to subsample
+        scope.show_heat = false;    // whether to show heat map
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -50,8 +35,18 @@ app.directive('prscatterplot', function() {
             // TODO: check data properties and warn user if they
             // don't look right
 
-            // reset the parameter list
+            // convert the event_data CSV string into usable objects
+            scope.parse_event_data(scope.data.event_data);
+
+            // set boolean for displaying a cluster's events
+            scope.data.cluster_data.forEach(function (cluster) {
+                cluster.display_events = false;
+            });
+
+            // reset the parameter list & SVG clusters
             scope.parameter_list = [];
+            scope.clusters = null;
+            cluster_plot_area.selectAll("circle").remove();
 
             // Grab our column names
             scope.data.cluster_data[0].parameters.forEach(function (p) {
@@ -64,18 +59,12 @@ app.directive('prscatterplot', function() {
             scope.x_pre_scale = '0.01';
             scope.y_pre_scale = '0.01';
 
-            // render initial data points in the center of plot
-            scope.prev_position = scope.data.cluster_data.map(function (d) {
-                return [scope.canvas_width / 2, scope.canvas_height / 2, "rgba(96, 96, 212, 1.0)"];
-            });
-            scope.prev_position.forEach(scope.circle);
-
             scope.clusters = cluster_plot_area.selectAll("circle").data(scope.data.cluster_data);
 
             scope.clusters.enter()
                 .append("circle")
                 .attr("cx", 0)
-                .attr("cy", 0)
+                .attr("cy", scope.canvas_height)
                 .attr("r", cluster_radius)
                 .on("mouseover", function(d) {
                     tooltip.style("visibility", "visible");
@@ -110,7 +99,8 @@ app.directive('prscatterplot', function() {
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(cluster, index) {
-                    console.log("clicked a cluster!");
+                    cluster.display_events = true;
+                    scope.render_cluster_events();
                 });
 
             scope.render_plot();
@@ -123,7 +113,7 @@ app.directive('prscatterplot', function() {
             .attr("style", "z-index: 1000");
 
         // create canvas for plot, it'll just be square as the axes will be drawn
-        // using svg...will have a top and right margin though
+        // using svg...canvas will have a top and left margin though
         d3.select("#scatterplot")
             .append("canvas")
             .attr("id", "canvas_plot")
@@ -132,18 +122,7 @@ app.directive('prscatterplot', function() {
             .attr("height", scope.canvas_height);
 
         var canvas = document.getElementById("canvas_plot");
-
         scope.ctx = canvas.getContext('2d');
-
-        // render circle in canvas for each data point
-        scope.circle = function (pos) {
-            scope.ctx.strokeStyle = pos[2];
-            scope.ctx.globalAlpha = 1;
-            scope.ctx.lineWidth = 2;
-            scope.ctx.beginPath();
-            scope.ctx.arc(pos[0], pos[1], 4.5, 0, 2 * Math.PI, false);
-            scope.ctx.stroke();
-        };
 
         var plot_area = scope.svg.append("g")
             .attr("id", "plot-area");
@@ -201,13 +180,51 @@ app.directive('prscatterplot', function() {
 });
 
 app.controller('PRScatterController', ['$scope', function ($scope) {
+    var x_data;               // x data series to plot
+    var y_data;               // y data series to plot
+    var x_range;              // used for "auto-range" for chosen x category
+    var y_range;              // used for "auto-range" for chosen y category
+    var x_scale;              // function to convert x data to svg pixels
+    var y_scale;              // function to convert y data to svg pixels
 
     function asinh(number) {
         return Math.log(number + Math.sqrt(number * number + 1));
     }
 
+    // function to generate sample events in the canvas
+    $scope.render_event = function (pos) {
+        $scope.ctx.strokeStyle = pos[2];
+        $scope.ctx.globalAlpha = 1;
+        $scope.ctx.lineWidth = 2;
+        $scope.ctx.beginPath();
+        $scope.ctx.arc(pos[0], pos[1], 4.5, 0, 2 * Math.PI, false);
+        $scope.ctx.stroke();
+    };
+
+    $scope.parse_event_data = function (event_csv) {
+        // The sample's CSV file doesn't contain a header row, we'll create
+        // one so the d3.csv.parse can conveniently make our objects for us.
+        var n_columns = 0;
+        var header = "event_index";
+        for (var i=0; i < event_csv.length; i++) {
+            if (event_csv[i] === ',') {
+                n_columns++;
+            } else if (event_csv[i] === '\n') {
+                break;
+            }
+        }
+        for (i=0; i < n_columns; i++) {
+            header += "," + i.toString();
+        }
+
+        event_csv = header + "\n" + event_csv;
+
+        $scope.event_objects = d3.csv.parse(event_csv);
+    };
+
     $scope.render_plot = function () {
         // Determine whether user wants to see the heat map
+        // TODO: angularize this, don't check the DOM if we don't have to
         show_heat = $("#heat_map_checkbox").is(':checked');
 
         // Update the axes' labels with the new categories
@@ -301,7 +318,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             // transition for time t, in milliseconds
             if (t > 2000) {
                 $scope.prev_position = next_position;
-                $scope.prev_position.forEach($scope.circle);
+                $scope.prev_position.forEach($scope.render_event);
 
                 if ($scope.show_heat) {
                     $scope.heat_map_ctx.clearRect(
@@ -323,10 +340,20 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             }
 
             $scope.prev_position = interpolator(t / 2000);
-            $scope.prev_position.forEach($scope.circle);
+            $scope.prev_position.forEach($scope.render_event);
 
             return false;
         });
     }
+
+    $scope.render_cluster_events = function () {
+        // render initial data points in the center of plot
+        $scope.prev_position = $scope.data.cluster_data.map(function (d) {
+            return [0, $scope.canvas_height, "rgba(96, 96, 212, 1.0)"];
+        });
+        $scope.prev_position.forEach($scope.render_event);
+
+        console.log("asdf");
+    };
 }]);
 
