@@ -6,6 +6,7 @@ var service = angular.module('ReFlowApp');
 
 service.factory('ModelService', function(
         $rootScope,
+        $http,
         User,
         Marker,
         Fluorochrome,
@@ -114,6 +115,7 @@ service.factory('ModelService', function(
         return this.current_site;
     };
 
+    // Sample related services
     service.setCurrentSample = function (value) {
         this.current_sample = value;
         $rootScope.$broadcast('sampleChanged');
@@ -121,6 +123,12 @@ service.factory('ModelService', function(
 
     service.getCurrentSample = function () {
         return this.current_sample;
+    };
+
+    service.getSampleCSV = function (sample_id) {
+        return $http.get(
+            '/api/repository/samples/' + sample_id.toString() + '/csv/'
+        );
     };
 
     service.setCurrentPanelTemplate = function (value) {
