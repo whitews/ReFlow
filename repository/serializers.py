@@ -614,7 +614,8 @@ class SampleMetadataSerializer(serializers.ModelSerializer):
 
 class SampleCollectionMemberSerializer(serializers.ModelSerializer):
     filename = serializers.CharField(
-        source='sample.original_filename'
+        source='sample.original_filename',
+        read_only=True
     )
 
     class Meta:
