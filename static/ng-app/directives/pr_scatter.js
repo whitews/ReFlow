@@ -35,13 +35,16 @@ app.directive('prscatterplot', function() {
             // TODO: check data properties and warn user if they
             // don't look right
 
-            // convert the event_data CSV string into usable objects
-            scope.parse_event_data(scope.data.event_data);
-
-            // set boolean for displaying a cluster's events
+            // set boolean for controlling the display of a cluster's events
+            // and set an empty array for the cluster's event data
             scope.data.cluster_data.forEach(function (cluster) {
                 cluster.display_events = false;
+                cluster.events = [];
             });
+
+            // Now, convert the event_data CSV string into usable objects
+            // and store each cluster's events in the cluster.events array
+            scope.parse_event_data(scope.data.event_data);
 
             // reset the parameter list & SVG clusters
             scope.parameter_list = [];
@@ -99,8 +102,8 @@ app.directive('prscatterplot', function() {
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(cluster, index) {
-                    cluster.display_events = true;
-                    scope.render_cluster_events();
+                    scope.init_cluster_events(cluster);
+                    scope.transition_canvas_events(++scope.transition_count);
                 });
 
             scope.render_plot();
@@ -197,8 +200,28 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         $scope.ctx.globalAlpha = 1;
         $scope.ctx.lineWidth = 2;
         $scope.ctx.beginPath();
-        $scope.ctx.arc(pos[0], pos[1], 4.5, 0, 2 * Math.PI, false);
+        $scope.ctx.arc(pos[0], pos[1], 1.5, 0, 2 * Math.PI, false);
         $scope.ctx.stroke();
+    };
+
+    $scope.init_cluster_events = function (cluster) {
+        cluster.display_events = true;
+        var x_tmp, y_tmp;
+
+        cluster.parameters.forEach(function (p) {
+            if (p.channel == $scope.x_cat) {
+                x_tmp = x_scale(p.location);
+            }
+            if (p.channel == $scope.y_cat) {
+                y_tmp = y_scale(p.location);
+            }
+        });
+
+        // render initial data points in the cluster center
+        cluster.prev_position = cluster.events.map(function (e) {
+            return [x_tmp, y_tmp, "rgba(96, 96, 212, 1.0)"];
+        });
+        cluster.prev_position.forEach($scope.render_event);
     };
 
     $scope.parse_event_data = function (event_csv) {
@@ -221,7 +244,24 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
 
         // TODO: need to transform the data here, but we need the site panel
         // info to avoid scaling scatter and time channels
-        $scope.event_objects = d3.csv.parse(event_csv);
+        var event_objects = d3.csv.parse(event_csv, function(d) {
+            for (var prop in d) {
+                if (d.hasOwnProperty(prop) && prop !== 'event_index') {
+                    // transform with pre-scaling factor
+                    d[prop] = asinh(parseFloat(d[prop]) / 100);
+                }
+            }
+            return d;
+        });
+
+        event_objects.forEach(function (e) {
+            for (var i = 0; i < $scope.data.cluster_data.length; i++) {
+                if ($scope.data.cluster_data[i].event_indices.indexOf(e.event_index) !== -1) {
+                    $scope.data.cluster_data[i].events.push(e);
+                    break;
+                }
+            }
+        });
     };
 
     $scope.render_plot = function () {
@@ -292,89 +332,78 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                 }
             });
 
-        transition_canvas_events(++$scope.transition_count);
+        $scope.transition_canvas_events(++$scope.transition_count);
     };
 
-    function transition_canvas_events(count) {
-        // calculate next positions
-        var next_position = [];
-        var x;
-        var y;
-        var color;
-        var interpolator;
-
+    $scope.transition_canvas_events = function (count) {
         // iterate through clusters that are marked for display
-        for (var i = 0, len = $scope.data.cluster_data.length; i < len; i++) {
-            if ($scope.data.cluster_data[i].display_events) {
-                // TODO: replace the contents of this if statement with
-                // the code to lookup the matching events in event_data for
-                // this cluster
+        $scope.data.cluster_data.forEach(function (cluster) {
+            if (cluster.display_events) {
+                cluster.next_position = [];
 
-                x = x_scale(x_data[i]);
-                y = y_scale(y_data[i]);
-                color = "rgba(96, 96, 212, 1.0)";
+                // iterate through all cluster events to set its next position
+                cluster.events.forEach(function (event) {
+                    cluster.next_position.push(
+                        [
+                            x_scale(event[$scope.x_cat - 1]),
+                            y_scale(event[$scope.y_cat - 1]),
+                            "rgba(96, 96, 212, 1.0)"
+                        ]
+                    );
+                });
 
-                next_position.push([x, y, color]);
-            }
-        }
+                // set cluster's interpolator
+                cluster.interpolator = d3.interpolate(
+                    cluster.prev_position,
+                    cluster.next_position
+                );
 
-        if (next_position.length == 0) {
-            // there's nothing for us to transition
-            return;
-        }
-
-        // TODO: this is tricky b/c the prev_position count and the next_position
-        // counts may be different if someone toggles a cluster's event display
-        interpolator = d3.interpolate($scope.prev_position, next_position);
-
-        // run transition
-        d3.timer(function (t) {
-            // Clear canvas
-            // Use the identity matrix while clearing the canvas
-            $scope.ctx.clearRect(0, 0, $scope.ctx.canvas.width, $scope.ctx.canvas.height);
-
-            // abort old transition
-            if (count < $scope.transition_count) return true;
-
-            // transition for time t, in milliseconds
-            if (t > 2000) {
-                $scope.prev_position = next_position;
-                $scope.prev_position.forEach($scope.render_event);
-
-                if ($scope.show_heat) {
-                    $scope.heat_map_ctx.clearRect(
+                // run transition
+                d3.timer(function (t) {
+                    // Clear canvas
+                    // Use the identity matrix while clearing the canvas
+                    // TODO: make this the cluster's canvas
+                    $scope.ctx.clearRect(
                         0,
                         0,
-                        $scope.heat_map_ctx.canvas.width,
-                        $scope.heat_map_ctx.canvas.height
+                        $scope.ctx.canvas.width,
+                        $scope.ctx.canvas.height
                     );
 
-                    $scope.prev_position.forEach(function (pos) {
-                        $scope.heat_map_data.push({x: pos[0], y: pos[1]});
-                    });
+                    // abort old transition
+                    if (count < $scope.transition_count) return true;
 
-                    $scope.heat_map.set_data($scope.heat_map_data);
-                    $scope.heat_map.colorize();
-                }
+                    // transition for time t, in milliseconds
+                    if (t > 2000) {
+                        cluster.prev_position = cluster.next_position;
+                        cluster.prev_position.forEach($scope.render_event);
 
-                return true
+                        if ($scope.show_heat) {
+                            $scope.heat_map_ctx.clearRect(
+                                0,
+                                0,
+                                $scope.heat_map_ctx.canvas.width,
+                                $scope.heat_map_ctx.canvas.height
+                            );
+
+                            cluster.prev_position.forEach(function (pos) {
+                                $scope.heat_map_data.push({x: pos[0], y: pos[1]});
+                            });
+
+                            $scope.heat_map.set_data($scope.heat_map_data);
+                            $scope.heat_map.colorize();
+                        }
+
+                        return true
+                    }
+
+                    cluster.prev_position = cluster.interpolator(t / 2000);
+                    cluster.prev_position.forEach($scope.render_event);
+
+                    return false;
+                });
             }
-
-            $scope.prev_position = interpolator(t / 2000);
-            $scope.prev_position.forEach($scope.render_event);
-
-            return false;
         });
     }
-
-    $scope.render_cluster_events = function () {
-        // render initial data points in the center of plot
-        $scope.prev_position = $scope.data.cluster_data.map(function (d) {
-            return [0, $scope.canvas_height, "rgba(96, 96, 212, 1.0)"];
-        });
-        $scope.prev_position.forEach($scope.render_event);
-
-        console.log("asdf");
-    };
 }]);
 
