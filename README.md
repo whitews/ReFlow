@@ -23,5 +23,3 @@ __
 
 * django-extensions 1.3.3
 * django-rest-framework-docs 0.1.7
-* south 0.8.4
-
