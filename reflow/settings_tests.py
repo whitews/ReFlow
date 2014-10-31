@@ -1,8 +1,8 @@
 # Django settings for ReFlow project.
 
-# Change BASE_DIR to the Django project base directory
+# Change BASE_DIR to the Django project parent directory
 # Ex. For project 'MyProject' in /home/user/env/:
-#     BASE_DIR = '/home/user/env/MyProject'
+#     BASE_DIR = '/home/user/env'
 import os
 BASE_DIR = os.environ['PWD']
 FILE_UPLOAD_TEMP_DIR = '/tmp'
@@ -20,7 +20,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': BASE_DIR + '/reflow.db',                      # Or path to database file if using sqlite3.
+        'NAME': BASE_DIR + '/ReFlow/reflow.db',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -57,7 +57,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = BASE_DIR + '/data/'
+MEDIA_ROOT = BASE_DIR + '/ReFlow-data/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -68,18 +68,18 @@ MEDIA_URL = '/data/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = BASE_DIR + '/ReFlow-static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static-o-matic/'
+STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    BASE_DIR + '/static/',
+    BASE_DIR + '/ReFlow/static/',
 )
 
 # List of finder classes that know how to find static files in
@@ -113,12 +113,14 @@ MIDDLEWARE_CLASSES = (
 
 ANONYMOUS_USER_ID = -1
 
+APPEND_SLASH = False
+
 ROOT_URLCONF = 'reflow.urls'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/home'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_AGE = 900  # seconds
+SESSION_COOKIE_AGE = 9000  # seconds
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'reflow.wsgi.application'
@@ -127,9 +129,9 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    BASE_DIR + '/templates',
-    BASE_DIR + '/authenticate/templates',
-    BASE_DIR + '/repository/templates',
+    BASE_DIR + '/ReFlow/templates',
+    BASE_DIR + '/ReFlow/authenticate/templates',
+    BASE_DIR + '/ReFlow/repository/templates'
 )
 
 INSTALLED_APPS = (
@@ -148,8 +150,7 @@ INSTALLED_APPS = (
     'rest_framework_docs',
     'django_extensions',
     #'debug_toolbar',
-    'guardian',
-    'south',
+    'guardian'
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -161,13 +162,19 @@ GUARDIAN_RENDER_403 = True
 
 REST_FRAMEWORK = {
     #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser'),
-    'PAGINATE_BY': 10,
+    'PAGINATE_BY': None,
     'PAGINATE_BY_PARAM': 'paginate_by',
     'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.XMLRenderer',
+    ),
+    'EXCEPTION_HANDLER': 'repository.api_views.custom_exception_handler'
 }
 
 INTERNAL_IPS = ('127.0.0.1',)
