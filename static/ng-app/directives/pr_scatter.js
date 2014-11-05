@@ -127,18 +127,6 @@ app.directive('prscatterplot', function() {
             .attr("height", height)
             .attr("style", "z-index: 1000");
 
-//        // create canvas for plot, it'll just be square as the axes will be drawn
-//        // using svg...canvas will have a top and left margin though
-//        d3.select("#scatterplot")
-//            .append("canvas")
-//            .attr("id", "canvas_plot")
-//            .attr("style", "position:absolute;left: " + margin.left + "px; top: " + margin.top + "px;")
-//            .attr("width", scope.canvas_width)
-//            .attr("height", scope.canvas_height);
-//
-//        var canvas = document.getElementById("canvas_plot");
-//        scope.ctx = canvas.getContext('2d');
-
         var plot_area = scope.svg.append("g")
             .attr("id", "plot-area");
 
@@ -324,11 +312,6 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         $scope.x_axis.call(d3.svg.axis().scale(x_scale).orient("bottom"));
         $scope.y_axis.call(d3.svg.axis().scale(y_scale).orient("left"));
 
-        // Clear heat map canvas before the transitions
-        $scope.heat_map_ctx.clearRect(
-            0, 0, $scope.heat_map_ctx.canvas.width, $scope.heat_map_ctx.canvas.height);
-        $scope.heat_map_data = [];
-
         // transition SVG clusters
         $scope.clusters.transition().duration($scope.transition_ms)
             .attr("cx", function (d) {
@@ -350,6 +333,11 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
     };
 
     $scope.transition_canvas_events = function (count) {
+        // Clear heat map canvas before the transitions
+        $scope.heat_map_ctx.clearRect(
+            0, 0, $scope.heat_map_ctx.canvas.width, $scope.heat_map_ctx.canvas.height);
+        $scope.heat_map_data = [];
+
         // iterate through clusters that are marked for display
         $scope.data.cluster_data.forEach(function (cluster) {
             if (cluster.display_events) {
