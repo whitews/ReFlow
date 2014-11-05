@@ -35,6 +35,28 @@ app.directive('prscatterplot', function() {
             // TODO: check data properties and warn user if they
             // don't look right
 
+            // clear any existing canvases
+            d3.select('#scatterplot').selectAll('canvas').remove();
+
+            // Add heat map canvas
+            scope.heat_map_data = [];
+            d3.select("#scatterplot")
+                .append("canvas")
+                .attr("id", "heat_map_canvas")
+                .attr("style", "position:absolute;left: " + margin.left + "px; top: " + margin.top + "px;")
+                .attr("width", scope.canvas_width)
+                .attr("height", scope.canvas_height);
+
+            var heat_map_canvas = document.getElementById("heat_map_canvas");
+            scope.heat_map_ctx = heat_map_canvas.getContext('2d');
+
+            scope.heat_map = heat.create(
+                {
+                    canvas: heat_map_canvas,
+                    radius: 5
+                }
+            );
+
             scope.data.cluster_data.forEach(function (cluster) {
                 // set boolean for controlling the display of a cluster's events
                 cluster.display_events = false;
@@ -149,25 +171,6 @@ app.directive('prscatterplot', function() {
         scope.y_label = scope.svg.append("text")
             .attr("class", "axis-label")
             .attr("transform", "translate(" + margin.left / 4 + "," + (scope.canvas_height / 2) + ") rotate(-90)");
-
-        // Heat map stuff
-        scope.heat_map_data = [];
-        d3.select("#scatterplot")
-            .append("canvas")
-            .attr("id", "heat_map_canvas")
-            .attr("style", "position:absolute;left: " + margin.left + "px; top: " + margin.top + "px;")
-            .attr("width", scope.canvas_width)
-            .attr("height", scope.canvas_height);
-
-        var heat_map_canvas = document.getElementById("heat_map_canvas");
-        scope.heat_map_ctx = heat_map_canvas.getContext('2d');
-
-        var heat_cfg = {
-            canvas: heat_map_canvas,
-            radius: 5
-        };
-
-        scope.heat_map = heat.create(heat_cfg);
     }
 
     return {
