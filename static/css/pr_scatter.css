@@ -53,7 +53,7 @@ svg {
 }
 
 circle, ellipse {
-    z-index: 100;
+    z-index: 1000;
     fill: #99c3d1;
     stroke: #466d9f;
     stroke-width: 1.5px;
@@ -69,4 +69,8 @@ circle.selected {
     stroke: #bbb;
     stroke-width: 1.5px;
     fill-opacity: .02;
+}
+
+#heat_map_canvas {
+  z-index: 900;
 }
