@@ -35,11 +35,23 @@ app.directive('prscatterplot', function() {
             // TODO: check data properties and warn user if they
             // don't look right
 
-            // set boolean for controlling the display of a cluster's events
-            // and set an empty array for the cluster's event data
             scope.data.cluster_data.forEach(function (cluster) {
+                // set boolean for controlling the display of a cluster's events
                 cluster.display_events = false;
+
+                // and set an empty array for the cluster's event data
                 cluster.events = [];
+
+                // each cluster needs it's own canvas and canvas context
+                d3.select("#scatterplot")
+                    .append("canvas")
+                    .attr("id", "cluster_" + cluster.cluster_index)
+                    .attr("style", "position:absolute;left: " + margin.left + "px; top: " + margin.top + "px;")
+                    .attr("width", scope.canvas_width)
+                    .attr("height", scope.canvas_height);
+
+                var canvas = document.getElementById("cluster_" + cluster.cluster_index);
+                cluster.ctx = canvas.getContext('2d');
             });
 
             // Now, convert the event_data CSV string into usable objects
@@ -115,17 +127,17 @@ app.directive('prscatterplot', function() {
             .attr("height", height)
             .attr("style", "z-index: 1000");
 
-        // create canvas for plot, it'll just be square as the axes will be drawn
-        // using svg...canvas will have a top and left margin though
-        d3.select("#scatterplot")
-            .append("canvas")
-            .attr("id", "canvas_plot")
-            .attr("style", "position:absolute;left: " + margin.left + "px; top: " + margin.top + "px;")
-            .attr("width", scope.canvas_width)
-            .attr("height", scope.canvas_height);
-
-        var canvas = document.getElementById("canvas_plot");
-        scope.ctx = canvas.getContext('2d');
+//        // create canvas for plot, it'll just be square as the axes will be drawn
+//        // using svg...canvas will have a top and left margin though
+//        d3.select("#scatterplot")
+//            .append("canvas")
+//            .attr("id", "canvas_plot")
+//            .attr("style", "position:absolute;left: " + margin.left + "px; top: " + margin.top + "px;")
+//            .attr("width", scope.canvas_width)
+//            .attr("height", scope.canvas_height);
+//
+//        var canvas = document.getElementById("canvas_plot");
+//        scope.ctx = canvas.getContext('2d');
 
         var plot_area = scope.svg.append("g")
             .attr("id", "plot-area");
@@ -195,13 +207,13 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
     }
 
     // function to generate sample events in the canvas
-    $scope.render_event = function (pos) {
-        $scope.ctx.strokeStyle = pos[2];
-        $scope.ctx.globalAlpha = 1;
-        $scope.ctx.lineWidth = 2;
-        $scope.ctx.beginPath();
-        $scope.ctx.arc(pos[0], pos[1], 1.5, 0, 2 * Math.PI, false);
-        $scope.ctx.stroke();
+    $scope.render_event = function (ctx, pos) {
+        ctx.strokeStyle = pos[2];
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(pos[0], pos[1], 1.5, 0, 2 * Math.PI, false);
+        ctx.stroke();
     };
 
     $scope.init_cluster_events = function (cluster) {
@@ -221,7 +233,9 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         cluster.prev_position = cluster.events.map(function (e) {
             return [x_tmp, y_tmp, "rgba(96, 96, 212, 1.0)"];
         });
-        cluster.prev_position.forEach($scope.render_event);
+        cluster.prev_position.forEach(function (position) {
+            $scope.render_event(cluster.ctx, position);
+        });
     };
 
     $scope.parse_event_data = function (event_csv) {
@@ -363,11 +377,11 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                     // Clear canvas
                     // Use the identity matrix while clearing the canvas
                     // TODO: make this the cluster's canvas
-                    $scope.ctx.clearRect(
+                    cluster.ctx.clearRect(
                         0,
                         0,
-                        $scope.ctx.canvas.width,
-                        $scope.ctx.canvas.height
+                        cluster.ctx.canvas.width,
+                        cluster.ctx.canvas.height
                     );
 
                     // abort old transition
@@ -376,7 +390,9 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                     // transition for time t, in milliseconds
                     if (t > 2000) {
                         cluster.prev_position = cluster.next_position;
-                        cluster.prev_position.forEach($scope.render_event);
+                        cluster.prev_position.forEach(function (position) {
+                            $scope.render_event(cluster.ctx, position);
+                        });
 
                         if ($scope.show_heat) {
                             $scope.heat_map_ctx.clearRect(
@@ -398,7 +414,9 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                     }
 
                     cluster.prev_position = cluster.interpolator(t / 2000);
-                    cluster.prev_position.forEach($scope.render_event);
+                    cluster.prev_position.forEach(function (position) {
+                        $scope.render_event(cluster.ctx, position);
+                    });
 
                     return false;
                 });
