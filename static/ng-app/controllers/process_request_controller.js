@@ -62,6 +62,11 @@ var process_steps = [
         "url": "/static/ng-app/partials/pr/choose_samples.html"
     },
     {
+        "name": "choose_compensations",
+        "title": "Choose Compensations",
+        "url": "/static/ng-app/partials/pr/choose_compensations.html"
+    },
+    {
         "name": "filter_parameters",
         "title": "Choose Parameters",
         "url": "/static/ng-app/partials/pr/choose_parameters.html"
@@ -110,6 +115,7 @@ app.controller(
         'SubprocessInput',
         'ProcessRequest',
         'ProcessRequestInput',
+        'ModelService',
         function (
                 $scope,
                 $controller,
@@ -129,7 +135,8 @@ app.controller(
                 SubprocessImplementation,
                 SubprocessInput,
                 ProcessRequest,
-                ProcessRequestInput) {
+                ProcessRequestInput,
+                ModelService) {
 
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
@@ -145,6 +152,7 @@ app.controller(
             $scope.model.stimulations = Stimulation.query({project: $scope.current_project.id});
             $scope.model.cytometers = []; // depends on chosen sites
             $scope.model.pretreatments = Pretreatment.query();
+            $scope.model.chosen_samples = [];
 
             $scope.model.current_panel_template = null;
 
@@ -155,6 +163,8 @@ app.controller(
                     data.forEach(function (sample) {
                         sample.ignore = false;
                         sample.selected = true;
+                        sample.comp_candidates = [];
+                        sample.chosen_comp_matrix = null;
                     });
 
                     $scope.updateSamples();
@@ -200,6 +210,16 @@ app.controller(
                         name: subproc_name
                     }
                 ); // there should only be one 'parameter' subproc input
+            }
+
+            function initializeCompensations () {
+                // Iterate samples that are both selected and not ignored
+                // to collect compensation candidates
+                $scope.model.samples.forEach(function (sample) {
+                    if (sample.selected && !sample.ignore) {
+                        $scope.model.chosen_samples.push(sample)
+                    }
+                });
             }
 
             function initializeParameters () {
@@ -353,6 +373,9 @@ app.controller(
                 switch ($scope.current_step.name) {
                     case "filter_samples":
                         initializeSamples();
+                        break;
+                    case "choose_compensations":
+                        initializeCompensations();
                         break;
                     case "filter_parameters":
                         initializeParameters();
