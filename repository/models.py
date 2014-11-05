@@ -1576,6 +1576,25 @@ class SampleCollection(ProtectedModel):
     project = models.ForeignKey(Project)
 
 
+class FrozenCompensation(models.Model):
+    """
+    Used to store comp matrices used for an analysis pipeline
+    and are not allowed to be modified.
+    """
+    matrix_text = models.TextField(editable=False)
+    sha1 = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        editable=False,
+        max_length=40
+    )
+
+    def save(self, *args, **kwargs):
+        self.sha1 = hashlib.sha1(self.matrix_text).hexdigest()
+        super(FrozenCompensation, self).save(*args, **kwargs)
+
+
 class SampleCollectionMember(ProtectedModel):
     """
     A member of a sample set (i.e. an FCS Sample). However the Samples
@@ -1583,6 +1602,10 @@ class SampleCollectionMember(ProtectedModel):
     deletion. This allows deletion of Samples with less hassle.
     It is up to the consumer of SampleCollections to verify
     SampleCollectionMember integrity.
+    Also, a compensation matrix is required, as w/o one the sample
+    data is not interpretable. However, we don't simply link to a
+    Compensation record as a user may change it in the future. So,
+    we save a "frozen" compensation matrix
     """
     sample_collection = models.ForeignKey(SampleCollection)
     sample = models.ForeignKey(
@@ -1590,9 +1613,50 @@ class SampleCollectionMember(ProtectedModel):
         null=True,
         on_delete=models.SET_NULL
     )
+    compensation = models.ForeignKey(FrozenCompensation)
 
     class Meta:
         unique_together = (('sample_collection', 'sample'),)
+
+    def clean(self):
+        """
+        verify comp matrix matches sample's channels
+        """
+
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # 'Null', scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel_id=self.sample.site_panel_id).exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = self.compensation.matrix_text.splitlines(False)
+        if not len(matrix_text) > 1:
+            raise ValidationError("Too few rows.")
+
+        # first row should be headers matching the channel number
+        # comma delimited
+        headers = re.split(',\s*', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if p.fcs_number not in headers:
+                missing_fields.append(p.fcs_number)
+
+        if len(missing_fields) > 0:
+            raise ValidationError(
+                "Missing fields: %s" % ", ".join(missing_fields))
+
+        if len(headers) > params.count():
+            raise ValidationError("Too many parameters")
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            raise ValidationError("Too many rows")
+        elif len(matrix_text) < params.count() + 1:
+            raise ValidationError("Too few rows")
 
 
 def bead_file_path(instance, filename):
