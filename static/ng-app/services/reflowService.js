@@ -257,6 +257,9 @@ service
 
         return Sample;
     }])
+    .factory('SampleMetadata', ['$resource', function ($resource) {
+        return $resource(URLS.SAMPLE_METADATA, {});
+    }])
     .factory('SampleCollection', ['$resource', function ($resource) {
         return $resource(URLS.SAMPLE_COLLECTIONS);
     }])

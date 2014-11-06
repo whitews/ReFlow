@@ -12,6 +12,7 @@ service.factory('ModelService', function(
         Fluorochrome,
         Project,
         Site,
+        SampleMetadata,
         ParameterFunction,
         ParameterValueType,
         ProcessRequest,
@@ -131,6 +132,16 @@ service.factory('ModelService', function(
         );
     };
 
+    // SampleMetadata related services
+    service.getSampleMetadata = function (sample_id) {
+        return SampleMetadata.query(
+            {
+                'sample': sample_id
+            }
+        )
+    };
+
+    // Panel related services
     service.setCurrentPanelTemplate = function (value) {
         this.current_panel_template = value;
         $rootScope.$broadcast('panelTemplateChanged');

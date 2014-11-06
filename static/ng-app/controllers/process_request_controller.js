@@ -220,6 +220,7 @@ app.controller(
                         $scope.model.chosen_samples.push(sample)
                     }
                 });
+                populateCompensations();
             }
 
             function initializeParameters () {
@@ -510,6 +511,17 @@ app.controller(
 
                 });
             };
+
+            function populateCompensations() {
+                $scope.model.chosen_samples.forEach(function(sample) {
+                    // First get any spill in the metadata
+                    ModelService.getSampleMetadata(sample.id);
+
+                    // Then, get any Compensation records matching this
+                    // sample's site panel and acquisition date
+
+                });
+            }
 
             $scope.submit_request = function () {
                 // first, we'll create the sample collection using the project ID
