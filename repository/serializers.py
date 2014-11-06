@@ -400,10 +400,6 @@ class CompensationSerializer(serializers.ModelSerializer):
     compensation_file = serializers.FileField(
         source='compensation_file',
         read_only=True)
-    sample_count = serializers.IntegerField(
-        source='get_sample_count',
-        read_only=True
-    )
 
     class Meta:
         model = Compensation
@@ -420,7 +416,6 @@ class CompensationSerializer(serializers.ModelSerializer):
             'site_panel',
             'acquisition_date',
             'compensation_file',
-            'sample_count'
         )
 
     def validate(self, attrs):
@@ -565,7 +560,6 @@ class SampleSerializer(serializers.ModelSerializer):
             'original_filename',
             'exclude',
             'sha1',
-            'compensation'
         )
         read_only_fields = (
             'original_filename', 'sha1', 'site_panel', 'cytometer'

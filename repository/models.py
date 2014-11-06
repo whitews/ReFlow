@@ -1099,9 +1099,6 @@ class Compensation(ProtectedModel):
             return True
         return False
 
-    def get_sample_count(self):
-        return Sample.objects.filter(compensation=self).count()
-
     def get_compensation_as_csv(self):
         csv_string = StringIO()
         compensation_array = np.load(self.compensation_file.file)
@@ -1273,10 +1270,6 @@ class Sample(ProtectedModel):
         null=False,
         blank=False
     )
-    compensation = models.ForeignKey(
-        Compensation,
-        null=True,
-        blank=True)
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,
