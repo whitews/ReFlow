@@ -443,11 +443,19 @@ app.controller(
                 $scope.matrix_errors = [];
                 reader.addEventListener("loadend", function(evt) {
                     var rows = evt.target.result.split('\n');
-                    var header_row = rows.shift();
+
+                    // real_rows stored all non-empty rows
+                    var real_rows = [];
+                    rows.forEach(function(r) {
+                        if (r !== "") {
+                            real_rows.push(r);
+                        }
+                    });
+                    var header_row = real_rows.shift();
                     comp_obj.headers = header_row.split('\t');
 
                     // parse data rows
-                    rows.forEach(function (row) {
+                    real_rows.forEach(function (row) {
                         comp_obj.data.push(row.split('\t'));
                     });
                     if (validateCompMatrix(comp_obj)) {
