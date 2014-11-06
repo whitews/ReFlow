@@ -13,6 +13,7 @@ service.factory('ModelService', function(
         Project,
         Site,
         SampleMetadata,
+        Compensation,
         ParameterFunction,
         ParameterValueType,
         ProcessRequest,
@@ -138,7 +139,17 @@ service.factory('ModelService', function(
             {
                 'sample': sample_id
             }
-        )
+        );
+    };
+
+    // Compensation related services
+    service.getCompensations = function (site_panel_id, acq_date) {
+        return Compensation.query(
+            {
+                'site_panel': site_panel_id,
+                'acquisition_date': acq_date
+            }
+        );
     };
 
     // Panel related services

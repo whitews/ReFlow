@@ -1576,7 +1576,21 @@ class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView)
     filter_fields = ('sample_collection', 'sample')
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.DATA, many=True)
+        data = request.DATA
+
+        # check the comp matrix text, see if one already exists and use
+        # that FrozenCompensation id, if not create a new one
+        try:
+            # find any matching matrices by SHA-1
+            sha1 = hashlib.sha1(data.compensation).hexdigest()
+            comp = FrozenCompensation.objects.get(sha1=sha1)
+        except ObjectDoesNotExist:
+            comp = FrozenCompensation(matrix_text=data.compensation)
+            comp.save()
+
+        data.compensation = comp.id
+
+        serializer = self.get_serializer(data=data, many=True)
         if serializer.is_valid():
             serializer.save()
             headers = self.get_success_headers(serializer.data)

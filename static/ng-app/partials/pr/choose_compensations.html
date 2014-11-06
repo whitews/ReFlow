@@ -25,14 +25,8 @@
             <td>{{ s.site_name }}</td>
             <td>{{ s.subject_code }}</td>
             <td>
-              <ul class="list-unstyled">
-                <li ng-repeat="comp in s.comp_candidates">
-                  <label>
-                    <input type="radio" name="compGroup" ng-model="$parent.chosen_comp_matrix" value="{{ comp.value }}" />
-                    {{ comp.name }}
-                  </label>
-                </li>
-              </ul>
+              <select class="form-control" ng-required="true" ng-model="s.chosen_comp_matrix" ng-options="c.id as c.name for c in s.comp_candidates">
+              </select>
             </td>
           </tr>
         </tbody>

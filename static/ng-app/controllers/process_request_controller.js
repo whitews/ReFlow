@@ -163,8 +163,21 @@ app.controller(
                     data.forEach(function (sample) {
                         sample.ignore = false;
                         sample.selected = true;
-                        sample.comp_candidates = [];
+                        sample.comp_candidates = ModelService.getCompensations(
+                            sample.site_panel,
+                            sample.acquisition_date
+                        );
                         sample.chosen_comp_matrix = null;
+                        sample.comp_candidates.$promise.then(function(comps) {
+                            /*
+                             * TODO: improve auto-choice in the future to
+                             * choose any matrix with the same name as the
+                             * sample's original file name
+                             */
+                            if (comps.length > 0) {
+                                sample.chosen_comp_matrix = comps[0].id;
+                            }
+                        });
                     });
 
                     $scope.updateSamples();
@@ -542,7 +555,8 @@ app.controller(
                                     new SampleCollectionMember(
                                         {
                                             sample_collection: c.id,
-                                            sample: sample.id
+                                            sample: sample.id,
+                                            compensation: sample.chosen_comp_matrix
                                         }
                                     )
                                 )
