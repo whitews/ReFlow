@@ -625,6 +625,10 @@ class SampleCollectionMemberSerializer(serializers.ModelSerializer):
 
 class SampleCollectionMemberDetailSerializer(serializers.ModelSerializer):
     sample = SampleSerializer()
+    compensation = serializers.CharField(
+        source='compensation.matrix_text',
+        read_only=True
+    )
 
     class Meta:
         model = SampleCollectionMember
