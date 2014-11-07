@@ -1102,7 +1102,16 @@ class Compensation(ProtectedModel):
     def get_compensation_as_csv(self):
         csv_string = StringIO()
         compensation_array = np.load(self.compensation_file.file)
-        np.savetxt(csv_string, compensation_array, fmt='%f', delimiter=',')
+
+        header = ','.join(["%d" % n for n in compensation_array[0]])
+        csv_string.write(header + '\n')
+
+        np.savetxt(
+            csv_string,
+            compensation_array[1:,:],
+            fmt='%f',
+            delimiter=','
+        )
         csv_string.seek(0)
         return csv_string
 
@@ -1635,7 +1644,7 @@ class SampleCollectionMember(ProtectedModel):
 
         missing_fields = list()
         for p in params:
-            if p.fcs_number not in headers:
+            if str(p.fcs_number) not in headers:
                 missing_fields.append(p.fcs_number)
 
         if len(missing_fields) > 0:

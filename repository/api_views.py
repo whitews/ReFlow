@@ -1587,7 +1587,8 @@ class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
 
 class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint for listing and creating a SampleCollectionMember.
+    API endpoint for listing and creating a SampleCollectionMember. Note
+    this API POST takes a list of instances.
     """
 
     model = SampleCollectionMember
@@ -1597,17 +1598,21 @@ class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView)
     def create(self, request, *args, **kwargs):
         data = request.DATA
 
+        if not isinstance(data, list):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         # check the comp matrix text, see if one already exists and use
         # that FrozenCompensation id, if not create a new one
-        try:
-            # find any matching matrices by SHA-1
-            sha1 = hashlib.sha1(data.compensation).hexdigest()
-            comp = FrozenCompensation.objects.get(sha1=sha1)
-        except ObjectDoesNotExist:
-            comp = FrozenCompensation(matrix_text=data.compensation)
-            comp.save()
+        for d in data:
+            try:
+                # find any matching matrices by SHA-1
+                sha1 = hashlib.sha1(d['compensation']).hexdigest()
+                comp = FrozenCompensation.objects.get(sha1=sha1)
+            except ObjectDoesNotExist:
+                comp = FrozenCompensation(matrix_text=d['compensation'])
+                comp.save()
 
-        data.compensation = comp.id
+            d['compensation'] = comp.id
 
         serializer = self.get_serializer(data=data, many=True)
         if serializer.is_valid():

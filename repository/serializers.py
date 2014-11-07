@@ -618,7 +618,8 @@ class SampleCollectionMemberSerializer(serializers.ModelSerializer):
             'id',
             'sample_collection',
             'sample',
-            'filename'
+            'filename',
+            'compensation'
         )
 
 
@@ -627,7 +628,7 @@ class SampleCollectionMemberDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SampleCollectionMember
-        fields = ('id', 'sample_collection', 'sample')
+        fields = ('id', 'sample_collection', 'sample', 'compensation')
 
 
 class SampleCollectionSerializer(serializers.ModelSerializer):

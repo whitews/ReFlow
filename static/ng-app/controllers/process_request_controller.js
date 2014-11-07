@@ -569,7 +569,7 @@ app.controller(
                                 )
                             }
                         });
-                        SampleCollectionMember.save(members);
+                        return SampleCollectionMember.save(members);
                     })
                     .then(function () {  // Create the PR before the inputs
                         var pr = new ProcessRequest(
