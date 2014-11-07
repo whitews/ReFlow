@@ -314,6 +314,25 @@ def retrieve_compensation_as_csv(request, pk):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
+def retrieve_compensation_as_csv_object(request, pk):
+    compensation = get_object_or_404(Compensation, pk=pk)
+
+    if not compensation.has_view_permission(request.user):
+        raise PermissionDenied
+
+    matrix = compensation.get_compensation_as_csv()
+
+    response = Response(
+        {
+            'matrix': matrix.getvalue()
+        }
+    )
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
 def retrieve_compensation_as_numpy(request, pk):
     compensation = get_object_or_404(Compensation, pk=pk)
 
