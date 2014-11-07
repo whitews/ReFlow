@@ -153,6 +153,7 @@ app.controller(
             $scope.model.cytometers = []; // depends on chosen sites
             $scope.model.pretreatments = Pretreatment.query();
             $scope.model.chosen_samples = [];
+            $scope.model.comp_object_lut = {};
 
             $scope.model.current_panel_template = null;
 
@@ -177,6 +178,12 @@ app.controller(
                             if (comps.length > 0) {
                                 sample.chosen_comp_matrix = comps[0].id;
                             }
+
+                            comps.forEach(function (c) {
+                                if (!$scope.model.comp_object_lut.hasOwnProperty(c.id)) {
+                                    $scope.model.comp_object_lut[c.id] = ModelService.getCompensationCSV(c.id);
+                                }
+                            });
                         });
                     });
 
@@ -556,7 +563,7 @@ app.controller(
                                         {
                                             sample_collection: c.id,
                                             sample: sample.id,
-                                            compensation: sample.chosen_comp_matrix
+                                            compensation: $scope.model.comp_object_lut[sample.chosen_comp_matrix].matrix
                                         }
                                     )
                                 )
