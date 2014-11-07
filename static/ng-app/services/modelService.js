@@ -152,6 +152,14 @@ service.factory('ModelService', function(
         );
     };
 
+    service.getCompensationCSV = function (comp_id) {
+        return Compensation.get_CSV(
+            {
+                'id': comp_id
+            }
+        );
+    };
+
     // Panel related services
     service.setCurrentPanelTemplate = function (value) {
         this.current_panel_template = value;

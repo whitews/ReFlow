@@ -244,7 +244,18 @@ service
         return SitePanel;
     }])
     .factory('Compensation', ['$resource', function ($resource) {
-        return $resource(URLS.COMPENSATIONS + ':id');
+        var Compensation =  $resource(
+            URLS.COMPENSATIONS + ':id',
+            {},
+            {
+                get_CSV: {
+                    url: URLS.COMPENSATIONS + ':id/object/',
+                    isArray: false
+                }
+            }
+        );
+
+        return Compensation;
     }])
     .factory('Sample', ['$resource', function ($resource) {
         var Sample = $resource(
@@ -300,7 +311,7 @@ service
             URLS.PROCESS_REQUESTS + ':id',
             {},
             {
-                get: { isArray: false },
+                get: { isArray: false }
             }
         );
 
