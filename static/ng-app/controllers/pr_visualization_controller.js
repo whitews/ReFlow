@@ -2,49 +2,62 @@ app.controller(
     'PRVisualizationController',
     [
         '$scope',
+        '$q',
         '$controller',
         '$stateParams',
         'ModelService',
-        function ($scope, $controller, $stateParams, ModelService) {
+        function ($scope, $q, $controller, $stateParams, ModelService) {
             // Inherits ProcessRequestController $scope
             $controller('ProcessRequestController', {$scope: $scope});
-            $scope.chosen_sample_id = null;
+            $scope.chosen_member_index = null;
+            var chosen_member = null;
+            var sample_clusters = null;
+            var panel_data = null;
+            var event_data = null;
 
             $scope.process_request = ModelService.getProcessRequest(
                 $stateParams.requestId
             );
 
             $scope.process_request.$promise.then(function () {
-                $scope.sample_collection = ModelService.getSampleCollectionMembers(
+                $scope.sample_collection = ModelService.getSampleCollection(
                     $scope.process_request.sample_collection
                 )
             });
 
-            $scope.$watch('chosen_sample_id', function() {
-                if ($scope.chosen_sample_id) {
+            $scope.$watch('chosen_member_index', function() {
+                if ($scope.chosen_member_index !== null) {
                     $scope.retrieving_data = true;
+                    chosen_member = $scope.sample_collection.members[parseInt($scope.chosen_member_index)];
                     initialize_plot();
                 }
             });
 
             function initialize_plot() {
-                $scope.sample_clusters = ModelService.getSampleClusters(
+                sample_clusters = ModelService.getSampleClusters(
                     $scope.process_request.id,
-                    $scope.chosen_sample_id
+                    chosen_member.sample.id
                 );
 
-                $scope.sample_clusters.$promise.then(function() {
-                     ModelService.getSampleCSV($scope.chosen_sample_id)
-                        .success(function (data, status, headers) {
-                            $scope.plot_data = {
-                                'cluster_data': $scope.sample_clusters,
-                                'event_data': data
-                            };
-                             $scope.retrieving_data = false;
-                        }).error(function (data, status, headers, config) {
-                            $scope.event_data = -1;
-                            $scope.retrieving_data = false;
-                        });
+                panel_data = ModelService.getSitePanel(
+                    chosen_member.sample.site_panel
+                );
+
+                event_data = ModelService.getSampleCSV(
+                    chosen_member.sample.id
+                );
+
+                $q.all([sample_clusters, panel_data, event_data]).then(function(data) {
+                    $scope.plot_data = {
+                        'cluster_data': data[0],
+                        'panel_data': data[1],
+                        'event_data': data[2].data
+                    };
+                }).catch(function() {
+                    // show errors here
+                    console.log('error!')
+                }).finally(function() {
+                    $scope.retrieving_data = false;
                 });
             }
         }

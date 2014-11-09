@@ -6,10 +6,10 @@
       <div class="well">
         <h5>Choose Sample to Plot</h5>
           <ul class="list-unstyled">
-            <li ng-repeat="sample in sample_collection">
+            <li ng-repeat="member in sample_collection.members">
               <label>
-                <input type="radio" name="sampleGroup" ng-model="$parent.chosen_sample_id" value="{{ sample.sample }}" />
-                {{ sample.filename }}
+                <input type="radio" name="sampleGroup" ng-model="$parent.chosen_member_index" value="{{ $index }}" />
+                {{ member.sample.original_filename }}
               </label>
             </li>
           </ul>
@@ -26,7 +26,7 @@
         <img src="/static/giant_whirligig.gif">
       </div>
 
-      <div ng-hide="retrieving_data || !chosen_sample_id">
+      <div ng-hide="retrieving_data || !chosen_member_index">
 
         <prscatterplot data="plot_data"></prscatterplot>
 
