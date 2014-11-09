@@ -272,7 +272,15 @@ service
         return $resource(URLS.SAMPLE_METADATA, {});
     }])
     .factory('SampleCollection', ['$resource', function ($resource) {
-        return $resource(URLS.SAMPLE_COLLECTIONS);
+        var SampleCollection = $resource(
+            URLS.SAMPLE_COLLECTIONS + ':id',
+            {},
+            {
+                get: { isArray: false }
+            }
+        );
+
+        return SampleCollection;
     }])
     .factory('SampleCollectionMember', ['$resource', function ($resource) {
         return $resource(
