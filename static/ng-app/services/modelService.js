@@ -12,11 +12,13 @@ service.factory('ModelService', function(
         Fluorochrome,
         Project,
         Site,
+        SitePanel,
         SampleMetadata,
         Compensation,
         ParameterFunction,
         ParameterValueType,
         ProcessRequest,
+        SampleCollection,
         SampleCollectionMember,
         SampleCluster) {
     var service = {};
@@ -169,6 +171,13 @@ service.factory('ModelService', function(
     service.getCurrentPanelTemplate = function () {
         return this.current_panel_template;
     };
+    service.getSitePanel = function (site_panel_id) {
+        return SitePanel.get(
+            {
+                'id': site_panel_id
+            }
+        );
+    };
     
     // ProcessRequest services
     service.getProcessRequests = function() {
@@ -184,10 +193,10 @@ service.factory('ModelService', function(
     };
 
     // SampleCollectionMember services
-    service.getSampleCollectionMembers = function(sample_collection_id) {
-        return SampleCollectionMember.query(
+    service.getSampleCollection = function(sample_collection_id) {
+        return SampleCollection.get(
             {
-                'sample_collection': sample_collection_id
+                'id': sample_collection_id
             }
         );
     };
@@ -199,7 +208,7 @@ service.factory('ModelService', function(
                 'process_request': pr_id,
                 'sample': sample_id
             }
-        );
+        ).$promise;
     };
 
     return service;
