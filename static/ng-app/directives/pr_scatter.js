@@ -14,6 +14,13 @@ app.directive('prscatterplot', function() {
         scope.transition_ms = 2000;
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
+        scope.transform_indices = [];  // data column indices to transform
+        var non_transform_param_types = [
+            'FSC',
+            'SSC',
+            'TIM',
+            'NUL'
+        ];
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -79,14 +86,13 @@ app.directive('prscatterplot', function() {
                 cluster.ctx = canvas.getContext('2d');
             });
 
-            // Now, convert the event_data CSV string into usable objects
-            // and store each cluster's events in the cluster.events array
-            scope.parse_event_data(scope.data.event_data);
-
             // reset the parameters, and build the friendly "full_name" for
             // each parameter to improve usability, otherwise users will not
             // be able to differentiate the parameters
+            // Also, set the channels to transform. Scatter, time, and null
+            // channels do not get transformed
             scope.parameters = scope.data.panel_data.parameters;
+            scope.transform_indices = [];
             scope.parameters.forEach(function(p) {
                 tmp_param = [];
                 tmp_markers = [];
@@ -112,7 +118,18 @@ app.directive('prscatterplot', function() {
                 }
 
                 p.full_name = tmp_param.join('_');
+
+                // Now test if this is a channel we need to transform
+                if (non_transform_param_types.indexOf(p.parameter_type) == -1) {
+                    // data is zero-indexed
+                    scope.transform_indices.push((p.fcs_number - 1).toString());
+                }
+
             });
+
+            // Now, convert the event_data CSV string into usable objects
+            // and store each cluster's events in the cluster.events array
+            scope.parse_event_data(scope.data.event_data);
 
             // reset the SVG clusters
             scope.clusters = null;
@@ -275,13 +292,15 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
 
         event_csv = header + "\n" + event_csv;
 
-        // TODO: need to transform the data here, but we need the site panel
-        // info to avoid scaling scatter and time channels
+        // transform the event data, but not for scatter and time channels
         var event_objects = d3.csv.parse(event_csv, function(d) {
             for (var prop in d) {
                 if (d.hasOwnProperty(prop) && prop !== 'event_index') {
-                    // transform with pre-scaling factor
-                    d[prop] = asinh(parseFloat(d[prop]) / 100);
+                    // check if this is a transform channel
+                    if ($scope.transform_indices.indexOf(prop) != -1) {
+                        // transform with pre-scaling factor
+                        d[prop] = asinh(parseFloat(d[prop]) / 100);
+                    }
                 }
             }
             return d;
