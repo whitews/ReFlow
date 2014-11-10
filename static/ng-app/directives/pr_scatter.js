@@ -12,7 +12,7 @@ app.directive('prscatterplot', function() {
         };
         var cluster_radius = 4.5;
         scope.transition_ms = 2000;
-        scope.parameter_list = [];  // flow data column names
+        scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
 
         // Transition variables
@@ -80,18 +80,13 @@ app.directive('prscatterplot', function() {
             // and store each cluster's events in the cluster.events array
             scope.parse_event_data(scope.data.event_data);
 
-            // reset the parameter list & SVG clusters
-            scope.parameter_list = [];
+            // reset the parameters & SVG clusters
+            scope.parameters = scope.data.panel_data.parameters;
             scope.clusters = null;
             cluster_plot_area.selectAll("circle").remove();
 
-            // Grab our column names
-            scope.data.cluster_data[0].parameters.forEach(function (p) {
-                scope.parameter_list.push(p.channel);
-            });
-
-            scope.x_cat = scope.parameter_list[0];
-            scope.y_cat = scope.parameter_list[0];
+            scope.x_cat = scope.parameters[0].name;
+            scope.y_cat = scope.parameters[0].name;
 
             scope.x_pre_scale = '0.01';
             scope.y_pre_scale = '0.01';
