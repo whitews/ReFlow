@@ -3,12 +3,12 @@
 
     <span class="col-md-offset-1 col-md-3">
       X axis:<br/>
-      <select ng-model="x_cat" ng-options="p for p in parameter_list"></select><br/>
+      <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select><br/>
     </span>
 
     <span class="col-md-3">
       Y axis:<br/>
-      <select ng-model="y_cat" ng-options="p for p in parameter_list"></select><br/>
+      <select ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select><br/>
     </span>
 
     <span class="col-md-2">

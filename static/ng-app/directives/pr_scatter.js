@@ -19,6 +19,9 @@ app.directive('prscatterplot', function() {
         scope.prev_position = [];         // prev_position [x, y, color] pairs
         scope.transition_count = 0;       // used to cancel old transitions
 
+        var tmp_param = [];  // for building parameter 'full_name'
+        var tmp_markers = [];  // also for param 'full_name' to sort markers
+
         // A tooltip for displaying the point's event values
         var tooltip = d3.select("body")
             .append("div")
@@ -80,13 +83,43 @@ app.directive('prscatterplot', function() {
             // and store each cluster's events in the cluster.events array
             scope.parse_event_data(scope.data.event_data);
 
-            // reset the parameters & SVG clusters
+            // reset the parameters, and build the friendly "full_name" for
+            // each parameter to improve usability, otherwise users will not
+            // be able to differentiate the parameters
             scope.parameters = scope.data.panel_data.parameters;
+            scope.parameters.forEach(function(p) {
+                tmp_param = [];
+                tmp_markers = [];
+
+                p.markers.forEach(function(m) {
+                    tmp_markers.push(m.name);
+                });
+                tmp_markers.sort();
+
+                tmp_param = tmp_param.concat(
+                    [
+                        p.fcs_number,
+                        p.parameter_type,
+                        p.parameter_value_type
+                    ],
+                    tmp_markers
+                );
+
+                if (p.fluorochrome != null) {
+                    tmp_param.push(
+                        p.fluorochrome.fluorochrome_abbreviation
+                    );
+                }
+
+                p.full_name = tmp_param.join('_');
+            });
+
+            // reset the SVG clusters
             scope.clusters = null;
             cluster_plot_area.selectAll("circle").remove();
 
-            scope.x_cat = scope.parameters[0].name;
-            scope.y_cat = scope.parameters[0].name;
+            scope.x_param = scope.parameters[0];
+            scope.y_param = scope.parameters[0];
 
             scope.x_pre_scale = '0.01';
             scope.y_pre_scale = '0.01';
@@ -103,14 +136,14 @@ app.directive('prscatterplot', function() {
 
                     var popup_text = "";
 
-                    // find x_cat value
+                    // find x_param value
                     d.parameters.forEach(function (p) {
-                        if (p.channel == scope.x_cat) {
+                        if (p.channel == scope.x_param.fcs_number) {
                             popup_text = popup_text + "x: " + (Math.round(p.location * 100) / 100).toString();
                         }
                     });
                     d.parameters.forEach(function (p) {
-                        if (p.channel == scope.y_cat) {
+                        if (p.channel == scope.y_param.fcs_number) {
                             popup_text = popup_text + " y: " + (Math.round(p.location * 100) / 100).toString();
                         }
                     });
@@ -207,10 +240,10 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         var x_tmp, y_tmp;
 
         cluster.parameters.forEach(function (p) {
-            if (p.channel == $scope.x_cat) {
+            if (p.channel == $scope.x_param.fcs_number) {
                 x_tmp = x_scale(p.location);
             }
-            if (p.channel == $scope.y_cat) {
+            if (p.channel == $scope.y_param.fcs_number) {
                 y_tmp = y_scale(p.location);
             }
         });
@@ -270,8 +303,8 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         show_heat = $("#heat_map_checkbox").is(':checked');
 
         // Update the axes' labels with the new categories
-        $scope.x_label.text($scope.x_cat);
-        $scope.y_label.text($scope.y_cat);
+        $scope.x_label.text($scope.x_param.full_name);
+        $scope.y_label.text($scope.y_param.full_name);
 
         x_data = [];
         y_data = [];
@@ -279,10 +312,10 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         // Populate x_data and y_data using chosen x & y parameters
         for (var i=0, len=$scope.data.cluster_data.length; i<len; i++) {
             $scope.data.cluster_data[i].parameters.forEach(function (p) {
-                if (p.channel == $scope.x_cat) {
+                if (p.channel == $scope.x_param.fcs_number) {
                     x_data[i] = p.location;
                 }
-                if (p.channel == $scope.y_cat) {
+                if (p.channel == $scope.y_param.fcs_number) {
                     y_data[i] = p.location;
                 }
             });
@@ -314,14 +347,14 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         $scope.clusters.transition().duration($scope.transition_ms)
             .attr("cx", function (d) {
                 for (var i=0; i < d.parameters.length; i++) {
-                    if (d.parameters[i].channel == $scope.x_cat) {
+                    if (d.parameters[i].channel == $scope.x_param.fcs_number) {
                         return x_scale(d.parameters[i].location);
                     }
                 }
             })
             .attr("cy", function (d) {
                 for (var i=0; i < d.parameters.length; i++) {
-                    if (d.parameters[i].channel == $scope.y_cat) {
+                    if (d.parameters[i].channel == $scope.y_param.fcs_number) {
                         return y_scale(d.parameters[i].location);
                     }
                 }
@@ -345,8 +378,8 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                 cluster.events.forEach(function (event) {
                     cluster.next_position.push(
                         [
-                            x_scale(event[$scope.x_cat - 1]),
-                            y_scale(event[$scope.y_cat - 1]),
+                            x_scale(event[$scope.x_param.fcs_number - 1]),
+                            y_scale(event[$scope.y_param.fcs_number - 1]),
                             "rgba(96, 96, 212, 1.0)"
                         ]
                     );
