@@ -2201,10 +2201,10 @@ class ProcessRequestOutput(ProtectedModel):
         return False
 
     def __unicode__(self):
-        return u'%s (%s): %s' % (
-            self.process_request.get_process_display(),
+        return u'%s: %s' % (
             self.process_request_id,
-            self.key)
+            self.key
+        )
 
 
 class Cluster(ProtectedModel):
