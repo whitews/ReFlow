@@ -51,7 +51,8 @@ app.controller(
                     $scope.plot_data = {
                         'cluster_data': data[0],
                         'panel_data': data[1],
-                        'event_data': data[2].data
+                        'event_data': data[2].data,
+                        'compensation_data': chosen_member.compensation
                     };
                 }).catch(function() {
                     // show errors here
