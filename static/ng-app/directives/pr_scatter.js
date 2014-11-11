@@ -129,7 +129,7 @@ app.directive('prscatterplot', function() {
 
             // Now, convert the event_data CSV string into usable objects
             // and store each cluster's events in the cluster.events array
-            scope.parse_event_data(scope.data.event_data);
+            scope.process_event_data(scope.data.event_data);
 
             // reset the SVG clusters
             scope.clusters = null;
@@ -238,6 +238,58 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
     var x_scale;              // function to convert x data to svg pixels
     var y_scale;              // function to convert y data to svg pixels
 
+    function parse_compensation(comp_csv) {
+        // comp_csv is a text string to convert to a comp matrix object
+        // with 2 properties:
+        //     "indices": a list of indices to transform
+        //     "matrix": the compe matrix as a MathJS Matrix
+        var lines = [];
+        var header;
+
+        comp_csv.split("\n").forEach(function (line) {
+            if (line === "") {
+                return;
+            }
+            lines.push(line.split(","));
+        });
+
+        header = lines.shift();
+        for (var i=0; i < header.length; i++) {
+            header[i] = parseInt(header[i]) - 1;  // we want indices
+        }
+
+        lines.forEach(function(l) {
+            for (var i=0; i < l.length; i++) {
+                l[i] = parseFloat(l[i]);
+            }
+        });
+
+        lines = math.matrix(lines);
+
+        return {
+            "indices": header,
+            "matrix": lines
+        };
+    }
+
+    function compensate(event_object) {
+        var event_subset = [];
+        $scope.compensation.indices.forEach(function(i) {
+            // event object values are strings, we need floats for MathJS
+            event_subset.push(parseFloat(event_object[i]));
+        });
+
+        event_subset = math.multiply(
+            event_subset,
+            math.inv($scope.compensation.matrix)
+        ).toArray();  // and back to array
+
+        // and now convert back to strings
+        $scope.compensation.indices.forEach(function(i) {
+            event_object[i] = event_subset.shift().toString();
+        });
+    }
+
     function asinh(number) {
         return Math.log(number + Math.sqrt(number * number + 1));
     }
@@ -274,7 +326,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         });
     };
 
-    $scope.parse_event_data = function (event_csv) {
+    $scope.process_event_data = function (event_csv) {
         // The sample's CSV file doesn't contain a header row, we'll create
         // one so the d3.csv.parse can conveniently make our objects for us.
         var n_columns = 0;
@@ -292,8 +344,15 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
 
         event_csv = header + "\n" + event_csv;
 
-        // transform the event data, but not for scatter and time channels
+        // convert the compensation text to a MathJS Matrix
+        $scope.compensation = parse_compensation($scope.data.compensation_data);
+
+        // compensate & transform the event data,
+        // but not for scatter and time channels
         var event_objects = d3.csv.parse(event_csv, function(d) {
+            // Always apply compensation first
+            compensate(d);
+
             for (var prop in d) {
                 if (d.hasOwnProperty(prop) && prop !== 'event_index') {
                     // check if this is a transform channel
