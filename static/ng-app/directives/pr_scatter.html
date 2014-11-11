@@ -27,7 +27,7 @@
     <span class="col-md-3">
       <ul class="list-unstyled">
         <li ng-repeat="sc in data.cluster_data">
-          Cluster: {{ sc.cluster_index }}
+          <span ng-class="{ selected: sc.selected }">Cluster: {{ sc.cluster_index }}</span>
         </li>
       </ul>
     </span>

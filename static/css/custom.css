@@ -496,3 +496,7 @@ form.unstyled-checkboxes > ul > li > label {
 form.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
     margin: 0px !important;
 }
+
+.selected {
+    font-weight: bold;
+}

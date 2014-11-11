@@ -68,8 +68,10 @@ app.directive('prscatterplot', function() {
             );
 
             scope.data.cluster_data.forEach(function (cluster) {
-                // set boolean for controlling the display of a cluster's events
+                // set booleans for controlling the display of a
+                // cluster's events & for whether cluster is selected
                 cluster.display_events = false;
+                cluster.selected = false;
 
                 // and set an empty array for the cluster's event data
                 cluster.events = [];
@@ -166,6 +168,10 @@ app.directive('prscatterplot', function() {
                     });
 
                     tooltip.text(popup_text);
+
+                    d.selected = true;
+
+                    scope.$apply();
                 })
                 .on("mousemove", function() {
                     return tooltip
@@ -177,7 +183,9 @@ app.directive('prscatterplot', function() {
                             (d3.event.pageX + 10) + "px"
                     );
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function(d) {
+                    d.selected = false;
+                    scope.$apply();
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(cluster, index) {
@@ -370,6 +378,11 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             p.extent = d3.extent(event_objects, function(eo) {
                 return parseFloat(eo[p.fcs_number - 1]);
             });
+
+            // pad ranges a bit, keeps the data points from
+            // overlapping the plot's edge
+            p.extent[0] = p.extent[0] - (p.extent[1] - p.extent[0]) * 0.02;
+            p.extent[1] = p.extent[1] + (p.extent[1] - p.extent[0]) * 0.02;
         });
 
         event_objects.forEach(function (e) {
@@ -409,12 +422,6 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         // Lookup ranges to calculate the axes' scaling
         x_range = $scope.x_param.extent;
         y_range = $scope.y_param.extent;
-
-        // pad ranges a bit, keeps the data points from overlapping the plot's edge
-        x_range[0] = x_range[0] - (x_range[1] - x_range[0]) * 0.02;
-        x_range[1] = x_range[1] + (x_range[1] - x_range[0]) * 0.02;
-        y_range[0] = y_range[0] - (y_range[1] - y_range[0]) * 0.02;
-        y_range[1] = y_range[1] + (y_range[1] - y_range[0]) * 0.02;
 
         // Update scaling functions for determining placement of the x and y axes
         x_scale = d3.scale.linear().domain(x_range).range([0, $scope.canvas_width]);
