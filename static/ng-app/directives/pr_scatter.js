@@ -365,6 +365,13 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             return d;
         });
 
+        // get extent for all channels for auto-ranging the axis
+        $scope.parameters.forEach(function(p) {
+            p.extent = d3.extent(event_objects, function(eo) {
+                return parseFloat(eo[p.fcs_number - 1]);
+            });
+        });
+
         event_objects.forEach(function (e) {
             for (var i = 0; i < $scope.data.cluster_data.length; i++) {
                 if ($scope.data.cluster_data[i].event_indices.indexOf(e.event_index) !== -1) {
@@ -399,19 +406,15 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             });
         }
 
-        // Get the new ranges to calculate the axes' scaling
-        x_range = d3.extent(x_data, function (d) {
-            return parseFloat(d);
-        });
-        y_range = d3.extent(y_data, function (d) {
-            return parseFloat(d);
-        });
+        // Lookup ranges to calculate the axes' scaling
+        x_range = $scope.x_param.extent;
+        y_range = $scope.y_param.extent;
 
         // pad ranges a bit, keeps the data points from overlapping the plot's edge
-        x_range[0] = x_range[0] - (x_range[1] - x_range[0]) * 0.1;
-        x_range[1] = x_range[1] + (x_range[1] - x_range[0]) * 0.1;
-        y_range[0] = y_range[0] - (y_range[1] - y_range[0]) * 0.1;
-        y_range[1] = y_range[1] + (y_range[1] - y_range[0]) * 0.1;
+        x_range[0] = x_range[0] - (x_range[1] - x_range[0]) * 0.02;
+        x_range[1] = x_range[1] + (x_range[1] - x_range[0]) * 0.02;
+        y_range[0] = y_range[0] - (y_range[1] - y_range[0]) * 0.02;
+        y_range[1] = y_range[1] + (y_range[1] - y_range[0]) * 0.02;
 
         // Update scaling functions for determining placement of the x and y axes
         x_scale = d3.scale.linear().domain(x_range).range([0, $scope.canvas_width]);
