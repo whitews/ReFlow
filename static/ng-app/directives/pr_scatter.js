@@ -4,13 +4,14 @@ app.directive('prscatterplot', function() {
         var height = 580;         // height of the svg element
         scope.canvas_width = 540;   // width of the canvas
         scope.canvas_height = 540;  // height of the canvas
+        var colors = d3.scale.category20();
         var margin = {            // used mainly for positioning the axes' labels
             top: 0,
             right: 0,
             bottom: height - scope.canvas_height,
             left: width - scope.canvas_width
         };
-        var cluster_radius = 4.5;
+        var cluster_radius = 6;
         scope.transition_ms = 2000;
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
@@ -72,6 +73,7 @@ app.directive('prscatterplot', function() {
                 // cluster's events & for whether cluster is selected
                 cluster.display_events = false;
                 cluster.selected = false;
+                cluster.color = colors(cluster.cluster_index % 20);
 
                 // and set an empty array for the cluster's event data
                 cluster.events = [];
@@ -327,7 +329,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
 
         // render initial data points in the cluster center
         cluster.prev_position = cluster.events.map(function (e) {
-            return [x_tmp, y_tmp, "rgba(96, 96, 212, 1.0)"];
+            return [x_tmp, y_tmp, cluster.color];
         });
         cluster.prev_position.forEach(function (position) {
             $scope.render_event(cluster.ctx, position);
@@ -468,7 +470,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                         [
                             x_scale(event[$scope.x_param.fcs_number - 1]),
                             y_scale(event[$scope.y_param.fcs_number - 1]),
-                            "rgba(96, 96, 212, 1.0)"
+                            cluster.color
                         ]
                     );
                 });

@@ -55,8 +55,8 @@ svg {
 circle, ellipse {
     z-index: 1000;
     fill: #99c3d1;
-    stroke: #466d9f;
-    stroke-width: 1.5px;
+    stroke: #203148;
+    stroke-width: 2px;
 }
 
 circle.selected {
