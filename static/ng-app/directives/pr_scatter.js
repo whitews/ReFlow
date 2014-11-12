@@ -13,6 +13,7 @@ app.directive('prscatterplot', function() {
         };
         var cluster_radius = 6;
         scope.transition_ms = 2000;
+        scope.heat_base_color = "#5888D0";
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
         scope.transform_indices = [];  // data column indices to transform
@@ -398,10 +399,6 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
     };
 
     $scope.render_plot = function () {
-        // Determine whether user wants to see the heat map
-        // TODO: angularize this, don't check the DOM if we don't have to
-        show_heat = $("#heat_map_checkbox").is(':checked');
-
         // Update the axes' labels with the new categories
         $scope.x_label.text($scope.x_param.full_name);
         $scope.y_label.text($scope.y_param.full_name);
@@ -470,7 +467,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                         [
                             x_scale(event[$scope.x_param.fcs_number - 1]),
                             y_scale(event[$scope.y_param.fcs_number - 1]),
-                            cluster.color
+                            $scope.show_heat ? $scope.heat_base_color : cluster.color
                         ]
                     );
                 });
@@ -485,7 +482,6 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                 d3.timer(function (t) {
                     // Clear canvas
                     // Use the identity matrix while clearing the canvas
-                    // TODO: make this the cluster's canvas
                     cluster.ctx.clearRect(
                         0,
                         0,
