@@ -25,9 +25,15 @@
       <div id="scatterplot"></div>
     </div>
     <div class="col-md-3">
+      <div class="cluster-list">
       <table class="table">
         <thead>
         <tr>
+          <th>
+            <div class="color-box">
+              <i ng-show="show_all_clusters" class="fa fa-eye"></i>
+            </div>
+          </th>
           <th>
             Cluster
           </th>
@@ -39,6 +45,11 @@
         <tbody>
         <tr ng-repeat="sc in data.cluster_data">
           <td ng-class="{ hover: sc.selected }">
+            <div class="color-box" ng-style="{ 'background-color': sc.color }">
+              <i ng-show="sc.display_events" class="fa fa-check"></i>
+            </div>
+          </td>
+          <td ng-class="{ hover: sc.selected }">
             {{ sc.cluster_index }}
           </td>
           <td ng-class="{ hover: sc.selected }">
@@ -47,6 +58,7 @@
         </tr>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 </div>
