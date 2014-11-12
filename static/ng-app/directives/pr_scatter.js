@@ -12,7 +12,7 @@ app.directive('prscatterplot', function() {
             left: width - scope.canvas_width
         };
         var cluster_radius = 6;
-        scope.transition_ms = 2000;
+        scope.transition_ms = 1000;
         scope.heat_base_color = "#5888D0";
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
@@ -26,7 +26,7 @@ app.directive('prscatterplot', function() {
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
-        scope.transition_count = 0;       // used to cancel old transitions
+        scope.transition_count = 100;       // used to cancel old transitions
 
         var tmp_param = [];  // for building parameter 'full_name'
         var tmp_markers = [];  // also for param 'full_name' to sort markers
@@ -109,7 +109,6 @@ app.directive('prscatterplot', function() {
 
                 tmp_param = tmp_param.concat(
                     [
-                        p.fcs_number,
                         p.parameter_type,
                         p.parameter_value_type
                     ],
@@ -122,7 +121,7 @@ app.directive('prscatterplot', function() {
                     );
                 }
 
-                p.full_name = tmp_param.join('_');
+                p.full_name = tmp_param.join(' ');
 
                 // Now test if this is a channel we need to transform
                 if (non_transform_param_types.indexOf(p.parameter_type) == -1) {
@@ -192,7 +191,7 @@ app.directive('prscatterplot', function() {
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(cluster, index) {
-                    scope.init_cluster_events(cluster);
+                    scope.toggle_cluster_events(cluster);
                     scope.transition_canvas_events(++scope.transition_count);
                 });
 
@@ -315,8 +314,8 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         ctx.stroke();
     };
 
-    $scope.init_cluster_events = function (cluster) {
-        cluster.display_events = true;
+    $scope.toggle_cluster_events = function (cluster) {
+        cluster.display_events = !cluster.display_events;
         var x_tmp, y_tmp;
 
         cluster.parameters.forEach(function (p) {
@@ -493,7 +492,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                     if (count < $scope.transition_count) return true;
 
                     // transition for time t, in milliseconds
-                    if (t > 2000) {
+                    if (t > $scope.transition_ms) {
                         cluster.prev_position = cluster.next_position;
                         cluster.prev_position.forEach(function (position) {
                             $scope.render_event(cluster.ctx, position);
@@ -518,13 +517,23 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                         return true
                     }
 
-                    cluster.prev_position = cluster.interpolator(t / 2000);
+                    cluster.prev_position = cluster.interpolator(t / $scope.transition_ms);
                     cluster.prev_position.forEach(function (position) {
                         $scope.render_event(cluster.ctx, position);
                     });
 
                     return false;
                 });
+            } else {
+                // This cluster's display is off.
+                // Clear canvas
+                // Use the identity matrix while clearing the canvas
+                cluster.ctx.clearRect(
+                    0,
+                    0,
+                    cluster.ctx.canvas.width,
+                    cluster.ctx.canvas.height
+                );
             }
         });
     }
