@@ -1,4 +1,4 @@
-<span>
+<div>
   <div class="row">
 
     <span class="col-md-offset-1 col-md-3">
@@ -21,15 +21,32 @@
   </div>
 
   <div class="row">
-    <span class="col-md-9">
+    <div class="col-md-9">
       <div id="scatterplot"></div>
-    </span>
-    <span class="col-md-3">
-      <ul class="list-unstyled">
-        <li ng-repeat="sc in data.cluster_data">
-          <span ng-class="{ selected: sc.selected }">Cluster: {{ sc.cluster_index }}</span>
-        </li>
-      </ul>
-    </span>
+    </div>
+    <div class="col-md-3">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>
+            Cluster
+          </th>
+          <th>
+            Event %
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="sc in data.cluster_data">
+          <td ng-class="{ hover: sc.selected }">
+            {{ sc.cluster_index }}
+          </td>
+          <td ng-class="{ hover: sc.selected }">
+            {{ sc.event_percent }}%
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</span>
+</div>
