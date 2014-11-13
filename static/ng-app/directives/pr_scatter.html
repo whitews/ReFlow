@@ -2,21 +2,36 @@
   <div class="row">
 
     <div class="col-md-offset-1 col-md-3">
-      X axis:<br/>
+      X axis parameter:<br/>
       <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select><br/>
+      <div ng-hide="auto_scale">
+        X axis scale:<br/>
+        <input class="scale_input" type="text" ng-model="user_x_min" /> to
+        <input class="scale_input" maxlength="6" type="text" ng-model="user_x_max" />
+      </div>
     </div>
 
     <div class="col-md-3">
-      Y axis:<br/>
+      Y axis parameter:<br/>
       <select ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select><br/>
+      <div ng-hide="auto_scale">
+        Y axis scale:<br/>
+        <input class="scale_input" maxlength="6" type="text" ng-model="user_y_min" /> to
+        <input class="scale_input" maxlength="6" type="text" ng-model="user_y_max" />
+      </div>
     </div>
 
     <div class="col-md-2">
       <br/>
       <button class="btn btn-primary" ng-click="render_plot(plot_data)">Update Plot</button>
-      <br/><br/>
+      <br/>
+      <br/>
       <label>
         <input ng-model="show_heat" type="checkbox"> Use heat map
+      </label>
+      <br/>
+      <label>
+        <input ng-model="auto_scale" type="checkbox" ng-change="init_user_scale()"> Auto-scale
       </label>
     </div>
 
@@ -42,7 +57,7 @@
     </div>
     <div class="col-md-3">
       <div class="cluster-list">
-      <table class="table">
+      <table class="table table-hover">
         <thead>
         <tr>
           <th>

@@ -16,6 +16,7 @@ app.directive('prscatterplot', function() {
         scope.heat_base_color = "#5888D0";
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
+        scope.auto_scale = true;  // automatically scales axes to data
         scope.transform_indices = [];  // data column indices to transform
         var non_transform_param_types = [
             'FSC',
@@ -289,6 +290,13 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         return Math.log(number + Math.sqrt(number * number + 1));
     }
 
+    $scope.init_user_scale = function() {
+        $scope.user_x_min = $scope.x_param.extent[0];
+        $scope.user_x_max = $scope.x_param.extent[1];
+        $scope.user_y_min = $scope.y_param.extent[0];
+        $scope.user_y_max = $scope.y_param.extent[1];
+    };
+
     // function to generate sample events in the canvas
     $scope.render_event = function (ctx, pos) {
         ctx.strokeStyle = pos[2];
@@ -390,9 +398,10 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             });
 
             // pad ranges a bit, keeps the data points from
-            // overlapping the plot's edge
-            p.extent[0] = p.extent[0] - (p.extent[1] - p.extent[0]) * 0.02;
-            p.extent[1] = p.extent[1] + (p.extent[1] - p.extent[0]) * 0.02;
+            // overlapping the plot's edge, and round up to next integer
+            // for prettier user inputs for non-autoscaling
+            p.extent[0] = (p.extent[0] - (p.extent[1] - p.extent[0]) * 0.02).toFixed(2);
+            p.extent[1] = (p.extent[1] + (p.extent[1] - p.extent[0]) * 0.02).toFixed(2);
         });
 
         event_objects.forEach(function (e) {
@@ -431,9 +440,19 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             });
         }
 
-        // Lookup ranges to calculate the axes' scaling
-        x_range = $scope.x_param.extent;
-        y_range = $scope.y_param.extent;
+        // check for auto-scaling
+        x_range = [];
+        y_range = [];
+        if ($scope.auto_scale) {
+            // Lookup ranges to calculate the axes' scaling
+            x_range = $scope.x_param.extent;
+            y_range = $scope.y_param.extent;
+        } else {
+            x_range.push($scope.user_x_min);
+            x_range.push($scope.user_x_max);
+            y_range.push($scope.user_y_min);
+            y_range.push($scope.user_y_max);
+        }
 
         // Update scaling functions for determining placement of the x and y axes
         x_scale = d3.scale.linear().domain(x_range).range([0, $scope.canvas_width]);

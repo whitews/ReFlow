@@ -119,3 +119,7 @@ td.hover {
   font-weight: 300;
   line-height: 28px;
 }
+
+.scale_input {
+  width: 28%;
+}
