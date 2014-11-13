@@ -352,6 +352,16 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         $scope.transition_canvas_events(++$scope.transition_count);
     };
 
+    // used for highlight cluster SVG circle from the cluster table
+    $scope.resize_cluster = function (cluster, size) {
+        $scope.clusters.filter(
+            function(d) {
+                if (d.cluster_index == cluster.cluster_index) {
+                    return d;
+                }
+            }).attr("r", size)
+    };
+
     $scope.process_event_data = function (event_csv) {
         // The sample's CSV file doesn't contain a header row, we'll create
         // one so the d3.csv.parse can conveniently make our objects for us.
