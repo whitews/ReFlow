@@ -4,7 +4,7 @@ app.directive('prscatterplot', function() {
         var height = 580;         // height of the svg element
         scope.canvas_width = 540;   // width of the canvas
         scope.canvas_height = 540;  // height of the canvas
-        var colors = d3.scale.category20();
+        var colors = d3.scale.category20().range();
         var margin = {            // used mainly for positioning the axes' labels
             top: 0,
             right: 0,
@@ -74,7 +74,7 @@ app.directive('prscatterplot', function() {
                 // cluster's events & for whether cluster is selected
                 cluster.display_events = false;
                 cluster.selected = false;
-                cluster.color = colors(cluster.cluster_index % 20);
+                cluster.color = colors[cluster.cluster_index % 20];
 
                 // and set an empty array for the cluster's event data
                 cluster.events = [];
