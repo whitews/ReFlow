@@ -177,7 +177,6 @@ app.directive('prscatterplot', function() {
                 })
                 .on("click", function(cluster, index) {
                     scope.toggle_cluster_events(cluster);
-                    scope.transition_canvas_events(++scope.transition_count);
                     scope.$apply();
                 });
 
@@ -320,6 +319,9 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         cluster.prev_position.forEach(function (position) {
             $scope.render_event(cluster.ctx, position);
         });
+
+        // Now, transition the events
+        $scope.transition_canvas_events(++$scope.transition_count);
     };
 
     $scope.process_event_data = function (event_csv) {

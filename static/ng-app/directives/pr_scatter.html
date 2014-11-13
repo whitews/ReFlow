@@ -61,7 +61,7 @@
         <tbody>
         <tr ng-repeat="sc in data.cluster_data">
           <td ng-class="{ hover: sc.selected }">
-            <div class="color-box" ng-style="{ 'background-color': sc.color }">
+            <div class="color-box" ng-style="{ 'background-color': sc.color }" ng-click="toggle_cluster_events(sc)">
               <i ng-show="sc.display_events" class="fa fa-check"></i>
             </div>
           </td>
