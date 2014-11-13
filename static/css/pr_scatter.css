@@ -98,6 +98,10 @@ td.hover {
   cursor: pointer;
 }
 
+.color-box > i.master {
+  color: #000;
+}
+
 .cluster-info-box {
   border: 2px solid #a1a1a1;
   border-radius: 3px;

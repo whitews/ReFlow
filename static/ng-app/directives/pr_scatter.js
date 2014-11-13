@@ -299,7 +299,11 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         ctx.stroke();
     };
 
-    $scope.toggle_cluster_events = function (cluster) {
+    function toggle_cluster_events(cluster) {
+        // this function separates the transitioning logic to
+        // allow both toggling of a single cluster and toggling
+        // all clusters without creating lots of transition loops
+
         cluster.display_events = !cluster.display_events;
         var x_tmp, y_tmp;
 
@@ -319,6 +323,22 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         cluster.prev_position.forEach(function (position) {
             $scope.render_event(cluster.ctx, position);
         });
+    }
+
+    $scope.toggle_all_events = function () {
+        $scope.show_all_clusters = !$scope.show_all_clusters;
+
+        $scope.data.cluster_data.forEach(function(c) {
+            c.display_events = !$scope.show_all_clusters;
+            toggle_cluster_events(c);
+        });
+
+        // Now transition everything
+        $scope.transition_canvas_events(++$scope.transition_count);
+    };
+
+    $scope.toggle_cluster_events = function (cluster) {
+        toggle_cluster_events(cluster);
 
         // Now, transition the events
         $scope.transition_canvas_events(++$scope.transition_count);
