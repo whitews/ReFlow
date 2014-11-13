@@ -152,47 +152,19 @@ app.directive('prscatterplot', function() {
                 .attr("cx", 0)
                 .attr("cy", scope.canvas_height)
                 .attr("r", cluster_radius)
-                .on("mouseover", function(d) {
-                    tooltip.style("visibility", "visible");
-
-                    var popup_text = "";
-
-                    // find x_param value
-                    d.parameters.forEach(function (p) {
-                        if (p.channel == scope.x_param.fcs_number) {
-                            popup_text = popup_text + "x: " + (Math.round(p.location * 100) / 100).toString();
-                        }
-                    });
-                    d.parameters.forEach(function (p) {
-                        if (p.channel == scope.y_param.fcs_number) {
-                            popup_text = popup_text + " y: " + (Math.round(p.location * 100) / 100).toString();
-                        }
-                    });
-
-                    tooltip.text(popup_text);
-
+                .on("mouseenter", function(d) {
+                    scope.hover_cluster = d;
                     d.selected = true;
-
                     scope.$apply();
-                })
-                .on("mousemove", function() {
-                    return tooltip
-                        .style(
-                        "top",
-                            (d3.event.pageY - 10) + "px")
-                        .style(
-                        "left",
-                            (d3.event.pageX + 10) + "px"
-                    );
                 })
                 .on("mouseout", function(d) {
                     d.selected = false;
                     scope.$apply();
-                    return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(cluster, index) {
                     scope.toggle_cluster_events(cluster);
                     scope.transition_canvas_events(++scope.transition_count);
+                    scope.$apply();
                 });
 
             scope.render_plot();
