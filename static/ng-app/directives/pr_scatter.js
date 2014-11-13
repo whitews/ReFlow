@@ -154,6 +154,20 @@ app.directive('prscatterplot', function() {
                 .attr("r", cluster_radius)
                 .on("mouseenter", function(d) {
                     scope.hover_cluster = d;
+
+                    // find x_param value
+                    d.parameters.forEach(function (p) {
+                        if (p.channel == scope.x_param.fcs_number) {
+                            scope.hover_x = (Math.round(p.location * 100) / 100).toString();
+                        }
+                    });
+                    // find y_param value
+                    d.parameters.forEach(function (p) {
+                        if (p.channel == scope.y_param.fcs_number) {
+                            scope.hover_y = (Math.round(p.location * 100) / 100).toString();
+                        }
+                    });
+
                     d.selected = true;
                     scope.$apply();
                 })

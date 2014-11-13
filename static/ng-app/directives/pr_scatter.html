@@ -1,22 +1,38 @@
 <div>
   <div class="row">
 
-    <span class="col-md-offset-1 col-md-3">
+    <div class="col-md-offset-1 col-md-3">
       X axis:<br/>
       <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select><br/>
-    </span>
+    </div>
 
-    <span class="col-md-3">
+    <div class="col-md-3">
       Y axis:<br/>
       <select ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select><br/>
-    </span>
+    </div>
 
-    <span class="col-md-2">
+    <div class="col-md-2">
       <br/>
       <button class="btn btn-primary" ng-click="render_plot(plot_data)">Update Plot</button>
       <br/><br/>
-      <input ng-model="show_heat" type="checkbox"> Use heat map
-    </span>
+      <label>
+        <input ng-model="show_heat" type="checkbox"> Use heat map
+      </label>
+    </div>
+
+    <div class="col-md-3">
+      <div class="cluster-info-box" ng-style="{ 'background-color': hover_cluster.color }">
+        <div ng-hide="hover_cluster == null">
+          <div class="title">Cluster {{ hover_cluster.cluster_index }}</div>
+          <ul class="list-unstyled">
+            <li>Expanded: {{ hover_cluster.display_events ? 'Yes':'No' }}</li>
+            <li>Events: {{ hover_cluster.event_percent }}%</li>
+            <li>X: {{ hover_x }} Y: {{ hover_y }}</li>
+          </ul>
+
+        </div>
+      </div>
+    </div>
 
   </div>
 
