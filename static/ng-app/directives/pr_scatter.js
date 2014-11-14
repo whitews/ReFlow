@@ -436,7 +436,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         // populate cluster event percentage
         $scope.data.cluster_data.forEach(function (c) {
             c.event_percent = (c.events.length / event_objects.length) * 100;
-            c.event_percent = c.event_percent.toFixed(3);
+            c.event_percent = c.event_percent.toFixed(2);
         });
     };
 
