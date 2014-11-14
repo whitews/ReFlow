@@ -3,7 +3,9 @@
 
     <div class="col-md-offset-1 col-md-3">
       X axis parameter:<br/>
-      <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select><br/>
+      <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select>
+      <br/>
+      <br/>
       <div ng-hide="auto_scale">
         X axis scale:<br/>
         <input class="scale_input" type="text" ng-model="user_x_min" /> to
@@ -13,7 +15,9 @@
 
     <div class="col-md-3">
       Y axis parameter:<br/>
-      <select ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select><br/>
+      <select ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select>
+      <br/>
+      <br/>
       <div ng-hide="auto_scale">
         Y axis scale:<br/>
         <input class="scale_input" maxlength="6" type="text" ng-model="user_y_min" /> to
