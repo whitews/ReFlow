@@ -323,14 +323,6 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                 y_tmp = y_scale(p.location);
             }
         });
-
-        // render initial data points in the cluster center
-        cluster.prev_position = cluster.events.map(function (e) {
-            return [x_tmp, y_tmp, cluster.color];
-        });
-        cluster.prev_position.forEach(function (position) {
-            $scope.render_event(cluster.ctx, position);
-        });
     }
 
     $scope.toggle_all_events = function () {
@@ -513,6 +505,10 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                         ]
                     );
                 });
+
+                if (!cluster.prev_position) {
+                    cluster.prev_position = cluster.next_position;
+                }
 
                 // set cluster's interpolator
                 cluster.interpolator = d3.interpolate(
