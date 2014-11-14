@@ -156,6 +156,10 @@ app.directive('prscatterplot', function() {
                 .attr("cy", scope.canvas_height)
                 .attr("r", cluster_radius)
                 .on("mouseenter", function(d) {
+                    if (!scope.show_clusters) {
+                        return;
+                    }
+
                     scope.hover_cluster = d;
 
                     // find x_param value
