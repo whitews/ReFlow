@@ -17,6 +17,7 @@ app.directive('prscatterplot', function() {
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
         scope.auto_scale = true;  // automatically scales axes to data
+        scope.animate = true;  // controls whether transitions animate
         scope.transform_indices = [];  // data column indices to transform
         var non_transform_param_types = [
             'FSC',
@@ -295,6 +296,14 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         $scope.user_x_max = $scope.x_param.extent[1];
         $scope.user_y_min = $scope.y_param.extent[0];
         $scope.user_y_max = $scope.y_param.extent[1];
+    };
+
+    $scope.toggle_animation = function () {
+        if ($scope.animate) {
+            $scope.transition_ms = 1000;
+        } else {
+            $scope.transition_ms = 0;
+        }
     };
 
     // function to generate sample events in the canvas
