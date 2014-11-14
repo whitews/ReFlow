@@ -18,6 +18,7 @@ app.directive('prscatterplot', function() {
         scope.show_heat = false;    // whether to show heat map
         scope.auto_scale = true;  // automatically scales axes to data
         scope.animate = true;  // controls whether transitions animate
+        scope.show_clusters = true;  // controls display of cluster centers
         scope.transform_indices = [];  // data column indices to transform
         var non_transform_param_types = [
             'FSC',
@@ -303,6 +304,14 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
             $scope.transition_ms = 1000;
         } else {
             $scope.transition_ms = 0;
+        }
+    };
+
+    $scope.toggle_clusters = function () {
+        if ($scope.show_clusters) {
+            $scope.clusters.style("opacity", 1);
+        } else {
+            $scope.clusters.style("opacity", 0);
         }
     };
 
