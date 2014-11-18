@@ -11,7 +11,7 @@ app.directive('prscatterplot', function() {
             bottom: height - scope.canvas_height,
             left: width - scope.canvas_width
         };
-        var cluster_radius = 6;
+        var cluster_radius = 8;
         scope.transition_ms = 1000;
         scope.heat_base_color = "#5888D0";
         scope.parameters = [];  // flow data column names
@@ -155,6 +155,9 @@ app.directive('prscatterplot', function() {
                 .attr("cx", 0)
                 .attr("cy", scope.canvas_height)
                 .attr("r", cluster_radius)
+                .attr("fill", function (d) {
+                    return d.color;
+                })
                 .on("mouseenter", function(d) {
                     if (!scope.show_clusters) {
                         return;
@@ -326,7 +329,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                 if (d.cluster_index == cluster.cluster_index) {
                     return d;
                 }
-            }).attr("r", 10);
+            }).attr("r", 12);
 
     };
 
@@ -338,7 +341,7 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
                 if (d.cluster_index == cluster.cluster_index) {
                     return d;
                 }
-            }).attr("r", 6);
+            }).attr("r", 8);
 
     };
 
