@@ -303,6 +303,45 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
         $scope.user_y_max = $scope.y_param.extent[1];
     };
 
+    $scope.select_cluster = function (cluster) {
+        $scope.hover_cluster = cluster;
+
+        // find x_param value
+        cluster.parameters.forEach(function (p) {
+            if (p.channel == $scope.x_param.fcs_number) {
+                $scope.hover_x = (Math.round(p.location * 100) / 100).toString();
+            }
+        });
+        // find y_param value
+        cluster.parameters.forEach(function (p) {
+            if (p.channel == $scope.y_param.fcs_number) {
+                $scope.hover_y = (Math.round(p.location * 100) / 100).toString();
+            }
+        });
+
+        cluster.selected = true;
+
+        $scope.clusters.filter(
+            function(d) {
+                if (d.cluster_index == cluster.cluster_index) {
+                    return d;
+                }
+            }).attr("r", 10);
+
+    };
+
+    $scope.deselect_cluster = function (cluster) {
+        cluster.selected = false;
+
+        $scope.clusters.filter(
+            function(d) {
+                if (d.cluster_index == cluster.cluster_index) {
+                    return d;
+                }
+            }).attr("r", 6);
+
+    };
+
     $scope.toggle_animation = function () {
         if ($scope.animate) {
             $scope.transition_ms = 1000;
@@ -364,16 +403,6 @@ app.controller('PRScatterController', ['$scope', function ($scope) {
 
         // Now, transition the events
         $scope.transition_canvas_events(++$scope.transition_count);
-    };
-
-    // used for highlight cluster SVG circle from the cluster table
-    $scope.resize_cluster = function (cluster, size) {
-        $scope.clusters.filter(
-            function(d) {
-                if (d.cluster_index == cluster.cluster_index) {
-                    return d;
-                }
-            }).attr("r", size)
     };
 
     $scope.process_event_data = function (event_csv) {
