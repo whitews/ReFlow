@@ -1,16 +1,12 @@
 <div>
-    <h5>FCS Sample:</h5>
-        <ul class="list-unstyled">
-          <li ng-repeat="member in sample_collection.members">
-            <label>
-              <input type="radio" name="sampleGroup" ng-model="$parent.chosen_member_index" value="{{ $index }}" />
-              {{ member.sample.original_filename }}
-            </label>
-          </li>
-        </ul>
   <div class="row">
 
-    <div class="col-md-offset-1 col-md-3">
+    <div class="col-md-3">
+      FCS Sample:</br>
+      <select ng-model="x_param" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
+    </div>
+
+    <div class="col-md-3">
       X axis parameter:<br/>
       <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select>
       <br/>
@@ -34,10 +30,43 @@
       </div>
     </div>
 
-    <div class="col-md-2">
+    <div class="col-md-3">
       <br/>
       <button class="btn btn-primary" ng-click="render_plot(plot_data)">Update Plot</button>
     </div>
+
+  </div>
+
+  <br/>
+
+  <div class="row">
+    <div class="col-md-offset-3 col-md-6">
+      <div class="row">
+        <div class="col-md-3">
+          <label>
+            <input ng-model="show_heat" type="checkbox"> Show heat map
+          </label>
+        </div>
+        <div class="col-md-3">
+          <label>
+            <input ng-model="auto_scale" type="checkbox" ng-change="init_user_scale()"> Auto-scale
+          </label>
+        </div>
+        <div class="col-md-3">
+          <label>
+            <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
+          </label>
+        </div>
+        <div class="col-md-3">
+          <label>
+            <input ng-model="show_clusters" type="checkbox" ng-change="toggle_clusters()"> Show Clusters
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
 
     <div class="col-md-3">
       <div class="cluster-info-box" ng-style="{ 'background-color': hover_cluster.color }">
@@ -54,33 +83,7 @@
       </div>
     </div>
 
-  </div>
-
-  <div class="row">
-    <div class="col-md-offset-1 col-md-2">
-      <label>
-        <input ng-model="show_heat" type="checkbox"> Show heat map
-      </label>
-    </div>
-    <div class="col-md-2">
-      <label>
-        <input ng-model="auto_scale" type="checkbox" ng-change="init_user_scale()"> Auto-scale
-      </label>
-    </div>
-    <div class="col-md-2">
-      <label>
-        <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
-      </label>
-    </div>
-    <div class="col-md-2">
-      <label>
-        <input ng-model="show_clusters" type="checkbox" ng-change="toggle_clusters()"> Show Clusters
-      </label>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-9">
+    <div class="col-md-6">
       <div id="scatterplot"></div>
     </div>
     <div class="col-md-3">
