@@ -152,8 +152,6 @@ app.directive('prvisualization', function() {
 
             scope.clusters.enter()
                 .append("circle")
-                .attr("cx", 0)
-                .attr("cy", scope.canvas_height)
                 .attr("r", cluster_radius)
                 .attr("fill", function (d) {
                     return d.color;
