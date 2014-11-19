@@ -3,30 +3,34 @@
 
     <div class="col-md-3">
       FCS Sample:</br>
-      <select ng-model="x_param" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
+      <select ng-model="chosen_member" ng-change="initialize_plot()" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
     </div>
 
-    <div class="col-md-3">
-      X axis parameter:<br/>
-      <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select>
-      <br/>
-      <br/>
-      <div>
-        X axis scale:<br/>
-        <input ng-disabled="auto_scale" class="scale_input" type="text" ng-model="user_x_min" /> to
-        <input ng-disabled="auto_scale" class="scale_input" maxlength="6" type="text" ng-model="user_x_max" />
-      </div>
-    </div>
+    <div class="col-md-offset-1 col-md-5">
+      <div class="row">
+        <div class="col-md-6">
+          X axis parameter:<br/>
+          <select ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select>
+          <br/>
+          <br/>
+          <div>
+            X axis scale:<br/>
+            <input ng-disabled="auto_scale" class="scale_input" type="text" ng-model="user_x_min" /> to
+            <input ng-disabled="auto_scale" class="scale_input" maxlength="6" type="text" ng-model="user_x_max" />
+          </div>
+        </div>
 
-    <div class="col-md-3">
-      Y axis parameter:<br/>
-      <select ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select>
-      <br/>
-      <br/>
-      <div>
-        Y axis scale:<br/>
-        <input ng-disabled="auto_scale" class="scale_input" maxlength="6" type="text" ng-model="user_y_min" /> to
-        <input ng-disabled="auto_scale" class="scale_input" maxlength="6" type="text" ng-model="user_y_max" />
+        <div class="col-md-6">
+          Y axis parameter:<br/>
+          <select ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select>
+          <br/>
+          <br/>
+          <div>
+            Y axis scale:<br/>
+            <input ng-disabled="auto_scale" class="scale_input" maxlength="6" type="text" ng-model="user_y_min" /> to
+            <input ng-disabled="auto_scale" class="scale_input" maxlength="6" type="text" ng-model="user_y_max" />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -40,7 +44,7 @@
   <br/>
 
   <div class="row">
-    <div class="col-md-offset-3 col-md-6">
+    <div class="col-md-offset-4 col-md-5">
       <div class="row">
         <div class="col-md-3">
           <label>
@@ -105,7 +109,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="sc in data.cluster_data | orderBy:'cluster_index':false">
+        <tr ng-repeat="sc in plot_data.cluster_data | orderBy:'cluster_index':false">
           <td ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
             <div class="color-box" ng-style="{ 'background-color': sc.color }" ng-click="toggle_cluster_events(sc)">
               <i ng-show="sc.display_events" class="fa fa-check"></i>

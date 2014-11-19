@@ -15,9 +15,11 @@ app.controller(
             );
 
             $scope.process_request.$promise.then(function () {
-                $scope.sample_collection = ModelService.getSampleCollection(
+                ModelService.getSampleCollection(
                     $scope.process_request.sample_collection
-                )
+                ).$promise.then(function (data) {
+                    $scope.sample_collection = data;
+                });
             });
         }
     ]

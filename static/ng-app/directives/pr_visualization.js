@@ -42,7 +42,7 @@ app.directive('prvisualization', function() {
             .style("z-index", "100")
             .style("visibility", "hidden");
 
-        scope.$watch('data', function(data) {
+        scope.$watch('plot_data', function(data) {
             if (!data) {
                 return;
             }
@@ -72,7 +72,7 @@ app.directive('prvisualization', function() {
                 }
             );
 
-            scope.data.cluster_data.forEach(function (cluster) {
+            data.cluster_data.forEach(function (cluster) {
                 // set booleans for controlling the display of a
                 // cluster's events & for whether cluster is selected
                 cluster.display_events = false;
@@ -99,7 +99,7 @@ app.directive('prvisualization', function() {
             // be able to differentiate the parameters
             // Also, set the channels to transform. Scatter, time, and null
             // channels do not get transformed
-            scope.parameters = scope.data.panel_data.parameters;
+            scope.parameters = data.panel_data.parameters;
             scope.transform_indices = [];
             scope.parameters.forEach(function(p) {
                 tmp_param = [];
@@ -136,7 +136,7 @@ app.directive('prvisualization', function() {
 
             // Now, convert the event_data CSV string into usable objects
             // and store each cluster's events in the cluster.events array
-            scope.process_event_data(scope.data.event_data);
+            scope.process_event_data(data.event_data);
 
             // reset the SVG clusters
             scope.clusters = null;
@@ -148,7 +148,7 @@ app.directive('prvisualization', function() {
             scope.x_pre_scale = '0.01';
             scope.y_pre_scale = '0.01';
 
-            scope.clusters = cluster_plot_area.selectAll("circle").data(scope.data.cluster_data);
+            scope.clusters = cluster_plot_area.selectAll("circle").data(data.cluster_data);
 
             scope.clusters.enter()
                 .append("circle")
@@ -254,26 +254,23 @@ app.controller(
     var x_scale;              // function to convert x data to svg pixels
     var y_scale;              // function to convert y data to svg pixels
 
-    $scope.$watch('chosen_member_index', function() {
-        if ($scope.chosen_member_index !== null) {
-            $scope.retrieving_data = true;
-            chosen_member = $scope.sample_collection.members[parseInt($scope.chosen_member_index)];
-            initialize_plot();
-        }
+    $scope.$watch('data', function(data) {
+        $scope.sample_collection = data;
     });
 
-    function initialize_plot() {
+    $scope.initialize_plot = function() {
+        $scope.retrieving_data = true;
         sample_clusters = ModelService.getSampleClusters(
-            $scope.process_request.id,
-            chosen_member.sample.id
+            $scope.$parent.process_request.id,
+            $scope.chosen_member.sample.id
         );
 
         panel_data = ModelService.getSitePanel(
-            chosen_member.sample.site_panel
+            $scope.chosen_member.sample.site_panel
         );
 
         event_data = ModelService.getSampleCSV(
-            chosen_member.sample.id
+            $scope.chosen_member.sample.id
         );
 
         $q.all([sample_clusters, panel_data, event_data]).then(function(data) {
@@ -281,7 +278,7 @@ app.controller(
                 'cluster_data': data[0],
                 'panel_data': data[1],
                 'event_data': data[2].data,
-                'compensation_data': chosen_member.compensation
+                'compensation_data': $scope.chosen_member.compensation
             };
         }).catch(function() {
             // show errors here
@@ -289,7 +286,7 @@ app.controller(
         }).finally(function() {
             $scope.retrieving_data = false;
         });
-    }
+    };
 
     function parse_compensation(comp_csv) {
         // comp_csv is a text string to convert to a comp matrix object
@@ -440,7 +437,7 @@ app.controller(
     $scope.toggle_all_events = function () {
         $scope.show_all_clusters = !$scope.show_all_clusters;
 
-        $scope.data.cluster_data.forEach(function(c) {
+        $scope.plot_data.cluster_data.forEach(function(c) {
             c.display_events = !$scope.show_all_clusters;
             toggle_cluster_events(c);
         });
@@ -475,7 +472,7 @@ app.controller(
         event_csv = header + "\n" + event_csv;
 
         // convert the compensation text to a MathJS Matrix
-        $scope.compensation = parse_compensation($scope.data.compensation_data);
+        $scope.compensation = parse_compensation($scope.plot_data.compensation_data);
 
         // compensate & transform the event data,
         // but not for scatter and time channels
@@ -509,16 +506,16 @@ app.controller(
         });
 
         event_objects.forEach(function (e) {
-            for (var i = 0; i < $scope.data.cluster_data.length; i++) {
-                if ($scope.data.cluster_data[i].event_indices.indexOf(e.event_index) !== -1) {
-                    $scope.data.cluster_data[i].events.push(e);
+            for (var i = 0; i < $scope.plot_data.cluster_data.length; i++) {
+                if ($scope.plot_data.cluster_data[i].event_indices.indexOf(e.event_index) !== -1) {
+                    $scope.plot_data.cluster_data[i].events.push(e);
                     break;
                 }
             }
         });
 
         // populate cluster event percentage
-        $scope.data.cluster_data.forEach(function (c) {
+        $scope.plot_data.cluster_data.forEach(function (c) {
             c.event_percent = (c.events.length / event_objects.length) * 100;
             c.event_percent = c.event_percent.toFixed(2);
         });
@@ -533,8 +530,8 @@ app.controller(
         y_data = [];
 
         // Populate x_data and y_data using chosen x & y parameters
-        for (var i=0, len=$scope.data.cluster_data.length; i<len; i++) {
-            $scope.data.cluster_data[i].parameters.forEach(function (p) {
+        for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
+            $scope.plot_data.cluster_data[i].parameters.forEach(function (p) {
                 if (p.channel == $scope.x_param.fcs_number) {
                     x_data[i] = p.location;
                 }
@@ -593,7 +590,7 @@ app.controller(
         $scope.heat_map_data = [];
 
         // iterate through clusters that are marked for display
-        $scope.data.cluster_data.forEach(function (cluster) {
+        $scope.plot_data.cluster_data.forEach(function (cluster) {
             if (cluster.display_events) {
                 cluster.next_position = [];
 
