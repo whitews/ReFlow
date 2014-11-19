@@ -1,4 +1,4 @@
-app.directive('prscatterplot', function() {
+app.directive('prvisualization', function() {
     function link(scope) {
         var width = 620;         // width of the svg element
         var height = 580;         // height of the svg element
@@ -225,23 +225,71 @@ app.directive('prscatterplot', function() {
 
     return {
         link: link,
-        controller: 'PRScatterController',
+        controller: 'PRVisualizationController',
         restrict: 'E',
         replace: true,
-        templateUrl: 'static/ng-app/directives/pr_scatter.html',
+        templateUrl: 'static/ng-app/directives/pr_visualization.html',
         scope: {
             data: '='
         }
     };
 });
 
-app.controller('PRScatterController', ['$scope', function ($scope) {
+app.controller(
+    'PRVisualizationController',
+    [
+        '$scope',
+        '$q',
+        'ModelService',
+        function ($scope, $q, ModelService) {
+    var sample_clusters = null;
+    $scope.chosen_member_index = null;
+    var chosen_member = null;
+    var panel_data = null;
+    var event_data = null;
     var x_data;               // x data series to plot
     var y_data;               // y data series to plot
     var x_range;              // used for "auto-range" for chosen x category
     var y_range;              // used for "auto-range" for chosen y category
     var x_scale;              // function to convert x data to svg pixels
     var y_scale;              // function to convert y data to svg pixels
+
+    $scope.$watch('chosen_member_index', function() {
+        if ($scope.chosen_member_index !== null) {
+            $scope.retrieving_data = true;
+            chosen_member = $scope.sample_collection.members[parseInt($scope.chosen_member_index)];
+            initialize_plot();
+        }
+    });
+
+    function initialize_plot() {
+        sample_clusters = ModelService.getSampleClusters(
+            $scope.process_request.id,
+            chosen_member.sample.id
+        );
+
+        panel_data = ModelService.getSitePanel(
+            chosen_member.sample.site_panel
+        );
+
+        event_data = ModelService.getSampleCSV(
+            chosen_member.sample.id
+        );
+
+        $q.all([sample_clusters, panel_data, event_data]).then(function(data) {
+            $scope.plot_data = {
+                'cluster_data': data[0],
+                'panel_data': data[1],
+                'event_data': data[2].data,
+                'compensation_data': chosen_member.compensation
+            };
+        }).catch(function() {
+            // show errors here
+            console.log('error!')
+        }).finally(function() {
+            $scope.retrieving_data = false;
+        });
+    }
 
     function parse_compensation(comp_csv) {
         // comp_csv is a text string to convert to a comp matrix object

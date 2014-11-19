@@ -1,4 +1,13 @@
 <div>
+    <h5>FCS Sample:</h5>
+        <ul class="list-unstyled">
+          <li ng-repeat="member in sample_collection.members">
+            <label>
+              <input type="radio" name="sampleGroup" ng-model="$parent.chosen_member_index" value="{{ $index }}" />
+              {{ member.sample.original_filename }}
+            </label>
+          </li>
+        </ul>
   <div class="row">
 
     <div class="col-md-offset-1 col-md-3">

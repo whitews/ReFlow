@@ -200,7 +200,7 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/pr-visualization-detail.html',
-                controller: 'PRVisualizationController'
+                controller: 'PRVisualizationDetailController'
             }
         },
         data: {
