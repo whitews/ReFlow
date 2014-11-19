@@ -243,7 +243,6 @@ app.controller(
         'ModelService',
         function ($scope, $q, ModelService) {
     var sample_clusters = null;
-    $scope.chosen_member_index = null;
     var chosen_member = null;
     var panel_data = null;
     var event_data = null;
@@ -256,9 +255,15 @@ app.controller(
 
     $scope.$watch('data', function(data) {
         $scope.sample_collection = data;
+        $scope.cached_plots = {};
     });
 
     $scope.initialize_plot = function() {
+        if ($scope.chosen_member.id in $scope.cached_plots) {
+            $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+            return;
+        }
+
         $scope.retrieving_data = true;
         sample_clusters = ModelService.getSampleClusters(
             $scope.$parent.process_request.id,
@@ -274,12 +279,13 @@ app.controller(
         );
 
         $q.all([sample_clusters, panel_data, event_data]).then(function(data) {
-            $scope.plot_data = {
+            $scope.cached_plots[$scope.chosen_member.id] = {
                 'cluster_data': data[0],
                 'panel_data': data[1],
                 'event_data': data[2].data,
                 'compensation_data': $scope.chosen_member.compensation
             };
+            $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
         }).catch(function() {
             // show errors here
             console.log('error!')
