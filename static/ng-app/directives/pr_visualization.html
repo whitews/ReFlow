@@ -88,7 +88,16 @@
     </div>
 
     <div class="col-md-6">
-      <div id="scatterplot"></div>
+      <div class="text-center" ng-show="retrieving_data">
+        <br/>
+        <br/>
+        <h4><em>Retrieving data...</em></h4>
+        <img src="/static/giant_whirligig.gif">
+      </div>
+
+      <div ng-hide="retrieving_data || !chosen_member">
+        <div id="scatterplot"></div>
+      </div>
     </div>
     <div class="col-md-3">
       <div class="cluster-list">
