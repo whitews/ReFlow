@@ -369,13 +369,6 @@ app.controller(
         return Math.log(number + Math.sqrt(number * number + 1));
     }
 
-    $scope.init_user_scale = function() {
-        $scope.user_x_min = $scope.x_param.extent[0];
-        $scope.user_x_max = $scope.x_param.extent[1];
-        $scope.user_y_min = $scope.y_param.extent[0];
-        $scope.user_y_max = $scope.y_param.extent[1];
-    };
-
     $scope.select_cluster = function (cluster) {
         $scope.hover_cluster = cluster;
 
@@ -573,6 +566,10 @@ app.controller(
             // Lookup ranges to calculate the axes' scaling
             x_range = $scope.x_param.extent;
             y_range = $scope.y_param.extent;
+            $scope.user_x_min = $scope.x_param.extent[0];
+            $scope.user_x_max = $scope.x_param.extent[1];
+            $scope.user_y_min = $scope.y_param.extent[0];
+            $scope.user_y_max = $scope.y_param.extent[1];
         } else {
             x_range.push($scope.user_x_min);
             x_range.push($scope.user_x_max);
