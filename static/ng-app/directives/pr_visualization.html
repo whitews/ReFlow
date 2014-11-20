@@ -3,7 +3,7 @@
 
     <div class="col-md-3">
       FCS Sample:</br>
-      <select ng-model="chosen_member" ng-change="initialize_plot()" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
+      <select ng-model="chosen_member" ng-change="initialize_visualization()" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
     </div>
 
     <div class="col-md-offset-1 col-md-5">
@@ -77,7 +77,6 @@
         <div ng-hide="hover_cluster == null">
           <div class="title">Cluster {{ hover_cluster.cluster_index }}</div>
           <ul class="list-unstyled">
-            <li>Expanded: {{ hover_cluster.display_events ? 'Yes':'No' }}</li>
             <li>Events: {{ hover_cluster.event_percent }}%</li>
             <li>X: {{ hover_x }}</li>
             <li>Y: {{ hover_y }}</li>
@@ -96,7 +95,7 @@
       </div>
 
       <div ng-hide="retrieving_data || !chosen_member">
-        <div id="scatterplot"></div>
+        <prscatterplot></prscatterplot>
       </div>
     </div>
     <div class="col-md-2">
