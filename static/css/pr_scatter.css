@@ -57,6 +57,7 @@ circle, ellipse {
     /*fill: #99c3d1;*/
     stroke: #203148;
     stroke-width: 2px;
+    cursor: pointer;
 }
 
 circle.selected {
