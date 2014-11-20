@@ -30,6 +30,7 @@ app.controller(
         if ($scope.chosen_member.id in $scope.cached_plots) {
             $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
             $scope.initialize_scatterplot();
+            $scope.initialize_parallel_plot();
             return;
         }
 
@@ -56,6 +57,7 @@ app.controller(
             };
             $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
             $scope.initialize_scatterplot();
+            $scope.initialize_parallel_plot();
         }).catch(function() {
             // show errors here
             console.log('error!')
