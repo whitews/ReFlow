@@ -1,9 +1,9 @@
 app.directive('prvisualization', function() {
     function link(scope) {
-        var width = 620;         // width of the svg element
-        var height = 580;         // height of the svg element
-        scope.canvas_width = 540;   // width of the canvas
-        scope.canvas_height = 540;  // height of the canvas
+        var width = 560;         // width of the svg element
+        var height = 520;         // height of the svg element
+        scope.canvas_width = 480;   // width of the canvas
+        scope.canvas_height = 480;  // height of the canvas
         var colors = d3.scale.category20().range();
         var margin = {            // used mainly for positioning the axes' labels
             top: 0,
@@ -42,14 +42,37 @@ app.directive('prvisualization', function() {
             .style("z-index", "100")
             .style("visibility", "hidden");
 
-        scope.$watch('plot_data', function(data) {
-            if (!data) {
-                return;
-            }
 
-            // TODO: check data properties and warn user if they
-            // don't look right
+        scope.svg = d3.select("#scatterplot")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("style", "z-index: 1000");
 
+        var plot_area = scope.svg.append("g")
+            .attr("id", "plot-area");
+
+        var cluster_plot_area = plot_area.append("g")
+            .attr("id", "cluster-plot-area")
+            .attr("transform", "translate(" + margin.left + ", " + 0 + ")");
+
+        scope.x_axis = plot_area.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + margin.left + "," + scope.canvas_height + ")");
+
+        scope.y_axis = plot_area.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + margin.left + "," + 0 + ")");
+
+        scope.x_label = scope.svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "translate(" + (scope.canvas_width / 2 + margin.left) + "," + (height - 3) + ")");
+
+        scope.y_label = scope.svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "translate(" + margin.left / 4 + "," + (scope.canvas_height / 2) + ") rotate(-90)");
+
+        scope.initialize_scatterplot = function() {
             // clear any existing canvases
             d3.select('#scatterplot').selectAll('canvas').remove();
 
@@ -72,7 +95,7 @@ app.directive('prvisualization', function() {
                 }
             );
 
-            data.cluster_data.forEach(function (cluster) {
+            scope.plot_data.cluster_data.forEach(function (cluster) {
                 // set booleans for controlling the display of a
                 // cluster's events & for whether cluster is selected
                 cluster.display_events = false;
@@ -99,7 +122,7 @@ app.directive('prvisualization', function() {
             // be able to differentiate the parameters
             // Also, set the channels to transform. Scatter, time, and null
             // channels do not get transformed
-            scope.parameters = data.panel_data.parameters;
+            scope.parameters = scope.plot_data.panel_data.parameters;
             scope.transform_indices = [];
             scope.parameters.forEach(function(p) {
                 tmp_param = [];
@@ -136,7 +159,7 @@ app.directive('prvisualization', function() {
 
             // Now, convert the event_data CSV string into usable objects
             // and store each cluster's events in the cluster.events array
-            scope.process_event_data(data.event_data);
+            scope.process_event_data(scope.plot_data.event_data);
 
             // reset the SVG clusters
             scope.clusters = null;
@@ -157,7 +180,9 @@ app.directive('prvisualization', function() {
             scope.x_pre_scale = '0.01';
             scope.y_pre_scale = '0.01';
 
-            scope.clusters = cluster_plot_area.selectAll("circle").data(data.cluster_data);
+            scope.clusters = cluster_plot_area.selectAll("circle").data(
+                scope.plot_data.cluster_data
+            );
 
             scope.clusters.enter()
                 .append("circle")
@@ -198,36 +223,7 @@ app.directive('prvisualization', function() {
                 });
 
             scope.render_plot();
-        });
-
-        scope.svg = d3.select("#scatterplot")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("style", "z-index: 1000");
-
-        var plot_area = scope.svg.append("g")
-            .attr("id", "plot-area");
-
-        var cluster_plot_area = plot_area.append("g")
-            .attr("id", "cluster-plot-area")
-            .attr("transform", "translate(" + margin.left + ", " + 0 + ")");
-
-        scope.x_axis = plot_area.append("g")
-            .attr("class", "axis")
-            .attr("transform", "translate(" + margin.left + "," + scope.canvas_height + ")");
-
-        scope.y_axis = plot_area.append("g")
-            .attr("class", "axis")
-            .attr("transform", "translate(" + margin.left + "," + 0 + ")");
-
-        scope.x_label = scope.svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "translate(" + (scope.canvas_width / 2 + margin.left) + "," + (height - 3) + ")");
-
-        scope.y_label = scope.svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "translate(" + margin.left / 4 + "," + (scope.canvas_height / 2) + ") rotate(-90)");
+        };
     }
 
     return {
@@ -250,7 +246,6 @@ app.controller(
         'ModelService',
         function ($scope, $q, ModelService) {
     var sample_clusters = null;
-    var chosen_member = null;
     var panel_data = null;
     var event_data = null;
     var x_data;               // x data series to plot
@@ -268,6 +263,7 @@ app.controller(
     $scope.initialize_plot = function() {
         if ($scope.chosen_member.id in $scope.cached_plots) {
             $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+            $scope.initialize_scatterplot();
             return;
         }
 
@@ -293,6 +289,7 @@ app.controller(
                 'compensation_data': $scope.chosen_member.compensation
             };
             $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+            $scope.initialize_scatterplot();
         }).catch(function() {
             // show errors here
             console.log('error!')
