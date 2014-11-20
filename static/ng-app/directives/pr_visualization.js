@@ -142,8 +142,17 @@ app.directive('prvisualization', function() {
             scope.clusters = null;
             cluster_plot_area.selectAll("circle").remove();
 
-            scope.x_param = scope.parameters[0];
-            scope.y_param = scope.parameters[0];
+            // if the user is switching between samples, the new sample
+            // may have a matching parameter but it may be a different
+            // channel (due to different site panels)
+            scope.x_param = scope.find_matching_parameter(scope.x_param);
+            if (scope.x_param == null) {
+                scope.x_param = scope.parameters[0];
+            }
+            scope.y_param = scope.find_matching_parameter(scope.y_param);
+            if (scope.y_param == null) {
+                scope.y_param = scope.parameters[0];
+            }
 
             scope.x_pre_scale = '0.01';
             scope.y_pre_scale = '0.01';
@@ -290,6 +299,18 @@ app.controller(
         }).finally(function() {
             $scope.retrieving_data = false;
         });
+    };
+
+    $scope.find_matching_parameter = function (param) {
+        if (param == null) {
+            return null;
+        }
+        for (var i = 0; i < $scope.parameters.length; i++) {
+            if (param.full_name === $scope.parameters[i].full_name) {
+                return $scope.parameters[i];
+            }
+        }
+        return null;
     };
 
     function parse_compensation(comp_csv) {
