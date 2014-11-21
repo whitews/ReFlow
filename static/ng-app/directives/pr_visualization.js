@@ -159,6 +159,8 @@ app.controller(
                 }
             }).attr("r", 12);
 
+        // highlight line in parallel chart
+        cluster.parallel_series.attr("class", "series selected");
     };
 
     $scope.deselect_cluster = function (cluster) {
@@ -171,6 +173,8 @@ app.controller(
                 }
             }).attr("r", 8);
 
+        // remove highlight in parallel chart
+        cluster.parallel_series.attr("class", "series");
     };
 
     $scope.toggle_animation = function () {

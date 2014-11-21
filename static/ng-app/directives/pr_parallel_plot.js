@@ -43,8 +43,9 @@ app.directive('prparallelplot', function() {
             });
 
             scope.plot_data.cluster_data.forEach(function (cluster) {
-                var series = plot_area.append("g")
+                cluster.parallel_series = plot_area.append("g")
                     .attr('class', 'series')
+                    .attr("id", "cluster_" + cluster.id)
                     .attr('stroke', function () {
                         return cluster.color;
                     });
@@ -70,7 +71,7 @@ app.directive('prparallelplot', function() {
                     }
                 });
 
-                series.append('path')
+                cluster.parallel_series.append('path')
                     .attr("class", "data-line")
                     .attr("d", line_function(cluster_locations));
             });

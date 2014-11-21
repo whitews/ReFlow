@@ -21,6 +21,11 @@
     shape-rendering: "crispEdges";
 }
 
+.selected > .data-line {
+    stroke-width: 6px;
+    stroke-opacity: 1.0;
+}
+
 .axis text {
     font-family: sans-serif;
     font-size: 11px;
