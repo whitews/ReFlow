@@ -14,11 +14,13 @@ app.directive('prparallelplot', function() {
             .attr("width", width)
             .attr("height", height + bottom_margin);
 
-        var plot_area = scope.parallel_svg.append("g")
-            .attr("id", "parallel-plot-area")
-            .attr("transform", "translate(0, 5)");
-
         scope.initialize_parallel_plot = function() {
+            // clear plot area
+            d3.select('#parallel-plot').selectAll("g").remove();
+            var plot_area = scope.parallel_svg.append("g")
+                .attr("id", "parallel-plot-area")
+                .attr("transform", "translate(0, 5)");
+
             // get individual parameter scale functions, but we must take
             // care to skip channels that were not analyzed since there
             // are no cluster locations for those channels
