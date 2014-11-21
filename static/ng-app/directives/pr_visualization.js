@@ -160,7 +160,7 @@ app.controller(
             }).attr("r", 12);
 
         // highlight line in parallel chart
-        $scope.parallel_lines.select("#cluster_" + cluster.cluster_index)
+        $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
             .attr("class", "selected");
 
         // and now sort parallel chart lines by selection to bring it to the front
@@ -184,7 +184,7 @@ app.controller(
             }).attr("r", 8);
 
         // remove highlight in parallel chart
-        $scope.parallel_lines.select("#cluster_" + cluster.cluster_index)
+        $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
             .attr("class", "");
     };
 

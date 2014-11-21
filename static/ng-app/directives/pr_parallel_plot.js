@@ -60,7 +60,7 @@ app.directive('prparallelplot', function() {
                 .enter()
                 .append("path")
                 .attr("id", function (d) {
-                    return "cluster_" + d.cluster_index;
+                    return "cluster_line_" + d.cluster_index;
                 })
                 .attr('stroke', function (d) {
                     return d.color;
