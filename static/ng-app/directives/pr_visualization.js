@@ -135,21 +135,6 @@ app.controller(
     }
 
     $scope.select_cluster = function (cluster) {
-        $scope.hover_cluster = cluster;
-
-        // find x_param value
-        cluster.parameters.forEach(function (p) {
-            if (p.channel == $scope.x_param.fcs_number) {
-                $scope.hover_x = (Math.round(p.location * 100) / 100).toString();
-            }
-        });
-        // find y_param value
-        cluster.parameters.forEach(function (p) {
-            if (p.channel == $scope.y_param.fcs_number) {
-                $scope.hover_y = (Math.round(p.location * 100) / 100).toString();
-            }
-        });
-
         cluster.selected = true;
 
         $scope.clusters.filter(
@@ -183,9 +168,11 @@ app.controller(
                 }
             }).attr("r", 8);
 
-        // remove highlight in parallel chart
-        $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
-            .attr("class", "");
+        // remove highlight in parallel chart, but not if events are displayed
+        if (!cluster.display_events) {
+            $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
+                .attr("class", "");
+        }
     };
 
     $scope.toggle_animation = function () {
@@ -472,21 +459,6 @@ app.directive('prscatterplot', function() {
 
                     tooltip.style("visibility", "visible");
                     tooltip.text("Cluster " + d.cluster_index + " (" + d.event_percent + "%)");
-
-                    scope.hover_cluster = d;
-
-                    // find x_param value
-                    d.parameters.forEach(function (p) {
-                        if (p.channel == scope.x_param.fcs_number) {
-                            scope.hover_x = (Math.round(p.location * 100) / 100).toString();
-                        }
-                    });
-                    // find y_param value
-                    d.parameters.forEach(function (p) {
-                        if (p.channel == scope.y_param.fcs_number) {
-                            scope.hover_y = (Math.round(p.location * 100) / 100).toString();
-                        }
-                    });
 
                     scope.select_cluster(d);
                     scope.$apply();
