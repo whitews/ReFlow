@@ -470,6 +470,9 @@ app.directive('prscatterplot', function() {
                         return;
                     }
 
+                    tooltip.style("visibility", "visible");
+                    tooltip.text("Cluster " + d.cluster_index + " (" + d.event_percent + "%)");
+
                     scope.hover_cluster = d;
 
                     // find x_param value
@@ -488,9 +491,20 @@ app.directive('prscatterplot', function() {
                     scope.select_cluster(d);
                     scope.$apply();
                 })
+                .on("mousemove", function() {
+                    return tooltip
+                        .style(
+                        "top",
+                            (d3.event.pageY - 18) + "px")
+                        .style(
+                        "left",
+                            (d3.event.pageX + 18) + "px"
+                    );
+                })
                 .on("mouseout", function(d) {
                     scope.deselect_cluster(d);
                     scope.$apply();
+                    return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(cluster, index) {
                     scope.toggle_cluster_events(cluster);
