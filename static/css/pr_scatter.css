@@ -80,6 +80,10 @@ td.hover {
   background-color: #f1f1f1;
 }
 
+.cluster-list-header {
+  margin-bottom: 0px !important;
+}
+
 .cluster-list {
   height: 520px;
   overflow-y: auto;
