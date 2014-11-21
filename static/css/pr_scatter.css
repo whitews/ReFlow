@@ -15,8 +15,8 @@
 }
 
 path {
-    stroke-width: 1.5px;
-    stroke-opacity: 0.5;
+    stroke-width: 1px;
+    stroke-opacity: 0.4;
     stroke-linecap: round;
     stroke-linejoin: round;
     fill: none;
