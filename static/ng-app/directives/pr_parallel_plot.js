@@ -52,7 +52,7 @@ app.directive('prparallelplot', function() {
                         return parameter_scale_functions[d.channel](d.location);
                     })
                     .y(function (d, i ) {
-                        return (height * i / (scope.parameters.length - 1));
+                        return (height * i / (analyzed_parameters.length - 1));
                     });
 
                 // it's very important we feed the cluster param locations
