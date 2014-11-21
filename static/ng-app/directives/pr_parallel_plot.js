@@ -79,7 +79,7 @@ app.directive('prparallelplot', function() {
                 .data(analyzed_parameters)
                 .enter().append('g')
                     .attr("transform", function (d, i) {
-                        return "translate(" + width + ", " + (height*i/(scope.parameters.length - 1)) + ")";
+                        return "translate(" + width + ", " + (height*i/(analyzed_parameters.length - 1)) + ")";
                     })
                     .attr("class", "axis");
 
