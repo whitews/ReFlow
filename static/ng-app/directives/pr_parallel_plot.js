@@ -19,12 +19,25 @@ app.directive('prparallelplot', function() {
             .attr("transform", "translate(0, 5)");
 
         scope.initialize_parallel_plot = function() {
-            // get individual parameter scale functions
-            scope.parameters.forEach(function (p) {
+            // get individual parameter scale functions, but we must take
+            // care to skip channels that were not analyzed since there
+            // are no cluster locations for those channels
+            // TODO: should all this analyzed cluster stuff be in parent ctrl?
+            var analyzed_parameters = [];
+            var example_cluster = scope.plot_data.cluster_data[0];
+            scope.parameters.forEach(function (param) {
+                // use the 1st cluster params for comparison
+                for (var i=0; i<example_cluster.parameters.length; i++) {
+                    if (param.fcs_number == example_cluster.parameters[i].channel) {
+                        analyzed_parameters.push(param);
+                        break;
+                    }
+                }
+            });
+            analyzed_parameters.forEach(function (p) {
                 parameter_scale_functions[p.fcs_number] =
                     d3.scale.linear().domain(p.extent)
                         .range([0, width]);
-
             });
 
             scope.plot_data.cluster_data.forEach(function (cluster) {
@@ -63,7 +76,7 @@ app.directive('prparallelplot', function() {
             // put axes (and, more importantly the text) last so it's on top,
             // SVG doesn't use z-index, layers are in order of appearance
             axes = plot_area.selectAll('.axis')
-                .data(scope.parameters)
+                .data(analyzed_parameters)
                 .enter().append('g')
                     .attr("transform", function (d, i) {
                         return "translate(" + width + ", " + (height*i/(scope.parameters.length - 1)) + ")";
@@ -88,7 +101,6 @@ app.directive('prparallelplot', function() {
                 })
                 .style("font-weight", "bold");
 
-
             scope.render_parallel_plot();
         };
     }
@@ -103,8 +115,6 @@ app.directive('prparallelplot', function() {
 });
 
 app.controller('PRParallelPlotController', ['$scope', function ($scope) {
-
-
     $scope.render_parallel_plot = function () {
 
     };
