@@ -144,18 +144,7 @@ app.controller(
                 }
             }).attr("r", 12);
 
-        // highlight line in parallel chart
-        $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
-            .attr("class", "selected");
-
-        // and now sort parallel chart lines by selection to bring it to the front
-        // SVG elements don't obey z-index, they are in the order of
-        // appearance
-        $scope.parallel_lines.selectAll("path").sort(
-            function (a, b) {
-                return a.selected - b.selected;
-            }
-        );
+        $scope.select_cluster_line(cluster);
     };
 
     $scope.deselect_cluster = function (cluster) {
@@ -168,11 +157,7 @@ app.controller(
                 }
             }).attr("r", 8);
 
-        // remove highlight in parallel chart, but not if events are displayed
-        if (!cluster.display_events) {
-            $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
-                .attr("class", "");
-        }
+        $scope.deselect_cluster_line(cluster);
     };
 
     $scope.toggle_animation = function () {
@@ -520,16 +505,13 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         // all clusters without creating lots of transition loops
 
         cluster.display_events = !cluster.display_events;
-        var x_tmp, y_tmp;
 
-        cluster.parameters.forEach(function (p) {
-            if (p.channel == $scope.x_param.fcs_number) {
-                x_tmp = x_scale(p.location);
-            }
-            if (p.channel == $scope.y_param.fcs_number) {
-                y_tmp = y_scale(p.location);
-            }
-        });
+        // toggle cluster lines
+        if (cluster.display_events) {
+            $scope.select_cluster_line(cluster);
+        } else {
+            $scope.deselect_cluster_line(cluster);
+        }
     }
 
     $scope.toggle_all_events = function () {

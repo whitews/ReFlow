@@ -126,4 +126,27 @@ app.controller('PRParallelPlotController', ['$scope', function ($scope) {
     $scope.render_parallel_plot = function () {
 
     };
+
+    $scope.select_cluster_line = function (cluster) {
+        // highlight line in parallel chart
+        $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
+            .attr("class", "selected");
+
+        // and now sort parallel chart lines by selection to bring it to the front
+        // SVG elements don't obey z-index, they are in the order of
+        // appearance
+        $scope.parallel_lines.selectAll("path").sort(
+            function (a, b) {
+                return a.selected - b.selected;
+            }
+        );
+    };
+
+    $scope.deselect_cluster_line = function (cluster) {
+        // remove highlight in parallel chart, but not if events are displayed
+        if (!cluster.display_events) {
+            $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
+                .attr("class", "");
+        }
+    };
 }]);
