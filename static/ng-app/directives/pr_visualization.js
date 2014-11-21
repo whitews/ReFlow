@@ -160,7 +160,17 @@ app.controller(
             }).attr("r", 12);
 
         // highlight line in parallel chart
-        cluster.parallel_series.attr("class", "series selected");
+        $scope.parallel_lines.select("#cluster_" + cluster.cluster_index)
+            .attr("class", "selected");
+
+        // and now sort parallel chart lines by selection to bring it to the front
+        // SVG elements don't obey z-index, they are in the order of
+        // appearance
+        $scope.parallel_lines.selectAll("path").sort(
+            function (a, b) {
+                return a.selected - b.selected;
+            }
+        );
     };
 
     $scope.deselect_cluster = function (cluster) {
@@ -174,7 +184,8 @@ app.controller(
             }).attr("r", 8);
 
         // remove highlight in parallel chart
-        cluster.parallel_series.attr("class", "series");
+        $scope.parallel_lines.select("#cluster_" + cluster.cluster_index)
+            .attr("class", "");
     };
 
     $scope.toggle_animation = function () {
