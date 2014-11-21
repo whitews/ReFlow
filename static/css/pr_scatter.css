@@ -47,10 +47,6 @@ path.selected {
 svg, canvas {
   position: absolute;
 }
-svg {
-  left: 0;
-  top: 0;
-}
 
 circle, ellipse {
     z-index: 1000;
@@ -130,4 +126,8 @@ td.hover {
   width: 35%;
   font-size: 12px;
   font-weight: bold;
+}
+
+.pr_form_field {
+  margin-bottom: 6px;
 }
