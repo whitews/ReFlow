@@ -1,7 +1,8 @@
 app.directive('prparallelplot', function() {
     function link(scope) {
         var width = 260;          // width of the svg element
-        var height = 520;         // height of the svg element
+        var height = 480;         // height of the svg element
+        var bottom_margin = 40;
         var axes;
         var parameter_extent_dict = {};
         var parameter_scale_functions = {};  // functions for scaling the parameters
@@ -11,11 +12,11 @@ app.directive('prparallelplot', function() {
         scope.parallel_svg = d3.select("#parallel-plot")
             .append("svg")
             .attr("width", width)
-            .attr("height", height)
-            .attr("style", "border: 1px solid #a1a1a1");
+            .attr("height", height + bottom_margin);
 
         var plot_area = scope.parallel_svg.append("g")
-            .attr("id", "parallel-plot-area");
+            .attr("id", "parallel-plot-area")
+            .attr("transform", "translate(0, 5)");
 
         scope.initialize_parallel_plot = function() {
             // get individual parameter scale functions
@@ -30,48 +31,59 @@ app.directive('prparallelplot', function() {
                 .data(scope.parameters)
                 .enter().append('g')
                     .attr("transform", function (d, i) {
-                        return "rotate(-90) translate(0, " + (width*i/scope.parameters.length) + ")";
+                        return "translate(" + width + ", " + (height*i/(scope.parameters.length - 1)) + ")";
                     })
                     .attr("class", "axis");
 
             axes.append('line')
-                    .attr("x2", function (d) {
-                        return -1 * parameter_scale_functions[d.fcs_number](d.extent[1]);
-                    });
+                .attr("x2", function (d) {
+                    return -1 * parameter_scale_functions[d.fcs_number](d.extent[1]);
+                })
+                .attr("stroke", "#a1a1a1")
+                .attr("stroke-width", "2")
+                .attr("stroke-dasharray", "2, 6");
 
             axes.append('text')
-                    .text(function (d) {
-                        return d.full_name;
-                    })
-                    .attr("text-anchor", "middle")
-                    .attr("transform", function () {
-                        return "rotate(" + 90 + ")" +
-                            " translate(" + 0 + ", " + 20 + ")";
-                    });
+                .text(function (d) {
+                    return d.full_name;
+                })
+                .attr("text-anchor", "left")
+                .attr("transform", function () {
+                    return "translate(" + -width + ", " + 20 + ")";
+                })
+                .style("font-weight", "bold");
 
             scope.plot_data.cluster_data.forEach(function (cluster) {
                 var series = plot_area.append("g")
                     .attr('class', 'series')
-                    .style('stroke', function () {
+                    .attr('stroke', function () {
                         return cluster.color;
                     });
 
-                var series_array = [];
-                scope.parameters.forEach(function (p) {
-                    series_array.push(cluster.parameters);
-                });
-
-                var lineFunction = d3.svg.line()
-                    .x(function (d, i ) {
-                        return (width * i / scope.parameters.length);
+                var line_function = d3.svg.line()
+                    .x(function (d, i) {
+                        return parameter_scale_functions[d.channel](d.location);
                     })
-                    .y(function (d, i) {
-                        return parameter_scale_functions[scope.parameters[i]](d);
+                    .y(function (d, i ) {
+                        return (height * i / (scope.parameters.length - 1));
                     });
+
+                // it's very important we feed the cluster param locations
+                // to line_function in the correct order, which is the
+                // same order as scope.parameters
+                var cluster_locations = [];
+                scope.parameters.forEach(function(scope_param) {
+                    for (var i=0; i<cluster.parameters.length; i++) {
+                        if (scope_param.fcs_number == cluster.parameters[i].channel) {
+                            cluster_locations.push(cluster.parameters[i]);
+                            break;
+                        }
+                    }
+                });
 
                 series.append('path')
                     .attr("class", "data-line")
-                    .attr("d", lineFunction(series_array));
+                    .attr("d", line_function(cluster_locations));
             });
 
 
