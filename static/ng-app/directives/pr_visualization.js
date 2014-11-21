@@ -485,11 +485,11 @@ app.directive('prscatterplot', function() {
                         }
                     });
 
-                    d.selected = true;
+                    scope.select_cluster(d);
                     scope.$apply();
                 })
                 .on("mouseout", function(d) {
-                    d.selected = false;
+                    scope.deselect_cluster(d);
                     scope.$apply();
                 })
                 .on("click", function(cluster, index) {
