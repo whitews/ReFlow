@@ -27,32 +27,6 @@ app.directive('prparallelplot', function() {
 
             });
 
-            axes = plot_area.selectAll('.axis')
-                .data(scope.parameters)
-                .enter().append('g')
-                    .attr("transform", function (d, i) {
-                        return "translate(" + width + ", " + (height*i/(scope.parameters.length - 1)) + ")";
-                    })
-                    .attr("class", "axis");
-
-            axes.append('line')
-                .attr("x2", function (d) {
-                    return -1 * parameter_scale_functions[d.fcs_number](d.extent[1]);
-                })
-                .attr("stroke", "#a1a1a1")
-                .attr("stroke-width", "2")
-                .attr("stroke-dasharray", "2, 6");
-
-            axes.append('text')
-                .text(function (d) {
-                    return d.full_name;
-                })
-                .attr("text-anchor", "left")
-                .attr("transform", function () {
-                    return "translate(" + -width + ", " + 20 + ")";
-                })
-                .style("font-weight", "bold");
-
             scope.plot_data.cluster_data.forEach(function (cluster) {
                 var series = plot_area.append("g")
                     .attr('class', 'series')
@@ -85,6 +59,34 @@ app.directive('prparallelplot', function() {
                     .attr("class", "data-line")
                     .attr("d", line_function(cluster_locations));
             });
+
+            // put axes (and, more importantly the text) last so it's on top,
+            // SVG doesn't use z-index, layers are in order of appearance
+            axes = plot_area.selectAll('.axis')
+                .data(scope.parameters)
+                .enter().append('g')
+                    .attr("transform", function (d, i) {
+                        return "translate(" + width + ", " + (height*i/(scope.parameters.length - 1)) + ")";
+                    })
+                    .attr("class", "axis");
+
+            axes.append('line')
+                .attr("x2", function (d) {
+                    return -1 * parameter_scale_functions[d.fcs_number](d.extent[1]);
+                })
+                .attr("stroke", "#a1a1a1")
+                .attr("stroke-width", "2")
+                .attr("stroke-dasharray", "2, 6");
+
+            axes.append('text')
+                .text(function (d) {
+                    return d.full_name;
+                })
+                .attr("text-anchor", "left")
+                .attr("transform", function () {
+                    return "translate(" + -width + ", " + 20 + ")";
+                })
+                .style("font-weight", "bold");
 
 
             scope.render_parallel_plot();
