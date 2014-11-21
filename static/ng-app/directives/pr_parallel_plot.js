@@ -2,6 +2,7 @@ app.directive('prparallelplot', function() {
     function link(scope) {
         var width = 260;          // width of the svg element
         var height = 480;         // height of the svg element
+        var left_margin = 20;
         var bottom_margin = 40;
         var axes;
         var parameter_extent_dict = {};
@@ -11,7 +12,7 @@ app.directive('prparallelplot', function() {
 
         scope.parallel_svg = d3.select("#parallel-plot")
             .append("svg")
-            .attr("width", width)
+            .attr("width", width + left_margin)
             .attr("height", height + bottom_margin);
 
         scope.initialize_parallel_plot = function() {
@@ -19,7 +20,7 @@ app.directive('prparallelplot', function() {
             d3.select('#parallel-plot').selectAll("g").remove();
             var plot_area = scope.parallel_svg.append("g")
                 .attr("id", "parallel-plot-area")
-                .attr("transform", "translate(0, 5)");
+                .attr("transform", "translate(" + left_margin + ", 5)");
 
             // get individual parameter scale functions, but we must take
             // care to skip channels that were not analyzed since there
@@ -104,7 +105,7 @@ app.directive('prparallelplot', function() {
                 })
                 .attr("text-anchor", "left")
                 .attr("transform", function () {
-                    return "translate(" + -width + ", " + 20 + ")";
+                    return "translate(" + -(width+left_margin) + ", " + 12 + ")";
                 })
                 .style("font-weight", "bold");
 
