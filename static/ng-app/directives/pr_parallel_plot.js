@@ -42,39 +42,43 @@ app.directive('prparallelplot', function() {
                         .range([0, width]);
             });
 
-            scope.plot_data.cluster_data.forEach(function (cluster) {
-                cluster.parallel_series = plot_area.append("g")
-                    .attr('class', 'series')
-                    .attr("id", "cluster_" + cluster.id)
-                    .attr('stroke', function () {
-                        return cluster.color;
-                    });
-
-                var line_function = d3.svg.line()
-                    .x(function (d, i) {
-                        return parameter_scale_functions[d.channel](d.location);
-                    })
-                    .y(function (d, i ) {
-                        return (height * i / (analyzed_parameters.length - 1));
-                    });
-
-                // it's very important we feed the cluster param locations
-                // to line_function in the correct order, which is the
-                // same order as scope.parameters
-                var cluster_locations = [];
-                scope.parameters.forEach(function(scope_param) {
-                    for (var i=0; i<cluster.parameters.length; i++) {
-                        if (scope_param.fcs_number == cluster.parameters[i].channel) {
-                            cluster_locations.push(cluster.parameters[i]);
-                            break;
-                        }
-                    }
+            var line_function = d3.svg.line()
+                .x(function (d, i) {
+                    return parameter_scale_functions[d.channel](d.location);
+                })
+                .y(function (d, i ) {
+                    return (height * i / (analyzed_parameters.length - 1));
                 });
 
-                cluster.parallel_series.append('path')
-                    .attr("class", "data-line")
-                    .attr("d", line_function(cluster_locations));
-            });
+            //scope.plot_data.cluster_data.forEach(function (cluster) {
+            scope.parallel_lines = plot_area.append("g")
+                .attr('class', 'parallel_lines');
+
+            scope.parallel_lines.selectAll("path")
+                .data(scope.plot_data.cluster_data)
+                .enter()
+                .append("path")
+                .attr("id", function (d) {
+                    return "cluster_" + d.cluster_index;
+                })
+                .attr('stroke', function (d) {
+                    return d.color;
+                })
+                .attr("d", function (d) {
+                    // it's very important we feed the cluster param locations
+                    // to line_function in the correct order, which is the
+                    // same order as scope.parameters
+                    var cluster_locations = [];
+                    scope.parameters.forEach(function(scope_param) {
+                        for (var i = 0; i < d.parameters.length; i++) {
+                            if (scope_param.fcs_number == d.parameters[i].channel) {
+                                cluster_locations.push(d.parameters[i]);
+                                break;
+                            }
+                        }
+                    });
+                    return line_function(cluster_locations)
+                });
 
             // put axes (and, more importantly the text) last so it's on top,
             // SVG doesn't use z-index, layers are in order of appearance
