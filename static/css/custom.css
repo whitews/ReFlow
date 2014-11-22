@@ -500,3 +500,7 @@ form.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
 .selected {
     font-weight: bold;
 }
+
+.no-padding {
+  padding: 0;
+}

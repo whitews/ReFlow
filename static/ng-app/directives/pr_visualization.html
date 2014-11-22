@@ -6,9 +6,9 @@
       <select ng-model="chosen_member" ng-change="initialize_visualization()" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
     </div>
 
-    <div class="col-md-offset-1 col-md-5">
+    <div class="col-md-offset-1 col-md-5 no-padding">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 no-padding">
           X axis parameter:<br/>
           <select class="pr_form_field" ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select>
           <div>
@@ -18,7 +18,7 @@
           </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-6 no-padding">
           Y axis parameter:<br/>
           <select class="pr_form_field" ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select>
           <div>
@@ -39,24 +39,24 @@
 
   <div class="row">
 
-    <div class="col-md-offset-4 col-md-5">
+    <div class="col-md-offset-4 col-md-5 no-padding">
       <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-3 no-padding">
           <label>
             <input ng-model="show_heat" type="checkbox"> Show heat map
           </label>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 no-padding">
           <label>
             <input ng-model="auto_scale" type="checkbox"> Auto-scale
           </label>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 no-padding">
           <label>
             <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
           </label>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 no-padding">
           <label>
             <input ng-model="show_clusters" type="checkbox" ng-change="toggle_clusters()"> Show Clusters
           </label>
