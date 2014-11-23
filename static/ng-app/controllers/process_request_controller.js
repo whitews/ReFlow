@@ -62,6 +62,11 @@ var process_steps = [
         "url": "/static/ng-app/partials/pr/choose_samples.html"
     },
     {
+        "name": "choose_compensations",
+        "title": "Choose Compensations",
+        "url": "/static/ng-app/partials/pr/choose_compensations.html"
+    },
+    {
         "name": "filter_parameters",
         "title": "Choose Parameters",
         "url": "/static/ng-app/partials/pr/choose_parameters.html"
@@ -80,10 +85,13 @@ var process_steps = [
         "name": "process_request_options",
         "title": "Process Request Options",
         "url": "/static/ng-app/partials/pr/request_options.html"
+    },
+    {
+        "name": "success",
+        "title": "Process Request Submitted",
+        "url": "/static/ng-app/partials/pr/success.html"
     }
 ];
-
-var success_url = '/static/ng-app/partials/pr/success.html';
 
 app.controller(
     'ProcessRequestFormController',
@@ -107,6 +115,7 @@ app.controller(
         'SubprocessInput',
         'ProcessRequest',
         'ProcessRequestInput',
+        'ModelService',
         function (
                 $scope,
                 $controller,
@@ -126,7 +135,8 @@ app.controller(
                 SubprocessImplementation,
                 SubprocessInput,
                 ProcessRequest,
-                ProcessRequestInput) {
+                ProcessRequestInput,
+                ModelService) {
 
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
@@ -142,6 +152,8 @@ app.controller(
             $scope.model.stimulations = Stimulation.query({project: $scope.current_project.id});
             $scope.model.cytometers = []; // depends on chosen sites
             $scope.model.pretreatments = Pretreatment.query();
+            $scope.model.chosen_samples = [];
+            $scope.model.comp_object_lut = {};
 
             $scope.model.current_panel_template = null;
 
@@ -152,6 +164,27 @@ app.controller(
                     data.forEach(function (sample) {
                         sample.ignore = false;
                         sample.selected = true;
+                        sample.comp_candidates = ModelService.getCompensations(
+                            sample.site_panel,
+                            sample.acquisition_date
+                        );
+                        sample.chosen_comp_matrix = null;
+                        sample.comp_candidates.$promise.then(function(comps) {
+                            /*
+                             * TODO: improve auto-choice in the future to
+                             * choose any matrix with the same name as the
+                             * sample's original file name
+                             */
+                            if (comps.length > 0) {
+                                sample.chosen_comp_matrix = comps[0].id;
+                            }
+
+                            comps.forEach(function (c) {
+                                if (!$scope.model.comp_object_lut.hasOwnProperty(c.id)) {
+                                    $scope.model.comp_object_lut[c.id] = ModelService.getCompensationCSV(c.id);
+                                }
+                            });
+                        });
                     });
 
                     $scope.updateSamples();
@@ -197,6 +230,17 @@ app.controller(
                         name: subproc_name
                     }
                 ); // there should only be one 'parameter' subproc input
+            }
+
+            function initializeCompensations () {
+                // Iterate samples that are both selected and not ignored
+                // to collect compensation candidates
+                $scope.model.chosen_samples = [];
+                $scope.model.samples.forEach(function (sample) {
+                    if (sample.selected && !sample.ignore) {
+                        $scope.model.chosen_samples.push(sample)
+                    }
+                });
             }
 
             function initializeParameters () {
@@ -289,7 +333,7 @@ app.controller(
                 // so we'll go ahead to retrieve the inputs for that
                 // implementation
                 var category_name = 'transformation';
-                var implementation_name = 'logicle';
+                var implementation_name = 'asinh';
                 SubprocessImplementation.query(
                     {
                         category_name: category_name,
@@ -351,6 +395,9 @@ app.controller(
                     case "filter_samples":
                         initializeSamples();
                         break;
+                    case "choose_compensations":
+                        initializeCompensations();
+                        break;
                     case "filter_parameters":
                         initializeParameters();
                         break;
@@ -361,6 +408,8 @@ app.controller(
                         initializeClustering();
                         break;
                     case "process_request_options":
+                        break;
+                    case "success":
                         break;
                 }
             }
@@ -378,6 +427,11 @@ app.controller(
                     $scope.current_step = process_steps[$scope.current_step_index];
                     initializeStep();
                 }
+            };
+            $scope.firstStep = function () {
+                $scope.current_step_index = 0;
+                $scope.current_step = process_steps[$scope.current_step_index];
+                initializeStep();
             };
 
             $scope.toggleAllSamples = function () {
@@ -497,13 +551,14 @@ app.controller(
                                     new SampleCollectionMember(
                                         {
                                             sample_collection: c.id,
-                                            sample: sample.id
+                                            sample: sample.id,
+                                            compensation: $scope.model.comp_object_lut[sample.chosen_comp_matrix].matrix
                                         }
                                     )
                                 )
                             }
                         });
-                        SampleCollectionMember.save(members);
+                        return SampleCollectionMember.save(members);
                     })
                     .then(function () {  // Create the PR before the inputs
                         var pr = new ProcessRequest(
@@ -520,7 +575,7 @@ app.controller(
                     var pr_inputs = [];
 
                     // first retrieve the chosen parameters
-                    var param_subproc = $scope.model.parameter_inputs[0]
+                    var param_subproc = $scope.model.parameter_inputs[0];
                     $scope.model.parameters.forEach(function (param) {
                         if (param.selected) {
                             pr_inputs.push(
@@ -565,7 +620,7 @@ app.controller(
                     ProcessRequestInput.save(
                         pr_inputs,
                         function (data) {  // success
-                            $scope.current_step.url = success_url;
+                            $scope.nextStep();
                             $scope.model.submitted_pr = pr;
                             $scope.model.submitted_pr_inputs = data;
                     })

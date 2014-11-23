@@ -400,10 +400,6 @@ class CompensationSerializer(serializers.ModelSerializer):
     compensation_file = serializers.FileField(
         source='compensation_file',
         read_only=True)
-    sample_count = serializers.IntegerField(
-        source='get_sample_count',
-        read_only=True
-    )
 
     class Meta:
         model = Compensation
@@ -420,7 +416,6 @@ class CompensationSerializer(serializers.ModelSerializer):
             'site_panel',
             'acquisition_date',
             'compensation_file',
-            'sample_count'
         )
 
     def validate(self, attrs):
@@ -505,6 +500,9 @@ class SampleSerializer(serializers.ModelSerializer):
     project = serializers.IntegerField(
         source='subject.project_id',
         read_only=True)
+    project_name = serializers.CharField(
+        source='subject.project.project_name',
+        read_only=True)
     subject_code = serializers.CharField(
         source='subject.subject_code',
         read_only=True)
@@ -558,10 +556,10 @@ class SampleSerializer(serializers.ModelSerializer):
             'site',
             'site_name',
             'project',
+            'project_name',
             'original_filename',
             'exclude',
             'sha1',
-            'compensation'
         )
         read_only_fields = (
             'original_filename', 'sha1', 'site_panel', 'cytometer'
@@ -609,17 +607,32 @@ class SampleMetadataSerializer(serializers.ModelSerializer):
 
 
 class SampleCollectionMemberSerializer(serializers.ModelSerializer):
+    filename = serializers.CharField(
+        source='sample.original_filename',
+        read_only=True
+    )
+
     class Meta:
         model = SampleCollectionMember
-        fields = ('id', 'sample_collection', 'sample')
+        fields = (
+            'id',
+            'sample_collection',
+            'sample',
+            'filename',
+            'compensation'
+        )
 
 
 class SampleCollectionMemberDetailSerializer(serializers.ModelSerializer):
     sample = SampleSerializer()
+    compensation = serializers.CharField(
+        source='compensation.matrix_text',
+        read_only=True
+    )
 
     class Meta:
         model = SampleCollectionMember
-        fields = ('id', 'sample_collection', 'sample')
+        fields = ('id', 'sample_collection', 'sample', 'compensation')
 
 
 class SampleCollectionSerializer(serializers.ModelSerializer):
@@ -858,7 +871,8 @@ class ProcessRequestOutputSerializer(serializers.ModelSerializer):
 
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name='process-request-detail')
+        view_name='process-request-detail'
+    )
     request_username = serializers.CharField(
         source='request_user.username',
         read_only=True
@@ -868,9 +882,11 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
         read_only=True
     )
     inputs = ProcessRequestInputSerializer(
-        source='processrequestinput_set')
+        source='processrequestinput_set'
+    )
     outputs = ProcessRequestOutputSerializer(
-        source='processrequestoutput_set')
+        source='processrequestoutput_set'
+    )
 
     class Meta:
         model = ProcessRequest
@@ -891,4 +907,69 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'status',
             'inputs',
             'outputs'
+        )
+
+
+class ClusterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cluster
+        fields = (
+            'id',
+            'process_request',
+            'index'
+        )
+
+
+class SampleClusterParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleClusterParameter
+        fields = (
+            'id',
+            'sample_cluster',
+            'channel',
+            'location'
+        )
+
+
+class EventClassificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventClassification
+        fields = (
+            'event_index',
+        )
+
+
+class SampleClusterSerializer(serializers.ModelSerializer):
+    # url = serializers.HyperlinkedIdentityField(
+    #     view_name='sample-cluster-detail'
+    # )
+    process_request = serializers.CharField(
+        source='cluster.process_request_id',
+        read_only=True
+    )
+    cluster_index = serializers.IntegerField(
+        source='cluster.index',
+        read_only=True
+    )
+    parameters = SampleClusterParameterSerializer(
+        source='sampleclusterparameter_set',
+        read_only=True
+    )
+    event_indices = serializers.RelatedField(
+        source='eventclassification_set',
+        read_only=True,
+        many=True
+    )
+
+    class Meta:
+        model = SampleCluster
+        fields = (
+            'id',
+            #'url',
+            'process_request',
+            'sample',
+            'cluster',
+            'cluster_index',
+            'parameters',
+            'event_indices'
         )

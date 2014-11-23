@@ -58,7 +58,7 @@ app.controller(
                 delete param.id;
                 var markers = [];
                 param.markers.forEach(function(m) {
-                    markers.push(m.id);
+                    markers.push(m.marker_id);
                 });
                 param.markers = markers;
             });
@@ -77,8 +77,8 @@ app.controller(
 app.controller(
     'PanelTemplateCreateController',
     [
-        '$scope', '$state', '$controller', '$stateParams', 'PanelTemplate', 'Marker', 'Fluorochrome',
-        function ($scope, $state, $controller, $stateParams, PanelTemplate, Marker, Fluorochrome) {
+        '$scope', '$state', '$controller', '$stateParams', 'PanelTemplate', 'Marker', 'Fluorochrome', 'ParameterValueType',
+        function ($scope, $state, $controller, $stateParams, PanelTemplate, Marker, Fluorochrome, ParameterValueType) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -93,6 +93,21 @@ app.controller(
                 ["IS", "Isotype Control"],
                 ["CB", "Compensation Bead"]
             ];
+
+            // everything but bead functions
+            $scope.model.parameter_functions = [
+                ["FSC", "Forward Scatter"],
+                ["SSC", "Side Scatter"],
+                ["BEA", "Bead"],
+                ["FCM", "Fluorochrome Conjugated Marker"],
+                ["UNS", "Unstained"],
+                ["ISO", "Isotype Control"],
+                ["EXC", "Exclusion"],
+                ["VIA", "Viability"],
+                ["TIM", "Time"],
+                ["NUL", "Null"]
+            ];
+            $scope.model.parameter_value_types = ParameterValueType.query();
 
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;
@@ -115,7 +130,7 @@ app.controller(
                         $scope.model.current_staining = $scope.model.template.staining;
                         $scope.model.panel_templates = PanelTemplate.query(
                             {
-                                project: $scope.current_project,
+                                project: $scope.current_project.id,
                                 staining: ['FS']  // only full stain can be parents
                             },
                             function () {
@@ -158,6 +173,13 @@ app.controller(
             } else {
                 $scope.model.parent_template = null;
                 $scope.model.channels = [{markers: []}];
+                // get all project's panel templates matching full stain
+                $scope.model.panel_templates = PanelTemplate.query(
+                    {
+                        project: $scope.current_project.id,
+                        staining: ['FS']  // only full stain can be parents
+                    }
+                );
             }
 
             $scope.stainingChanged = function() {
@@ -173,14 +195,6 @@ app.controller(
                 }
                 $scope.validatePanel();
             };
-
-            // get all project's panel templates matching full stain
-            $scope.model.panel_templates = PanelTemplate.query(
-                {
-                    project: $scope.current_project.id,
-                    staining: ['FS']  // only full stain can be parents
-                }
-            );
 
             $scope.addChannel = function() {
                 $scope.model.channels.push({markers:[]});
@@ -248,6 +262,7 @@ app.controller(
                     case 'CB':
                         can_have_uns = false;
                         can_have_iso = false;
+                        break;
                     default :  // includes FS, FM, & US
                         can_have_uns = true;
                         can_have_iso = false;
@@ -406,7 +421,7 @@ app.controller(
                                 } else if ($scope.model.current_staining == 'CB') {
                                     // For bead templates the function should
                                     // be bead
-                                    if (param.parameter_type != 'FCM' && channel.function == 'BEA') {
+                                    if (!(param.parameter_type == 'FCM' || param.parameter_type == 'VIA') && channel.function == 'BEA') {
                                         // no match
                                         continue;
                                     }
@@ -493,10 +508,10 @@ app.controller(
                     }
                 }
 
-                if ($scope.model.current_staining == 'FM' && parent_fmo_matches < 1) {
+                if ($scope.model.current_staining == 'FM' && parent_fmo_matches.length < 1) {
                     valid = false;
                     $scope.model.errors.push("FMO templates must specify at least one unstained channel.");
-                } else if ($scope.model.current_staining == 'IS' && parent_iso_matches < 1) {
+                } else if ($scope.model.current_staining == 'IS' && parent_iso_matches.length < 1) {
                     valid = false;
                     $scope.model.errors.push("ISO templates must specify at least one ISO channel.");
                 }
@@ -559,31 +574,6 @@ app.controller(
                     }
                 });
             };
-        }
-    ]
-);
-
-app.controller(
-    'TemplateParameterController',
-    [
-        '$scope',
-        'ParameterFunction',
-        'ParameterValueType',
-        function ($scope, ParameterFunction, ParameterValueType) {
-            // everything but bead functions
-            $scope.model.parameter_functions = [
-                ["FSC", "Forward Scatter"],
-                ["SSC", "Side Scatter"],
-                ["BEA", "Bead"],
-                ["FCM", "Fluorochrome Conjugated Marker"],
-                ["UNS", "Unstained"],
-                ["ISO", "Isotype Control"],
-                ["EXC", "Exclusion"],
-                ["VIA", "Viability"],
-                ["TIM", "Time"],
-                ["NUL", "Null"]
-            ];
-            $scope.model.parameter_value_types = ParameterValueType.query();
         }
     ]
 );

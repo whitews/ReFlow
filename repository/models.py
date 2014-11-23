@@ -1099,13 +1099,19 @@ class Compensation(ProtectedModel):
             return True
         return False
 
-    def get_sample_count(self):
-        return Sample.objects.filter(compensation=self).count()
-
     def get_compensation_as_csv(self):
         csv_string = StringIO()
         compensation_array = np.load(self.compensation_file.file)
-        np.savetxt(csv_string, compensation_array, fmt='%f', delimiter=',')
+
+        header = ','.join(["%d" % n for n in compensation_array[0]])
+        csv_string.write(header + '\n')
+
+        np.savetxt(
+            csv_string,
+            compensation_array[1:,:],
+            fmt='%f',
+            delimiter=','
+        )
         csv_string.seek(0)
         return csv_string
 
@@ -1273,10 +1279,6 @@ class Sample(ProtectedModel):
         null=False,
         blank=False
     )
-    compensation = models.ForeignKey(
-        Compensation,
-        null=True,
-        blank=True)
     sample_file = models.FileField(
         upload_to=fcs_file_path,
         null=False,
@@ -1576,6 +1578,25 @@ class SampleCollection(ProtectedModel):
     project = models.ForeignKey(Project)
 
 
+class FrozenCompensation(models.Model):
+    """
+    Used to store comp matrices used for an analysis pipeline
+    and are not allowed to be modified.
+    """
+    matrix_text = models.TextField(editable=False)
+    sha1 = models.CharField(
+        unique=True,
+        null=False,
+        blank=False,
+        editable=False,
+        max_length=40
+    )
+
+    def save(self, *args, **kwargs):
+        self.sha1 = hashlib.sha1(self.matrix_text).hexdigest()
+        super(FrozenCompensation, self).save(*args, **kwargs)
+
+
 class SampleCollectionMember(ProtectedModel):
     """
     A member of a sample set (i.e. an FCS Sample). However the Samples
@@ -1583,6 +1604,10 @@ class SampleCollectionMember(ProtectedModel):
     deletion. This allows deletion of Samples with less hassle.
     It is up to the consumer of SampleCollections to verify
     SampleCollectionMember integrity.
+    Also, a compensation matrix is required, as w/o one the sample
+    data is not interpretable. However, we don't simply link to a
+    Compensation record as a user may change it in the future. So,
+    we save a "frozen" compensation matrix
     """
     sample_collection = models.ForeignKey(SampleCollection)
     sample = models.ForeignKey(
@@ -1590,9 +1615,50 @@ class SampleCollectionMember(ProtectedModel):
         null=True,
         on_delete=models.SET_NULL
     )
+    compensation = models.ForeignKey(FrozenCompensation)
 
     class Meta:
         unique_together = (('sample_collection', 'sample'),)
+
+    def clean(self):
+        """
+        verify comp matrix matches sample's channels
+        """
+
+        # get site panel parameter fcs_text, but just for the fluoro params
+        # 'Null', scatter and time don't get compensated
+        params = SitePanelParameter.objects.filter(
+            site_panel_id=self.sample.site_panel_id).exclude(
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
+
+        # parse the matrix text and validate the number of params match
+        # the number of fluoro params in the site panel and that the matrix
+        # values are numbers (can be exp notation)
+        matrix_text = self.compensation.matrix_text.splitlines(False)
+        if not len(matrix_text) > 1:
+            raise ValidationError("Too few rows.")
+
+        # first row should be headers matching the channel number
+        # comma delimited
+        headers = re.split(',\s*', matrix_text[0])
+
+        missing_fields = list()
+        for p in params:
+            if str(p.fcs_number) not in headers:
+                missing_fields.append(p.fcs_number)
+
+        if len(missing_fields) > 0:
+            raise ValidationError(
+                "Missing fields: %s" % ", ".join(missing_fields))
+
+        if len(headers) > params.count():
+            raise ValidationError("Too many parameters")
+
+        # the header of matrix text adds a row
+        if len(matrix_text) > params.count() + 1:
+            raise ValidationError("Too many rows")
+        elif len(matrix_text) < params.count() + 1:
+            raise ValidationError("Too few rows")
 
 
 def bead_file_path(instance, filename):
@@ -2135,7 +2201,94 @@ class ProcessRequestOutput(ProtectedModel):
         return False
 
     def __unicode__(self):
-        return u'%s (%s): %s' % (
-            self.process_request.get_process_display(),
+        return u'%s: %s' % (
             self.process_request_id,
-            self.key)
+            self.key
+        )
+
+
+class Cluster(ProtectedModel):
+    """
+    All processes must produce one or more clusters (if they succeed)
+    """
+    process_request = models.ForeignKey(ProcessRequest)
+    index = models.IntegerField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.process_request.has_view_permission(user):
+            return True
+
+        return False
+
+
+class SampleClusterMode(models.Model):
+    """
+    Used to group related SampleCLuster instances into a mode. The mode
+    itself has a different location from any of its SampleCluster members,
+    and the location of the SampleClusterMode is in the
+    SampleClusterModeParameter set
+    """
+    index = models.IntegerField(null=False, blank=False)
+
+
+class SampleClusterModeParameter(models.Model):
+    """
+    Used to store the location of a SampleClusterMode.
+    Each parameter identifies a channel in the Sample along with the
+    coordinate for the SampleClusterMode.
+    """
+    mode = models.ForeignKey(SampleClusterMode)
+    channel = models.IntegerField(null=False, blank=False)
+    location = models.FloatField(null=False, blank=False)
+
+
+class SampleCluster(ProtectedModel):
+    """
+    Each sample in a SampleCollection tied to a ProcessRequest will have
+    its own version of each cluster. The location of the SampleCluster is
+    in the SampleClusterParameter set. Additionally, there is an optional
+    SampleClusterMode to which one or more SampleCluster instances from the
+    same Sample may belong
+    """
+    cluster = models.ForeignKey(Cluster)
+    sample = models.ForeignKey(Sample)
+
+    def has_view_permission(self, user):
+        if self.cluster.has_view_permission(user):
+            return True
+
+        return False
+
+
+class SampleClusterParameter(ProtectedModel):
+    """
+    Used to store the location of a SampleCluster.
+    Each parameter identifies a channel in the Sample along with the
+    coordinate for the SampleCluster.
+    """
+    sample_cluster = models.ForeignKey(SampleCluster)
+    channel = models.IntegerField(null=False, blank=False)
+    location = models.FloatField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.sample_cluster.has_view_permission(user):
+            return True
+
+        return False
+
+
+class EventClassification(ProtectedModel):
+    """
+    Ties a Sample event index to a particular SampleCluster
+    """
+    sample_cluster = models.ForeignKey(SampleCluster)
+    event_index = models.IntegerField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.sample_cluster.has_view_permission(user):
+            return True
+
+        return False
+
+    def __unicode__(self):
+        return "%d" % self.event_index

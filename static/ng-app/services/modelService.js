@@ -4,18 +4,34 @@
 
 var service = angular.module('ReFlowApp');
 
-service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome, Project, Site) {
-    var model = {};
-    model.current_site = null;
-    model.current_sample = null;
-    model.current_panel_template = null;
+service.factory('ModelService', function(
+        $rootScope,
+        $http,
+        User,
+        Marker,
+        Fluorochrome,
+        Project,
+        Site,
+        SitePanel,
+        SampleMetadata,
+        Compensation,
+        ParameterFunction,
+        ParameterValueType,
+        ProcessRequest,
+        SampleCollection,
+        SampleCollectionMember,
+        SampleCluster) {
+    var service = {};
+    service.current_site = null;
+    service.current_sample = null;
+    service.current_panel_template = null;
 
-    model.user = User.get();
+    service.user = User.get();
 
     function refresh_projects() {
-        model.projects = Project.query();
+        service.projects = Project.query();
 
-        model.projects.$promise.then(function (projects) {
+        service.projects.$promise.then(function (projects) {
             $rootScope.projects = projects;
             projects.forEach(function (p) {
                 p.getUserPermissions().$promise.then(function (value) {
@@ -57,25 +73,36 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
         });
     }
 
-    model.markers = Marker.query();
-    model.fluorochromes = Fluorochrome.query();
-
-    model.getMarkers = function () {
-        return this.markers;
+    service.getMarkers = function() {
+        return Marker.query();
     };
 
-    model.getFluorochromes = function () {
+    service.fluorochromes = Fluorochrome.query();
+
+    service.getFluorochromes = function () {
         return this.fluorochromes;
     };
 
-    model.getProjects = function () {
+    service.getParameterFunctions = function() {
+        return ParameterFunction.query(
+            {}
+        );
+    };
+
+    service.getParameterValueTypes = function() {
+        return ParameterValueType.query(
+            {}
+        );
+    };
+
+    service.getProjects = function () {
         return $rootScope.projects;
     };
-    model.reloadProjects = function () {
+    service.reloadProjects = function () {
         refresh_projects();
     };
 
-    model.getProjectById = function(id) {
+    service.getProjectById = function(id) {
         var project = $.grep($rootScope.projects, function(e){ return e.id == id; });
         if (project.length > 0) {
             return project[0];
@@ -83,32 +110,106 @@ service.factory('ModelService', function($rootScope, User, Marker, Fluorochrome,
         return null;
     };
 
-    model.setCurrentSite = function (value) {
+    service.setCurrentSite = function (value) {
         this.current_site = value;
         $rootScope.$broadcast('siteChanged');
     };
 
-    model.getCurrentSite = function () {
+    service.getCurrentSite = function () {
         return this.current_site;
     };
 
-    model.setCurrentSample = function (value) {
+    // Sample related services
+    service.setCurrentSample = function (value) {
         this.current_sample = value;
         $rootScope.$broadcast('sampleChanged');
     };
 
-    model.getCurrentSample = function () {
+    service.getCurrentSample = function () {
         return this.current_sample;
     };
 
-    model.setCurrentPanelTemplate = function (value) {
+    service.getSampleCSV = function (sample_id) {
+        return $http.get(
+            '/api/repository/samples/' + sample_id.toString() + '/csv/'
+        );
+    };
+
+    // SampleMetadata related services
+    service.getSampleMetadata = function (sample_id) {
+        return SampleMetadata.query(
+            {
+                'sample': sample_id
+            }
+        );
+    };
+
+    // Compensation related services
+    service.getCompensations = function (site_panel_id, acq_date) {
+        return Compensation.query(
+            {
+                'site_panel': site_panel_id,
+                'acquisition_date': acq_date
+            }
+        );
+    };
+
+    service.getCompensationCSV = function (comp_id) {
+        return Compensation.get_CSV(
+            {
+                'id': comp_id
+            }
+        );
+    };
+
+    // Panel related services
+    service.setCurrentPanelTemplate = function (value) {
         this.current_panel_template = value;
         $rootScope.$broadcast('panelTemplateChanged');
     };
 
-    model.getCurrentPanelTemplate = function () {
+    service.getCurrentPanelTemplate = function () {
         return this.current_panel_template;
     };
+    service.getSitePanel = function (site_panel_id) {
+        return SitePanel.get(
+            {
+                'id': site_panel_id
+            }
+        );
+    };
+    
+    // ProcessRequest services
+    service.getProcessRequests = function() {
+        return ProcessRequest.query(
+            {}
+        );
+    };
 
-    return model;
+    service.getProcessRequest = function(process_request_id) {
+        return ProcessRequest.get(
+            { id: process_request_id }
+        );
+    };
+
+    // SampleCollectionMember services
+    service.getSampleCollection = function(sample_collection_id) {
+        return SampleCollection.get(
+            {
+                'id': sample_collection_id
+            }
+        );
+    };
+
+    // SampleCluster services
+    service.getSampleClusters = function(pr_id, sample_id) {
+        return SampleCluster.query(
+            {
+                'process_request': pr_id,
+                'sample': sample_id
+            }
+        ).$promise;
+    };
+
+    return service;
 });

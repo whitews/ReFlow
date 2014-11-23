@@ -25,5 +25,14 @@
         "name": "parameters", 
         "description": ""
     }
+},
+{
+    "pk": 4,
+    "model": "repository.subprocessimplementation",
+    "fields": {
+        "category": 1,
+        "name": "asinh",
+        "description": "Pre-scaled inverse hyperbolic sine (asinh). A pre-scaling factor of 0.01 is applied before the asinh for optimal visualization."
+    }
 }
 ]

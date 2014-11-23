@@ -1,0 +1,35 @@
+  <div class="row">
+    <div class="col-md-4">
+        <p>Choose which compensation to use for each sample.</p>
+    </div>
+    <div class="col-md-8">
+        <table class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50">
+              <div class=" text-center">
+                <h4>Parameters</h4>
+              </div>
+            </th>
+          </tr>
+          <tr>
+            <th>File Name</th>
+            <th>Site</th>
+            <th>Subject</th>
+            <th>Compensation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-ng-repeat="s in model.chosen_samples">
+            <td>{{ s.original_filename }}</td>
+            <td>{{ s.site_name }}</td>
+            <td>{{ s.subject_code }}</td>
+            <td>
+              <select class="form-control" ng-required="true" ng-model="s.chosen_comp_matrix" ng-options="c.id as c.name for c in s.comp_candidates">
+              </select>
+            </td>
+          </tr>
+        </tbody>
+        </table>
+    </div>
+  </div>

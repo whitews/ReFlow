@@ -50,6 +50,13 @@
 
     </br>
 
+    <div ng-show="process_request.status == 'Complete'">
+      <a ui-sref="pr-visualization-detail({ requestId: process_request.id })">
+        Visualize Results
+      </a>
+    </div>
+
+
     <table class="table table-hover">
       <thead>
         <tr>

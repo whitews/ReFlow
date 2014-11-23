@@ -507,14 +507,14 @@ def validate_site_panel_request(data, user):
                     # no match
                     continue
 
-            if ppp.paneltemplateparameter_set.count() > 0:
-                if ppp.paneltemplateparameter_set.count() != len(
+            if ppp.paneltemplateparametermarker_set.count() > 0:
+                if ppp.paneltemplateparametermarker_set.count() != len(
                         param_dict[d]['marker_id_set']):
                     # no match
                     continue
 
                 should_continue = False
-                for ppp_marker in ppp.paneltemplateparameter_set.all():
+                for ppp_marker in ppp.paneltemplateparametermarker_set.all():
                     if str(ppp_marker.marker.id) not in param_dict[d]['marker_id_set']:
                         # no match
                         should_continue = True

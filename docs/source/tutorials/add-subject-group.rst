@@ -7,20 +7,18 @@ Tutorial - Adding a Subject Group
 
 #.  From the ReFlow home page, navigate to the project by clicking on the project link.
 
-#.  On the project home page, click the **Subject Groups** link.
+#.  From the project detail page, click the **Add Subject Group** link.
 
-    .. image:: ../images/project-home.png
+    .. image:: ../images/project-detail.png
 
-#.  From the **Subject Groups** page, click on the **Add Subject Group** button located near the upper right of the page (beside the main heading). This will take you to the subject group form.
+    .. note:: Subject groups can also be added from the **Subject Groups** list page by clicking on the **Add Subject Group** button located near the upper right of that page (beside the main heading).
 
-    .. image:: ../images/add-subject-group.png
+#. A new modal window will appear displaying the form fields.
 
-#.  On the subject group form, fill out the fields. Note the **Group name** is required and a project cannot have duplicate group names. The description field is optional. Once the form is completed, click the **Save** button.
+    .. image:: ../images/new-subject-group-modal.png
 
-    .. image:: ../images/add-subject-group-form.png
+#.  Fill out the form fields. Note, subject group **Name** is required and a project cannot have duplicate subject group names. The description field is optional. Once the form is completed, click the **Save** button.
 
     .. note:: If there were validation errors with the submitted form, the form will be re-displayed along with the validation errors.
 
-#.  Once your new subject group is created you will be re-directed to the project's subject group page, listing all the subject groups for that project.
-
-    .. image:: ../images/subject-group-form-success.png
+#.  Once the new subject group is created, the modal window will close.

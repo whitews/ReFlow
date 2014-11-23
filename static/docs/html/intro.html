@@ -1,6 +1,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -45,6 +47,8 @@
   
 
   
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
     <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
         <link rel="next" title="Site Navigation" href="site-nav.html"/>
         <link rel="prev" title="Welcome to ReFlow’s documentation!" href="index.html"/> 
@@ -82,21 +86,32 @@
 <li class="toctree-l1"><a class="reference internal" href="site-nav.html">Site Navigation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#login-screen">Login Screen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#home-page">Home Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-home">Project Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-detail">Project Detail</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject">Project Category - Subject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-site">Project Category - Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-cytometer">Project Category - Cytometer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-visit-type">Project Category - Visit Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-stimulation">Project Category - Stimulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="site-nav.html#non-project-categories">Non-project Categories</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="panels.html">Panels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="permissions.html#project-permissions">Project Permissions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="permissions.html#site-permissions">Site Permissions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-project.html">Tutorial - Adding a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-site.html">Tutorial - Adding a Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-cytometer.html">Tutorial - Adding a Cytometer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/upload-samples.html">Tutorial - Uploading Samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/labelling-fcs-data.html">Tutorial - Labelling FCS Data</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
@@ -105,6 +120,7 @@
 <li class="toctree-l2"><a class="reference internal" href="server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="worker-setup.html">Worker Setup</a></li>
 </ul>
 
         
@@ -138,10 +154,10 @@
 <h2>What is ReFlow?<a class="headerlink" href="#what-is-reflow" title="Permalink to this headline">¶</a></h2>
 <p>ReFlow is a web-based repository for flow cytometry data (i.e.
 FCS files), with a primary focus on reproducible automated analysis. While
-other online repositories for flow cytometry exist,
-most are focused on providing data sharing using software as a service (SaaS).
-While ReFlow can be considered as a SaaS system, it was developed
-to be deployed within an organization, institution, or laboratory.</p>
+other online repositories exist for flow cytometry data, most are focused on
+data sharing under a software as a service (SaaS) model. ReFlow is not a
+solitary SaaS application, and is meant to be deployed within an organization,
+institution, or laboratory.</p>
 </div>
 <div class="section" id="why-was-reflow-built">
 <h2>Why was ReFlow built?<a class="headerlink" href="#why-was-reflow-built" title="Permalink to this headline">¶</a></h2>
@@ -153,11 +169,11 @@ manual analysis is subject to inter-operator variability,
 especially when attempting to find rare cell subsets. As a result,
 it is difficult to harmonize assays and interpret results across institutions.
 Automated analysis of flow cytometry data across different laboratories
-would provide a more object basis for the identification of these cell subsets.</p>
+would provide a more objective basis for the identification of these cell subsets.</p>
 <p>However, when implementing the automated analysis pipeline,
 problems arose in identifying the individual channels within the flow
 cytometry data files. The Flow Cytometry Standard (FCS) defines which
-metadata fields contain channel information but do not specify how individual
+metadata fields contain channel information but not how individual
 channels must be labelled. As a result, annotation varies across AND within
 laboratories. For example, one FCS file may contain a channel labelled &#8220;CD14
 PB vAmine&#8221; whereas another FCS file with the same &#8220;panel&#8221; may be labelled
@@ -204,16 +220,16 @@ Further, these parameters may be in different channel numbers.</p>
 <td>Categorizes subjects into groups, useful for differentiating a “normal” from a “control”, etc.</td>
 </tr>
 <tr class="row-even"><td>Subject</td>
-<td>The individual from which the biological specimen was taken. A subject must belong to a subject group.</td>
+<td>The individual from which the biological specimen was taken. A subject may optionally belong to a subject group.</td>
 </tr>
 <tr class="row-odd"><td>Site</td>
-<td>The location where an FCS file was produced. May be a laboratory name, institution, etc.</td>
+<td>The location where an FCS file was produced, such as a laboratory name, institution, etc.</td>
 </tr>
 <tr class="row-even"><td>Cytometer</td>
-<td>A cytometer device, associated with a specific Site.</td>
+<td>A cytometer device, which must be associated with a specific Site.</td>
 </tr>
 <tr class="row-odd"><td>Visit Type</td>
-<td>Categorizes samples into temporal groups, such as “Send out 3” for a proficiency test project or “Baseline” for a clinical trial project. Not the same as the FCS acquisition date.</td>
+<td>Categorizes samples into temporal groups, such as “Send out 3” for a proficiency test project or “Baseline” for a clinical trial project. Note this is not the same as the FCS acquisition date.</td>
 </tr>
 <tr class="row-even"><td>Stimulation</td>
 <td>In vitro conditions used to prepare cells from which an FCS file was produced.</td>
@@ -225,7 +241,7 @@ Further, these parameters may be in different channel numbers.</p>
 <td>A collection of flow parameters used as a master template for specific site panel implementations. Must specify a staining type and a stimulation.</td>
 </tr>
 <tr class="row-odd"><td>Site Panel</td>
-<td>A specific implementation of a project panel template. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the panel template.</td>
+<td>A specific implementation of a panel template. Since the site panel is used to categorize FCS samples, all fields are required even if not specified by the panel template.</td>
 </tr>
 <tr class="row-even"><td>Compensation</td>
 <td>A compensation matrix that can optionally be associated with one or more Samples.</td>

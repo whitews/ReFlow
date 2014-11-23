@@ -1,0 +1,131 @@
+<div>
+  <div class="row">
+
+    <div class="col-md-3">
+      FCS Sample:</br>
+      <select ng-model="chosen_member" ng-change="initialize_visualization()" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
+    </div>
+
+    <div class="col-md-offset-1 col-md-5 no-padding">
+      <div class="row">
+        <div class="col-md-6 no-padding">
+          X axis parameter:<br/>
+          <select class="pr_form_field" ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select>
+          <div>
+            X axis scale:<br/>
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" type="text" ng-model="user_x_min" /> to
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_x_max" />
+          </div>
+        </div>
+
+        <div class="col-md-6 no-padding">
+          Y axis parameter:<br/>
+          <select class="pr_form_field" ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select>
+          <div>
+            Y axis scale:<br/>
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_min" /> to
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_max" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <br/>
+      <button class="btn btn-primary" ng-click="render_plot(plot_data)">Update Plot</button>
+    </div>
+
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-offset-4 col-md-5 no-padding">
+      <div class="row">
+        <div class="col-md-3 no-padding">
+          <label>
+            <input ng-model="show_heat" type="checkbox"> Show heat map
+          </label>
+        </div>
+        <div class="col-md-3 no-padding">
+          <label>
+            <input ng-model="auto_scale" type="checkbox"> Auto-scale
+          </label>
+        </div>
+        <div class="col-md-3 no-padding">
+          <label>
+            <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
+          </label>
+        </div>
+        <div class="col-md-3 no-padding">
+          <label>
+            <input ng-model="show_clusters" type="checkbox" ng-change="toggle_clusters()"> Show Clusters
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <table class="table table-hover cluster-list-header">
+        <thead>
+        <tr>
+          <th style="width: 1%">
+            <div class="color-box" ng-click="toggle_all_events()">
+              <i ng-show="show_all_clusters" class="fa fa-check master"></i>
+            </div>
+          </th>
+          <th style="width: 50%">
+            Cluster
+          </th>
+          <th style="width: 50%">
+            Event %
+          </th>
+        </tr>
+        </thead>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-3">
+      <prparallelplot></prparallelplot>
+    </div>
+
+    <div class="col-md-6">
+      <div class="text-center" ng-show="retrieving_data">
+        <br/>
+        <br/>
+        <h4><em>Retrieving data...</em></h4>
+        <img src="/static/giant_whirligig.gif">
+      </div>
+
+      <div ng-hide="retrieving_data || !chosen_member">
+        <prscatterplot></prscatterplot>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="cluster-list">
+        <table class="table table-hover">
+          <tbody>
+          <tr ng-repeat="sc in plot_data.cluster_data | orderBy:'cluster_index':false">
+            <td  style="width: 1%" ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
+              <div class="color-box" ng-style="{ 'background-color': sc.color }" ng-click="toggle_cluster_events(sc)">
+                <i ng-show="sc.display_events" class="fa fa-check"></i>
+              </div>
+            </td>
+            <td  style="width: 50%" ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
+              {{ sc.cluster_index }}
+            </td>
+            <td  style="width: 50%" ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
+              {{ sc.event_percent }}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

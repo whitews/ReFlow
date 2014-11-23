@@ -1,6 +1,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -45,10 +47,12 @@
   
 
   
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
     <link rel="top" title="ReFlow 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorials" href="../tutorials-index.html"/>
         <link rel="next" title="Tutorial - Adding a Subject" href="add-subject.html"/>
-        <link rel="prev" title="Tutorials" href="../tutorials-index.html"/> 
+        <link rel="prev" title="Tutorial - Adding a New Project" href="add-project.html"/> 
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
@@ -83,21 +87,32 @@
 <li class="toctree-l1"><a class="reference internal" href="../site-nav.html">Site Navigation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../site-nav.html#login-screen">Login Screen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../site-nav.html#home-page">Home Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-home">Project Home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-detail">Project Detail</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-subject">Project Category - Subject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-site">Project Category - Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-cytometer">Project Category - Cytometer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-visit-type">Project Category - Visit Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-stimulation">Project Category - Stimulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../site-nav.html#non-project-categories">Non-project Categories</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../panels.html">Panels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../permissions.html">User Accounts &amp; Permissions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../permissions.html#project-permissions">Project Permissions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../permissions.html#site-permissions">Site Permissions</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials-index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="add-project.html">Tutorial - Adding a New Project</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Adding a Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-subject.html">Tutorial - Adding a Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-site.html">Tutorial - Adding a Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-cytometer.html">Tutorial - Adding a Cytometer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upload-samples.html">Tutorial - Uploading Samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labelling-fcs-data.html">Tutorial - Labelling FCS Data</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../server-setup.html">Server Setup</a><ul>
@@ -106,6 +121,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../worker-setup.html">Worker Setup</a></li>
 </ul>
 
         
@@ -144,21 +160,25 @@
 </li>
 <li><p class="first">From the ReFlow home page, navigate to the project by clicking on the project link.</p>
 </li>
-<li><p class="first">On the project home page, click the <strong>Subject Groups</strong> link.</p>
-<img alt="../_images/project-home1.png" src="../_images/project-home1.png" />
+<li><p class="first">From the project detail page, click the <strong>Add Subject Group</strong> link.</p>
+<img alt="../_images/project-detail1.png" src="../_images/project-detail1.png" />
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Subject groups can also be added from the <strong>Subject Groups</strong> list page by clicking on the <strong>Add Subject Group</strong> button located near the upper right of that page (beside the main heading).</p>
+</div>
 </li>
-<li><p class="first">From the <strong>Subject Groups</strong> page, click on the <strong>Add Subject Group</strong> button located near the upper right of the page (beside the main heading). This will take you to the subject group form.</p>
-<img alt="../_images/add-subject-group.png" src="../_images/add-subject-group.png" />
+<li><p class="first">A new modal window will appear displaying the form fields.</p>
+<blockquote>
+<div><img alt="../_images/new-subject-group-modal.png" src="../_images/new-subject-group-modal.png" />
+</div></blockquote>
 </li>
-<li><p class="first">On the subject group form, fill out the fields. Note the <strong>Group name</strong> is required and a project cannot have duplicate group names. The description field is optional. Once the form is completed, click the <strong>Save</strong> button.</p>
-<img alt="../_images/add-subject-group-form.png" src="../_images/add-subject-group-form.png" />
+<li><p class="first">Fill out the form fields. Note, subject group <strong>Name</strong> is required and a project cannot have duplicate subject group names. The description field is optional. Once the form is completed, click the <strong>Save</strong> button.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If there were validation errors with the submitted form, the form will be re-displayed along with the validation errors.</p>
 </div>
 </li>
-<li><p class="first">Once your new subject group is created you will be re-directed to the project&#8217;s subject group page, listing all the subject groups for that project.</p>
-<img alt="../_images/subject-group-form-success.png" src="../_images/subject-group-form-success.png" />
+<li><p class="first">Once the new subject group is created, the modal window will close.</p>
 </li>
 </ol>
 </div>
@@ -171,7 +191,7 @@
         <a href="add-subject.html" class="btn btn-neutral float-right" title="Tutorial - Adding a Subject"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../tutorials-index.html" class="btn btn-neutral" title="Tutorials"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="add-project.html" class="btn btn-neutral" title="Tutorial - Adding a New Project"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   

@@ -38,7 +38,8 @@ var URLS = {
     'PROCESS_REQUEST_INPUTS':     '/api/repository/process_request_inputs',
     'PROCESS_REQUEST_OUTPUTS':     '/api/repository/process_request_outputs',
     'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
-    'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/'
+    'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/',
+    'SAMPLE_CLUSTERS':  '/api/repository/sample_clusters/'
 };
 
 var service = angular.module('ReFlowApp');
@@ -243,7 +244,18 @@ service
         return SitePanel;
     }])
     .factory('Compensation', ['$resource', function ($resource) {
-        return $resource(URLS.COMPENSATIONS + ':id');
+        var Compensation =  $resource(
+            URLS.COMPENSATIONS + ':id',
+            {},
+            {
+                get_CSV: {
+                    url: URLS.COMPENSATIONS + ':id/object/',
+                    isArray: false
+                }
+            }
+        );
+
+        return Compensation;
     }])
     .factory('Sample', ['$resource', function ($resource) {
         var Sample = $resource(
@@ -256,8 +268,19 @@ service
 
         return Sample;
     }])
+    .factory('SampleMetadata', ['$resource', function ($resource) {
+        return $resource(URLS.SAMPLE_METADATA, {});
+    }])
     .factory('SampleCollection', ['$resource', function ($resource) {
-        return $resource(URLS.SAMPLE_COLLECTIONS);
+        var SampleCollection = $resource(
+            URLS.SAMPLE_COLLECTIONS + ':id',
+            {},
+            {
+                get: { isArray: false }
+            }
+        );
+
+        return SampleCollection;
     }])
     .factory('SampleCollectionMember', ['$resource', function ($resource) {
         return $resource(
@@ -296,7 +319,7 @@ service
             URLS.PROCESS_REQUESTS + ':id',
             {},
             {
-                get: { isArray: false },
+                get: { isArray: false }
             }
         );
 
@@ -316,6 +339,9 @@ service
     }])
     .factory('ProcessRequestOutput', ['$resource', function ($resource) {
         return $resource(URLS.PROCESS_REQUEST_OUTPUTS);
+    }])
+    .factory('SampleCluster', ['$resource', function ($resource) {
+        return $resource(URLS.SAMPLE_CLUSTERS);
     }])
     .factory('ParameterFunction', ['$resource', function ($resource) {
         return $resource(URLS.PARAMETER_FUNCTIONS);

@@ -88,9 +88,8 @@ def repository_api_root(request):
             'viable-process-request-list', request=request),
         'process_request_outputs': reverse(
             'process-request-output-list', request=request),
-        'get_parameter_functions': reverse('get_parameter_functions', request=request),
-        'get_parameter_value_types': reverse('get_parameter_value_types',
-                                           request=request)
+        'clusters': reverse('cluster-list', request=request),
+        'sample_clusters': reverse('sample-cluster-list', request=request)
     })
 
 
@@ -102,7 +101,8 @@ def get_user_details(request):
         {
             'username': request.user.username,
             'email': request.user.email,
-            'superuser': request.user.is_superuser
+            'superuser': request.user.is_superuser,
+            'staff': request.user.is_staff
         }
     )
 
@@ -308,6 +308,25 @@ def retrieve_compensation_as_csv(request, pk):
         content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % "comp_" + str(compensation.id) + '.csv'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_compensation_as_csv_object(request, pk):
+    compensation = get_object_or_404(Compensation, pk=pk)
+
+    if not compensation.has_view_permission(request.user):
+        raise PermissionDenied
+
+    matrix = compensation.get_compensation_as_csv()
+
+    response = Response(
+        {
+            'matrix': matrix.getvalue()
+        }
+    )
     return response
 
 
@@ -884,7 +903,10 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
-        serializer = PanelTemplateSerializer(panel_template)
+        serializer = PanelTemplateSerializer(
+            panel_template,
+            context={'request': request}
+        )
         headers = self.get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED,
@@ -953,7 +975,10 @@ class PanelTemplateDetail(
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
-        serializer = PanelTemplateSerializer(panel_template)
+        serializer = PanelTemplateSerializer(
+            panel_template,
+            context={'request': request}
+        )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -1136,7 +1161,10 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
-        serializer = SitePanelSerializer(site_panel)
+        serializer = SitePanelSerializer(
+            site_panel,
+            context={'request': request}
+        )
         headers = self.get_success_headers(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED,
@@ -1201,7 +1229,7 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        site = Project.objects.get(id=request.DATA['site'])
+        site = Site.objects.get(id=request.DATA['site'])
         if not site.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1237,6 +1265,7 @@ class CytometerDetail(
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(CytometerDetail, self).delete(request, *args, **kwargs)
+
 
 class MarkerList(generics.ListCreateAPIView):
     """
@@ -1558,7 +1587,8 @@ class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
 
 class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint for listing and creating a SampleCollectionMember.
+    API endpoint for listing and creating a SampleCollectionMember. Note
+    this API POST takes a list of instances.
     """
 
     model = SampleCollectionMember
@@ -1566,7 +1596,25 @@ class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView)
     filter_fields = ('sample_collection', 'sample')
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.DATA, many=True)
+        data = request.DATA
+
+        if not isinstance(data, list):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # check the comp matrix text, see if one already exists and use
+        # that FrozenCompensation id, if not create a new one
+        for d in data:
+            try:
+                # find any matching matrices by SHA-1
+                sha1 = hashlib.sha1(d['compensation']).hexdigest()
+                comp = FrozenCompensation.objects.get(sha1=sha1)
+            except ObjectDoesNotExist:
+                comp = FrozenCompensation(matrix_text=d['compensation'])
+                comp.save()
+
+            d['compensation'] = comp.id
+
+        serializer = self.get_serializer(data=data, many=True)
         if serializer.is_valid():
             serializer.save()
             headers = self.get_success_headers(serializer.data)
@@ -1752,7 +1800,6 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         site = get_object_or_404(Site, id=request.DATA['site'])
         if not site.has_add_permission(request.user):
             raise PermissionDenied
-
 
         matrix_text = request.DATA['matrix_text'].splitlines(False)
         if not len(matrix_text) > 1:
@@ -2160,14 +2207,12 @@ class ProcessRequestOutputList(
     """
     API endpoint for listing and creating a ProcessRequestOutput.
     """
-
     model = ProcessRequestOutput
     serializer_class = ProcessRequestOutputSerializer
 
     def post(self, request, *args, **kwargs):
         """
         Override post to ensure user is a worker.
-        Also removing the 'sample_file' field since it has the server path.
         """
         if hasattr(self.request.user, 'worker'):
             try:
@@ -2190,3 +2235,136 @@ class ProcessRequestOutputList(
                 request, *args, **kwargs)
             return response
         return Response(data={'detail': 'Bad request'}, status=400)
+
+
+class ClusterList(
+        LoginRequiredMixin,
+        generics.ListCreateAPIView
+    ):
+    """
+    API endpoint for listing and creating a Cluster.
+    """
+    model = Cluster
+    serializer_class = ClusterSerializer
+    filter_fields = ('process_request',)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user is a worker.
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                process_request = ProcessRequest.objects.get(
+                    id=request.DATA['process_request'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # ensure ProcessRequest is assigned to this worker
+            if process_request.worker != worker:
+                return Response(
+                    data={
+                        'detail': 'Request is not assigned to this worker'
+                    },
+                    status=400)
+
+            # if we get here, the worker is bonafide! "He's a suitor!"
+            response = super(ClusterList, self).post(request, *args, **kwargs)
+            return response
+        return Response(data={'detail': 'Bad request'}, status=400)
+
+
+class SampleClusterFilter(django_filters.FilterSet):
+    process_request = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProcessRequest.objects.all(),
+        name='cluster__process_request'
+    )
+    cluster_index = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        name='cluster__cluster_index'
+    )
+
+    class Meta:
+        model = SampleCluster
+        fields = [
+            'process_request',
+            'cluster',
+            'cluster_index',
+            'sample'
+        ]
+
+
+class SampleClusterList(
+        LoginRequiredMixin,
+        generics.ListCreateAPIView
+    ):
+    """
+    API endpoint for listing and creating a SampleCluster.
+    """
+    model = SampleCluster
+    serializer_class = SampleClusterSerializer
+    filter_class = SampleClusterFilter
+
+    def post(self, request, *args, **kwargs):
+        """
+        Override post to ensure user is a worker and matches the
+        ProcessRequest and save all relations in an atomic transaction
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                cluster = Cluster.objects.get(id=request.DATA['cluster_id'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # ensure ProcessRequest is assigned to this worker
+            if cluster.process_request.worker != worker:
+                return Response(
+                    data={
+                        'detail': 'Request is not assigned to this worker'
+                    },
+                    status=400)
+        else:
+            # only workers can post SampleClusters
+            return Response(data={'detail': 'Bad request'}, status=400)
+
+        # if we get here, the worker is bonafide! "He's a suitor!"
+        # we can create the SampleCluster instance now,
+        # but we'll do so inside an atomic transaction
+        try:
+            sample = Sample.objects.get(id=request.DATA['sample_id'])
+
+            with transaction.atomic():
+                sample_cluster = SampleCluster(
+                    cluster=cluster,
+                    sample=sample,
+                )
+                sample_cluster.clean()
+                sample_cluster.save()
+
+                # now create SampleClusterParameter instances
+                for param in request.DATA['parameters']:
+                    scp = SampleClusterParameter.objects.create(
+                        sample_cluster=sample_cluster,
+                        channel=param,
+                        location=request.DATA['parameters'][param]
+                    )
+
+                # and finally the EventClassification instances
+                for event_index in request.DATA['event_indices']:
+                    scp = EventClassification.objects.create(
+                        sample_cluster=sample_cluster,
+                        event_index=event_index,
+                    )
+
+        except Exception as e:  # catch any exception to rollback changes
+            return Response(data={'detail': e.message}, status=400)
+
+        serializer = SampleClusterSerializer(
+            sample_cluster,
+            context={'request': request}
+        )
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)

@@ -43,5 +43,8 @@
       </tbody>
     </table>
 
-    <p ng-show="projects.length == 0">You do not belong to any projects.</p>
+    <div ng-show="projects.length == 0">
+      <p>You do not belong to any projects.</p>
+      <a class="btn btn-default btn-sm" ng-click="init_form(null)" ng-show="user.superuser">Add Project</a>
+    </div>
 </div>

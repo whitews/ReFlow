@@ -7,7 +7,7 @@
 
     <div class="form-group">
       <label class="col-md-3 control-label">Subject Group</label>
-      <select ng-model="instance.subject_group" ng-required="true" ng-options="s.id as s.group_name for s in subject_groups">
+      <select ng-model="instance.subject_group" ng-options="s.id as s.group_name for s in subject_groups">
       </select>
       <strong ng-show="errors.group_name" class="help-inline text-danger">
         {{ errors.subject_group.join(', ') }}
@@ -16,7 +16,7 @@
 
     <div class="form-group">
       <label class="col-md-3 control-label">Subject Code</label>
-      <input maxlength="128" type="text" ng-model="instance.subject_code" />
+      <input maxlength="128" type="text" ng-required="true" ng-model="instance.subject_code" />
       <strong ng-show="errors.group_name" class="help-inline text-danger">
         {{ errors.subject_code.join(', ') }}
       </strong>
