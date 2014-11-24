@@ -676,8 +676,8 @@ class VisitTypeDetail(
     serializer_class = VisitTypeSerializer
 
     def put(self, request, *args, **kwargs):
-        project = Project.objects.get(id=kwargs['pk'])
-        if not project.has_modify_permission(request.user):
+        visit_type = VisitType.objects.get(id=kwargs['pk'])
+        if not visit_type.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(VisitTypeDetail, self).put(request, *args, **kwargs)
