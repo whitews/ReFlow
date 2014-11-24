@@ -1,10 +1,3 @@
-var ModalFormCtrl = function ($scope, $modalInstance, instance) {
-    $scope.instance = instance;
-    $scope.ok = function () {
-        $modalInstance.close();
-    };
-};
-
 app.controller(
     'MainController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
@@ -168,7 +161,7 @@ app.controller(
             // launch form modal
             var modalInstance = $modal.open({
                 templateUrl: MODAL_URLS.SUBJECT_GROUP,
-                controller: ModalFormCtrl,
+                controller: 'ModalFormCtrl',
                 resolve: {
                     instance: function() {
                         return proposed_instance;
@@ -217,7 +210,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS.SUBJECT,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -251,7 +244,7 @@ app.controller(
                 // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.SITE,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -319,7 +312,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS.CYTOMETER,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -369,7 +362,7 @@ app.controller(
                 // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.VISIT_TYPE,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -419,7 +412,7 @@ app.controller(
                 // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.STIMULATION,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -598,7 +591,7 @@ app.controller(
                 var proposed_instance = angular.copy(instance);
                 $modal.open({
                     templateUrl: MODAL_URLS.SAMPLE,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -735,7 +728,7 @@ app.controller(
                 // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.BEAD_SAMPLE,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -802,7 +795,7 @@ app.controller(
                 // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.COMPENSATION,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -817,7 +810,7 @@ app.controller(
                 // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.COMPENSATION_MATRIX,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     size: 'lg',
                     resolve: {
                         instance: function() {

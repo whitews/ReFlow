@@ -1,10 +1,3 @@
-var ModalFormCtrl = function ($scope, $modalInstance, instance) {
-    $scope.instance = instance;
-    $scope.ok = function () {
-        $modalInstance.close();
-    };
-};
-
 app.controller(
     'AdminController',
     ['$scope', '$modal', function ($scope, $modal) {
@@ -15,7 +8,7 @@ app.controller(
             // launch form modal
             var modalInstance = $modal.open({
                 templateUrl: MODAL_URLS[form_type],
-                controller: ModalFormCtrl,
+                controller: 'ModalFormCtrl',
                 resolve: {
                     instance: function() {
                         return proposed_instance;
@@ -55,7 +48,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS.SPECIMEN,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -136,7 +129,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS.MARKER,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -218,7 +211,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS.FLUOROCHROME,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -299,7 +292,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS.WORKER,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
