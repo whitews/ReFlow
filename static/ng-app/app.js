@@ -82,8 +82,7 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         url: 'admin/',
         views: {
             '@': {
-                templateUrl: '/static/ng-app/partials/admin.html',
-                controller: 'AdminController'
+                templateUrl: '/static/ng-app/partials/admin.html'
             }
         },
         data: {

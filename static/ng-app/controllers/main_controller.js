@@ -1,20 +1,38 @@
 app.controller(
     'MainController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.$on('updateProjects', function () {
-            ModelService.reloadProjects();
-        });
-        $scope.$on('projectsUpdated', function () {
-            $scope.projects = ModelService.getProjects();
-        });
+    ['$scope', '$modal', 'ModelService',
+        function ($scope, $modal, ModelService) {
+            $scope.$on('updateProjects', function () {
+                ModelService.reloadProjects();
+            });
+            $scope.$on('projectsUpdated', function () {
+                $scope.projects = ModelService.getProjects();
+            });
 
-        if ($scope.projects === undefined) {
-            ModelService.reloadProjects();
+            if ($scope.projects === undefined) {
+                ModelService.reloadProjects();
+            }
+
+            $scope.user = ModelService.user;
+
+            $scope.init_form = function(instance, form_type) {
+                var proposed_instance = angular.copy(instance);
+                $scope.errors = [];
+
+                // launch form modal
+                var modalInstance = $modal.open({
+                    templateUrl: MODAL_URLS[form_type],
+                    controller: 'ModalFormCtrl',
+                    resolve: {
+                        instance: function() {
+                            return proposed_instance;
+                        }
+                    }
+                });
+            };
         }
-
-        $scope.user = ModelService.user;
-    }
-]);
+    ]
+);
 
 app.controller(
     'ProjectListController',
