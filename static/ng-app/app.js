@@ -44,6 +44,8 @@ var MODAL_URLS = {
     'MARKER':             'static/ng-app/partials/marker-form.html',
     'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
     'WORKER':             'static/ng-app/partials/worker-form.html',
+    'USER':               'static/ng-app/partials/user-form.html',
+    'CHOOSE_USER':        'static/ng-app/partials/user-choose.html',
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',

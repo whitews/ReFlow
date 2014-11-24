@@ -6,7 +6,7 @@
               <h4>Sites <span class="badge badge-inverse align-top">{{ current_project.sites.length }}</span></h4>
 
               <div class="btn-group" ng-show="can_add_data" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(null)">
+                  <a class="btn btn-default btn-sm" ng-click="init_form(null, 'SITE')">
                       Add Site
                   </a>
               </div>
@@ -24,7 +24,7 @@
       <tbody>
         <tr ng-repeat="site in current_project.sites">
           <td class="no-wrap" width="1%">
-            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(site)" tooltip="Edit" tooltip-placement="bottom">
+            <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_form(site, 'SITE')" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
             </a>
             <a class="btn btn-default btn-xs" ng-show="can_modify_project" ng-click="init_delete(site, 'SITE_DELETE')" tooltip="Delete" tooltip-placement="bottom">

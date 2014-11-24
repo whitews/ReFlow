@@ -3,9 +3,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
         'Specimen',
-        function ($scope, $controller, $modal, Specimen) {
+        function ($scope, $controller, Specimen) {
             // Inherits MainController $scope
             $controller('MainController', {$scope: $scope});
 
@@ -19,22 +18,6 @@ app.controller(
             $scope.$on('updateSpecimens', function () {
                 $scope.specimens = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.SPECIMEN,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -84,9 +67,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
         'Marker',
-        function ($scope, $controller, $modal, Marker) {
+        function ($scope, $controller, Marker) {
             // Inherits MainController $scope
             $controller('MainController', {$scope: $scope});
 
@@ -100,22 +82,6 @@ app.controller(
             $scope.$on('updateMarkers', function () {
                 $scope.markers = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.MARKER,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -166,9 +132,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
         'Fluorochrome',
-        function ($scope, $controller, $modal, Fluorochrome) {
+        function ($scope, $controller, Fluorochrome) {
             // Inherits MainController $scope
             $controller('MainController', {$scope: $scope});
 
@@ -182,22 +147,6 @@ app.controller(
             $scope.$on('updateFluorochromes', function () {
                 $scope.fluorochromes = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.FLUOROCHROME,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -247,9 +196,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
         'Worker',
-        function ($scope, $controller, $modal, Worker) {
+        function ($scope, $controller, Worker) {
             // Inherits MainController $scope
             $controller('MainController', {$scope: $scope});
 
@@ -263,22 +211,6 @@ app.controller(
             $scope.$on('updateWorkers', function () {
                 $scope.workers = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.WORKER,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );

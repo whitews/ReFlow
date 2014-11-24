@@ -65,19 +65,6 @@ app.controller(
                 $scope.users = get_list();
             });
 
-            $scope.add_user = function() {
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: 'static/ng-app/partials/user-choose.html',
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: null
-                    }
-                });
-            };
-
             $scope.user_test = null;
 
             $scope.query_user = function(username) {
@@ -88,7 +75,7 @@ app.controller(
                 );
 
                 user_test.$promise.then(function (o) {
-                    $scope.user = new User(
+                    $scope.chosen_user = new User(
                         {
                             username: username,
                             project_permissions: [],
@@ -101,14 +88,14 @@ app.controller(
                 });
             };
 
-            $scope.init_form = function(instance) {
+            $scope.init_user_form = function(instance) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
 
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: 'static/ng-app/partials/user-form.html',
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;

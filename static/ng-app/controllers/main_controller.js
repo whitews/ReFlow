@@ -35,33 +35,6 @@ app.controller(
 );
 
 app.controller(
-    'ProjectListController',
-    [
-        '$scope',
-        '$controller',
-        '$modal',
-        'ModelService',
-        function ($scope, $controller, $modal, ModelService) {
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.PROJECT,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
-        }
-    ]
-);
-
-app.controller(
     'ProjectDetailController',
     [
         '$scope',
@@ -115,22 +88,6 @@ app.controller(
                 }
             }
 
-            $scope.init_form = function(instance, form_type) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS[form_type],
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
-
             $scope.init_delete = function(instance, form_type) {
                 $modal.open({
                     templateUrl: MODAL_URLS[form_type],
@@ -148,56 +105,45 @@ app.controller(
 
 app.controller(
     'SubjectGroupController',
-    ['$scope', '$controller', '$stateParams', '$modal', 'SubjectGroup', function ($scope, $controller, $stateParams, $modal, SubjectGroup) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    [
+        '$scope',
+        '$controller',
+        '$stateParams',
+        'SubjectGroup',
+        function ($scope, $controller, $stateParams, SubjectGroup) {
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
-        function get_list() {
-            return SubjectGroup.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
-        }
+            function get_list() {
+                return SubjectGroup.query(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
+            }
 
-        if ($scope.current_project != undefined) {
-            $scope.subject_groups = get_list();
-        } else {
-            $scope.$on('currentProjectSet', function () {
+            if ($scope.current_project != undefined) {
+                $scope.subject_groups = get_list();
+            } else {
+                $scope.$on('currentProjectSet', function () {
+                    $scope.subject_groups = get_list();
+                });
+            }
+
+            $scope.$on('updateSubjectGroups', function () {
                 $scope.subject_groups = get_list();
             });
         }
-
-        $scope.$on('updateSubjectGroups', function () {
-            $scope.subject_groups = get_list();
-        });
-
-        $scope.init_form = function(instance) {
-            var proposed_instance = angular.copy(instance);
-            $scope.errors = [];
-
-            // launch form modal
-            var modalInstance = $modal.open({
-                templateUrl: MODAL_URLS.SUBJECT_GROUP,
-                controller: 'ModalFormCtrl',
-                resolve: {
-                    instance: function() {
-                        return proposed_instance;
-                    }
-                }
-            });
-        };
-    }
-]);
+    ]
+);
 
 app.controller(
     'SubjectController',
     [
         '$scope',
         '$controller',
-        '$modal',
         'Subject',
-        function ($scope, $controller, $modal, Subject) {
+        function ($scope, $controller, Subject) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -220,22 +166,6 @@ app.controller(
             $scope.$on('updateSubjects', function () {
                 $scope.subjects = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.SUBJECT,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -245,31 +175,13 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
-        'Site',
-        function ($scope, $controller, $modal, Site) {
+        function ($scope, $controller) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.$on('updateSites', function () {
                 $scope.current_project.update_sites();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.SITE,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -279,9 +191,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
         'Cytometer',
-        function ($scope, $controller, $modal, Cytometer) {
+        function ($scope, $controller, Cytometer) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -322,22 +233,6 @@ app.controller(
             $scope.$on('updateCytometers', function () {
                 $scope.cytometers = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.CYTOMETER,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -347,9 +242,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
         'VisitType',
-        function ($scope, $controller, $modal, VisitType) {
+        function ($scope, $controller, VisitType) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -372,22 +266,6 @@ app.controller(
             $scope.$on('updateVisitTypes', function () {
                 $scope.visit_types = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.VISIT_TYPE,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -397,9 +275,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
         'Stimulation',
-        function ($scope, $controller, $modal, Stimulation) {
+        function ($scope, $controller, Stimulation) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -422,22 +299,6 @@ app.controller(
             $scope.$on('updateStimulations', function () {
                 $scope.stimulations = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.STIMULATION,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -604,19 +465,6 @@ app.controller(
                     }
                 });
             };
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $modal.open({
-                    templateUrl: MODAL_URLS.SAMPLE,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -738,22 +586,6 @@ app.controller(
                     }
                 });
             };
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.BEAD_SAMPLE,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -805,22 +637,6 @@ app.controller(
             $scope.$on('updateCompensations', function () {
                 $scope.compensations = get_list();
             });
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.COMPENSATION,
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
 
             $scope.show_matrix = function(instance) {
                 $scope.errors = [];

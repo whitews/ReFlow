@@ -6,7 +6,7 @@
               <h4>Workers <span class="badge badge-inverse align-top">{{ workers.length }}</span></h4>
 
               <div class="btn-group" ng-show="user.superuser" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(null)">
+                  <a class="btn btn-default btn-sm" ng-click="init_form(null, 'WORKER')">
                       Add Worker
                   </a>
               </div>
@@ -23,7 +23,7 @@
       <tbody>
         <tr ng-repeat="w in workers">
           <td class="no-wrap" width="1%">
-              <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(w)" tooltip="Edit" tooltip-placement="bottom">
+              <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(w, 'WORKER')" tooltip="Edit" tooltip-placement="bottom">
                 <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
               </a>
           </td>
