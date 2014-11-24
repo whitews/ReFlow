@@ -31,7 +31,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS.PROJECT,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -104,7 +104,7 @@ app.controller(
                 // launch form modal
                 var modalInstance = $modal.open({
                     templateUrl: MODAL_URLS[form_type],
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -116,7 +116,7 @@ app.controller(
             $scope.init_delete = function(instance, form_type) {
                 $modal.open({
                     templateUrl: MODAL_URLS[form_type],
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return instance;
