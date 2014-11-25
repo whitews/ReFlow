@@ -2,18 +2,17 @@ app.controller(
     'MainController',
     ['$scope', '$modal', 'ModelService',
         function ($scope, $modal, ModelService) {
-            $scope.$on('updateProjects', function () {
-                ModelService.reloadProjects();
-            });
-            $scope.$on('projectsUpdated', function () {
+            $scope.projects = ModelService.getProjects();
+
+            $scope.$on('projects:updated', function () {
                 $scope.projects = ModelService.getProjects();
             });
 
-            if ($scope.projects === undefined) {
-                ModelService.reloadProjects();
-            }
-
             $scope.user = ModelService.user;
+
+            $scope.$on('current_project:updated', function () {
+                $scope.current_project = ModelService.current_project;
+            });
 
             $scope.init_form = function(instance, form_type) {
                 var proposed_instance = angular.copy(instance);
@@ -43,49 +42,8 @@ app.controller(
         '$modal',
         'ModelService',
         function ($scope, $controller, $stateParams, $modal, ModelService) {
-            function get_project() {
-                return ModelService.getProjectById(
-                    $stateParams.projectId
-                );
-            }
-
-            if ($scope.projects != undefined) {
-                $scope.current_project = get_project();
-            }
-
-            $scope.$on('projectsUpdated', function () {
-                $scope.current_project = get_project();
-                $scope.$broadcast('currentProjectSet');
-            });
-
-            $scope.errors = [];
-            $scope.can_view_project = false;
-            $scope.can_modify_project = false;
-            $scope.can_add_data = false;
-            $scope.can_manage_users = false;
-
-            $scope.$watch('current_project.permissions', function () {
-                update_permissions();
-            });
-
-            function update_permissions() {
-                if ($scope.current_project != null) {
-                    if ($scope.current_project.permissions.indexOf('view_project_data') != -1 || ModelService.user.superuser) {
-                        $scope.can_view_project = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('add_project_data') != -1 || ModelService.user.superuser) {
-                        $scope.can_add_data = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('modify_project_data') != -1 || ModelService.user.superuser) {
-                        $scope.can_modify_project = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('submit_process_requests') != -1 || ModelService.user.superuser) {
-                        $scope.can_process_data = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('manage_project_users') != -1 || ModelService.user.superuser) {
-                        $scope.can_manage_users = true;
-                    }
-                }
+            if (!$scope.current_project && $stateParams.hasOwnProperty('projectId')) {
+                ModelService.setCurrentProjectById($stateParams.projectId);
             }
 
             $scope.init_delete = function(instance, form_type) {
@@ -108,30 +66,26 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$stateParams',
-        'SubjectGroup',
-        function ($scope, $controller, $stateParams, SubjectGroup) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return SubjectGroup.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+            if ($scope.current_project) {
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.subject_groups = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.subject_groups = get_list();
-                });
-            }
+            $scope.$on('current_project:updated', function () {
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
+                );
+            });
 
-            $scope.$on('updateSubjectGroups', function () {
-                $scope.subject_groups = get_list();
+            $scope.$on('subject_groups:updated', function () {
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
+                );
             });
         }
     ]
@@ -498,15 +452,13 @@ app.controller(
         'ModelService',
         'BeadSample',
         'PanelTemplate',
-        'Site',
         function (
             $scope,
             $modal,
             $controller,
             ModelService,
             BeadSample,
-            PanelTemplate,
-            Site
+            PanelTemplate
         ) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});

@@ -11,6 +11,7 @@ service.factory('ModelService', function(
         Marker,
         Fluorochrome,
         Project,
+        SubjectGroup,
         Site,
         SitePanel,
         SampleMetadata,
@@ -27,51 +28,6 @@ service.factory('ModelService', function(
     service.current_panel_template = null;
 
     service.user = User.get();
-
-    function refresh_projects() {
-        service.projects = Project.query();
-
-        service.projects.$promise.then(function (projects) {
-            $rootScope.projects = projects;
-            projects.forEach(function (p) {
-                p.getUserPermissions().$promise.then(function (value) {
-                    p.permissions = value.permissions;
-                });
-
-                p.update_sites = function() {
-                    // Add user's sites
-                    p.sites = [];
-                    var sites = Site.query({project: p.id});
-                    sites.$promise.then(function (sites) {
-                        sites.forEach(function (s) {
-                            s.can_modify = false;
-                            p.sites.push(s);
-                            s.getUserPermissions().$promise.then(function (value) {
-                                s.permissions = value.permissions;
-                                if (value.hasOwnProperty('permissions')) {
-                                    value.permissions.forEach(function (p) {
-                                        if (p === 'modify_site_data') {
-                                            s.can_modify = true;
-                                        }
-                                    });
-                                }
-                            });
-                        });
-
-                        // create site lookup by primary key
-                        p.site_lookup = {};
-                        for (var i = 0, len = p.sites.length; i < len; i++) {
-                            p.site_lookup[p.sites[i].id] = p.sites[i];
-                        }
-                    });
-                };
-
-                p.update_sites();
-
-            });
-            $rootScope.$broadcast('projectsUpdated');
-        });
-    }
 
     service.getMarkers = function() {
         return Marker.query();
@@ -95,19 +51,76 @@ service.factory('ModelService', function(
         );
     };
 
-    service.getProjects = function () {
-        return $rootScope.projects;
-    };
-    service.reloadProjects = function () {
-        refresh_projects();
+    // Project services
+    service.getProjects = function() {
+        return Project.query({});
     };
 
-    service.getProjectById = function(id) {
-        var project = $.grep($rootScope.projects, function(e){ return e.id == id; });
-        if (project.length > 0) {
-            return project[0];
+    service.setCurrentProjectById = function(id) {
+        service.current_project = Project.get({'id':id});
+        service.current_project.$promise.then(function(p) {
+            p.permissions = {
+                'can_view_project': false,
+                'can_add_data': false,
+                'can_modify_project': false,
+                'can_process_data': false,
+                'can_manage_users': false
+            };
+            p.getUserPermissions().$promise.then(function (result) {
+
+                if (result.permissions.indexOf('view_project_data') != -1) {
+                    p.permissions.can_view_project = true;
+                }
+                if (result.permissions.indexOf('add_project_data') != -1) {
+                    p.permissions.can_add_data = true;
+                }
+                if (result.permissions.indexOf('modify_project_data') != -1) {
+                    p.permissions.can_modify_project = true;
+                }
+                if (result.permissions.indexOf('submit_process_requests') != -1) {
+                    p.permissions.can_process_data = true;
+                }
+                if (result.permissions.indexOf('manage_project_users') != -1) {
+                    p.permissions.can_manage_users = true;
+                }
+
+                $rootScope.$broadcast('current_project:updated');
+            });
+        }, function() {
+            $rootScope.$broadcast('current_project:invalid');
+        });
+    };
+
+    service.createUpdateProject = function(instance) {
+        var errors = null;
+        var response;
+
+        if (instance.id) {
+            response = Project.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = Project.save(instance);
         }
-        return null;
+
+        response.$promise.then(function () {
+            // let everyone know the projects have changed
+            $rootScope.$broadcast('projects:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+
+    // Subject Group services
+    service.getSubjectGroups = function(project_id) {
+        return SubjectGroup.query(
+            {
+                'project': project_id
+            }
+        );
     };
 
     service.setCurrentSite = function (value) {
