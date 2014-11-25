@@ -15,7 +15,8 @@ from django.core.files import File
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
-from guardian.shortcuts import get_objects_for_user, get_users_with_perms
+from guardian.shortcuts import \
+    get_perms, get_objects_for_user, get_users_with_perms
 from guardian.models import UserObjectPermission
 from rest_framework.authtoken.models import Token
 
@@ -272,10 +273,7 @@ class Project(ProtectedModel):
         return user_set
 
     def get_user_permissions(self, user):
-        return UserObjectPermission.objects.filter(
-            user=user,
-            content_type=ContentType.objects.get_for_model(Project),
-            object_pk=self.id)
+        return get_perms(user, self)
 
     def get_cytometer_count(self):
         return Cytometer.objects.filter(site__project=self).count()

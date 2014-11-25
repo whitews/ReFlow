@@ -127,8 +127,7 @@ def get_project_permissions(request, project):
     if not (request.user in project.get_project_users() or request.user.is_superuser):
         raise PermissionDenied
 
-    perms = project.get_user_permissions(request.user).values_list(
-        'permission__codename', flat=True)
+    perms = project.get_user_permissions(request.user)
 
     return Response({'permissions': perms})
 
