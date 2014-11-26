@@ -112,14 +112,6 @@ app.controller(
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;
 
-            function findFluoroByID(id) {
-                for (var i = 0; i < $scope.model.fluorochromes.length; i++) {
-                    if ($scope.model.fluorochromes[i].id === id) {
-                        return $scope.model.fluorochromes[i].fluorochrome_abbreviation;
-                    }
-                }
-            }
-
             // may be trying to edit an existing template
             if ($stateParams.templateID) {
                 var template_id = $stateParams.templateID;
