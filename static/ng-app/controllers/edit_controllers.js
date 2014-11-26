@@ -186,45 +186,22 @@ app.controller(
 
 app.controller(
     'StimulationEditController',
-    [
-        '$scope',
-        '$rootScope',
-        '$controller',
-        'Stimulation',
-        function ($scope, $rootScope, $controller, Stimulation) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
 
-            $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Stimulation.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    instance.project = $scope.current_project.id;
+        $scope.create_update = function (instance) {
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
 
-                    response = Stimulation.save(
-                        $scope.instance
-                    );
-                }
+            $scope.errors = ModelService.createUpdateStimulation(instance);
 
-                response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateStimulations');
-
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
+            if (!$scope.errors) {
+                $scope.ok();
+            }
+        };
+    }
+]);
 
 app.controller(
     'SampleEditController',

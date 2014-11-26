@@ -216,29 +216,28 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'Stimulation',
-        function ($scope, $controller, Stimulation) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return Stimulation.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+            if ($scope.current_project) {
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.stimulations = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.stimulations = get_list();
-                });
-            }
+            $scope.$on('current_project:updated', function () {
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
+                );
+            });
 
-            $scope.$on('updateStimulations', function () {
-                $scope.stimulations = get_list();
+            $scope.$on('stimulations:updated', function () {
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
+                );
             });
         }
     ]
