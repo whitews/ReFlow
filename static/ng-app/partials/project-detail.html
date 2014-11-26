@@ -6,7 +6,7 @@
               <h4>{{ current_project.project_name }}</h4>
               <div style="position:absolute; right:0;top:0;">
                 <div class="btn-group">
-                    <a class="btn btn-danger btn-sm" ng-click="init_delete(current_project, 'PROJECT_DELETE')" ng-show="current_project.permissions.can_modify_project">Delete Project</a>
+                    <a class="btn btn-danger btn-sm" ng-click="init_form(current_project, 'PROJECT_DELETE')" ng-show="current_project.permissions.can_modify_project">Delete Project</a>
                 </div>
 
                 <div class="btn-group">
