@@ -23,7 +23,7 @@ app.controller(
         if ($scope.current_project != undefined) {
             $scope.panel_templates = get_list();
         } else {
-            $scope.$on('currentProjectSet', function () {
+            $scope.$on('current_project:updated', function () {
                 $scope.panel_templates = get_list();
             });
         }
@@ -77,14 +77,15 @@ app.controller(
 app.controller(
     'PanelTemplateCreateController',
     [
-        '$scope', '$state', '$controller', '$stateParams', 'PanelTemplate', 'Marker', 'Fluorochrome', 'ParameterValueType',
-        function ($scope, $state, $controller, $stateParams, PanelTemplate, Marker, Fluorochrome, ParameterValueType) {
+        '$scope', '$state', '$controller', '$stateParams', 'ModelService', 'PanelTemplate',
+        function ($scope, $state, $controller, $stateParams, ModelService, PanelTemplate) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.model = {};
-            $scope.model.markers = Marker.query();
-            $scope.model.fluorochromes = Fluorochrome.query();
+            $scope.model.markers = ModelService.getMarkers();
+            $scope.model.fluorochromes = ModelService.getFluorochromes();
+            $scope.model.parameter_value_types = ModelService.getParameterValueTypes();
 
             $scope.model.panel_template_types = [
                 ["FS", "Full Stain"],
@@ -107,7 +108,6 @@ app.controller(
                 ["TIM", "Time"],
                 ["NUL", "Null"]
             ];
-            $scope.model.parameter_value_types = ParameterValueType.query();
 
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;

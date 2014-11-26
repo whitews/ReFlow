@@ -23,7 +23,7 @@ app.controller(
             if ($scope.current_project != undefined) {
                 $scope.process_requests = get_list();
             } else {
-                $scope.$on('currentProjectSet', function () {
+                $scope.$on('current_project:updated', function () {
                     $scope.process_requests = get_list();
                 });
             }
