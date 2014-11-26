@@ -5,7 +5,8 @@ app.controller(
         '$controller',
         'ProjectUser',
         'UserPermissions',
-        function ($scope, $controller, ProjectUser, UserPermissions) {
+        'ModelService',
+        function ($scope, $controller, ProjectUser, UserPermissions, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -37,7 +38,7 @@ app.controller(
                         // get user's site-level  permissions for sites in the
                         // current project
                         user.sites = [];
-                        $scope.current_project.sites.forEach(function (site) {
+                        $scope.sites.forEach(function (site) {
                             site_perm_response = UserPermissions.query(
                                 {
                                     'model': 'site',
@@ -58,13 +59,22 @@ app.controller(
                 return users;
             }
             if ($scope.current_project) {
-                $scope.users = get_list();
+                $scope.sites = ModelService.getSites($scope.current_project.id);
+                $scope.sites.$promise.then(function () {
+                    $scope.users = get_list();
+                })
             }
             $scope.$on('current_project:updated', function () {
-                $scope.users = get_list();
+                $scope.sites = ModelService.getSites($scope.current_project.id);
+                $scope.sites.$promise.then(function () {
+                    $scope.users = get_list();
+                })
             });
             $scope.$on('updateUserPermissions', function () {
-                $scope.users = get_list();
+                $scope.sites = ModelService.getSites($scope.current_project.id);
+                $scope.sites.$promise.then(function () {
+                    $scope.users = get_list();
+                })
             });
         }
     ]
