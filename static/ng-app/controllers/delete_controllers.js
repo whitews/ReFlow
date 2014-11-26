@@ -242,27 +242,14 @@ app.controller(
     'SubjectDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Subject',
-        function ($scope, $rootScope, $controller, Subject) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Subject.delete({id: instance.id });
+                $scope.errors = ModelService.destroySubject(instance);
 
-                response.$promise.then(function () {
-                    $rootScope.$broadcast('updateSubjects');
-
-                    // close modal
+                if (!$scope.errors) {
                     $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
+                }
             };
         }
     ]

@@ -13,6 +13,7 @@ service.factory('ModelService', function(
         Fluorochrome,
         Project,
         SubjectGroup,
+        Subject,
         Site,
         SitePanel,
         SampleMetadata,
@@ -156,6 +157,54 @@ service.factory('ModelService', function(
         $q.all([response.$promise]).then(function () {
             // let everyone know the subject groups have changed
             $rootScope.$broadcast('subject_groups:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+    
+    // Subject services
+    service.getSubjects = function(project_id) {
+        return Subject.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+
+    service.createUpdateSubject = function(instance) {
+        var errors = null;
+        var response;
+
+        if (instance.id) {
+            response = Subject.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = Subject.save(instance);
+        }
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the subject groups have changed
+            $rootScope.$broadcast('subjects:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+
+    service.destroySubject = function (instance) {
+        var errors = null;
+        var response;
+
+        response = Subject.delete({id: instance.id });
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the subjects have changed
+            $rootScope.$broadcast('subjects:updated');
         }, function (error) {
             errors = error.data;
         });

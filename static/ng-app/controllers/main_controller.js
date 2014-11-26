@@ -92,19 +92,19 @@ app.controller(
             $controller('ProjectDetailController', {$scope: $scope});
 
             if ($scope.current_project) {
-                $scope.subject_groups = ModelService.getSubjects(
+                $scope.subjects = ModelService.getSubjects(
                     $scope.current_project.id
                 );
             }
 
             $scope.$on('current_project:updated', function () {
-                $scope.subject_groups = ModelService.getSubjects(
+                $scope.subjects = ModelService.getSubjects(
                     $scope.current_project.id
                 );
             });
 
-            $scope.$on('subject_groups:updated', function () {
-                $scope.subject_groups = ModelService.getSubjects(
+            $scope.$on('subjects:updated', function () {
+                $scope.subjects = ModelService.getSubjects(
                     $scope.current_project.id
                 );
             });

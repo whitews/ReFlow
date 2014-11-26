@@ -56,52 +56,25 @@ app.controller(
 
 app.controller(
     'SubjectEditController',
-    [
-        '$scope',
-        '$rootScope',
-        '$controller',
-        'Subject',
-        'SubjectGroup',
-        function ($scope, $rootScope, $controller, Subject, SubjectGroup) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
+        $scope.subject_groups = ModelService.getSubjectGroups(
+            $scope.current_project.id
+        );
 
-            $scope.subject_groups = SubjectGroup.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+        $scope.create_update = function (instance) {
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
 
-            $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Subject.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    instance.project = $scope.current_project.id;
+            $scope.errors = ModelService.createUpdateSubject(instance);
 
-                    response = Subject.save(
-                        $scope.instance
-                    );
-                }
-
-                response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateSubjects');
-
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
+            if (!$scope.errors) {
+                $scope.ok();
+            }
+        };
+    }
+]);
 
 app.controller(
     'SiteEditController',
