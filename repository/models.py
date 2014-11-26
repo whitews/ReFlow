@@ -624,10 +624,15 @@ class Site(ProtectedModel):
         return compensations
 
     def get_user_permissions(self, user):
-        return UserObjectPermission.objects.filter(
-            user=user,
-            content_type=ContentType.objects.get_for_model(Site),
-            object_pk=self.id)
+        perms = get_perms(user, self)
+        # we don't want the global perms, just the object-perms
+        perms_to_remove = ['add_site', 'change_site', 'delete_site']
+        for p in perms_to_remove:
+            try:
+                perms.remove(p)
+            except ValueError:
+                continue
+        return perms
 
     def has_view_permission(self, user):
         if user.has_perm('view_project_data', self.project):

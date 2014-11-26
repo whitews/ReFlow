@@ -141,8 +141,7 @@ def get_site_permissions(request, site):
     if not site.has_view_permission(request.user):
         raise PermissionDenied
 
-    perms = site.get_user_permissions(request.user).values_list(
-        'permission__codename', flat=True)
+    perms = site.get_user_permissions(request.user)
 
     return Response({'permissions': perms})
 
