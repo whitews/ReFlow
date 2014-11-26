@@ -44,18 +44,6 @@ app.controller(
             if (!$scope.current_project && $stateParams.hasOwnProperty('projectId')) {
                 ModelService.setCurrentProjectById($stateParams.projectId);
             }
-
-            $scope.init_delete = function(instance, form_type) {
-                $modal.open({
-                    templateUrl: MODAL_URLS[form_type],
-                    controller: 'ModalFormCtrl',
-                    resolve: {
-                        instance: function() {
-                            return instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -67,6 +55,8 @@ app.controller(
         '$controller',
         'ModelService',
         function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
             if ($scope.current_project) {
@@ -95,29 +85,28 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'Subject',
-        function ($scope, $controller, Subject) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return Subject.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+            if ($scope.current_project) {
+                $scope.subject_groups = ModelService.getSubjects(
+                    $scope.current_project.id
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.subjects = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.subjects = get_list();
-                });
-            }
+            $scope.$on('current_project:updated', function () {
+                $scope.subject_groups = ModelService.getSubjects(
+                    $scope.current_project.id
+                );
+            });
 
-            $scope.$on('updateSubjects', function () {
-                $scope.subjects = get_list();
+            $scope.$on('subject_groups:updated', function () {
+                $scope.subject_groups = ModelService.getSubjects(
+                    $scope.current_project.id
+                );
             });
         }
     ]
