@@ -36,10 +36,8 @@ service.factory('ModelService', function(
         return Marker.query();
     };
 
-    service.fluorochromes = Fluorochrome.query();
-
     service.getFluorochromes = function () {
-        return this.fluorochromes;
+        return Fluorochrome.query();
     };
 
     service.getParameterFunctions = function() {
