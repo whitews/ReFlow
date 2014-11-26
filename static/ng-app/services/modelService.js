@@ -14,6 +14,7 @@ service.factory('ModelService', function(
         Project,
         SubjectGroup,
         Subject,
+        VisitType,
         Site,
         SitePanel,
         SampleMetadata,
@@ -205,6 +206,54 @@ service.factory('ModelService', function(
         $q.all([response.$promise]).then(function () {
             // let everyone know the subjects have changed
             $rootScope.$broadcast('subjects:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+    
+    // Visit Type services
+    service.getVisitTypes = function(project_id) {
+        return VisitType.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+
+    service.createUpdateVisitType = function(instance) {
+        var errors = null;
+        var response;
+
+        if (instance.id) {
+            response = VisitType.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = VisitType.save(instance);
+        }
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the visit types have changed
+            $rootScope.$broadcast('visit_types:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+
+    service.destroyVisitType = function (instance) {
+        var errors = null;
+        var response;
+
+        response = VisitType.delete({id: instance.id });
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the visit types have changed
+            $rootScope.$broadcast('visit_types:updated');
         }, function (error) {
             errors = error.data;
         });

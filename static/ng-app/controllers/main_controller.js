@@ -184,29 +184,28 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'VisitType',
-        function ($scope, $controller, VisitType) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return VisitType.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+            if ($scope.current_project) {
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.visit_types = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.visit_types = get_list();
-                });
-            }
+            $scope.$on('current_project:updated', function () {
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
+                );
+            });
 
-            $scope.$on('updateVisitTypes', function () {
-                $scope.visit_types = get_list();
+            $scope.$on('visit_types:updated', function () {
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
+                );
             });
         }
     ]
