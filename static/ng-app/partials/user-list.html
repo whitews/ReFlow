@@ -6,7 +6,7 @@
               <h4>Users <span class="badge badge-inverse align-top">{{ users.length }}</span></h4>
 
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-default btn-sm" ng-show="can_manage_users" ng-click="init_form(null, 'CHOOSE_USER')">
+                <a class="btn btn-default btn-sm" ng-show="current_project.permissions.can_manage_users" ng-click="init_form(null, 'CHOOSE_USER')">
                   Add User
                 </a>
               </div>
@@ -22,7 +22,7 @@
       <tbody>
         <tr ng-repeat="user in users">
           <td class="no-wrap" width="1%">
-            <a class="btn btn-default btn-xs" ng-show="can_manage_users" ng-click="init_form(user)" tooltip="Edit" tooltip-placement="bottom">
+            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_manage_users" ng-click="init_form(user)" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
             </a>
             {{ user.username }}
