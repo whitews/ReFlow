@@ -156,27 +156,14 @@ app.controller(
     'SiteDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Site',
-        function ($scope, $rootScope, $controller, Site) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Site.delete({id: instance.id });
+                $scope.errors = ModelService.destroySite(instance);
 
-                response.$promise.then(function () {
-                    $rootScope.$broadcast('updateSites');
-
-                    // close modal
+                if (!$scope.errors) {
                     $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
+                }
             };
         }
     ]

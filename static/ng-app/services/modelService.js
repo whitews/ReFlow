@@ -28,6 +28,7 @@ service.factory('ModelService', function(
         SampleCollectionMember,
         SampleCluster) {
     var service = {};
+    
     service.current_site = null;
     service.current_sample = null;
     service.current_panel_template = null;
@@ -325,6 +326,55 @@ service.factory('ModelService', function(
 
         return errors;
     };
+    
+    // Site services
+    service.getSites = function(project_id) {
+        return Site.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+
+    service.createUpdateSite = function(instance) {
+        var errors = null;
+        var response;
+
+        if (instance.id) {
+            response = Site.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = Site.save(instance);
+        }
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the sites have changed
+            $rootScope.$broadcast('sites:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+
+    service.destroySite = function (instance) {
+        var errors = null;
+        var response;
+
+        response = Site.delete({id: instance.id });
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the sites have changed
+            $rootScope.$broadcast('sites:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+    
 
     service.setCurrentSite = function (value) {
         this.current_site = value;
