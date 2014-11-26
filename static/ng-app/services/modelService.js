@@ -147,6 +147,22 @@ service.factory('ModelService', function(
         return errors;
     };
 
+    service.destroySubjectGroup = function (instance) {
+        var errors = null;
+        var response;
+
+        response = SubjectGroup.delete({id: instance.id });
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the subject groups have changed
+            $rootScope.$broadcast('subject_groups:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+
     service.setCurrentSite = function (value) {
         this.current_site = value;
         $rootScope.$broadcast('siteChanged');
