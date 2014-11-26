@@ -22,13 +22,13 @@ app.controller(
 
         if ($scope.current_project != undefined) {
             $scope.panel_templates = get_list();
-        } else {
-            $scope.$on('current_project:updated', function () {
-                $scope.panel_templates = get_list();
-            });
         }
 
-        $scope.$on('updatePanelTemplates', function () {
+        $scope.$on('current_project:updated', function () {
+            $scope.panel_templates = get_list();
+        });
+
+        $scope.$on('panel_templates:updated', function () {
             $scope.panel_templates = get_list();
         });
 

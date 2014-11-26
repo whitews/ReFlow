@@ -16,6 +16,7 @@ service.factory('ModelService', function(
         Subject,
         VisitType,
         Stimulation,
+        PanelTemplate,
         Site,
         SitePanel,
         SampleMetadata,
@@ -301,6 +302,23 @@ service.factory('ModelService', function(
         $q.all([response.$promise]).then(function () {
             // let everyone know the stimulations have changed
             $rootScope.$broadcast('stimulations:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
+    
+    // Panel Template services
+    service.destroyPanelTemplate = function (instance) {
+        var errors = null;
+        var response;
+
+        response = PanelTemplate.delete({id: instance.id });
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the panel templates have changed
+            $rootScope.$broadcast('panel_templates:updated');
         }, function (error) {
             errors = error.data;
         });

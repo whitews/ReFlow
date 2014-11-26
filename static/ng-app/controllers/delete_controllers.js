@@ -186,27 +186,14 @@ app.controller(
     'PanelTemplateDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'PanelTemplate',
-        function ($scope, $rootScope, $controller, PanelTemplate) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = PanelTemplate.delete({id: instance.id });
+                $scope.errors = ModelService.destroyPanelTemplate(instance);
 
-                response.$promise.then(function () {
-                    $rootScope.$broadcast('updatePanelTemplates');
-
-                    // close modal
+                if (!$scope.errors) {
                     $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
+                }
             };
         }
     ]
