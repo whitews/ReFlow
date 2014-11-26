@@ -37,36 +37,19 @@ app.controller(
 
 app.controller(
     'SubjectGroupEditController',
-    ['$scope', '$rootScope', '$controller', 'SubjectGroup', function ($scope, $rootScope, $controller, SubjectGroup) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
-            var response;
-            if (instance.id) {
-                response = SubjectGroup.update(
-                    {id: instance.id },
-                    $scope.instance
-                );
-            } else {
+            if (!instance.id) {
                 instance.project = $scope.current_project.id;
-
-                response = SubjectGroup.save(
-                    $scope.instance
-                );
             }
 
-            response.$promise.then(function () {
-                // notify to update subject group list
-                $rootScope.$broadcast('updateSubjectGroups');
+            $scope.errors = ModelService.createUpdateSubjectGroup(instance);
 
-                // close modal
+            if (!$scope.errors) {
                 $scope.ok();
-
-            }, function (error) {
-                $scope.errors = error.data;
-            });
+            }
         };
     }
 ]);

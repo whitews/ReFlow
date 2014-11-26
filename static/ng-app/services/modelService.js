@@ -7,6 +7,7 @@ var service = angular.module('ReFlowApp');
 service.factory('ModelService', function(
         $rootScope,
         $http,
+        $q,
         User,
         Marker,
         Fluorochrome,
@@ -104,7 +105,7 @@ service.factory('ModelService', function(
             response = Project.save(instance);
         }
 
-        response.$promise.then(function () {
+        $q.all([response.$promise]).then(function () {
             // let everyone know the projects have changed
             $rootScope.$broadcast('projects:updated');
         }, function (error) {
@@ -121,6 +122,29 @@ service.factory('ModelService', function(
                 'project': project_id
             }
         );
+    };
+
+    service.createUpdateSubjectGroup = function(instance) {
+        var errors = null;
+        var response;
+
+        if (instance.id) {
+            response = SubjectGroup.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = SubjectGroup.save(instance);
+        }
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the subject groups have changed
+            $rootScope.$broadcast('subject_groups:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
     };
 
     service.setCurrentSite = function (value) {

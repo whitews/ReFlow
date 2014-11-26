@@ -37,11 +37,10 @@ app.controller(
     'ProjectDetailController',
     [
         '$scope',
-        '$controller',
         '$stateParams',
         '$modal',
         'ModelService',
-        function ($scope, $controller, $stateParams, $modal, ModelService) {
+        function ($scope, $stateParams, $modal, ModelService) {
             if (!$scope.current_project && $stateParams.hasOwnProperty('projectId')) {
                 ModelService.setCurrentProjectById($stateParams.projectId);
             }
