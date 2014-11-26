@@ -1430,8 +1430,8 @@ class StimulationDetail(
     serializer_class = StimulationSerializer
 
     def put(self, request, *args, **kwargs):
-        project = Project.objects.get(id=kwargs['pk'])
-        if not project.has_modify_permission(request.user):
+        stimulation = Stimulation.objects.get(id=kwargs['pk'])
+        if not stimulation.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(StimulationDetail, self).put(request, *args, **kwargs)

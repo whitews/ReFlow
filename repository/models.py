@@ -301,10 +301,14 @@ class Stimulation(ProtectedModel):
     stimulation_description = models.TextField(null=True, blank=True)
 
     def has_view_permission(self, user):
-
         if user.has_perm('view_project_data', self.project):
             return True
 
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
         return False
 
     def clean(self):
