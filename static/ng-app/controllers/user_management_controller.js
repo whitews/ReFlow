@@ -39,7 +39,7 @@ app.controller(
                         // current project
                         user.sites = [];
                         $scope.sites.forEach(function (site) {
-                            site_perm_response = UserPermissions.query(
+                            var site_perm_response = UserPermissions.query(
                                 {
                                     'model': 'site',
                                     'object_pk': site.id,

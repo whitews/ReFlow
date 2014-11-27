@@ -149,13 +149,17 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'Cytometer',
-        function ($scope, $controller, Cytometer) {
+        'ModelService',
+        function ($scope, $controller, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
+            // TODO: still need to allow adding a cytometer if user has
+            // add_site_data privileges for any site...will be tricky
+            // look into ReFlow ModelManager method for Project???
+
             function get_list() {
-                var response = Cytometer.query(
+                var response = ModelService.getCytometers(
                     {
                         'project': $scope.current_project.id
                     }
@@ -164,16 +168,15 @@ app.controller(
                 response.$promise.then(function (objects) {
                     objects.forEach(function (o) {
                         o.can_modify = false;
-                        if ($scope.can_modify_project) {
-                            o.can_modify = true;
-                        } else {
-                            var site = $scope.current_project.site_lookup[o.site];
-                            if (site) {
-                                if (site.can_modify) {
+
+                        var site_perm_response = ModelService.getSitePermissions(o.site);
+                        site_perm_response.$promise.then(function (s) {
+                            if (s.hasOwnProperty('permissions')) {
+                                if (s.permissions.indexOf('modify_site_data')) {
                                     o.can_modify = true;
                                 }
                             }
-                        }
+                        });
                     });
                 });
 
@@ -182,11 +185,10 @@ app.controller(
 
             if ($scope.current_project != undefined) {
                 $scope.cytometers = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.cytometers = get_list();
-                });
             }
+            $scope.$on('current_project:updated', function () {
+                $scope.cytometers = get_list();
+            });
 
             $scope.$on('updateCytometers', function () {
                 $scope.cytometers = get_list();

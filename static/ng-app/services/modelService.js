@@ -18,6 +18,7 @@ service.factory('ModelService', function(
         Stimulation,
         PanelTemplate,
         Site,
+        Cytometer,
         SitePanel,
         SampleMetadata,
         Compensation,
@@ -336,6 +337,10 @@ service.factory('ModelService', function(
         );
     };
 
+    service.getSitePermissions = function (site_id) {
+        return new Site({'id': site_id}).getUserPermissions();
+    };
+
     service.createUpdateSite = function(instance) {
         var errors = null;
         var response;
@@ -374,8 +379,13 @@ service.factory('ModelService', function(
 
         return errors;
     };
-    
 
+    // Cytometer services
+    service.getCytometers = function(query_object) {
+        return Cytometer.query(query_object);
+    };
+
+    // TODO: see where these are used and remove them
     service.setCurrentSite = function (value) {
         this.current_site = value;
         $rootScope.$broadcast('siteChanged');
