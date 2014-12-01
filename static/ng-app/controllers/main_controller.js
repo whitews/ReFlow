@@ -148,50 +148,55 @@ app.controller(
     'CytometerController',
     [
         '$scope',
+        '$q',
         '$controller',
         'ModelService',
-        function ($scope, $controller, ModelService) {
+        function ($scope, $q, $controller, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            // TODO: still need to allow adding a cytometer if user has
-            // add_site_data privileges for any site...will be tricky
-            // look into ReFlow ModelManager method for Project???
+            function populate_cytometers() {
+                var sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                ).$promise;
 
-            function get_list() {
-                var response = ModelService.getCytometers(
+                var cytometers = ModelService.getCytometers(
                     {
                         'project': $scope.current_project.id
                     }
-                );
+                ).$promise;
 
-                response.$promise.then(function (objects) {
-                    objects.forEach(function (o) {
-                        o.can_modify = false;
+                $q.all([sites, cytometers]).then(function (objects) {
+                    $scope.cytometers = objects[1];
 
-                        var site_perm_response = ModelService.getSitePermissions(o.site);
-                        site_perm_response.$promise.then(function (s) {
-                            if (s.hasOwnProperty('permissions')) {
-                                if (s.permissions.indexOf('modify_site_data')) {
-                                    o.can_modify = true;
-                                }
+                    // user has add privileges on at least one site
+                    if (objects[0].length > 0) {
+                        $scope.can_add_data = true;
+                    }
+
+                    $scope.cytometers.forEach(function (c) {
+                        c.can_modify = false;
+
+                        for (var i=0; i<objects[0].length; i++) {
+                            if (c.site == objects[0][i].id) {
+                                c.can_modify = true;
+                                break;
                             }
-                        });
+                        }
+
                     });
                 });
-
-                return response;
             }
 
             if ($scope.current_project != undefined) {
-                $scope.cytometers = get_list();
+                populate_cytometers();
             }
             $scope.$on('current_project:updated', function () {
-                $scope.cytometers = get_list();
+                populate_cytometers();
             });
 
             $scope.$on('updateCytometers', function () {
-                $scope.cytometers = get_list();
+                populate_cytometers();
             });
         }
     ]

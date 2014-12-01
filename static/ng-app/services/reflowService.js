@@ -70,6 +70,17 @@ service
             }
         );
 
+        Project.prototype.getSitesWithPermission = function(permission) {
+            var sites = $resource(
+                URLS.PROJECTS + this.id + '/sites_by_permission/?permission=' + permission,
+                {},
+                {
+                    get: {isArray: true}
+                }
+            );
+            return sites.get();
+        };
+
         Project.prototype.getUserPermissions = function() {
             var perms = $resource(
                 URLS.PROJECTS + this.id + '/permissions/',

@@ -337,6 +337,12 @@ service.factory('ModelService', function(
         );
     };
 
+    service.getProjectSitesWithAddPermission = function(project_id) {
+        return new Project({'id': project_id}).getSitesWithPermission(
+            'add_site_data'
+        );
+    };
+
     service.getSitePermissions = function (site_id) {
         return new Site({'id': site_id}).getUserPermissions();
     };
