@@ -156,7 +156,11 @@ app.controller(
             $controller('ProjectDetailController', {$scope: $scope});
 
             function populate_cytometers() {
-                var sites = ModelService.getProjectSitesWithAddPermission(
+                var sites_can_add = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                ).$promise;
+
+                var sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
                     $scope.current_project.id
                 ).$promise;
 
@@ -166,8 +170,8 @@ app.controller(
                     }
                 ).$promise;
 
-                $q.all([sites, cytometers]).then(function (objects) {
-                    $scope.cytometers = objects[1];
+                $q.all([sites_can_add, sites_can_modify, cytometers]).then(function (objects) {
+                    $scope.cytometers = objects[2];
 
                     // user has add privileges on at least one site
                     if (objects[0].length > 0) {
@@ -177,13 +181,13 @@ app.controller(
                     $scope.cytometers.forEach(function (c) {
                         c.can_modify = false;
 
-                        for (var i=0; i<objects[0].length; i++) {
-                            if (c.site == objects[0][i].id) {
+                        // check if cytometer's site is in modify list
+                        for (var i=0; i<objects[1].length; i++) {
+                            if (c.site == objects[1][i].id) {
                                 c.can_modify = true;
                                 break;
                             }
                         }
-
                     });
                 });
             }
