@@ -100,18 +100,18 @@ app.controller(
     [
         '$scope',
         '$rootScope',
-        '$controller',
         'Cytometer',
-        'Site',
-        function ($scope, $rootScope, $controller, Cytometer, Site) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+        'ModelService',
+        function ($scope, $rootScope, Cytometer, ModelService) {
+            $scope.current_project = ModelService.current_project;
 
-            $scope.sites = Site.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+            // get list of sites user has permission for new cytometers
+            // existing cytometers cannot change their site
+            if ($scope.instance == null) {
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                );
+            }
 
             $scope.create_update = function (instance) {
                 $scope.errors = [];
