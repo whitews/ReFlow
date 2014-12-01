@@ -69,19 +69,26 @@ def repository_api_root(request):
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
-        'sample_collections': reverse('sample-collection-list', request=request),
-        'sample_collection_members': reverse('sample-collection-member-list', request=request),
+        'sample_collections': reverse(
+            'sample-collection-list', request=request),
+        'sample_collection_members': reverse(
+            'sample-collection-member-list', request=request),
         'sites': reverse('site-list', request=request),
+        'project-sites-by-permission-list': reverse(
+            'project-sites-by-permission-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
         'workers': reverse('worker-list', request=request),
-        'subprocess_categories': reverse('subprocess-category-list', request=request),
-        'subprocess_implementations': reverse('subprocess-implementation-list', request=request),
+        'subprocess_categories': reverse(
+            'subprocess-category-list', request=request),
+        'subprocess_implementations': reverse(
+            'subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
-        'process_request_inputs': reverse('process-request-input-list', request=request),
+        'process_request_inputs': reverse(
+            'process-request-input-list', request=request),
         'assigned_process_requests': reverse(
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
@@ -628,6 +635,29 @@ class ProjectUserDetail(
 
         response = super(ProjectUserDetail, self).get(request, *args, **kwargs)
         return response
+
+
+class ProjectSitesByPermissionList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of project sites with the specified
+    permission.
+    """
+
+    model = Site
+    serializer_class = SiteSerializer
+
+    def get_queryset(self):
+        project = Project.objects.get(id=self.kwargs['pk'])
+
+        if 'permission' in self.request.QUERY_PARAMS:
+            if 'add_site_data' in self.request.QUERY_PARAMS['permission']:
+                queryset = Site.objects.get_sites_user_can_add(
+                    self.request.user,
+                    project
+                )
+                return queryset
+
+        return []
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
