@@ -649,15 +649,20 @@ class ProjectSitesByPermissionList(LoginRequiredMixin, generics.ListAPIView):
     def get_queryset(self):
         project = Project.objects.get(id=self.kwargs['pk'])
 
+        queryset = []
+
         if 'permission' in self.request.QUERY_PARAMS:
             if 'add_site_data' in self.request.QUERY_PARAMS['permission']:
                 queryset = Site.objects.get_sites_user_can_add(
                     self.request.user,
                     project
                 )
-                return queryset
-
-        return []
+            elif 'modify_site_data' in self.request.QUERY_PARAMS['permission']:
+                queryset = Site.objects.get_sites_user_can_modify(
+                    self.request.user,
+                    project
+                )
+        return queryset
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
