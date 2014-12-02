@@ -199,7 +199,7 @@ app.controller(
                 populate_cytometers();
             });
 
-            $scope.$on('updateCytometers', function () {
+            $scope.$on('cytometers:updated', function () {
                 populate_cytometers();
             });
         }

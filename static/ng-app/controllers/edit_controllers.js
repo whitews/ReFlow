@@ -100,9 +100,8 @@ app.controller(
     [
         '$scope',
         '$rootScope',
-        'Cytometer',
         'ModelService',
-        function ($scope, $rootScope, Cytometer, ModelService) {
+        function ($scope, $rootScope, ModelService) {
             $scope.current_project = ModelService.current_project;
 
             // get list of sites user has permission for new cytometers
@@ -114,29 +113,10 @@ app.controller(
             }
 
             $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Cytometer.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Cytometer.save(
-                        $scope.instance
-                    );
-                }
-
-                response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateCytometers');
-
-                    // close modal
+                $scope.errors = ModelService.createUpdateCytometer(instance);
+                if (!$scope.errors) {
                     $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
+                }
             };
         }
     ]

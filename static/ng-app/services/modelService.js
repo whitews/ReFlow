@@ -396,6 +396,29 @@ service.factory('ModelService', function(
     service.getCytometers = function(query_object) {
         return Cytometer.query(query_object);
     };
+    
+    service.createUpdateCytometer = function(instance) {
+        var errors = null;
+        var response;
+
+        if (instance.id) {
+            response = Cytometer.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = Cytometer.save(instance);
+        }
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the cytometers have changed
+            $rootScope.$broadcast('cytometers:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
 
     // TODO: see where these are used and remove them
     service.setCurrentSite = function (value) {
