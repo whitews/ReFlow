@@ -419,6 +419,22 @@ service.factory('ModelService', function(
 
         return errors;
     };
+    
+    service.destroyCytometer = function (instance) {
+        var errors = null;
+        var response;
+
+        response = Cytometer.delete({id: instance.id });
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the cytometers have changed
+            $rootScope.$broadcast('cytometers:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
+    };
 
     // TODO: see where these are used and remove them
     service.setCurrentSite = function (value) {

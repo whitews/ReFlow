@@ -92,27 +92,14 @@ app.controller(
     'CytometerDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Cytometer',
-        function ($scope, $rootScope, $controller, Cytometer) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Cytometer.delete({id: instance.id });
+                $scope.errors = ModelService.destroyCytometer(instance);
 
-                response.$promise.then(function () {
-                    $rootScope.$broadcast('updateCytometers');
-
-                    // close modal
+                if (!$scope.errors) {
                     $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
+                }
             };
         }
     ]
