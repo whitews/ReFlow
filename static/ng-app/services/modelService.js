@@ -20,6 +20,7 @@ service.factory('ModelService', function(
         Site,
         Cytometer,
         SitePanel,
+        Sample,
         SampleMetadata,
         Compensation,
         ParameterFunction,
@@ -457,6 +458,11 @@ service.factory('ModelService', function(
     };
 
     // Sample related services
+    service.getSamples = function(query_object) {
+        return Sample.query(query_object);
+    };
+
+
     service.setCurrentSample = function (value) {
         this.current_sample = value;
         $rootScope.$broadcast('sampleChanged');

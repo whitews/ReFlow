@@ -278,71 +278,54 @@ app.controller(
         '$modal',
         '$controller',
         'ModelService',
-        'Sample',
-        'PanelTemplate',
-        'Site',
-        'Subject',
-        'SubjectGroup',
-        'VisitType',
-        'Stimulation',
         function (
             $scope,
             $modal,
             $controller,
-            ModelService,
-            Sample,
-            PanelTemplate,
-            Site,
-            Subject,
-            SubjectGroup,
-            VisitType,
-            Stimulation
+            ModelService
         ) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            if ($scope.current_project != undefined) {
-                init_filter();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    init_filter();
-                });
+            // need to know which sites user can modify
+            var sites_can_modify;
+            function update_modify_sites () {
+                sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
+                    $scope.current_project.id
+                );
             }
 
+            if ($scope.current_project) {
+                init_filter();
+                update_modify_sites();
+            }
+
+            $scope.$on('current_project:updated', function () {
+                init_filter();
+                update_modify_sites();
+            });
+
             function init_filter () {
-                $scope.panels = PanelTemplate.query(
+                $scope.panels = ModelService.getPanelTemplates(
                     {
                         'project': $scope.current_project.id,
                         'staining': ['FS', 'US', 'FM', 'IS']
                     }
                 );
-
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(
                     $scope.current_project.id
                 );
-
-                $scope.subjects = Subject.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.subjects = ModelService.getSubjects(
+                    $scope.current_project.id
                 );
-
-                $scope.subject_groups = SubjectGroup.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
                 );
-
-                $scope.visit_types = VisitType.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
                 );
-
-                $scope.stimulations = Stimulation.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
                 );
             }
 
@@ -391,7 +374,7 @@ app.controller(
                     }
                 });
 
-                $scope.samples = Sample.query(
+                $scope.samples = ModelService.getSamples(
                     {
                         'project': $scope.current_project.id,
                         'panel': panels,
@@ -409,9 +392,9 @@ app.controller(
                         if ($scope.can_modify_project) {
                             s.can_modify = true;
                         } else {
-                            var site = $scope.current_project.site_lookup[s.site];
-                            if (site) {
-                                if (site.can_modify) {
+                            // check against sites_can_modify
+                            for (var i=0; i<sites_can_modify.length; i++) {
+                                if (s.site == sites_can_modify[i].id) {
                                     s.can_modify = true;
                                 }
                             }
