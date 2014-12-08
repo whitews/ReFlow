@@ -96,6 +96,10 @@ service.factory('ModelService', function(
         });
     };
 
+    // TODO: all these services that return errors and handle their
+    // own promises (use $q, etc.) need to be revised. The real errors will
+    // never get to the caller, who will always just get null
+
     service.createUpdateProject = function(instance) {
         var errors = null;
         var response;
@@ -493,6 +497,22 @@ service.factory('ModelService', function(
     service.createCompensation = function(instance) {
         var response = Compensation.save(instance);
         return response;
+    };
+
+    service.destroyCompensation = function (instance) {
+        var errors = null;
+        var response;
+
+        response = Compensation.delete({id: instance.id });
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the comps have changed
+            $rootScope.$broadcast('compensations:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return errors;
     };
 
     // Panel related services

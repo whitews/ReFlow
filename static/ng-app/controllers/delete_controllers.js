@@ -62,27 +62,14 @@ app.controller(
     'CompensationDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Compensation',
-        function ($scope, $rootScope, $controller, Compensation) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Compensation.delete({id: instance.id });
+                $scope.errors = ModelService.destroyCompensation(instance);
 
-                response.$promise.then(function () {
-                    $rootScope.$broadcast('updateCompensations');
-
-                    // close modal
+                if (!$scope.errors) {
                     $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
+                }
             };
         }
     ]
