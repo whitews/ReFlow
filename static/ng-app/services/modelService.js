@@ -484,7 +484,16 @@ service.factory('ModelService', function(
         );
     };
 
+    service.createCompensation = function(instance) {
+        var response = Compensation.save(instance);
+        return response;
+    };
+
     // Panel related services
+    service.getPanelTemplates = function(query_object) {
+        return PanelTemplate.query(query_object);
+    };
+
     service.setCurrentPanelTemplate = function (value) {
         this.current_panel_template = value;
         $rootScope.$broadcast('panelTemplateChanged');

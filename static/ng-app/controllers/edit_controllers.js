@@ -228,29 +228,24 @@ app.controller(
         '$scope',
         '$rootScope',
         '$controller',
-        'Compensation',
-        'Site',
-        'PanelTemplate',
-        function ($scope, $rootScope, $controller, Compensation, Site, PanelTemplate) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+        'ModelService',
+        function ($scope, $rootScope, $controller, ModelService) {
+            $scope.current_project = ModelService.current_project;
             $scope.errors = [];
             $scope.matrix_errors = [];
 
-            if (!$scope.instance) {
-                $scope.instance = {};
+            // get list of sites user has permission for new cytometers
+            // existing cytometers cannot change their site
+            if ($scope.instance == null) {
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                );
             }
-
-            $scope.sites = Site.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
 
             // everything but bead panels
             var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
 
-            $scope.panel_templates = PanelTemplate.query(
+            $scope.panel_templates = ModelService.getPanelTemplates(
                 {
                     'project': $scope.current_project.id,
                     'staining': PANEL_TYPES
@@ -267,7 +262,7 @@ app.controller(
                 $scope.dt = null;
             };
 
-            $scope.open = function($event, f) {
+            $scope.open = function($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
 
@@ -354,13 +349,11 @@ app.controller(
                             "-" +
                             $scope.instance.acquisition_date.getDate().toString()
                 };
-                var response = Compensation.save(
-                    data
-                );
+                var response = ModelService.createCompensation(data);
 
                 response.$promise.then(function () {
                     // notify to update subject list
-                    $rootScope.$broadcast('updateCompensations');
+                    $rootScope.$broadcast('compensations:updated');
 
                     // close modal
                     $scope.ok();

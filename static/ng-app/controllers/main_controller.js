@@ -14,6 +14,7 @@ app.controller(
                 $scope.current_project = ModelService.current_project;
             });
 
+            // TODO: rename to init_modal?
             $scope.init_form = function(instance, form_type) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
@@ -559,48 +560,59 @@ app.controller(
     'CompensationController',
     [
         '$scope',
+        '$q',
         '$controller',
-        '$modal',
-        'Compensation',
-        function ($scope, $controller, $modal, Compensation) {
+        'ModelService',
+        function ($scope, $q, $controller, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                var response = Compensation.query(
+            function populate_compensations() {
+                var sites_can_add = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                ).$promise;
+
+                var sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
+                    $scope.current_project.id
+                ).$promise;
+
+                var compensations = ModelService.getCompensations(
                     {
                         'project': $scope.current_project.id
                     }
-                );
-                response.$promise.then(function (objects) {
-                    objects.forEach(function (o) {
-                        o.can_modify = false;
-                        if ($scope.can_modify_project) {
-                            o.can_modify = true;
-                        } else {
-                            var site = $scope.current_project.site_lookup[o.site];
-                            if (site) {
-                                if (site.can_modify) {
-                                    o.can_modify = true;
-                                }
+                ).$promise;
+
+                $q.all([sites_can_add, sites_can_modify, compensations]).then(function (objects) {
+                    $scope.compensations = objects[2];
+
+                    // user has add privileges on at least one site
+                    if (objects[0].length > 0) {
+                        $scope.can_add_data = true;
+                    }
+
+                    $scope.compensations.forEach(function (c) {
+                        c.can_modify = false;
+
+                        // check if compensation's site is in modify list
+                        for (var i=0; i<objects[1].length; i++) {
+                            if (c.site == objects[1][i].id) {
+                                c.can_modify = true;
+                                break;
                             }
                         }
                     });
                 });
-
-                return response;
             }
 
             if ($scope.current_project != undefined) {
-                $scope.compensations = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.compensations = get_list();
-                });
+                populate_compensations();
             }
+            $scope.$on('current_project:updated', function () {
+                populate_compensations();
+            });
 
-            $scope.$on('updateCompensations', function () {
-                $scope.compensations = get_list();
+            $scope.$on('compensations:updated', function () {
+                populate_compensations();
             });
 
             $scope.show_matrix = function(instance) {
