@@ -317,6 +317,10 @@ app.controller(
                     }
                 );
 
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                );
+
                 $scope.subjects = Subject.query(
                     {
                         'project': $scope.current_project.id
@@ -367,7 +371,7 @@ app.controller(
                 });
 
                 var sites = [];
-                $scope.current_project.sites.forEach(function (s) {
+                $scope.sites.forEach(function (s) {
                     if (s.query) {
                         sites.push(s.id);
                     }
