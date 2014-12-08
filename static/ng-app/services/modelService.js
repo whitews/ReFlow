@@ -472,13 +472,8 @@ service.factory('ModelService', function(
     };
 
     // Compensation related services
-    service.getCompensations = function (site_panel_id, acq_date) {
-        return Compensation.query(
-            {
-                'site_panel': site_panel_id,
-                'acquisition_date': acq_date
-            }
-        );
+    service.getCompensations = function (query_object) {
+        return Compensation.query(query_object);
     };
 
     service.getCompensationCSV = function (comp_id) {

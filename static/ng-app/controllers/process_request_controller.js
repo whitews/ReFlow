@@ -165,8 +165,10 @@ app.controller(
                         sample.ignore = false;
                         sample.selected = true;
                         sample.comp_candidates = ModelService.getCompensations(
-                            sample.site_panel,
-                            sample.acquisition_date
+                            {
+                                'site_panel': sample.site_panel,
+                                'acquisition_date': sample.acquisition_date
+                            }
                         );
                         sample.chosen_comp_matrix = null;
                         sample.comp_candidates.$promise.then(function(comps) {
