@@ -42,6 +42,9 @@ app.controller(
         '$modal',
         'ModelService',
         function ($scope, $stateParams, $modal, ModelService) {
+            // try to keep this controller as lean as possible because
+            // many other controllers inherit this $scope to obtain the
+            // "current project" and that results in this code executing
             if (!$scope.current_project && $stateParams.hasOwnProperty('projectId')) {
                 ModelService.setCurrentProjectById($stateParams.projectId);
             }

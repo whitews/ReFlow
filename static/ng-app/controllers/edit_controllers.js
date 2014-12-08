@@ -166,33 +166,22 @@ app.controller(
         '$scope',
         '$rootScope',
         '$controller',
+        'ModelService',
         'Sample',
-        'Subject',
-        'VisitType',
         'Specimen',
-        'Stimulation',
         'Pretreatment',
         'Storage',
-        function ($scope, $rootScope, $controller, Sample, Subject, VisitType, Specimen, Stimulation, Pretreatment, Storage) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+        function ($scope, $rootScope, $controller, ModelService, Sample, Specimen, Pretreatment, Storage) {
+            $scope.current_project = ModelService.current_project;
 
-            $scope.subjects = Subject.query(
-                {
-                    'project': $scope.current_project.id
-                }
+            $scope.subjects = ModelService.getSubjects(
+                $scope.current_project.id
             );
-
-            $scope.visit_types = VisitType.query(
-                {
-                    'project': $scope.current_project.id
-                }
+            $scope.visit_types = ModelService.getVisitTypes(
+                $scope.current_project.id
             );
-
-            $scope.stimulations = Stimulation.query(
-                {
-                    'project': $scope.current_project.id
-                }
+            $scope.stimulations = ModelService.getStimulations(
+                $scope.current_project.id
             );
 
             $scope.specimens = Specimen.query();
