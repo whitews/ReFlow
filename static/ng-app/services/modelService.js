@@ -211,6 +211,9 @@ service.factory('ModelService', function(
     };
     
     // Stimulation services
+    service.stimulationsUpdated = function () {
+        $rootScope.$broadcast('stimulations:updated');
+    };
     service.getStimulations = function(project_id) {
         return Stimulation.query(
             {
@@ -218,44 +221,18 @@ service.factory('ModelService', function(
             }
         );
     };
-
     service.createUpdateStimulation = function(instance) {
-        var errors = null;
-        var response;
-
         if (instance.id) {
-            response = Stimulation.update(
+            return Stimulation.update(
                 {id: instance.id },
                 instance
             );
         } else {
-            response = Stimulation.save(instance);
+            return Stimulation.save(instance);
         }
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the stimulations have changed
-            $rootScope.$broadcast('stimulations:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
     };
-
     service.destroyStimulation = function (instance) {
-        var errors = null;
-        var response;
-
-        response = Stimulation.delete({id: instance.id });
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the stimulations have changed
-            $rootScope.$broadcast('stimulations:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
+        return Stimulation.delete({id: instance.id });
     };
     
     // Panel Template services
