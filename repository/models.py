@@ -1389,7 +1389,16 @@ class Sample(ProtectedModel):
 
         # Check if the project already has this file,
         # if so delete the temp file and raise ValidationError
-        self.sha1 = file_hash.hexdigest()
+        # but the user may be trying to edit an existing sample, so we
+        # need to allow that case
+        if self.id:
+            # existing sample
+            if self.sha1 != file_hash.hexdigest():
+                raise ValidationError(
+                    "You cannot replace an existing FCS file."
+                )
+        else:
+            self.sha1 = file_hash.hexdigest()
         other_sha_values_in_project = Sample.objects.filter(
             subject__project=self.subject.project).exclude(
                 id=self.id).values_list('sha1', flat=True)
