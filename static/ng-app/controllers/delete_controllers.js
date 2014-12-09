@@ -65,11 +65,18 @@ app.controller(
         'ModelService',
         function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = ModelService.destroyCompensation(instance);
+                var response = ModelService.destroyCompensation(instance);
 
-                if (!$scope.errors) {
+                response.$promise.then(function () {
+                    // notify to update comp list
+                    ModelService.compensationsUpdated();
+
+                    // close modal
                     $scope.ok();
-                }
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
             };
         }
     ]

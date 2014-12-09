@@ -168,9 +168,6 @@ app.controller(
         '$controller',
         'ModelService',
         'Sample',
-        'Specimen',
-        'Pretreatment',
-        'Storage',
         function ($scope, $rootScope, $controller, ModelService, Sample, Specimen, Pretreatment, Storage) {
             $scope.current_project = ModelService.current_project;
 
@@ -184,9 +181,9 @@ app.controller(
                 $scope.current_project.id
             );
 
-            $scope.specimens = Specimen.query();
-            $scope.pretreatments = Pretreatment.query();
-            $scope.storages = Storage.query();
+            $scope.specimens = ModelService.getSpecimens();
+            $scope.pretreatments = ModelService.getPretreatments();
+            $scope.storages = ModelService.getStorages();
 
             $scope.update = function (instance) {
                 $scope.errors = [];
@@ -341,8 +338,8 @@ app.controller(
                 var response = ModelService.createCompensation(data);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('compensations:updated');
+                    // notify to update comp list
+                    ModelService.compensationsUpdated();
 
                     // close modal
                     $scope.ok();

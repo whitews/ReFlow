@@ -11,6 +11,9 @@ service.factory('ModelService', function(
         User,
         Marker,
         Fluorochrome,
+        Specimen,
+        Pretreatment,
+        Storage,
         Project,
         SubjectGroup,
         Subject,
@@ -55,6 +58,21 @@ service.factory('ModelService', function(
         return ParameterValueType.query(
             {}
         );
+    };
+
+    // Specimen services
+    service.getSpecimens = function() {
+        return Specimen.query({});
+    };
+
+    // Pretreatment services
+    service.getPretreatments = function() {
+        return Pretreatment.query({});
+    };
+
+    // Storage services
+    service.getStorages = function() {
+        return Storage.query({});
     };
 
     // Project services
@@ -462,6 +480,28 @@ service.factory('ModelService', function(
         return Sample.query(query_object);
     };
 
+    service.createUpdateSample = function(instance) {
+        var response;
+
+        if (instance.id) {
+            response = Sample.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            response = Sample.save(instance);
+        }
+
+        $q.all([response.$promise]).then(function () {
+            // let everyone know the samples have changed
+            $rootScope.$broadcast('subject_groups:updated');
+        }, function (error) {
+            errors = error.data;
+        });
+
+        return response;
+    };
+
 
     service.setCurrentSample = function (value) {
         this.current_sample = value;
@@ -488,6 +528,10 @@ service.factory('ModelService', function(
     };
 
     // Compensation related services
+    service.compensationsUpdated = function () {
+        $rootScope.$broadcast('compensations:updated');
+    };
+
     service.getCompensations = function (query_object) {
         return Compensation.query(query_object);
     };
@@ -506,19 +550,7 @@ service.factory('ModelService', function(
     };
 
     service.destroyCompensation = function (instance) {
-        var errors = null;
-        var response;
-
-        response = Compensation.delete({id: instance.id });
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the comps have changed
-            $rootScope.$broadcast('compensations:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
+        return Compensation.delete({id: instance.id });
     };
 
     // Panel related services
