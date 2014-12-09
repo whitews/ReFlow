@@ -44,7 +44,7 @@ app.controller(
             var response = ModelService.createUpdateSubjectGroup(instance);
 
             response.$promise.then(function (object) {
-                // notify to update subject groups
+                // notify to update list
                 ModelService.subjectGroupsUpdated();
 
                 // close modal
@@ -66,15 +66,23 @@ app.controller(
         );
 
         $scope.create_update = function (instance) {
+            $scope.errors = [];
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
 
-            $scope.errors = ModelService.createUpdateSubject(instance);
+            var response = ModelService.createUpdateSubject(instance);
 
-            if (!$scope.errors) {
+            response.$promise.then(function (object) {
+                // notify to update list
+                ModelService.subjectsUpdated();
+
+                // close modal
                 $scope.ok();
-            }
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
         };
     }
 ]);

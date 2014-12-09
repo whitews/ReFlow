@@ -161,6 +161,9 @@ service.factory('ModelService', function(
     };
     
     // Subject services
+    service.subjectsUpdated = function () {
+        $rootScope.$broadcast('subjects:updated');
+    };
     service.getSubjects = function(project_id) {
         return Subject.query(
             {
@@ -168,44 +171,18 @@ service.factory('ModelService', function(
             }
         );
     };
-
     service.createUpdateSubject = function(instance) {
-        var errors = null;
-        var response;
-
         if (instance.id) {
-            response = Subject.update(
+            return Subject.update(
                 {id: instance.id },
                 instance
             );
         } else {
-            response = Subject.save(instance);
+            return Subject.save(instance);
         }
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the subject groups have changed
-            $rootScope.$broadcast('subjects:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
     };
-
     service.destroySubject = function (instance) {
-        var errors = null;
-        var response;
-
-        response = Subject.delete({id: instance.id });
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the subjects have changed
-            $rootScope.$broadcast('subjects:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
+        return Subject.delete({id: instance.id });
     };
     
     // Visit Type services
