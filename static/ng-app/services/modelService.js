@@ -7,7 +7,6 @@ var service = angular.module('ReFlowApp');
 service.factory('ModelService', function(
         $rootScope,
         $http,
-        $q,
         User,
         Marker,
         Fluorochrome,
@@ -34,11 +33,6 @@ service.factory('ModelService', function(
         SampleCluster) {
     var service = {};
 
-    /*
-     * TODO: all services returning errors or handling their
-     * own promises (use $q, $promise, etc.) need to be revised.
-     */
-    
     service.current_site = null;
     service.current_sample = null;
     service.current_panel_template = null;
@@ -322,53 +316,42 @@ service.factory('ModelService', function(
         this.current_site = value;
         $rootScope.$broadcast('siteChanged');
     };
-
     service.getCurrentSite = function () {
         return this.current_site;
     };
 
     // Sample related services
+    service.samplesUpdated = function () {
+        $rootScope.$broadcast('samples:updated');
+    };
     service.getSamples = function(query_object) {
         return Sample.query(query_object);
     };
-
     service.createUpdateSample = function(instance) {
-        var response;
-
         if (instance.id) {
-            response = Sample.update(
+            return Sample.update(
                 {id: instance.id },
                 instance
             );
         } else {
-            response = Sample.save(instance);
+            return Sample.save(instance);
         }
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the samples have changed
-            $rootScope.$broadcast('subject_groups:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return response;
     };
-
-
-    service.setCurrentSample = function (value) {
-        this.current_sample = value;
-        $rootScope.$broadcast('sampleChanged');
-    };
-
-    service.getCurrentSample = function () {
-        return this.current_sample;
-    };
-
     service.getSampleCSV = function (sample_id) {
         return $http.get(
             '/api/repository/samples/' + sample_id.toString() + '/csv/'
         );
     };
+
+    // TODO: see where these are used and remove them
+    service.setCurrentSample = function (value) {
+        this.current_sample = value;
+        $rootScope.$broadcast('sampleChanged');
+    };
+    service.getCurrentSample = function () {
+        return this.current_sample;
+    };
+
 
     // SampleMetadata related services
     service.getSampleMetadata = function (sample_id) {

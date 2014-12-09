@@ -411,7 +411,7 @@ app.controller(
                 })
             };
 
-            $scope.$on('updateSamples', function () {
+            $scope.$on('samples:updated', function () {
                 $scope.apply_filter();
             });
             

@@ -211,8 +211,7 @@ app.controller(
         '$rootScope',
         '$controller',
         'ModelService',
-        'Sample',
-        function ($scope, $rootScope, $controller, ModelService, Sample, Specimen, Pretreatment, Storage) {
+        function ($scope, $rootScope, $controller, ModelService) {
             $scope.current_project = ModelService.current_project;
 
             $scope.subjects = ModelService.getSubjects(
@@ -231,15 +230,11 @@ app.controller(
 
             $scope.update = function (instance) {
                 $scope.errors = [];
-                var response;
-                response = Sample.update(
-                    {id: instance.id },
-                    $scope.instance
-                );
+                var response = ModelService.createUpdateSample(instance);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateSamples');
+                    // notify to update list
+                    $rootScope.$broadcast('samples:updated');
 
                     // close modal
                     $scope.ok();
