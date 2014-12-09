@@ -186,6 +186,9 @@ service.factory('ModelService', function(
     };
     
     // Visit Type services
+    service.visitTypesUpdated = function () {
+        $rootScope.$broadcast('visit_types:updated');
+    };
     service.getVisitTypes = function(project_id) {
         return VisitType.query(
             {
@@ -193,44 +196,18 @@ service.factory('ModelService', function(
             }
         );
     };
-
     service.createUpdateVisitType = function(instance) {
-        var errors = null;
-        var response;
-
         if (instance.id) {
-            response = VisitType.update(
+            return VisitType.update(
                 {id: instance.id },
                 instance
             );
         } else {
-            response = VisitType.save(instance);
+            return VisitType.save(instance);
         }
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the visit types have changed
-            $rootScope.$broadcast('visit_types:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
     };
-
     service.destroyVisitType = function (instance) {
-        var errors = null;
-        var response;
-
-        response = VisitType.delete({id: instance.id });
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the visit types have changed
-            $rootScope.$broadcast('visit_types:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
+        return VisitType.delete({id: instance.id });
     };
     
     // Stimulation services

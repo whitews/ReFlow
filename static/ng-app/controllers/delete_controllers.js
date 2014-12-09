@@ -123,11 +123,18 @@ app.controller(
         'ModelService',
         function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = ModelService.destroyVisitType(instance);
+                var response = ModelService.destroyVisitType(instance);
 
-                if (!$scope.errors) {
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.visitTypesUpdated();
+
+                    // close modal
                     $scope.ok();
-                }
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
             };
         }
     ]

@@ -43,7 +43,7 @@ app.controller(
 
             var response = ModelService.createUpdateSubjectGroup(instance);
 
-            response.$promise.then(function (object) {
+            response.$promise.then(function () {
                 // notify to update list
                 ModelService.subjectGroupsUpdated();
 
@@ -73,7 +73,7 @@ app.controller(
 
             var response = ModelService.createUpdateSubject(instance);
 
-            response.$promise.then(function (object) {
+            response.$promise.then(function () {
                 // notify to update list
                 ModelService.subjectsUpdated();
 
@@ -139,15 +139,23 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
+            $scope.errors = [];
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
 
-            $scope.errors = ModelService.createUpdateVisitType(instance);
+            var response = ModelService.createUpdateVisitType(instance);
 
-            if (!$scope.errors) {
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.visitTypesUpdated();
+
+                // close modal
                 $scope.ok();
-            }
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
         };
     }
 ]);
