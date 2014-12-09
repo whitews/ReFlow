@@ -33,6 +33,11 @@ service.factory('ModelService', function(
         SampleCollectionMember,
         SampleCluster) {
     var service = {};
+
+    /*
+     * TODO: all services returning errors or handling their
+     * own promises (use $q, $promise, etc.) need to be revised.
+     */
     
     service.current_site = null;
     service.current_sample = null;
@@ -79,7 +84,6 @@ service.factory('ModelService', function(
     service.getProjects = function() {
         return Project.query({});
     };
-
     service.setCurrentProjectById = function(id) {
         service.current_project = Project.get({'id':id});
         service.current_project.$promise.then(function(p) {
@@ -114,15 +118,9 @@ service.factory('ModelService', function(
             $rootScope.$broadcast('current_project:invalid');
         });
     };
-
-    // TODO: all these services that return errors and handle their
-    // own promises (use $q, etc.) need to be revised. The real errors will
-    // never get to the caller, who will always just get null
-
     service.projectsUpdated = function () {
         $rootScope.$broadcast('projects:updated');
     };
-
     service.createUpdateProject = function(instance) {
         if (instance.id) {
             return Project.update(
@@ -135,6 +133,9 @@ service.factory('ModelService', function(
     };
 
     // Subject Group services
+    service.subjectGroupsUpdated = function () {
+        $rootScope.$broadcast('subject_groups:updated');
+    };
     service.getSubjectGroups = function(project_id) {
         return SubjectGroup.query(
             {
@@ -142,44 +143,18 @@ service.factory('ModelService', function(
             }
         );
     };
-
     service.createUpdateSubjectGroup = function(instance) {
-        var errors = null;
-        var response;
-
         if (instance.id) {
-            response = SubjectGroup.update(
+            return SubjectGroup.update(
                 {id: instance.id },
                 instance
             );
         } else {
-            response = SubjectGroup.save(instance);
+            return SubjectGroup.save(instance);
         }
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the subject groups have changed
-            $rootScope.$broadcast('subject_groups:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
     };
-
     service.destroySubjectGroup = function (instance) {
-        var errors = null;
-        var response;
-
-        response = SubjectGroup.delete({id: instance.id });
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the subject groups have changed
-            $rootScope.$broadcast('subject_groups:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
+        return SubjectGroup.delete({id: instance.id });
     };
     
     // Subject services
