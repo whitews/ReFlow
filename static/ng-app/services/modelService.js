@@ -236,20 +236,21 @@ service.factory('ModelService', function(
     };
     
     // Panel Template services
+    service.panelTemplatesUpdated = function () {
+        $rootScope.$broadcast('panel_templates:updated');
+    };
+    service.getPanelTemplates = function(query_object) {
+        return PanelTemplate.query(query_object);
+    };
     service.destroyPanelTemplate = function (instance) {
-        var errors = null;
-        var response;
-
-        response = PanelTemplate.delete({id: instance.id });
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the panel templates have changed
-            $rootScope.$broadcast('panel_templates:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
+        return PanelTemplate.delete({id: instance.id });
+    };
+    service.setCurrentPanelTemplate = function (value) {
+        this.current_panel_template = value;
+        $rootScope.$broadcast('current_panel_template:updated');
+    };
+    service.getCurrentPanelTemplate = function () {
+        return this.current_panel_template;
     };
     
     // Site services
@@ -454,19 +455,7 @@ service.factory('ModelService', function(
         return Compensation.delete({id: instance.id });
     };
 
-    // Panel related services
-    service.getPanelTemplates = function(query_object) {
-        return PanelTemplate.query(query_object);
-    };
-
-    service.setCurrentPanelTemplate = function (value) {
-        this.current_panel_template = value;
-        $rootScope.$broadcast('panelTemplateChanged');
-    };
-
-    service.getCurrentPanelTemplate = function () {
-        return this.current_panel_template;
-    };
+    // Site Panel services
     service.getSitePanel = function (site_panel_id) {
         return SitePanel.get(
             {

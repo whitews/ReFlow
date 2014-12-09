@@ -171,11 +171,18 @@ app.controller(
         'ModelService',
         function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = ModelService.destroyPanelTemplate(instance);
+                var response = ModelService.destroyPanelTemplate(instance);
 
-                if (!$scope.errors) {
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.panelTemplatesUpdated();
+
+                    // close modal
                     $scope.ok();
-                }
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
             };
         }
     ]
