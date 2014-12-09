@@ -131,6 +131,9 @@ service.factory('ModelService', function(
             return Project.save(instance);
         }
     };
+    service.destroyProject = function (instance) {
+        return Project.delete({id: instance.id });
+    };
 
     // Subject Group services
     service.subjectGroupsUpdated = function () {
