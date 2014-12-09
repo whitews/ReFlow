@@ -89,11 +89,18 @@ app.controller(
         'ModelService',
         function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = ModelService.destroyCytometer(instance);
+                var response = ModelService.destroyCytometer(instance);
 
-                if (!$scope.errors) {
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.cytometersUpdated();
+
+                    // close modal
                     $scope.ok();
-                }
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
             };
         }
     ]

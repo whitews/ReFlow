@@ -132,10 +132,19 @@ app.controller(
             }
 
             $scope.create_update = function (instance) {
-                $scope.errors = ModelService.createUpdateCytometer(instance);
-                if (!$scope.errors) {
+                $scope.errors = [];
+                var response = ModelService.createUpdateCytometer(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.cytometersUpdated();
+
+                    // close modal
                     $scope.ok();
-                }
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
             };
         }
     ]
