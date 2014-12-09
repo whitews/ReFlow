@@ -93,15 +93,23 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
+            $scope.errors = [];
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
 
-            $scope.errors = ModelService.createUpdateSite(instance);
+            var response = ModelService.createUpdateSite(instance);
 
-            if (!$scope.errors) {
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.sitesUpdated();
+
+                // close modal
                 $scope.ok();
-            }
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
         };
     }
 ]);

@@ -254,6 +254,9 @@ service.factory('ModelService', function(
     };
     
     // Site services
+    service.sitesUpdated = function () {
+        $rootScope.$broadcast('sites:updated');
+    };
     service.getSites = function(project_id) {
         return Site.query(
             {
@@ -261,66 +264,36 @@ service.factory('ModelService', function(
             }
         );
     };
-
+    service.createUpdateSite = function(instance) {
+        if (instance.id) {
+            return Site.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Site.save(instance);
+        }
+    };
+    service.destroySite = function (instance) {
+        return Site.delete({id: instance.id });
+    };
     service.getProjectSitesWithViewPermission = function(project_id) {
         return new Project({'id': project_id}).getSitesWithPermission(
             'view_site_data'
         );
     };
-
     service.getProjectSitesWithAddPermission = function(project_id) {
         return new Project({'id': project_id}).getSitesWithPermission(
             'add_site_data'
         );
     };
-
     service.getProjectSitesWithModifyPermission = function(project_id) {
         return new Project({'id': project_id}).getSitesWithPermission(
             'modify_site_data'
         );
     };
-
     service.getSitePermissions = function (site_id) {
         return new Site({'id': site_id}).getUserPermissions();
-    };
-
-    service.createUpdateSite = function(instance) {
-        var errors = null;
-        var response;
-
-        if (instance.id) {
-            response = Site.update(
-                {id: instance.id },
-                instance
-            );
-        } else {
-            response = Site.save(instance);
-        }
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the sites have changed
-            $rootScope.$broadcast('sites:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
-    };
-
-    service.destroySite = function (instance) {
-        var errors = null;
-        var response;
-
-        response = Site.delete({id: instance.id });
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the sites have changed
-            $rootScope.$broadcast('sites:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
     };
 
     // Cytometer services

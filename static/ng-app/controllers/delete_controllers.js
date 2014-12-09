@@ -154,11 +154,18 @@ app.controller(
         'ModelService',
         function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = ModelService.destroySite(instance);
+                var response = ModelService.destroySite(instance);
 
-                if (!$scope.errors) {
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.sitesUpdated();
+
+                    // close modal
                     $scope.ok();
-                }
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
             };
         }
     ]
