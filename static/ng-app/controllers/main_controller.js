@@ -47,6 +47,11 @@ app.controller(
             // "current project" and that results in this code executing
             if (!$scope.current_project && $stateParams.hasOwnProperty('projectId')) {
                 ModelService.setCurrentProjectById($stateParams.projectId);
+            } else if ($scope.current_project) {
+                // also set current project if the current project doesn't
+                if ($scope.current_project.id != parseInt($stateParams.projectId)) {
+                    ModelService.setCurrentProjectById($stateParams.projectId);
+                }
             }
         }
     ]

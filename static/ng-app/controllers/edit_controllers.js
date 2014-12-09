@@ -2,27 +2,22 @@ app.controller(
     'ProjectEditController',
     [
         '$scope',
-        '$rootScope',
-        'Project',
-        function ($scope, $rootScope, Project) {
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.current_project = ModelService.current_project;
 
             $scope.create_update = function (instance) {
                 $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Project.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Project.save(
-                        $scope.instance
-                    );
-                }
+                var response = ModelService.createUpdateProject(instance);
 
-                response.$promise.then(function () {
-                    // notify to update subject group list
-                    $rootScope.$broadcast('updateProjects');
+                response.$promise.then(function (object) {
+                    // notify to update project list
+                    ModelService.projectsUpdated();
+
+                    // also check if this is the current project
+                    if (object.id == $scope.current_project.id) {
+                        ModelService.setCurrentProjectById(object.id);
+                    }
 
                     // close modal
                     $scope.ok();

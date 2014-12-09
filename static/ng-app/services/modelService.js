@@ -119,27 +119,19 @@ service.factory('ModelService', function(
     // own promises (use $q, etc.) need to be revised. The real errors will
     // never get to the caller, who will always just get null
 
-    service.createUpdateProject = function(instance) {
-        var errors = null;
-        var response;
+    service.projectsUpdated = function () {
+        $rootScope.$broadcast('projects:updated');
+    };
 
+    service.createUpdateProject = function(instance) {
         if (instance.id) {
-            response = Project.update(
+            return Project.update(
                 {id: instance.id },
                 instance
             );
         } else {
-            response = Project.save(instance);
+            return Project.save(instance);
         }
-
-        $q.all([response.$promise]).then(function () {
-            // let everyone know the projects have changed
-            $rootScope.$broadcast('projects:updated');
-        }, function (error) {
-            errors = error.data;
-        });
-
-        return errors;
     };
 
     // Subject Group services
