@@ -71,20 +71,15 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'Marker',
-        function ($scope, $controller, Marker) {
+        'ModelService',
+        function ($scope, $controller, ModelService) {
             // Inherits MainController $scope
             $controller('MainController', {$scope: $scope});
 
-            function get_list() {
-                return Marker.query(
-                    {}
-                );
-            }
-            $scope.markers = get_list();
+            $scope.markers = ModelService.getMarkers();
 
-            $scope.$on('updateMarkers', function () {
-                $scope.markers = get_list();
+            $scope.$on('markers:updated', function () {
+                $scope.markers = ModelService.getMarkers();
             });
         }
     ]
@@ -94,30 +89,39 @@ app.controller(
     'MarkerEditController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Marker',
-        function ($scope, $rootScope, $controller, Marker) {
-            // Inherits MarkerController $scope
-            $controller('MarkerController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.create_update = function (instance) {
                 $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Marker.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Marker.save(
-                        $scope.instance
-                    );
-                }
+                var response = ModelService.createUpdateMarker(instance);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateMarkers');
+                    // notify to update list
+                    ModelService.markersUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'MarkerDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyMarker(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.markersUpdated();
 
                     // close modal
                     $scope.ok();

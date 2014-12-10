@@ -39,10 +39,6 @@ service.factory('ModelService', function(
 
     service.user = User.get();
 
-    service.getMarkers = function() {
-        return Marker.query();
-    };
-
     service.getFluorochromes = function () {
         return Fluorochrome.query();
     };
@@ -78,6 +74,27 @@ service.factory('ModelService', function(
     };
     service.destroySpecimen = function (instance) {
         return Specimen.delete({id: instance.id });
+    };
+    
+    // Marker services
+    service.markersUpdated = function () {
+        $rootScope.$broadcast('markers:updated');
+    };
+    service.getMarkers = function() {
+        return Marker.query({});
+    };
+    service.createUpdateMarker = function(instance) {
+        if (instance.id) {
+            return Marker.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Marker.save(instance);
+        }
+    };
+    service.destroyMarker = function (instance) {
+        return Marker.delete({id: instance.id });
     };
 
     // Pretreatment services

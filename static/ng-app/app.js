@@ -61,6 +61,7 @@ var MODAL_URLS = {
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
     'SPECIMEN_DELETE':    'static/ng-app/partials/specimen-delete.html',
     'MARKER':             'static/ng-app/partials/marker-form.html',
+    'MARKER_DELETE':      'static/ng-app/partials/marker-delete.html',
     'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
     'WORKER':             'static/ng-app/partials/worker-form.html',
 };
