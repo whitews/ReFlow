@@ -468,11 +468,9 @@ service.factory('ModelService', function(
     service.compensationsUpdated = function () {
         $rootScope.$broadcast('compensations:updated');
     };
-
     service.getCompensations = function (query_object) {
         return Compensation.query(query_object);
     };
-
     service.getCompensationCSV = function (comp_id) {
         return Compensation.get_CSV(
             {
@@ -480,12 +478,9 @@ service.factory('ModelService', function(
             }
         );
     };
-
     service.createCompensation = function(instance) {
-        var response = Compensation.save(instance);
-        return response;
+        return Compensation.save(instance);
     };
-
     service.destroyCompensation = function (instance) {
         return Compensation.delete({id: instance.id });
     };
@@ -497,6 +492,9 @@ service.factory('ModelService', function(
                 'id': site_panel_id
             }
         );
+    };
+    service.createSitePanel = function(instance) {
+        return SitePanel.save(instance);
     };
     
     // ProcessRequest services

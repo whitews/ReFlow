@@ -238,7 +238,7 @@ app.controller(
                 parameters: params,
                 site_panel_comments: ""
             };
-            var site_panel = SitePanel.save(data);
+            var site_panel = ModelService.createSitePanel(data);
             site_panel.$promise.then(function (o) {
                 $scope.ok();
                 // broadcast to update site panels and set
