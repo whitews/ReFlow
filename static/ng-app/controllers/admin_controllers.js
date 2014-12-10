@@ -207,20 +207,15 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'Worker',
-        function ($scope, $controller, Worker) {
+        'ModelService',
+        function ($scope, $controller, ModelService) {
             // Inherits MainController $scope
             $controller('MainController', {$scope: $scope});
 
-            function get_list() {
-                return Worker.query(
-                    {}
-                );
-            }
-            $scope.workers = get_list();
+            $scope.workers = ModelService.getWorkers();
 
-            $scope.$on('updateWorkers', function () {
-                $scope.workers = get_list();
+            $scope.$on('workers:updated', function () {
+                $scope.workers = ModelService.getWorkers();
             });
         }
     ]
@@ -230,30 +225,39 @@ app.controller(
     'WorkerEditController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Worker',
-        function ($scope, $rootScope, $controller, Worker) {
-            // Inherits WorkerController $scope
-            $controller('WorkerController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.create_update = function (instance) {
                 $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Worker.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Worker.save(
-                        $scope.instance
-                    );
-                }
+                var response = ModelService.createUpdateWorker(instance);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateWorkers');
+                    // notify to update list
+                    ModelService.workersUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'WorkerDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyWorker(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.workersUpdated();
 
                     // close modal
                     $scope.ok();

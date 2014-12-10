@@ -65,6 +65,7 @@ var MODAL_URLS = {
     'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
     'FLUOROCHROME_DELETE': 'static/ng-app/partials/fluorochrome-delete.html',
     'WORKER':             'static/ng-app/partials/worker-form.html',
+    'WORKER_DELETE':      'static/ng-app/partials/worker-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {

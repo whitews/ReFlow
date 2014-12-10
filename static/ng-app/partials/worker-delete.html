@@ -1,0 +1,32 @@
+<div ng-controller="WorkerDeleteController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Delete Worker: {{ instance.worker_name }}
+  </div>
+  <div class="modal-body">
+
+    <h4>Are you sure you want to delete this worker?</h4>
+
+    <div class="well well-info">
+      <span ng-show="instance.process_request_count > 0">
+        {{ instance.process_request_count }} process request(s) reference this worker.
+        Workers used in existing process requests cannot be deleted.
+      </span>
+      <span ng-show="instance.process_request_count == 0">
+        There are no process requests that reference this worker.
+      </span>
+    </div>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Cancel</button>
+    <button type="button" class="btn btn-danger" ng-disabled="instance.process_request_count>0" ng-click="destroy(instance)">Delete</button>
+  </div>
+</div>

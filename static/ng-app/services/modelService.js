@@ -13,6 +13,7 @@ service.factory('ModelService', function(
         Specimen,
         Pretreatment,
         Storage,
+        Worker,
         Project,
         SubjectGroup,
         Subject,
@@ -112,6 +113,27 @@ service.factory('ModelService', function(
     };
     service.destroyFluorochrome = function (instance) {
         return Fluorochrome.delete({id: instance.id });
+    };
+    
+    // Worker services
+    service.workersUpdated = function () {
+        $rootScope.$broadcast('workers:updated');
+    };
+    service.getWorkers = function() {
+        return Worker.query({});
+    };
+    service.createUpdateWorker = function(instance) {
+        if (instance.id) {
+            return Worker.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Worker.save(instance);
+        }
+    };
+    service.destroyWorker = function (instance) {
+        return Worker.delete({id: instance.id });
     };
 
     // Pretreatment services

@@ -6,9 +6,9 @@
               <h4>Workers <span class="badge badge-inverse align-top">{{ workers.length }}</span></h4>
 
               <div class="btn-group" ng-show="user.superuser" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(null, 'WORKER')">
-                      Add Worker
-                  </a>
+                <a class="btn btn-default btn-sm" ng-click="init_form(null, 'WORKER')">
+                    Add Worker
+                </a>
               </div>
             </div>
           </th>
@@ -18,18 +18,23 @@
           <th>Name</th>
           <th>Hostname</th>
           <th>Authorization Token</th>
+          <th>Process Request Count</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="w in workers">
           <td class="no-wrap" width="1%">
-              <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(w, 'WORKER')" tooltip="Edit" tooltip-placement="bottom">
-                <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
-              </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(w, 'WORKER')" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(w, 'WORKER_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>{{ w.worker_name }}</td>
           <td>{{ w.worker_hostname }}</td>
           <td>{{ w.token }}</td>
+          <td>{{ w.process_request_count }}</td>
         </tr>
       </tbody>
     </table>
