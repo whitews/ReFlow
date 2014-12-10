@@ -209,9 +209,8 @@ app.controller(
     'SampleEditController',
     [
         '$scope',
-        '$controller',
         'ModelService',
-        function ($scope, $controller, ModelService) {
+        function ($scope, ModelService) {
             $scope.current_project = ModelService.current_project;
 
             $scope.subjects = ModelService.getSubjects(
@@ -251,9 +250,8 @@ app.controller(
     'CompensationEditController',
     [
         '$scope',
-        '$controller',
         'ModelService',
-        function ($scope, $controller, ModelService) {
+        function ($scope, ModelService) {
             $scope.current_project = ModelService.current_project;
             $scope.errors = [];
             $scope.matrix_errors = [];
