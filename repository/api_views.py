@@ -2074,7 +2074,7 @@ def verify_process_request_assignment(request, pk):
     return Response(status=status.HTTP_200_OK, data=data)
 
 
-class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateAPIView):
+class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single worker.
     """
@@ -2096,6 +2096,21 @@ class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+    
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            worker = Worker.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if worker.processrequest_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(WorkerDetail, self).delete(request, *args, **kwargs)
+        return response
 
 
 class WorkerList(AdminRequiredMixin, generics.ListCreateAPIView):
