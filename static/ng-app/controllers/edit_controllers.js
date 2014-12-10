@@ -15,8 +15,10 @@ app.controller(
                     ModelService.projectsUpdated();
 
                     // also check if this is the current project
-                    if (object.id == $scope.current_project.id) {
-                        ModelService.setCurrentProjectById(object.id);
+                    if ($scope.current_project) {
+                        if (object.id == $scope.current_project.id) {
+                            ModelService.setCurrentProjectById(object.id);
+                        }
                     }
 
                     // close modal
