@@ -120,9 +120,8 @@ app.controller(
     'CytometerEditController',
     [
         '$scope',
-        '$rootScope',
         'ModelService',
-        function ($scope, $rootScope, ModelService) {
+        function ($scope, ModelService) {
             $scope.current_project = ModelService.current_project;
 
             // get list of sites user has permission for new cytometers
@@ -210,10 +209,9 @@ app.controller(
     'SampleEditController',
     [
         '$scope',
-        '$rootScope',
         '$controller',
         'ModelService',
-        function ($scope, $rootScope, $controller, ModelService) {
+        function ($scope, $controller, ModelService) {
             $scope.current_project = ModelService.current_project;
 
             $scope.subjects = ModelService.getSubjects(
@@ -236,7 +234,7 @@ app.controller(
 
                 response.$promise.then(function () {
                     // notify to update list
-                    $rootScope.$broadcast('samples:updated');
+                    ModelService.samplesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -253,10 +251,9 @@ app.controller(
     'CompensationEditController',
     [
         '$scope',
-        '$rootScope',
         '$controller',
         'ModelService',
-        function ($scope, $rootScope, $controller, ModelService) {
+        function ($scope, $controller, ModelService) {
             $scope.current_project = ModelService.current_project;
             $scope.errors = [];
             $scope.matrix_errors = [];
