@@ -182,12 +182,20 @@ class SubjectSerializer(serializers.ModelSerializer):
 
 
 class MarkerSerializer(serializers.ModelSerializer):
+    parameter_count = serializers.IntegerField(
+        source='sitepanelparametermarker_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Marker
 
 
 class FluorochromeSerializer(serializers.ModelSerializer):
+    parameter_count = serializers.IntegerField(
+        source='sitepanelparameter_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Fluorochrome
