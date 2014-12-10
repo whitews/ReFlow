@@ -439,15 +439,15 @@ app.controller(
         '$scope',
         '$modalInstance',
         'instance',
-        'SitePanel',
-        function ($scope, $modalInstance, instance, SitePanel) {
+        'ModelService',
+        function ($scope, $modalInstance, instance, ModelService) {
             $scope.instance = instance;
             $scope.ok = function () {
                 $modalInstance.close();
             };
 
-            $scope.site_panel = SitePanel.get(
-                {id: $scope.instance.site_panel }
+            $scope.site_panel = ModelService.getSitePanel(
+                $scope.instance.site_panel
             );
         }
     ]
