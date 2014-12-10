@@ -415,6 +415,9 @@ service.factory('ModelService', function(
             '/api/repository/samples/' + sample_id.toString() + '/csv/'
         );
     };
+    service.destroySample = function (instance) {
+        return Sample.delete({id: instance.id });
+    };
 
     // TODO: see where these are used and remove them
     service.setCurrentSample = function (value) {
@@ -426,7 +429,7 @@ service.factory('ModelService', function(
     };
     
     // Bead Sample related services
-    service.bead_samplesUpdated = function () {
+    service.beadSamplesUpdated = function () {
         $rootScope.$broadcast('bead_samples:updated');
     };
     service.getBeadSamples = function(query_object) {
@@ -446,6 +449,9 @@ service.factory('ModelService', function(
         return $http.get(
             '/api/repository/beads/' + bead_sample_id.toString() + '/csv/'
         );
+    };
+    service.destroyBeadSample = function (instance) {
+        return BeadSample.delete({id: instance.id });
     };
 
 

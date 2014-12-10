@@ -2,20 +2,15 @@ app.controller(
     'SampleDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Sample',
-        function ($scope, $rootScope, $controller, Sample) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
                 $scope.errors = [];
                 var response;
-                response = Sample.delete({id: instance.id });
+                response = ModelService.destroySample(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateSamples');
+                    ModelService.samplesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -32,20 +27,15 @@ app.controller(
     'BeadSampleDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'BeadSample',
-        function ($scope, $rootScope, $controller, BeadSample) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, $rootScope, $controller, ModelService) {
             $scope.destroy = function (instance) {
                 $scope.errors = [];
                 var response;
-                response = BeadSample.delete({id: instance.id });
+                response = ModelService.destroyBeadSample(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateBeadSamples');
+                    ModelService.beadSamplesUpdated();
 
                     // close modal
                     $scope.ok();
