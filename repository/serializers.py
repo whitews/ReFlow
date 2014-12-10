@@ -194,6 +194,10 @@ class FluorochromeSerializer(serializers.ModelSerializer):
 
 
 class SpecimenSerializer(serializers.ModelSerializer):
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Specimen
