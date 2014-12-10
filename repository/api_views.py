@@ -1315,7 +1315,7 @@ class MarkerList(generics.ListCreateAPIView):
         return response
 
 
-class MarkerDetail(generics.RetrieveUpdateAPIView):
+class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single marker.
     """
@@ -1337,6 +1337,21 @@ class MarkerDetail(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+    
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            marker = Marker.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if marker.sitepanelparametermarker_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(MarkerDetail, self).delete(request, *args, **kwargs)
+        return response
 
 
 class FluorochromeList(generics.ListCreateAPIView):
