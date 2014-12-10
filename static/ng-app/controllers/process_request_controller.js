@@ -28,7 +28,7 @@ app.controller(
                 });
             }
 
-            $scope.$on('updateProcessRequests', function () {
+            $scope.$on('process_requests:updated', function () {
                 $scope.process_requests = get_list();
             });
         }

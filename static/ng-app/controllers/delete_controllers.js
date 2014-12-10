@@ -281,20 +281,15 @@ app.controller(
     'ProcessRequestDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'ProcessRequest',
-        function ($scope, $rootScope, $controller, ProcessRequest) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
                 $scope.errors = [];
                 var response;
-                response = ProcessRequest.delete({id: instance.id });
+                response = ModelService.destroyProcessRequest(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateProcessRequests');
+                    ModelService.processRequestsUpdated();
 
                     // close modal
                     $scope.ok();

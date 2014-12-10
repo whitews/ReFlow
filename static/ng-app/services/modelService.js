@@ -494,16 +494,21 @@ service.factory('ModelService', function(
     };
     
     // ProcessRequest services
+    service.processRequestsUpdated = function () {
+        $rootScope.$broadcast('process_requests:updated');
+    };
     service.getProcessRequests = function() {
         return ProcessRequest.query(
             {}
         );
     };
-
     service.getProcessRequest = function(process_request_id) {
         return ProcessRequest.get(
             { id: process_request_id }
         );
+    };
+    service.destroyProcessRequest = function (instance) {
+        return ProcessRequest.delete({id: instance.id });
     };
 
     // SampleCollectionMember services
