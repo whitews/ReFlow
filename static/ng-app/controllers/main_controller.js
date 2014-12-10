@@ -409,7 +409,7 @@ app.controller(
                             }
                         }
                     });
-                })
+                });
             };
 
             $scope.$on('samples:updated', function () {
@@ -460,33 +460,42 @@ app.controller(
         '$modal',
         '$controller',
         'ModelService',
-        'BeadSample',
-        'PanelTemplate',
         function (
             $scope,
             $modal,
             $controller,
-            ModelService,
-            BeadSample,
-            PanelTemplate
+            ModelService
         ) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            if ($scope.current_project != undefined) {
-                init_filter();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    init_filter();
-                });
+            // need to know which sites user can modify
+            var sites_can_modify;
+            function update_modify_sites () {
+                sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
+                    $scope.current_project.id
+                );
             }
 
+            if ($scope.current_project) {
+                init_filter();
+                update_modify_sites();
+            }
+
+            $scope.$on('current_project:updated', function () {
+                init_filter();
+                update_modify_sites();
+            });
+
             function init_filter () {
-                $scope.panels = PanelTemplate.query(
+                $scope.panels = ModelService.getPanelTemplates(
                     {
                         'project': $scope.current_project.id,
                         'staining': ['CB']
                     }
+                );
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
                 );
             }
 
@@ -501,13 +510,13 @@ app.controller(
                 });
 
                 var sites = [];
-                $scope.current_project.sites.forEach(function (s) {
+                $scope.sites.forEach(function (s) {
                     if (s.query) {
                         sites.push(s.id);
                     }
                 });
 
-                $scope.samples = BeadSample.query(
+                $scope.samples = ModelService.getBeadSamples(
                     {
                         'panel': panels,
                         'site': sites
@@ -520,9 +529,9 @@ app.controller(
                         if ($scope.can_modify_project) {
                             s.can_modify = true;
                         } else {
-                            var site = $scope.current_project.site_lookup[s.site];
-                            if (site) {
-                                if (site.can_modify) {
+                            // check against sites_can_modify
+                            for (var i=0; i<sites_can_modify.length; i++) {
+                                if (s.site == sites_can_modify[i].id) {
                                     s.can_modify = true;
                                 }
                             }
@@ -531,7 +540,7 @@ app.controller(
                 });
             };
 
-            $scope.$on('updateBeadSamples', function () {
+            $scope.$on('bead_samples:updated', function () {
                 $scope.apply_filter();
             });
 

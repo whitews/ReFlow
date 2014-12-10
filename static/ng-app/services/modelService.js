@@ -24,6 +24,7 @@ service.factory('ModelService', function(
         Cytometer,
         SitePanel,
         Sample,
+        BeadSample,
         SampleMetadata,
         Compensation,
         ParameterFunction,
@@ -422,6 +423,29 @@ service.factory('ModelService', function(
     };
     service.getCurrentSample = function () {
         return this.current_sample;
+    };
+    
+    // Bead Sample related services
+    service.bead_samplesUpdated = function () {
+        $rootScope.$broadcast('bead_samples:updated');
+    };
+    service.getBeadSamples = function(query_object) {
+        return BeadSample.query(query_object);
+    };
+    service.createUpdateBeadSample = function(instance) {
+        if (instance.id) {
+            return BeadSample.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return BeadSample.save(instance);
+        }
+    };
+    service.getBeadSampleCSV = function (bead_sample_id) {
+        return $http.get(
+            '/api/repository/beads/' + bead_sample_id.toString() + '/csv/'
+        );
     };
 
 
