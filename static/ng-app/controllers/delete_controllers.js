@@ -1,4 +1,31 @@
 app.controller(
+    'ProjectDeleteController',
+    [
+        '$scope',
+        '$state',
+        'ModelService',
+        function ($scope, $state, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyProject(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.projectsUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                    // can only delete project while browsing it, so re-route
+                    $state.go('home');
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            }
+        }
+    ]
+);
+
+app.controller(
     'SampleDeleteController',
     [
         '$scope',
@@ -232,33 +259,6 @@ app.controller(
                     // close modal
                     $scope.ok();
 
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            }
-        }
-    ]
-);
-
-app.controller(
-    'ProjectDeleteController',
-    [
-        '$scope',
-        '$state',
-        'ModelService',
-        function ($scope, $state, ModelService) {
-            $scope.destroy = function (instance) {
-                var response = ModelService.destroyProject(instance);
-
-                response.$promise.then(function () {
-                    // notify to update list
-                    ModelService.projectsUpdated();
-
-                    // close modal
-                    $scope.ok();
-
-                    // can only delete project while browsing it, so re-route
-                    $state.go('home');
                 }, function (error) {
                     $scope.errors = error.data;
                 });
