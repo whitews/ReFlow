@@ -1425,9 +1425,12 @@ class SpecimenDetail(generics.RetrieveUpdateDestroyAPIView):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
-            Specimen.objects.get(id=kwargs['pk'])
+            specimen = Specimen.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if specimen.sample_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(SpecimenDetail, self).delete(request, *args, **kwargs)
         return response
