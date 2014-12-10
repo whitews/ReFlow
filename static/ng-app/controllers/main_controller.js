@@ -2,7 +2,9 @@ app.controller(
     'MainController',
     ['$scope', '$modal', 'ModelService',
         function ($scope, $modal, ModelService) {
-            $scope.projects = ModelService.getProjects();
+            if (!$scope.projects) {
+                $scope.projects = ModelService.getProjects();
+            }
 
             $scope.$on('projects:updated', function () {
                 $scope.projects = ModelService.getProjects();
