@@ -39,10 +39,6 @@ service.factory('ModelService', function(
 
     service.user = User.get();
 
-    service.getFluorochromes = function () {
-        return Fluorochrome.query();
-    };
-
     service.getParameterFunctions = function() {
         return ParameterFunction.query(
             {}
@@ -95,6 +91,27 @@ service.factory('ModelService', function(
     };
     service.destroyMarker = function (instance) {
         return Marker.delete({id: instance.id });
+    };
+    
+    // Fluorochrome services
+    service.fluorochromesUpdated = function () {
+        $rootScope.$broadcast('fluorochromes:updated');
+    };
+    service.getFluorochromes = function() {
+        return Fluorochrome.query({});
+    };
+    service.createUpdateFluorochrome = function(instance) {
+        if (instance.id) {
+            return Fluorochrome.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Fluorochrome.save(instance);
+        }
+    };
+    service.destroyFluorochrome = function (instance) {
+        return Fluorochrome.delete({id: instance.id });
     };
 
     // Pretreatment services

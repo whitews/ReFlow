@@ -63,6 +63,7 @@ var MODAL_URLS = {
     'MARKER':             'static/ng-app/partials/marker-form.html',
     'MARKER_DELETE':      'static/ng-app/partials/marker-delete.html',
     'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
+    'FLUOROCHROME_DELETE': 'static/ng-app/partials/fluorochrome-delete.html',
     'WORKER':             'static/ng-app/partials/worker-form.html',
 };
 

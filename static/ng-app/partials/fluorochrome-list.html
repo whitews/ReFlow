@@ -6,9 +6,9 @@
               <h4>Fluorochromes <span class="badge badge-inverse align-top">{{ fluorochromes.length }}</span></h4>
 
               <div class="btn-group" ng-show="user.superuser" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(null, 'FLUOROCHROME')">
-                      Add Fluorochrome
-                  </a>
+                <a class="btn btn-default btn-sm" ng-click="init_form(null, 'FLUOROCHROME')">
+                    Add Fluorochrome
+                </a>
               </div>
             </div>
           </th>
@@ -18,18 +18,23 @@
           <th>Abbreviation</th>
           <th>Name</th>
           <th>Description</th>
+          <th>Parameter Count</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="fluorochrome in fluorochromes">
           <td class="no-wrap" width="1%">
-              <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(fluorochrome, 'FLUOROCHROME')" tooltip="Edit" tooltip-placement="bottom">
-                <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
-              </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(fluorochrome, 'FLUOROCHROME')" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(fluorochrome, 'FLUOROCHROME_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>{{ fluorochrome.fluorochrome_abbreviation }}</td>
           <td>{{ fluorochrome.fluorochrome_name }}</td>
           <td>{{ fluorochrome.fluorochrome_description }}</td>
+          <td>{{ fluorochrome.parameter_count }}</td>
         </tr>
       </tbody>
     </table>

@@ -7,7 +7,7 @@
 
     <div class="form-group">
       <label class="col-md-3 control-label">Abbreviation</label>
-      <input maxlength="128" type="text" ng-model="instance.fluorochrome_abbreviation" />
+      <input maxlength="128" type="text" ng-model="instance.fluorochrome_abbreviation" ng-required="true" />
       <strong ng-show="errors.fluorochrome_abbreviation" class="help-inline text-danger">
         {{ errors.fluorochrome_abbreviation.join(', ') }}
       </strong>
@@ -15,7 +15,7 @@
     
     <div class="form-group">
       <label class="col-md-3 control-label">Name</label>
-      <input maxlength="128" type="text" ng-model="instance.fluorochrome_name" />
+      <input maxlength="128" type="text" ng-model="instance.fluorochrome_name" ng-required="true" />
       <strong ng-show="errors.fluorochrome_name" class="help-inline text-danger">
         {{ errors.fluorochrome_name.join(', ') }}
       </strong>
