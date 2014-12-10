@@ -41,9 +41,8 @@ app.controller(
     [
         '$scope',
         '$stateParams',
-        '$modal',
         'ModelService',
-        function ($scope, $stateParams, $modal, ModelService) {
+        function ($scope, $stateParams, ModelService) {
             // try to keep this controller as lean as possible because
             // many other controllers inherit this $scope to obtain the
             // "current project" and that results in this code executing
@@ -559,8 +558,9 @@ app.controller(
         '$scope',
         '$q',
         '$controller',
+        '$modal',
         'ModelService',
-        function ($scope, $q, $controller, ModelService) {
+        function ($scope, $q, $controller, $modal, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
