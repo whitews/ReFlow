@@ -21,12 +21,8 @@ app.controller(
     'SpecimenEditController',
     [
         '$scope',
-        '$controller',
         'ModelService',
-        function ($scope, $controller, ModelService) {
-            // Inherits SpecimenController $scope
-            $controller('SpecimenController', {$scope: $scope});
-
+        function ($scope, ModelService) {
             $scope.create_update = function (instance) {
                 $scope.errors = [];
                 var response = ModelService.createUpdateSpecimen(instance);
