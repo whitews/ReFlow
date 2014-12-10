@@ -1371,7 +1371,7 @@ class FluorochromeList(generics.ListCreateAPIView):
         return response
 
 
-class FluorochromeDetail(generics.RetrieveUpdateAPIView):
+class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single fluorochrome.
     """
@@ -1393,6 +1393,21 @@ class FluorochromeDetail(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if fluorochrome.sitepanelparameter_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(FluorochromeDetail, self).delete(request, *args, **kwargs)
+        return response
 
 
 class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
