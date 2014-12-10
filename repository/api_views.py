@@ -74,8 +74,6 @@ def repository_api_root(request):
         'sample_collection_members': reverse(
             'sample-collection-member-list', request=request),
         'sites': reverse('site-list', request=request),
-        'project-sites-by-permission-list': reverse(
-            'project-sites-by-permission-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
@@ -1399,7 +1397,7 @@ class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
         return response
 
 
-class SpecimenDetail(generics.RetrieveUpdateAPIView):
+class SpecimenDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single fluorochrome.
     """
@@ -1421,6 +1419,18 @@ class SpecimenDetail(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            Specimen.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        response = super(SpecimenDetail, self).delete(request, *args, **kwargs)
+        return response
 
 
 class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
