@@ -3,20 +3,15 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'Specimen',
-        function ($scope, $controller, Specimen) {
+        'ModelService',
+        function ($scope, $controller, ModelService) {
             // Inherits MainController $scope
             $controller('MainController', {$scope: $scope});
 
-            function get_list() {
-                return Specimen.query(
-                    {}
-                );
-            }
-            $scope.specimens = get_list();
+            $scope.specimens = ModelService.getSpecimens();
 
-            $scope.$on('updateSpecimens', function () {
-                $scope.specimens = get_list();
+            $scope.$on('specimens:updated', function () {
+                $scope.specimens = ModelService.getSpecimens();
             });
         }
     ]
@@ -26,30 +21,43 @@ app.controller(
     'SpecimenEditController',
     [
         '$scope',
-        '$rootScope',
         '$controller',
-        'Specimen',
-        function ($scope, $rootScope, $controller, Specimen) {
+        'ModelService',
+        function ($scope, $controller, ModelService) {
             // Inherits SpecimenController $scope
             $controller('SpecimenController', {$scope: $scope});
 
             $scope.create_update = function (instance) {
                 $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Specimen.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Specimen.save(
-                        $scope.instance
-                    );
-                }
+                var response = ModelService.createUpdateSpecimen(instance);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateSpecimens');
+                    // notify to update list
+                    ModelService.specimensUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'SpecimenDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroySpecimen(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.specimensUpdated();
 
                     // close modal
                     $scope.ok();

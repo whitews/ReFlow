@@ -60,8 +60,24 @@ service.factory('ModelService', function(
     };
 
     // Specimen services
+    service.specimensUpdated = function () {
+        $rootScope.$broadcast('specimens:updated');
+    };
     service.getSpecimens = function() {
         return Specimen.query({});
+    };
+    service.createUpdateSpecimen = function(instance) {
+        if (instance.id) {
+            return Specimen.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Specimen.save(instance);
+        }
+    };
+    service.destroySpecimen = function (instance) {
+        return Specimen.delete({id: instance.id });
     };
 
     // Pretreatment services
