@@ -46,7 +46,7 @@
 
             <b>Site</b>
             <ul>
-              <li ng-repeat="s in current_project.sites">
+              <li ng-repeat="s in sites">
                 <label>
                   <input type="checkbox" ng-model="s.query" />
                   {{ s.site_name }}
@@ -73,9 +73,6 @@
               <td class="no-wrap" width="1%">
                 <a class="btn btn-default btn-xs" ng-click="show_parameters(s)" tooltip="Show Parameters" tooltip-placement="bottom">
                   <i style="opacity: 0.4" class="fa fa-list-alt align-middle"></i>
-                </a>
-                <a class="btn btn-default btn-xs" ng-click="show_compensation(s.id)" tooltip="Show Compensation" tooltip-placement="bottom">
-                  <i style="opacity: 0.4" class="fa fa-sliders align-middle"></i>
                 </a>
                 <a class="btn btn-default btn-xs" href="/api/repository/beads/{{ s.id }}/fcs_original/" tooltip="Download FCS File" tooltip-placement="bottom">
                   <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
