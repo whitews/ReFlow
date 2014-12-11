@@ -11,6 +11,8 @@ service.factory('ModelService', function(
         Storage,
         Worker,
         Project,
+        ProjectUser,
+        UserPermissions,
         SubjectGroup,
         Subject,
         VisitType,
@@ -207,6 +209,15 @@ service.factory('ModelService', function(
     };
     service.destroyProject = function (instance) {
         return Project.delete({id: instance.id });
+    };
+
+    // Project User services
+    service.getProjectUsers = function(project_id) {
+        return ProjectUser.query(
+            {
+                'project': project_id
+            }
+        );
     };
 
     // Subject Group services

@@ -3,17 +3,16 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'ProjectUser',
         'UserPermissions',
         'ModelService',
-        function ($scope, $controller, ProjectUser, UserPermissions, ModelService) {
+        function ($scope, $controller, UserPermissions, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
             function get_list() {
                 // first, get the list of users
-                var response = ProjectUser.get(
-                    { 'id': $scope.current_project.id }
+                var response = ModelService.getProjectUsers(
+                    $scope.current_project.id
                 );
                 var users = [];
                 response.$promise.then(function (data) {
