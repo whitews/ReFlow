@@ -313,6 +313,23 @@ service.factory('ModelService', function(
     service.getPanelTemplates = function(query_object) {
         return PanelTemplate.query(query_object);
     };
+    service.getPanelTemplate = function (panel_template_id) {
+        return PanelTemplate.get(
+            {
+                'id': panel_template_id
+            }
+        );
+    };
+    service.createUpdatePanelTemplate = function(instance) {
+        if (instance.id) {
+            return PanelTemplate.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return PanelTemplate.save(instance);
+        }
+    };
     service.destroyPanelTemplate = function (instance) {
         return PanelTemplate.delete({id: instance.id });
     };
