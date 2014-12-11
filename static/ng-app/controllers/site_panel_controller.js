@@ -1,6 +1,6 @@
 app.controller(
     'SitePanelController',
-    ['$scope', '$q', 'ModelService', 'SitePanel', function ($scope, $q, ModelService, SitePanel) {
+    ['$scope', '$q', 'ModelService', function ($scope, $q, ModelService) {
 
         $scope.site_panel_model = {};
         $scope.close_modal = false;
@@ -323,14 +323,12 @@ app.controller(
                 parameters: params,
                 site_panel_comments: ""
             };
-            var site_panel = SitePanel.save(data);
-            site_panel.$promise.then(function (o) {
+            var site_panel = ModelService.createSitePanel(data);
+            site_panel.$promise.then(function () {
+                // notify to update site panels
+                ModelService.sitePanelsUpdated();
+                // close modal
                 $scope.ok();
-                // broadcast to update site panels and set
-                // current site panel to this one, we broadcast to root
-                // b/c there's no relationship between this and site panel
-                // query controller
-                $scope.$root.$broadcast('updateSitePanels', o.id);
             }, function(error) {
                 console.log(error);
             });

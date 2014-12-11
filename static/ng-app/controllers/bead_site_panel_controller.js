@@ -238,7 +238,6 @@ app.controller(
             site_panel.$promise.then(function () {
                 // notify to update site panels
                 ModelService.sitePanelsUpdated();
-
                 // close modal
                 $scope.ok();
             }, function(error) {
