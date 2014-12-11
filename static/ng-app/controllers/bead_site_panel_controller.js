@@ -5,9 +5,8 @@ app.controller(
     'BeadParameterController',
     [
         '$scope',
-        'ParameterFunction',
-        'ParameterValueType',
-        function ($scope, ParameterFunction, ParameterValueType) {
+        'ModelService',
+        function ($scope, ModelService) {
             // only bead functions
             $scope.site_panel_model.parameter_functions = [
                 ["FSC", "Forward Scatter"],
@@ -16,14 +15,14 @@ app.controller(
                 ["TIM", "Time"]
             ];
 
-            $scope.site_panel_model.parameter_value_types = ParameterValueType.query();
+            $scope.site_panel_model.parameter_value_types = ModelService.getParameterValueTypes();
         }
     ]
 );
 
 app.controller(
     'BeadSitePanelController',
-    ['$scope', 'ModelService', 'SitePanel', function ($scope, ModelService, SitePanel) {
+    ['$scope', 'ModelService', function ($scope, ModelService) {
 
         $scope.site_panel_model = {};
         $scope.close_modal = false;
@@ -239,13 +238,12 @@ app.controller(
                 site_panel_comments: ""
             };
             var site_panel = ModelService.createSitePanel(data);
-            site_panel.$promise.then(function (o) {
+            site_panel.$promise.then(function () {
+                // notify to update site panels
+                ModelService.sitePanelsUpdated();
+
+                // close modal
                 $scope.ok();
-                // broadcast to update site panels and set
-                // current site panel to this one, we broadcast to root
-                // b/c there's no relationship between this and site panel
-                // query controller
-                $scope.$root.$broadcast('updateSitePanels', o.id);
             }, function(error) {
                 console.log(error);
             });

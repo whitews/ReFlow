@@ -41,18 +41,6 @@ service.factory('ModelService', function(
 
     service.user = User.get();
 
-    service.getParameterFunctions = function() {
-        return ParameterFunction.query(
-            {}
-        );
-    };
-
-    service.getParameterValueTypes = function() {
-        return ParameterValueType.query(
-            {}
-        );
-    };
-
     // Specimen services
     service.specimensUpdated = function () {
         $rootScope.$broadcast('specimens:updated');
@@ -72,6 +60,16 @@ service.factory('ModelService', function(
     };
     service.destroySpecimen = function (instance) {
         return Specimen.delete({id: instance.id });
+    };
+
+    // Parameter Function services
+    service.getParameterFunctions = function() {
+        return ParameterFunction.query({});
+    };
+
+    // Parameter Value Type services
+    service.getParameterValueTypes = function() {
+        return ParameterValueType.query({});
     };
     
     // Marker services
@@ -115,7 +113,7 @@ service.factory('ModelService', function(
     service.destroyFluorochrome = function (instance) {
         return Fluorochrome.delete({id: instance.id });
     };
-    
+
     // Worker services
     service.workersUpdated = function () {
         $rootScope.$broadcast('workers:updated');
@@ -486,6 +484,9 @@ service.factory('ModelService', function(
     };
 
     // Site Panel services
+    service.sitePanelsUpdated = function () {
+        $rootScope.$broadcast('site_panels:updated');
+    };
     service.getSitePanel = function (site_panel_id) {
         return SitePanel.get(
             {
