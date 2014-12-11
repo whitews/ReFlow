@@ -1,6 +1,3 @@
-/**
- * Created by swhite on 4/7/14.
- */
 app.controller(
     'BeadParameterController',
     [

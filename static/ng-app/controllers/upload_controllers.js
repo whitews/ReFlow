@@ -1,7 +1,3 @@
-/**
- * Created by swhite on 2/25/14.
- */
-
 app.controller(
     'PanelTemplateQueryController',
     ['$scope', 'PanelTemplate', 'SitePanel', function ($scope, PanelTemplate, SitePanel) {
