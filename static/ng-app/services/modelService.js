@@ -31,11 +31,21 @@ service.factory('ModelService', function(
         SampleCluster) {
     var service = {};
 
+    // The following section is for storing/retrieving "global" variables
+    // that are needed across various controllers
+    service.setCurrentSite = function (value) {
+        this.current_site = value;
+        $rootScope.$broadcast('siteChanged');
+    };
+    service.getCurrentSite = function () {
+        return this.current_site;
+    };
     service.current_site = null;
     service.current_sample = null;
     service.current_panel_template = null;
 
     service.user = User.get();
+    // End "global" varaiables
 
     // Specimen services
     service.specimensUpdated = function () {
@@ -376,15 +386,6 @@ service.factory('ModelService', function(
     };
     service.destroyCytometer = function (instance) {
         return Cytometer.delete({id: instance.id });
-    };
-
-    // TODO: see where these are used and remove them
-    service.setCurrentSite = function (value) {
-        this.current_site = value;
-        $rootScope.$broadcast('siteChanged');
-    };
-    service.getCurrentSite = function () {
-        return this.current_site;
     };
 
     // Sample related services
