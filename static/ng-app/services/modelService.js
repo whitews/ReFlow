@@ -26,6 +26,9 @@ service.factory('ModelService', function(
         ParameterFunction,
         ParameterValueType,
         ProcessRequest,
+        ProcessRequestInput,
+        SubprocessImplementation,
+        SubprocessInput,
         SampleCollection,
         SampleCollectionMember,
         SampleCluster) {
@@ -519,27 +522,58 @@ service.factory('ModelService', function(
     service.processRequestsUpdated = function () {
         $rootScope.$broadcast('process_requests:updated');
     };
-    service.getProcessRequests = function() {
-        return ProcessRequest.query(
-            {}
-        );
+    service.getProcessRequests = function(query_object) {
+        return ProcessRequest.query(query_object);
     };
     service.getProcessRequest = function(process_request_id) {
         return ProcessRequest.get(
             { id: process_request_id }
         );
     };
+    service.createProcessRequest = function(instance) {
+        return ProcessRequest.save(instance);
+    };
     service.destroyProcessRequest = function (instance) {
         return ProcessRequest.delete({id: instance.id });
     };
 
-    // SampleCollectionMember services
+    // Subprocess Implementation services
+    service.getSubprocessImplementations = function(query_object) {
+        return SubprocessImplementation.query(query_object);
+    };
+
+    // Subprocess Input services
+    service.getSubprocessInputs = function(query_object) {
+        return SubprocessInput.query(query_object);
+    };
+
+    // SampleCollection services
     service.getSampleCollection = function(sample_collection_id) {
         return SampleCollection.get(
             {
                 'id': sample_collection_id
             }
         );
+    };
+    service.createSampleCollection = function(instance) {
+        return SampleCollection.save(instance);
+    };
+
+    // SampleCollectionMember services
+    service.getSampleCollectionMembers = function(sample_collection_id) {
+        return SampleCollectionMember.get(
+            {
+                'id': sample_collection_id
+            }
+        );
+    };
+    service.createSampleCollectionMembers = function(instances) {
+        return SampleCollectionMember.save(instances);
+    };
+
+    // Process Request Input services
+    service.createProcessRequestInputs = function(instances) {
+        return ProcessRequestInput.save(instances);
     };
 
     // SampleCluster services

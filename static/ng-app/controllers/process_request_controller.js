@@ -1,35 +1,35 @@
-/**
- * Created by swhite on 2/25/14.
- */
-
 app.controller(
     'ProcessRequestController',
     [
         '$scope',
         '$controller',
-        'ProcessRequest',
-        function ($scope, $controller, ProcessRequest) {
+        'ModelService',
+        function ($scope, $controller, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return ProcessRequest.query(
+            if ($scope.current_project) {
+                $scope.process_requests = ModelService.getProcessRequests(
                     {
                         'project': $scope.current_project.id
                     }
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.process_requests = get_list();
-            } else {
-                $scope.$on('current_project:updated', function () {
-                    $scope.process_requests = get_list();
-                });
-            }
+            $scope.$on('current_project:updated', function () {
+                $scope.process_requests = ModelService.getProcessRequests(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
+            });
 
             $scope.$on('process_requests:updated', function () {
-                $scope.process_requests = get_list();
+                $scope.process_requests = ModelService.getProcessRequests(
+                    {
+                        'project': $scope.current_project.id
+                    }
+                );
             });
         }
     ]
@@ -41,15 +41,13 @@ app.controller(
         '$scope',
         '$controller',
         '$stateParams',
-        'ProcessRequest',
-        'ProcessRequestInput',
-        'ProcessRequestOutput',
-        function ($scope, $controller, $stateParams, ProcessRequest, ProcessRequestInput, ProcessRequestOutput) {
+        'ModelService',
+        function ($scope, $controller, $stateParams, ModelService) {
             // Inherits ProcessRequestController $scope
             $controller('ProcessRequestController', {$scope: $scope});
 
-            $scope.process_request = ProcessRequest.get(
-                { id: $stateParams.requestId }
+            $scope.process_request = ModelService.getProcessRequest(
+                $stateParams.requestId
             );
         }
     ]
@@ -97,45 +95,15 @@ app.controller(
     'ProcessRequestFormController',
     [
         '$scope',
+        '$q',
         '$controller',
         '$modal',
-        'Project',
-        'Site',
-        'PanelTemplate',
-        'SitePanel',
-        'Sample',
-        'SampleCollection',
-        'SampleCollectionMember',
-        'Subject',
-        'VisitType',
-        'Stimulation',
-        'Cytometer',
-        'Pretreatment',
-        'SubprocessImplementation',
-        'SubprocessInput',
-        'ProcessRequest',
-        'ProcessRequestInput',
         'ModelService',
         function (
                 $scope,
+                $q,
                 $controller,
                 $modal,
-                Project,
-                Site,
-                PanelTemplate,
-                SitePanel,
-                Sample,
-                SampleCollection,
-                SampleCollectionMember,
-                Subject,
-                VisitType,
-                Stimulation,
-                Cytometer,
-                Pretreatment,
-                SubprocessImplementation,
-                SubprocessInput,
-                ProcessRequest,
-                ProcessRequestInput,
                 ModelService) {
 
             // Inherits ProjectDetailController $scope
@@ -143,22 +111,38 @@ app.controller(
 
             $scope.model = {};
 
-            // Populate our sample filters
-            $scope.model.panel_templates = PanelTemplate.query({project: $scope.current_project.id});
-            $scope.model.site_panels = []; // depends on chosen template
-            $scope.model.sites = Site.query({project: $scope.current_project.id});
-            $scope.model.subjects = Subject.query({project: $scope.current_project.id});
-            $scope.model.visits = VisitType.query({project: $scope.current_project.id});
-            $scope.model.stimulations = Stimulation.query({project: $scope.current_project.id});
-            $scope.model.cytometers = []; // depends on chosen sites
-            $scope.model.pretreatments = Pretreatment.query();
-            $scope.model.chosen_samples = [];
-            $scope.model.comp_object_lut = {};
+            function init_filters() {
+                // Populate our sample filters
+                $scope.model.panel_templates = ModelService.getPanelTemplates(
+                    {project: $scope.current_project.id}
+                );
+                $scope.model.site_panels = []; // depends on chosen template
+                $scope.model.sites = ModelService.getSites($scope.current_project.id);
+                $scope.model.subjects = ModelService.getSubjects($scope.current_project.id);
+                $scope.model.visits = ModelService.getVisitTypes($scope.current_project.id);
+                $scope.model.stimulations = ModelService.getStimulations($scope.current_project.id);
+                $scope.model.cytometers = []; // depends on chosen sites
+                $scope.model.pretreatments = ModelService.getPretreatments();
+                $scope.model.chosen_samples = [];
+                $scope.model.comp_object_lut = {};
 
-            $scope.model.current_panel_template = null;
+                $scope.model.current_panel_template = null;
+            }
+
+            if ($scope.current_project) {
+                init_filters();
+            }
+
+            $scope.$on('current_project:updated', function () {
+                init_filters();
+            });
 
             $scope.panelTemplateChanged = function () {
-                $scope.model.samples = Sample.query({panel: $scope.model.current_panel_template.id});
+                $scope.model.samples = ModelService.getSamples(
+                    {
+                        panel: $scope.model.current_panel_template.id
+                    }
+                );
 
                 $scope.model.samples.$promise.then(function (data) {
                     data.forEach(function (sample) {
@@ -200,7 +184,11 @@ app.controller(
                         site_list.push(site.id);
                     }
                 });
-                $scope.model.cytometers = Cytometer.query({site: site_list});
+                $scope.model.cytometers = ModelService.getCytometers(
+                    {
+                        'site': site_list
+                    }
+                );
                 $scope.updateSamples();
             };
 
@@ -213,19 +201,18 @@ app.controller(
                 var category_name = 'filtering';
                 var implementation_name = 'parameters';
                 var subproc_name = 'parameter';
-                SubprocessImplementation.query(
+                ModelService.getSubprocessImplementations(
                     {
                         category_name: category_name,
                         name: implementation_name
-                    },
-                    function (data) {  // success
-                        if (data.length > 0) {
-                            $scope.model.filtering = data[0];
-                        }
                     }
-                );
+                ).$promise.then(function (data) {
+                    if (data.length > 0) {
+                        $scope.model.filtering = data[0];
+                    }
+                });
 
-                $scope.model.parameter_inputs = SubprocessInput.query(
+                $scope.model.parameter_inputs = ModelService.getSubprocessInputs(
                     {
                         category_name: category_name,
                         implementation_name: implementation_name,
@@ -268,7 +255,11 @@ app.controller(
                 var panel_match_count = 0;
                 var indices_to_exclude = [];
 
-                $scope.model.site_panels = SitePanel.query({'id': site_panel_list});
+                $scope.model.site_panels = ModelService.getSitePanels(
+                    {
+                        'id': site_panel_list
+                    }
+                );
 
                 $scope.model.site_panels.$promise.then(function(data) {
                     data.forEach (function (site_panel) {
@@ -331,34 +322,34 @@ app.controller(
             }
 
             function initializeTransformation () {
-                // there's only one transform implementation now (logicle)
+                // there's only one transform implementation now (asinh)
                 // so we'll go ahead to retrieve the inputs for that
                 // implementation
                 var category_name = 'transformation';
                 var implementation_name = 'asinh';
-                SubprocessImplementation.query(
+
+                ModelService.getSubprocessImplementations(
                     {
                         category_name: category_name,
                         name: implementation_name
-                    },
-                    function (data) {  // success
-                        if (data.length > 0) {
-                            $scope.model.transformation = data[0];
-                        }
                     }
-                );
+                ).$promise.then(function (data) {
+                    if (data.length > 0) {
+                        $scope.model.transformation = data[0];
+                    }
+                });
 
-                $scope.model.transform_inputs = SubprocessInput.query(
+                $scope.model.transform_inputs = ModelService.getSubprocessInputs(
                     {
                         category_name: category_name,
                         implementation_name: implementation_name
-                    },
-                    function (data) {  // success
-                        data.forEach(function (input) {
-                            input.value = input.default;
-                        });
                     }
                 );
+                $scope.model.transform_inputs.$promise.then(function () {
+                    $scope.model.transform_inputs.forEach(function (input) {
+                        input.value = input.default;
+                    });
+                });
             }
 
             function initializeClustering () {
@@ -367,29 +358,29 @@ app.controller(
                 // implementation
                 var category_name = 'clustering';
                 var implementation_name = 'hdp';
-                SubprocessImplementation.query(
+
+                ModelService.getSubprocessImplementations(
                     {
                         category_name: category_name,
                         name: implementation_name
-                    },
-                    function (data) {  // success
-                        if (data.length > 0) {
-                            $scope.model.clustering = data[0];
-                        }
                     }
-                );
+                ).$promise.then(function (data) {
+                    if (data.length > 0) {
+                        $scope.model.clustering = data[0];
+                    }
+                });
 
-                $scope.model.clustering_inputs = SubprocessInput.query(
+                $scope.model.clustering_inputs = ModelService.getSubprocessInputs(
                     {
                         category_name: category_name,
                         implementation_name: implementation_name
-                    },
-                    function (data) {  // success
-                        data.forEach(function (input) {
-                            input.value = input.default;
-                        });
                     }
                 );
+                $scope.model.clustering_inputs.$promise.then(function () {
+                    $scope.model.clustering_inputs.forEach(function (input) {
+                        input.value = input.default;
+                    });
+                });
             }
 
             function initializeStep () {
@@ -536,96 +527,89 @@ app.controller(
 
             $scope.submit_request = function () {
                 // first, we'll create the sample collection using the project ID
-                var collection = SampleCollection.save(
+                var collection = ModelService.createSampleCollection(
                     {
                         project: $scope.current_project.id
                     }
                 );
 
-                // then, create the sample collection members using the
+                // then, create the sample collection members & PR using the
                 // sample collection ID
-                var pr = collection.$promise
-                    .then(function (c) {
-                        var members = [];
-                        $scope.model.samples.forEach(function (sample) {
-                            if (sample.selected && !sample.ignore) {
-                                members.push(
-                                    new SampleCollectionMember(
-                                        {
-                                            sample_collection: c.id,
-                                            sample: sample.id,
-                                            compensation: $scope.model.comp_object_lut[sample.chosen_comp_matrix].matrix
-                                        }
-                                    )
-                                )
-                            }
-                        });
-                        return SampleCollectionMember.save(members);
-                    })
-                    .then(function () {  // Create the PR before the inputs
-                        var pr = new ProcessRequest(
-                            {
-                                project: $scope.current_project.id,
-                                sample_collection: collection.id,
-                                description: $scope.model.request_description
-                            }
-                        );
-                        return ProcessRequest.save(pr).$promise;
+                collection.$promise.then(function () {
+                    var member_objects = [];
+                    $scope.model.samples.forEach(function (sample) {
+                        if (sample.selected && !sample.ignore) {
+                            member_objects.push(
+                                {
+                                    sample_collection: collection.id,
+                                    sample: sample.id,
+                                    compensation: $scope.model.comp_object_lut[sample.chosen_comp_matrix].matrix
+                                }
+                            );
+                        }
                     });
 
-                pr.then(function (pr) {  // create all the PR inputs
-                    var pr_inputs = [];
+                    var members = ModelService.createSampleCollectionMembers(
+                        member_objects
+                    );
+                    var pr = ModelService.createProcessRequest(
+                        {
+                            project: $scope.current_project.id,
+                            sample_collection: collection.id,
+                            description: $scope.model.request_description
+                        }
+                    );
+                    $q.all([members.$promise, pr.$promise]).then(function () {
+                        // finally, create all the PR inputs
+                        var pr_input_objects = [];
 
-                    // first retrieve the chosen parameters
-                    var param_subproc = $scope.model.parameter_inputs[0];
-                    $scope.model.parameters.forEach(function (param) {
-                        if (param.selected) {
-                            pr_inputs.push(
-                                new ProcessRequestInput(
+                        // first retrieve the chosen parameters
+                        var param_subproc = $scope.model.parameter_inputs[0];
+                        $scope.model.parameters.forEach(function (param) {
+                            if (param.selected) {
+                                pr_input_objects.push(
                                     {
                                         process_request: pr.id,
                                         subprocess_input: param_subproc.id,
                                         value: param.parameter
                                     }
-                                )
-                            )
-                        }
-                    });
+                                );
+                            }
+                        });
 
-                    // next get the transformation inputs
-                    $scope.model.transform_inputs.forEach(function (input) {
-                        pr_inputs.push(
-                            new ProcessRequestInput(
+                        // next get the transformation inputs
+                        $scope.model.transform_inputs.forEach(function (input) {
+                            pr_input_objects.push(
                                 {
                                     process_request: pr.id,
                                     subprocess_input: input.id,
                                     value: input.value
                                 }
-                            )
-                        )
-                    });
+                            );
+                        });
 
-                    // and the clustering inputs
-                    $scope.model.clustering_inputs.forEach(function (input) {
-                        pr_inputs.push(
-                            new ProcessRequestInput(
+                        // and the clustering inputs
+                        $scope.model.clustering_inputs.forEach(function (input) {
+                            pr_input_objects.push(
                                 {
                                     process_request: pr.id,
                                     subprocess_input: input.id,
                                     value: input.value
                                 }
-                            )
-                        )
-                    });
+                            );
+                        });
 
-                    // and we're ready to save them all in bulk
-                    ProcessRequestInput.save(
-                        pr_inputs,
-                        function (data) {  // success
+                        // and we're ready to save them all in bulk
+                        var pr_inputs = ModelService.createProcessRequestInputs(
+                            pr_input_objects
+                        );
+                        pr_inputs.$promise.then(function (data) {
                             $scope.nextStep();
                             $scope.model.submitted_pr = pr;
                             $scope.model.submitted_pr_inputs = data;
-                    })
+                        });
+                    });
+
                 });
             }
         }
