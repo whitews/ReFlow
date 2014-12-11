@@ -1,7 +1,3 @@
-/**
- * Created by swhite on 6/11/14.
- */
-
 var service = angular.module('ReFlowApp');
 
 service.factory('ModelService', function(
@@ -486,6 +482,9 @@ service.factory('ModelService', function(
     // Site Panel services
     service.sitePanelsUpdated = function () {
         $rootScope.$broadcast('site_panels:updated');
+    };
+    service.getSitePanels = function(query_object) {
+        return SitePanel.query(query_object);
     };
     service.getSitePanel = function (site_panel_id) {
         return SitePanel.get(
