@@ -1,21 +1,43 @@
 app.controller(
+    'ProjectDeleteController',
+    [
+        '$scope',
+        '$state',
+        'ModelService',
+        function ($scope, $state, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyProject(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.projectsUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                    // can only delete project while browsing it, so re-route
+                    $state.go('home');
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            }
+        }
+    ]
+);
+
+app.controller(
     'SampleDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Sample',
-        function ($scope, $rootScope, $controller, Sample) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
                 $scope.errors = [];
                 var response;
-                response = Sample.delete({id: instance.id });
+                response = ModelService.destroySample(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateSamples');
+                    ModelService.samplesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -32,20 +54,15 @@ app.controller(
     'BeadSampleDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'BeadSample',
-        function ($scope, $rootScope, $controller, BeadSample) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, $rootScope, $controller, ModelService) {
             $scope.destroy = function (instance) {
                 $scope.errors = [];
                 var response;
-                response = BeadSample.delete({id: instance.id });
+                response = ModelService.destroyBeadSample(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateBeadSamples');
+                    ModelService.beadSamplesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -62,20 +79,14 @@ app.controller(
     'CompensationDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Compensation',
-        function ($scope, $rootScope, $controller, Compensation) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Compensation.delete({id: instance.id });
+                var response = ModelService.destroyCompensation(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateCompensations');
+                    // notify to update comp list
+                    ModelService.compensationsUpdated();
 
                     // close modal
                     $scope.ok();
@@ -92,20 +103,14 @@ app.controller(
     'CytometerDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Cytometer',
-        function ($scope, $rootScope, $controller, Cytometer) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Cytometer.delete({id: instance.id });
+                var response = ModelService.destroyCytometer(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateCytometers');
+                    // notify to update list
+                    ModelService.cytometersUpdated();
 
                     // close modal
                     $scope.ok();
@@ -122,20 +127,14 @@ app.controller(
     'StimulationDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Stimulation',
-        function ($scope, $rootScope, $controller, Stimulation) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Stimulation.delete({id: instance.id });
+                var response = ModelService.destroyStimulation(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateStimulations');
+                    // notify to update list
+                    ModelService.stimulationsUpdated();
 
                     // close modal
                     $scope.ok();
@@ -152,20 +151,14 @@ app.controller(
     'VisitTypeDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'VisitType',
-        function ($scope, $rootScope, $controller, VisitType) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = VisitType.delete({id: instance.id });
+                var response = ModelService.destroyVisitType(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateVisitTypes');
+                    // notify to update list
+                    ModelService.visitTypesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -182,20 +175,14 @@ app.controller(
     'SiteDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Site',
-        function ($scope, $rootScope, $controller, Site) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Site.delete({id: instance.id });
+                var response = ModelService.destroySite(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateSites');
+                    // notify to update list
+                    ModelService.sitesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -212,20 +199,14 @@ app.controller(
     'PanelTemplateDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'PanelTemplate',
-        function ($scope, $rootScope, $controller, PanelTemplate) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = PanelTemplate.delete({id: instance.id });
+                var response = ModelService.destroyPanelTemplate(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updatePanelTemplates');
+                    // notify to update list
+                    ModelService.panelTemplatesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -242,20 +223,14 @@ app.controller(
     'SubjectDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Subject',
-        function ($scope, $rootScope, $controller, Subject) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Subject.delete({id: instance.id });
+                var response = ModelService.destroySubject(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateSubjects');
+                    // notify to update list
+                    ModelService.subjectsUpdated();
 
                     // close modal
                     $scope.ok();
@@ -272,20 +247,14 @@ app.controller(
     'SubjectGroupDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'SubjectGroup',
-        function ($scope, $rootScope, $controller, SubjectGroup) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = SubjectGroup.delete({id: instance.id });
+                var response = ModelService.destroySubjectGroup(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateSubjectGroups');
+                    // notify to update list
+                    ModelService.subjectGroupsUpdated();
 
                     // close modal
                     $scope.ok();
@@ -293,43 +262,7 @@ app.controller(
                 }, function (error) {
                     $scope.errors = error.data;
                 });
-            };
-        }
-    ]
-);
-
-app.controller(
-    'ProjectDeleteController',
-    [
-        '$scope',
-        '$rootScope',
-        '$controller',
-        '$state',
-        'Project',
-        function ($scope, $rootScope, $controller, $state, Project) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
-            // refresh project so user sees the any recent changes
-            $scope.instance = Project.get({id: $scope.instance.id});
-
-            $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = Project.delete({id: instance.id });
-
-                response.$promise.then(function () {
-                    $rootScope.$broadcast('updateProjects');
-
-                    // close modal
-                    $scope.ok();
-
-                    $state.go('home');
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
+            }
         }
     ]
 );
@@ -338,20 +271,15 @@ app.controller(
     'ProcessRequestDeleteController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'ProcessRequest',
-        function ($scope, $rootScope, $controller, ProcessRequest) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
+        'ModelService',
+        function ($scope, ModelService) {
             $scope.destroy = function (instance) {
                 $scope.errors = [];
                 var response;
-                response = ProcessRequest.delete({id: instance.id });
+                response = ModelService.destroyProcessRequest(instance);
 
                 response.$promise.then(function () {
-                    $rootScope.$broadcast('updateProcessRequests');
+                    ModelService.processRequestsUpdated();
 
                     // close modal
                     $scope.ok();

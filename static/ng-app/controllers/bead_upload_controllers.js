@@ -1,15 +1,11 @@
-/**
- * Created by swhite on 2/25/14.
- */
-
 app.controller(
     'BeadPanelTemplateQueryController',
-    ['$scope', 'PanelTemplate', 'SitePanel', function ($scope, PanelTemplate, SitePanel) {
+    ['$scope', 'ModelService', function ($scope, ModelService) {
         // only bead panels
         var PANEL_TYPES = ['CB'];
 
         // get panel templates
-        $scope.sample_upload_model.panel_templates = PanelTemplate.query(
+        $scope.sample_upload_model.panel_templates = ModelService.getPanelTemplates(
             {
                 project: $scope.current_project.id,
                 staining: PANEL_TYPES
@@ -29,10 +25,10 @@ app.controller(
                 }
             });
             $scope.sample_upload_model.current_compensation_fluoro = null;
-            $scope.$broadcast('updateSitePanels');
+            ModelService.sitePanelsUpdated();
         };
 
-        $scope.$on('updateSitePanels', function (evt, id) {
+        $scope.$on('site_panels:updated', function () {
             var site_panel_query = {
                 project: $scope.current_project.id,
                 panel_type: PANEL_TYPES
@@ -46,10 +42,10 @@ app.controller(
                 site_panel_query.panel_template = $scope.sample_upload_model.current_panel_template.id;
             }
 
-            $scope.sample_upload_model.site_panels = SitePanel.query(
+            $scope.sample_upload_model.site_panels = ModelService.getSitePanels(
                 site_panel_query
             );
-            $scope.sample_upload_model.site_panels.$promise.then(function (o) {
+            $scope.sample_upload_model.site_panels.$promise.then(function () {
                 $scope.evaluateParameterMatch();
             });
         });
@@ -64,7 +60,7 @@ app.controller(
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
-            $scope.$broadcast('updateSitePanels');
+            ModelService.sitePanelsUpdated();
         };
 
         $scope.$on('recheckSitePanels', function () {

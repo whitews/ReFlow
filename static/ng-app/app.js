@@ -40,10 +40,8 @@ var MODAL_URLS = {
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
     'COMPENSATION':       'static/ng-app/partials/compensation-form.html',
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
-    'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
-    'MARKER':             'static/ng-app/partials/marker-form.html',
-    'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
-    'WORKER':             'static/ng-app/partials/worker-form.html',
+    'USER':               'static/ng-app/partials/user-form.html',
+    'CHOOSE_USER':        'static/ng-app/partials/user-choose.html',
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
@@ -57,7 +55,17 @@ var MODAL_URLS = {
     'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html',
     'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
     'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html',
-    'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html'
+    'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html',
+
+    // admin modals
+    'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
+    'SPECIMEN_DELETE':    'static/ng-app/partials/specimen-delete.html',
+    'MARKER':             'static/ng-app/partials/marker-form.html',
+    'MARKER_DELETE':      'static/ng-app/partials/marker-delete.html',
+    'FLUOROCHROME':       'static/ng-app/partials/fluorochrome-form.html',
+    'FLUOROCHROME_DELETE': 'static/ng-app/partials/fluorochrome-delete.html',
+    'WORKER':             'static/ng-app/partials/worker-form.html',
+    'WORKER_DELETE':      'static/ng-app/partials/worker-delete.html'
 };
 
 app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
@@ -82,8 +90,7 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         url: 'admin/',
         views: {
             '@': {
-                templateUrl: '/static/ng-app/partials/admin.html',
-                controller: 'AdminController'
+                templateUrl: '/static/ng-app/partials/admin.html'
             }
         },
         data: {

@@ -1,15 +1,11 @@
-/**
- * Created by swhite on 2/25/14.
- */
-
 app.controller(
     'PanelTemplateQueryController',
-    ['$scope', 'PanelTemplate', 'SitePanel', function ($scope, PanelTemplate, SitePanel) {
+    ['$scope', 'ModelService', function ($scope, ModelService) {
         // everything but bead panels
         var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
 
         // get panel templates
-        $scope.sample_upload_model.panel_templates = PanelTemplate.query(
+        $scope.sample_upload_model.panel_templates = ModelService.getPanelTemplates(
             {
                 project: $scope.current_project.id,
                 staining: PANEL_TYPES
@@ -17,10 +13,10 @@ app.controller(
         );
 
         $scope.panelChanged = function () {
-            $scope.$broadcast('updateSitePanels');
+            ModelService.sitePanelsUpdated();
         };
 
-        $scope.$on('updateSitePanels', function (evt, id) {
+        $scope.$on('site_panels:updated', function (evt, id) {
             var site_panel_query = {
                 project: $scope.current_project.id,
                 panel_type: PANEL_TYPES
@@ -52,7 +48,7 @@ app.controller(
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
-            $scope.$broadcast('updateSitePanels');
+            ModelService.sitePanelsUpdated();
         };
 
         $scope.$on('recheckSitePanels', function () {

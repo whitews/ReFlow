@@ -1,0 +1,32 @@
+<div ng-controller="SpecimenDeleteController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Delete Specimen: {{ instance.specimen_name }}
+  </div>
+  <div class="modal-body">
+
+    <h4>Are you sure you want to delete this specimen?</h4>
+
+    <div class="well well-info">
+      <span ng-show="instance.sample_count > 0">
+        {{ instance.sample_count }} sample(s) reference to this specimen.
+        Specimens with sample references cannot be deleted.
+      </span>
+      <span ng-show="instance.sample_count == 0">
+        There are no FCS samples that belong to this specimen.
+      </span>
+    </div>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Cancel</button>
+    <button type="button" class="btn btn-danger" ng-disabled="instance.sample_count>0" ng-click="destroy(instance)">Delete</button>
+  </div>
+</div>

@@ -15,7 +15,8 @@ from django.core.files import File
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
-from guardian.shortcuts import get_objects_for_user, get_users_with_perms
+from guardian.shortcuts import \
+    get_perms, get_objects_for_user, get_users_with_perms
 from guardian.models import UserObjectPermission
 from rest_framework.authtoken.models import Token
 
@@ -272,10 +273,7 @@ class Project(ProtectedModel):
         return user_set
 
     def get_user_permissions(self, user):
-        return UserObjectPermission.objects.filter(
-            user=user,
-            content_type=ContentType.objects.get_for_model(Project),
-            object_pk=self.id)
+        return get_perms(user, self)
 
     def get_cytometer_count(self):
         return Cytometer.objects.filter(site__project=self).count()
@@ -303,10 +301,14 @@ class Stimulation(ProtectedModel):
     stimulation_description = models.TextField(null=True, blank=True)
 
     def has_view_permission(self, user):
-
         if user.has_perm('view_project_data', self.project):
             return True
 
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
         return False
 
     def clean(self):
@@ -622,10 +624,15 @@ class Site(ProtectedModel):
         return compensations
 
     def get_user_permissions(self, user):
-        return UserObjectPermission.objects.filter(
-            user=user,
-            content_type=ContentType.objects.get_for_model(Site),
-            object_pk=self.id)
+        perms = get_perms(user, self)
+        # we don't want the global perms, just the object-perms
+        perms_to_remove = ['add_site', 'change_site', 'delete_site']
+        for p in perms_to_remove:
+            try:
+                perms.remove(p)
+            except ValueError:
+                continue
+        return perms
 
     def has_view_permission(self, user):
         if user.has_perm('view_project_data', self.project):
@@ -1025,6 +1032,11 @@ class VisitType(ProtectedModel):
             return True
         return False
 
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
     def clean(self):
         """
         Check for duplicate visit types in a project.
@@ -1377,7 +1389,16 @@ class Sample(ProtectedModel):
 
         # Check if the project already has this file,
         # if so delete the temp file and raise ValidationError
-        self.sha1 = file_hash.hexdigest()
+        # but the user may be trying to edit an existing sample, so we
+        # need to allow that case
+        if self.id:
+            # existing sample
+            if self.sha1 != file_hash.hexdigest():
+                raise ValidationError(
+                    "You cannot replace an existing FCS file."
+                )
+        else:
+            self.sha1 = file_hash.hexdigest()
         other_sha_values_in_project = Sample.objects.filter(
             subject__project=self.subject.project).exclude(
                 id=self.id).values_list('sha1', flat=True)

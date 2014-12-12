@@ -1,139 +1,522 @@
-/**
- * Created by swhite on 6/11/14.
- */
-
 var service = angular.module('ReFlowApp');
 
 service.factory('ModelService', function(
         $rootScope,
         $http,
         User,
+        UserPermissions,
         Marker,
         Fluorochrome,
+        Specimen,
+        Pretreatment,
+        Storage,
+        Worker,
         Project,
+        ProjectUsers,
+        SubjectGroup,
+        Subject,
+        VisitType,
+        Stimulation,
+        PanelTemplate,
         Site,
+        Cytometer,
         SitePanel,
+        Sample,
+        BeadSample,
         SampleMetadata,
         Compensation,
         ParameterFunction,
         ParameterValueType,
         ProcessRequest,
+        ProcessRequestInput,
+        SubprocessImplementation,
+        SubprocessInput,
         SampleCollection,
         SampleCollectionMember,
         SampleCluster) {
     var service = {};
-    service.current_site = null;
-    service.current_sample = null;
-    service.current_panel_template = null;
 
+    // The following section is for storing/retrieving "global" variables
+    // that are needed across various controllers
     service.user = User.get();
-
-    function refresh_projects() {
-        service.projects = Project.query();
-
-        service.projects.$promise.then(function (projects) {
-            $rootScope.projects = projects;
-            projects.forEach(function (p) {
-                p.getUserPermissions().$promise.then(function (value) {
-                    p.permissions = value.permissions;
-                });
-
-                p.update_sites = function() {
-                    // Add user's sites
-                    p.sites = [];
-                    var sites = Site.query({project: p.id});
-                    sites.$promise.then(function (sites) {
-                        sites.forEach(function (s) {
-                            s.can_modify = false;
-                            p.sites.push(s);
-                            s.getUserPermissions().$promise.then(function (value) {
-                                s.permissions = value.permissions;
-                                if (value.hasOwnProperty('permissions')) {
-                                    value.permissions.forEach(function (p) {
-                                        if (p === 'modify_site_data') {
-                                            s.can_modify = true;
-                                        }
-                                    });
-                                }
-                            });
-                        });
-
-                        // create site lookup by primary key
-                        p.site_lookup = {};
-                        for (var i = 0, len = p.sites.length; i < len; i++) {
-                            p.site_lookup[p.sites[i].id] = p.sites[i];
-                        }
-                    });
-                };
-
-                p.update_sites();
-
-            });
-            $rootScope.$broadcast('projectsUpdated');
-        });
-    }
-
-    service.getMarkers = function() {
-        return Marker.query();
-    };
-
-    service.fluorochromes = Fluorochrome.query();
-
-    service.getFluorochromes = function () {
-        return this.fluorochromes;
-    };
-
-    service.getParameterFunctions = function() {
-        return ParameterFunction.query(
-            {}
-        );
-    };
-
-    service.getParameterValueTypes = function() {
-        return ParameterValueType.query(
-            {}
-        );
-    };
-
-    service.getProjects = function () {
-        return $rootScope.projects;
-    };
-    service.reloadProjects = function () {
-        refresh_projects();
-    };
-
-    service.getProjectById = function(id) {
-        var project = $.grep($rootScope.projects, function(e){ return e.id == id; });
-        if (project.length > 0) {
-            return project[0];
-        }
-        return null;
-    };
-
+    
     service.setCurrentSite = function (value) {
         this.current_site = value;
         $rootScope.$broadcast('siteChanged');
     };
-
     service.getCurrentSite = function () {
         return this.current_site;
     };
+    service.current_site = null;
+    service.current_sample = null;
+    service.current_panel_template = null;
+    // End "global" varaiables
+
+    // User services
+    service.isUser = function (username) {
+        return User.is_user(
+            {
+                'username': username
+            }
+        );
+    };
+    
+    // UserPermission services
+    service.userPermissionsUpdated = function () {
+        $rootScope.$broadcast('user_permissions:updated');
+    };
+    service.getUserPermissions = function(model, pk, username) {
+        return UserPermissions.query(
+            {
+                'model': model,
+                'object_pk': pk,
+                'username': username
+            }
+        );
+    };
+    service.createUserPermission = function(model, pk, username, permission) {
+        return UserPermissions.save(
+            {
+                'model': model,
+                'object_pk': pk,
+                'username': username,
+                'permission_codename': permission
+            }
+        );
+    };
+    service.destroyUserPermission = function (instance) {
+        return UserPermissions.delete({id: instance.id });
+    };
+    
+
+    // Specimen services
+    service.specimensUpdated = function () {
+        $rootScope.$broadcast('specimens:updated');
+    };
+    service.getSpecimens = function() {
+        return Specimen.query({});
+    };
+    service.createUpdateSpecimen = function(instance) {
+        if (instance.id) {
+            return Specimen.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Specimen.save(instance);
+        }
+    };
+    service.destroySpecimen = function (instance) {
+        return Specimen.delete({id: instance.id });
+    };
+
+    // Parameter Function services
+    service.getParameterFunctions = function() {
+        return ParameterFunction.query({});
+    };
+
+    // Parameter Value Type services
+    service.getParameterValueTypes = function() {
+        return ParameterValueType.query({});
+    };
+    
+    // Marker services
+    service.markersUpdated = function () {
+        $rootScope.$broadcast('markers:updated');
+    };
+    service.getMarkers = function() {
+        return Marker.query({});
+    };
+    service.createUpdateMarker = function(instance) {
+        if (instance.id) {
+            return Marker.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Marker.save(instance);
+        }
+    };
+    service.destroyMarker = function (instance) {
+        return Marker.delete({id: instance.id });
+    };
+    
+    // Fluorochrome services
+    service.fluorochromesUpdated = function () {
+        $rootScope.$broadcast('fluorochromes:updated');
+    };
+    service.getFluorochromes = function() {
+        return Fluorochrome.query({});
+    };
+    service.createUpdateFluorochrome = function(instance) {
+        if (instance.id) {
+            return Fluorochrome.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Fluorochrome.save(instance);
+        }
+    };
+    service.destroyFluorochrome = function (instance) {
+        return Fluorochrome.delete({id: instance.id });
+    };
+
+    // Worker services
+    service.workersUpdated = function () {
+        $rootScope.$broadcast('workers:updated');
+    };
+    service.getWorkers = function() {
+        return Worker.query({});
+    };
+    service.createUpdateWorker = function(instance) {
+        if (instance.id) {
+            return Worker.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Worker.save(instance);
+        }
+    };
+    service.destroyWorker = function (instance) {
+        return Worker.delete({id: instance.id });
+    };
+
+    // Pretreatment services
+    service.getPretreatments = function() {
+        return Pretreatment.query({});
+    };
+
+    // Storage services
+    service.getStorages = function() {
+        return Storage.query({});
+    };
+
+    // Project services
+    service.getProjects = function() {
+        return Project.query({});
+    };
+    service.setCurrentProjectById = function(id) {
+        service.current_project = Project.get({'id':id});
+        service.current_project.$promise.then(function(p) {
+            p.permissions = {
+                'can_view_project': false,
+                'can_add_data': false,
+                'can_modify_project': false,
+                'can_process_data': false,
+                'can_manage_users': false
+            };
+            p.getUserPermissions().$promise.then(function (result) {
+
+                if (result.permissions.indexOf('view_project_data') != -1) {
+                    p.permissions.can_view_project = true;
+                }
+                if (result.permissions.indexOf('add_project_data') != -1) {
+                    p.permissions.can_add_data = true;
+                }
+                if (result.permissions.indexOf('modify_project_data') != -1) {
+                    p.permissions.can_modify_project = true;
+                }
+                if (result.permissions.indexOf('submit_process_requests') != -1) {
+                    p.permissions.can_process_data = true;
+                }
+                if (result.permissions.indexOf('manage_project_users') != -1) {
+                    p.permissions.can_manage_users = true;
+                }
+
+                $rootScope.$broadcast('current_project:updated');
+            });
+        }, function() {
+            $rootScope.$broadcast('current_project:invalid');
+        });
+    };
+    service.projectsUpdated = function () {
+        $rootScope.$broadcast('projects:updated');
+    };
+    service.createUpdateProject = function(instance) {
+        if (instance.id) {
+            return Project.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Project.save(instance);
+        }
+    };
+    service.destroyProject = function (instance) {
+        return Project.delete({id: instance.id });
+    };
+
+    // Project User services
+    service.getProjectUsers = function(project_id) {
+        return ProjectUsers.get(
+            {
+                'id': project_id
+            }
+        );
+    };
+
+    // Subject Group services
+    service.subjectGroupsUpdated = function () {
+        $rootScope.$broadcast('subject_groups:updated');
+    };
+    service.getSubjectGroups = function(project_id) {
+        return SubjectGroup.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateSubjectGroup = function(instance) {
+        if (instance.id) {
+            return SubjectGroup.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return SubjectGroup.save(instance);
+        }
+    };
+    service.destroySubjectGroup = function (instance) {
+        return SubjectGroup.delete({id: instance.id });
+    };
+    
+    // Subject services
+    service.subjectsUpdated = function () {
+        $rootScope.$broadcast('subjects:updated');
+    };
+    service.getSubjects = function(project_id) {
+        return Subject.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateSubject = function(instance) {
+        if (instance.id) {
+            return Subject.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Subject.save(instance);
+        }
+    };
+    service.destroySubject = function (instance) {
+        return Subject.delete({id: instance.id });
+    };
+    
+    // Visit Type services
+    service.visitTypesUpdated = function () {
+        $rootScope.$broadcast('visit_types:updated');
+    };
+    service.getVisitTypes = function(project_id) {
+        return VisitType.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateVisitType = function(instance) {
+        if (instance.id) {
+            return VisitType.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return VisitType.save(instance);
+        }
+    };
+    service.destroyVisitType = function (instance) {
+        return VisitType.delete({id: instance.id });
+    };
+    
+    // Stimulation services
+    service.stimulationsUpdated = function () {
+        $rootScope.$broadcast('stimulations:updated');
+    };
+    service.getStimulations = function(project_id) {
+        return Stimulation.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateStimulation = function(instance) {
+        if (instance.id) {
+            return Stimulation.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Stimulation.save(instance);
+        }
+    };
+    service.destroyStimulation = function (instance) {
+        return Stimulation.delete({id: instance.id });
+    };
+    
+    // Panel Template services
+    service.panelTemplatesUpdated = function () {
+        $rootScope.$broadcast('panel_templates:updated');
+    };
+    service.getPanelTemplates = function(query_object) {
+        return PanelTemplate.query(query_object);
+    };
+    service.getPanelTemplate = function (panel_template_id) {
+        return PanelTemplate.get(
+            {
+                'id': panel_template_id
+            }
+        );
+    };
+    service.createUpdatePanelTemplate = function(instance) {
+        if (instance.id) {
+            return PanelTemplate.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return PanelTemplate.save(instance);
+        }
+    };
+    service.destroyPanelTemplate = function (instance) {
+        return PanelTemplate.delete({id: instance.id });
+    };
+    service.setCurrentPanelTemplate = function (value) {
+        this.current_panel_template = value;
+        $rootScope.$broadcast('current_panel_template:updated');
+    };
+    service.getCurrentPanelTemplate = function () {
+        return this.current_panel_template;
+    };
+    
+    // Site services
+    service.sitesUpdated = function () {
+        $rootScope.$broadcast('sites:updated');
+    };
+    service.getSites = function(project_id) {
+        return Site.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateSite = function(instance) {
+        if (instance.id) {
+            return Site.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Site.save(instance);
+        }
+    };
+    service.destroySite = function (instance) {
+        return Site.delete({id: instance.id });
+    };
+    service.getProjectSitesWithViewPermission = function(project_id) {
+        return new Project({'id': project_id}).getSitesWithPermission(
+            'view_site_data'
+        );
+    };
+    service.getProjectSitesWithAddPermission = function(project_id) {
+        return new Project({'id': project_id}).getSitesWithPermission(
+            'add_site_data'
+        );
+    };
+    service.getProjectSitesWithModifyPermission = function(project_id) {
+        return new Project({'id': project_id}).getSitesWithPermission(
+            'modify_site_data'
+        );
+    };
+    service.getSitePermissions = function (site_id) {
+        return new Site({'id': site_id}).getUserPermissions();
+    };
+
+    // Cytometer services
+    service.cytometersUpdated = function () {
+        $rootScope.$broadcast('cytometers:updated');
+    };
+    service.getCytometers = function(query_object) {
+        return Cytometer.query(query_object);
+    };
+    service.createUpdateCytometer = function(instance) {
+        if (instance.id) {
+            return Cytometer.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Cytometer.save(instance);
+        }
+    };
+    service.destroyCytometer = function (instance) {
+        return Cytometer.delete({id: instance.id });
+    };
 
     // Sample related services
-    service.setCurrentSample = function (value) {
-        this.current_sample = value;
-        $rootScope.$broadcast('sampleChanged');
+    service.samplesUpdated = function () {
+        $rootScope.$broadcast('samples:updated');
     };
-
-    service.getCurrentSample = function () {
-        return this.current_sample;
+    service.getSamples = function(query_object) {
+        return Sample.query(query_object);
     };
-
+    service.createUpdateSample = function(instance) {
+        if (instance.id) {
+            return Sample.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Sample.save(instance);
+        }
+    };
     service.getSampleCSV = function (sample_id) {
         return $http.get(
             '/api/repository/samples/' + sample_id.toString() + '/csv/'
         );
     };
+    service.destroySample = function (instance) {
+        return Sample.delete({id: instance.id });
+    };
+
+    // TODO: see where these are used and remove them
+    service.setCurrentSample = function (value) {
+        this.current_sample = value;
+        $rootScope.$broadcast('sampleChanged');
+    };
+    service.getCurrentSample = function () {
+        return this.current_sample;
+    };
+    
+    // Bead Sample related services
+    service.beadSamplesUpdated = function () {
+        $rootScope.$broadcast('bead_samples:updated');
+    };
+    service.getBeadSamples = function(query_object) {
+        return BeadSample.query(query_object);
+    };
+    service.createUpdateBeadSample = function(instance) {
+        if (instance.id) {
+            return BeadSample.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return BeadSample.save(instance);
+        }
+    };
+    service.getBeadSampleCSV = function (bead_sample_id) {
+        return $http.get(
+            '/api/repository/beads/' + bead_sample_id.toString() + '/csv/'
+        );
+    };
+    service.destroyBeadSample = function (instance) {
+        return BeadSample.delete({id: instance.id });
+    };
+
 
     // SampleMetadata related services
     service.getSampleMetadata = function (sample_id) {
@@ -145,15 +528,12 @@ service.factory('ModelService', function(
     };
 
     // Compensation related services
-    service.getCompensations = function (site_panel_id, acq_date) {
-        return Compensation.query(
-            {
-                'site_panel': site_panel_id,
-                'acquisition_date': acq_date
-            }
-        );
+    service.compensationsUpdated = function () {
+        $rootScope.$broadcast('compensations:updated');
     };
-
+    service.getCompensations = function (query_object) {
+        return Compensation.query(query_object);
+    };
     service.getCompensationCSV = function (comp_id) {
         return Compensation.get_CSV(
             {
@@ -161,15 +541,19 @@ service.factory('ModelService', function(
             }
         );
     };
-
-    // Panel related services
-    service.setCurrentPanelTemplate = function (value) {
-        this.current_panel_template = value;
-        $rootScope.$broadcast('panelTemplateChanged');
+    service.createCompensation = function(instance) {
+        return Compensation.save(instance);
+    };
+    service.destroyCompensation = function (instance) {
+        return Compensation.delete({id: instance.id });
     };
 
-    service.getCurrentPanelTemplate = function () {
-        return this.current_panel_template;
+    // Site Panel services
+    service.sitePanelsUpdated = function () {
+        $rootScope.$broadcast('site_panels:updated');
+    };
+    service.getSitePanels = function(query_object) {
+        return SitePanel.query(query_object);
     };
     service.getSitePanel = function (site_panel_id) {
         return SitePanel.get(
@@ -178,27 +562,66 @@ service.factory('ModelService', function(
             }
         );
     };
+    service.createSitePanel = function(instance) {
+        return SitePanel.save(instance);
+    };
     
     // ProcessRequest services
-    service.getProcessRequests = function() {
-        return ProcessRequest.query(
-            {}
-        );
+    service.processRequestsUpdated = function () {
+        $rootScope.$broadcast('process_requests:updated');
     };
-
+    service.getProcessRequests = function(query_object) {
+        return ProcessRequest.query(query_object);
+    };
     service.getProcessRequest = function(process_request_id) {
         return ProcessRequest.get(
             { id: process_request_id }
         );
     };
+    service.createProcessRequest = function(instance) {
+        return ProcessRequest.save(instance);
+    };
+    service.destroyProcessRequest = function (instance) {
+        return ProcessRequest.delete({id: instance.id });
+    };
 
-    // SampleCollectionMember services
+    // Subprocess Implementation services
+    service.getSubprocessImplementations = function(query_object) {
+        return SubprocessImplementation.query(query_object);
+    };
+
+    // Subprocess Input services
+    service.getSubprocessInputs = function(query_object) {
+        return SubprocessInput.query(query_object);
+    };
+
+    // SampleCollection services
     service.getSampleCollection = function(sample_collection_id) {
         return SampleCollection.get(
             {
                 'id': sample_collection_id
             }
         );
+    };
+    service.createSampleCollection = function(instance) {
+        return SampleCollection.save(instance);
+    };
+
+    // SampleCollectionMember services
+    service.getSampleCollectionMembers = function(sample_collection_id) {
+        return SampleCollectionMember.get(
+            {
+                'id': sample_collection_id
+            }
+        );
+    };
+    service.createSampleCollectionMembers = function(instances) {
+        return SampleCollectionMember.save(instances);
+    };
+
+    // Process Request Input services
+    service.createProcessRequestInputs = function(instances) {
+        return ProcessRequestInput.save(instances);
     };
 
     // SampleCluster services

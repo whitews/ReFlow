@@ -1,44 +1,18 @@
-var ModalFormCtrl = function ($scope, $modalInstance, instance) {
-    $scope.instance = instance;
-    $scope.ok = function () {
-        $modalInstance.close();
-    };
-};
-
 app.controller(
-    'MainController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.$on('updateProjects', function () {
-            ModelService.reloadProjects();
-        });
-        $scope.$on('projectsUpdated', function () {
-            $scope.projects = ModelService.getProjects();
-        });
-
-        if ($scope.projects === undefined) {
-            ModelService.reloadProjects();
-        }
-
-        $scope.user = ModelService.user;
-    }
-]);
-
-app.controller(
-    'ProjectListController',
+    'ModalController',
     [
         '$scope',
-        '$controller',
         '$modal',
-        'ModelService',
-        function ($scope, $controller, $modal, ModelService) {
-            $scope.init_form = function(instance) {
+        function ($scope, $modal) {
+            // TODO: rename to init_modal?
+            $scope.init_form = function(instance, form_type) {
                 var proposed_instance = angular.copy(instance);
                 $scope.errors = [];
 
                 // launch form modal
                 var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.PROJECT,
-                    controller: ModalFormCtrl,
+                    templateUrl: MODAL_URLS[form_type],
+                    controller: 'ModalFormCtrl',
                     resolve: {
                         instance: function() {
                             return proposed_instance;
@@ -46,6 +20,32 @@ app.controller(
                     }
                 });
             };
+        }
+    ]
+);
+
+app.controller(
+    'MainController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            $controller('ModalController', {$scope: $scope});
+
+            if (!$scope.projects) {
+                $scope.projects = ModelService.getProjects();
+            }
+
+            $scope.$on('projects:updated', function () {
+                $scope.projects = ModelService.getProjects();
+            });
+
+            $scope.user = ModelService.user;
+
+            $scope.$on('current_project:updated', function () {
+                $scope.current_project = ModelService.current_project;
+            });
         }
     ]
 );
@@ -54,177 +54,84 @@ app.controller(
     'ProjectDetailController',
     [
         '$scope',
-        '$controller',
         '$stateParams',
-        '$modal',
         'ModelService',
-        function ($scope, $controller, $stateParams, $modal, ModelService) {
-            function get_project() {
-                return ModelService.getProjectById(
-                    $stateParams.projectId
-                );
-            }
-
-            if ($scope.projects != undefined) {
-                $scope.current_project = get_project();
-            }
-
-            $scope.$on('projectsUpdated', function () {
-                $scope.current_project = get_project();
-                $scope.$broadcast('currentProjectSet');
-            });
-
-            $scope.errors = [];
-            $scope.can_view_project = false;
-            $scope.can_modify_project = false;
-            $scope.can_add_data = false;
-            $scope.can_manage_users = false;
-
-            $scope.$watch('current_project.permissions', function () {
-                update_permissions();
-            });
-
-            function update_permissions() {
-                if ($scope.current_project != null) {
-                    if ($scope.current_project.permissions.indexOf('view_project_data') != -1 || ModelService.user.superuser) {
-                        $scope.can_view_project = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('add_project_data') != -1 || ModelService.user.superuser) {
-                        $scope.can_add_data = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('modify_project_data') != -1 || ModelService.user.superuser) {
-                        $scope.can_modify_project = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('submit_process_requests') != -1 || ModelService.user.superuser) {
-                        $scope.can_process_data = true;
-                    }
-                    if ($scope.current_project.permissions.indexOf('manage_project_users') != -1 || ModelService.user.superuser) {
-                        $scope.can_manage_users = true;
-                    }
+        function ($scope, $stateParams, ModelService) {
+            // try to keep this controller as lean as possible because
+            // many other controllers inherit this $scope to obtain the
+            // "current project" and that results in this code executing
+            if (!$scope.current_project && $stateParams.hasOwnProperty('projectId')) {
+                ModelService.setCurrentProjectById($stateParams.projectId);
+            } else if ($scope.current_project) {
+                // also set current project if the current project doesn't
+                if ($scope.current_project.id != parseInt($stateParams.projectId)) {
+                    ModelService.setCurrentProjectById($stateParams.projectId);
                 }
             }
-
-            $scope.init_form = function(instance, form_type) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS[form_type],
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
-
-            $scope.init_delete = function(instance, form_type) {
-                $modal.open({
-                    templateUrl: MODAL_URLS[form_type],
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
 
 app.controller(
     'SubjectGroupController',
-    ['$scope', '$controller', '$stateParams', '$modal', 'SubjectGroup', function ($scope, $controller, $stateParams, $modal, SubjectGroup) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
 
-        function get_list() {
-            return SubjectGroup.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
-        }
+            if ($scope.current_project) {
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
+                );
+            }
 
-        if ($scope.current_project != undefined) {
-            $scope.subject_groups = get_list();
-        } else {
-            $scope.$on('currentProjectSet', function () {
-                $scope.subject_groups = get_list();
+            $scope.$on('current_project:updated', function () {
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('subject_groups:updated', function () {
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
+                );
             });
         }
-
-        $scope.$on('updateSubjectGroups', function () {
-            $scope.subject_groups = get_list();
-        });
-
-        $scope.init_form = function(instance) {
-            var proposed_instance = angular.copy(instance);
-            $scope.errors = [];
-
-            // launch form modal
-            var modalInstance = $modal.open({
-                templateUrl: MODAL_URLS.SUBJECT_GROUP,
-                controller: ModalFormCtrl,
-                resolve: {
-                    instance: function() {
-                        return proposed_instance;
-                    }
-                }
-            });
-        };
-    }
-]);
+    ]
+);
 
 app.controller(
     'SubjectController',
     [
         '$scope',
         '$controller',
-        '$modal',
-        'Subject',
-        function ($scope, $controller, $modal, Subject) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return Subject.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+            if ($scope.current_project) {
+                $scope.subjects = ModelService.getSubjects(
+                    $scope.current_project.id
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.subjects = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.subjects = get_list();
-                });
-            }
-
-            $scope.$on('updateSubjects', function () {
-                $scope.subjects = get_list();
+            $scope.$on('current_project:updated', function () {
+                $scope.subjects = ModelService.getSubjects(
+                    $scope.current_project.id
+                );
             });
 
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.SUBJECT,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
+            $scope.$on('subjects:updated', function () {
+                $scope.subjects = ModelService.getSubjects(
+                    $scope.current_project.id
+                );
+            });
         }
     ]
 );
@@ -234,31 +141,29 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
-        'Site',
-        function ($scope, $controller, $modal, Site) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
-            $scope.$on('updateSites', function () {
-                $scope.current_project.update_sites();
+            if ($scope.current_project) {
+                $scope.sites = ModelService.getSites(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.sites = ModelService.getSites(
+                    $scope.current_project.id
+                );
             });
 
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.SITE,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
+            $scope.$on('sites:updated', function () {
+                $scope.sites = ModelService.getSites(
+                    $scope.current_project.id
+                );
+            });
         }
     ]
 );
@@ -267,66 +172,60 @@ app.controller(
     'CytometerController',
     [
         '$scope',
+        '$q',
         '$controller',
-        '$modal',
-        'Cytometer',
-        function ($scope, $controller, $modal, Cytometer) {
+        'ModelService',
+        function ($scope, $q, $controller, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                var response = Cytometer.query(
+            function populate_cytometers() {
+                var sites_can_add = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                ).$promise;
+
+                var sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
+                    $scope.current_project.id
+                ).$promise;
+
+                var cytometers = ModelService.getCytometers(
                     {
                         'project': $scope.current_project.id
                     }
-                );
+                ).$promise;
 
-                response.$promise.then(function (objects) {
-                    objects.forEach(function (o) {
-                        o.can_modify = false;
-                        if ($scope.can_modify_project) {
-                            o.can_modify = true;
-                        } else {
-                            var site = $scope.current_project.site_lookup[o.site];
-                            if (site) {
-                                if (site.can_modify) {
-                                    o.can_modify = true;
-                                }
+                $q.all([sites_can_add, sites_can_modify, cytometers]).then(function (objects) {
+                    $scope.cytometers = objects[2];
+
+                    // user has add privileges on at least one site
+                    if (objects[0].length > 0) {
+                        $scope.can_add_data = true;
+                    }
+
+                    $scope.cytometers.forEach(function (c) {
+                        c.can_modify = false;
+
+                        // check if cytometer's site is in modify list
+                        for (var i=0; i<objects[1].length; i++) {
+                            if (c.site == objects[1][i].id) {
+                                c.can_modify = true;
+                                break;
                             }
                         }
                     });
                 });
-
-                return response;
             }
 
             if ($scope.current_project != undefined) {
-                $scope.cytometers = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.cytometers = get_list();
-                });
+                populate_cytometers();
             }
-
-            $scope.$on('updateCytometers', function () {
-                $scope.cytometers = get_list();
+            $scope.$on('current_project:updated', function () {
+                populate_cytometers();
             });
 
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                var modalInstance = $modal.open({
-                    templateUrl: MODAL_URLS.CYTOMETER,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
+            $scope.$on('cytometers:updated', function () {
+                populate_cytometers();
+            });
         }
     ]
 );
@@ -336,47 +235,29 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
-        'VisitType',
-        function ($scope, $controller, $modal, VisitType) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return VisitType.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+            if ($scope.current_project) {
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.visit_types = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.visit_types = get_list();
-                });
-            }
-
-            $scope.$on('updateVisitTypes', function () {
-                $scope.visit_types = get_list();
+            $scope.$on('current_project:updated', function () {
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
+                );
             });
 
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.VISIT_TYPE,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
+            $scope.$on('visit_types:updated', function () {
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
+                );
+            });
         }
     ]
 );
@@ -386,47 +267,29 @@ app.controller(
     [
         '$scope',
         '$controller',
-        '$modal',
-        'Stimulation',
-        function ($scope, $controller, $modal, Stimulation) {
-            // Inherits ProjectDetailController $scope
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                return Stimulation.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+            if ($scope.current_project) {
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
                 );
             }
 
-            if ($scope.current_project != undefined) {
-                $scope.stimulations = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.stimulations = get_list();
-                });
-            }
-
-            $scope.$on('updateStimulations', function () {
-                $scope.stimulations = get_list();
+            $scope.$on('current_project:updated', function () {
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
+                );
             });
 
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.STIMULATION,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
+            $scope.$on('stimulations:updated', function () {
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
+                );
+            });
         }
     ]
 );
@@ -438,67 +301,54 @@ app.controller(
         '$modal',
         '$controller',
         'ModelService',
-        'Sample',
-        'PanelTemplate',
-        'Site',
-        'Subject',
-        'SubjectGroup',
-        'VisitType',
-        'Stimulation',
         function (
             $scope,
             $modal,
             $controller,
-            ModelService,
-            Sample,
-            PanelTemplate,
-            Site,
-            Subject,
-            SubjectGroup,
-            VisitType,
-            Stimulation
+            ModelService
         ) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            if ($scope.current_project != undefined) {
-                init_filter();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    init_filter();
-                });
+            // need to know which sites user can modify
+            var sites_can_modify;
+            function update_modify_sites () {
+                sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
+                    $scope.current_project.id
+                );
             }
 
+            if ($scope.current_project) {
+                init_filter();
+                update_modify_sites();
+            }
+
+            $scope.$on('current_project:updated', function () {
+                init_filter();
+                update_modify_sites();
+            });
+
             function init_filter () {
-                $scope.panels = PanelTemplate.query(
+                $scope.panels = ModelService.getPanelTemplates(
                     {
                         'project': $scope.current_project.id,
                         'staining': ['FS', 'US', 'FM', 'IS']
                     }
                 );
-
-                $scope.subjects = Subject.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
                 );
-
-                $scope.subject_groups = SubjectGroup.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.subjects = ModelService.getSubjects(
+                    $scope.current_project.id
                 );
-
-                $scope.visit_types = VisitType.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.subject_groups = ModelService.getSubjectGroups(
+                    $scope.current_project.id
                 );
-
-                $scope.stimulations = Stimulation.query(
-                    {
-                        'project': $scope.current_project.id
-                    }
+                $scope.visit_types = ModelService.getVisitTypes(
+                    $scope.current_project.id
+                );
+                $scope.stimulations = ModelService.getStimulations(
+                    $scope.current_project.id
                 );
             }
 
@@ -527,7 +377,7 @@ app.controller(
                 });
 
                 var sites = [];
-                $scope.current_project.sites.forEach(function (s) {
+                $scope.sites.forEach(function (s) {
                     if (s.query) {
                         sites.push(s.id);
                     }
@@ -547,7 +397,7 @@ app.controller(
                     }
                 });
 
-                $scope.samples = Sample.query(
+                $scope.samples = ModelService.getSamples(
                     {
                         'project': $scope.current_project.id,
                         'panel': panels,
@@ -565,18 +415,18 @@ app.controller(
                         if ($scope.can_modify_project) {
                             s.can_modify = true;
                         } else {
-                            var site = $scope.current_project.site_lookup[s.site];
-                            if (site) {
-                                if (site.can_modify) {
+                            // check against sites_can_modify
+                            for (var i=0; i<sites_can_modify.length; i++) {
+                                if (s.site == sites_can_modify[i].id) {
                                     s.can_modify = true;
                                 }
                             }
                         }
                     });
-                })
+                });
             };
 
-            $scope.$on('updateSamples', function () {
+            $scope.$on('samples:updated', function () {
                 $scope.apply_filter();
             });
             
@@ -593,19 +443,6 @@ app.controller(
                     }
                 });
             };
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $modal.open({
-                    templateUrl: MODAL_URLS.SAMPLE,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -616,15 +453,15 @@ app.controller(
         '$scope',
         '$modalInstance',
         'instance',
-        'SitePanel',
-        function ($scope, $modalInstance, instance, SitePanel) {
+        'ModelService',
+        function ($scope, $modalInstance, instance, ModelService) {
             $scope.instance = instance;
             $scope.ok = function () {
                 $modalInstance.close();
             };
 
-            $scope.site_panel = SitePanel.get(
-                {id: $scope.instance.site_panel }
+            $scope.site_panel = ModelService.getSitePanel(
+                $scope.instance.site_panel
             );
         }
     ]
@@ -637,35 +474,42 @@ app.controller(
         '$modal',
         '$controller',
         'ModelService',
-        'BeadSample',
-        'PanelTemplate',
-        'Site',
         function (
             $scope,
             $modal,
             $controller,
-            ModelService,
-            BeadSample,
-            PanelTemplate,
-            Site
+            ModelService
         ) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            if ($scope.current_project != undefined) {
-                init_filter();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    init_filter();
-                });
+            // need to know which sites user can modify
+            var sites_can_modify;
+            function update_modify_sites () {
+                sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
+                    $scope.current_project.id
+                );
             }
 
+            if ($scope.current_project) {
+                init_filter();
+                update_modify_sites();
+            }
+
+            $scope.$on('current_project:updated', function () {
+                init_filter();
+                update_modify_sites();
+            });
+
             function init_filter () {
-                $scope.panels = PanelTemplate.query(
+                $scope.panels = ModelService.getPanelTemplates(
                     {
                         'project': $scope.current_project.id,
                         'staining': ['CB']
                     }
+                );
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
                 );
             }
 
@@ -680,13 +524,13 @@ app.controller(
                 });
 
                 var sites = [];
-                $scope.current_project.sites.forEach(function (s) {
+                $scope.sites.forEach(function (s) {
                     if (s.query) {
                         sites.push(s.id);
                     }
                 });
 
-                $scope.samples = BeadSample.query(
+                $scope.samples = ModelService.getBeadSamples(
                     {
                         'panel': panels,
                         'site': sites
@@ -699,9 +543,9 @@ app.controller(
                         if ($scope.can_modify_project) {
                             s.can_modify = true;
                         } else {
-                            var site = $scope.current_project.site_lookup[s.site];
-                            if (site) {
-                                if (site.can_modify) {
+                            // check against sites_can_modify
+                            for (var i=0; i<sites_can_modify.length; i++) {
+                                if (s.site == sites_can_modify[i].id) {
                                     s.can_modify = true;
                                 }
                             }
@@ -710,7 +554,7 @@ app.controller(
                 });
             };
 
-            $scope.$on('updateBeadSamples', function () {
+            $scope.$on('bead_samples:updated', function () {
                 $scope.apply_filter();
             });
 
@@ -727,22 +571,6 @@ app.controller(
                     }
                 });
             };
-
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.BEAD_SAMPLE,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );
@@ -751,65 +579,61 @@ app.controller(
     'CompensationController',
     [
         '$scope',
+        '$q',
         '$controller',
         '$modal',
-        'Compensation',
-        function ($scope, $controller, $modal, Compensation) {
+        'ModelService',
+        function ($scope, $q, $controller, $modal, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            function get_list() {
-                var response = Compensation.query(
+            function populate_compensations() {
+                var sites_can_add = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                ).$promise;
+
+                var sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
+                    $scope.current_project.id
+                ).$promise;
+
+                var compensations = ModelService.getCompensations(
                     {
                         'project': $scope.current_project.id
                     }
-                );
-                response.$promise.then(function (objects) {
-                    objects.forEach(function (o) {
-                        o.can_modify = false;
-                        if ($scope.can_modify_project) {
-                            o.can_modify = true;
-                        } else {
-                            var site = $scope.current_project.site_lookup[o.site];
-                            if (site) {
-                                if (site.can_modify) {
-                                    o.can_modify = true;
-                                }
+                ).$promise;
+
+                $q.all([sites_can_add, sites_can_modify, compensations]).then(function (objects) {
+                    $scope.compensations = objects[2];
+
+                    // user has add privileges on at least one site
+                    if (objects[0].length > 0) {
+                        $scope.can_add_data = true;
+                    }
+
+                    $scope.compensations.forEach(function (c) {
+                        c.can_modify = false;
+
+                        // check if compensation's site is in modify list
+                        for (var i=0; i<objects[1].length; i++) {
+                            if (c.site == objects[1][i].id) {
+                                c.can_modify = true;
+                                break;
                             }
                         }
                     });
                 });
-
-                return response;
             }
 
             if ($scope.current_project != undefined) {
-                $scope.compensations = get_list();
-            } else {
-                $scope.$on('currentProjectSet', function () {
-                    $scope.compensations = get_list();
-                });
+                populate_compensations();
             }
-
-            $scope.$on('updateCompensations', function () {
-                $scope.compensations = get_list();
+            $scope.$on('current_project:updated', function () {
+                populate_compensations();
             });
 
-            $scope.init_form = function(instance) {
-                var proposed_instance = angular.copy(instance);
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.COMPENSATION,
-                    controller: ModalFormCtrl,
-                    resolve: {
-                        instance: function() {
-                            return proposed_instance;
-                        }
-                    }
-                });
-            };
+            $scope.$on('compensations:updated', function () {
+                populate_compensations();
+            });
 
             $scope.show_matrix = function(instance) {
                 $scope.errors = [];
@@ -817,7 +641,7 @@ app.controller(
                 // launch form modal
                 $modal.open({
                     templateUrl: MODAL_URLS.COMPENSATION_MATRIX,
-                    controller: ModalFormCtrl,
+                    controller: 'ModalFormCtrl',
                     size: 'lg',
                     resolve: {
                         instance: function() {

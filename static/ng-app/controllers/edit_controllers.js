@@ -2,27 +2,24 @@ app.controller(
     'ProjectEditController',
     [
         '$scope',
-        '$rootScope',
-        'Project',
-        function ($scope, $rootScope, Project) {
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.current_project = ModelService.current_project;
 
             $scope.create_update = function (instance) {
                 $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Project.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Project.save(
-                        $scope.instance
-                    );
-                }
+                var response = ModelService.createUpdateProject(instance);
 
-                response.$promise.then(function () {
-                    // notify to update subject group list
-                    $rootScope.$broadcast('updateProjects');
+                response.$promise.then(function (object) {
+                    // notify to update project list
+                    ModelService.projectsUpdated();
+
+                    // also check if this is the current project
+                    if ($scope.current_project) {
+                        if (object.id == $scope.current_project.id) {
+                            ModelService.setCurrentProjectById(object.id);
+                        }
+                    }
 
                     // close modal
                     $scope.ok();
@@ -37,29 +34,20 @@ app.controller(
 
 app.controller(
     'SubjectGroupEditController',
-    ['$scope', '$rootScope', '$controller', 'SubjectGroup', function ($scope, $rootScope, $controller, SubjectGroup) {
-        // Inherits ProjectDetailController $scope
-        $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
             $scope.errors = [];
-            var response;
-            if (instance.id) {
-                response = SubjectGroup.update(
-                    {id: instance.id },
-                    $scope.instance
-                );
-            } else {
+            if (!instance.id) {
                 instance.project = $scope.current_project.id;
-
-                response = SubjectGroup.save(
-                    $scope.instance
-                );
             }
 
+            var response = ModelService.createUpdateSubjectGroup(instance);
+
             response.$promise.then(function () {
-                // notify to update subject group list
-                $rootScope.$broadcast('updateSubjectGroups');
+                // notify to update list
+                ModelService.subjectGroupsUpdated();
 
                 // close modal
                 $scope.ok();
@@ -73,130 +61,84 @@ app.controller(
 
 app.controller(
     'SubjectEditController',
-    [
-        '$scope',
-        '$rootScope',
-        '$controller',
-        'Subject',
-        'SubjectGroup',
-        function ($scope, $rootScope, $controller, Subject, SubjectGroup) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
+        $scope.subject_groups = ModelService.getSubjectGroups(
+            $scope.current_project.id
+        );
 
-            $scope.subject_groups = SubjectGroup.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
 
-            $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Subject.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    instance.project = $scope.current_project.id;
+            var response = ModelService.createUpdateSubject(instance);
 
-                    response = Subject.save(
-                        $scope.instance
-                    );
-                }
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.subjectsUpdated();
 
-                response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateSubjects');
+                // close modal
+                $scope.ok();
 
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
 
 app.controller(
     'SiteEditController',
-    [
-        '$scope',
-        '$rootScope',
-        '$controller',
-        'Site',
-        function ($scope, $rootScope, $controller, Site) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
 
-            $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Site.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    instance.project = $scope.current_project.id;
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
 
-                    response = Site.save(
-                        $scope.instance
-                    );
-                }
+            var response = ModelService.createUpdateSite(instance);
 
-                response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateSites');
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.sitesUpdated();
 
-                    // close modal
-                    $scope.ok();
+                // close modal
+                $scope.ok();
 
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
 
 app.controller(
     'CytometerEditController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Cytometer',
-        'Site',
-        function ($scope, $rootScope, $controller, Cytometer, Site) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.current_project = ModelService.current_project;
 
-            $scope.sites = Site.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
+            // get list of sites user has permission for new cytometers
+            // existing cytometers cannot change their site
+            if ($scope.instance == null) {
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                );
+            }
 
             $scope.create_update = function (instance) {
                 $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Cytometer.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    response = Cytometer.save(
-                        $scope.instance
-                    );
-                }
+                var response = ModelService.createUpdateCytometer(instance);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateCytometers');
+                    // notify to update list
+                    ModelService.cytometersUpdated();
 
                     // close modal
                     $scope.ok();
@@ -211,138 +153,87 @@ app.controller(
 
 app.controller(
     'VisitTypeEditController',
-    [
-        '$scope',
-        '$rootScope',
-        '$controller',
-        'VisitType',
-        function ($scope, $rootScope, $controller, VisitType) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
 
-            $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = VisitType.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    instance.project = $scope.current_project.id;
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
 
-                    response = VisitType.save(
-                        $scope.instance
-                    );
-                }
+            var response = ModelService.createUpdateVisitType(instance);
 
-                response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateVisitTypes');
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.visitTypesUpdated();
 
-                    // close modal
-                    $scope.ok();
+                // close modal
+                $scope.ok();
 
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
 
 app.controller(
     'StimulationEditController',
-    [
-        '$scope',
-        '$rootScope',
-        '$controller',
-        'Stimulation',
-        function ($scope, $rootScope, $controller, Stimulation) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
 
-            $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response;
-                if (instance.id) {
-                    response = Stimulation.update(
-                        {id: instance.id },
-                        $scope.instance
-                    );
-                } else {
-                    instance.project = $scope.current_project.id;
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
 
-                    response = Stimulation.save(
-                        $scope.instance
-                    );
-                }
+            var response = ModelService.createUpdateStimulation(instance);
 
-                response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateStimulations');
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.stimulationsUpdated();
 
-                    // close modal
-                    $scope.ok();
+                // close modal
+                $scope.ok();
 
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
 
 app.controller(
     'SampleEditController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Sample',
-        'Subject',
-        'VisitType',
-        'Specimen',
-        'Stimulation',
-        'Pretreatment',
-        'Storage',
-        function ($scope, $rootScope, $controller, Sample, Subject, VisitType, Specimen, Stimulation, Pretreatment, Storage) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.current_project = ModelService.current_project;
 
-            $scope.subjects = Subject.query(
-                {
-                    'project': $scope.current_project.id
-                }
+            $scope.subjects = ModelService.getSubjects(
+                $scope.current_project.id
+            );
+            $scope.visit_types = ModelService.getVisitTypes(
+                $scope.current_project.id
+            );
+            $scope.stimulations = ModelService.getStimulations(
+                $scope.current_project.id
             );
 
-            $scope.visit_types = VisitType.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
-
-            $scope.stimulations = Stimulation.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
-
-            $scope.specimens = Specimen.query();
-            $scope.pretreatments = Pretreatment.query();
-            $scope.storages = Storage.query();
+            $scope.specimens = ModelService.getSpecimens();
+            $scope.pretreatments = ModelService.getPretreatments();
+            $scope.storages = ModelService.getStorages();
 
             $scope.update = function (instance) {
                 $scope.errors = [];
-                var response;
-                response = Sample.update(
-                    {id: instance.id },
-                    $scope.instance
-                );
+                var response = ModelService.createUpdateSample(instance);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateSamples');
+                    // notify to update list
+                    ModelService.samplesUpdated();
 
                     // close modal
                     $scope.ok();
@@ -359,31 +250,24 @@ app.controller(
     'CompensationEditController',
     [
         '$scope',
-        '$rootScope',
-        '$controller',
-        'Compensation',
-        'Site',
-        'PanelTemplate',
-        function ($scope, $rootScope, $controller, Compensation, Site, PanelTemplate) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.current_project = ModelService.current_project;
             $scope.errors = [];
             $scope.matrix_errors = [];
 
-            if (!$scope.instance) {
-                $scope.instance = {};
+            // get list of sites user has permission for new cytometers
+            // existing cytometers cannot change their site
+            if ($scope.instance == null) {
+                $scope.sites = ModelService.getProjectSitesWithAddPermission(
+                    $scope.current_project.id
+                );
             }
-
-            $scope.sites = Site.query(
-                {
-                    'project': $scope.current_project.id
-                }
-            );
 
             // everything but bead panels
             var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
 
-            $scope.panel_templates = PanelTemplate.query(
+            $scope.panel_templates = ModelService.getPanelTemplates(
                 {
                     'project': $scope.current_project.id,
                     'staining': PANEL_TYPES
@@ -400,7 +284,7 @@ app.controller(
                 $scope.dt = null;
             };
 
-            $scope.open = function($event, f) {
+            $scope.open = function($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
 
@@ -487,13 +371,11 @@ app.controller(
                             "-" +
                             $scope.instance.acquisition_date.getDate().toString()
                 };
-                var response = Compensation.save(
-                    data
-                );
+                var response = ModelService.createCompensation(data);
 
                 response.$promise.then(function () {
-                    // notify to update subject list
-                    $rootScope.$broadcast('updateCompensations');
+                    // notify to update comp list
+                    ModelService.compensationsUpdated();
 
                     // close modal
                     $scope.ok();

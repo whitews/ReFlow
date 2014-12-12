@@ -1,11 +1,11 @@
 app.controller(
     'PanelTemplateController',
-    ['$scope', '$controller', 'PanelTemplate', function ($scope, $controller, PanelTemplate) {
+    ['$scope', '$controller', 'ModelService', function ($scope, $controller, ModelService) {
         // Inherits ProjectDetailController $scope
         $controller('ProjectDetailController', {$scope: $scope});
 
         function get_list() {
-            var response = PanelTemplate.query(
+            var response = ModelService.getPanelTemplates(
                 {
                     'project': $scope.current_project.id
                 }
@@ -22,13 +22,13 @@ app.controller(
 
         if ($scope.current_project != undefined) {
             $scope.panel_templates = get_list();
-        } else {
-            $scope.$on('currentProjectSet', function () {
-                $scope.panel_templates = get_list();
-            });
         }
 
-        $scope.$on('updatePanelTemplates', function () {
+        $scope.$on('current_project:updated', function () {
+            $scope.panel_templates = get_list();
+        });
+
+        $scope.$on('panel_templates:updated', function () {
             $scope.panel_templates = get_list();
         });
 
@@ -63,7 +63,7 @@ app.controller(
                 param.markers = markers;
             });
 
-            var response = PanelTemplate.save(new_panel);
+            var response = ModelService.createUpdatePanelTemplate(new_panel);
 
             response.$promise.then(function() {
                 $scope.panel_templates = get_list();
@@ -77,14 +77,15 @@ app.controller(
 app.controller(
     'PanelTemplateCreateController',
     [
-        '$scope', '$state', '$controller', '$stateParams', 'PanelTemplate', 'Marker', 'Fluorochrome', 'ParameterValueType',
-        function ($scope, $state, $controller, $stateParams, PanelTemplate, Marker, Fluorochrome, ParameterValueType) {
+        '$scope', '$state', '$controller', '$stateParams', 'ModelService',
+        function ($scope, $state, $controller, $stateParams, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.model = {};
-            $scope.model.markers = Marker.query();
-            $scope.model.fluorochromes = Fluorochrome.query();
+            $scope.model.markers = ModelService.getMarkers();
+            $scope.model.fluorochromes = ModelService.getFluorochromes();
+            $scope.model.parameter_value_types = ModelService.getParameterValueTypes();
 
             $scope.model.panel_template_types = [
                 ["FS", "Full Stain"],
@@ -107,74 +108,71 @@ app.controller(
                 ["TIM", "Time"],
                 ["NUL", "Null"]
             ];
-            $scope.model.parameter_value_types = ParameterValueType.query();
 
             $scope.model.parameter_errors = [];
             $scope.model.template_valid = false;
 
-            function findFluoroByID(id) {
-                for (var i = 0; i < $scope.model.fluorochromes.length; i++) {
-                    if ($scope.model.fluorochromes[i].id === id) {
-                        return $scope.model.fluorochromes[i].fluorochrome_abbreviation;
-                    }
-                }
-            }
-
             // may be trying to edit an existing template
-            if ($stateParams.templateID) {
-                var template_id = $stateParams.templateID;
-                $scope.model.template = PanelTemplate.get(
-                    {id: template_id},
-                    function () {
-                        $scope.model.panel_name = $scope.model.template.panel_name;
-                        $scope.model.current_staining = $scope.model.template.staining;
-                        $scope.model.panel_templates = PanelTemplate.query(
-                            {
-                                project: $scope.current_project.id,
-                                staining: ['FS']  // only full stain can be parents
-                            },
-                            function () {
-                                if ($scope.model.template.parent_panel) {
-                                    $scope.model.parent_template_required = true;
-                                    for (var i = 0; i < $scope.model.panel_templates.length; i++) {
-                                        if ($scope.model.panel_templates[i].id == $scope.model.template.parent_panel) {
-                                            $scope.model.parent_template = $scope.model.panel_templates[i];
-                                            $scope.validatePanel();
-                                            break;
-                                        }
-                                    }
+            if ($stateParams.hasOwnProperty('templateID')) {
+                var template_id = parseInt($stateParams.templateID);
+                $scope.model.template = ModelService.getPanelTemplate(
+                    template_id
+                );
+
+                $scope.model.template.$promise.then(function () {
+                    $scope.model.panel_name = $scope.model.template.panel_name;
+                    $scope.model.current_staining = $scope.model.template.staining;
+                    $scope.model.panel_templates = ModelService.getPanelTemplates(
+                        {
+                            project: $scope.current_project.id,
+                            staining: ['FS']  // only full stain can be parents
+                        }
+                    );
+
+                    $scope.model.panel_templates.$promise.then(function () {
+                        if ($scope.model.template.parent_panel) {
+                            $scope.model.parent_template_required = true;
+                            for (var i = 0; i < $scope.model.panel_templates.length; i++) {
+                                if ($scope.model.panel_templates[i].id == $scope.model.template.parent_panel) {
+                                    $scope.model.parent_template = $scope.model.panel_templates[i];
+                                    $scope.validatePanel();
+                                    break;
                                 }
                             }
-                        );
+                        }
+                    }, function (error) {
+                        $scope.errors = error.data;
+                    });
 
-                        $scope.model.channels = [];
-                        $scope.model.template.parameters.forEach(function (p) {
-                            var channel = {markers: []};
-                            if (p.parameter_type) {
-                                channel.function = p.parameter_type;
-                            }
-                            if (p.parameter_value_type) {
-                                channel.value_type = p.parameter_value_type;
-                            }
-                            if (p.markers.length > 0) {
-                                p.markers.forEach(function (m) {
-                                    channel.markers.push(m.marker_id.toString());
-                                });
-                            }
-                            if (p.fluorochrome) {
-                                channel.fluorochrome = p.fluorochrome;
-                            }
+                    $scope.model.channels = [];
+                    $scope.model.template.parameters.forEach(function (p) {
+                        var channel = {markers: []};
+                        if (p.parameter_type) {
+                            channel.function = p.parameter_type;
+                        }
+                        if (p.parameter_value_type) {
+                            channel.value_type = p.parameter_value_type;
+                        }
+                        if (p.markers.length > 0) {
+                            p.markers.forEach(function (m) {
+                                channel.markers.push(m.marker_id.toString());
+                            });
+                        }
+                        if (p.fluorochrome) {
+                            channel.fluorochrome = p.fluorochrome;
+                        }
 
-                            $scope.model.channels.push(channel);
-                        });
-                        $scope.validatePanel();
-                    }
-                );
+                        $scope.model.channels.push(channel);
+                    });
+                    $scope.validatePanel();
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
             } else {
                 $scope.model.parent_template = null;
                 $scope.model.channels = [{markers: []}];
                 // get all project's panel templates matching full stain
-                $scope.model.panel_templates = PanelTemplate.query(
+                $scope.model.panel_templates = ModelService.getPanelTemplates(
                     {
                         project: $scope.current_project.id,
                         staining: ['FS']  // only full stain can be parents
@@ -552,10 +550,12 @@ app.controller(
                     panel_description: ""
                 };
                 if ($scope.model.template) {
-                    var panel_template = PanelTemplate.update({id: template_id}, data);
-                } else {
-                    var panel_template = PanelTemplate.save(data);
+                    data.id = template_id;
                 }
+                var panel_template = ModelService.createUpdatePanelTemplate(
+                    data
+                );
+
                 panel_template.$promise.then(function (o) {
                     // change to project's Panel template list
                     $state.go('panel-template-list')

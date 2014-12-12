@@ -69,19 +69,24 @@ def repository_api_root(request):
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
-        'sample_collections': reverse('sample-collection-list', request=request),
-        'sample_collection_members': reverse('sample-collection-member-list', request=request),
+        'sample_collections': reverse(
+            'sample-collection-list', request=request),
+        'sample_collection_members': reverse(
+            'sample-collection-member-list', request=request),
         'sites': reverse('site-list', request=request),
         'subject_groups': reverse('subject-group-list', request=request),
         'subjects': reverse('subject-list', request=request),
         'visit_types': reverse('visit-type-list', request=request),
         'stimulations': reverse('stimulation-list', request=request),
         'workers': reverse('worker-list', request=request),
-        'subprocess_categories': reverse('subprocess-category-list', request=request),
-        'subprocess_implementations': reverse('subprocess-implementation-list', request=request),
+        'subprocess_categories': reverse(
+            'subprocess-category-list', request=request),
+        'subprocess_implementations': reverse(
+            'subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
-        'process_request_inputs': reverse('process-request-input-list', request=request),
+        'process_request_inputs': reverse(
+            'process-request-input-list', request=request),
         'assigned_process_requests': reverse(
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
@@ -127,8 +132,7 @@ def get_project_permissions(request, project):
     if not (request.user in project.get_project_users() or request.user.is_superuser):
         raise PermissionDenied
 
-    perms = project.get_user_permissions(request.user).values_list(
-        'permission__codename', flat=True)
+    perms = project.get_user_permissions(request.user)
 
     return Response({'permissions': perms})
 
@@ -142,8 +146,7 @@ def get_site_permissions(request, site):
     if not site.has_view_permission(request.user):
         raise PermissionDenied
 
-    perms = site.get_user_permissions(request.user).values_list(
-        'permission__codename', flat=True)
+    perms = site.get_user_permissions(request.user)
 
     return Response({'permissions': perms})
 
@@ -632,6 +635,34 @@ class ProjectUserDetail(
         return response
 
 
+class ProjectSitesByPermissionList(LoginRequiredMixin, generics.ListAPIView):
+    """
+    API endpoint representing a list of project sites with the specified
+    permission.
+    """
+
+    model = Site
+    serializer_class = SiteSerializer
+
+    def get_queryset(self):
+        project = Project.objects.get(id=self.kwargs['pk'])
+
+        queryset = []
+
+        if 'permission' in self.request.QUERY_PARAMS:
+            if 'add_site_data' in self.request.QUERY_PARAMS['permission']:
+                queryset = Site.objects.get_sites_user_can_add(
+                    self.request.user,
+                    project
+                )
+            elif 'modify_site_data' in self.request.QUERY_PARAMS['permission']:
+                queryset = Site.objects.get_sites_user_can_modify(
+                    self.request.user,
+                    project
+                )
+        return queryset
+
+
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of panels.
@@ -676,8 +707,8 @@ class VisitTypeDetail(
     serializer_class = VisitTypeSerializer
 
     def put(self, request, *args, **kwargs):
-        project = Project.objects.get(id=kwargs['pk'])
-        if not project.has_modify_permission(request.user):
+        visit_type = VisitType.objects.get(id=kwargs['pk'])
+        if not visit_type.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(VisitTypeDetail, self).put(request, *args, **kwargs)
@@ -1284,7 +1315,7 @@ class MarkerList(generics.ListCreateAPIView):
         return response
 
 
-class MarkerDetail(generics.RetrieveUpdateAPIView):
+class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single marker.
     """
@@ -1306,6 +1337,21 @@ class MarkerDetail(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+    
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            marker = Marker.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if marker.sitepanelparametermarker_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(MarkerDetail, self).delete(request, *args, **kwargs)
+        return response
 
 
 class FluorochromeList(generics.ListCreateAPIView):
@@ -1325,7 +1371,7 @@ class FluorochromeList(generics.ListCreateAPIView):
         return response
 
 
-class FluorochromeDetail(generics.RetrieveUpdateAPIView):
+class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single fluorochrome.
     """
@@ -1348,6 +1394,21 @@ class FluorochromeDetail(generics.RetrieveUpdateAPIView):
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if fluorochrome.sitepanelparameter_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(FluorochromeDetail, self).delete(request, *args, **kwargs)
+        return response
+
 
 class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
@@ -1366,7 +1427,7 @@ class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
         return response
 
 
-class SpecimenDetail(generics.RetrieveUpdateAPIView):
+class SpecimenDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single fluorochrome.
     """
@@ -1388,6 +1449,21 @@ class SpecimenDetail(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            specimen = Specimen.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if specimen.sample_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(SpecimenDetail, self).delete(request, *args, **kwargs)
+        return response
 
 
 class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -1431,8 +1507,8 @@ class StimulationDetail(
     serializer_class = StimulationSerializer
 
     def put(self, request, *args, **kwargs):
-        project = Project.objects.get(id=kwargs['pk'])
-        if not project.has_modify_permission(request.user):
+        stimulation = Stimulation.objects.get(id=kwargs['pk'])
+        if not stimulation.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(StimulationDetail, self).put(request, *args, **kwargs)
@@ -1998,7 +2074,7 @@ def verify_process_request_assignment(request, pk):
     return Response(status=status.HTTP_200_OK, data=data)
 
 
-class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateAPIView):
+class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single worker.
     """
@@ -2020,6 +2096,21 @@ class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+    
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            worker = Worker.objects.get(id=kwargs['pk'])
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if worker.processrequest_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(WorkerDetail, self).delete(request, *args, **kwargs)
+        return response
 
 
 class WorkerList(AdminRequiredMixin, generics.ListCreateAPIView):

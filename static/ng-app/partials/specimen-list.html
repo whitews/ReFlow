@@ -6,7 +6,7 @@
               <h4>Specimens <span class="badge badge-inverse align-top">{{ specimens.length }}</span></h4>
 
               <div class="btn-group" ng-show="user.superuser" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(null)">
+                  <a class="btn btn-default btn-sm" ng-click="init_form(null, 'SPECIMEN')">
                       Add Specimen
                   </a>
               </div>
@@ -17,17 +17,22 @@
           <th></th>
           <th>Name</th>
           <th>Description</th>
+          <th>Sample Count</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="specimen in specimens">
           <td class="no-wrap" width="1%">
-              <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(specimen)" tooltip="Edit" tooltip-placement="bottom">
-                <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
-              </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(specimen, 'SPECIMEN')" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(specimen, 'SPECIMEN_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>{{ specimen.specimen_name }}</td>
           <td>{{ specimen.specimen_description }}</td>
+          <td>{{ specimen.sample_count }}</td>
         </tr>
       </tbody>
     </table>

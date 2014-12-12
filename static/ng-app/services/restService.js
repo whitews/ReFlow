@@ -70,6 +70,17 @@ service
             }
         );
 
+        Project.prototype.getSitesWithPermission = function(permission) {
+            var sites = $resource(
+                URLS.PROJECTS + this.id + '/sites_by_permission/?permission=' + permission,
+                {},
+                {
+                    get: {isArray: true}
+                }
+            );
+            return sites.get();
+        };
+
         Project.prototype.getUserPermissions = function() {
             var perms = $resource(
                 URLS.PROJECTS + this.id + '/permissions/',
@@ -85,8 +96,8 @@ service
 
         return Project;
     }])
-    .factory('ProjectUser', ['$resource', function ($resource) {
-        var ProjectUser = $resource(
+    .factory('ProjectUsers', ['$resource', function ($resource) {
+        var ProjectUsers = $resource(
             URLS.PROJECT_USERS,
             {},
             {
@@ -95,7 +106,7 @@ service
             }
         );
 
-        return ProjectUser;
+        return ProjectUsers;
     }])
     .factory('Site', ['$resource', function ($resource) {
         var Site = $resource(

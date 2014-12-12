@@ -6,9 +6,9 @@
               <h4>Markers <span class="badge badge-inverse align-top">{{ markers.length }}</span></h4>
 
               <div class="btn-group" ng-show="user.superuser" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ng-click="init_form(null)">
-                      Add Marker
-                  </a>
+                <a class="btn btn-default btn-sm" ng-click="init_form(null, 'MARKER')">
+                    Add Marker
+                </a>
               </div>
             </div>
           </th>
@@ -18,18 +18,23 @@
           <th>Abbreviation</th>
           <th>Name</th>
           <th>Description</th>
+          <th>Parameter Count</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="marker in markers">
           <td class="no-wrap" width="1%">
-              <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(marker)" tooltip="Edit" tooltip-placement="bottom">
-                <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
-              </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(marker, 'MARKER')" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(marker, 'MARKER_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>{{ marker.marker_abbreviation }}</td>
           <td>{{ marker.marker_name }}</td>
           <td>{{ marker.marker_description }}</td>
+          <td>{{ marker.parameter_count }}</td>
         </tr>
       </tbody>
     </table>

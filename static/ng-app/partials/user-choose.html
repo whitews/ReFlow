@@ -1,4 +1,4 @@
-<div ng-controller="UserController">
+<div ng-controller="UserQueryController">
   <div class="modal-header">
     <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
     <h4>Select User by Username</h4>
@@ -24,6 +24,6 @@
 
   <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
-    <button type="button" class="btn btn-default" ng-show="user_test" ng-click="init_form(user)">Choose User</button>
+    <button type="button" class="btn btn-default" ng-show="user_test" ng-click="init_form(chosen_user, 'USER')">Choose User</button>
   </div>
 </div>

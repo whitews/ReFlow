@@ -182,18 +182,30 @@ class SubjectSerializer(serializers.ModelSerializer):
 
 
 class MarkerSerializer(serializers.ModelSerializer):
+    parameter_count = serializers.IntegerField(
+        source='sitepanelparametermarker_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Marker
 
 
 class FluorochromeSerializer(serializers.ModelSerializer):
+    parameter_count = serializers.IntegerField(
+        source='sitepanelparameter_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Fluorochrome
 
 
 class SpecimenSerializer(serializers.ModelSerializer):
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
 
     class Meta:
         model = Specimen
@@ -729,6 +741,10 @@ class BeadSamplePOSTSerializer(serializers.ModelSerializer):
 
 
 class WorkerSerializer(serializers.ModelSerializer):
+    process_request_count = serializers.IntegerField(
+        source='processrequest_set.count',
+        read_only=True
+    )
     token = serializers.CharField(
         source='user.auth_token.key',
         read_only=True
@@ -736,7 +752,6 @@ class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Worker
-        fields = ('id', 'worker_name', 'worker_hostname', 'token')
         exclude = ('user',)
 
 
