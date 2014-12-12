@@ -1,21 +1,9 @@
 app.controller(
-    'MainController',
-    ['$scope', '$modal', 'ModelService',
-        function ($scope, $modal, ModelService) {
-            if (!$scope.projects) {
-                $scope.projects = ModelService.getProjects();
-            }
-
-            $scope.$on('projects:updated', function () {
-                $scope.projects = ModelService.getProjects();
-            });
-
-            $scope.user = ModelService.user;
-
-            $scope.$on('current_project:updated', function () {
-                $scope.current_project = ModelService.current_project;
-            });
-
+    'ModalController',
+    [
+        '$scope',
+        '$modal',
+        function ($scope, $modal) {
             // TODO: rename to init_modal?
             $scope.init_form = function(instance, form_type) {
                 var proposed_instance = angular.copy(instance);
@@ -32,6 +20,32 @@ app.controller(
                     }
                 });
             };
+        }
+    ]
+);
+
+app.controller(
+    'MainController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            $controller('ModalController', {$scope: $scope});
+
+            if (!$scope.projects) {
+                $scope.projects = ModelService.getProjects();
+            }
+
+            $scope.$on('projects:updated', function () {
+                $scope.projects = ModelService.getProjects();
+            });
+
+            $scope.user = ModelService.user;
+
+            $scope.$on('current_project:updated', function () {
+                $scope.current_project = ModelService.current_project;
+            });
         }
     ]
 );

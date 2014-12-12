@@ -4,6 +4,7 @@ service.factory('ModelService', function(
         $rootScope,
         $http,
         User,
+        UserPermissions,
         Marker,
         Fluorochrome,
         Specimen,
@@ -11,8 +12,7 @@ service.factory('ModelService', function(
         Storage,
         Worker,
         Project,
-        ProjectUser,
-        UserPermissions,
+        ProjectUsers,
         SubjectGroup,
         Subject,
         VisitType,
@@ -38,6 +38,8 @@ service.factory('ModelService', function(
 
     // The following section is for storing/retrieving "global" variables
     // that are needed across various controllers
+    service.user = User.get();
+    
     service.setCurrentSite = function (value) {
         this.current_site = value;
         $rootScope.$broadcast('siteChanged');
@@ -48,9 +50,44 @@ service.factory('ModelService', function(
     service.current_site = null;
     service.current_sample = null;
     service.current_panel_template = null;
-
-    service.user = User.get();
     // End "global" varaiables
+
+    // User services
+    service.isUser = function (username) {
+        return User.is_user(
+            {
+                'username': username
+            }
+        );
+    };
+    
+    // UserPermission services
+    service.userPermissionsUpdated = function () {
+        $rootScope.$broadcast('user_permissions:updated');
+    };
+    service.getUserPermissions = function(model, pk, username) {
+        return UserPermissions.query(
+            {
+                'model': model,
+                'object_pk': pk,
+                'username': username
+            }
+        );
+    };
+    service.createUserPermission = function(model, pk, username, permission) {
+        return UserPermissions.save(
+            {
+                'model': model,
+                'object_pk': pk,
+                'username': username,
+                'permission_codename': permission
+            }
+        );
+    };
+    service.destroyUserPermission = function (instance) {
+        return UserPermissions.delete({id: instance.id });
+    };
+    
 
     // Specimen services
     service.specimensUpdated = function () {
@@ -213,9 +250,9 @@ service.factory('ModelService', function(
 
     // Project User services
     service.getProjectUsers = function(project_id) {
-        return ProjectUser.query(
+        return ProjectUsers.get(
             {
-                'project': project_id
+                'id': project_id
             }
         );
     };

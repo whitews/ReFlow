@@ -96,8 +96,8 @@ service
 
         return Project;
     }])
-    .factory('ProjectUser', ['$resource', function ($resource) {
-        var ProjectUser = $resource(
+    .factory('ProjectUsers', ['$resource', function ($resource) {
+        var ProjectUsers = $resource(
             URLS.PROJECT_USERS,
             {},
             {
@@ -106,7 +106,7 @@ service
             }
         );
 
-        return ProjectUser;
+        return ProjectUsers;
     }])
     .factory('Site', ['$resource', function ($resource) {
         var Site = $resource(

@@ -3,9 +3,8 @@ app.controller(
     [
         '$scope',
         '$controller',
-        'UserPermissions',
         'ModelService',
-        function ($scope, $controller, UserPermissions, ModelService) {
+        function ($scope, $controller, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -26,24 +25,20 @@ app.controller(
 
                         // get user's project-level permissions for current
                         // project
-                        user.project_permissions = UserPermissions.query(
-                            {
-                                'model': 'project',
-                                'object_pk': $scope.current_project.id,
-                                'username': user.username
-                            }
+                        user.project_permissions = ModelService.getUserPermissions(
+                            'project',
+                            $scope.current_project.id,
+                            user.username
                         );
 
                         // get user's site-level  permissions for sites in the
                         // current project
                         user.sites = [];
                         $scope.sites.forEach(function (site) {
-                            var site_perm_response = UserPermissions.query(
-                                {
-                                    'model': 'site',
-                                    'object_pk': site.id,
-                                    'username': user.username
-                                }
+                            var site_perm_response = ModelService.getUserPermissions(
+                                'site',
+                                site.id,
+                                user.username
                             );
                             site_perm_response.$promise.then(function (perms) {
                                 if (perms.length > 0) {
@@ -69,7 +64,7 @@ app.controller(
                     $scope.users = get_list();
                 })
             });
-            $scope.$on('updateUserPermissions', function () {
+            $scope.$on('user_permissions:updated', function () {
                 $scope.sites = ModelService.getSites($scope.current_project.id);
                 $scope.sites.$promise.then(function () {
                     $scope.users = get_list();
@@ -81,59 +76,42 @@ app.controller(
 
 app.controller(
     'UserQueryController',
-    ['$scope', '$modal', 'User', function ($scope, $modal, User) {
-        $scope.user_test = null;
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            $controller('ModalController', {$scope: $scope});
 
-        $scope.query_user = function(username) {
-            var user_test = User.is_user(
-                {
-                    'username': username
-                }
-            );
+            $scope.user_test = null;
 
-            user_test.$promise.then(function (o) {
-                $scope.chosen_user = new User(
-                    {
+            $scope.query_user = function(username) {
+                // TODO: check if user already has some permissions for
+                // this project and/or its sites
+                var user_test = ModelService.isUser(username);
+
+                user_test.$promise.then(function (o) {
+                    $scope.chosen_user = {
                         username: username,
                         project_permissions: [],
                         sites: []
-                    }
-                );
-                $scope.user_test = true;
-            }, function (error) {
-                $scope.user_test = false;
-            });
-        };
-
-        $scope.init_user_form = function(instance) {
-            var proposed_instance = angular.copy(instance);
-            $scope.errors = [];
-
-            // launch form modal
-            var modalInstance = $modal.open({
-                templateUrl: 'static/ng-app/partials/user-form.html',
-                controller: 'ModalFormCtrl',
-                resolve: {
-                    instance: function() {
-                        return proposed_instance;
-                    }
-                }
-            });
-        };
-    }
-]);
+                    };
+                    $scope.user_test = true;
+                }, function () {  // error
+                    $scope.user_test = false;
+                });
+            };
+        }
+    ]
+);
 
 
 app.controller(
     'UserEditController',
     [
         '$scope',
-        '$q',
-        '$rootScope',
-        '$controller',
-        'UserPermissions',
         'ModelService',
-        function ($scope, $q, $rootScope, $controller, UserPermissions, ModelService) {
+        function ($scope, ModelService) {
             $scope.current_project = ModelService.current_project;
 
             // Build user management form values
@@ -163,13 +141,14 @@ app.controller(
             // build default site perms
             $scope.sites = ModelService.getSites($scope.current_project.id);
 
-            $q.all([$scope.sites.$promise]).then(function () {
+            $scope.sites.$promise.then(function () {
                 init_site_perms();
             });
 
             function init_site_perms() {
+                var site_perm_obj;
                 $scope.sites.forEach(function (site) {
-                    var site_perm_obj = {
+                    site_perm_obj = {
                         'id': null,
                         'obj_id': site.id,
                         'site_name': site.site_name,
@@ -196,24 +175,20 @@ app.controller(
                 perm.errors = [];
                 var response;
                 if (perm.value) {
-                    response = UserPermissions.delete(
-                        {id: perm.id }
-                    );
+                    response = ModelService.destroyUserPermission(perm);
                 } else {
-                    response = UserPermissions.save(
-                        {
-                            'username': $scope.instance.username,
-                            'model': model,
-                            'object_pk': obj_id,
-                            'permission_codename': codename
-                        }
+                    response = ModelService.createUserPermission(
+                        model,
+                        obj_id,
+                        $scope.instance.username,
+                        codename
                     );
                 }
 
                 response.$promise.then(function (o) {
                     perm.id = o.id;
                     // notify to update user permissions list
-                    $rootScope.$broadcast('updateUserPermissions');
+                    ModelService.userPermissionsUpdated();
                 }, function (error) {
                     perm.errors = error.data;
                 });
