@@ -30,7 +30,7 @@ app.controller(
                 site_panel_query.panel_template = $scope.sample_upload_model.current_panel_template.id;
             }
 
-            $scope.sample_upload_model.site_panels = SitePanel.query(
+            $scope.sample_upload_model.site_panels = ModelService.getSitePanels(
                 site_panel_query
             );
             $scope.sample_upload_model.site_panels.$promise.then(function (o) {
