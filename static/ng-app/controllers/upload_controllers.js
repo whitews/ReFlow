@@ -489,6 +489,8 @@ app.controller(
             $scope.sample_upload_model.upload_queue.forEach(function (obj) {
                 if (obj.selected && !obj.uploaded) {
                     obj.uploading = true;
+                } else {
+                    obj.uploading = false;
                 }
             });
             // now actually call upload for all the marked files
