@@ -52,6 +52,7 @@ var MODAL_URLS = {
     'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
     'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
     'PANEL_DELETE':       'static/ng-app/partials/panel-template-delete.html',
+    'SITE_PANEL_DELETE':  'static/ng-app/partials/site-panel-delete.html',
     'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html',
     'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
     'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html',
@@ -277,6 +278,19 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Cytometers'
+        }
+    }).state({
+        name: 'site-panel-list',
+        parent: 'project-detail',
+        url: '/sample-annotations/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/site-panel-list.html',
+                controller: 'SitePanelController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Sample Annotations'
         }
     }).state({
         name: 'visit-type-list',

@@ -1,0 +1,93 @@
+    <table id="data-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="50" class="center">
+            <div style="position:relative">
+              <h4>Sample Annotations <span class="badge badge-inverse align-top">{{ site_panels.length }}</span></h4>
+
+              <div class="btn-group" ng-show="current_project.permissions.can_add_data" style="position:absolute; right:0;top:0;">
+                  <a class="btn btn-default btn-sm" ui-sref="panel-template-create">
+                      Add Panel Template
+                  </a>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Panel Name</th>
+          <th>Staining</th>
+          <th>Site</th>
+          <th>Version</th>
+          <th>Sample Count</th>
+          <th>
+            Parameters
+            <span class="pull-right">
+                <a href ng-click="expand_all_panels()">Show All</a> | <a href ng-click="collapse_all_panels()">Hide All</a>
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="panel in site_panels">
+          <td class="no-wrap" width="1%">
+            <!--
+            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_modify_project" ui-sref="site-panel-edit({panelID: panel.id})" tooltip="Edit" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
+            </a>
+            -->
+            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_modify_project" ng-click="init_form(panel, 'SITE_PANEL_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
+          </td>
+          <td>{{ panel.panel_template_name }}</td>
+          <td>{{ panel.staining_name }}</td>
+          <td>{{ panel.site_name }}</td>
+          <td>{{ panel.implementation }}</td>
+          <td>{{ panel.sample_count }}</td>
+          <td width="60%">
+            <a href ng-click="toggle_params($index)">Show/Hide</a>
+            <div class="params" ng-show="expand_params[$index]">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>$PnN Field</th>
+                    <th>$PnS Field</th>
+                    <th>Function</th>
+                    <th>Markers</th>
+                    <th>Fluorochrome</th>
+                    <th>Value Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="param in panel.parameters">
+                    <td>
+                      {{ param.fcs_text }}
+                    </td>
+                    <td>
+                      {{ param.fcs_opt_text }}
+                    </td>
+                    <td width="33%">
+                      {{ param.parameter_type_name }}
+                    </td>
+                    <td>
+                      <ul class="list-unstyled">
+                        <li ng-repeat="marker in param.markers">
+                          {{ marker.name }}
+                        </li>
+                      </ul>
+                    </td>
+                    <td>
+                        {{ param.fluorochrome.fluorochrome_abbreviation }}
+                    </td>
+                    <td>
+                      {{ param.parameter_value_type }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>

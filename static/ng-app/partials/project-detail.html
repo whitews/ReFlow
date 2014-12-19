@@ -82,10 +82,9 @@
 
         </div>
         <div class="col-md-3">
-          <h4>Compensation Matrices</h4>
+          <h4>Sample Annotations</h4>
 
-              <a ui-sref="compensation-list">View</a><br/>
-              <a href="" ng-show="current_project.permissions.can_add_data" ng-click="init_form(null, 'COMPENSATION')">Create Compensation Matrix</a><br/>
+              <a ui-sref="site-panel-list">View</a><br/>
 
         </div>
       </div>
@@ -107,6 +106,13 @@
 
               <a ui-sref="bead-sample-list">View</a><br/>
               <a ng-show="current_project.permissions.can_add_data" ui-sref="bead-sample-upload">Upload Bead Samples</a><br/>
+
+        </div>
+        <div class="col-md-3">
+          <h4>Compensation Matrices</h4>
+
+              <a ui-sref="compensation-list">View</a><br/>
+              <a href="" ng-show="current_project.permissions.can_add_data" ng-click="init_form(null, 'COMPENSATION')">Create Compensation Matrix</a><br/>
 
         </div>
       </div>
