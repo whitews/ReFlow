@@ -565,6 +565,9 @@ service.factory('ModelService', function(
     service.createSitePanel = function(instance) {
         return SitePanel.save(instance);
     };
+    service.destroySitePanel = function (instance) {
+        return SitePanel.delete({id: instance.id });
+    };
     
     // ProcessRequest services
     service.processRequestsUpdated = function () {
