@@ -324,7 +324,14 @@ class SitePanelParameterSerializer(serializers.ModelSerializer):
 
 
 class SitePanelSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer(source='site.project', read_only=True)
+    project = serializers.IntegerField(
+        source='site.project_id',
+        read_only=True
+    )
+    project_name = serializers.CharField(
+        source='site.project.project_name',
+        read_only=True
+    )
     parameters = SitePanelParameterSerializer(
         source='sitepanelparameter_set',
         read_only=True
@@ -333,9 +340,30 @@ class SitePanelSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='name', read_only=True)
     panel_template_name = serializers.CharField(
         source='panel_template.panel_name',
-        read_only=True)
+        read_only=True
+    )
+    site_name = serializers.CharField(
+        source='site.site_name',
+        read_only=True
+    )
     panel_type = serializers.CharField(
         source='panel_template.staining',
+        read_only=True
+    )
+    staining_name = serializers.CharField(
+        source='panel_template.get_staining_display',
+        read_only=True
+    )
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
+    bead_sample_count = serializers.IntegerField(
+        source='beadsample_set.count',
+        read_only=True
+    )
+    compensation_count = serializers.IntegerField(
+        source='compensation_set.count',
         read_only=True
     )
 
@@ -345,13 +373,21 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'project',
+            'project_name',
             'site',
+            'sample_count',
+            'bead_sample_count',
+            'compensation_count',
             'panel_template',
+            'site_name',
+            'implementation',
             'panel_type',
+            'staining_name',
             'site_panel_comments',
             'panel_template_name',
             'name',
-            'parameters')
+            'parameters'
+        )
 
 
 class CytometerSerializer(serializers.ModelSerializer):
@@ -395,7 +431,8 @@ class CompensationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='compensation-detail')
     project = serializers.IntegerField(
         source='site_panel.site.project_id',
-        read_only=True)
+        read_only=True
+    )
     panel = serializers.IntegerField(
         source='site_panel.panel_template_id',
         read_only=True
