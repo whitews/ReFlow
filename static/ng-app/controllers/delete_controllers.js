@@ -220,6 +220,30 @@ app.controller(
 );
 
 app.controller(
+    'SitePanelDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroySitePanel(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.sitePanelsUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'SubjectDeleteController',
     [
         '$scope',
