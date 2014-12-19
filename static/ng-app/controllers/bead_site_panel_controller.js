@@ -18,7 +18,7 @@ app.controller(
 );
 
 app.controller(
-    'BeadSitePanelController',
+    'BeadSitePanelCreateController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
 
         $scope.site_panel_model = {};

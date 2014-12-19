@@ -1,5 +1,57 @@
 app.controller(
     'SitePanelController',
+    ['$scope', '$controller', 'ModelService', function ($scope, $controller, ModelService) {
+        // Inherits ProjectDetailController $scope
+        $controller('ProjectDetailController', {$scope: $scope});
+
+        function get_list() {
+            var response = ModelService.getSitePanels(
+                {
+                    'project': $scope.current_project.id
+                }
+            );
+
+            $scope.expand_params = [];
+            response.$promise.then(function (site_panels) {
+                site_panels.forEach(function () {
+                    $scope.expand_params.push(false);
+                })
+            });
+            return response;
+        }
+
+        if ($scope.current_project != undefined) {
+            $scope.site_panels = get_list();
+        }
+
+        $scope.$on('current_project:updated', function () {
+            $scope.site_panels = get_list();
+        });
+
+        $scope.$on('site_panels:updated', function () {
+            $scope.site_panels = get_list();
+        });
+
+        $scope.toggle_params = function (i) {
+            $scope.expand_params[i] = $scope.expand_params[i] != true;
+        };
+
+        $scope.expand_all_panels = function () {
+            for (var i = 0; i < $scope.site_panels.length; i++) {
+                $scope.expand_params[i] = true;
+            }
+        };
+
+        $scope.collapse_all_panels = function () {
+            for (var i = 0; i < $scope.site_panels.length; i++) {
+                $scope.expand_params[i] = false;
+            }
+        };
+    }
+]);
+
+app.controller(
+    'SitePanelCreateController',
     ['$scope', '$q', 'ModelService', function ($scope, $q, ModelService) {
 
         $scope.site_panel_model = {};
