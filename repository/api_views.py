@@ -1205,13 +1205,20 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
 class SitePanelDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveDestroyAPIView):
     """
     API endpoint representing a single site panel.
     """
 
     model = SitePanel
     serializer_class = SitePanelSerializer
+
+    def delete(self, request, *args, **kwargs):
+        site_panel = SitePanel.objects.get(id=kwargs['pk'])
+        if not site_panel.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SitePanelDetail, self).delete(request, *args, **kwargs)
 
 
 class CytometerFilter(django_filters.FilterSet):

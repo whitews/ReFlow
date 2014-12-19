@@ -763,6 +763,11 @@ class SitePanel(ProtectedModel):
 
         return False
 
+    def has_modify_permission(self, user):
+        if self.site.has_modify_permission(user):
+            return True
+        return False
+
     def clean(self):
         try:
             Site.objects.get(id=self.site_id)
