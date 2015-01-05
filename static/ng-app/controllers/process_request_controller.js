@@ -316,12 +316,19 @@ app.controller(
                         }
                     });
                     $scope.model.parameters = [];
+                    var selected_param = true;
                     for (var i = 0; i < master_parameter_list.length; i++) {
                         if (indices_to_exclude.indexOf(i) == -1) {
+                            // by default, don't select NULL or TIME params
+                            if (["NUL", "TIM"].indexOf(master_parameter_list[i].substr(0, 3)) != -1) {
+                                selected_param = false;
+                            } else {
+                                selected_param = true;
+                            }
                             $scope.model.parameters.push(
                                 {
                                     parameter: master_parameter_list[i],
-                                    selected: true
+                                    selected: selected_param
                                 }
                             );
                         }
