@@ -6,9 +6,9 @@
               <h4>Panel Templates <span class="badge badge-inverse align-top">{{ panel_templates.length }}</span></h4>
 
               <div class="btn-group" ng-show="current_project.permissions.can_add_data" style="position:absolute; right:0;top:0;">
-                  <a class="btn btn-default btn-sm" ui-sref="panel-template-create">
-                      Add Panel Template
-                  </a>
+                <a class="btn btn-default btn-sm" ui-sref="panel-template-create">
+                  Add Panel Template
+                </a>
               </div>
             </div>
           </th>
@@ -21,7 +21,7 @@
           <th>
             Parameters
             <span class="pull-right">
-                <a href ng-click="expand_all_panels()">Show All</a> | <a href ng-click="collapse_all_panels()">Hide All</a>
+              <a href ng-click="expand_all_panels()">Show All</a> | <a href ng-click="collapse_all_panels()">Hide All</a>
             </span>
           </th>
         </tr>
