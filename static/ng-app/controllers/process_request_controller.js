@@ -49,6 +49,14 @@ app.controller(
             $scope.process_request = ModelService.getProcessRequest(
                 $stateParams.requestId
             );
+
+            $scope.process_request.$promise.then(function () {
+                ModelService.getSampleCollection(
+                    $scope.process_request.sample_collection
+                ).$promise.then(function (data) {
+                    $scope.sample_collection = data;
+                });
+            });
         }
     ]
 );
