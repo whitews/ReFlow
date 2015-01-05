@@ -128,6 +128,11 @@ hr {
   background-color: #f1f1f1;
 }
 
+/* For forcing breaks in very long words */
+.break-word {
+  word-wrap: break-word;
+}
+
 .navbar {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   overflow: visible;

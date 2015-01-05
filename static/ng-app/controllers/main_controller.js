@@ -443,6 +443,20 @@ app.controller(
                     }
                 });
             };
+
+            $scope.show_metadata = function(instance) {
+                // launch modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.SAMPLE_METADATA,
+                    controller: 'SampleMetadataController',
+                    size: 'md',
+                    resolve: {
+                        instance: function() {
+                            return instance;
+                        }
+                    }
+                });
+            };
         }
     ]
 );
@@ -462,6 +476,26 @@ app.controller(
 
             $scope.site_panel = ModelService.getSitePanel(
                 $scope.instance.site_panel
+            );
+        }
+    ]
+);
+
+app.controller(
+    'SampleMetadataController',
+    [
+        '$scope',
+        '$modalInstance',
+        'instance',
+        'ModelService',
+        function ($scope, $modalInstance, instance, ModelService) {
+            $scope.instance = instance;
+            $scope.ok = function () {
+                $modalInstance.close();
+            };
+
+            $scope.metadata = ModelService.getSampleMetadata(
+                $scope.instance.id
             );
         }
     ]

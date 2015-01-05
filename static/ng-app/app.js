@@ -37,6 +37,7 @@ var MODAL_URLS = {
     'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
     'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
+    'SAMPLE_METADATA':    'static/ng-app/partials/sample-metadata-list.html',
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
     'COMPENSATION':       'static/ng-app/partials/compensation-form.html',
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
