@@ -110,11 +110,11 @@ label {
 }
 
 .lead {
-  margin-bottom: 20px;
+  margin-bottom: 9px;
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 21px;
-  font-weight: 200;
-  line-height: 30px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 hr {
