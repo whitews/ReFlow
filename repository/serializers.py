@@ -257,6 +257,10 @@ class PanelTemplateSerializer(serializers.ModelSerializer):
     staining_name = serializers.CharField(
         source='get_staining_display',
         read_only=True)
+    site_panel_count = serializers.IntegerField(
+        source='sitepanel_set.count',
+        read_only=True
+    )
     sample_count = serializers.IntegerField(
         source='get_sample_count',
         read_only=True
@@ -282,6 +286,7 @@ class PanelTemplateSerializer(serializers.ModelSerializer):
             'staining_name',
             'parent_panel',
             'parameters',
+            'site_panel_count',
             'sample_count',
             'bead_sample_count',
             'compensation_count'

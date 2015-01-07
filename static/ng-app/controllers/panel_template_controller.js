@@ -211,6 +211,7 @@ app.controller(
 
                 /*
                 Validate the panel:
+                    - existing templates w/site panels cannot be edited
                     - Function and value type are required
                     - No fluorochromes in a scatter parameter
                     - No markers in a scatter parameter
@@ -223,6 +224,18 @@ app.controller(
                     - FMO templates must specify an UNS channel
                     - ISO templates must specify an ISO channel
                 */
+
+                // existing templates w/related site panels cannot be edited
+                if ($scope.model.template) {
+                    if ($scope.model.template.hasOwnProperty('id')) {
+                        $scope.model.errors.push(
+                            'This template has existing Sample Annotations, and cannot be edited.'
+                        );
+                        valid = false;
+                        $scope.model.template_valid = valid;
+                        return valid;
+                    }
+                }
 
                 // Name, project, and staining are all required
                 if ($scope.model.current_staining == null || $scope.model.panel_name == null || $scope.current_project == null) {
