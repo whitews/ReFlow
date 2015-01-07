@@ -958,6 +958,12 @@ class PanelTemplateDetail(
     def put(self, request, *args, **kwargs):
         data = request.DATA
 
+        # first, check if template has any site panels, editing templates
+        # with existing site panels is not allowed
+        panel_template = PanelTemplate.objects.get(id=kwargs['pk'])
+        if panel_template.sitepanel_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         # validate all the template components
         errors = validate_panel_template_request(data, request.user)
         if len(errors) > 0:
@@ -966,7 +972,6 @@ class PanelTemplateDetail(
         # we can create the PanelTemplate instance now, but we'll do so inside
         # an atomic transaction
         try:
-            panel_template = PanelTemplate.objects.get(id=kwargs['pk'])
             project = Project.objects.get(id=data['project'])
             if data['parent_panel']:
                 parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
