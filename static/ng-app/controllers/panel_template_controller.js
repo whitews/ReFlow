@@ -228,12 +228,14 @@ app.controller(
                 // existing templates w/related site panels cannot be edited
                 if ($scope.model.template) {
                     if ($scope.model.template.hasOwnProperty('id')) {
-                        $scope.model.errors.push(
-                            'This template has existing Sample Annotations, and cannot be edited.'
-                        );
-                        valid = false;
-                        $scope.model.template_valid = valid;
-                        return valid;
+                        if ($scope.model.template.site_panel_count > 0) {
+                            $scope.model.errors.push(
+                                'This template has existing Sample Annotations, and cannot be edited.'
+                            );
+                            valid = false;
+                            $scope.model.template_valid = valid;
+                            return valid;
+                        }
                     }
                 }
 
