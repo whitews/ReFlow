@@ -12,7 +12,8 @@ var app = angular.module(
         'ui.bootstrap',
         'ui.select2',
         'ncy-angular-breadcrumb',
-        'angularFileUpload'
+        'angularFileUpload',
+        'tableSort'
     ]
 );
 
