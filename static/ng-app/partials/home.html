@@ -1,4 +1,4 @@
-    <table id="project-table" class="table table-hover" ng-show="projects.length > 0">
+    <table id="project-table" class="table table-hover" ng-show="projects.length > 0" ts-wrapper>
       <thead>
         <tr>
           <th colspan="3" class="center">
@@ -11,7 +11,7 @@
           </th>
         </tr>
         <tr>
-          <th>Project Name</th>
+          <th ts-criteria="project_name">Project Name</th>
           <th>Project Permissions</th>
           <th>Site Permissions</th>
         </tr>
@@ -19,7 +19,7 @@
 
       <tbody>
 
-        <tr ng-repeat="project in projects">
+        <tr ng-repeat="project in projects" ts-repeat>
           <td>
             <a ui-sref="project-detail({ projectId: project.id })">{{ project.project_name }}</a>
           </td>
