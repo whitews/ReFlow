@@ -1,4 +1,4 @@
-    <table id="data-table" class="table table-hover">
+    <table ts-wrapper id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="50" class="center">
@@ -15,13 +15,13 @@
         </tr>
         <tr>
           <th></th>
-          <th>Visit Name</th>
-          <th>Visit Description</th>
-          <th>Sample Count</th>
+          <th ts-criteria="visit_type_name">Visit Name</th>
+          <th ts-criteria="visit_type_description">Visit Description</th>
+          <th ts-criteria="sample_count">Sample Count</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="visit_type in visit_types">
+        <tr ts-repeat ng-repeat="visit_type in visit_types">
           <td class="no-wrap" width="1%">
             <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_modify_project" ng-click="init_form(visit_type, 'VISIT_TYPE')" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
