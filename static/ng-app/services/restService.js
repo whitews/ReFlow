@@ -3,7 +3,8 @@
  */
 
 var URLS = {
-    'USER':                '/api/repository/user/',
+    'USER':                '/api/repository/users/',
+    'CURRENT_USER':        '/api/repository/user/',
     'USER_PERMISSIONS':    '/api/repository/permissions/',
     'PROJECTS':            '/api/repository/projects/',
     'PROJECT_USERS':       '/api/repository/projects/:id/users/',
@@ -47,7 +48,18 @@ var service = angular.module('ReFlowApp');
 service
     .factory('User', ['$resource', function ($resource) {
         var User = $resource(
-            URLS.USER + ':username',
+            URLS.USER + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return User;
+    }])
+    .factory('CurrentUser', ['$resource', function ($resource) {
+        var CurrentUser = $resource(
+            URLS.CURRENT_USER + ':username',
             {
                 username: '@username'
             },
@@ -56,7 +68,7 @@ service
             }
         );
 
-        return User;
+        return CurrentUser;
     }])
     .factory('UserPermissions', ['$resource', function ($resource) {
         return $resource(URLS.USER_PERMISSIONS + ':id');
