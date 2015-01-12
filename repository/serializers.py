@@ -28,6 +28,11 @@ class PermissionSerializer(serializers.ModelSerializer):
         read_only_fields = ('permission',)
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='project-detail')
     subject_count = serializers.IntegerField(
