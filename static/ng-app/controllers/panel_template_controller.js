@@ -570,7 +570,7 @@ app.controller(
                     panel_description: ""
                 };
                 if ($scope.model.template) {
-                    data.id = template_id;
+                    data.id = $scope.model.template.id;
                 }
                 var panel_template = ModelService.createUpdatePanelTemplate(
                     data
