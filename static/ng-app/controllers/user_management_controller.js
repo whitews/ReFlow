@@ -1,5 +1,5 @@
 app.controller(
-    'UserController',
+    'ProjectUserController',
     [
         '$scope',
         '$controller',

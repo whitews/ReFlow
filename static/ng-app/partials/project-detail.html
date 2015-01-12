@@ -11,7 +11,7 @@
 
                 <div class="btn-group">
                     <a class="btn btn-default btn-sm" ng-click="init_form(current_project, 'PROJECT')" ng-show="current_project.permissions.can_modify_project">Edit Project</a>
-                    <a class="btn btn-default btn-sm"  ui-sref="user-list" ng-show="current_project.permissions.can_manage_users">Manage Users</a>
+                    <a class="btn btn-default btn-sm"  ui-sref="project-user-list" ng-show="current_project.permissions.can_manage_users">Manage Users</a>
                 </div>
               </div>
             </div>

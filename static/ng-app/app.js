@@ -139,6 +139,19 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
             ncyBreadcrumbLabel: 'Fluorochromes'
         }
     }).state({
+        name: 'user-list',
+        parent: 'admin',
+        url: 'users/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/user-list.html',
+                controller: 'UserController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Users'
+        }
+    }).state({
         name: 'worker-list',
         parent: 'admin',
         url: 'workers/',
@@ -217,13 +230,13 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
             ncyBreadcrumbLabel: 'Visualize'
         }
     }).state({
-        name: 'user-list',
+        name: 'project-user-list',
         parent: 'project-detail',
         url: '/users/',
         views: {
             '@': {
-                templateUrl: '/static/ng-app/partials/user-list.html',
-                controller: 'UserController'
+                templateUrl: '/static/ng-app/partials/project-user-list.html',
+                controller: 'ProjectUserController'
             }
         },
         data: {
