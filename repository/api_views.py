@@ -65,6 +65,7 @@ def repository_api_root(request):
         'fluorochromes': reverse('fluorochrome-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'permissions': reverse('permission-list', request=request),
+        'users': reverse('user-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
@@ -559,6 +560,29 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
+
+
+class UserList(generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of ReFlow users.
+    """
+
+    model = User
+    serializer_class = UserSerializer
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(UserList, self).get(request, *args, **kwargs)
+        return response
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(UserList, self).post(request, *args, **kwargs)
+        return response
 
 
 class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):

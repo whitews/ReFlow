@@ -14,6 +14,7 @@ urlpatterns = patterns('repository.api_views',
 
     url(r'^api/repository/permissions/?$', PermissionList.as_view(), name='permission-list'),
     url(r'^api/repository/permissions/(?P<pk>\d+)/?$', PermissionDetail.as_view(), name='permission-detail'),
+    url(r'^api/repository/users/?$', UserList.as_view(), name='user-list'),
     url(r'^api/repository/user/?$', get_user_details, name='get_user_details'),
     url(r'^api/repository/user/(?P<username>\w+)/?$', is_user, name='is_user'),
 
