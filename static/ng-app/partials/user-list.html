@@ -6,7 +6,7 @@
               <h4>Users <span class="badge badge-inverse align-top">{{ users.length }}</span></h4>
 
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-default btn-sm" ng-show="current_project.permissions.can_manage_users" ng-click="init_form(null, 'CHOOSE_USER')">
+                <a class="btn btn-default btn-sm" ng-show="user.superuser" ng-click="init_form(null, 'CHOOSE_USER')">
                   Add User
                 </a>
               </div>
@@ -16,8 +16,11 @@
         <tr>
           <th></th>
           <th ts-criteria="username">Username</th>
-          <th>Project Permissions</th>
-          <th>Site Permissions</th>
+          <th ts-criteria="email">Email</th>
+          <th ts-criteria="is_active">Active</th>
+          <th ts-criteria="is_superuser">Superuser</th>
+          <th ts-criteria="last_login">Last Login</th>
+          <th ts-criteria="date_joined">Created</th>
         </tr>
       </thead>
       <tbody>
@@ -31,22 +34,19 @@
             {{ user.username }}
           </td>
           <td>
-            <ul class="list-unstyled">
-              <li ng-repeat="perm in user.project_permissions">
-                {{ perm.permission_name }}
-              </li>
-            </ul>
+            {{ user.email }}
           </td>
           <td>
-            <ul class="list-unstyled">
-              <li ng-repeat="site in user.sites">
-                {{ site.site_name }}
-                <ul class="">
-                  <li ng-repeat="perm in site.permissions">{{ perm.permission_name }}</li>
-                </ul>
-                <div ng-hide="$last"><hr/></div>
-              </li>
-            </ul>
+            {{ user.is_active }}
+          </td>
+          <td>
+            {{ user.is_superuser }}
+          </td>
+          <td>
+            {{ user.last_login | date : 'medium' }}
+          </td>
+          <td>
+            {{ user.date_joined | date : 'medium' }}
           </td>
         </tr>
       </tbody>

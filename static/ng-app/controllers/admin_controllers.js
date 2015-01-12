@@ -203,6 +203,50 @@ app.controller(
 );
 
 app.controller(
+    'UserController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherits MainController $scope
+            $controller('MainController', {$scope: $scope});
+
+            $scope.users = ModelService.getUsers();
+
+            $scope.$on('users:updated', function () {
+                $scope.users = ModelService.getUsers();
+            });
+        }
+    ]
+);
+
+app.controller(
+    'UserEditController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.create_update = function (instance) {
+                $scope.errors = [];
+                var response = ModelService.createUpdateUser(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.usersUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'WorkerController',
     [
         '$scope',
