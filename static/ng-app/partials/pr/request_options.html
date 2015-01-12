@@ -28,20 +28,20 @@
         </span>
       </div>
 
-      <table class="table table-hover">
+      <table ts-wrapper class="table table-hover">
         <thead>
           <tr>
             <th colspan="50"><h5>Samples</h5></th>
           </tr>
           <tr>
-            <th>Filename</th>
-            <th>Site</th>
-            <th>Visit</th>
-            <th>Subject</th>
+            <th ts-criteria="original_filename">Filename</th>
+            <th ts-criteria="site_name">Site</th>
+            <th ts-criteria="visit_name">Visit</th>
+            <th ts-criteria="subject_code">Subject</th>
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="sample in model.chosen_samples">
+          <tr ts-repeat data-ng-repeat="sample in model.chosen_samples">
             <td>
               {{ sample.original_filename }}
             </td>
@@ -58,18 +58,18 @@
         </tbody>
       </table>
 
-      <table class="table table-hover">
+      <table ts-wrapper class="table table-hover">
         <thead>
           <tr>
             <th colspan="50"><h5>Channels</h5></th>
           </tr>
           <tr>
-            <th>Name</th>
+            <th ts-criteria="parameter">Name</th>
             <th>Selected</th>
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="param in model.parameters">
+          <tr ts-repeat data-ng-repeat="param in model.parameters">
             <td>
               {{ param.parameter }}
             </td>
@@ -81,18 +81,18 @@
         </tbody>
       </table>
 
-      <table class="table table-hover">
+      <table ts-wrapper class="table table-hover">
         <thead>
           <tr>
             <th colspan="50"><h5>Transformation</h5></th>
           </tr>
           <tr>
-            <th>Field</th>
-            <th>Value</th>
+            <th ts-criteria="name">Field</th>
+            <th ts-criteria="value">Value</th>
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="input in model.transform_inputs">
+          <tr ts-repeat data-ng-repeat="input in model.transform_inputs">
             <td>
               {{ input.name }}
             </td>
@@ -103,18 +103,18 @@
         </tbody>
       </table>
 
-      <table class="table table-hover">
+      <table ts-wrapper class="table table-hover">
         <thead>
           <tr>
             <th colspan="50"><h5>Clustering</h5></th>
           </tr>
           <tr>
-            <th>Field</th>
-            <th>Value</th>
+            <th ts-criteria="name">Field</th>
+            <th ts-criteria="value">Value</th>
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="input in model.clustering_inputs">
+          <tr ts-repeat data-ng-repeat="input in model.clustering_inputs">
             <td>
               {{ input.name }}
             </td>

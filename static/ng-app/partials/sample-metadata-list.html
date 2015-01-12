@@ -4,15 +4,15 @@
   </div>
   <div class="modal-body">
 
-    <table class="table table-hover" style="table-layout: fixed">
+    <table ts-wrapper class="table table-hover" style="table-layout: fixed">
       <thead>
         <tr>
-          <th>Field</th>
-          <th>Value</th>
+          <th ts-criteria="key">Field</th>
+          <th ts-criteria="value">Value</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="field in metadata | orderBy : 'key'">
+        <tr ts-repeat ng-repeat="field in metadata | orderBy : 'key'">
           <td class="break-word" style="width: 50%;">{{ field.key }}</td>
           <td class="break-word" style="width: 50%;">{{ field.value }}</td>
         </tr>
