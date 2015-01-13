@@ -581,8 +581,32 @@ class UserList(generics.ListCreateAPIView):
         if not request.user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        response = super(UserList, self).post(request, *args, **kwargs)
-        return response
+        serializer = self.get_serializer(data=request.DATA)
+        if serializer.is_valid():
+            try:
+                # check for optional properties
+                user_kwargs = {}
+                if 'first_name' in serializer.init_data:
+                    user_kwargs['first_name'] = serializer.init_data['first_name']
+                if 'last_name' in serializer.init_data:
+                    user_kwargs['last_name'] = serializer.init_data['last_name']
+                if 'is_superuser' in serializer.init_data:
+                    user_kwargs['is_superuser'] = serializer.init_data['is_superuser']
+
+                user = User.objects.create_user(
+                    serializer.init_data['username'],
+                    email=serializer.init_data['email'],
+                    password=serializer.init_data['password'],
+                    **user_kwargs
+                )
+            except IntegrityError, e:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            except Exception, e:
+                # TODO: remove this after more experimentation
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
