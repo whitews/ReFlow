@@ -31,6 +31,7 @@ class PermissionSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        exclude = ('password',)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
