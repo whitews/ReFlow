@@ -6,7 +6,7 @@
               <h4>Users <span class="badge badge-inverse align-top">{{ users.length }}</span></h4>
 
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-default btn-sm" ng-show="user.superuser" ng-click="init_form(null, 'CHOOSE_USER')">
+                <a class="btn btn-default btn-sm" ng-show="user.superuser" ng-click="init_form(null, 'USER')">
                   Add User
                 </a>
               </div>
@@ -16,6 +16,8 @@
         <tr>
           <th></th>
           <th ts-criteria="username">Username</th>
+          <th ts-criteria="first_name">First Name</th>
+          <th ts-criteria="last_name">Last Name</th>
           <th ts-criteria="email">Email</th>
           <th ts-criteria="is_active">Active</th>
           <th ts-criteria="is_superuser">Superuser</th>
@@ -32,6 +34,12 @@
           </td>
           <td>
             {{ user.username }}
+          </td>
+          <td>
+            {{ user.first_name }}
+          </td>
+          <td>
+            {{ user.last_name }}
           </td>
           <td>
             {{ user.email }}

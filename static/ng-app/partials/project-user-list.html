@@ -23,7 +23,7 @@
       <tbody>
         <tr ts-repeat ng-repeat="user in users">
           <td class="no-wrap" width="1%">
-            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_manage_users" ng-click="init_form(user, 'USER')" tooltip="Edit" tooltip-placement="bottom">
+            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_manage_users" ng-click="init_form(user, 'PROJECT_USER')" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
             </a>
           </td>

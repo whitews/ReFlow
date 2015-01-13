@@ -107,7 +107,7 @@ app.controller(
 
 
 app.controller(
-    'UserEditController',
+    'ProjectUserEditController',
     [
         '$scope',
         'ModelService',

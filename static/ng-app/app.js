@@ -42,7 +42,7 @@ var MODAL_URLS = {
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
     'COMPENSATION':       'static/ng-app/partials/compensation-form.html',
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
-    'USER':               'static/ng-app/partials/user-form.html',
+    'PROJECT_USER':       'static/ng-app/partials/project-user-form.html',
     'CHOOSE_USER':        'static/ng-app/partials/user-choose.html',
 
     // delete modals
@@ -61,6 +61,7 @@ var MODAL_URLS = {
     'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html',
 
     // admin modals
+    'USER':               'static/ng-app/partials/user-form.html',
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
     'SPECIMEN_DELETE':    'static/ng-app/partials/specimen-delete.html',
     'MARKER':             'static/ng-app/partials/marker-form.html',
