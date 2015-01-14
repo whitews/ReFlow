@@ -570,6 +570,10 @@ class UserList(generics.ListCreateAPIView):
     model = User
     serializer_class = UserSerializer
 
+    def get_queryset(self):
+        queryset = User.objects.filter(worker=None)
+        return queryset
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -607,6 +611,63 @@ class UserList(generics.ListCreateAPIView):
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint representing a single ReFlow user.
+    """
+
+    model = User
+    serializer_class = UserSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        user = User.objects.get(id=kwargs['pk'])
+        # don't allow editing workers
+        if hasattr(user, 'worker'):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Only allow editing certain User attributes,
+        # and calling super's put oddly resets user's date_joined & last_login
+        # We don't want that, so we'll have to save the user ourselves,
+        # But the fun doesn't stop there! This ends up a little messy
+        # b/c you can't set model instance attributes as strings like a
+        # dictionary can, so we need to set them each explicitly, then save
+        try:
+            if 'username' in request.DATA :
+                user.username = request.DATA['username']
+            if 'email' in request.DATA:
+                user.email = request.DATA['email']
+            if 'first_name' in request.DATA:
+                user.first_name = request.DATA['first_name']
+            if 'last_name' in request.DATA:
+                user.last_name = request.DATA['last_name']
+            if 'is_active' in request.DATA:
+                user.is_active = request.DATA['is_active']
+            if 'is_superuser' in request.DATA:
+                user.is_superuser = request.DATA['is_superuser']
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        except Exception, e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(id=kwargs['pk'])
+        if user.processrequest_set.count() == 0:
+            return super(UserDetail, self).delete(request, *args, **kwargs)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
