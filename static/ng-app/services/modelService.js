@@ -180,6 +180,9 @@ service.factory('ModelService', function(
             return User.save(instance);
         }
     };
+    service.destroyUser = function (instance) {
+        return User.delete({id: instance.id });
+    };
 
     // Worker services
     service.workersUpdated = function () {

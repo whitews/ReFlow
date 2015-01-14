@@ -247,6 +247,30 @@ app.controller(
 );
 
 app.controller(
+    'UserDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyUser(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.usersUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'WorkerController',
     [
         '$scope',

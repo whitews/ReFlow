@@ -62,6 +62,7 @@ var MODAL_URLS = {
 
     // admin modals
     'USER':               'static/ng-app/partials/user-form.html',
+    'USER_DELETE':        'static/ng-app/partials/user-delete.html',
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
     'SPECIMEN_DELETE':    'static/ng-app/partials/specimen-delete.html',
     'MARKER':             'static/ng-app/partials/marker-form.html',
