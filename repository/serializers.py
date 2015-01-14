@@ -29,6 +29,11 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    process_request_count = serializers.IntegerField(
+        source='processrequest_set.count',
+        read_only=True
+    )
+
     class Meta:
         model = User
         exclude = ('password',)
