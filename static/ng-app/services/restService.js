@@ -5,6 +5,7 @@
 var URLS = {
     'USER':                '/api/repository/users/',
     'CURRENT_USER':        '/api/repository/user/',
+    'CHANGE_PASSWORD':     '/api/repository/user/change_password/',
     'USER_PERMISSIONS':    '/api/repository/permissions/',
     'PROJECTS':            '/api/repository/projects/',
     'PROJECT_USERS':       '/api/repository/projects/:id/users/',
@@ -51,7 +52,11 @@ service
             URLS.USER + ':id',
             {},
             {
-                update: { method: 'PUT' }
+                update: { method: 'PUT' },
+                change_password: {
+                    method: 'PUT',
+                    url: URLS.CHANGE_PASSWORD
+                }
             }
         );
 
