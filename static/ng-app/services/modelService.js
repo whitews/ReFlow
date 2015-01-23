@@ -183,6 +183,15 @@ service.factory('ModelService', function(
     service.destroyUser = function (instance) {
         return User.delete({id: instance.id });
     };
+    service.changeUserPassword = function(user_id, current_password, new_password) {
+        return User.change_password(
+            {
+                user_id: user_id,
+                current_password: current_password,
+                new_password: new_password
+            }
+        );
+    };
 
     // Worker services
     service.workersUpdated = function () {
