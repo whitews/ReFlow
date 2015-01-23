@@ -105,12 +105,52 @@ def repository_api_root(request):
 def get_user_details(request):
     return Response(
         {
+            'id': request.user.id,
             'username': request.user.username,
             'email': request.user.email,
             'superuser': request.user.is_superuser,
             'staff': request.user.is_staff
         }
     )
+
+
+@api_view(['PUT'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def change_user_password(request):
+    try:
+        user_id = int(request.DATA['user_id'])
+        current_password = request.DATA['current_password']
+        new_password = request.DATA['new_password']
+    except KeyError:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    except ValueError:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    # users can only change their own password
+    if user_id != request.user.id:
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    # new password cannot be empty and must be different from current one
+    if new_password == '' or current_password == new_password:
+        return Response(
+            data=["Password cannot be blank or equal to current password"],
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not request.user.check_password(current_password):
+        return Response(
+            data=["Current password is incorrect"],
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        request.user.set_password(new_password)
+        request.user.save()
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
