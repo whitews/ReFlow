@@ -44,6 +44,7 @@ var MODAL_URLS = {
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
     'PROJECT_USER':       'static/ng-app/partials/project-user-form.html',
     'CHOOSE_USER':        'static/ng-app/partials/user-choose.html',
+    'CHANGE_PASSWORD':    'static/ng-app/partials/user-change-password-form.html',
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
@@ -88,6 +89,18 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Projects'
+        }
+    }).state({
+        name: 'user-profile',
+        parent: 'home',
+        url: 'user_profile/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/user_profile.html'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'User Profile'
         }
     }).state({
         name: 'admin',

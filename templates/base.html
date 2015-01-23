@@ -27,7 +27,9 @@
               <img class="inline" src="{% static 'reflow_40.png' %}">
             </div>
             <div class="navbar-right">
-                <p class="navbar-text">{{ user.username }}</p>
+                <p class="navbar-text">
+                  <a href="#/user_profile/" class="navbar-link"><i class="fa fa-user"></i> {{ user.username }}</a>
+                </p>
                 {% if user.is_superuser %}
                 <p class="navbar-text">
                     <a href="#/admin/" class="navbar-link">Admin</a>
@@ -78,6 +80,7 @@
     <script src="{% static 'ng-app/controllers/edit_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/delete_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/admin_controllers.js' %}"></script>
+    <script src="{% static 'ng-app/controllers/user_profile_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/user_management_controller.js' %}"></script>
     <script src="{% static 'ng-app/controllers/main_upload_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/upload_controllers.js' %}"></script>
