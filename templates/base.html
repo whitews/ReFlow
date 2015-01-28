@@ -32,11 +32,11 @@
                 </p>
                 {% if user.is_superuser %}
                 <p class="navbar-text">
-                    <a href="#/admin/" class="navbar-link">Admin</a>
+                    <a href="#/admin/" class="navbar-link"><i class="fa fa-cogs"></i> Admin</a>
                 </p>
                 {% endif %}
-                <p class="navbar-text"><a href="{% static 'docs/html/index.html' %}" target="_blank" class="navbar-link">Documentation</a></p>
-                <p class="navbar-text"><a href="{% url 'logout' %}" class="navbar-link">Logout</a></p>
+                <p class="navbar-text"><a href="{% static 'docs/html/index.html' %}" target="_blank" class="navbar-link"><i class="fa fa-book"></i> Documentation</a></p>
+                <p class="navbar-text"><a href="{% url 'logout' %}" class="navbar-link"><i class="fa fa-sign-out"></i> Logout</a></p>
             </div>
           </div>
       </div>
