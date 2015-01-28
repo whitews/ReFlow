@@ -291,6 +291,54 @@ class Project(ProtectedModel):
         return u'Project: %s' % self.project_name
 
 
+class CellSubsetLabel(ProtectedModel):
+    project = models.ForeignKey(Project)
+    name = models.CharField(
+        unique=False,
+        null=False,
+        blank=False,
+        max_length=96)
+    description = models.TextField(null=True, blank=True)
+
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
+    def clean(self):
+        """
+        Check for duplicate subset labels in a project.
+        Returns ValidationError if any duplicates are found.
+        """
+
+        # count labels with matching name and parent project,
+        # which don't have this pk
+        try:
+            Project.objects.get(id=self.project_id)
+        except ObjectDoesNotExist:
+            return  # Project is required and will get caught by Form.is_valid()
+
+        duplicates = CellSubsetLabel.objects.filter(
+            name=self.name,
+            project=self.project).exclude(id=self.id)
+        if duplicates.count() > 0:
+            raise ValidationError(
+                "CellSubsetLabel name already exists in this project."
+            )
+
+    class Meta:
+        unique_together = (('project', 'name'),)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+
 class Stimulation(ProtectedModel):
     project = models.ForeignKey(Project)
     stimulation_name = models.CharField(
