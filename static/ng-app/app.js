@@ -12,7 +12,8 @@ var app = angular.module(
         'ui.bootstrap',
         'ui.select2',
         'ncy-angular-breadcrumb',
-        'angularFileUpload'
+        'angularFileUpload',
+        'tableSort'
     ]
 );
 
@@ -37,11 +38,13 @@ var MODAL_URLS = {
     'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
     'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
+    'SAMPLE_METADATA':    'static/ng-app/partials/sample-metadata-list.html',
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
     'COMPENSATION':       'static/ng-app/partials/compensation-form.html',
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
-    'USER':               'static/ng-app/partials/user-form.html',
+    'PROJECT_USER':       'static/ng-app/partials/project-user-form.html',
     'CHOOSE_USER':        'static/ng-app/partials/user-choose.html',
+    'CHANGE_PASSWORD':    'static/ng-app/partials/user-change-password-form.html',
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
@@ -52,12 +55,15 @@ var MODAL_URLS = {
     'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
     'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
     'PANEL_DELETE':       'static/ng-app/partials/panel-template-delete.html',
+    'SITE_PANEL_DELETE':  'static/ng-app/partials/site-panel-delete.html',
     'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html',
     'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
     'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html',
     'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html',
 
     // admin modals
+    'USER':               'static/ng-app/partials/user-form.html',
+    'USER_DELETE':        'static/ng-app/partials/user-delete.html',
     'SPECIMEN':           'static/ng-app/partials/specimen-form.html',
     'SPECIMEN_DELETE':    'static/ng-app/partials/specimen-delete.html',
     'MARKER':             'static/ng-app/partials/marker-form.html',
@@ -83,6 +89,18 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Projects'
+        }
+    }).state({
+        name: 'user-profile',
+        parent: 'home',
+        url: 'user_profile/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/user_profile.html'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'User Profile'
         }
     }).state({
         name: 'admin',
@@ -134,6 +152,19 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Fluorochromes'
+        }
+    }).state({
+        name: 'user-list',
+        parent: 'admin',
+        url: 'users/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/user-list.html',
+                controller: 'UserController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Users'
         }
     }).state({
         name: 'worker-list',
@@ -214,13 +245,13 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
             ncyBreadcrumbLabel: 'Visualize'
         }
     }).state({
-        name: 'user-list',
+        name: 'project-user-list',
         parent: 'project-detail',
         url: '/users/',
         views: {
             '@': {
-                templateUrl: '/static/ng-app/partials/user-list.html',
-                controller: 'UserController'
+                templateUrl: '/static/ng-app/partials/project-user-list.html',
+                controller: 'ProjectUserController'
             }
         },
         data: {
@@ -277,6 +308,19 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Cytometers'
+        }
+    }).state({
+        name: 'site-panel-list',
+        parent: 'project-detail',
+        url: '/sample-annotations/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/site-panel-list.html',
+                controller: 'SitePanelController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Sample Annotations'
         }
     }).state({
         name: 'visit-type-list',

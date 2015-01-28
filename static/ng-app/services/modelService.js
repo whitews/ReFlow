@@ -4,6 +4,7 @@ service.factory('ModelService', function(
         $rootScope,
         $http,
         User,
+        CurrentUser,
         UserPermissions,
         Marker,
         Fluorochrome,
@@ -38,7 +39,7 @@ service.factory('ModelService', function(
 
     // The following section is for storing/retrieving "global" variables
     // that are needed across various controllers
-    service.user = User.get();
+    service.user = CurrentUser.get();
     
     service.setCurrentSite = function (value) {
         this.current_site = value;
@@ -50,11 +51,11 @@ service.factory('ModelService', function(
     service.current_site = null;
     service.current_sample = null;
     service.current_panel_template = null;
-    // End "global" varaiables
+    // End "global" variables
 
-    // User services
+    // CurrentUser services
     service.isUser = function (username) {
-        return User.is_user(
+        return CurrentUser.is_user(
             {
                 'username': username
             }
@@ -160,6 +161,36 @@ service.factory('ModelService', function(
     };
     service.destroyFluorochrome = function (instance) {
         return Fluorochrome.delete({id: instance.id });
+    };
+    
+    // ReFlow User services (not object-level permissions)
+    service.usersUpdated = function () {
+        $rootScope.$broadcast('users:updated');
+    };
+    service.getUsers = function() {
+        return User.query({});
+    };
+    service.createUpdateUser = function(instance) {
+        if (instance.id) {
+            return User.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return User.save(instance);
+        }
+    };
+    service.destroyUser = function (instance) {
+        return User.delete({id: instance.id });
+    };
+    service.changeUserPassword = function(user_id, current_password, new_password) {
+        return User.change_password(
+            {
+                user_id: user_id,
+                current_password: current_password,
+                new_password: new_password
+            }
+        );
     };
 
     // Worker services
@@ -564,6 +595,9 @@ service.factory('ModelService', function(
     };
     service.createSitePanel = function(instance) {
         return SitePanel.save(instance);
+    };
+    service.destroySitePanel = function (instance) {
+        return SitePanel.delete({id: instance.id });
     };
     
     // ProcessRequest services

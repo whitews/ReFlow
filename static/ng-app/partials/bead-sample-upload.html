@@ -63,7 +63,7 @@
           </table>
         </div>
         <div class="col-md-8">
-          <table class="table table-hover">
+          <table ts-wrapper class="table table-hover">
             <thead>
               <tr>
                 <th colspan="50">
@@ -82,14 +82,14 @@
                 <th style="width:1%;">
                   <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
                 </th>
-                <th>File Name</th>
-                <th>Date</th>
-                <th>Channels</th>
-                <th>Size</th>
+                <th ts-criteria="filename">File Name</th>
+                <th ts-criteria="acquisition_date">Date</th>
+                <th ts-criteria="channels.length">Channels</th>
+                <th ts-criteria="file.size">Size</th>
               </tr>
             </thead>
             <tbody>
-              <tr data-ng-repeat="f in sample_upload_model.file_queue">
+              <tr ts-repeat data-ng-repeat="f in sample_upload_model.file_queue">
                 <td class="no-wrap align-middle">
                   <input type="checkbox" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.current_panel_template == null" ng-model="f.selected" ng-click="initSitePanel(f)" />
                 </td>
@@ -174,7 +174,7 @@
   </div>
 
   <div ng-controller="BeadUploadQueueController">
-    <table class="table table-hover">
+    <table ts-wrapper class="table table-hover">
       <thead>
         <tr>
             <th colspan="50" class="center">
@@ -200,15 +200,15 @@
             <th>
                 <input type="checkbox" ng-model="master_upload_queue_checkbox" ng-change="toggleAllUploadQueue()"/>
             </th>
-            <th>File Name</th>
-            <th>Acquisition Date</th>
-            <th>Cytometer</th>
-            <th>Site Panel</th>
-            <th>Compensation Channel</th>
+            <th ts-criteria="filename">File Name</th>
+            <th ts-criteria="acquisition_date">Acquisition Date</th>
+            <th ts-criteria="cytometer.cytometer_name">Cytometer</th>
+            <th ts-criteria="site_panel.name">Site Panel</th>
+            <th ts-criteria="compensation_channel.abbreviation">Compensation Channel</th>
         </tr>
       </thead>
       <tbody>
-        <tr data-ng-repeat="f in sample_upload_model.upload_queue">
+        <tr ts-repeat data-ng-repeat="f in sample_upload_model.upload_queue">
           <td>
             <input ng-hide="f.uploaded || f.uploading" type="checkbox" ng-model="f.selected" ng-disabled="f.uploading" />
             <img data-ng-show="f.uploading && ! f.uploaded" src="/static/whirligig.gif">

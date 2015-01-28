@@ -78,7 +78,7 @@
 
     </div>
     <div class="col-md-8">
-      <table class="table table-hover">
+      <table ts-wrapper class="table table-hover">
         <thead>
           <tr>
             <th colspan="50">
@@ -91,14 +91,14 @@
             <th style="width:1%;">
               <input type="checkbox" ng-model="model.master_sample_checkbox" ng-change="toggleAllSamples()"/>
             </th>
-            <th>File Name</th>
-            <th>Site</th>
-            <th>Subject</th>
-            <th>Stimulation</th>
+            <th ts-criteria="original_filename">File Name</th>
+            <th ts-criteria="site_name">Site</th>
+            <th ts-criteria="subject_code">Subject</th>
+            <th ts-criteria="stimulation_name">Stimulation</th>
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="s in model.samples" ng-if="s.ignore == false">
+          <tr ts-repeat data-ng-repeat="s in model.samples" ng-if="s.ignore == false">
             <td class="no-wrap">
               <input type="checkbox" ng-model="s.selected" />
             </td>

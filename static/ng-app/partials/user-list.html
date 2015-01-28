@@ -1,4 +1,4 @@
-    <table id="data-table" class="table table-hover">
+    <table ts-wrapper id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="50" class="center">
@@ -6,7 +6,7 @@
               <h4>Users <span class="badge badge-inverse align-top">{{ users.length }}</span></h4>
 
               <div style="position:absolute; right:0;top:0;">
-                <a class="btn btn-default btn-sm" ng-show="current_project.permissions.can_manage_users" ng-click="init_form(null, 'CHOOSE_USER')">
+                <a class="btn btn-default btn-sm" ng-show="user.superuser" ng-click="init_form(null, 'USER')">
                   Add User
                 </a>
               </div>
@@ -14,36 +14,54 @@
           </th>
         </tr>
         <tr>
-          <th>Username</th>
-          <th>Project Permissions</th>
-          <th>Site Permissions</th>
+          <th></th>
+          <th ts-criteria="username">Username</th>
+          <th ts-criteria="first_name">First Name</th>
+          <th ts-criteria="last_name">Last Name</th>
+          <th ts-criteria="email">Email</th>
+          <th ts-criteria="is_active">Active</th>
+          <th ts-criteria="is_superuser">Superuser</th>
+          <th ts-criteria="last_login">Last Login</th>
+          <th ts-criteria="date_joined">Created</th>
+          <th ts-criteria="process_request_count">Process Requests</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="user in users">
+        <tr ts-repeat ng-repeat="u in users">
           <td class="no-wrap" width="1%">
-            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_manage_users" ng-click="init_form(user, 'USER')" tooltip="Edit" tooltip-placement="bottom">
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(u, 'USER')" tooltip="Edit Profile" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
             </a>
-            {{ user.username }}
+            <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(u, 'USER_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+              <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
+            </a>
           </td>
           <td>
-            <ul class="list-unstyled">
-              <li ng-repeat="perm in user.project_permissions">
-                {{ perm.permission_name }}
-              </li>
-            </ul>
+            {{ u.username }}
           </td>
           <td>
-            <ul class="list-unstyled">
-              <li ng-repeat="site in user.sites">
-                {{ site.site_name }}
-                <ul class="">
-                  <li ng-repeat="perm in site.permissions">{{ perm.permission_name }}</li>
-                </ul>
-                <div ng-hide="$last"><hr/></div>
-              </li>
-            </ul>
+            {{ u.first_name }}
+          </td>
+          <td>
+            {{ u.last_name }}
+          </td>
+          <td>
+            {{ u.email }}
+          </td>
+          <td>
+            {{ u.is_active }}
+          </td>
+          <td>
+            {{ u.is_superuser }}
+          </td>
+          <td>
+            {{ u.last_login | date : 'medium' }}
+          </td>
+          <td>
+            {{ u.date_joined | date : 'medium' }}
+          </td>
+          <td>
+            {{ u.process_request_count }}
           </td>
         </tr>
       </tbody>

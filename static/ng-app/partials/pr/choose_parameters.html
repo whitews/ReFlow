@@ -3,7 +3,7 @@
         <p>These parameters are common to all samples. Choose which parameters to include in the clustering process.</p>
     </div>
     <div class="col-md-8">
-        <table class="table table-hover">
+        <table ts-wrapper class="table table-hover">
         <thead>
           <tr>
             <th colspan="50">
@@ -16,11 +16,11 @@
             <th style="width:1%;">
               <input type="checkbox" ng-model="model.master_parameter_checkbox" ng-change="toggleAllParameters()"/>
             </th>
-            <th>Parameter</th>
+            <th ts-criteria="parameter">Parameter</th>
           </tr>
         </thead>
         <tbody>
-          <tr data-ng-repeat="p in model.parameters">
+          <tr ts-repeat data-ng-repeat="p in model.parameters">
             <td class="no-wrap">
               <input type="checkbox" ng-model="p.selected" />
             </td>

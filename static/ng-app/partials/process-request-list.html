@@ -1,4 +1,4 @@
-    <table id="data-table" class="table table-hover">
+    <table ts-wrapper id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="50" class="center">
@@ -15,17 +15,17 @@
         </tr>
         <tr>
           <th></th>
-          <th>Label</th>
-          <th>Request Date</th>
-          <th>Requesting User</th>
-          <th>Status</th>
-          <th>Worker</th>
-          <th>Assignment Date</th>
-          <th>Completion Date</th>
+          <th ts-criteria="description">Label</th>
+          <th ts-criteria="request_date">Request Date</th>
+          <th ts-criteria="request_username">Requesting User</th>
+          <th ts-criteria="status">Status</th>
+          <th ts-criteria="worker_name">Worker</th>
+          <th ts-criteria="assignment_date">Assignment Date</th>
+          <th ts-criteria="completion_date">Completion Date</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="request in process_requests">
+        <tr ts-repeat ng-repeat="request in process_requests">
           <td class="no-wrap" width="1%">
             <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_modify_project" ng-click="init_form(request, 'PROCESS_REQUEST_DELETE')" tooltip="Delete" tooltip-placement="bottom">
               <i style="opacity: 0.4" class="fa fa-times align-middle"></i>

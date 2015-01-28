@@ -65,6 +65,7 @@ def repository_api_root(request):
         'fluorochromes': reverse('fluorochrome-list', request=request),
         'specimens': reverse('specimen-list', request=request),
         'permissions': reverse('permission-list', request=request),
+        'users': reverse('user-list', request=request),
         'projects': reverse('project-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
@@ -104,12 +105,52 @@ def repository_api_root(request):
 def get_user_details(request):
     return Response(
         {
+            'id': request.user.id,
             'username': request.user.username,
             'email': request.user.email,
             'superuser': request.user.is_superuser,
             'staff': request.user.is_staff
         }
     )
+
+
+@api_view(['PUT'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def change_user_password(request):
+    try:
+        user_id = int(request.DATA['user_id'])
+        current_password = request.DATA['current_password']
+        new_password = request.DATA['new_password']
+    except KeyError:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    except ValueError:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    # users can only change their own password
+    if user_id != request.user.id:
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    # new password cannot be empty and must be different from current one
+    if new_password == '' or current_password == new_password:
+        return Response(
+            data=["Password cannot be blank or equal to current password"],
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not request.user.check_password(current_password):
+        return Response(
+            data=["Current password is incorrect"],
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        request.user.set_password(new_password)
+        request.user.save()
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -561,6 +602,114 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
                         headers=headers)
 
 
+class UserList(generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of ReFlow users.
+    """
+
+    model = User
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        queryset = User.objects.filter(worker=None)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(UserList, self).get(request, *args, **kwargs)
+        return response
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.get_serializer(data=request.DATA)
+        if serializer.is_valid():
+            try:
+                # check for optional properties
+                user_kwargs = {}
+                if 'first_name' in serializer.init_data:
+                    user_kwargs['first_name'] = serializer.init_data['first_name']
+                if 'last_name' in serializer.init_data:
+                    user_kwargs['last_name'] = serializer.init_data['last_name']
+                if 'is_superuser' in serializer.init_data:
+                    user_kwargs['is_superuser'] = serializer.init_data['is_superuser']
+
+                user = User.objects.create_user(
+                    serializer.init_data['username'],
+                    email=serializer.init_data['email'],
+                    password=serializer.init_data['password'],
+                    **user_kwargs
+                )
+            except IntegrityError, e:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            except Exception, e:
+                # TODO: remove this after more experimentation
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint representing a single ReFlow user.
+    """
+
+    model = User
+    serializer_class = UserSerializer
+
+    def put(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        user = User.objects.get(id=kwargs['pk'])
+        # don't allow editing workers
+        if hasattr(user, 'worker'):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Only allow editing certain User attributes,
+        # and calling super's put oddly resets user's date_joined & last_login
+        # We don't want that, so we'll have to save the user ourselves,
+        # But the fun doesn't stop there! This ends up a little messy
+        # b/c you can't set model instance attributes as strings like a
+        # dictionary can, so we need to set them each explicitly, then save
+        try:
+            if 'username' in request.DATA :
+                user.username = request.DATA['username']
+            if 'email' in request.DATA:
+                user.email = request.DATA['email']
+            if 'first_name' in request.DATA:
+                user.first_name = request.DATA['first_name']
+            if 'last_name' in request.DATA:
+                user.last_name = request.DATA['last_name']
+            if 'is_active' in request.DATA:
+                user.is_active = request.DATA['is_active']
+            if 'is_superuser' in request.DATA:
+                user.is_superuser = request.DATA['is_superuser']
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        except Exception, e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        user = User.objects.get(id=kwargs['pk'])
+        if user.processrequest_set.count() == 0:
+            return super(UserDetail, self).delete(request, *args, **kwargs)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 class ProjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of projects.
@@ -958,6 +1107,12 @@ class PanelTemplateDetail(
     def put(self, request, *args, **kwargs):
         data = request.DATA
 
+        # first, check if template has any site panels, editing templates
+        # with existing site panels is not allowed
+        panel_template = PanelTemplate.objects.get(id=kwargs['pk'])
+        if panel_template.sitepanel_set.count() > 0:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         # validate all the template components
         errors = validate_panel_template_request(data, request.user)
         if len(errors) > 0:
@@ -966,7 +1121,6 @@ class PanelTemplateDetail(
         # we can create the PanelTemplate instance now, but we'll do so inside
         # an atomic transaction
         try:
-            panel_template = PanelTemplate.objects.get(id=kwargs['pk'])
             project = Project.objects.get(id=data['project'])
             if data['parent_panel']:
                 parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
@@ -1205,13 +1359,20 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
 class SitePanelDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveAPIView):
+        generics.RetrieveDestroyAPIView):
     """
     API endpoint representing a single site panel.
     """
 
     model = SitePanel
     serializer_class = SitePanelSerializer
+
+    def delete(self, request, *args, **kwargs):
+        site_panel = SitePanel.objects.get(id=kwargs['pk'])
+        if not site_panel.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(SitePanelDetail, self).delete(request, *args, **kwargs)
 
 
 class CytometerFilter(django_filters.FilterSet):

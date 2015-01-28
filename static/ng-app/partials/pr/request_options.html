@@ -20,6 +20,110 @@
 
       <button type="button" class="btn btn-success btn-lg" data-ng-click="submit_request()">Submit!</button>
 
+      <hr/>
+
+      <div class="row">
+        <span class="col-md-12">
+          <h4 class="text-center text-muted">Summary</h4>
+        </span>
+      </div>
+
+      <table ts-wrapper class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50"><h5>Samples</h5></th>
+          </tr>
+          <tr>
+            <th ts-criteria="original_filename">Filename</th>
+            <th ts-criteria="site_name">Site</th>
+            <th ts-criteria="visit_name">Visit</th>
+            <th ts-criteria="subject_code">Subject</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ts-repeat data-ng-repeat="sample in model.chosen_samples">
+            <td>
+              {{ sample.original_filename }}
+            </td>
+            <td>
+              {{ sample.site_name }}
+            </td>
+            <td>
+              {{ sample.visit_name }}
+            </td>
+            <td>
+              {{ sample.subject_code }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table ts-wrapper class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50"><h5>Channels</h5></th>
+          </tr>
+          <tr>
+            <th ts-criteria="parameter">Name</th>
+            <th>Selected</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ts-repeat data-ng-repeat="param in model.parameters">
+            <td>
+              {{ param.parameter }}
+            </td>
+            <td>
+              <i class="fa fa-check fa-lg text-success" ng-show="param.selected"></i>
+              <i class="fa fa-ban fa-lg text-warning" ng-show="!param.selected"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table ts-wrapper class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50"><h5>Transformation</h5></th>
+          </tr>
+          <tr>
+            <th ts-criteria="name">Field</th>
+            <th ts-criteria="value">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ts-repeat data-ng-repeat="input in model.transform_inputs">
+            <td>
+              {{ input.name }}
+            </td>
+            <td>
+              {{ input.value }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table ts-wrapper class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50"><h5>Clustering</h5></th>
+          </tr>
+          <tr>
+            <th ts-criteria="name">Field</th>
+            <th ts-criteria="value">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ts-repeat data-ng-repeat="input in model.clustering_inputs">
+            <td>
+              {{ input.name }}
+            </td>
+            <td>
+              {{ input.value }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
     </div>
   </div>

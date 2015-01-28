@@ -1,4 +1,4 @@
-    <table id="data-table" class="table table-hover">
+    <table ts-wrapper id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="50" class="center">
@@ -15,14 +15,14 @@
         </tr>
         <tr>
           <th></th>
-          <th>Subject Code</th>
-          <th>Subject Group</th>
-          <th>Batch Control</th>
-          <th>FCS Sample Count</th>
+          <th ts-criteria="subject_code">Subject Code</th>
+          <th ts-criteria="subject_group_name">Subject Group</th>
+          <th ts-criteria="batch_control">Batch Control</th>
+          <th ts-criteria="sample_count">FCS Sample Count</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="subject in subjects">
+        <tr ts-repeat ng-repeat="subject in subjects">
           <td class="no-wrap" width="1%">
             <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_modify_project" ng-click="init_form(subject, 'SUBJECT')" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>

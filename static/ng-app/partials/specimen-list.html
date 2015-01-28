@@ -1,4 +1,4 @@
-    <table id="data-table" class="table table-hover">
+    <table ts-wrapper id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="50" class="center">
@@ -15,13 +15,13 @@
         </tr>
         <tr>
           <th></th>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Sample Count</th>
+          <th ts-criteria="specimen_name">Name</th>
+          <th ts-criteria="specimen_description">Description</th>
+          <th ts-criteria="sample_count">Sample Count</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="specimen in specimens">
+        <tr ts-repeat ng-repeat="specimen in specimens">
           <td class="no-wrap" width="1%">
             <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(specimen, 'SPECIMEN')" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>

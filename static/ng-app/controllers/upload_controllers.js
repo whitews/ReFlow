@@ -30,7 +30,7 @@ app.controller(
                 site_panel_query.panel_template = $scope.sample_upload_model.current_panel_template.id;
             }
 
-            $scope.sample_upload_model.site_panels = SitePanel.query(
+            $scope.sample_upload_model.site_panels = ModelService.getSitePanels(
                 site_panel_query
             );
             $scope.sample_upload_model.site_panels.$promise.then(function (o) {
@@ -486,11 +486,13 @@ app.controller(
             // we do this so all the selected files get marked, since
             // the uploads may take a while and we don't want the user
             // interacting with the ones we are trying to upload
-            for (var i = 0; i < $scope.sample_upload_model.upload_queue.length; i++) {
-                if ($scope.sample_upload_model.upload_queue[i].selected) {
-                    $scope.sample_upload_model.upload_queue[i].uploading = true;
+            $scope.sample_upload_model.upload_queue.forEach(function (obj) {
+                if (obj.selected && !obj.uploaded) {
+                    obj.uploading = true;
+                } else {
+                    obj.uploading = false;
                 }
-            }
+            });
             // now actually call upload for all the marked files
             for (var i = 0; i < $scope.sample_upload_model.upload_queue.length; i++) {
                 if ($scope.sample_upload_model.upload_queue[i].uploading) {

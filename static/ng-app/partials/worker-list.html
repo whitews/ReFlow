@@ -1,4 +1,4 @@
-    <table id="data-table" class="table table-hover">
+    <table ts-wrapper id="data-table" class="table table-hover">
       <thead>
         <tr>
           <th colspan="50" class="center">
@@ -15,14 +15,14 @@
         </tr>
         <tr>
           <th></th>
-          <th>Name</th>
-          <th>Hostname</th>
-          <th>Authorization Token</th>
-          <th>Process Request Count</th>
+          <th ts-criteria="worker_name">Name</th>
+          <th ts-criteria="worker_hostname">Hostname</th>
+          <th ts-criteria="token">Authorization Token</th>
+          <th ts-criteria="process_request_count">Process Request Count</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="w in workers">
+        <tr ts-repeat ng-repeat="w in workers">
           <td class="no-wrap" width="1%">
             <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(w, 'WORKER')" tooltip="Edit" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>

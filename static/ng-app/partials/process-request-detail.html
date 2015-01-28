@@ -13,7 +13,13 @@
 
       <tr>
         <td>Status:</td>
-        <td>{{ process_request.status }}</td>
+        <td>
+          {{ process_request.status }}
+          <span ng-show="process_request.status == 'Complete'"> - </span>
+          <a ng-show="process_request.status == 'Complete'" ui-sref="pr-visualization-detail({ requestId: process_request.id })">
+            Visualize Results
+          </a>
+        </td>
       </tr>
 
       <tr>
@@ -48,16 +54,38 @@
 
     </table>
 
-    </br>
+    <table ts-wrapper class="table table-hover">
+      <thead>
+        <tr>
+          <th colspan="40" class="center">
+            <h4>
+              Samples
+              <span class="badge badge-inverse align-top">{{ sample_collection.members.length }}</span>
+            </h4>
+          </th>
+        </tr>
+        <tr>
+          <th ts-criteria="sample.original_filename">File</th>
+          <th ts-criteria="sample.panel_name">Panel</th>
+          <th ts-criteria="sample.site_name">Site</th>
+          <th ts-criteria="sample.subject_code">Subject</th>
+          <th ts-criteria="sample.visit_name">Visit</th>
+          <th ts-criteria="sample.stimulation_name">Stimulation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ts-repeat ng-repeat="member in sample_collection.members">
+          <td>{{ member.sample.original_filename }}</td>
+          <td>{{ member.sample.panel_name }}</td>
+          <td>{{ member.sample.site_name }}</td>
+          <td>{{ member.sample.subject_code }}</td>
+          <td>{{ member.sample.visit_name }}</td>
+          <td>{{ member.sample.stimulation_name }}</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <div ng-show="process_request.status == 'Complete'">
-      <a ui-sref="pr-visualization-detail({ requestId: process_request.id })">
-        Visualize Results
-      </a>
-    </div>
-
-
-    <table class="table table-hover">
+    <table ts-wrapper class="table table-hover">
       <thead>
         <tr>
           <th colspan="40" class="center">
@@ -68,14 +96,14 @@
           </th>
         </tr>
         <tr>
-            <th>Category</th>
-            <th>Implementation</th>
-            <th>Input Name</th>
-            <th>Value</th>
+            <th ts-criteria="category_name">Category</th>
+            <th ts-criteria="implementation_name">Implementation</th>
+            <th ts-criteria="input_name">Input Name</th>
+            <th ts-criteria="value">Value</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="request_input in process_request.inputs">
+        <tr ts-repeat ng-repeat="request_input in process_request.inputs">
           <td>{{ request_input.category_name }}</td>
           <td>{{ request_input.implementation_name }}</td>
           <td>{{ request_input.input_name }}</td>
@@ -83,7 +111,8 @@
         </tr>
       </tbody>
     </table>
-    <table class="table table-hover">
+
+    <table ts-wrapper class="table table-hover">
       <thead>
         <tr>
           <th colspan="4" class="center">
@@ -94,12 +123,12 @@
           </th>
         </tr>
         <tr>
-            <th>Key</th>
-            <th>Value</th>
+            <th ts-criteria="key">Key</th>
+            <th ts-criteria="value">Value</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="request_output in process_request.outputs">
+        <tr ts-repeat ng-repeat="request_output in process_request.outputs">
           <td>{{ request_output.key }}</td>
           <td>
             <a href="api/repository/process_request_outputs/{{ request_output.id }}/download/" download>

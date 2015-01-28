@@ -40,7 +40,9 @@
       </div>
 
       <div class="alert alert-danger" ng-show="model.errors">
-        <p data-ng-repeat="e in model.errors">{{ e }}</p>
+        <p class="lead" data-ng-repeat="e in model.errors">
+          <i class="fa fa-exclamation-triangle"></i> {{ e }}
+        </p>
       </div>
 
     </div>

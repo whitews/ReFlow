@@ -1,5 +1,5 @@
 app.controller(
-    'UserController',
+    'ProjectUserController',
     [
         '$scope',
         '$controller',
@@ -107,7 +107,7 @@ app.controller(
 
 
 app.controller(
-    'UserEditController',
+    'ProjectUserEditController',
     [
         '$scope',
         'ModelService',

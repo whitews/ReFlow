@@ -4,20 +4,20 @@
   </div>
   <div class="modal-body">
 
-    <table class="table table-hover">
+    <table ts-wrapper class="table table-hover">
       <thead>
         <tr>
           <th>#</th>
-          <th>Function</th>
-          <th>FCS PnN Text</th>
-          <th>FCS PnS Text</th>
-          <th>Markers</th>
-          <th>Fluorochrome</th>
-          <th>Value Type</th>
+          <th ts-criteria="fcs_number">Function</th>
+          <th ts-criteria="fcs_text">FCS PnN Text</th>
+          <th ts-criteria="fcs_opt_text">FCS PnS Text</th>
+          <th ts-criteria="markers">Markers</th>
+          <th ts-criteria="fluorochrome.fluorochrome_abbreviation">Fluorochrome</th>
+          <th ts-criteria="parameter_type_name">Value Type</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="param in site_panel.parameters">
+        <tr ts-repeat ng-repeat="param in site_panel.parameters">
           <td>{{ param.fcs_number }}</td>
           <td>{{ param.parameter_type_name }}</td>
           <td>{{ param.fcs_text }}</td>

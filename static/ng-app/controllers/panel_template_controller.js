@@ -77,8 +77,8 @@ app.controller(
 app.controller(
     'PanelTemplateCreateController',
     [
-        '$scope', '$state', '$controller', '$stateParams', 'ModelService',
-        function ($scope, $state, $controller, $stateParams, ModelService) {
+        '$scope', '$state', '$controller', '$stateParams', '$timeout', 'ModelService',
+        function ($scope, $state, $controller, $stateParams, $timeout, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -113,72 +113,77 @@ app.controller(
             $scope.model.template_valid = false;
 
             // may be trying to edit an existing template
-            if ($stateParams.hasOwnProperty('templateID')) {
-                var template_id = parseInt($stateParams.templateID);
-                $scope.model.template = ModelService.getPanelTemplate(
-                    template_id
-                );
+            // Note: had to add a timeout here b/c existing markers wouldn't
+            // show up in the view, and $scope.$apply() causes a
+            // $rootScope:inprog error. Not happy with this.
+            $timeout(function () {
+                if ($stateParams.hasOwnProperty('templateID')) {
+                    var template_id = parseInt($stateParams.templateID);
+                    $scope.model.template = ModelService.getPanelTemplate(
+                        template_id
+                    );
 
-                $scope.model.template.$promise.then(function () {
-                    $scope.model.panel_name = $scope.model.template.panel_name;
-                    $scope.model.current_staining = $scope.model.template.staining;
+                    $scope.model.template.$promise.then(function () {
+                        $scope.model.panel_name = $scope.model.template.panel_name;
+                        $scope.model.current_staining = $scope.model.template.staining;
+                        $scope.model.panel_templates = ModelService.getPanelTemplates(
+                            {
+                                project: $scope.current_project.id,
+                                staining: ['FS']  // only full stain can be parents
+                            }
+                        );
+
+                        $scope.model.panel_templates.$promise.then(function () {
+                            if ($scope.model.template.parent_panel) {
+                                $scope.model.parent_template_required = true;
+                                for (var i = 0; i < $scope.model.panel_templates.length; i++) {
+                                    if ($scope.model.panel_templates[i].id == $scope.model.template.parent_panel) {
+                                        $scope.model.parent_template = $scope.model.panel_templates[i];
+                                        $scope.validatePanel();
+                                        break;
+                                    }
+                                }
+                            }
+                        }, function (error) {
+                            $scope.errors = error.data;
+                        });
+
+                        $scope.model.channels = [];
+                        $scope.model.template.parameters.forEach(function (p) {
+                            var channel = {markers: []};
+                            if (p.parameter_type) {
+                                channel.function = p.parameter_type;
+                            }
+                            if (p.parameter_value_type) {
+                                channel.value_type = p.parameter_value_type;
+                            }
+                            if (p.markers.length > 0) {
+                                p.markers.forEach(function (m) {
+                                    channel.markers.push(m.marker_id.toString());
+                                });
+                            }
+                            if (p.fluorochrome) {
+                                channel.fluorochrome = p.fluorochrome;
+                            }
+
+                            $scope.model.channels.push(channel);
+                        });
+                        $scope.validatePanel();
+                    }, function (error) {
+                        $scope.errors = error.data;
+                    });
+                } else {
+                    $scope.model.parent_template = null;
+                    $scope.model.channels = [{markers: []}];
+                    // get all project's panel templates matching full stain
                     $scope.model.panel_templates = ModelService.getPanelTemplates(
                         {
                             project: $scope.current_project.id,
                             staining: ['FS']  // only full stain can be parents
                         }
                     );
-
-                    $scope.model.panel_templates.$promise.then(function () {
-                        if ($scope.model.template.parent_panel) {
-                            $scope.model.parent_template_required = true;
-                            for (var i = 0; i < $scope.model.panel_templates.length; i++) {
-                                if ($scope.model.panel_templates[i].id == $scope.model.template.parent_panel) {
-                                    $scope.model.parent_template = $scope.model.panel_templates[i];
-                                    $scope.validatePanel();
-                                    break;
-                                }
-                            }
-                        }
-                    }, function (error) {
-                        $scope.errors = error.data;
-                    });
-
-                    $scope.model.channels = [];
-                    $scope.model.template.parameters.forEach(function (p) {
-                        var channel = {markers: []};
-                        if (p.parameter_type) {
-                            channel.function = p.parameter_type;
-                        }
-                        if (p.parameter_value_type) {
-                            channel.value_type = p.parameter_value_type;
-                        }
-                        if (p.markers.length > 0) {
-                            p.markers.forEach(function (m) {
-                                channel.markers.push(m.marker_id.toString());
-                            });
-                        }
-                        if (p.fluorochrome) {
-                            channel.fluorochrome = p.fluorochrome;
-                        }
-
-                        $scope.model.channels.push(channel);
-                    });
-                    $scope.validatePanel();
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            } else {
-                $scope.model.parent_template = null;
-                $scope.model.channels = [{markers: []}];
-                // get all project's panel templates matching full stain
-                $scope.model.panel_templates = ModelService.getPanelTemplates(
-                    {
-                        project: $scope.current_project.id,
-                        staining: ['FS']  // only full stain can be parents
-                    }
-                );
-            }
+                }
+            }, 100);
 
             $scope.stainingChanged = function() {
                 // check if a parent is required
@@ -211,6 +216,7 @@ app.controller(
 
                 /*
                 Validate the panel:
+                    - existing templates w/site panels cannot be edited
                     - Function and value type are required
                     - No fluorochromes in a scatter parameter
                     - No markers in a scatter parameter
@@ -223,6 +229,20 @@ app.controller(
                     - FMO templates must specify an UNS channel
                     - ISO templates must specify an ISO channel
                 */
+
+                // existing templates w/related site panels cannot be edited
+                if ($scope.model.template) {
+                    if ($scope.model.template.hasOwnProperty('id')) {
+                        if ($scope.model.template.site_panel_count > 0) {
+                            $scope.model.errors.push(
+                                'This template has existing Sample Annotations, and cannot be edited.'
+                            );
+                            valid = false;
+                            $scope.model.template_valid = valid;
+                            return valid;
+                        }
+                    }
+                }
 
                 // Name, project, and staining are all required
                 if ($scope.model.current_staining == null || $scope.model.panel_name == null || $scope.current_project == null) {
@@ -550,7 +570,7 @@ app.controller(
                     panel_description: ""
                 };
                 if ($scope.model.template) {
-                    data.id = template_id;
+                    data.id = $scope.model.template.id;
                 }
                 var panel_template = ModelService.createUpdatePanelTemplate(
                     data
