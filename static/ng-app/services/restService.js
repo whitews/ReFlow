@@ -19,6 +19,7 @@ var URLS = {
     'SITE_PANELS':         '/api/repository/site_panels/',
     'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
+    'CELL_SUBSET_LABELS':  '/api/repository/cell_subset_labels/',
     'STIMULATIONS':        '/api/repository/stimulations/',
     'SAMPLES':             '/api/repository/samples/',
     'CREATE_SAMPLES':      '/api/repository/samples/add/',
@@ -225,6 +226,17 @@ service
         );
 
         return VisitType;
+    }])
+    .factory('CellSubsetLabel', ['$resource', function ($resource) {
+        var CellSubsetLabel = $resource(
+            URLS.CELL_SUBSET_LABELS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return CellSubsetLabel;
     }])
     .factory('Stimulation', ['$resource', function ($resource) {
         var Stimulation = $resource(

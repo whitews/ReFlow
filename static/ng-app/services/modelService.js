@@ -17,6 +17,7 @@ service.factory('ModelService', function(
         SubjectGroup,
         Subject,
         VisitType,
+        CellSubsetLabel,
         Stimulation,
         PanelTemplate,
         Site,
@@ -361,6 +362,31 @@ service.factory('ModelService', function(
     };
     service.destroyVisitType = function (instance) {
         return VisitType.delete({id: instance.id });
+    };
+    
+    // CellSubsetLabel services
+    service.cellSubsetLabelsUpdated = function () {
+        $rootScope.$broadcast('cell_subset_labels:updated');
+    };
+    service.getCellSubsetLabels = function(project_id) {
+        return CellSubsetLabel.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateCellSubsetLabel = function(instance) {
+        if (instance.id) {
+            return CellSubsetLabel.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return CellSubsetLabel.save(instance);
+        }
+    };
+    service.destroyCellSubsetLabel = function (instance) {
+        return CellSubsetLabel.delete({id: instance.id });
     };
     
     // Stimulation services
