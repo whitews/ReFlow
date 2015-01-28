@@ -67,6 +67,7 @@ def repository_api_root(request):
         'permissions': reverse('permission-list', request=request),
         'users': reverse('user-list', request=request),
         'projects': reverse('project-list', request=request),
+        'cell_subset_labels': reverse('cell-subset-label-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
@@ -810,6 +811,64 @@ class ProjectSitesByPermissionList(LoginRequiredMixin, generics.ListAPIView):
                     project
                 )
         return queryset
+
+
+class CellSubsetLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of cell subset labels.
+    """
+
+    model = CellSubsetLabel
+    serializer_class = CellSubsetLabelSerializer
+    filter_fields = ('project', 'name',)
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = CellSubsetLabel.objects.filter(project__in=user_projects)
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(CellSubsetLabelList, self).post(request, *args, **kwargs)
+        return response
+
+
+class CellSubsetLabelDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint representing a single cell subset label.
+    """
+
+    model = CellSubsetLabel
+    serializer_class = CellSubsetLabelSerializer
+
+    def put(self, request, *args, **kwargs):
+        subset_label = CellSubsetLabel.objects.get(id=kwargs['pk'])
+        if not subset_label.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CellSubsetLabelDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        subset_label = CellSubsetLabel.objects.get(id=kwargs['pk'])
+        if not subset_label.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CellSubsetLabelDetail, self).delete(request, *args, **kwargs)
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):

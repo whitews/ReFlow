@@ -37,6 +37,8 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/projects/(?P<pk>\d+)/users/?$', ProjectUserDetail.as_view(), name='project-user-detail'),
     url(r'^api/repository/panel_templates/?$', PanelTemplateList.as_view(), name='panel-template-list'),
     url(r'^api/repository/panel_templates/(?P<pk>\d+)/?$', PanelTemplateDetail.as_view(), name='panel-template-detail'),
+    url(r'^api/repository/cell_subset_labels/?$', CellSubsetLabelList.as_view(), name='cell-subset-label-list'),
+    url(r'^api/repository/cell_subset_labels/(?P<pk>\d+)/?$', CellSubsetLabelDetail.as_view(), name='cell-subset-label-detail'),
 
     url(r'^api/repository/sites/?$', SiteList.as_view(), name='site-list'),
     url(r'^api/repository/sites/(?P<pk>\d+)/?$', SiteDetail.as_view(), name='site-detail'),

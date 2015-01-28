@@ -86,6 +86,13 @@ class ProjectUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'users')
 
 
+class CellSubsetLabelSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='cell-subset-label-detail')
+
+    class Meta:
+        model = CellSubsetLabel
+
+
 class VisitTypeSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='visittype-detail')
     sample_count = serializers.IntegerField(
