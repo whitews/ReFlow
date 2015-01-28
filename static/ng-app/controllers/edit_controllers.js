@@ -179,6 +179,33 @@ app.controller(
 ]);
 
 app.controller(
+    'CellSubsetLabelEditController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
+
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
+
+            var response = ModelService.createUpdateCellSubsetLabel(instance);
+
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.cellSubsetLabelsUpdated();
+
+                // close modal
+                $scope.ok();
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
+
+app.controller(
     'StimulationEditController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
         $scope.current_project = ModelService.current_project;

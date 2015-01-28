@@ -263,6 +263,38 @@ app.controller(
 );
 
 app.controller(
+    'CellSubsetLabelController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.subset_labels = ModelService.getCellSubsetLabels(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.subset_labels = ModelService.getCellSubsetLabels(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('cell_subset_labels:updated', function () {
+                $scope.subset_labels = ModelService.getCellSubsetLabels(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
     'StimulationController',
     [
         '$scope',
@@ -293,6 +325,8 @@ app.controller(
         }
     ]
 );
+
+
 
 app.controller(
     'SampleController',

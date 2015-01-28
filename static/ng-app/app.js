@@ -36,6 +36,7 @@ var MODAL_URLS = {
     'SITE':               'static/ng-app/partials/site-form.html',
     'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
     'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
+    'CELL_SUBSET_LABEL':  'static/ng-app/partials/cell-subset-label-form.html',
     'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
     'SAMPLE_METADATA':    'static/ng-app/partials/sample-metadata-list.html',
@@ -51,6 +52,7 @@ var MODAL_URLS = {
     'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html',
     'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
     'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
+    'CELL_SUBSET_LABEL_DELETE': 'static/ng-app/partials/cell-subset-label-delete.html',
     'STIMULATION_DELETE': 'static/ng-app/partials/stimulation-delete.html',
     'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
     'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
@@ -347,6 +349,19 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Stimulations'
+        }
+    }).state({
+        name: 'cell-subset-label-list',
+        parent: 'project-detail',
+        url: '/cell-subset-labels/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/cell-subset-label-list.html',
+                controller: 'CellSubsetLabelController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Cell Subset Labels'
         }
     }).state({
         name: 'panel-template-list',
