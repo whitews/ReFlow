@@ -96,6 +96,7 @@ def repository_api_root(request):
         'process_request_outputs': reverse(
             'process-request-output-list', request=request),
         'clusters': reverse('cluster-list', request=request),
+        'cluster-labels': reverse('cluster-label-list', request=request),
         'sample_clusters': reverse('sample-cluster-list', request=request)
     })
 
@@ -2577,12 +2578,106 @@ class ClusterList(
                     data={
                         'detail': 'Request is not assigned to this worker'
                     },
-                    status=400)
+                    status=status.HTTP_400_BAD_REQUEST)
 
             # if we get here, the worker is bonafide! "He's a suitor!"
             response = super(ClusterList, self).post(request, *args, **kwargs)
             return response
-        return Response(data={'detail': 'Bad request'}, status=400)
+        return Response(
+            data={'detail': 'Bad request'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ClusterLabelFilter(django_filters.FilterSet):
+    process_request = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProcessRequest.objects.all(),
+        name='cluster__process_request'
+    )
+    cluster_index = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        name='cluster__cluster_index'
+    )
+    label_name = django_filters.ModelMultipleChoiceFilter(
+        queryset=CellSubsetLabel.objects.all(),
+        name='label__name'
+    )
+
+    class Meta:
+        model = ClusterLabel
+        fields = [
+            'process_request',
+            'cluster',
+            'cluster_index',
+            'label',
+            'label_name'
+        ]
+
+
+class ClusterLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of cluster labels.
+    """
+
+    model = ClusterLabel
+    serializer_class = ClusterLabelSerializer
+    filter_class = ClusterLabelFilter
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = ClusterLabel.objects.filter(
+            label__project__in=user_projects
+        )
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        label = get_object_or_404(
+            CellSubsetLabel, id=request.DATA['label']
+        )
+        cluster = get_object_or_404(
+            Cluster, id=request.DATA['cluster']
+        )
+
+        # check for permission to add project data
+        if not label.project.has_add_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # check that label and cluster belong to the same project
+        if cluster.process_request.project != label.project:
+            return Response(
+                data={
+                    'detail': 'Cluster & label must belong to the same project'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        response = super(ClusterLabelList, self).post(request, *args, **kwargs)
+        return response
+
+
+class ClusterLabelDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveDestroyAPIView):
+    """
+    API endpoint representing a single cluster label.
+    """
+
+    model = ClusterLabel
+    serializer_class = ClusterLabelSerializer
+
+    def delete(self, request, *args, **kwargs):
+        cluster_label = ClusterLabel.objects.get(id=kwargs['pk'])
+        if not cluster_label.label.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ClusterLabelDetail, self).delete(request, *args, **kwargs)
 
 
 class SampleClusterFilter(django_filters.FilterSet):

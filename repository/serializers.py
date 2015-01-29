@@ -995,6 +995,34 @@ class ClusterSerializer(serializers.ModelSerializer):
         )
 
 
+class ClusterLabelSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='cluster-label-detail')
+    process_request = serializers.IntegerField(
+        source='cluster.process_request_id',
+        read_only=True
+    )
+    cluster_index = serializers.IntegerField(
+        source='cluster.index',
+        read_only=True
+    )
+    label_name = serializers.CharField(
+        source='label.name',
+        read_only=True
+    )
+
+    class Meta:
+        model = ClusterLabel
+        fields = (
+            'id',
+            'url',
+            'process_request',
+            'cluster',
+            'cluster_index',
+            'label',
+            'label_name'
+        )
+
+
 class SampleClusterParameterSerializer(serializers.ModelSerializer):
     class Meta:
         model = SampleClusterParameter

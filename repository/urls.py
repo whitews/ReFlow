@@ -105,6 +105,8 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/process_request_outputs/?$', ProcessRequestOutputList.as_view(), name='process-request-output-list'),
     url(r'^api/repository/process_request_outputs/(?P<pk>\d+)/download/?$', retrieve_process_request_output_value, name='retrieve_process_request_output'),
     url(r'^api/repository/clusters/?$', ClusterList.as_view(), name='cluster-list'),
+    url(r'^api/repository/cluster_labels/?$', ClusterLabelList.as_view(), name='cluster-label-list'),
+    url(r'^api/repository/cluster_labels/(?P<pk>\d+)/?$', ClusterLabelDetail.as_view(), name='cluster-label-detail'),
     url(r'^api/repository/sample_clusters/?$', SampleClusterList.as_view(), name='sample-cluster-list'),
 )
 
