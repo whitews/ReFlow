@@ -2295,8 +2295,52 @@ class Cluster(ProtectedModel):
         return False
 
 
+class ClusterLabel(ProtectedModel):
+    """
+    Allows the user to "tag" clusters with a label, specifically
+    mapping one or more CellSubsetLabel instances to a Cluster
+    """
+    cluster = models.ForeignKey(Cluster)
+    label = models.ForeignKey(CellSubsetLabel)
+
+    def has_view_permission(self, user):
+        if self.cluster.has_view_permission(user):
+            return True
+
+        return False
+
+    def clean(self):
+        """
+        Check for duplicate labels for a cluster and ensure that both
+        the cluster and the label belong to the same project.
+        Returns ValidationError if either of the above requirements are
+        not satisfied.
+        """
+
+        # ensure both the label and cluster belong to the same project
+        if self.cluster.process_request.project != self.label.project:
+            raise ValidationError(
+                "Label and cluster must belong to the same project."
+            )
+
+        # count duplicate label / cluster combos,
+        # which don't have this pk
+        duplicates = ClusterLabel.objects.filter(
+            cluster=self.cluster,
+            label=self.label).exclude(id=self.id)
+        if duplicates.count() > 0:
+            raise ValidationError(
+                "This cluster is already tagged with this label."
+            )
+
+    class Meta:
+        unique_together = (('cluster', 'label'),)
+
+
 class SampleClusterMode(models.Model):
     """
+    !!! Note: Currently not used anywhere
+
     Used to group related SampleCLuster instances into a mode. The mode
     itself has a different location from any of its SampleCluster members,
     and the location of the SampleClusterMode is in the
@@ -2307,6 +2351,8 @@ class SampleClusterMode(models.Model):
 
 class SampleClusterModeParameter(models.Model):
     """
+    !!! Note: Currently not used anywhere
+
     Used to store the location of a SampleClusterMode.
     Each parameter identifies a channel in the Sample along with the
     coordinate for the SampleClusterMode.
