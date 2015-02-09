@@ -11,14 +11,19 @@
       </p>
     </div>
     <div class="col-md-8">
-
-      <h4><strong>Process Request Label:</strong></h4>
-
-      <div class="form-group">
-        <input class="input-lg" type="text" ng-model="model.request_description">
+      <div class="row">
+        <div class="col-md-4">
+          <h4><strong>Process Request Label:</strong></h4>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <input class="form-control input-lg" type="text" ng-model="model.request_description">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <button type="button" class="btn btn-success btn-lg" data-ng-click="submit_request()">Submit!</button>
+        </div>
       </div>
-
-      <button type="button" class="btn btn-success btn-lg" data-ng-click="submit_request()">Submit!</button>
 
       <hr/>
 
