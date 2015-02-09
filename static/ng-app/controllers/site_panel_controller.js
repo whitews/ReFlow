@@ -243,7 +243,7 @@ app.controller(
                     if (param.markers.length > 0) {
                         var marker_match = true;
                         for (var j = 0; j < param.markers.length; j++) {
-                            if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
+                            if (channel.markers.indexOf(param.markers[j].marker_id) == -1) {
                                 // no match
                                 marker_match = false;
                                 break;

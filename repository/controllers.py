@@ -515,7 +515,7 @@ def validate_site_panel_request(data, user):
 
                 should_continue = False
                 for ppp_marker in ppp.paneltemplateparametermarker_set.all():
-                    if str(ppp_marker.marker.id) not in param_dict[d]['marker_id_set']:
+                    if ppp_marker.marker.id not in param_dict[d]['marker_id_set']:
                         # no match
                         should_continue = True
                         break
