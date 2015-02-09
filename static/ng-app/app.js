@@ -10,7 +10,7 @@ var app = angular.module(
         'ngResource',
         'ui.router',
         'ui.bootstrap',
-        'ui.select2',
+        'ui.select',
         'ncy-angular-breadcrumb',
         'angularFileUpload',
         'tableSort'
