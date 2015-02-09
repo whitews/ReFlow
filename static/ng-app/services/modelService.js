@@ -35,7 +35,8 @@ service.factory('ModelService', function(
         SubprocessInput,
         SampleCollection,
         SampleCollectionMember,
-        SampleCluster) {
+        SampleCluster,
+        ClusterLabel) {
     var service = {};
 
     // The following section is for storing/retrieving "global" variables
@@ -692,6 +693,25 @@ service.factory('ModelService', function(
                 'sample': sample_id
             }
         ).$promise;
+    };
+
+    // ClusterLabel services
+    service.clusterLabelsUpdated = function () {
+        $rootScope.$broadcast('cluster_labels:updated');
+    };
+    service.getClusterLabels = function(query_object) {
+        return ClusterLabel.query(query_object);
+    };
+    service.getClusterLabel = function(cluster_label_id) {
+        return ClusterLabel.get(
+            { id: cluster_label_id }
+        );
+    };
+    service.createClusterLabel = function(instance) {
+        return ClusterLabel.save(instance);
+    };
+    service.destroyClusterLabel = function (instance) {
+        return ClusterLabel.delete({id: instance.id });
     };
 
     return service;
