@@ -74,9 +74,16 @@
                 </select>
             </td>
             <td>
-                <select ui-select2="{}" multiple ng-model="channel.markers" ng-change="validatePanel()" ng-disabled="channel.marker_disabled">
-                  <option value="{{ m.id }}" data-ng-repeat="m in model.markers">{{ m.marker_abbreviation }}</option>
-                </select>
+                <ui-select multiple theme="bootstrap" ng-model="channel.markers" search-enabled="true">
+{#                           ng-change="validatePanel()" ng-disabled="channel.marker_disabled">#}
+                  <ui-select-match>{{ $item.marker_abbreviation }}</ui-select-match>
+
+                  <ui-select-choices repeat="m.id as m in model.markers | filter:$select.search">
+                    {{ m.marker_abbreviation }}
+                  </ui-select-choices>
+
+{#                  <option value="{{ m.id }}" data-ng-repeat="m in model.markers">{{ m.marker_abbreviation }}</option>#}
+                </ui-select>
             </td>
             <td>
                 <select class="form-control" ng-model="channel.fluorochrome" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
