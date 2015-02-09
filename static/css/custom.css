@@ -62,47 +62,8 @@ input[type="color"],
     background-color: #FFD2D4;
 }
 
-.select2-choices {
-    border: 1px solid #ccc !important;
-    border-radius: 4px;
-    font-size: 12px;
-    line-height: normal !important;
-    height: 28px;
-    min-height: none !important;
-}
-
-.select2-choices > li > input {
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    line-height: 1.1 !important;
-}
-
-select,
-input[type="text"],
-input[type="password"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="date"],
-input[type="month"],
-input[type="time"],
-input[type="week"],
-input[type="number"],
-input[type="email"],
-input[type="url"],
-input[type="search"],
-input[type="tel"],
-input[type="color"],
-.uneditable-input {
-  height: 30px;
-}
-
-textarea {
-    height: 200px;
-}
-
-.input-lg {
-    min-width: 360px !important;
+input[type="text"].ui-select-search {
+  border: 0px !important;
 }
 
 label {
@@ -177,11 +138,6 @@ p.navbar-text {
 
 .modal-lg {
   width: 90% !important;
-}
-
-.select2-container {
-  max-width: 150px !important;
-  width: 150px;
 }
 
 .breadcrumb {
@@ -370,17 +326,6 @@ span.marker-field > select {
   white-space: nowrap;
 }
 /* ----------  Custom form stuff START---------- */
-.form-control {
-    padding: 3px;
-    font-size: 12px;
-    line-height: 1.1;
-    height: 30px;
-}
-
-.form-group {
-  margin-bottom: 12px;
-}
-
 select,
 input[type="file"] {
   height: 30px;
