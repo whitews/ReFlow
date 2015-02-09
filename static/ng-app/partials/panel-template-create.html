@@ -74,15 +74,14 @@
                 </select>
             </td>
             <td>
-                <ui-select multiple theme="bootstrap" ng-model="channel.markers" search-enabled="true">
-{#                           ng-change="validatePanel()" ng-disabled="channel.marker_disabled">#}
+                <ui-select multiple theme="bootstrap" ng-model="channel.markers" search-enabled="true"
+                           ng-change="validatePanel()" ng-disabled="channel.marker_disabled">
                   <ui-select-match>{{ $item.marker_abbreviation }}</ui-select-match>
 
                   <ui-select-choices repeat="m.id as m in model.markers | filter:$select.search">
                     {{ m.marker_abbreviation }}
                   </ui-select-choices>
 
-{#                  <option value="{{ m.id }}" data-ng-repeat="m in model.markers">{{ m.marker_abbreviation }}</option>#}
                 </ui-select>
             </td>
             <td>
