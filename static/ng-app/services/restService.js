@@ -385,7 +385,12 @@ service
         return $resource(URLS.SAMPLE_CLUSTERS);
     }])
     .factory('ClusterLabel', ['$resource', function ($resource) {
-        return $resource(URLS.CLUSTER_LABELS);
+        var ClusterLabel = $resource(
+            URLS.CLUSTER_LABELS + ':id',
+            {},
+            {}
+        );
+        return ClusterLabel;
     }])
     .factory('ParameterFunction', ['$resource', function ($resource) {
         return $resource(URLS.PARAMETER_FUNCTIONS);
