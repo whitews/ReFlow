@@ -2336,6 +2336,9 @@ class ClusterLabel(ProtectedModel):
     class Meta:
         unique_together = (('cluster', 'label'),)
 
+    def __unicode__(self):
+        return "%d" % self.label_id
+
 
 class SampleClusterMode(models.Model):
     """

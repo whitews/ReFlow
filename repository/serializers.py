@@ -1058,6 +1058,11 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         source='sampleclusterparameter_set',
         read_only=True
     )
+    labels = serializers.RelatedField(
+        source='cluster.clusterlabel_set',
+        read_only=True,
+        many=True
+    )
     event_indices = serializers.RelatedField(
         source='eventclassification_set',
         read_only=True,
@@ -1074,5 +1079,6 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'cluster',
             'cluster_index',
             'parameters',
+            'labels',
             'event_indices'
         )
