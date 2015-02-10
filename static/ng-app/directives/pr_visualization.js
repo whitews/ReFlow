@@ -21,18 +21,29 @@ app.controller(
     var panel_data = null;
     var event_data = null;
 
+    // Cell subset label variables for tagging clusters
+    $scope.$on('current_project:updated', function () {
+        $scope.labels = ModelService.getCellSubsetLabels(
+            ModelService.current_project.id
+        );
+    });
+
     $scope.$watch('data', function(data) {
         $scope.sample_collection = data;
         $scope.cached_plots = {};
     });
 
     $scope.initialize_visualization = function() {
-        if ($scope.chosen_member.id in $scope.cached_plots) {
-            $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
-            $scope.initialize_scatterplot();
-            $scope.initialize_parallel_plot();
-            return;
-        }
+        // TODO: turning off cached_plots checking b/c the cluster
+        // labels need to be updated, need to create a different mechanism
+        // to update only the labels
+
+        //if ($scope.chosen_member.id in $scope.cached_plots) {
+        //    $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+        //    $scope.initialize_scatterplot();
+        //    $scope.initialize_parallel_plot();
+        //    return;
+        //}
 
         $scope.retrieving_data = true;
         sample_clusters = ModelService.getSampleClusters(
@@ -158,6 +169,51 @@ app.controller(
             }).attr("r", 8);
 
         $scope.deselect_cluster_line(cluster);
+    };
+
+    $scope.add_cluster_label = function (label, sample_cluster) {
+        sample_cluster.label_error = null;
+        var response = ModelService.createClusterLabel(
+            {
+                'cluster': sample_cluster.cluster, // the cluster ID
+                'label': label.id
+            }
+        );
+
+        response.$promise.then(function (object) {
+            // success, nothing to do
+        }, function (error) {
+            sample_cluster.label_error = "Saving label failed!";
+        });
+
+    };
+
+    $scope.remove_cluster_label = function (label, sample_cluster) {
+        sample_cluster.label_error = null;
+
+        // first, need to retrieve the PK for our ClusterLabel, as
+        // the sample_cluster.labels stores the CellSubsetLabel PK
+        // So, we do a query and expect only one result, a faux-GET
+        var cluster_labels = ModelService.getClusterLabels(
+            {
+                'cluster': sample_cluster.cluster,
+                'label': label.id
+            }
+        );
+
+        cluster_labels.$promise.then(function (object) {
+            var response = ModelService.destroyClusterLabel(
+                object[0]
+            );
+
+            response.$promise.then(function (object) {
+                // success, nothing to do
+            }, function (error) {
+                sample_cluster.label_error = "Deleting label failed!";
+            });
+        }, function (error) {
+            sample_cluster.label_error = "Deleting label failed!";
+        });
     };
 
     $scope.toggle_animation = function () {
