@@ -22,6 +22,11 @@ app.controller(
     var event_data = null;
 
     // Cell subset label variables for tagging clusters
+    if (ModelService.current_project) {
+        $scope.labels = ModelService.getCellSubsetLabels(
+            ModelService.current_project.id
+        );
+    }
     $scope.$on('current_project:updated', function () {
         $scope.labels = ModelService.getCellSubsetLabels(
             ModelService.current_project.id
