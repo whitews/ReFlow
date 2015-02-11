@@ -477,7 +477,7 @@ app.controller(
                                 if (channel.function != 'ISO' && channel.function != 'BEA') {
                                     var marker_match = true;
                                     for (var j = 0; j < param.markers.length; j++) {
-                                        if (channel.markers.indexOf(param.markers[j].marker_id.toString()) == -1) {
+                                        if (channel.markers.indexOf(param.markers[j].marker_id) == -1) {
                                             // no match
                                             marker_match = false;
                                             break;
@@ -495,10 +495,12 @@ app.controller(
                             // and save iso/fmo matches
                             if (fmo_match) {
                                 parent_fmo_matches.push(i);
+                                break;
                             }
 
                             if (iso_match) {
                                 parent_iso_matches.push(i);
+                                break;
                             }
                         }
                     }
