@@ -210,12 +210,8 @@ app.controller(
             };
 
             $scope.validatePanel = function() {
-                // start with true and set to false on any error
-                var valid = true;
-                $scope.model.errors = [];
-
                 /*
-                Validate the panel:
+                Validation rules:
                     - existing templates w/site panels cannot be edited
                     - Function and value type are required
                     - No fluorochromes in a scatter parameter
@@ -229,6 +225,10 @@ app.controller(
                     - FMO templates must specify an UNS channel
                     - ISO templates must specify an ISO channel
                 */
+
+                // start with true and set to false on any error
+                var valid = true;
+                $scope.model.errors = [];
 
                 // existing templates w/related site panels cannot be edited
                 if ($scope.model.template) {
@@ -261,17 +261,15 @@ app.controller(
                         return valid;
                     }
                     check_parent_params = true;
-                    // reset all project param matches
-                    $scope.model.parent_template.parameters.forEach(function (p) {
-                        p.match = false;
-                    });
                 }
+
                 var can_have_uns = null;
                 var can_have_iso = null;
                 var fluoro_duplicates = [];
                 var channel_duplicates = [];
-                var parent_iso_matches = [];
-                var parent_fmo_matches = [];
+                var fmo_match_count = 0;
+                var iso_match_count = 0;
+
                 switch ($scope.model.current_staining) {
                     case 'IS':
                         can_have_uns = false;
@@ -286,99 +284,28 @@ app.controller(
                         can_have_iso = false;
                 }
 
+                // for checking against parent template parameters later (only for non-FS panels)
+                var scatter_channels = [];
+                var fcm_channels = [];  // fluoro conjugated marker channels
+                var unstained_channels = [];
+                var iso_channels = [];
+                var exclude_channels = [];
+                var viability_channels = [];
+                var bead_channels = [];
+                var time_channels = [];
+
                 $scope.model.channels.forEach(function (channel) {
                     channel.errors = [];
-                    // check for function
+                    // Function type is required for all channels
                     if (!channel.function) {
                         valid = false;
                         $scope.model.template_valid = valid;
                         return valid;
                     }
 
-                    // Check for fluoro duplicates
-                    if (channel.fluorochrome) {
-                        if (fluoro_duplicates.indexOf(channel.fluorochrome.toString() + "_" + channel.value_type) >= 0) {
-                            channel.errors.push('The same fluorochrome cannot be in multiple channels');
-                        } else {
-                            fluoro_duplicates.push(channel.fluorochrome.toString() + "_" + channel.value_type);
-                        }
-                    }
-
-                    // ensure no fluoro or markers in scatter channels
-                    if (channel.function == 'FSC' || channel.function == 'SSC') {
-                        if (channel.fluorochrome) {
-                            channel.errors.push('Scatter channels cannot have a fluorochrome');
-                        }
-                        if (channel.markers.length > 0) {
-                            channel.errors.push('Scatter channels cannot have markers');
-                        }
-                    }
-
-                    if (!can_have_uns && channel.function == 'UNS') {
-                        channel.errors.push($scope.model.current_staining + ' panels cannot have unstained channels');
-                    }
-                    if (!can_have_iso && channel.function == 'ISO') {
-                        channel.errors.push('Only Iso panels can include iso channels');
-                    }
-
-                    // exclusion channels must include a fluoro
-                    if (channel.function == 'EXC' && !channel.fluorochrome) {
-                        channel.errors.push('Exclusion channels must specify a fluorochrome');
-                    }
-
-                    // fluoro conjugate channels must have both fluoro and Ab
-                    if (channel.function == 'FCM') {
-                        if (!channel.fluorochrome && !channel.markers.length > 0) {
-                            channel.errors.push("Fluorescence conjugated marker channels must " +
-                        "specify either a fluorochrome or at least more than one marker (or both a fluorochrome and markers)");
-                        }
-                    }
-
-                    // unstained channels cannot have a fluoro but must have an Ab
-                    if (channel.function == 'UNS') {
-                        if (channel.fluorochrome) {
-                            channel.errors.push('Unstained channels cannot specify a fluorochrome');
-                        }
-                        if (channel.markers.length < 1) {
-                            channel.errors.push('Unstained channels must specify at least one marker');
-                        }
-                    }
-
-                    // Iso channels must have a fluoro, cannot have an Ab
-                    if (channel.function == 'ISO') {
-                        if (!channel.fluorochrome) {
-                            channel.errors.push('Iso channels must specify a fluorochrome');
-                        }
-                        if (channel.markers.length > 0) {
-                            channel.errors.push('Iso channels cannot have markers');
-                        }
-                    }
-
-                    // Bead channels must specify a fluoro but no marker
-                    if (channel.function == 'BEA') {
-                        if (!channel.fluorochrome) {
-                            channel.errors.push('Bead channels must specify a fluorochrome');
-                        }
-                        if (channel.markers.length > 0) {
-                            channel.errors.push('Bead channels cannot have markers');
-                        }
-                    }
-
-                    // Time channels cannot have a fluoro or Ab, must have value type 'T'
-                    if (channel.function == 'TIM') {
-                        if (channel.fluorochrome) {
-                            channel.errors.push('Time channel cannot specify a fluorochrome');
-                        }
-                        if (channel.markers.length > 0) {
-                            channel.errors.push('Time channel cannot have markers');
-                        }
-                        if (channel.value_type != 'T') {
-                            channel.errors.push('Time channel must have time value type')
-                        }
-                    } else {
-                        if (channel.value_type == 'T') {
-                            channel.errors.push('Only Time channels can have time value type')
-                        }
+                    // Only time channels can have value type 'T'
+                    if (channel.function != 'TIM' && channel.value_type == 'T') {
+                        channel.errors.push('Only Time channels can have time value type')
                     }
 
                     // Check for duplicate channels
@@ -394,114 +321,91 @@ app.controller(
                         channel_duplicates.push(channel_string);
                     }
 
+                    // Check for fluoro duplicates
+                    if (channel.fluorochrome) {
+                        if (fluoro_duplicates.indexOf(channel.fluorochrome.toString() + "_" + channel.value_type) >= 0) {
+                            channel.errors.push('The same fluorochrome cannot be in multiple channels');
+                        } else {
+                            fluoro_duplicates.push(channel.fluorochrome.toString() + "_" + channel.value_type);
+                        }
+                    }
 
-                    // For non full-stain templates, match against the parent's
-                    // parameters starting with the function / value type combo
-                    if (check_parent_params) {
-                        for (var i = 0; i < $scope.model.parent_template.parameters.length; i++) {
-                            // param var is just for better readability
-                            var param = $scope.model.parent_template.parameters[i];
-                            var fmo_match = false;
-                            var iso_match = false;
+                    // Scatter channels
+                    if (channel.function == 'FSC' || channel.function == 'SSC') {
+                        scatter_channels.push(channel);
 
-                            // first, check function
-                            if (param.parameter_type != channel.function) {
-                                // but it's not so simple, we need to allow
-                                // FMO panels to have unstained counterparts to
-                                // their parent Full stain template.
-                                // Likewise, Isotype Control templates can
-                                // have ISO channel counterparts.
+                        // ensure no fluoro or markers in scatter channels
+                        if (channel.fluorochrome) {
+                            channel.errors.push('Scatter channels cannot have a fluorochrome');
+                        }
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Scatter channels cannot have markers');
+                        }
+                    } else if (channel.function == 'UNS') {  // Unstained channels (used for FMO channels)
+                        unstained_channels.push(channel);
 
-                                // However, first we'll check the easy things
-                                // like scatter channels
-                                if (channel.function == 'FSC' && param.parameter_type != 'FSC') {
-                                    // no match
-                                    continue;
-                                } else if (channel.function == 'SSC' && param.parameter_type != 'SSC') {
-                                    // no match
-                                    continue;
-                                }
+                        if (!can_have_uns && channel.function == 'UNS') {
+                            channel.errors.push($scope.model.current_staining + ' panels cannot have unstained channels');
+                        }
 
-                                if ($scope.model.current_staining == 'FM') {
-                                    if (param.parameter_type == 'FCM' && channel.function == 'UNS') {
-                                        fmo_match = true;
-                                    } else {
-                                        // no match
-                                        continue;
-                                    }
-                                } else if ($scope.model.current_staining == 'IS') {
-                                    if (param.parameter_type == 'FCM' && channel.function == 'ISO') {
-                                        iso_match = true;
-                                    } else {
-                                        // no match
-                                        continue;
-                                    }
-                                } else if ($scope.model.current_staining == 'CB') {
-                                    // For bead templates the function should
-                                    // be bead
-                                    if (!(param.parameter_type == 'FCM' || param.parameter_type == 'VIA') && channel.function == 'BEA') {
-                                        // no match
-                                        continue;
-                                    }
-                                } else {
-                                    // no match
-                                    continue;
-                                }
-                            }
+                        // unstained channels cannot have a fluoro but must have at least 1 marker
+                        if (channel.fluorochrome) {
+                            channel.errors.push('Unstained channels cannot specify a fluorochrome');
+                        }
+                        if (channel.markers.length < 1) {
+                            channel.errors.push('Unstained channels must specify at least one marker');
+                        }
+                    } else if (channel.function == 'ISO') {  // ISO channels
+                        iso_channels.push(channel);
 
-                            // then value type
-                            if (param.parameter_value_type != channel.value_type) {
-                                // no match
-                                continue;
-                            }
+                        if (!can_have_iso) {
+                            channel.errors.push('Only Iso panels can include iso channels');
+                        }
 
-                            // if template has fluoro, check it, except for
-                            // unstained channels
-                            if (param.fluorochrome && channel.function != 'UNS') {
-                                if (param.fluorochrome != channel.fluorochrome) {
-                                    // no match
-                                    continue;
-                                }
-                            }
+                        // Iso channels must have a fluoro, cannot have an Ab
+                        if (!channel.fluorochrome) {
+                            channel.errors.push('Iso channels must specify a fluorochrome');
+                        }
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Iso channels cannot have markers');
+                        }
+                    } else if (channel.function == 'EXC') {
+                        exclude_channels.push(channel);
 
-                            // Bead channels must have a fluoro, or it cannot
-                            // be any match
-                            if (channel.function == 'BEA' && !channel.fluorochrome) {
-                                // no match
-                                break;
-                            }
+                        // exclusion channels must include a fluoro
+                        if (!channel.fluorochrome) {
+                            channel.errors.push('Exclusion channels must specify a fluorochrome');
+                        }
+                    } else if (channel.function == 'FCM') {
+                        fcm_channels.push(channel);
 
-                            // if template has markers, check them all, except
-                            // for ISO and Bead channels
-                            if (param.markers.length > 0) {
-                                if (channel.function != 'ISO' && channel.function != 'BEA') {
-                                    var marker_match = true;
-                                    for (var j = 0; j < param.markers.length; j++) {
-                                        if (channel.markers.indexOf(param.markers[j].marker_id) == -1) {
-                                            // no match
-                                            marker_match = false;
-                                            break;
-                                        }
-                                    }
-                                    if (!marker_match) {
-                                        continue;
-                                    }
-                                }
-                            }
+                        // fluoro conjugate channels must have both fluoro and Ab
+                        if (!channel.fluorochrome && !channel.markers.length > 0) {
+                            channel.errors.push("Fluorescence conjugated marker channels must " +
+                        "specify either a fluorochrome or at least more than one marker (or both a fluorochrome and markers)");
+                        }
+                    } else if (channel.function == 'BEA') {
+                        bead_channels.push(channel);
 
-                            // if we get here everything in the template matched
-                            param.match = true;
+                        // Bead channels must specify a fluoro but no marker
+                        if (!channel.fluorochrome) {
+                            channel.errors.push('Bead channels must specify a fluorochrome');
+                        }
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Bead channels cannot have markers');
+                        }
+                    } else if (channel.function == 'TIM') {
+                        time_channels.push(channel);
 
-                            // and save iso/fmo matches
-                            if (fmo_match) {
-                                parent_fmo_matches.push(i);
-                                break;
-                            }
-
-                            if (iso_match) {
-                                parent_iso_matches.push(i);
-                                break;
-                            }
+                        // Time channels cannot have a fluoro or Ab, must have value type 'T'
+                        if (channel.fluorochrome) {
+                            channel.errors.push('Time channel cannot specify a fluorochrome');
+                        }
+                        if (channel.markers.length > 0) {
+                            channel.errors.push('Time channel cannot have markers');
+                        }
+                        if (channel.value_type != 'T') {
+                            channel.errors.push('Time channel must have time value type')
                         }
                     }
 
@@ -510,28 +414,226 @@ app.controller(
                     }
                 });
 
+                // For non full-stain templates, ensure channels match parent's parameters.
                 if (check_parent_params) {
+                    // iterate over every parent template parameter
                     for (var i = 0; i < $scope.model.parent_template.parameters.length; i++) {
-                        if (!$scope.model.parent_template.parameters[i].match) {
-                            valid = false;
+                        // We need to compare the channel function types in a particular order to
+                        // correctly match FMO & ISO parameters in the parent template.
+                        // We'll start with the other categories and match in this order:
+                        //   - scatter channels
+                        //   - fluoro conjugated channels
+                        //   -
+
+                        // param var just to make code shorter and easier to read
+                        var param = $scope.model.parent_template.parameters[i];
+
+                        // assume no match, we'll mark them true as we find them
+                        param.match = false;
+                        param.fmo_match = false;
+                        param.iso_match = false;
+                        var marker_match;
+
+                        // check against all the parent scatter params first
+                        if (param.parameter_type == 'FSC' || param.parameter_type == 'SSC') {
+                            for (var j=0; j < scatter_channels.length; j++) {
+                                // if value type doesn't match, then it can't be a match
+                                if (param.parameter_value_type != scatter_channels[j].value_type) {
+                                    // no match
+                                    continue;
+                                }
+                                if (param.parameter_type == scatter_channels[j].parameter_type) {
+                                    param.match = true;
+                                    break;
+                                }
+                            }
+                            continue;
                         }
-                        if (parent_fmo_matches.indexOf(i) > -1) {
-                            $scope.model.parent_template.parameters[i].fmo_match = true;
-                        } else {
-                            $scope.model.parent_template.parameters[i].fmo_match = false;
+
+                        // next, the parent's viability params
+                        if (param.parameter_type == 'VIA') {
+                            // first check against the proposed panel's FCM channels
+                            for (var j=0; j < viability_channels.length; j++) {
+                                // if value type doesn't match, then it can't be a match
+                                if (param.parameter_value_type != viability_channels[j].value_type) {
+                                    // no match
+                                    continue;
+                                }
+
+                                // verify parent's fluoro is matched
+                                if (param.fluorochrome) {
+                                    if (param.fluorochrome != viability_channels[j].fluorochrome) {
+                                        // no match
+                                        continue;
+                                    }
+                                }
+
+                                // verify all parent's markers are present
+                                marker_match = true;
+                                for (var k = 0; k < param.markers.length; k++) {
+                                    if (viability_channels[j].markers.indexOf(param.markers[k].marker_id) == -1) {
+                                        // no match
+                                        marker_match = false;
+                                        break;
+                                    }
+                                }
+                                if (marker_match) {
+                                    // if we get here everything matched and we're done with param
+                                    param.match = true;
+                                    break;
+                                }
+                            }
+
+                            // A viability param may match a bead channel in the
+                            // proposed panel, but only for proposed bead templates
+                            if ($scope.model.current_staining == 'CB') {
+                                for (var j=0; j < bead_channels.length; j++) {
+                                    // if value type doesn't match, then it can't be a match
+                                    if (param.parameter_value_type != bead_channels[j].value_type) {
+                                        // no match
+                                        continue;
+                                    }
+
+                                    // bead channels don't have markers so only verify fluoro
+                                    if (param.fluorochrome) {
+                                        if (param.fluorochrome == iso_channels[j].fluorochrome) {
+                                            // MATCH!
+                                            param.match = true;
+                                            param.bead_match = true;
+                                            bead_match_count++;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            continue;
                         }
-                        if (parent_iso_matches.indexOf(i) > -1) {
-                            $scope.model.parent_template.parameters[i].iso_match = true;
-                        } else {
-                            $scope.model.parent_template.parameters[i].iso_match = false;
+
+                        // next, the parent's fluoro conjugated marker params
+                        if (param.parameter_type == 'FCM') {
+                            // first check against the proposed panel's FCM channels
+                            for (var j=0; j < fcm_channels.length; j++) {
+                                // if value type doesn't match, then it can't be a match
+                                if (param.parameter_value_type != fcm_channels[j].value_type) {
+                                    // no match
+                                    continue;
+                                }
+
+                                // verify parent's fluoro is matched
+                                if (param.fluorochrome) {
+                                    if (param.fluorochrome != fcm_channels[j].fluorochrome) {
+                                        // no match
+                                        continue;
+                                    }
+                                }
+
+                                // verify all parent's markers are present
+                                marker_match = true;
+                                for (var k = 0; k < param.markers.length; k++) {
+                                    if (fcm_channels[j].markers.indexOf(param.markers[k].marker_id) == -1) {
+                                        // no match
+                                        marker_match = false;
+                                        break;
+                                    }
+                                }
+                                if (marker_match) {
+                                    // if we get here everything matched and we're done with param
+                                    param.match = true;
+                                    break;
+                                }
+                            }
+
+                            if (param.match) {
+                                continue;
+                            }
+
+                            // Our parent's FCM param may match an UNS channel in the
+                            // proposed panel
+                            for (var j=0; j < unstained_channels.length; j++) {
+                                // if value type doesn't match, then it can't be a match
+                                if (param.parameter_value_type != unstained_channels[j].value_type) {
+                                    // no match
+                                    continue;
+                                }
+
+                                // unstained channels don't have fluoros so only verify markers
+                                marker_match = true;
+                                for (var k = 0; k < param.markers.length; k++) {
+                                    if (unstained_channels[j].markers.indexOf(param.markers[k].marker_id) == -1) {
+                                        // no match
+                                        marker_match = false;
+                                        break;
+                                    }
+                                }
+                                if (marker_match) {
+                                    // if we get here everything matched and we're done with param
+                                    param.match = true;
+                                    param.fmo_match = true;
+                                    fmo_match_count++;
+                                    break;
+                                }
+
+                            }
+
+                            if (param.match) {
+                                continue;
+                            }
+
+                            // Likewise, the parent's FCM param may match an ISO channel in the
+                            // proposed panel
+                            for (var j=0; j < iso_channels.length; j++) {
+                                // if value type doesn't match, then it can't be a match
+                                if (param.parameter_value_type != iso_channels[j].value_type) {
+                                    // no match
+                                    continue;
+                                }
+
+                                // iso channels don't have markers so only verify fluoro
+                                if (param.fluorochrome) {
+                                    if (param.fluorochrome == iso_channels[j].fluorochrome) {
+                                        // MATCH!
+                                        param.match = true;
+                                        param.iso_match = true;
+                                        iso_match_count++;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (param.match) {
+                                continue;
+                            }
+
+                            // Finally, the FCM param may match a bead channel in the
+                            // proposed panel, but only for proposed bead templates
+                            if ($scope.model.current_staining == 'CB') {
+                                for (var j=0; j < bead_channels.length; j++) {
+                                    // if value type doesn't match, then it can't be a match
+                                    if (param.parameter_value_type != bead_channels[j].value_type) {
+                                        // no match
+                                        continue;
+                                    }
+
+                                    // bead channels don't have markers so only verify fluoro
+                                    if (param.fluorochrome) {
+                                        if (param.fluorochrome == iso_channels[j].fluorochrome) {
+                                            // MATCH!
+                                            param.match = true;
+                                            param.bead_match = true;
+                                            bead_match_count++;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
-                if ($scope.model.current_staining == 'FM' && parent_fmo_matches.length < 1) {
+                if ($scope.model.current_staining == 'FM' && fmo_match_count < 1) {
                     valid = false;
                     $scope.model.errors.push("FMO templates must specify at least one unstained channel.");
-                } else if ($scope.model.current_staining == 'IS' && parent_iso_matches.length < 1) {
+                } else if ($scope.model.current_staining == 'IS' && iso_match_count < 1) {
                     valid = false;
                     $scope.model.errors.push("ISO templates must specify at least one ISO channel.");
                 }
