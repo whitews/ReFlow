@@ -376,6 +376,13 @@ app.controller(
                         if (!channel.fluorochrome) {
                             channel.errors.push('Exclusion channels must specify a fluorochrome');
                         }
+                    } else if (channel.function == 'VIA') {
+                        viability_channels.push(channel);
+
+                        // viability channels must include a fluoro
+                        if (!channel.fluorochrome) {
+                            channel.errors.push('Viability channels must specify a fluorochrome');
+                        }
                     } else if (channel.function == 'FCM') {
                         fcm_channels.push(channel);
 
