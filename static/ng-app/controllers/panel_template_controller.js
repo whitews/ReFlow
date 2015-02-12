@@ -638,6 +638,14 @@ app.controller(
                             }
                         }
                     }
+
+                    // if all parent params do not match,
+                    // the proposed panel is invalid
+                    $scope.model.parent_template.parameters.forEach(function (param) {
+                        if (!param.match) {
+                            valid = false;
+                        }
+                    });
                 }
 
                 if ($scope.model.current_staining == 'FM' && fmo_match_count < 1) {
@@ -648,13 +656,6 @@ app.controller(
                     $scope.model.errors.push("ISO templates must specify at least one ISO channel.");
                 }
 
-                // if all parent params do not match,
-                // the proposed panel is invalid
-                $scope.model.parent_template.parameters.forEach(function (param) {
-                    if (!param.match) {
-                        valid = false;
-                    }
-                });
                 $scope.model.template_valid = valid;
                 return valid;
             };
