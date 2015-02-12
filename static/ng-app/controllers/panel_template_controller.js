@@ -442,7 +442,7 @@ app.controller(
                                     // no match
                                     continue;
                                 }
-                                if (param.parameter_type == scatter_channels[j].parameter_type) {
+                                if (param.parameter_type == scatter_channels[j].function) {
                                     param.match = true;
                                     break;
                                 }
