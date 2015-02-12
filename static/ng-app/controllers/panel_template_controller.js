@@ -159,7 +159,7 @@ app.controller(
                             }
                             if (p.markers.length > 0) {
                                 p.markers.forEach(function (m) {
-                                    channel.markers.push(m.marker_id.toString());
+                                    channel.markers.push(m.marker_id);
                                 });
                             }
                             if (p.fluorochrome) {
