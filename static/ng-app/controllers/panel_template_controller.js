@@ -570,6 +570,11 @@ app.controller(
                                     param.match = true;
                                     param.fmo_match = true;
                                     fmo_match_count++;
+
+                                    // remove match from fmo candidates
+                                    unstained_channels.splice(j, 1);
+                                    j--;
+
                                     break;
                                 }
 
@@ -595,6 +600,11 @@ app.controller(
                                         param.match = true;
                                         param.iso_match = true;
                                         iso_match_count++;
+
+                                        // remove match from iso candidates
+                                        iso_channels.splice(j, 1);
+                                        j--;
+
                                         break;
                                     }
                                 }
@@ -638,6 +648,13 @@ app.controller(
                     $scope.model.errors.push("ISO templates must specify at least one ISO channel.");
                 }
 
+                // if all parent params do not match,
+                // the proposed panel is invalid
+                $scope.model.parent_template.parameters.forEach(function (param) {
+                    if (!param.match) {
+                        valid = false;
+                    }
+                });
                 $scope.model.template_valid = valid;
                 return valid;
             };
