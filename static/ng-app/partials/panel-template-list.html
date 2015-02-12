@@ -18,6 +18,7 @@
           <th ts-criteria="panel_name">Panel Name</th>
           <th ts-criteria="staining_name">Staining</th>
           <th ts-criteria="panel_description">Description</th>
+          <th ts-criteria="parent_panel_name">Parent Panel</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -42,7 +43,8 @@
           <td>{{ panel.panel_name }}</td>
           <td>{{ panel.staining_name }}</td>
           <td>{{ panel.panel_description }}</td>
-          <td width="60%">
+          <td>{{ panel.parent_panel_name }}</td>
+          <td width="50%">
             <a href ng-click="toggle_params($index)">Show/Hide</a>
             <div class="params" ng-show="expand_params[$index]">
               <table class="table table-bordered table-hover">
