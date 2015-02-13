@@ -1059,16 +1059,12 @@ class PanelTemplateFilter(django_filters.FilterSet):
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='project')
-    staining = django_filters.MultipleChoiceFilter(
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        name='staining')
 
     class Meta:
         model = PanelTemplate
         fields = [
             'project',
-            'panel_name',
-            'staining'
+            'panel_name'
         ]
 
 
@@ -1106,17 +1102,11 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
         # an atomic transaction
         try:
             project = Project.objects.get(id=data['project'])
-            if data['parent_panel']:
-                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
-            else:
-                parent_panel = None
 
             with transaction.atomic():
                 panel_template = PanelTemplate(
                     project=project,
                     panel_name=data['panel_name'],
-                    parent_panel=parent_panel,
-                    staining=data['staining'],
                     panel_description=data['panel_description']
                 )
                 panel_template.clean()
@@ -1182,16 +1172,10 @@ class PanelTemplateDetail(
         # an atomic transaction
         try:
             project = Project.objects.get(id=data['project'])
-            if data['parent_panel']:
-                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
-            else:
-                parent_panel = None
 
             with transaction.atomic():
                 panel_template.project = project
                 panel_template.panel_name = data['panel_name']
-                panel_template.parent_panel = parent_panel
-                panel_template.staining = data['staining']
                 panel_template.panel_description = data['panel_description']
 
                 panel_template.clean()
@@ -1301,9 +1285,6 @@ class SitePanelFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
-    panel_type = django_filters.MultipleChoiceFilter(
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        name='panel_template__staining')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='panel_template__project')
@@ -1319,7 +1300,6 @@ class SitePanelFilter(django_filters.FilterSet):
         model = SitePanel
         fields = [
             'site',
-            'panel_type',
             'panel_template',
             'project',
             'fluorochrome',

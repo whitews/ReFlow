@@ -111,15 +111,8 @@ class Fluorochrome(models.Model):
 PARAMETER_TYPE_CHOICES = (
     ('FSC', 'Forward Scatter'),
     ('SSC', 'Side Scatter'),
-    ('FCM', 'Fluorochrome Conjugated Marker'),
-    ('UNS', 'Unstained'),
-    ('ISO', 'Isotype Control'),
-    ('EXC', 'Exclusion'),
-    ('VIA', 'Viability'),
-    ('ICM', 'Isotope Conjugated Marker'),
-    ('TIM', 'Time'),
-    ('BEA', 'Bead'),
-    ('NUL', 'Null')
+    ('FLR', 'Fluorescence'),
+    ('TIM', 'Time')
 )
 
 PARAMETER_VALUE_TYPE_CHOICES = (
@@ -127,14 +120,6 @@ PARAMETER_VALUE_TYPE_CHOICES = (
     ('W', 'Width'),
     ('A', 'Area'),
     ('T', 'Time')
-)
-
-PANEL_TEMPLATE_TYPE_CHOICES = (
-    ('FS', 'Full Stain'),
-    ('US', 'Unstained'),
-    ('FM', 'Fluorescence Minus One'),
-    ('IS', 'Isotype Control'),
-    ('CB', 'Compensation Bead')
 )
 
 PRETREATMENT_CHOICES = (
@@ -397,15 +382,6 @@ class PanelTemplate(ProtectedModel):
         null=True,
         blank=True,
         help_text="A short description of the panel")
-    staining = models.CharField(
-        max_length=2,
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        null=False,
-        blank=False)
-    parent_panel = models.ForeignKey(
-        "self",
-        null=True,
-        blank=True)
 
     def has_view_permission(self, user):
 

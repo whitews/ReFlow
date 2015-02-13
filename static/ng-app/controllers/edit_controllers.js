@@ -291,13 +291,9 @@ app.controller(
                 );
             }
 
-            // everything but bead panels
-            var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
-
             $scope.panel_templates = ModelService.getPanelTemplates(
                 {
-                    'project': $scope.current_project.id,
-                    'staining': PANEL_TYPES
+                    'project': $scope.current_project.id
                 }
             );
 

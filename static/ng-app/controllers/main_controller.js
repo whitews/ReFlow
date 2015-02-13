@@ -365,8 +365,7 @@ app.controller(
             function init_filter () {
                 $scope.panels = ModelService.getPanelTemplates(
                     {
-                        'project': $scope.current_project.id,
-                        'staining': ['FS', 'US', 'FM', 'IS']
+                        'project': $scope.current_project.id
                     }
                 );
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(
@@ -572,8 +571,7 @@ app.controller(
             function init_filter () {
                 $scope.panels = ModelService.getPanelTemplates(
                     {
-                        'project': $scope.current_project.id,
-                        'staining': ['CB']
+                        'project': $scope.current_project.id
                     }
                 );
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(

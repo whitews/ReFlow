@@ -48,13 +48,7 @@ app.controller(
             Validations against the parent panel template:
                 - Ensure all panel template parameters are present
             */
-            var staining = $scope.site_panel_model.current_panel_template.staining;
-            if (staining != 'CB') {
-                $scope.site_panel_model.errors.push('You must choose a compensation bead template');
-                valid = false;
-                $scope.site_panel_model.site_panel_valid = valid;
-                return valid;
-            }
+
             var fluoro_duplicates = [];
 
             // reset all project param matches

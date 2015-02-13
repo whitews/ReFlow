@@ -7,7 +7,6 @@ from collections import Counter
 def validate_panel_template_request(data, user):
     """
     Validate the panel:
-        - Ensure project and parent_panel (if present) belong to same project
         - Ensure user has privileges to create panel template
         - No duplicate markers in a parameter
         - No fluorochromes in a scatter parameter
@@ -17,10 +16,6 @@ def validate_panel_template_request(data, user):
         - No duplicate side scatter + value type combinations
     """
     errors = {}
-    parent_template = None
-    staining = None
-    can_have_uns = None
-    can_have_iso = None
 
     try:
         project = Project.objects.get(id=data['project'])
@@ -33,61 +28,8 @@ def validate_panel_template_request(data, user):
         if not project.has_add_permission(user):
             errors['project'] = ["Project add permission required"]
 
-    if not 'staining' in data:
-        errors['staining'] = ["Staining is required"]
-    else:
-        staining = data['staining']
-
-    if 'parent_panel' in data:
-        if data['parent_panel']:  # may be None
-            try:
-                parent_template = PanelTemplate.objects.get(id=data['parent_panel'])
-            except ObjectDoesNotExist:
-                errors['parent_panel'] = ["Parent template does not exist"]
-
     if len(errors) > 0:
         return errors
-
-    if staining == 'FS' and parent_template:
-        errors['staining'] = ["Full stain templates cannot have parents"]
-    elif staining == 'FM':
-        if not parent_template:
-            errors['staining'] = ["FMO templates require full stain parent"]
-        elif parent_template.staining != 'FS':
-            errors['staining'] = ["FMO templates require full stain parent"]
-    elif staining == 'IS':
-        if not parent_template:
-            errors['staining'] = ["ISO templates require full stain parent"]
-        elif parent_template.staining != 'FS':
-            errors['staining'] = ["ISO templates require full stain parent"]
-    elif staining == 'CB':
-        if not parent_template:
-            errors['staining'] = [
-                "Compensation bead panels require a parent full stain panel"
-            ]
-        elif parent_template.staining != 'FS':
-            errors['staining'] = [
-                "Compensation bead panels require a parent full stain panel"
-            ]
-
-    # Parameter validation
-    if staining == 'FS':
-        can_have_uns = False
-        can_have_iso = False
-    elif staining == 'FM':
-        can_have_uns = True
-        can_have_iso = False
-    elif staining == 'IS':
-        can_have_uns = False
-        can_have_iso = True
-    elif staining == 'US':
-        can_have_uns = True
-        can_have_iso = False
-    elif staining == 'CB':
-        can_have_uns = False
-        can_have_iso = False
-    else:
-        errors['staining'] = ["Invalid staining type '%s'" % staining]
 
     # template must have parameters
     if not 'parameters' in data:
@@ -99,8 +41,6 @@ def validate_panel_template_request(data, user):
         return errors
 
     param_counter = Counter()
-    fmo_count = 0
-    iso_count = 0
     param_errors = []
     for param in data['parameters']:
         skip = False  # used for continuing to next loop iteration
@@ -132,34 +72,8 @@ def validate_panel_template_request(data, user):
 
         # validate param types
         param_type = param['parameter_type']
-        if param_type == 'UNS':
-            fmo_count += 1
-        if param_type == 'ISO':
-            iso_count += 1
 
-        if param_type == 'UNS' and not can_have_uns:
-            param_errors.append(
-                "Only FMO & Unstained panels can include an " +
-                "unstained parameter")
-        if param_type == 'ISO' and not can_have_iso:
-            param_errors.append(
-                "Only Isotype control panels can include an " +
-                "isotype control parameter")
-
-        # comp bead panels can only have scatter, bead, and time channels
-        if staining == 'CB':
-            if param_type not in ['FSC', 'SSC', 'BEA', 'TIME']:
-                param_errors.append(
-                    "Only scatter, bead, and time channels are allowed " +
-                    "in bead panels"
-                )
-            if len(marker_set) > 0:
-                param_errors.append(
-                    "Markers are not allowed in bead panels"
-                )
-
-        # value type is NOT required for panel templates,
-        # allows site panel implementations to have different values types
+        # value type is required for panel templates,
         value_type = param['parameter_value_type']
 
         # validate time channel, must have value type 'T', others cannot have
@@ -173,14 +87,10 @@ def validate_panel_template_request(data, user):
 
         fluorochrome_id = param['fluorochrome']
 
-        # exclusion must be a fluorescence channel
-        if param_type == 'EXC' and not fluorochrome_id:
+        # fluoroscence parameters must include a fluorochrome
+        if param_type == 'FLR' and not fluorochrome_id:
             param_errors.append(
-                "An exclusion channel must include a fluorochrome.")
-
-        if param_type == 'BEA' and not fluorochrome_id:
-            param_errors.append(
-                "A bead channel must include a fluorochrome.")
+                "An fluorescence channel must include a fluorochrome.")
 
         # check for fluoro or markers in scatter channels
         if param_type == 'FSC' or param_type == 'SSC':
@@ -190,15 +100,6 @@ def validate_panel_template_request(data, user):
             if len(marker_set) > 0:
                 param_errors.append(
                     "A scatter channel cannot have an marker.")
-
-        # check that fluoro-conj-ab channels specify either a fluoro or a
-        # marker. If the fluoro is absent it means the panel template
-        # allows flexibility in the site panel implementation.
-        if param_type == 'FCM':
-            if not fluorochrome_id and len(marker_set) == 0:
-                param_errors.append(
-                    "A fluorescence conjugated marker channel must " +
-                    "specify either a fluorochrome or a marker (or both).")
 
         # make a list of the combination for use in the Counter
         param_components = [param_type, value_type]
@@ -221,13 +122,6 @@ def validate_panel_template_request(data, user):
                 error_string += "(" + ", ".join(p) + ")"
         param_errors.append(error_string)
 
-    # make sure FMO templates have at least one FMO channel &
-    # ISO templates have at least one ISO channel
-    if staining == 'FM' and fmo_count <= 0:
-        param_errors.append("FMO templates require at least 1 FMO channel")
-    elif staining == 'IS' and iso_count <= 0:
-        param_errors.append("ISO templates require at least 1 ISO channel")
-
     if len(param_errors) > 0:
         errors['parameters'] = param_errors
     return errors
@@ -243,7 +137,7 @@ def validate_site_panel_request(data, user):
         - No duplicate markers in a parameter
         - No fluorochromes in a scatter parameter
         - No markers in a scatter parameter
-        - Fluoroscent parameter must specify a fluorochrome
+        - Fluorescent parameter must specify a fluorochrome
         - No duplicate fluorochrome + value type combinations
         - No duplicate forward scatter + value type combinations
         - No duplicate side scatter + value type combinations
@@ -251,7 +145,6 @@ def validate_site_panel_request(data, user):
     Bead panels have different validation, but a little simpler:
         - The can only contain FSC, SSC, BEA, and TIM params
         - Markers aren't allowed in any param
-        - they must have a parent bead template
 
     Returns a dictionary of errors, with key as error field and value is a
     list of error messages pertaining to that field.
@@ -261,8 +154,6 @@ def validate_site_panel_request(data, user):
     panel_template = None
     site = None
     user_sites = None
-    can_have_uns = None
-    can_have_iso = None
 
     if 'panel_template' in data:
         try:
@@ -286,7 +177,7 @@ def validate_site_panel_request(data, user):
         return errors
 
     # validate site is in user sites
-    if not site in user_sites:
+    if site not in user_sites:
         errors['site'] = [
             "You do not have permission to create panels for this site"]
 
@@ -296,25 +187,6 @@ def validate_site_panel_request(data, user):
 
     if len(errors) > 0:
         return errors
-
-    staining = panel_template.staining
-    if staining == 'FS':
-        can_have_uns = True
-        can_have_iso = False
-    elif staining == 'FM':
-        can_have_uns = True
-        can_have_iso = False
-    elif staining == 'IS':
-        can_have_uns = False
-        can_have_iso = True
-    elif staining == 'US':
-        can_have_uns = True
-        can_have_iso = False
-    elif staining == 'CB':
-        can_have_uns = False
-        can_have_iso = False
-    else:
-        errors['panel_template'] = ["Invalid staining type '%s'" % staining]
 
     # site panel must have parameters
     if not 'parameters' in data:
@@ -378,14 +250,7 @@ def validate_site_panel_request(data, user):
         param_type = param['parameter_type']
         if not param_type:
             param_errors.append("Function is required for all parameters")
-        if param_type == 'UNS' and not can_have_uns:
-            param_errors.append(
-                "Only Full Stain, FMO, & Unstained panels can " +
-                "include an unstained parameter")
-        if param_type == 'ISO' and not can_have_iso:
-            param_errors.append(
-                "Only Isotype control panels can include an " +
-                "isotype control parameter")
+
         if param_type == 'BEA' and len(marker_set) > 0:
             param_errors.append(
                 "Bead parameters cannot have markers")
@@ -397,10 +262,10 @@ def validate_site_panel_request(data, user):
 
         fluorochrome_id = param['fluorochrome']
 
-        # exclusion must be a fluorescence channel
-        if param_type == 'EXC' and not fluorochrome_id:
+        # fluorescence param must include a fluorochrome
+        if param_type == 'FLR' and not fluorochrome_id:
             param_errors.append(
-                "An exclusion channel must be a fluorescence channel")
+                "An fluorescence channel must include a fluorochrome")
 
         # exclusion must be a fluorescence channel
         if param_type == 'BEA' and not fluorochrome_id:
@@ -415,37 +280,6 @@ def validate_site_panel_request(data, user):
             if len(marker_set) > 0:
                 param_errors.append(
                     "A scatter channel cannot have a marker")
-
-        # check that fluoro conjugated ab channels specify either a
-        # fluoro OR marker OR both
-        if param_type == 'FCM':
-            if not fluorochrome_id or len(marker_set) == 0:
-                param_errors.append(
-                    "A fluorescence conjugated marker channel must " +
-                    "specify a fluorochrome and at least one marker")
-
-        # Unstained channels can't have a fluoro and must have an marker
-        if param_type == 'UNS':
-            if fluorochrome_id:
-                param_errors.append(
-                    "Unstained channels CANNOT " +
-                    "have a fluorochrome")
-            if len(marker_set) == 0:
-                param_errors.append(
-                    "Unstained channels " +
-                    "must specify at least one marker")
-
-        # Iso control & Viability channels must have a fluoro and
-        # can't have markers
-        if param_type == 'ISO':
-            if not fluorochrome_id:
-                param_errors.append(
-                    "Isotype control channels must " +
-                    "have a fluorochrome")
-            if len(marker_set) > 0:
-                param_errors.append(
-                    "Isotype control channels " +
-                    "CANNOT have any markers")
 
         # Time channels cannot have fluoros or markers, must have T value
         if param_type == 'TIM':
@@ -463,8 +297,8 @@ def validate_site_panel_request(data, user):
                     "must have a T value type")
 
         # make a list of the combination for use in the Counter
-        # but, unstained params aren't required to be unique
-        if param_type not in ['UNS', 'NUL']:
+        # ignoring null parameters
+        if param_type not in ['NUL']:
             param_components = [param_type, value_type]
             if fluorochrome_id:
                 param_components.append(fluorochrome_id)
