@@ -233,6 +233,30 @@ app.controller(
 ]);
 
 app.controller(
+    'StainingEditController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.staining_types = ModelService.getStainingTypes();
+
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+
+            var response = ModelService.createUpdateStainingClass(instance);
+
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.panelTemplatesUpdated();
+
+                // close modal
+                $scope.ok();
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
+
+app.controller(
     'SampleEditController',
     [
         '$scope',

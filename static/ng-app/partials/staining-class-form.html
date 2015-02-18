@@ -1,0 +1,37 @@
+<div ng-controller="StainingEditController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Create or Edit Subject
+  </div>
+  <div class="modal-body">
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Staining Type</label>
+      <select ng-model="instance.staining_type" ng-required="true" ng-options="s.abbreviation as s.name for s in staining_types">
+      </select>
+      <strong ng-show="errors.staining_type" class="help-inline text-danger">
+        {{ errors.staining_type.join(', ') }}
+      </strong>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-3 control-label">Name</label>
+      <input maxlength="128" type="text" ng-required="true" ng-model="instance.name" />
+      <strong ng-show="errors.name" class="help-inline text-danger">
+        {{ errors.name.join(', ') }}
+      </strong>
+    </div>
+
+    <div class="well well-warning" ng-show="errors.__all__">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-primary" ng-click="create_update(instance)">Save</button>
+  </div>
+</div>

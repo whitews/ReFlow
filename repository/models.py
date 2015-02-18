@@ -122,6 +122,13 @@ PARAMETER_VALUE_TYPE_CHOICES = (
     ('T', 'Time')
 )
 
+STAINING_CHOICES = (
+    ('FULL', 'Full Stain'),
+    ('FMO', 'Fluorescence Minus One'),
+    ('ISO', 'Isotype Control'),
+    ('UNS', 'Unstained')
+)
+
 PRETREATMENT_CHOICES = (
     ('In vitro', 'In vitro'),
     ('Ex vivo', 'Ex vivo')
@@ -536,6 +543,31 @@ class PanelTemplateParameterMarker(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.panel_template_parameter, self.marker)
+
+
+class StainingClass(ProtectedModel):
+    panel_template = models.ForeignKey(PanelTemplate)
+    staining_type = models.CharField(
+        max_length=4,
+        null=False,
+        blank=False,
+        choices=STAINING_CHOICES
+    )
+    name = models.CharField(
+        max_length=16,
+        null=False,
+        blank=False
+    )
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.panel_template.project):
+            return True
+
+        return False
+
+    def __unicode__(self):
+        return u'%s' % (self.name,)
 
 
 class SiteManager(models.Manager):
@@ -1316,6 +1348,7 @@ class Sample(ProtectedModel):
         Cytometer,
         null=False,
         blank=False)
+    staining = models.ForeignKey(StainingClass)
     acquisition_date = models.DateField(
         null=False,
         blank=False

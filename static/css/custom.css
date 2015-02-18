@@ -70,6 +70,10 @@ label {
   font-weight: 500;
 }
 
+.staining-label {
+  margin-right: 3px;
+}
+
 .lead {
   margin-bottom: 9px;
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;

@@ -16,7 +16,7 @@
         <tr>
           <th></th>
           <th ts-criteria="panel_name">Panel Name</th>
-          <th ts-criteria="staining_name">Staining</th>
+          <th ts-criteria="staining_name">Staining Classes</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -39,7 +39,19 @@
             </a>
           </td>
           <td>{{ panel.panel_name }}</td>
-          <td> Staining labels here </td>
+          <td>
+
+            <span class="staining-label btn btn-success btn-xs" ng-repeat="staining_class in panel.staining_classes">
+              {{ staining_class.staining_type }}-{{ staining_class.name }}
+              <a ng-show="current_project.permissions.can_modify_project" ng-click="init_form(staining_class, 'STAINING_CLASS_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+                <span style="color:white" class="fa fa-times align-middle"></span>
+              </a>
+            </span>
+
+            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_modify_project" ng-click="init_form({'panel_template': panel.id}, 'STAINING_CLASS')" tooltip="Add Staining Class" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-plus align-middle"></span>
+            </a>
+          </td>
           <td width="50%">
             <a href ng-click="toggle_params($index)">Show/Hide</a>
             <div class="params" ng-show="expand_params[$index]">

@@ -193,7 +193,8 @@ app.controller(
                 $scope.model.channels.forEach(function (channel) {
                     channel.errors = [];
                     // Function type is required for all channels
-                    if (!channel.function) {
+                    if (!channel.function || !channel.value_type) {
+                        channel.errors.push('All channels must specify a function and a value type')
                         valid = false;
                         $scope.model.template_valid = valid;
                         return valid;
@@ -237,9 +238,9 @@ app.controller(
                         }
                     } else if (channel.function == 'FLR') {
                         // fluoro conjugate channels must have a fluoro
-                        if (!channel.fluorochrome) {
+                        if (!channel.fluorochrome && channel.markers.length < 1) {
                             channel.errors.push("Fluorescence parameters must " +
-                        "specify a fluorochrome");
+                        "specify either a marker or a fluorochrome (or both)");
                         }
                     } else if (channel.function == 'BEA') {
                         // Bead channels must specify a fluoro but no marker

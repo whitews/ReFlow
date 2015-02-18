@@ -220,6 +220,30 @@ app.controller(
 );
 
 app.controller(
+    'StainingClassDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyStainingClass(instance);
+
+                response.$promise.then(function () {
+                    // notify to update panel template list
+                    ModelService.panelTemplatesUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'SitePanelDeleteController',
     [
         '$scope',

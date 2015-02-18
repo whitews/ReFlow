@@ -58,7 +58,7 @@
                 </ui-select>
             </td>
             <td>
-                <select class="form-control" ng-model="channel.fluorochrome" ng-show="channel.function == 'FLR'" ng-required="true" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
+                <select class="form-control" ng-model="channel.fluorochrome" ng-show="channel.function == 'FLR'" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
                   <option value=""></option>
                 </select>
             </td>

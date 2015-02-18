@@ -16,6 +16,7 @@ var URLS = {
     'SITES':               '/api/repository/sites/',
     'SUBJECTS':            '/api/repository/subjects/',
     'PANEL_TEMPLATES':     '/api/repository/panel_templates/',
+    'STAINING_CLASS':      '/api/repository/staining_classes/',
     'SITE_PANELS':         '/api/repository/site_panels/',
     'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
@@ -272,6 +273,15 @@ service
             }
         );
     }])
+    .factory('StainingClass', ['$resource', function ($resource) {
+        var StainingClass = $resource(
+            URLS.STAINING_CLASS + ':id',
+            {},
+            {}
+        );
+
+        return StainingClass;
+    }])
     .factory('SitePanel', ['$resource', function ($resource) {
         var SitePanel = $resource(
             URLS.SITE_PANELS + ':id',
@@ -401,6 +411,28 @@ service
     .service('Pretreatment', [ function () {
         this.query = function () {
             return [{name:'In vitro'}, {name:'Ex vivo'}];
+        };
+    }])
+    .service('StainingType', [ function () {
+        this.query = function () {
+            return [
+                {
+                    abbreviation: 'FULL',
+                    name: 'Full Stain'
+                },
+                {
+                    abbreviation: 'FMO',
+                    name: 'Fluorescence Minus One'
+                },
+                {
+                    abbreviation: 'ISO',
+                    name: 'Isotype Control'
+                },
+                {
+                    abbreviation: 'UNS',
+                    name: 'Unstained'
+                }
+            ];
         };
     }])
     .service('Storage', [ function () {

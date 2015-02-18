@@ -267,9 +267,38 @@ class PanelTemplateParameterSerializer(serializers.ModelSerializer):
             'fluorochrome_abbreviation')
 
 
+class StainingClassSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='staining-class-detail'
+    )
+    staining_type_name = serializers.CharField(
+        source="get_staining_type_display",
+        read_only=True
+    )
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
+
+    class Meta:
+        model = StainingClass
+        fields = (
+            'url',
+            'id',
+            'panel_template',
+            'staining_type',
+            'staining_type_name',
+            'name',
+            'sample_count'
+        )
+
+
 class PanelTemplateSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='panel-template-detail'
+    )
+    staining_classes = StainingClassSerializer(
+        source='stainingclass_set'
     )
     parameters = PanelTemplateParameterSerializer(
         source='paneltemplateparameter_set'
@@ -299,6 +328,7 @@ class PanelTemplateSerializer(serializers.ModelSerializer):
             'project',
             'panel_name',
             'panel_description',
+            'staining_classes',
             'parameters',
             'site_panel_count',
             'sample_count',

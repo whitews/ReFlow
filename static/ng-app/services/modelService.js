@@ -11,6 +11,7 @@ service.factory('ModelService', function(
         Specimen,
         Pretreatment,
         Storage,
+        StainingType,
         Worker,
         Project,
         ProjectUsers,
@@ -20,6 +21,7 @@ service.factory('ModelService', function(
         CellSubsetLabel,
         Stimulation,
         PanelTemplate,
+        StainingClass,
         Site,
         Cytometer,
         SitePanel,
@@ -90,7 +92,6 @@ service.factory('ModelService', function(
     service.destroyUserPermission = function (instance) {
         return UserPermissions.delete({id: instance.id });
     };
-    
 
     // Specimen services
     service.specimensUpdated = function () {
@@ -224,6 +225,11 @@ service.factory('ModelService', function(
     // Storage services
     service.getStorages = function() {
         return Storage.query({});
+    };
+
+    // StainingType services
+    service.getStainingTypes = function() {
+        return StainingType.query({});
     };
 
     // Project services
@@ -448,6 +454,21 @@ service.factory('ModelService', function(
     };
     service.getCurrentPanelTemplate = function () {
         return this.current_panel_template;
+    };
+    
+    // StainingClass services
+    service.createUpdateStainingClass = function(instance) {
+        if (instance.id) {
+            return StainingClass.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return StainingClass.save(instance);
+        }
+    };
+    service.destroyStainingClass = function (instance) {
+        return StainingClass.delete({id: instance.id });
     };
     
     // Site services

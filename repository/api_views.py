@@ -59,6 +59,7 @@ def repository_api_root(request):
         'create_beads': reverse('create-bead-list', request=request),
         'compensations': reverse('compensation-list', request=request),
         'panel-templates': reverse('panel-template-list', request=request),
+        'staining-classes': reverse('staining-class-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
         'markers': reverse('marker-list', request=request),
@@ -996,7 +997,7 @@ class SubjectGroupDetail(
 
 class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of panels.
+    API endpoint representing a list of subjects.
     """
 
     model = Subject
@@ -1220,6 +1221,63 @@ class PanelTemplateDetail(
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(PanelTemplateDetail, self).delete(request, *args, **kwargs)
+
+
+class StainingClassList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of staining classes.
+    """
+
+    model = StainingClass
+    serializer_class = StainingClassSerializer
+    filter_fields = ('panel_template', 'staining_type', 'name')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects
+        to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+
+        # filter on user's projects
+        queryset = StainingClass.objects.filter(panel_template__project__in=user_projects)
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        panel_template = PanelTemplate.objects.get(id=request.DATA['panel_template'])
+        if not panel_template.project.has_add_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(StainingClassList, self).post(request, *args, **kwargs)
+        return response
+
+
+class StainingClassDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint representing a single subject.
+    """
+
+    model = StainingClass
+    serializer_class = StainingClassSerializer
+
+    def put(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        staining_class = StainingClass.objects.get(id=kwargs['pk'])
+        if not staining_class.panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(StainingClassDetail, self).delete(request, *args, **kwargs)
 
 
 class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
