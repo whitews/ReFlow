@@ -277,7 +277,9 @@ service
         var StainingClass = $resource(
             URLS.STAINING_CLASS + ':id',
             {},
-            {}
+            {
+                update: { method: 'PUT' }
+            }
         );
 
         return StainingClass;

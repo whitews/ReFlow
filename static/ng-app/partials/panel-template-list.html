@@ -43,6 +43,11 @@
 
             <span class="staining-label btn btn-success btn-xs" ng-repeat="staining_class in panel.staining_classes">
               {{ staining_class.staining_type }}-{{ staining_class.name }}
+
+              <a ng-show="current_project.permissions.can_modify_project" ng-click="init_form(staining_class, 'STAINING_CLASS')" tooltip="Edit" tooltip-placement="bottom">
+                <span style="color:white" class="fa fa-pencil align-middle"></span>
+              </a>
+
               <a ng-show="current_project.permissions.can_modify_project" ng-click="init_form(staining_class, 'STAINING_CLASS_DELETE')" tooltip="Delete" tooltip-placement="bottom">
                 <span style="color:white" class="fa fa-times align-middle"></span>
               </a>

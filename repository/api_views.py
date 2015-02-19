@@ -1267,7 +1267,11 @@ class StainingClassDetail(
     serializer_class = StainingClassSerializer
 
     def put(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+        staining_class = StainingClass.objects.get(id=kwargs['pk'])
+        if not staining_class.panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(StainingClassDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
