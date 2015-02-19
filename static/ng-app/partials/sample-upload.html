@@ -25,15 +25,24 @@
                     </div>
                   </td>
               </tr>
+
+              <div ng-controller="PanelTemplateQueryController">
               <tr>
-                  <td><strong>Panel:</strong></td>
+                  <td><strong>Panel Template:</strong></td>
                   <td>
-                    <div ng-controller="PanelTemplateQueryController">
                       <select class="form-control" ng-model="sample_upload_model.current_panel_template" ng-required="true" ng-change="panelChanged()" ng-options="p.panel_name for p in sample_upload_model.panel_templates">
                       </select>
-                    </div>
                   </td>
               </tr>
+              <tr>
+                  <td><strong>Panel Variant:</strong></td>
+                  <td>
+                      <select class="form-control" ng-model="sample_upload_model.current_panel_variant" ng-disabled="sample_upload_model.current_panel_template == null || sample_upload_model.current_panel_template.panel_variants.length == 0" ng-required="true" ng-options="v.staining_type + (v.name==null ? '' : ' ' + v.name) for v in sample_upload_model.current_panel_template.panel_variants">
+                      </select>
+                  </td>
+              </tr>
+              </div>
+
               <tr>
                   <td><strong>Subject:</strong></td>
                   <td>
@@ -253,7 +262,7 @@
                 <div class="modal-body">
                     <div class="text-warning">
                       <ul>
-                        <li data-ng-repeat="error in file.errors" data-ng-bind-html="error.value">{{ error.key }}: {{ error.value }}</li>
+                        <li data-ng-repeat="error in file.errors">{{ error.key }}: {{ error.value }}</li>
                       </ul>
                     </div>
                 </div>
@@ -333,7 +342,12 @@
             </li>
           </td>
           <td>{{ f.acquisition_date | date }}</td>
-          <td>{{ f.site_panel.name }}</td>
+          <td>
+            {{ f.site_panel.name }}
+            <i class="btn btn-xs btn-success">
+              {{ f.panel_variant.staining_type + (f.panel_variant.name == null ? '' : ' ' + f.panel_variant.name) }}
+            </i>
+          </td>
           <td>{{ f.subject.subject_code }}</td>
           <td>{{ f.visit_type.visit_type_name }}</td>
           <td>{{ f.stimulation.stimulation_name }}</td>

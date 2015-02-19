@@ -100,6 +100,7 @@ app.controller(
         function verifyCategories() {
             return $scope.sample_upload_model.current_cytometer &&
                 $scope.sample_upload_model.current_panel_template &&
+                $scope.sample_upload_model.current_panel_variant &&
                 $scope.sample_upload_model.current_subject &&
                 $scope.sample_upload_model.current_visit &&
                 $scope.sample_upload_model.current_stimulation &&
@@ -370,6 +371,7 @@ app.controller(
                     uploading: false,
                     uploaded: false,
                     acquisition_date: null,
+                    panel_variant: null,
                     site_panel: null,
                     cytometer: null,
                     subject: null,
@@ -396,6 +398,7 @@ app.controller(
                     }
 
                     // populate the file object properties
+                    $scope.sample_upload_model.file_queue[i].panel_variant = $scope.sample_upload_model.current_panel_variant;
                     $scope.sample_upload_model.file_queue[i].cytometer = $scope.sample_upload_model.current_cytometer;
                     $scope.sample_upload_model.file_queue[i].subject = $scope.sample_upload_model.current_subject;
                     $scope.sample_upload_model.file_queue[i].visit_type = $scope.sample_upload_model.current_visit;
@@ -458,6 +461,7 @@ app.controller(
             f.specimen = null;
             f.pretreatment = null;
             f.storage = null;
+            f.panel_variant = null;
 
             // reset site panel and de-select. this is necessary b/c a different
             // panel template than this site panel's parent may now be chosen
@@ -508,6 +512,7 @@ app.controller(
                 ! $scope.sample_upload_model.upload_queue[index].storage ||
                 ! $scope.sample_upload_model.upload_queue[index].stimulation ||
                 ! $scope.sample_upload_model.upload_queue[index].site_panel ||
+                ! $scope.sample_upload_model.upload_queue[index].panel_variant ||
                 ! $scope.sample_upload_model.upload_queue[index].cytometer ||
                 ! $scope.sample_upload_model.upload_queue[index].acquisition_date)
             {
@@ -535,6 +540,7 @@ app.controller(
                     'pretreatment': $scope.sample_upload_model.upload_queue[index].pretreatment.name,
                     'storage': $scope.sample_upload_model.upload_queue[index].storage.name,
                     'stimulation': $scope.sample_upload_model.upload_queue[index].stimulation.id,
+                    'panel_variant': $scope.sample_upload_model.upload_queue[index].panel_variant.id,
                     'site_panel': $scope.sample_upload_model.upload_queue[index].site_panel.id,
                     'cytometer': $scope.sample_upload_model.upload_queue[index].cytometer.id,
                     'acquisition_date':
