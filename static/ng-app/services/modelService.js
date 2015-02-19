@@ -21,7 +21,7 @@ service.factory('ModelService', function(
         CellSubsetLabel,
         Stimulation,
         PanelTemplate,
-        StainingClass,
+        PanelVariant,
         Site,
         Cytometer,
         SitePanel,
@@ -456,19 +456,19 @@ service.factory('ModelService', function(
         return this.current_panel_template;
     };
     
-    // StainingClass services
-    service.createUpdateStainingClass = function(instance) {
+    // PanelVariant services
+    service.createUpdatePanelVariant = function(instance) {
         if (instance.id) {
-            return StainingClass.update(
+            return PanelVariant.update(
                 {id: instance.id },
                 instance
             );
         } else {
-            return StainingClass.save(instance);
+            return PanelVariant.save(instance);
         }
     };
-    service.destroyStainingClass = function (instance) {
-        return StainingClass.delete({id: instance.id });
+    service.destroyPanelVariant = function (instance) {
+        return PanelVariant.delete({id: instance.id });
     };
     
     // Site services

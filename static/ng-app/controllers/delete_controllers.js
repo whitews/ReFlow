@@ -220,13 +220,13 @@ app.controller(
 );
 
 app.controller(
-    'StainingClassDeleteController',
+    'PanelVariantDeleteController',
     [
         '$scope',
         'ModelService',
         function ($scope, ModelService) {
             $scope.destroy = function (instance) {
-                var response = ModelService.destroyStainingClass(instance);
+                var response = ModelService.destroyPanelVariant(instance);
 
                 response.$promise.then(function () {
                     // notify to update panel template list

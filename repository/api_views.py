@@ -59,7 +59,7 @@ def repository_api_root(request):
         'create_beads': reverse('create-bead-list', request=request),
         'compensations': reverse('compensation-list', request=request),
         'panel-templates': reverse('panel-template-list', request=request),
-        'staining-classes': reverse('staining-class-list', request=request),
+        'panel-variants': reverse('panel-variant-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
         'markers': reverse('marker-list', request=request),
@@ -1223,13 +1223,13 @@ class PanelTemplateDetail(
         return super(PanelTemplateDetail, self).delete(request, *args, **kwargs)
 
 
-class StainingClassList(LoginRequiredMixin, generics.ListCreateAPIView):
+class PanelVariantList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of staining classes.
+    API endpoint representing a list of panel variants.
     """
 
-    model = StainingClass
-    serializer_class = StainingClassSerializer
+    model = PanelVariant
+    serializer_class = PanelVariantSerializer
     filter_fields = ('panel_template', 'staining_type', 'name')
 
     def get_queryset(self):
@@ -1242,7 +1242,7 @@ class StainingClassList(LoginRequiredMixin, generics.ListCreateAPIView):
             self.request.user)
 
         # filter on user's projects
-        queryset = StainingClass.objects.filter(panel_template__project__in=user_projects)
+        queryset = PanelVariant.objects.filter(panel_template__project__in=user_projects)
 
         return queryset
 
@@ -1251,11 +1251,11 @@ class StainingClassList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not panel_template.project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        response = super(StainingClassList, self).post(request, *args, **kwargs)
+        response = super(PanelVariantList, self).post(request, *args, **kwargs)
         return response
 
 
-class StainingClassDetail(
+class PanelVariantDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
         generics.RetrieveUpdateDestroyAPIView):
@@ -1263,25 +1263,25 @@ class StainingClassDetail(
     API endpoint representing a single subject.
     """
 
-    model = StainingClass
-    serializer_class = StainingClassSerializer
+    model = PanelVariant
+    serializer_class = PanelVariantSerializer
 
     def put(self, request, *args, **kwargs):
-        staining_class = StainingClass.objects.get(id=kwargs['pk'])
-        if not staining_class.panel_template.project.has_modify_permission(request.user):
+        panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
+        if not panel_variant.panel_template.project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return super(StainingClassDetail, self).put(request, *args, **kwargs)
+        return super(PanelVariantDetail, self).put(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def delete(self, request, *args, **kwargs):
-        staining_class = StainingClass.objects.get(id=kwargs['pk'])
-        if not staining_class.panel_template.project.has_modify_permission(request.user):
+        panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
+        if not panel_variant.panel_template.project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return super(StainingClassDetail, self).delete(request, *args, **kwargs)
+        return super(PanelVariantDetail, self).delete(request, *args, **kwargs)
 
 
 class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):

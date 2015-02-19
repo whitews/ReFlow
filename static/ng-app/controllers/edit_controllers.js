@@ -233,14 +233,14 @@ app.controller(
 ]);
 
 app.controller(
-    'StainingEditController',
+    'PanelVariantEditController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
         $scope.staining_types = ModelService.getStainingTypes();
 
         $scope.create_update = function (instance) {
             $scope.errors = [];
 
-            var response = ModelService.createUpdateStainingClass(instance);
+            var response = ModelService.createUpdatePanelVariant(instance);
 
             response.$promise.then(function () {
                 // notify to update list

@@ -1,20 +1,20 @@
-<div ng-controller="StainingClassDeleteController">
+<div ng-controller="PanelVariantDeleteController">
   <div class="modal-header">
     <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
-    Delete Staining Class: {{ instance.name }}
+    Delete Panel Variant: {{ instance.name }}
   </div>
   <div class="modal-body">
 
-    <h4>Are you sure you want to delete this staining class?</h4>
+    <h4>Are you sure you want to delete this panel variant?</h4>
 
     <div class="well well-info">
       <ul>
         <li ng-show="instance.sample_count > 0">
-          {{ instance.sample_count }} sample(s) belong to this staining class. These
-          <strong>WILL</strong> be deleted if you delete this staining class.
+          {{ instance.sample_count }} sample(s) belong to this panel variant. These
+          <strong>WILL</strong> be deleted if you delete this panel variant.
         </li>
         <li ng-show="instance.sample_count == 0">
-          There are no regular FCS samples that belong to this staining class.
+          There are no regular FCS samples that belong to this panel variant.
         </li>
       </ul>
     </div>

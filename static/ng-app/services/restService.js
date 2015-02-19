@@ -16,7 +16,7 @@ var URLS = {
     'SITES':               '/api/repository/sites/',
     'SUBJECTS':            '/api/repository/subjects/',
     'PANEL_TEMPLATES':     '/api/repository/panel_templates/',
-    'STAINING_CLASS':      '/api/repository/staining_classes/',
+    'PANEL_VARIANT':       '/api/repository/panel_variants/',
     'SITE_PANELS':         '/api/repository/site_panels/',
     'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
@@ -273,16 +273,16 @@ service
             }
         );
     }])
-    .factory('StainingClass', ['$resource', function ($resource) {
-        var StainingClass = $resource(
-            URLS.STAINING_CLASS + ':id',
+    .factory('PanelVariant', ['$resource', function ($resource) {
+        var PanelVariant = $resource(
+            URLS.PANEL_VARIANT + ':id',
             {},
             {
                 update: { method: 'PUT' }
             }
         );
 
-        return StainingClass;
+        return PanelVariant;
     }])
     .factory('SitePanel', ['$resource', function ($resource) {
         var SitePanel = $resource(

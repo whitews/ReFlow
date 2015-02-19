@@ -545,7 +545,7 @@ class PanelTemplateParameterMarker(models.Model):
         return u'%s: %s' % (self.panel_template_parameter, self.marker)
 
 
-class StainingClass(ProtectedModel):
+class PanelVariant(ProtectedModel):
     panel_template = models.ForeignKey(PanelTemplate)
     staining_type = models.CharField(
         max_length=4,
@@ -1348,7 +1348,7 @@ class Sample(ProtectedModel):
         Cytometer,
         null=False,
         blank=False)
-    staining = models.ForeignKey(StainingClass)
+    panel_variant = models.ForeignKey(PanelVariant)
     acquisition_date = models.DateField(
         null=False,
         blank=False
