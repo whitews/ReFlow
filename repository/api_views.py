@@ -1131,6 +1131,13 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                             panel_template_parameter=ppp,
                             marker=Marker.objects.get(id=marker)
                         )
+
+                # by default, every panel template gets a full stain variant
+                PanelVariant.objects.create(
+                    panel_template=panel_template,
+                    staining_type = 'FULL'
+                )
+
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
