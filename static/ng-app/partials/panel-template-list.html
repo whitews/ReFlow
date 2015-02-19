@@ -42,7 +42,7 @@
           <td>
 
             <span class="panel-variant-label btn btn-success btn-xs" ng-repeat="variant in panel.panel_variants">
-              {{ variant.staining_type }}-{{ variant.name }}
+              {{ variant.staining_type }} {{ variant.name }}
 
               <a ng-show="current_project.permissions.can_modify_project" ng-click="init_form(variant, 'PANEL_VARIANT')" tooltip="Edit" tooltip-placement="bottom">
                 <span style="color:white" class="fa fa-pencil align-middle"></span>

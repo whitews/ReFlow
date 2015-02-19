@@ -554,9 +554,9 @@ class PanelVariant(ProtectedModel):
         choices=STAINING_CHOICES
     )
     name = models.CharField(
-        max_length=16,
-        null=False,
-        blank=False
+        max_length=32,
+        null=True,
+        blank=True
     )
 
     def has_view_permission(self, user):
