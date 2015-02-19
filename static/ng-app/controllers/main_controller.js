@@ -389,10 +389,17 @@ app.controller(
                 $scope.errors = [];
 
                 var panels = [];
+                var panel_variants = [];
                 $scope.panels.forEach(function (p) {
                     if (p.query) {
                         panels.push(p.id);
                     }
+
+                    p.panel_variants.forEach(function (v) {
+                        if (v.query) {
+                            panel_variants.push(v.id);
+                        }
+                    });
                 });
 
                 var subject_groups = [];
@@ -434,6 +441,7 @@ app.controller(
                     {
                         'project': $scope.current_project.id,
                         'panel': panels,
+                        'panel_variant': panel_variants,
                         'subject_group': subject_groups,
                         'subject': subjects,
                         'site': sites,

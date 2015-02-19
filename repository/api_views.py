@@ -1829,6 +1829,8 @@ class SampleFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site_panel__site')
+    panel_variant = django_filters.ModelMultipleChoiceFilter(
+        queryset=PanelVariant.objects.all())
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
     cytometer = django_filters.ModelMultipleChoiceFilter(

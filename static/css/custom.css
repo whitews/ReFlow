@@ -454,6 +454,11 @@ form.unstyled-checkboxes > ul > li > label {
 form.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
     margin: 0px !important;
 }
+form.unstyled-checkboxes > ul > li > ul {
+    list-style-type: none;
+    margin: 3px 0px 6px 18px;
+    padding: 0;
+}
 
 .selected {
     font-weight: bold;
