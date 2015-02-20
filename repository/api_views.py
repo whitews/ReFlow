@@ -1568,24 +1568,39 @@ class CytometerDetail(
         return super(CytometerDetail, self).delete(request, *args, **kwargs)
 
 
-class MarkerList(generics.ListCreateAPIView):
+class MarkerList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of flow cytometry markers.
+    API endpoint representing a list of markers.
     """
 
     model = Marker
     serializer_class = MarkerSerializer
-    filter_fields = ('marker_abbreviation', 'marker_name')
+    filter_fields = ('project', 'marker_abbreviation')
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = Marker.objects.filter(project__in=user_projects)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerList, self).post(request, *args, **kwargs)
         return response
 
 
-class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
+class MarkerDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single marker.
     """
@@ -1594,28 +1609,28 @@ class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MarkerSerializer
 
     def put(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
-            Marker.objects.get(id=kwargs['pk'])
+            marker = Marker.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not marker.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerDetail, self).put(request, *args, **kwargs)
         return response
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
-    
-    def delete(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
 
+    def delete(self, request, *args, **kwargs):
         try:
             marker = Marker.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not marker.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         if marker.sitepanelparametermarker_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -1624,24 +1639,39 @@ class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
         return response
 
 
-class FluorochromeList(generics.ListCreateAPIView):
+class FluorochromeList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of flow cytometry fluorochromes.
+    API endpoint representing a list of fluorochromes.
     """
 
     model = Fluorochrome
     serializer_class = FluorochromeSerializer
-    filter_fields = ('fluorochrome_abbreviation', 'fluorochrome_name')
+    filter_fields = ('project', 'fluorochrome_abbreviation')
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = Fluorochrome.objects.filter(project__in=user_projects)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeList, self).post(request, *args, **kwargs)
         return response
 
 
-class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
+class FluorochromeDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single fluorochrome.
     """
@@ -1650,13 +1680,13 @@ class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FluorochromeSerializer
 
     def put(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
-            Fluorochrome.objects.get(id=kwargs['pk'])
+            fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not fluorochrome.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeDetail, self).put(request, *args, **kwargs)
         return response
@@ -1665,13 +1695,13 @@ class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def delete(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
             fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not fluorochrome.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         if fluorochrome.sitepanelparameter_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)

@@ -63,49 +63,6 @@ class Specimen(models.Model):
         return u'%s' % self.specimen_name
 
 
-class Marker(models.Model):
-    marker_abbreviation = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=32)
-    marker_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128)
-    marker_description = models.TextField(
-        null=True,
-        blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.marker_abbreviation
-
-    class Meta:
-        verbose_name_plural = 'Markers'
-        ordering = ['marker_abbreviation']
-
-
-class Fluorochrome(models.Model):
-    fluorochrome_abbreviation = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=32)
-    fluorochrome_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128)
-    fluorochrome_description = models.TextField(null=True, blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.fluorochrome_abbreviation
-
-    class Meta:
-        ordering = ['fluorochrome_abbreviation']
-
-
 PARAMETER_TYPE_CHOICES = (
     ('FSC', 'Forward Scatter'),
     ('SSC', 'Side Scatter'),
@@ -279,6 +236,60 @@ class Project(ProtectedModel):
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
+
+
+class Marker(ProtectedModel):
+    project = models.ForeignKey(Project)
+    marker_abbreviation = models.CharField(
+        null=False,
+        blank=False,
+        max_length=32
+    )
+
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
+    def __unicode__(self):
+        return u'%s' % self.marker_abbreviation
+
+    class Meta:
+        unique_together = (('project', 'marker_abbreviation'),)
+        ordering = ['marker_abbreviation']
+
+
+class Fluorochrome(ProtectedModel):
+    project = models.ForeignKey(Project)
+    fluorochrome_abbreviation = models.CharField(
+        null=False,
+        blank=False,
+        max_length=32
+    )
+
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
+    def __unicode__(self):
+        return u'%s' % self.fluorochrome_abbreviation
+
+    class Meta:
+        unique_together = (('project', 'fluorochrome_abbreviation'),)
+        ordering = ['fluorochrome_abbreviation']
 
 
 class CellSubsetLabel(ProtectedModel):
