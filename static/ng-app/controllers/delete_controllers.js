@@ -26,6 +26,54 @@ app.controller(
 );
 
 app.controller(
+    'MarkerDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyMarker(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.markersUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'FluorochromeDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyFluorochrome(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.fluorochromesUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'SampleDeleteController',
     [
         '$scope',

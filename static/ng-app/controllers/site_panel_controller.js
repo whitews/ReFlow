@@ -60,8 +60,8 @@ app.controller(
         $scope.site_panel_model.site_panel_sample = ModelService.getCurrentSample();
         $scope.site_panel_model.current_panel_template = ModelService.getCurrentPanelTemplate();
 
-        $scope.site_panel_model.markers = ModelService.getMarkers();
-        $scope.site_panel_model.fluorochromes = ModelService.getFluorochromes();
+        $scope.site_panel_model.markers = ModelService.getMarkers(ModelService.current_project.id);
+        $scope.site_panel_model.fluorochromes = ModelService.getFluorochromes(ModelService.current_project.id);
 
         // everything but bead functions
         // TODO: convert to ModelService call

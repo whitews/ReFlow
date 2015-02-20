@@ -73,6 +73,70 @@ app.controller(
 );
 
 app.controller(
+    'MarkerController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('markers:updated', function () {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
+    'FluorochromeController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('fluorochromes:updated', function () {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
     'SubjectGroupController',
     [
         '$scope',

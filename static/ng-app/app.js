@@ -132,32 +132,6 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
             ncyBreadcrumbLabel: 'Specimens'
         }
     }).state({
-        name: 'marker-list',
-        parent: 'admin',
-        url: 'markers/',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/marker-list.html',
-                controller: 'MarkerController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Markers'
-        }
-    }).state({
-        name: 'fluorochrome-list',
-        parent: 'admin',
-        url: 'fluorochromes/',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/fluorochrome-list.html',
-                controller: 'FluorochromeController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Fluorochromes'
-        }
-    }).state({
         name: 'user-list',
         parent: 'admin',
         url: 'users/',
@@ -195,6 +169,32 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: '{{current_project.project_name}}'
+        }
+    }).state({
+        name: 'marker-list',
+        parent: 'project-detail',
+        url: '/markers/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/marker-list.html',
+                controller: 'MarkerController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Markers'
+        }
+    }).state({
+        name: 'fluorochrome-list',
+        parent: 'project-detail',
+        url: '/fluorochromes/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/fluorochrome-list.html',
+                controller: 'FluorochromeController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Fluorochromes'
         }
     }).state({
         name: 'process-request-list',

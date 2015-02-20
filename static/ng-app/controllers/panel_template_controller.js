@@ -83,8 +83,8 @@ app.controller(
             $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.model = {};
-            $scope.model.markers = ModelService.getMarkers();
-            $scope.model.fluorochromes = ModelService.getFluorochromes();
+            $scope.model.markers = ModelService.getMarkers($scope.current_project.id);
+            $scope.model.fluorochromes = ModelService.getFluorochromes($scope.current_project.id);
             $scope.model.parameter_value_types = ModelService.getParameterValueTypes();
 
             // everything but bead functions
