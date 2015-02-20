@@ -12,12 +12,10 @@ from django.core.exceptions import \
     ObjectDoesNotExist, \
     MultipleObjectsReturned
 from django.core.files import File
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from guardian.shortcuts import \
     get_perms, get_objects_for_user, get_users_with_perms
-from guardian.models import UserObjectPermission
 from rest_framework.authtoken.models import Token
 
 import flowio
