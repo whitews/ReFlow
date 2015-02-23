@@ -16,8 +16,7 @@
         <tr>
           <th></th>
           <th ts-criteria="panel_name">Panel Name</th>
-          <th ts-criteria="staining_name">Staining</th>
-          <th ts-criteria="parent_panel_name">Parent Panel</th>
+          <th ts-criteria="panel_variants">Panel Variants</th>
           <th>
             Parameters
             <span class="pull-right">
@@ -40,8 +39,24 @@
             </a>
           </td>
           <td>{{ panel.panel_name }}</td>
-          <td>{{ panel.staining_name }}</td>
-          <td>{{ panel.parent_panel_name }}</td>
+          <td>
+
+            <span class="panel-variant-label btn btn-success btn-xs" ng-repeat="variant in panel.panel_variants">
+              {{ variant.staining_type }} {{ variant.name }}
+
+              <a ng-show="current_project.permissions.can_modify_project" ng-click="init_form(variant, 'PANEL_VARIANT')" tooltip="Edit" tooltip-placement="bottom">
+                <span style="color:white" class="fa fa-pencil align-middle"></span>
+              </a>
+
+              <a ng-show="current_project.permissions.can_modify_project" ng-click="init_form(variant, 'PANEL_VARIANT_DELETE')" tooltip="Delete" tooltip-placement="bottom">
+                <span style="color:white" class="fa fa-times align-middle"></span>
+              </a>
+            </span>
+
+            <a class="btn btn-default btn-xs" ng-show="current_project.permissions.can_modify_project" ng-click="init_form({'panel_template': panel.id}, 'PANEL_VARIANT')" tooltip="Add Panel Variant" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-plus align-middle"></span>
+            </a>
+          </td>
           <td width="50%">
             <a href ng-click="toggle_params($index)">Show/Hide</a>
             <div class="params" ng-show="expand_params[$index]">

@@ -1,14 +1,11 @@
 app.controller(
     'BeadPanelTemplateQueryController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
-        // only bead panels
-        var PANEL_TYPES = ['CB'];
 
         // get panel templates
         $scope.sample_upload_model.panel_templates = ModelService.getPanelTemplates(
             {
-                project: $scope.current_project.id,
-                staining: PANEL_TYPES
+                project: $scope.current_project.id
             }
         );
 
@@ -30,8 +27,7 @@ app.controller(
 
         $scope.$on('site_panels:updated', function () {
             var site_panel_query = {
-                project: $scope.current_project.id,
-                panel_type: PANEL_TYPES
+                project: $scope.current_project.id
             };
 
             if ($scope.sample_upload_model.current_panel_template) {

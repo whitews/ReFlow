@@ -39,6 +39,16 @@
                   <input type="checkbox" ng-model="p.query" />
                   {{ p.panel_name }}
                 </label>
+
+                <ul>
+                  <li ng-repeat="v in p.panel_variants">
+                    <label>
+                      <input type="checkbox" ng-model="v.query" />
+                      {{ v.staining_type + (v.name == null ? '' : ' ' + v.name) }}
+                    </label>
+                  </li>
+                </ul>
+
               </li>
             </ul>
 

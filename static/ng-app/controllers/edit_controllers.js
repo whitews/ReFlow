@@ -33,6 +33,58 @@ app.controller(
 );
 
 app.controller(
+    'MarkerEditController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
+
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
+            var response = ModelService.createUpdateMarker(instance);
+
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.markersUpdated();
+
+                // close modal
+                $scope.ok();
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+        }
+]);
+
+app.controller(
+    'FluorochromeEditController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.current_project = ModelService.current_project;
+
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+            if (!instance.id) {
+                instance.project = $scope.current_project.id;
+            }
+            var response = ModelService.createUpdateFluorochrome(instance);
+
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.fluorochromesUpdated();
+
+                // close modal
+                $scope.ok();
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
+
+app.controller(
     'SubjectGroupEditController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
         $scope.current_project = ModelService.current_project;
@@ -233,6 +285,30 @@ app.controller(
 ]);
 
 app.controller(
+    'PanelVariantEditController',
+    ['$scope', 'ModelService', function ($scope, ModelService) {
+        $scope.staining_types = ModelService.getStainingTypes();
+
+        $scope.create_update = function (instance) {
+            $scope.errors = [];
+
+            var response = ModelService.createUpdatePanelVariant(instance);
+
+            response.$promise.then(function () {
+                // notify to update list
+                ModelService.panelTemplatesUpdated();
+
+                // close modal
+                $scope.ok();
+
+            }, function (error) {
+                $scope.errors = error.data;
+            });
+        };
+    }
+]);
+
+app.controller(
     'SampleEditController',
     [
         '$scope',
@@ -291,13 +367,9 @@ app.controller(
                 );
             }
 
-            // everything but bead panels
-            var PANEL_TYPES = ['FS', 'US', 'FM', 'IS'];
-
             $scope.panel_templates = ModelService.getPanelTemplates(
                 {
-                    'project': $scope.current_project.id,
-                    'staining': PANEL_TYPES
+                    'project': $scope.current_project.id
                 }
             );
 

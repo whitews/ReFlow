@@ -11,6 +11,7 @@ service.factory('ModelService', function(
         Specimen,
         Pretreatment,
         Storage,
+        StainingType,
         Worker,
         Project,
         ProjectUsers,
@@ -20,6 +21,7 @@ service.factory('ModelService', function(
         CellSubsetLabel,
         Stimulation,
         PanelTemplate,
+        PanelVariant,
         Site,
         Cytometer,
         SitePanel,
@@ -90,7 +92,6 @@ service.factory('ModelService', function(
     service.destroyUserPermission = function (instance) {
         return UserPermissions.delete({id: instance.id });
     };
-    
 
     // Specimen services
     service.specimensUpdated = function () {
@@ -121,48 +122,6 @@ service.factory('ModelService', function(
     // Parameter Value Type services
     service.getParameterValueTypes = function() {
         return ParameterValueType.query({});
-    };
-    
-    // Marker services
-    service.markersUpdated = function () {
-        $rootScope.$broadcast('markers:updated');
-    };
-    service.getMarkers = function() {
-        return Marker.query({});
-    };
-    service.createUpdateMarker = function(instance) {
-        if (instance.id) {
-            return Marker.update(
-                {id: instance.id },
-                instance
-            );
-        } else {
-            return Marker.save(instance);
-        }
-    };
-    service.destroyMarker = function (instance) {
-        return Marker.delete({id: instance.id });
-    };
-    
-    // Fluorochrome services
-    service.fluorochromesUpdated = function () {
-        $rootScope.$broadcast('fluorochromes:updated');
-    };
-    service.getFluorochromes = function() {
-        return Fluorochrome.query({});
-    };
-    service.createUpdateFluorochrome = function(instance) {
-        if (instance.id) {
-            return Fluorochrome.update(
-                {id: instance.id },
-                instance
-            );
-        } else {
-            return Fluorochrome.save(instance);
-        }
-    };
-    service.destroyFluorochrome = function (instance) {
-        return Fluorochrome.delete({id: instance.id });
     };
     
     // ReFlow User services (not object-level permissions)
@@ -224,6 +183,11 @@ service.factory('ModelService', function(
     // Storage services
     service.getStorages = function() {
         return Storage.query({});
+    };
+
+    // StainingType services
+    service.getStainingTypes = function() {
+        return StainingType.query({});
     };
 
     // Project services
@@ -288,6 +252,56 @@ service.factory('ModelService', function(
                 'id': project_id
             }
         );
+    };
+
+    // Marker services
+    service.markersUpdated = function () {
+        $rootScope.$broadcast('markers:updated');
+    };
+    service.getMarkers = function(project_id) {
+        return Marker.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateMarker = function(instance) {
+        if (instance.id) {
+            return Marker.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Marker.save(instance);
+        }
+    };
+    service.destroyMarker = function (instance) {
+        return Marker.delete({id: instance.id });
+    };
+
+    // Fluorochrome services
+    service.fluorochromesUpdated = function () {
+        $rootScope.$broadcast('fluorochromes:updated');
+    };
+    service.getFluorochromes = function(project_id) {
+        return Fluorochrome.query(
+            {
+                'project': project_id
+            }
+        );
+    };
+    service.createUpdateFluorochrome = function(instance) {
+        if (instance.id) {
+            return Fluorochrome.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return Fluorochrome.save(instance);
+        }
+    };
+    service.destroyFluorochrome = function (instance) {
+        return Fluorochrome.delete({id: instance.id });
     };
 
     // Subject Group services
@@ -448,6 +462,21 @@ service.factory('ModelService', function(
     };
     service.getCurrentPanelTemplate = function () {
         return this.current_panel_template;
+    };
+    
+    // PanelVariant services
+    service.createUpdatePanelVariant = function(instance) {
+        if (instance.id) {
+            return PanelVariant.update(
+                {id: instance.id },
+                instance
+            );
+        } else {
+            return PanelVariant.save(instance);
+        }
+    };
+    service.destroyPanelVariant = function (instance) {
+        return PanelVariant.delete({id: instance.id });
     };
     
     // Site services

@@ -267,18 +267,41 @@ class PanelTemplateParameterSerializer(serializers.ModelSerializer):
             'fluorochrome_abbreviation')
 
 
-class PanelTemplateSerializer(serializers.ModelSerializer):
+class PanelVariantSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name='panel-template-detail')
-    parameters = PanelTemplateParameterSerializer(
-        source='paneltemplateparameter_set')
-    staining_name = serializers.CharField(
-        source='get_staining_display',
+        view_name='panel-variant-detail'
+    )
+    staining_type_name = serializers.CharField(
+        source="get_staining_type_display",
         read_only=True
     )
-    parent_panel_name = serializers.CharField(
-        source='parent_panel.panel_name',
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
         read_only=True
+    )
+
+    class Meta:
+        model = PanelVariant
+        fields = (
+            'url',
+            'id',
+            'panel_template',
+            'staining_type',
+            'staining_type_name',
+            'name',
+            'sample_count'
+        )
+
+
+class PanelTemplateSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='panel-template-detail'
+    )
+    panel_variants = PanelVariantSerializer(
+        source='panelvariant_set'
+    )
+    parameters = PanelTemplateParameterSerializer(
+        source='paneltemplateparameter_set'
     )
     site_panel_count = serializers.IntegerField(
         source='sitepanel_set.count',
@@ -305,10 +328,7 @@ class PanelTemplateSerializer(serializers.ModelSerializer):
             'project',
             'panel_name',
             'panel_description',
-            'staining',
-            'staining_name',
-            'parent_panel',
-            'parent_panel_name',
+            'panel_variants',
             'parameters',
             'site_panel_count',
             'sample_count',
@@ -375,14 +395,6 @@ class SitePanelSerializer(serializers.ModelSerializer):
         source='site.site_name',
         read_only=True
     )
-    panel_type = serializers.CharField(
-        source='panel_template.staining',
-        read_only=True
-    )
-    staining_name = serializers.CharField(
-        source='panel_template.get_staining_display',
-        read_only=True
-    )
     sample_count = serializers.IntegerField(
         source='sample_set.count',
         read_only=True
@@ -410,8 +422,6 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'panel_template',
             'site_name',
             'implementation',
-            'panel_type',
-            'staining_name',
             'site_panel_comments',
             'panel_template_name',
             'name',

@@ -12,12 +12,10 @@ from django.core.exceptions import \
     ObjectDoesNotExist, \
     MultipleObjectsReturned
 from django.core.files import File
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from guardian.shortcuts import \
     get_perms, get_objects_for_user, get_users_with_perms
-from guardian.models import UserObjectPermission
 from rest_framework.authtoken.models import Token
 
 import flowio
@@ -65,61 +63,11 @@ class Specimen(models.Model):
         return u'%s' % self.specimen_name
 
 
-class Marker(models.Model):
-    marker_abbreviation = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=32)
-    marker_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128)
-    marker_description = models.TextField(
-        null=True,
-        blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.marker_abbreviation
-
-    class Meta:
-        verbose_name_plural = 'Markers'
-        ordering = ['marker_abbreviation']
-
-
-class Fluorochrome(models.Model):
-    fluorochrome_abbreviation = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=32)
-    fluorochrome_name = models.CharField(
-        unique=True,
-        null=False,
-        blank=False,
-        max_length=128)
-    fluorochrome_description = models.TextField(null=True, blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.fluorochrome_abbreviation
-
-    class Meta:
-        ordering = ['fluorochrome_abbreviation']
-
-
 PARAMETER_TYPE_CHOICES = (
     ('FSC', 'Forward Scatter'),
     ('SSC', 'Side Scatter'),
-    ('FCM', 'Fluorochrome Conjugated Marker'),
-    ('UNS', 'Unstained'),
-    ('ISO', 'Isotype Control'),
-    ('EXC', 'Exclusion'),
-    ('VIA', 'Viability'),
-    ('ICM', 'Isotope Conjugated Marker'),
-    ('TIM', 'Time'),
-    ('BEA', 'Bead'),
-    ('NUL', 'Null')
+    ('FLR', 'Fluorescence'),
+    ('TIM', 'Time')
 )
 
 PARAMETER_VALUE_TYPE_CHOICES = (
@@ -129,12 +77,11 @@ PARAMETER_VALUE_TYPE_CHOICES = (
     ('T', 'Time')
 )
 
-PANEL_TEMPLATE_TYPE_CHOICES = (
-    ('FS', 'Full Stain'),
-    ('US', 'Unstained'),
-    ('FM', 'Fluorescence Minus One'),
-    ('IS', 'Isotype Control'),
-    ('CB', 'Compensation Bead')
+STAINING_CHOICES = (
+    ('FULL', 'Full Stain'),
+    ('FMO', 'Fluorescence Minus One'),
+    ('ISO', 'Isotype Control'),
+    ('UNS', 'Unstained')
 )
 
 PRETREATMENT_CHOICES = (
@@ -291,6 +238,60 @@ class Project(ProtectedModel):
         return u'Project: %s' % self.project_name
 
 
+class Marker(ProtectedModel):
+    project = models.ForeignKey(Project)
+    marker_abbreviation = models.CharField(
+        null=False,
+        blank=False,
+        max_length=32
+    )
+
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
+    def __unicode__(self):
+        return u'%s' % self.marker_abbreviation
+
+    class Meta:
+        unique_together = (('project', 'marker_abbreviation'),)
+        ordering = ['marker_abbreviation']
+
+
+class Fluorochrome(ProtectedModel):
+    project = models.ForeignKey(Project)
+    fluorochrome_abbreviation = models.CharField(
+        null=False,
+        blank=False,
+        max_length=32
+    )
+
+    def has_view_permission(self, user):
+        if user.has_perm('view_project_data', self.project):
+            return True
+
+        return False
+
+    def has_modify_permission(self, user):
+        if user.has_perm('modify_project_data', self.project):
+            return True
+        return False
+
+    def __unicode__(self):
+        return u'%s' % self.fluorochrome_abbreviation
+
+    class Meta:
+        unique_together = (('project', 'fluorochrome_abbreviation'),)
+        ordering = ['fluorochrome_abbreviation']
+
+
 class CellSubsetLabel(ProtectedModel):
     project = models.ForeignKey(Project)
     name = models.CharField(
@@ -397,15 +398,6 @@ class PanelTemplate(ProtectedModel):
         null=True,
         blank=True,
         help_text="A short description of the panel")
-    staining = models.CharField(
-        max_length=2,
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        null=False,
-        blank=False)
-    parent_panel = models.ForeignKey(
-        "self",
-        null=True,
-        blank=True)
 
     def has_view_permission(self, user):
 
@@ -560,6 +552,31 @@ class PanelTemplateParameterMarker(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.panel_template_parameter, self.marker)
+
+
+class PanelVariant(ProtectedModel):
+    panel_template = models.ForeignKey(PanelTemplate)
+    staining_type = models.CharField(
+        max_length=4,
+        null=False,
+        blank=False,
+        choices=STAINING_CHOICES
+    )
+    name = models.CharField(
+        max_length=32,
+        null=True,
+        blank=True
+    )
+
+    def has_view_permission(self, user):
+
+        if user.has_perm('view_project_data', self.panel_template.project):
+            return True
+
+        return False
+
+    def __unicode__(self):
+        return u'%s' % (self.name,)
 
 
 class SiteManager(models.Manager):
@@ -1340,6 +1357,7 @@ class Sample(ProtectedModel):
         Cytometer,
         null=False,
         blank=False)
+    panel_variant = models.ForeignKey(PanelVariant)
     acquisition_date = models.DateField(
         null=False,
         blank=False

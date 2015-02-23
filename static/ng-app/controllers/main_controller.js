@@ -73,6 +73,70 @@ app.controller(
 );
 
 app.controller(
+    'MarkerController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('markers:updated', function () {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
+    'FluorochromeController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('fluorochromes:updated', function () {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
     'SubjectGroupController',
     [
         '$scope',
@@ -365,8 +429,7 @@ app.controller(
             function init_filter () {
                 $scope.panels = ModelService.getPanelTemplates(
                     {
-                        'project': $scope.current_project.id,
-                        'staining': ['FS', 'US', 'FM', 'IS']
+                        'project': $scope.current_project.id
                     }
                 );
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(
@@ -390,10 +453,17 @@ app.controller(
                 $scope.errors = [];
 
                 var panels = [];
+                var panel_variants = [];
                 $scope.panels.forEach(function (p) {
                     if (p.query) {
                         panels.push(p.id);
                     }
+
+                    p.panel_variants.forEach(function (v) {
+                        if (v.query) {
+                            panel_variants.push(v.id);
+                        }
+                    });
                 });
 
                 var subject_groups = [];
@@ -435,6 +505,7 @@ app.controller(
                     {
                         'project': $scope.current_project.id,
                         'panel': panels,
+                        'panel_variant': panel_variants,
                         'subject_group': subject_groups,
                         'subject': subjects,
                         'site': sites,
@@ -572,8 +643,7 @@ app.controller(
             function init_filter () {
                 $scope.panels = ModelService.getPanelTemplates(
                     {
-                        'project': $scope.current_project.id,
-                        'staining': ['CB']
+                        'project': $scope.current_project.id
                     }
                 );
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(

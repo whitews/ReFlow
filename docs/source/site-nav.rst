@@ -121,11 +121,9 @@ WB    Whole Blood
 Markers
 -------
 
-A marker is a property of a cell that can be used to discriminate cell subsets, such as a cell surface or intracellular protein. Typically, one or more markers are utilized in flow cytometry to identify a specific cell population. There are many markers included by default in ReFlow, but the list may be modified when deploying a ReFlow server. The current list of default markers can be found in the `source code on GitHub
-<https://raw.githubusercontent.com/whitews/ReFlow/master/repository/fixtures/marker.json>`_.
+A marker is a property of a cell that can be used to discriminate cell subsets, such as a cell surface or intracellular protein. Typically, one or more markers are utilized in flow cytometry to identify a specific cell population.
 
 Fluorochromes
 -------------
 
-A fluorochrome represents a specific fluorescent chemical. Fluorochromes are typically conjugated to a marker. There are many fluorochromes included by default in ReFlow, but the list may be modified when deploying a ReFlow server. The current list of default fluorochromes can be found in the `source code on GitHub
-<https://raw.githubusercontent.com/whitews/ReFlow/master/repository/fixtures/fluorochrome.json>`_.
+A fluorochrome represents a specific fluorescent chemical. Fluorochromes are typically conjugated to a marker.

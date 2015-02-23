@@ -60,19 +60,15 @@ app.controller(
         $scope.site_panel_model.site_panel_sample = ModelService.getCurrentSample();
         $scope.site_panel_model.current_panel_template = ModelService.getCurrentPanelTemplate();
 
-        $scope.site_panel_model.markers = ModelService.getMarkers();
-        $scope.site_panel_model.fluorochromes = ModelService.getFluorochromes();
+        $scope.site_panel_model.markers = ModelService.getMarkers(ModelService.current_project.id);
+        $scope.site_panel_model.fluorochromes = ModelService.getFluorochromes(ModelService.current_project.id);
 
         // everything but bead functions
         // TODO: convert to ModelService call
         $scope.site_panel_model.parameter_functions = [
             ["FSC", "Forward Scatter"],
             ["SSC", "Side Scatter"],
-            ["FCM", "Fluorochrome Conjugated Marker"],
-            ["UNS", "Unstained"],
-            ["ISO", "Isotype Control"],
-            ["EXC", "Exclusion"],
-            ["VIA", "Viability"],
+            ["FLR", "Fluorescence"],
             ["TIM", "Time"],
             ["NUL", "Null"]
         ];
@@ -109,19 +105,8 @@ app.controller(
             Validations against the parent panel template:
                 - Ensure all panel template parameters are present
             */
-            var staining = $scope.site_panel_model.current_panel_template.staining;
-            var can_have_uns = null;
-            var can_have_iso = null;
+
             var fluoro_duplicates = [];
-            switch (staining) {
-                case 'IS':
-                    can_have_uns = false;
-                    can_have_iso = true;
-                    break;
-                default :  // includes FS, FM, & US
-                    can_have_uns = true;
-                    can_have_iso = false;
-            }
 
             // reset all project param matches
             $scope.site_panel_model.current_panel_template.parameters.forEach(function (p) {
@@ -158,45 +143,10 @@ app.controller(
                     }
                 }
 
-                if (!can_have_uns && channel.function == 'UNS') {
-                    channel.errors.push(staining + ' panels cannot have unstained channels');
-                }
-                if (!can_have_iso && channel.function == 'ISO') {
-                    channel.errors.push('Only Iso panels can include iso channels');
-                }
-
-                // exclusion channels must include a fluoro
-                if (channel.function == 'EXC' && !channel.fluorochrome) {
-                    channel.errors.push('Exclusion channels must specify a fluorochrome');
-                }
-
-                // fluoro conjugate channels must have both fluoro and Ab
-                if (channel.function == 'FCM') {
+                // fluoro channels must have a fluorochrome
+                if (channel.function == 'FLR') {
                     if (!channel.fluorochrome) {
-                        channel.errors.push('Conjugated channels must specify a fluorochrome');
-                    }
-                    if (channel.markers.length < 1) {
-                        channel.errors.push('Conjugated channels must specify at least one marker');
-                    }
-                }
-
-                // unstained channels cannot have a fluoro but must have an Ab
-                if (channel.function == 'UNS') {
-                    if (channel.fluorochrome) {
-                        channel.errors.push('Unstained channels cannot specify a fluorochrome');
-                    }
-                    if (channel.markers.length < 1) {
-                        channel.errors.push('Unstained channels must specify at least one marker');
-                    }
-                }
-
-                // Iso channels must have a fluoro, cannot have an Ab
-                if (channel.function == 'ISO') {
-                    if (!channel.fluorochrome) {
-                        channel.errors.push('Iso channels must specify a fluorochrome');
-                    }
-                    if (channel.markers.length > 0) {
-                        channel.errors.push('Iso channels cannot have markers');
+                        channel.errors.push('Fluorescence channels must specify a fluorochrome');
                     }
                 }
 
@@ -291,6 +241,8 @@ app.controller(
                     c.marker_disabled = true;
                     c.fluoro_disabled = true;
                     c.fluoro_disabled = true;
+                } else {
+                    c.function = 'FLR';
                 }
 
                 // Check the PnN field for value type using the last 2 letters
@@ -305,7 +257,7 @@ app.controller(
                 }
 
                 c.markers = [];
-                if (!c.function) {
+                if (c.function == 'FLR') {
                     var pattern = /\w+/g;
                     var words = (c.pnn + ' ' + c.pns).match(pattern);
 
@@ -340,11 +292,6 @@ app.controller(
                             }
                         }
                     });
-
-                    if (c.markers.length > 0 && c.fluorochrome != null) {
-                        c.function = 'FCM';
-                    }
-
                 }
             });
             $scope.validatePanel();

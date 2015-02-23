@@ -59,6 +59,7 @@ def repository_api_root(request):
         'create_beads': reverse('create-bead-list', request=request),
         'compensations': reverse('compensation-list', request=request),
         'panel-templates': reverse('panel-template-list', request=request),
+        'panel-variants': reverse('panel-variant-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
         'markers': reverse('marker-list', request=request),
@@ -996,7 +997,7 @@ class SubjectGroupDetail(
 
 class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of panels.
+    API endpoint representing a list of subjects.
     """
 
     model = Subject
@@ -1059,16 +1060,12 @@ class PanelTemplateFilter(django_filters.FilterSet):
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='project')
-    staining = django_filters.MultipleChoiceFilter(
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        name='staining')
 
     class Meta:
         model = PanelTemplate
         fields = [
             'project',
-            'panel_name',
-            'staining'
+            'panel_name'
         ]
 
 
@@ -1106,17 +1103,11 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
         # an atomic transaction
         try:
             project = Project.objects.get(id=data['project'])
-            if data['parent_panel']:
-                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
-            else:
-                parent_panel = None
 
             with transaction.atomic():
                 panel_template = PanelTemplate(
                     project=project,
                     panel_name=data['panel_name'],
-                    parent_panel=parent_panel,
-                    staining=data['staining'],
                     panel_description=data['panel_description']
                 )
                 panel_template.clean()
@@ -1140,6 +1131,13 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                             panel_template_parameter=ppp,
                             marker=Marker.objects.get(id=marker)
                         )
+
+                # by default, every panel template gets a full stain variant
+                PanelVariant.objects.create(
+                    panel_template=panel_template,
+                    staining_type = 'FULL'
+                )
+
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
@@ -1182,16 +1180,10 @@ class PanelTemplateDetail(
         # an atomic transaction
         try:
             project = Project.objects.get(id=data['project'])
-            if data['parent_panel']:
-                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
-            else:
-                parent_panel = None
 
             with transaction.atomic():
                 panel_template.project = project
                 panel_template.panel_name = data['panel_name']
-                panel_template.parent_panel = parent_panel
-                panel_template.staining = data['staining']
                 panel_template.panel_description = data['panel_description']
 
                 panel_template.clean()
@@ -1236,6 +1228,67 @@ class PanelTemplateDetail(
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(PanelTemplateDetail, self).delete(request, *args, **kwargs)
+
+
+class PanelVariantList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of panel variants.
+    """
+
+    model = PanelVariant
+    serializer_class = PanelVariantSerializer
+    filter_fields = ('panel_template', 'staining_type', 'name')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects
+        to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+
+        # filter on user's projects
+        queryset = PanelVariant.objects.filter(panel_template__project__in=user_projects)
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        panel_template = PanelTemplate.objects.get(id=request.DATA['panel_template'])
+        if not panel_template.project.has_add_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(PanelVariantList, self).post(request, *args, **kwargs)
+        return response
+
+
+class PanelVariantDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint representing a single subject.
+    """
+
+    model = PanelVariant
+    serializer_class = PanelVariantSerializer
+
+    def put(self, request, *args, **kwargs):
+        panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
+        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(PanelVariantDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
+        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(PanelVariantDetail, self).delete(request, *args, **kwargs)
 
 
 class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -1301,9 +1354,6 @@ class SitePanelFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
-    panel_type = django_filters.MultipleChoiceFilter(
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        name='panel_template__staining')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='panel_template__project')
@@ -1319,7 +1369,6 @@ class SitePanelFilter(django_filters.FilterSet):
         model = SitePanel
         fields = [
             'site',
-            'panel_type',
             'panel_template',
             'project',
             'fluorochrome',
@@ -1519,24 +1568,39 @@ class CytometerDetail(
         return super(CytometerDetail, self).delete(request, *args, **kwargs)
 
 
-class MarkerList(generics.ListCreateAPIView):
+class MarkerList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of flow cytometry markers.
+    API endpoint representing a list of markers.
     """
 
     model = Marker
     serializer_class = MarkerSerializer
-    filter_fields = ('marker_abbreviation', 'marker_name')
+    filter_fields = ('project', 'marker_abbreviation')
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = Marker.objects.filter(project__in=user_projects)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerList, self).post(request, *args, **kwargs)
         return response
 
 
-class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
+class MarkerDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single marker.
     """
@@ -1545,28 +1609,28 @@ class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MarkerSerializer
 
     def put(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
-            Marker.objects.get(id=kwargs['pk'])
+            marker = Marker.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not marker.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerDetail, self).put(request, *args, **kwargs)
         return response
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
-    
-    def delete(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
 
+    def delete(self, request, *args, **kwargs):
         try:
             marker = Marker.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not marker.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         if marker.sitepanelparametermarker_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -1575,24 +1639,39 @@ class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
         return response
 
 
-class FluorochromeList(generics.ListCreateAPIView):
+class FluorochromeList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of flow cytometry fluorochromes.
+    API endpoint representing a list of fluorochromes.
     """
 
     model = Fluorochrome
     serializer_class = FluorochromeSerializer
-    filter_fields = ('fluorochrome_abbreviation', 'fluorochrome_name')
+    filter_fields = ('project', 'fluorochrome_abbreviation')
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = Fluorochrome.objects.filter(project__in=user_projects)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeList, self).post(request, *args, **kwargs)
         return response
 
 
-class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
+class FluorochromeDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single fluorochrome.
     """
@@ -1601,13 +1680,13 @@ class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FluorochromeSerializer
 
     def put(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
-            Fluorochrome.objects.get(id=kwargs['pk'])
+            fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not fluorochrome.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeDetail, self).put(request, *args, **kwargs)
         return response
@@ -1616,13 +1695,13 @@ class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def delete(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
             fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not fluorochrome.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         if fluorochrome.sitepanelparameter_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -1780,6 +1859,8 @@ class SampleFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site_panel__site')
+    panel_variant = django_filters.ModelMultipleChoiceFilter(
+        queryset=PanelVariant.objects.all())
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
     cytometer = django_filters.ModelMultipleChoiceFilter(
