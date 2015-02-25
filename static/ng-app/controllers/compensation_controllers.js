@@ -90,6 +90,7 @@ app.controller(
             // get list of sites user has permission for new cytometers
             // existing cytometers cannot change their site
             if ($scope.instance == null) {
+                $scope.instance = {};
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(
                     $scope.current_project.id
                 );
@@ -177,10 +178,76 @@ app.controller(
                 reader.readAsText(f);
             }
 
+            function extractCompFromFCS(header) {
+                var reader = new FileReader();
+                reader.addEventListener("loadend", function(evt) {
+                    var delimiter = evt.target.result[0];
+                    var non_paired_list = evt.target.result.split(delimiter);
+                    var spill_value = null;
+                    var spill_pattern = /spill/i;
+                    var spill_text = "";
+
+                    // first match will be empty string since the FCS TEXT
+                    // segment starts with the delimiter, so we'll start at
+                    // the 2nd index
+                    for (var i = 1; i < non_paired_list.length; i+=2) {
+                        if (spill_pattern.test(non_paired_list[i])) {
+                            spill_value = non_paired_list[i + 1];
+                            break;
+                        }
+                    }
+
+                    if (spill_value != null) {
+                        var spill = spill_value.split(',');
+
+                        // 1st value is the matrix size
+                        var matrix_size = parseInt(spill.shift());
+
+                        // # of values should be matrix size squared plus
+                        // the matrix sized (for the header row)
+                        if (spill.length != (matrix_size * matrix_size) + matrix_size) {
+                            // Not a parsable matrix!
+                            return;
+                        }
+
+                        for (var i = 0; i < spill.length; i++) {
+                            spill_text += spill[i];
+                            if ((i + 1) % matrix_size) {
+                                spill_text += '\t';
+                            } else {
+                                spill_text += '\n';
+                            }
+                        }
+                    }
+
+                    parseCompMatrix(new Blob([spill_text]));
+                });
+                reader.readAsBinaryString(header);
+            }
+
             $scope.onFileSelect = function ($files) {
                 if ($files.length > 0) {
                     $scope.instance.name = $files[0].name;
-                    parseCompMatrix($files[0]);
+
+                    var reader = new FileReader();
+                    reader.addEventListener("loadend", function(evt) {
+                        var preheader = evt.target.result;
+
+                        if (preheader.substr(0, 3) != 'FCS') {
+                            parseCompMatrix($files[0]);
+                            return;
+                        }
+
+                        // The following uses the FCS standard offset definitions
+                        var text_begin = parseInt(preheader.substr(10, 8));
+                        var text_end = parseInt(preheader.substr(18, 8));
+                        var header = $files[0].slice(text_begin, text_end);
+
+                        // try extracting comp from FCS metadata
+                        extractCompFromFCS(header);
+                    });
+                    var blob = $files[0].slice(0, 58);
+                    reader.readAsBinaryString(blob);
                 }
             };
 
