@@ -264,7 +264,8 @@ app.controller(
                     // find matching markers
                     $scope.site_panel_model.markers.forEach(function(m) {
                         words.forEach(function(w) {
-                            if (m.marker_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"") === w.replace(/[^A-Z,a-z,0-9]/g,"")) {
+                            // strip out non-alphanumeric characters, and ignore case
+                            if (m.marker_abbreviation.toLowerCase().replace(/[^A-Z,a-z,0-9]/g,"") === w.toLowerCase().replace(/[^A-Z,a-z,0-9]/g,"")) {
                                 c.markers.push(m.id.toString());
                             }
                         });
@@ -275,10 +276,10 @@ app.controller(
                     // fcs_text first and then the words
                     var fl_match = '';
                     $scope.site_panel_model.fluorochromes.forEach(function(f) {
-                        // strip out non-alphanumeric chars
-                        fluoro_str = f.fluorochrome_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"");
-                        pnn_str = c.pnn.replace(/[^A-Z,a-z,0-9]/g,"");
-                        pns_str = c.pns.replace(/[^A-Z,a-z,0-9]/g,"");
+                        // strip out non-alphanumeric chars and ignore case
+                        fluoro_str = f.fluorochrome_abbreviation.replace(/[^A-Z,a-z,0-9]/g,"").toLowerCase();
+                        pnn_str = c.pnn.replace(/[^A-Z,a-z,0-9]/g,"").toLowerCase();
+                        pns_str = c.pns.replace(/[^A-Z,a-z,0-9]/g,"").toLowerCase();
 
                         if (pnn_str.indexOf(fluoro_str) >= 0) {
                             if (fluoro_str.length > fl_match.length) {
