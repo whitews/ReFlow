@@ -124,30 +124,6 @@ app.controller(
 );
 
 app.controller(
-    'CompensationDeleteController',
-    [
-        '$scope',
-        'ModelService',
-        function ($scope, ModelService) {
-            $scope.destroy = function (instance) {
-                var response = ModelService.destroyCompensation(instance);
-
-                response.$promise.then(function () {
-                    // notify to update comp list
-                    ModelService.compensationsUpdated();
-
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
-
-app.controller(
     'CytometerDeleteController',
     [
         '$scope',
