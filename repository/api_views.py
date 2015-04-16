@@ -637,15 +637,27 @@ class UserList(generics.ListCreateAPIView):
                     user_kwargs['first_name'] = serializer.init_data['first_name']
                 if 'last_name' in serializer.init_data:
                     user_kwargs['last_name'] = serializer.init_data['last_name']
-                if 'is_superuser' in serializer.init_data:
-                    user_kwargs['is_superuser'] = serializer.init_data['is_superuser']
 
-                user = User.objects.create_user(
-                    serializer.init_data['username'],
-                    email=serializer.init_data['email'],
-                    password=serializer.init_data['password'],
-                    **user_kwargs
-                )
+                # different calls needed for regular vs super users
+                is_superuser = False
+                if 'is_superuser' in serializer.init_data:
+                    if serializer.init_data['is_superuser'] == True:
+                        is_superuser = True
+
+                if is_superuser:
+                    user = User.objects.create_superuser(
+                        serializer.init_data['username'],
+                        email=serializer.init_data['email'],
+                        password=serializer.init_data['password'],
+                        **user_kwargs
+                    )
+                else:
+                    user = User.objects.create_user(
+                        serializer.init_data['username'],
+                        email=serializer.init_data['email'],
+                        password=serializer.init_data['password'],
+                        **user_kwargs
+                    )
             except IntegrityError, e:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             except Exception, e:
