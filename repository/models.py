@@ -2271,34 +2271,6 @@ def pr_output_path(instance, filename):
     return upload_dir
 
 
-class ProcessRequestOutput(ProtectedModel):
-    """
-    A key/value pair used to capture results from a specific ProcessRequest
-    """
-    process_request = models.ForeignKey(ProcessRequest)
-    # all values will be a (potentially large) file
-    key = models.CharField(null=False, blank=False, max_length=1024)
-    value = models.FileField(
-        upload_to=pr_output_path,
-        null=False,
-        blank=False,
-        max_length=256
-    )
-
-    def has_view_permission(self, user):
-
-        if self.process_request.has_view_permission(user):
-            return True
-
-        return False
-
-    def __unicode__(self):
-        return u'%s: %s' % (
-            self.process_request_id,
-            self.key
-        )
-
-
 class Cluster(ProtectedModel):
     """
     All processes must produce one or more clusters (if they succeed)

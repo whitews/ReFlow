@@ -949,17 +949,6 @@ class ProcessRequestInputSerializer(serializers.ModelSerializer):
         )
 
 
-class ProcessRequestOutputSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProcessRequestOutput
-        fields = (
-            'id',
-            'process_request',
-            'key',
-            'value'
-        )
-
-
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail'
