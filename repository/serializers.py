@@ -964,9 +964,6 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     inputs = ProcessRequestInputSerializer(
         source='processrequestinput_set'
     )
-    outputs = ProcessRequestOutputSerializer(
-        source='processrequestoutput_set'
-    )
 
     class Meta:
         model = ProcessRequest
@@ -985,8 +982,7 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'worker',
             'worker_name',
             'status',
-            'inputs',
-            'outputs'
+            'inputs'
         )
 
 

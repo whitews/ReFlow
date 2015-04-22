@@ -94,8 +94,6 @@ def repository_api_root(request):
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
-        'process_request_outputs': reverse(
-            'process-request-output-list', request=request),
         'clusters': reverse('cluster-list', request=request),
         'cluster-labels': reverse('cluster-label-list', request=request),
         'sample_clusters': reverse('sample-cluster-list', request=request)

@@ -2256,21 +2256,6 @@ class ProcessRequestInput(models.Model):
             self.value)
 
 
-def pr_output_path(instance, filename):
-    project_id = instance.process_request.project_id
-    pr_id = instance.process_request.id
-
-    upload_dir = join([
-        'ReFlow-data',
-        str(project_id),
-        'process_requests',
-        str(pr_id),
-        str(filename)],
-        "/")
-
-    return upload_dir
-
-
 class Cluster(ProtectedModel):
     """
     All processes must produce one or more clusters (if they succeed)
