@@ -2358,38 +2358,11 @@ class ClusterLabel(ProtectedModel):
         return "%d" % self.label_id
 
 
-class SampleClusterMode(models.Model):
-    """
-    !!! Note: Currently not used anywhere
-
-    Used to group related SampleCLuster instances into a mode. The mode
-    itself has a different location from any of its SampleCluster members,
-    and the location of the SampleClusterMode is in the
-    SampleClusterModeParameter set
-    """
-    index = models.IntegerField(null=False, blank=False)
-
-
-class SampleClusterModeParameter(models.Model):
-    """
-    !!! Note: Currently not used anywhere
-
-    Used to store the location of a SampleClusterMode.
-    Each parameter identifies a channel in the Sample along with the
-    coordinate for the SampleClusterMode.
-    """
-    mode = models.ForeignKey(SampleClusterMode)
-    channel = models.IntegerField(null=False, blank=False)
-    location = models.FloatField(null=False, blank=False)
-
-
 class SampleCluster(ProtectedModel):
     """
     Each sample in a SampleCollection tied to a ProcessRequest will have
     its own version of each cluster. The location of the SampleCluster is
-    in the SampleClusterParameter set. Additionally, there is an optional
-    SampleClusterMode to which one or more SampleCluster instances from the
-    same Sample may belong
+    in the SampleClusterParameter set.
     """
     cluster = models.ForeignKey(Cluster)
     sample = models.ForeignKey(Sample)
