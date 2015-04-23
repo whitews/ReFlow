@@ -1035,14 +1035,6 @@ class SampleClusterParameterSerializer(serializers.ModelSerializer):
         )
 
 
-class EventClassificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventClassification
-        fields = (
-            'event_index',
-        )
-
-
 class SampleClusterSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(
     #     view_name='sample-cluster-detail'
@@ -1064,11 +1056,6 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True
     )
-    event_indices = serializers.RelatedField(
-        source='eventclassification_set',
-        read_only=True,
-        many=True
-    )
 
     class Meta:
         model = SampleCluster
@@ -1080,6 +1067,5 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'cluster',
             'cluster_index',
             'parameters',
-            'labels',
-            'event_indices'
+            'labels'
         )
