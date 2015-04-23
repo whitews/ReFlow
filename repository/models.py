@@ -2180,6 +2180,16 @@ class ProcessRequest(ProtectedModel):
         max_length=128,
         null=False,
         blank=False)
+    # processing can be done in 2 stages, where the 2nd stage performs
+    # clustering on a single cell subset found in the 1st stage.
+    # The single cell subset may include one or more clusters.
+    # The 2nd stage is essentially a child of the 1st, with a self-referential
+    # key back to the parent. 1st stage parent_stage is null
+    parent_stage = models.ForeignKey('self', null=True, blank=True)
+
+    # number of events to subsample
+    subsample_count = models.IntegerField(null=False, blank=False)
+
     predefined = models.CharField(
         max_length=64,
         null=True,
@@ -2315,14 +2325,45 @@ class ClusterLabel(ProtectedModel):
         return "%d" % self.label_id
 
 
+def cluster_events_file_path(instance, filename):
+    project_id = instance.cluster.process_request.project_id
+    pr_id = instance.cluster.process_request.id
+
+    upload_dir = join([
+        'ReFlow-data',
+        str(project_id),
+        'process_requests',
+        str(pr_id),
+        'cluster_events',
+        str(filename)],
+        "/")
+
+    return upload_dir
+
+
 class SampleCluster(ProtectedModel):
     """
     Each sample in a SampleCollection tied to a ProcessRequest will have
-    its own version of each cluster. The location of the SampleCluster is
+    its own version of each cluster.
+    Each SampleCluster has a location, a covariance matrix, and a weight
+    The location of the SampleCluster is
     in the SampleClusterParameter set.
     """
     cluster = models.ForeignKey(Cluster)
     sample = models.ForeignKey(Sample)
+    covariance_matrix = models.TextField(
+        null=False,
+        blank=False
+    )
+    # weight is essentially the percentage of events
+    weight = models.FloatField(null=False, blank=False)
+
+    events = models.FileField(
+        upload_to=cluster_events_file_path,
+        null=False,
+        blank=False,
+        max_length=256
+    )
 
     def has_view_permission(self, user):
         if self.cluster.has_view_permission(user):
@@ -2346,20 +2387,3 @@ class SampleClusterParameter(ProtectedModel):
             return True
 
         return False
-
-
-class EventClassification(ProtectedModel):
-    """
-    Ties a Sample event index to a particular SampleCluster
-    """
-    sample_cluster = models.ForeignKey(SampleCluster)
-    event_index = models.IntegerField(null=False, blank=False)
-
-    def has_view_permission(self, user):
-        if self.sample_cluster.has_view_permission(user):
-            return True
-
-        return False
-
-    def __unicode__(self):
-        return "%d" % self.event_index
