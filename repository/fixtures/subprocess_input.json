@@ -33,7 +33,7 @@
         "name": "cluster_count", 
         "implementation": 2, 
         "required": true, 
-        "default": "128", 
+        "default": "32",
         "value_type": "PositiveInteger", 
         "description": "The number of clusters used for grouping events."
     }
