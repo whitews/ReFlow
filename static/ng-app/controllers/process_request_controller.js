@@ -571,7 +571,10 @@ app.controller(
                         {
                             project: $scope.current_project.id,
                             sample_collection: collection.id,
-                            description: $scope.model.request_description
+                            description: $scope.model.request_description,
+                            // hard-coding 10k sub-samples for now
+                            // TODO: allow user to specify subsample_count
+                            subsample_count: 10000
                         }
                     );
                     $q.all([members.$promise, pr.$promise]).then(function () {
