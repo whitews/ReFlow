@@ -1587,7 +1587,7 @@ class Sample(ProtectedModel):
         # The result is stored as a numpy object in a file field.
         # To ensure room for the indices and preserve precision for values,
         # we save as float32
-        numpy_data = n = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
+        numpy_data = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
         index_array = np.arange(len(numpy_data))
         np.random.shuffle(index_array)
         random_subsample = numpy_data[index_array[:10000]]
