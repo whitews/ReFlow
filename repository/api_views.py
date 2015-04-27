@@ -2794,13 +2794,6 @@ class SampleClusterList(
                         location=request.DATA['parameters'][param]
                     )
 
-                # and finally the EventClassification instances
-                for event_index in request.DATA['event_indices']:
-                    scp = EventClassification.objects.create(
-                        sample_cluster=sample_cluster,
-                        event_index=event_index,
-                    )
-
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
