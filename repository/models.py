@@ -2344,19 +2344,12 @@ def cluster_events_file_path(instance, filename):
 class SampleCluster(ProtectedModel):
     """
     Each sample in a SampleCollection tied to a ProcessRequest will have
-    its own version of each cluster.
-    Each SampleCluster has a location, a covariance matrix, and a weight
-    The location of the SampleCluster is
-    in the SampleClusterParameter set.
+    its own version of each cluster, with its own location & associated
+    events. The location of the SampleCluster is stored in the
+    SampleClusterParameter set.
     """
     cluster = models.ForeignKey(Cluster)
     sample = models.ForeignKey(Sample)
-    covariance_matrix = models.TextField(
-        null=False,
-        blank=False
-    )
-    # weight is essentially the percentage of events
-    weight = models.FloatField(null=False, blank=False)
 
     events = models.FileField(
         upload_to=cluster_events_file_path,
@@ -2379,6 +2372,45 @@ class SampleClusterParameter(ProtectedModel):
     coordinate for the SampleCluster.
     """
     sample_cluster = models.ForeignKey(SampleCluster)
+    channel = models.IntegerField(null=False, blank=False)
+    location = models.FloatField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.sample_cluster.has_view_permission(user):
+            return True
+
+        return False
+
+
+class SampleClusterComponent(ProtectedModel):
+    """
+    A SampleCluster can be considered a mode comprised of one or more
+    components. Each component is a gaussian distribution with its own
+    location, weight, and covariance. The components are mainly used
+    for re-classification of events in 2nd stage processing
+    """
+    sample_cluster = models.ForeignKey(SampleCluster)
+    covariance_matrix = models.TextField(
+        null=False,
+        blank=False
+    )
+    # weight is essentially the percentage of events
+    weight = models.FloatField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.cluster.has_view_permission(user):
+            return True
+
+        return False
+
+
+class SampleClusterComponentParameter(ProtectedModel):
+    """
+    Used to store the location of a SampleClusterComponent.
+    Each parameter identifies a channel in the Sample along with the
+    coordinate for the SampleClusterComponent.
+    """
+    sample_cluster_component = models.ForeignKey(SampleClusterComponent)
     channel = models.IntegerField(null=False, blank=False)
     location = models.FloatField(null=False, blank=False)
 
