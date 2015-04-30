@@ -2803,11 +2803,26 @@ class SampleClusterList(
 
                 # now create SampleClusterParameter instances
                 for param in request.DATA['parameters']:
-                    scp = SampleClusterParameter.objects.create(
+                    SampleClusterParameter.objects.create(
                         sample_cluster=sample_cluster,
                         channel=param,
                         location=request.DATA['parameters'][param]
                     )
+
+                # Finally, save all the SampleClusterComponent instances
+                # along with their parameters
+                for comp in request.DATA['components']:
+                    scc = SampleClusterComponent.objects.create(
+                        sample_cluster=sample_cluster,
+                        covariance_matrix=comp['covariance'],
+                        weight=comp['weight']
+                    )
+                    for comp_param in comp['parameters']:
+                        SampleClusterComponentParameter.objects.create(
+                            sample_cluster_component=scc,
+                            channel=comp_param,
+                            location=comp['parameters'][comp_param]
+                        )
 
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
