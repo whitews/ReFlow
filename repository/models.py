@@ -2334,8 +2334,9 @@ def cluster_events_file_path(instance, filename):
         str(project_id),
         'process_requests',
         str(pr_id),
-        'cluster_events',
-        str(filename)],
+        'clusters',
+        str(instance.cluster.id),
+        filename],
         "/")
 
     return upload_dir
@@ -2345,13 +2346,13 @@ class SampleCluster(ProtectedModel):
     """
     Each sample in a SampleCollection tied to a ProcessRequest will have
     its own version of each cluster, with its own location & associated
-    events. The location of the SampleCluster is stored in the
+    event indices. The location of the SampleCluster is stored in the
     SampleClusterParameter set.
     """
     cluster = models.ForeignKey(Cluster)
     sample = models.ForeignKey(Sample)
 
-    events = models.FileField(
+    event_indices = models.FileField(
         upload_to=cluster_events_file_path,
         null=False,
         blank=False,

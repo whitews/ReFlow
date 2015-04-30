@@ -24,6 +24,8 @@ from django.views.generic.detail import SingleObjectMixin
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
 
+import numpy as np
+
 from repository.models import *
 from repository.serializers import *
 from repository.controllers import *
@@ -2783,6 +2785,19 @@ class SampleClusterList(
                     cluster=cluster,
                     sample=sample,
                 )
+
+                # save event indices in a numpy file
+                events_file = TemporaryFile()
+                np.save(
+                    events_file,
+                    np.array(request.DATA['event_indices'])
+                )
+                sample_cluster.event_indices.save(
+                    join([str(sample.id), 'npy'], '.'),
+                    File(events_file),
+                    save=False
+                )
+
                 sample_cluster.clean()
                 sample_cluster.save()
 
