@@ -19,7 +19,6 @@ app.controller(
         function ($scope, $q, ModelService) {
     var sample_clusters = null;
     var panel_data = null;
-    var event_data = null;
 
     // Cell subset label variables for tagging clusters
     if (ModelService.current_project) {
@@ -60,21 +59,16 @@ app.controller(
             $scope.chosen_member.sample.site_panel
         );
 
-        event_data = ModelService.getSampleCSV(
-            $scope.chosen_member.sample.id
-        );
-
-        $q.all([sample_clusters, panel_data, event_data]).then(function(data) {
+        $q.all([sample_clusters, panel_data]).then(function(data) {
             $scope.cached_plots[$scope.chosen_member.id] = {
                 'cluster_data': data[0],
                 'panel_data': data[1],
-                'event_data': data[2].data,
                 'compensation_data': $scope.chosen_member.compensation
             };
             $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
             $scope.initialize_scatterplot();
             $scope.initialize_parallel_plot();
-        }).catch(function() {
+        }).catch(function(e) {
             // show errors here
             console.log('error!')
         }).finally(function() {
@@ -467,7 +461,7 @@ app.directive('prscatterplot', function() {
 
             // Now, convert the event_data CSV string into usable objects
             // and store each cluster's events in the cluster.events array
-            scope.process_event_data(scope.plot_data.event_data);
+            //scope.process_event_data(scope.plot_data.event_data);
 
             // reset the SVG clusters
             scope.clusters = null;
@@ -618,13 +612,34 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         x_range = [];
         y_range = [];
         if ($scope.auto_scale) {
-            // Lookup ranges to calculate the axes' scaling
-            x_range = $scope.x_param.extent;
-            y_range = $scope.y_param.extent;
-            $scope.user_x_min = $scope.x_param.extent[0];
-            $scope.user_x_max = $scope.x_param.extent[1];
-            $scope.user_y_min = $scope.y_param.extent[0];
-            $scope.user_y_max = $scope.y_param.extent[1];
+            // Lookup ranges to calculate the axes' scaling, try scaling
+            // by event data first but the events may not yet be retrieved.
+            // If that's the case, fall back to the cluster locations plus
+            // some padding for auto-scaling
+            if ($scope.x_param.extent !== undefined) {
+                x_range = $scope.x_param.extent;
+                $scope.user_x_min = $scope.x_param.extent[0];
+                $scope.user_x_max = $scope.x_param.extent[1];
+            } else {
+                x_range = [
+                    math.min(x_data) - math.abs(0.5*(math.min(x_data))),
+                    math.max(x_data) * 1.05
+                ];
+                $scope.user_x_min = x_range[0];
+                $scope.user_x_max = x_range[1];
+            }
+            if ($scope.y_param.extent !== undefined) {
+                y_range = $scope.y_param.extent;
+                $scope.user_y_min = $scope.y_param.extent[0];
+                $scope.user_y_max = $scope.y_param.extent[1];
+            } else {
+                y_range = [
+                    math.min(y_data) - math.abs(0.5*(math.min(y_data))),
+                    math.max(y_data) * 1.05
+                ];
+                $scope.user_y_min = y_range[0];
+                $scope.user_y_max = y_range[1];
+            }
         } else {
             x_range.push($scope.user_x_min);
             x_range.push($scope.user_x_max);
