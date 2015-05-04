@@ -42,9 +42,9 @@ class ProtectedModel(models.Model):
         return False
 
 
-##################################
-### Non-project related models ###
-##################################
+##############################
+# Non-project related models #
+##############################
 
 
 class Specimen(models.Model):
@@ -116,9 +116,9 @@ STATUS_CHOICES = (
 )
 
 
-##############################
-### Project related models ###
-##############################
+##########################
+# Project related models #
+##########################
 
 
 class ProjectManager(models.Manager):
@@ -229,7 +229,8 @@ class Project(ProtectedModel):
         return Sample.objects.filter(subject__project=self).count()
 
     def get_compensation_count(self):
-        return Compensation.objects.filter(site_panel__site__project=self).count()
+        return Compensation.objects.filter(
+            site_panel__site__project=self).count()
 
     def get_bead_sample_count(self):
         return BeadSample.objects.filter(cytometer__site__project=self).count()
@@ -1022,7 +1023,8 @@ class SubjectGroup(ProtectedModel):
         return False
 
     def get_sample_count(self):
-        sample_count = Sample.objects.filter(subject__in=self.subject_set.all()).count()
+        sample_count = Sample.objects.filter(
+            subject__in=self.subject_set.all()).count()
         return sample_count
 
     class Meta:
@@ -1190,7 +1192,7 @@ class Compensation(ProtectedModel):
 
         np.savetxt(
             csv_string,
-            compensation_array[1:,:],
+            compensation_array[1:, :],
             fmt='%f',
             delimiter=','
         )
@@ -1986,7 +1988,7 @@ class BeadSample(ProtectedModel):
         # The result is stored as a numpy object in a file field.
         # To ensure room for the indices and preserve precision for values,
         # we save as float32
-        numpy_data = n = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
+        numpy_data = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
         index_array = np.arange(len(numpy_data))
         np.random.shuffle(index_array)
         random_subsample = numpy_data[index_array[:10000]]
@@ -2061,9 +2063,9 @@ class BeadSampleMetadata(ProtectedModel):
         return u'%s: %s' % (self.key, self.value)
 
 
-####################################
-### START PROCESS RELATED MODELS ###
-####################################
+################################
+# START PROCESS RELATED MODELS #
+################################
 
 
 class Worker(models.Model):
@@ -2352,7 +2354,9 @@ class SampleCluster(ProtectedModel):
     cluster = models.ForeignKey(Cluster)
     sample = models.ForeignKey(Sample)
 
-    event_indices = models.FileField(
+    # events stored with header row indicating channel #, and 1st column
+    # is that event's original index in the source data event list
+    events = models.FileField(
         upload_to=cluster_events_file_path,
         null=False,
         blank=False,

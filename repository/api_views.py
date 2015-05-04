@@ -2790,9 +2790,9 @@ class SampleClusterList(
                 events_file = TemporaryFile()
                 np.save(
                     events_file,
-                    np.array(request.DATA['event_indices'])
+                    np.array(request.DATA['events'])
                 )
-                sample_cluster.event_indices.save(
+                sample_cluster.events.save(
                     join([str(sample.id), 'npy'], '.'),
                     File(events_file),
                     save=False

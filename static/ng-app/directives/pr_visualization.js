@@ -461,6 +461,8 @@ app.directive('prscatterplot', function() {
 
             // Now, convert the event_data CSV string into usable objects
             // and store each cluster's events in the cluster.events array
+            // TODO: We'll retrieve & process each sample cluster's events
+            // as needed
             //scope.process_event_data(scope.plot_data.event_data);
 
             // reset the SVG clusters
