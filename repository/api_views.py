@@ -394,6 +394,23 @@ def retrieve_compensation_as_numpy(request, pk):
     return response
 
 
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
+def retrieve_sample_cluster_events(request, pk):
+    sample_cluster = get_object_or_404(SampleCluster, pk=pk)
+
+    if not sample_cluster.has_view_permission(request.user):
+        raise PermissionDenied
+
+    response = HttpResponse(
+        sample_cluster.events.file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % "sc_" + str(sample_cluster.id) + '.csv'
+    return response
+
+
 class LoginRequiredMixin(object):
     """
     View mixin to verify a user is logged in.

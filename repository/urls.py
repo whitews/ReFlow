@@ -108,6 +108,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/cluster_labels/?$', ClusterLabelList.as_view(), name='cluster-label-list'),
     url(r'^api/repository/cluster_labels/(?P<pk>\d+)/?$', ClusterLabelDetail.as_view(), name='cluster-label-detail'),
     url(r'^api/repository/sample_clusters/?$', SampleClusterList.as_view(), name='sample-cluster-list'),
+    url(r'^api/repository/sample_clusters/(?P<pk>\d+)/csv/?$', retrieve_sample_cluster_events, name='retrieve_sample_cluster_events'),
 )
 
 # Non-API routes

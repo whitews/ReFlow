@@ -2354,8 +2354,8 @@ class SampleCluster(ProtectedModel):
     cluster = models.ForeignKey(Cluster)
     sample = models.ForeignKey(Sample)
 
-    # events stored with header row indicating channel #, and 1st column
-    # is that event's original index in the source data event list
+    # events stored with header row indicating channel index (starting at 0),
+    # and 1st column is the event's original index in the source FCS file
     events = models.FileField(
         upload_to=cluster_events_file_path,
         null=False,
