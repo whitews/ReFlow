@@ -231,71 +231,23 @@ app.controller(
         }
     };
 
-    $scope.process_event_data = function (event_csv) {
-        // The sample's CSV file doesn't contain a header row, we'll create
-        // one so the d3.csv.parse can conveniently make our objects for us.
-        var n_columns = 0;
-        var header = "event_index";
-        for (var i=0; i < event_csv.length; i++) {
-            if (event_csv[i] === ',') {
-                n_columns++;
-            } else if (event_csv[i] === '\n') {
-                break;
-            }
-        }
-        for (i=0; i < n_columns; i++) {
-            header += "," + i.toString();
-        }
+    $scope.process_cluster_events = function (cluster) {
+        // first retrieve SampleCluster CSV
+        var response = ModelService.getSampleClusterCSV(cluster.id);
 
-        event_csv = header + "\n" + event_csv;
+        response.then(function (event_csv) {
+            // success
+            cluster.events = d3.csv.parse(event_csv.data);
+            cluster.events_retrieved = true;
 
-        // convert the compensation text to a MathJS Matrix
-        $scope.compensation = parse_compensation($scope.plot_data.compensation_data);
+            // populate cluster event percentage
+            // TODO: get subsample_count and re-implement event %
+            //$scope.plot_data.cluster_data.forEach(function (c) {
+            //    c.event_percent = (c.events.length / event_objects.length) * 100;
+            //    c.event_percent = c.event_percent.toFixed(2);
+            //});
+        }, function (error) {
 
-        // compensate & transform the event data,
-        // but not for scatter and time channels
-        var event_objects = d3.csv.parse(event_csv, function(d) {
-            // Always apply compensation first
-            compensate(d);
-
-            for (var prop in d) {
-                if (d.hasOwnProperty(prop) && prop !== 'event_index') {
-                    // check if this is a transform channel
-                    if ($scope.transform_indices.indexOf(prop) != -1) {
-                        // transform with pre-scaling factor
-                        d[prop] = asinh(parseFloat(d[prop]) / 100);
-                    }
-                }
-            }
-            return d;
-        });
-
-        // get extent for all channels for auto-ranging the axis
-        $scope.parameters.forEach(function(p) {
-            p.extent = d3.extent(event_objects, function(eo) {
-                return parseFloat(eo[p.fcs_number - 1]);
-            });
-
-            // pad ranges a bit, keeps the data points from
-            // overlapping the plot's edge, and round up to next integer
-            // for prettier user inputs for non-autoscaling
-            p.extent[0] = (p.extent[0] - (p.extent[1] - p.extent[0]) * 0.02).toFixed(2);
-            p.extent[1] = (p.extent[1] + (p.extent[1] - p.extent[0]) * 0.02).toFixed(2);
-        });
-
-        event_objects.forEach(function (e) {
-            for (var i = 0; i < $scope.plot_data.cluster_data.length; i++) {
-                if ($scope.plot_data.cluster_data[i].event_indices.indexOf(e.event_index) !== -1) {
-                    $scope.plot_data.cluster_data[i].events.push(e);
-                    break;
-                }
-            }
-        });
-
-        // populate cluster event percentage
-        $scope.plot_data.cluster_data.forEach(function (c) {
-            c.event_percent = (c.events.length / event_objects.length) * 100;
-            c.event_percent = c.event_percent.toFixed(2);
         });
     };
 }]);
@@ -406,6 +358,8 @@ app.directive('prscatterplot', function() {
 
                 // and set an empty array for the cluster's event data
                 cluster.events = [];
+                // flag indicating cluster's events have been retrieved
+                cluster.events_retrieved = false;
 
                 // each cluster needs it's own canvas and canvas context
                 d3.select("#scatterplot")
@@ -458,12 +412,6 @@ app.directive('prscatterplot', function() {
                 }
 
             });
-
-            // Now, convert the event_data CSV string into usable objects
-            // and store each cluster's events in the cluster.events array
-            // TODO: We'll retrieve & process each sample cluster's events
-            // as needed
-            //scope.process_event_data(scope.plot_data.event_data);
 
             // reset the SVG clusters
             scope.clusters = null;
@@ -560,7 +508,10 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         // this function separates the transitioning logic to
         // allow both toggling of a single cluster and toggling
         // all clusters without creating lots of transition loops
-
+        if (!cluster.events_retrieved) {
+            // retrieve sample cluster events & process
+            $scope.process_cluster_events(cluster);
+        }
         cluster.display_events = !cluster.display_events;
 
         // toggle cluster lines
