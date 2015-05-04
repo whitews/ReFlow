@@ -723,6 +723,11 @@ service.factory('ModelService', function(
             }
         ).$promise;
     };
+    service.getSampleClusterCSV = function (id) {
+        return $http.get(
+            '/api/repository/sample_clusters/' + id.toString() + '/csv/'
+        );
+    };
 
     // ClusterLabel services
     service.clusterLabelsUpdated = function () {
