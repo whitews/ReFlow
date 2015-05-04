@@ -2788,12 +2788,14 @@ class SampleClusterList(
 
                 # save event indices in a numpy file
                 events_file = TemporaryFile()
-                np.save(
+                np.savetxt(
                     events_file,
-                    np.array(request.DATA['events'])
+                    np.array(request.DATA['events']),
+                    fmt='%s',
+                    delimiter=','
                 )
                 sample_cluster.events.save(
-                    join([str(sample.id), 'npy'], '.'),
+                    join([str(sample.id), 'csv'], '.'),
                     File(events_file),
                     save=False
                 )

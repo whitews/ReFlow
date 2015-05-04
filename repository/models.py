@@ -2369,6 +2369,22 @@ class SampleCluster(ProtectedModel):
 
         return False
 
+    def get_events_as_csv(self):
+        csv_string = StringIO()
+        events_array = np.load(self.events.file)
+
+        header = ','.join(["%d" % n for n in compensation_array[0]])
+        csv_string.write(header + '\n')
+
+        np.savetxt(
+            csv_string,
+            compensation_array[1:, :],
+            fmt='%f',
+            delimiter=','
+        )
+        csv_string.seek(0)
+        return csv_string
+
 
 class SampleClusterParameter(ProtectedModel):
     """
