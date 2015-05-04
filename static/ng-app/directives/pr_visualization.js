@@ -625,7 +625,7 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             } else {
                 x_range = [
                     math.min(x_data) - math.abs(0.5*(math.min(x_data))),
-                    math.max(x_data) * 1.05
+                    math.max(x_data) * 1.15
                 ];
                 $scope.user_x_min = x_range[0];
                 $scope.user_x_max = x_range[1];
@@ -637,7 +637,7 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             } else {
                 y_range = [
                     math.min(y_data) - math.abs(0.5*(math.min(y_data))),
-                    math.max(y_data) * 1.05
+                    math.max(y_data) * 1.15
                 ];
                 $scope.user_y_min = y_range[0];
                 $scope.user_y_max = y_range[1];
