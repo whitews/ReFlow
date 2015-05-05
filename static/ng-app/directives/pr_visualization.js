@@ -246,6 +246,8 @@ app.controller(
             //    c.event_percent = (c.events.length / event_objects.length) * 100;
             //    c.event_percent = c.event_percent.toFixed(2);
             //});
+
+            $scope.transition_canvas_events(++$scope.transition_count);
         }, function (error) {
 
         });
