@@ -62,8 +62,7 @@ app.controller(
         $q.all([sample_clusters, panel_data]).then(function(data) {
             $scope.cached_plots[$scope.chosen_member.id] = {
                 'cluster_data': data[0],
-                'panel_data': data[1],
-                'compensation_data': $scope.chosen_member.compensation
+                'panel_data': data[1]
             };
             $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
             $scope.initialize_scatterplot();
@@ -87,62 +86,6 @@ app.controller(
         }
         return null;
     };
-
-    function parse_compensation(comp_csv) {
-        // comp_csv is a text string to convert to a comp matrix object
-        // with 2 properties:
-        //     "indices": a list of indices to transform
-        //     "matrix": the compe matrix as a MathJS Matrix
-        var lines = [];
-        var header;
-
-        comp_csv.split("\n").forEach(function (line) {
-            if (line === "") {
-                return;
-            }
-            lines.push(line.split(","));
-        });
-
-        header = lines.shift();
-        for (var i=0; i < header.length; i++) {
-            header[i] = parseInt(header[i]) - 1;  // we want indices
-        }
-
-        lines.forEach(function(l) {
-            for (var i=0; i < l.length; i++) {
-                l[i] = parseFloat(l[i]);
-            }
-        });
-
-        lines = math.matrix(lines);
-
-        return {
-            "indices": header,
-            "matrix": lines
-        };
-    }
-
-    function compensate(event_object) {
-        var event_subset = [];
-        $scope.compensation.indices.forEach(function(i) {
-            // event object values are strings, we need floats for MathJS
-            event_subset.push(parseFloat(event_object[i]));
-        });
-
-        event_subset = math.multiply(
-            event_subset,
-            math.inv($scope.compensation.matrix)
-        ).toArray();  // and back to array
-
-        // and now convert back to strings
-        $scope.compensation.indices.forEach(function(i) {
-            event_object[i] = event_subset.shift().toString();
-        });
-    }
-
-    function asinh(number) {
-        return Math.log(number + Math.sqrt(number * number + 1));
-    }
 
     $scope.select_cluster = function (cluster) {
         cluster.selected = true;
@@ -240,7 +183,7 @@ app.controller(
             cluster.events = d3.csv.parse(event_csv.data);
             cluster.events_retrieved = true;
 
-            $scope.transition_canvas_events(++$scope.transition_count);
+            $scope.render_plot();
         }, function (error) {
 
         });
@@ -424,9 +367,6 @@ app.directive('prscatterplot', function() {
                 scope.y_param = scope.parameters[0];
             }
 
-            scope.x_pre_scale = '0.01';
-            scope.y_pre_scale = '0.01';
-
             scope.clusters = cluster_plot_area.selectAll("circle").data(
                 scope.plot_data.cluster_data
             );
@@ -526,14 +466,14 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         });
 
         // Now transition everything
-        $scope.transition_canvas_events(++$scope.transition_count);
+        $scope.render_plot();
     };
 
     $scope.toggle_cluster_events = function (cluster) {
         toggle_cluster_events(cluster);
 
         // Now, transition the events
-        $scope.transition_canvas_events(++$scope.transition_count);
+        $scope.render_plot();
     };
 
     $scope.render_plot = function () {
@@ -541,17 +481,64 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.x_label.text($scope.x_param.full_name);
         $scope.y_label.text($scope.y_param.full_name);
 
+        // holds the x & y locations for the clusters
         x_data = [];
         y_data = [];
+
+        // for determining min/max values for x & y
+        var tmp_x_extent;
+        var tmp_y_extent;
+        $scope.x_param.extent = undefined;
+        $scope.y_param.extent = undefined;
 
         // Populate x_data and y_data using chosen x & y parameters
         for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
             $scope.plot_data.cluster_data[i].parameters.forEach(function (p) {
                 if (p.channel == $scope.x_param.fcs_number) {
                     x_data[i] = p.location;
+
+                    // if auto-scaling, parse displayed events for extent
+                    if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
+                        tmp_x_extent = d3.extent(
+                            $scope.plot_data.cluster_data[i].events,
+                            function(e_obj) {
+                                return parseFloat(e_obj[p.channel - 1]);
+                            }
+                        );
+                        if ($scope.x_param.extent === undefined) {
+                            $scope.x_param.extent = tmp_x_extent;
+                        } else {
+                            if (tmp_x_extent[0] < $scope.x_param.extent[0]) {
+                                $scope.x_param.extent[0] = tmp_x_extent[0];
+                            }
+                            if (tmp_x_extent[1] > $scope.x_param.extent[1]) {
+                                $scope.x_param.extent[1] = tmp_x_extent[1];
+                            }
+                        }
+                    }
                 }
                 if (p.channel == $scope.y_param.fcs_number) {
                     y_data[i] = p.location;
+
+                    // if auto-scaling, parse displayed events for extent
+                    if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
+                        tmp_y_extent = d3.extent(
+                            $scope.plot_data.cluster_data[i].events,
+                            function(e_obj) {
+                                return parseFloat(e_obj[p.channel - 1]);
+                            }
+                        );
+                        if ($scope.y_param.extent === undefined) {
+                            $scope.y_param.extent = tmp_y_extent;
+                        } else {
+                            if (tmp_y_extent[0] < $scope.y_param.extent[0]) {
+                                $scope.y_param.extent[0] = tmp_y_extent[0];
+                            }
+                            if (tmp_y_extent[1] > $scope.y_param.extent[1]) {
+                                $scope.y_param.extent[1] = tmp_y_extent[1];
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -560,34 +547,47 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         x_range = [];
         y_range = [];
         if ($scope.auto_scale) {
-            // Lookup ranges to calculate the axes' scaling, try scaling
-            // by event data first but the events may not yet be retrieved.
-            // If that's the case, fall back to the cluster locations plus
-            // some padding for auto-scaling
+            // find the true extent of the combined cluster locations and
+            // the displayed events.
             if ($scope.x_param.extent !== undefined) {
-                x_range = $scope.x_param.extent;
-                $scope.user_x_min = $scope.x_param.extent[0];
-                $scope.user_x_max = $scope.x_param.extent[1];
+                x_range = [
+                    math.min(math.min(x_data), $scope.x_param.extent[0]),
+                    math.max(math.max(x_data), $scope.x_param.extent[1])
+                ];
             } else {
                 x_range = [
-                    math.min(x_data) - math.abs(0.5*(math.min(x_data))),
-                    math.max(x_data) * 1.15
+                    math.min(x_data),
+                    math.max(x_data)
                 ];
-                $scope.user_x_min = x_range[0];
-                $scope.user_x_max = x_range[1];
             }
+
             if ($scope.y_param.extent !== undefined) {
-                y_range = $scope.y_param.extent;
-                $scope.user_y_min = $scope.y_param.extent[0];
-                $scope.user_y_max = $scope.y_param.extent[1];
+                y_range = [
+                    math.min(math.min(y_data), $scope.y_param.extent[0]),
+                    math.max(math.max(y_data), $scope.y_param.extent[1])
+                ];
             } else {
                 y_range = [
-                    math.min(y_data) - math.abs(0.5*(math.min(y_data))),
-                    math.max(y_data) * 1.15
+                    math.min(y_data),
+                    math.max(y_data)
                 ];
-                $scope.user_y_min = y_range[0];
-                $scope.user_y_max = y_range[1];
             }
+
+            // Add some padding as well to keep objects from the sides
+            x_range = [
+                x_range[0] - (0.05 * (x_range[1] - x_range[0])),
+                x_range[1] + (0.05 * (x_range[1] - x_range[0]))
+            ];
+            y_range = [
+                y_range[0] - (0.05 * (y_range[1] - y_range[0])),
+                y_range[1] + (0.05 * (y_range[1] - y_range[0]))
+            ];
+
+            // Set text box values
+            $scope.user_x_min = x_range[0];
+            $scope.user_x_max = x_range[1];
+            $scope.user_y_min = y_range[0];
+            $scope.user_y_max = y_range[1];
         } else {
             x_range.push($scope.user_x_min);
             x_range.push($scope.user_x_max);
