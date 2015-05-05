@@ -1060,6 +1060,7 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True
     )
+    weight = serializers.CharField(source='weight', read_only=True)
 
     class Meta:
         model = SampleCluster
@@ -1071,5 +1072,6 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'cluster',
             'cluster_index',
             'parameters',
-            'labels'
+            'labels',
+            'weight'
         )

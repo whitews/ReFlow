@@ -2363,6 +2363,17 @@ class SampleCluster(ProtectedModel):
         max_length=256
     )
 
+    def _get_weight(self):
+        """
+        Returns the sum of the component weights as a percentage
+        """
+        weight = 0
+        for comp in self.sampleclustercomponent_set.all():
+            weight += comp.weight
+        return round(weight * 100.0, 3)
+
+    weight = property(_get_weight)
+
     def has_view_permission(self, user):
         if self.cluster.has_view_permission(user):
             return True
