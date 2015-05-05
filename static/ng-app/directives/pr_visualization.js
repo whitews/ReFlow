@@ -240,13 +240,6 @@ app.controller(
             cluster.events = d3.csv.parse(event_csv.data);
             cluster.events_retrieved = true;
 
-            // populate cluster event percentage
-            // TODO: get subsample_count and re-implement event %
-            //$scope.plot_data.cluster_data.forEach(function (c) {
-            //    c.event_percent = (c.events.length / event_objects.length) * 100;
-            //    c.event_percent = c.event_percent.toFixed(2);
-            //});
-
             $scope.transition_canvas_events(++$scope.transition_count);
         }, function (error) {
 
@@ -450,7 +443,7 @@ app.directive('prscatterplot', function() {
                     }
 
                     tooltip.style("visibility", "visible");
-                    tooltip.text("Cluster " + d.cluster_index + " (" + d.event_percent + "%)");
+                    tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
 
                     scope.select_cluster(d);
                     scope.$apply();
