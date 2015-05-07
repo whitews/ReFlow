@@ -211,13 +211,6 @@ app.directive('prscatterplot', function() {
         scope.auto_scale = true;  // automatically scales axes to data
         scope.animate = true;  // controls whether transitions animate
         scope.show_clusters = true;  // controls display of cluster centers
-        scope.transform_indices = [];  // data column indices to transform
-        var non_transform_param_types = [
-            'FSC',
-            'SSC',
-            'TIM',
-            'NUL'
-        ];
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -314,10 +307,7 @@ app.directive('prscatterplot', function() {
             // reset the parameters, and build the friendly "full_name" for
             // each parameter to improve usability, otherwise users will not
             // be able to differentiate the parameters
-            // Also, set the channels to transform. Scatter, time, and null
-            // channels do not get transformed
             scope.parameters = scope.plot_data.panel_data.parameters;
-            scope.transform_indices = [];
             scope.parameters.forEach(function(p) {
                 tmp_param = [];
                 tmp_markers = [];
@@ -342,13 +332,6 @@ app.directive('prscatterplot', function() {
                 }
 
                 p.full_name = tmp_param.join(' ');
-
-                // Now test if this is a channel we need to transform
-                if (non_transform_param_types.indexOf(p.parameter_type) == -1) {
-                    // data is zero-indexed
-                    scope.transform_indices.push((p.fcs_number - 1).toString());
-                }
-
             });
 
             // reset the SVG clusters
@@ -447,8 +430,6 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         if (!cluster.events_retrieved) {
             // retrieve sample cluster events & process
             $scope.process_cluster_events(cluster);
-        } else {
-            $scope.render_plot();
         }
 
         // toggle cluster lines
@@ -474,8 +455,10 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
     $scope.toggle_cluster_events = function (cluster) {
         toggle_cluster_events(cluster);
 
-        // Now, transition the events
-        //$scope.render_plot();
+        // Now, transition the events if we have them
+        if (cluster.events_retrieved) {
+            $scope.render_plot();
+        }
     };
 
     $scope.render_plot = function () {
