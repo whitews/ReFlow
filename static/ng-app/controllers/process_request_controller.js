@@ -324,13 +324,14 @@ app.controller(
                                 selected_param = false;
                             } else {
                                 selected_param = true;
+
+                                $scope.model.parameters.push(
+                                    {
+                                        parameter: master_parameter_list[i],
+                                        selected: selected_param
+                                    }
+                                );
                             }
-                            $scope.model.parameters.push(
-                                {
-                                    parameter: master_parameter_list[i],
-                                    selected: selected_param
-                                }
-                            );
                         }
                     }
                 });
