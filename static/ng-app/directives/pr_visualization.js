@@ -443,11 +443,13 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         // this function separates the transitioning logic to
         // allow both toggling of a single cluster and toggling
         // all clusters without creating lots of transition loops
+        cluster.display_events = !cluster.display_events;
         if (!cluster.events_retrieved) {
             // retrieve sample cluster events & process
             $scope.process_cluster_events(cluster);
+        } else {
+            $scope.render_plot();
         }
-        cluster.display_events = !cluster.display_events;
 
         // toggle cluster lines
         if (cluster.display_events) {
@@ -473,7 +475,7 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         toggle_cluster_events(cluster);
 
         // Now, transition the events
-        $scope.render_plot();
+        //$scope.render_plot();
     };
 
     $scope.render_plot = function () {
@@ -496,51 +498,48 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             $scope.plot_data.cluster_data[i].parameters.forEach(function (p) {
                 if (p.channel == $scope.x_param.fcs_number) {
                     x_data[i] = p.location;
-
-                    // if auto-scaling, parse displayed events for extent
-                    if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
-                        tmp_x_extent = d3.extent(
-                            $scope.plot_data.cluster_data[i].events,
-                            function(e_obj) {
-                                return parseFloat(e_obj[p.channel - 1]);
-                            }
-                        );
-                        if ($scope.x_param.extent === undefined) {
-                            $scope.x_param.extent = tmp_x_extent;
-                        } else {
-                            if (tmp_x_extent[0] < $scope.x_param.extent[0]) {
-                                $scope.x_param.extent[0] = tmp_x_extent[0];
-                            }
-                            if (tmp_x_extent[1] > $scope.x_param.extent[1]) {
-                                $scope.x_param.extent[1] = tmp_x_extent[1];
-                            }
-                        }
-                    }
                 }
                 if (p.channel == $scope.y_param.fcs_number) {
                     y_data[i] = p.location;
-
-                    // if auto-scaling, parse displayed events for extent
-                    if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
-                        tmp_y_extent = d3.extent(
-                            $scope.plot_data.cluster_data[i].events,
-                            function(e_obj) {
-                                return parseFloat(e_obj[p.channel - 1]);
-                            }
-                        );
-                        if ($scope.y_param.extent === undefined) {
-                            $scope.y_param.extent = tmp_y_extent;
-                        } else {
-                            if (tmp_y_extent[0] < $scope.y_param.extent[0]) {
-                                $scope.y_param.extent[0] = tmp_y_extent[0];
-                            }
-                            if (tmp_y_extent[1] > $scope.y_param.extent[1]) {
-                                $scope.y_param.extent[1] = tmp_y_extent[1];
-                            }
-                        }
-                    }
                 }
             });
+
+            // if auto-scaling, parse displayed events for extent
+            if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
+                tmp_x_extent = d3.extent(
+                    $scope.plot_data.cluster_data[i].events,
+                    function(e_obj) {
+                        return parseFloat(e_obj[$scope.x_param.fcs_number]);
+                    }
+                );
+                if ($scope.x_param.extent === undefined) {
+                    $scope.x_param.extent = tmp_x_extent;
+                } else {
+                    if (tmp_x_extent[0] < $scope.x_param.extent[0]) {
+                        $scope.x_param.extent[0] = tmp_x_extent[0];
+                    }
+                    if (tmp_x_extent[1] > $scope.x_param.extent[1]) {
+                        $scope.x_param.extent[1] = tmp_x_extent[1];
+                    }
+                }
+
+                tmp_y_extent = d3.extent(
+                    $scope.plot_data.cluster_data[i].events,
+                    function(e_obj) {
+                        return parseFloat(e_obj[$scope.y_param.fcs_number]);
+                    }
+                );
+                if ($scope.y_param.extent === undefined) {
+                    $scope.y_param.extent = tmp_y_extent;
+                } else {
+                    if (tmp_y_extent[0] < $scope.y_param.extent[0]) {
+                        $scope.y_param.extent[0] = tmp_y_extent[0];
+                    }
+                    if (tmp_y_extent[1] > $scope.y_param.extent[1]) {
+                        $scope.y_param.extent[1] = tmp_y_extent[1];
+                    }
+                }
+            }
         }
 
         // check for auto-scaling
@@ -550,27 +549,39 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             // find the true extent of the combined cluster locations and
             // the displayed events.
             if ($scope.x_param.extent !== undefined) {
-                x_range = [
-                    math.min(math.min(x_data), $scope.x_param.extent[0]),
-                    math.max(math.max(x_data), $scope.x_param.extent[1])
-                ];
+                if (x_data.length > 0) {
+                    x_range = [
+                        math.min(math.min(x_data), $scope.x_param.extent[0]),
+                        math.max(math.max(x_data), $scope.x_param.extent[1])
+                    ];
+                } else {
+                    x_range = $scope.x_param.extent;
+                }
             } else {
-                x_range = [
-                    math.min(x_data),
-                    math.max(x_data)
-                ];
+                if (x_data.length > 0) {
+                    x_range = [
+                        math.min(x_data),
+                        math.max(x_data)
+                    ];
+                }
             }
 
             if ($scope.y_param.extent !== undefined) {
-                y_range = [
-                    math.min(math.min(y_data), $scope.y_param.extent[0]),
-                    math.max(math.max(y_data), $scope.y_param.extent[1])
-                ];
+                if (y_data.length > 0) {
+                    y_range = [
+                        math.min(math.min(y_data), $scope.y_param.extent[0]),
+                        math.max(math.max(y_data), $scope.y_param.extent[1])
+                    ];
+                } else {
+                    y_range = $scope.y_param.extent;
+                }
             } else {
-                y_range = [
-                    math.min(y_data),
-                    math.max(y_data)
-                ];
+                if (y_data.length > 0) {
+                    y_range = [
+                        math.min(y_data),
+                        math.max(y_data)
+                    ];
+                }
             }
 
             // Add some padding as well to keep objects from the sides
@@ -638,8 +649,8 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 cluster.events.forEach(function (event) {
                     cluster.next_position.push(
                         [
-                            x_scale(event[$scope.x_param.fcs_number - 1]),
-                            y_scale(event[$scope.y_param.fcs_number - 1]),
+                            x_scale(event[$scope.x_param.fcs_number]),
+                            y_scale(event[$scope.y_param.fcs_number]),
                             $scope.show_heat ? $scope.heat_base_color : cluster.color
                         ]
                     );
