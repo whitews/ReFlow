@@ -15,8 +15,9 @@ app.controller(
     [
         '$scope',
         '$q',
+        '$modal',
         'ModelService',
-        function ($scope, $q, ModelService) {
+        function ($scope, $q, $modal, ModelService) {
     var sample_clusters = null;
     var panel_data = null;
 
@@ -188,6 +189,23 @@ app.controller(
 
         });
     };
+
+    $scope.launch_stage2_modal = function() {
+
+        // launch form modal
+        $modal.open({
+            templateUrl: MODAL_URLS.PR_STAGE2,
+            controller: 'ModalFormCtrl',
+            size: 'lg',
+            resolve: {
+                instance: function() {
+                    return {
+                        'cell_subsets': $scope.labels
+                    };
+                }
+            }
+        });
+    };
 }]);
 
 app.directive('prscatterplot', function() {
@@ -197,7 +215,7 @@ app.directive('prscatterplot', function() {
         scope.canvas_width = 480;   // width of the canvas
         scope.canvas_height = 480;  // height of the canvas
         var colors = d3.scale.category20().range();
-        var margin = {            // used mainly for positioning the axes' labels
+        var margin = {          // used mainly for positioning the axes' labels
             top: 0,
             right: 0,
             bottom: height - scope.canvas_height,
