@@ -90,6 +90,7 @@ def repository_api_root(request):
             'subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'process_request_stage2_create': reverse('process-request-stage2-create', request=request),
         'process_request_inputs': reverse(
             'process-request-input-list', request=request),
         'assigned_process_requests': reverse(
@@ -2484,6 +2485,44 @@ class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
                             headers=headers)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for create 2nd stage process requests
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
+
+    def create(self, request, *args, **kwargs):
+        # check permission for submitting process requests for this project
+        parent_pr = get_object_or_404(
+            ProcessRequest,
+            pk=request.DATA['parent_pr_id']
+        )
+        if not parent_pr.project.has_process_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        with transaction.atomic():
+            pr = ProcessRequest(
+                project=parent_pr.project,
+                sample_collection=parent_pr.sample_collection,
+                description=request.DATA['description'],
+                parent_stage=parent_pr,
+                subsample_count=request.DATA['subsample_count'],
+                request_user=request.user.id,
+                status="Pending"
+            )
+
+        serializer = SampleClusterSerializer(
+            pr,
+            context={'request': request}
+        )
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
 
 class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
