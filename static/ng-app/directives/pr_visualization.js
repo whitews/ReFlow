@@ -200,7 +200,8 @@ app.controller(
             resolve: {
                 instance: function() {
                     return {
-                        'cell_subsets': $scope.labels
+                        'cell_subsets': $scope.labels,
+                        'parameters': $scope.plot_data.panel_data.parameters
                     };
                 }
             }
@@ -325,6 +326,8 @@ app.directive('prscatterplot', function() {
             // reset the parameters, and build the friendly "full_name" for
             // each parameter to improve usability, otherwise users will not
             // be able to differentiate the parameters
+            // TODO: Bad! this just creates a reference and alters panel_data
+            // just iterate over panel_data.parameters directly
             scope.parameters = scope.plot_data.panel_data.parameters;
             scope.parameters.forEach(function(p) {
                 tmp_param = [];
