@@ -201,7 +201,8 @@ app.controller(
                 instance: function() {
                     return {
                         'cell_subsets': $scope.labels,
-                        'parameters': $scope.plot_data.panel_data.parameters
+                        'parameters': $scope.plot_data.panel_data.parameters,
+                        'clusters': $scope.plot_data.cluster_data
                     };
                 }
             }
