@@ -200,6 +200,7 @@ app.controller(
             resolve: {
                 instance: function() {
                     return {
+                        'parent_pr_id': $scope.$parent.process_request.id,
                         'cell_subsets': $scope.labels,
                         'parameters': $scope.plot_data.panel_data.parameters,
                         'clusters': $scope.plot_data.cluster_data
@@ -354,6 +355,9 @@ app.directive('prscatterplot', function() {
                 }
 
                 p.full_name = tmp_param.join(' ');
+
+                // for submitting 2nd stage PRs
+                p.full_name_underscored = tmp_param.join('_');
             });
 
             // reset the SVG clusters
