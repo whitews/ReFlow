@@ -2250,6 +2250,16 @@ class ProcessRequest(ProtectedModel):
         return u'%s' % self.description
 
 
+class ProcessRequestStage2Cluster(models.Model):
+    """
+    Stores which clusters from stage 1 to include in stage 2 analysis
+    """
+    # this process request is the 2nd stage PR:
+    process_request = models.ForeignKey(ProcessRequest)
+    # but the cluster is from the parent PR:
+    cluster = models.ForeignKey('Cluster')
+
+
 class ProcessRequestInput(models.Model):
     """
     The value for a specific SubprocessInput for a ProcessRequest
