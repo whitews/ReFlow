@@ -99,7 +99,8 @@ def repository_api_root(request):
             'viable-process-request-list', request=request),
         'clusters': reverse('cluster-list', request=request),
         'cluster-labels': reverse('cluster-label-list', request=request),
-        'sample_clusters': reverse('sample-cluster-list', request=request)
+        'sample_clusters': reverse('sample-cluster-list', request=request),
+        'sample_cluster_components': reverse('sample-cluster-component-list', request=request)
     })
 
 
@@ -2952,3 +2953,38 @@ class SampleClusterList(
 
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
+
+
+class SampleClusterComponentFilter(django_filters.FilterSet):
+    process_request = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProcessRequest.objects.all(),
+        name='sample_cluster__cluster__process_request'
+    )
+    sample = django_filters.ModelMultipleChoiceFilter(
+        queryset=Sample.objects.all(),
+        name='sample_cluster__sample'
+    )
+    cluster = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        name='sample_cluster__cluster'
+    )
+
+    class Meta:
+        model = SampleCluster
+        fields = [
+            'process_request',
+            'sample',
+            'cluster'
+        ]
+
+
+class SampleClusterComponentList(
+        LoginRequiredMixin,
+        generics.ListAPIView
+    ):
+    """
+    API endpoint for listing and creating a SampleCluster.
+    """
+    model = SampleCluster
+    serializer_class = SampleClusterSerializer
+    filter_class = SampleClusterFilter

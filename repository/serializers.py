@@ -1075,3 +1075,51 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'labels',
             'weight'
         )
+
+
+class SampleClusterComponentParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleClusterComponentParameter
+        fields = (
+            'id',
+            'sample_cluster_component',
+            'channel',
+            'location'
+        )
+
+
+class SampleClusterComponentSerializer(serializers.ModelSerializer):
+    process_request = serializers.CharField(
+        source='sample_cluster.cluster.process_request_id',
+        read_only=True
+    )
+    sample = serializers.CharField(
+        source='sample_cluster.sample_id',
+        read_only=True
+    )
+    cluster = serializers.CharField(
+        source='sample_cluster.cluster_id',
+        read_only=True
+    )
+    parameters = SampleClusterComponentParameterSerializer(
+        source='sampleclustercomponentparameter_set',
+        read_only=True
+    )
+    labels = serializers.RelatedField(
+        source='sample_cluster.cluster.clusterlabel_set',
+        read_only=True,
+        many=True
+    )
+    weight = serializers.CharField(source='weight', read_only=True)
+
+    class Meta:
+        model = SampleCluster
+        fields = (
+            'id',
+            'process_request',
+            'sample',
+            'cluster',
+            'covariance_matrix',
+            'weight',
+            'parameters'
+        )
