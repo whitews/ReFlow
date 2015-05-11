@@ -10,7 +10,7 @@
         <div class="row">
           <label class="col-md-3 control-label">Cell Subset:</label>
           <div class="col-md-6">
-            <select ng-model="instance.cell_subset" ng-required="true" ng-options="cs.id as cs.name for cs in instance.cell_subsets">
+            <select ng-model="instance.cell_subset" ng-required="true" ng-options="cs as cs.name for cs in instance.cell_subsets">
             </select>
             <strong ng-show="errors.cell_subset" class="help-inline text-danger">
               {{ errors.cell_subset.join(', ') }}
@@ -35,9 +35,9 @@
         <div class="row">
           <label class="col-md-3 control-label">Burn-in:</label>
           <div class="col-md-6">
-            <input class="form-control" type="text" ng-model="instance.burnin_count" ng-required="true">
-            <strong ng-show="errors.burnin_count" class="help-inline text-danger">
-              {{ errors.burnin_count.join(', ') }}
+            <input class="form-control" type="text" ng-model="instance.burn_in_count" ng-required="true">
+            <strong ng-show="errors.burn_in_count" class="help-inline text-danger">
+              {{ errors.burn_in_count.join(', ') }}
             </strong>
           </div>
         </div>
