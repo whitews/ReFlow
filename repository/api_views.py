@@ -2504,18 +2504,77 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
         if not parent_pr.project.has_process_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        with transaction.atomic():
-            pr = ProcessRequest(
-                project=parent_pr.project,
-                sample_collection=parent_pr.sample_collection,
-                description=request.DATA['description'],
-                parent_stage=parent_pr,
-                subsample_count=request.DATA['subsample_count'],
-                request_user=request.user.id,
-                status="Pending"
-            )
+        try:
+            with transaction.atomic():
+                pr = ProcessRequest(
+                    project=parent_pr.project,
+                    sample_collection=parent_pr.sample_collection,
+                    description=request.DATA['description'],
+                    parent_stage=parent_pr,
+                    subsample_count=request.DATA['subsample_count'],
+                    request_user=request.user,
+                    status="Pending"
+                )
+                pr.save()
 
-        serializer = SampleClusterSerializer(
+                # now create the process inputs,
+                # starting w/ the parameters
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='filtering',
+                    name='parameter'
+                )
+                for param_string in request.DATA['parameters']:
+                    ProcessRequestInput.objects.create(
+                        process_request=pr,
+                        subprocess_input=subprocess_input,
+                        value=param_string
+                    )
+                # next, the clusters from stage 1 to include in stage 2
+                for cluster in request.DATA['clusters']:
+                    ProcessRequestStage2Cluster.objects.create(
+                        process_request=pr,
+                        cluster_id=cluster
+                    )
+
+                # finally, the clustering inputs:
+                #     cluster count, burn-in, & iterations
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='cluster_count'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['cluster_count']
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='burnin'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['burn_in_count']
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='iteration_count'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['iteration_count']
+                )
+
+        except Exception, e:
+            print e
+
+        serializer = ProcessRequestSerializer(
             pr,
             context={'request': request}
         )
