@@ -15,26 +15,27 @@ app.controller(
                 var second_stage_params = [];
 
                 $scope.instance.clusters.forEach(function (c) {
-                    if (c.labels.indexOf($scope.instance.cell_subset.toString()) != -1) {
-                        second_stage_clusters.push(c.cluster_index);
+                    if (c.labels.indexOf($scope.instance.cell_subset.id.toString()) != -1) {
+                        second_stage_clusters.push(c.cluster);
                     }
                 });
 
                 $scope.instance.parameters.forEach(function (p) {
                     if (p.selected) {
-                        second_stage_params.push(p.id);
+                        second_stage_params.push(p.full_name_underscored);
                     }
                 });
 
                 var pr = ModelService.createProcessRequestStage2(
                     {
-                        parent_pr: $scope.instance.parent_pr_id,
-                        description: $scope.instance.request_description,
+                        parent_pr_id: $scope.instance.parent_pr_id,
+                        description: $scope.instance.cell_subset.name,
                         // hard-coding 10k sub-samples for now
                         // TODO: allow user to specify subsample_count
                         subsample_count: 10000,
                         cluster_count: $scope.instance.cluster_count,
                         burn_in_count: $scope.instance.burn_in_count,
+                        iteration_count: $scope.instance.iteration_count,
                         clusters: second_stage_clusters,
                         parameters: second_stage_params
                     }
