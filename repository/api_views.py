@@ -2538,7 +2538,18 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                     )
 
                 # finally, the clustering inputs:
-                #     cluster count, burn-in, & iterations
+                #     seed, cluster count, burn-in, & iterations
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='random_seed'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value='123'
+                )
+
                 subprocess_input = SubprocessInput.objects.get(
                     implementation__category__name='clustering',
                     implementation__name='hdp',
