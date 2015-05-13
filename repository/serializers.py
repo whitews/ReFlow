@@ -1113,7 +1113,7 @@ class SampleClusterComponentSerializer(serializers.ModelSerializer):
     weight = serializers.CharField(source='weight', read_only=True)
 
     class Meta:
-        model = SampleCluster
+        model = SampleClusterComponent
         fields = (
             'id',
             'process_request',
