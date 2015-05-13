@@ -2981,7 +2981,7 @@ class SampleClusterComponentFilter(django_filters.FilterSet):
     )
 
     class Meta:
-        model = SampleCluster
+        model = SampleClusterComponent
         fields = [
             'process_request',
             'sample',
@@ -2996,6 +2996,6 @@ class SampleClusterComponentList(
     """
     API endpoint for listing and creating a SampleCluster.
     """
-    model = SampleCluster
-    serializer_class = SampleClusterSerializer
-    filter_class = SampleClusterFilter
+    model = SampleClusterComponent
+    serializer_class = SampleClusterComponentSerializer
+    filter_class = SampleClusterComponentFilter
