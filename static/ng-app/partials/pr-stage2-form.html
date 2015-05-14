@@ -1,0 +1,80 @@
+<div ng-controller="PRStage2Controller">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Stage 2 Process Request
+  </div>
+  <div class="modal-body">
+
+    <div class="row">
+      <div class="col-md-offset-1 col-md-5">
+        <div class="row">
+          <label class="col-md-3 control-label">Cell Subset:</label>
+          <div class="col-md-6">
+            <select ng-model="instance.cell_subset" ng-required="true" ng-options="cs as cs.name for cs in instance.cell_subsets">
+            </select>
+            <strong ng-show="errors.cell_subset" class="help-inline text-danger">
+              {{ errors.cell_subset.join(', ') }}
+            </strong>
+          </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+          <label class="col-md-3 control-label">Clusters:</label>
+          <div class="col-md-6">
+            <input class="form-control" type="text" ng-model="instance.cluster_count" ng-required="true">
+            <strong ng-show="errors.cluster_count" class="help-inline text-danger">
+              {{ errors.cluster_count.join(', ') }}
+            </strong>
+          </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+          <label class="col-md-3 control-label">Burn-in:</label>
+          <div class="col-md-6">
+            <input class="form-control" type="text" ng-model="instance.burn_in_count" ng-required="true">
+            <strong ng-show="errors.burn_in_count" class="help-inline text-danger">
+              {{ errors.burn_in_count.join(', ') }}
+            </strong>
+          </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+          <label class="col-md-3 control-label">Iterations:</label>
+          <div class="col-md-6">
+            <input class="form-control" type="text" ng-model="instance.iteration_count" ng-required="true">
+            <strong ng-show="errors.iteration_count" class="help-inline text-danger">
+              {{ errors.iteration_count.join(', ') }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="row">
+          <label class="col-md-3 control-label">Parameters: </label>
+          <div class="col-md-6">
+            <ul class="list-unstyled">
+              <li data-ng-repeat="p in instance.parameters | orderBy : 'full_name'">
+                <label>
+                  <input type="checkbox" ng-model="p.selected" />
+                  {{ p.full_name }}
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-primary" ng-click="submit_request()" ng-disabled="instance.complete">Submit</button>
+  </div>
+</div>

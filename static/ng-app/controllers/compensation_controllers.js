@@ -4,9 +4,8 @@ app.controller(
         '$scope',
         '$q',
         '$controller',
-        '$modal',
         'ModelService',
-        function ($scope, $q, $controller, $modal, ModelService) {
+        function ($scope, $q, $controller, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -57,22 +56,6 @@ app.controller(
             $scope.$on('compensations:updated', function () {
                 populate_compensations();
             });
-
-            $scope.show_matrix = function(instance) {
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.COMPENSATION_MATRIX,
-                    controller: 'ModalFormCtrl',
-                    size: 'lg',
-                    resolve: {
-                        instance: function() {
-                            return instance;
-                        }
-                    }
-                });
-            };
         }
     ]
 );

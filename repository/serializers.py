@@ -903,7 +903,9 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'project',
+            'parent_stage',
             'sample_collection',
+            'subsample_count',
             'description',
             'predefined',
             'request_user',
@@ -949,17 +951,6 @@ class ProcessRequestInputSerializer(serializers.ModelSerializer):
         )
 
 
-class ProcessRequestOutputSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProcessRequestOutput
-        fields = (
-            'id',
-            'process_request',
-            'key',
-            'value'
-        )
-
-
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail'
@@ -975,9 +966,6 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     inputs = ProcessRequestInputSerializer(
         source='processrequestinput_set'
     )
-    outputs = ProcessRequestOutputSerializer(
-        source='processrequestoutput_set'
-    )
 
     class Meta:
         model = ProcessRequest
@@ -985,7 +973,9 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'project',
+            'parent_stage',
             'sample_collection',
+            'subsample_count',
             'description',
             'predefined',
             'request_user',
@@ -996,8 +986,7 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'worker',
             'worker_name',
             'status',
-            'inputs',
-            'outputs'
+            'inputs'
         )
 
 
@@ -1050,14 +1039,6 @@ class SampleClusterParameterSerializer(serializers.ModelSerializer):
         )
 
 
-class EventClassificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventClassification
-        fields = (
-            'event_index',
-        )
-
-
 class SampleClusterSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(
     #     view_name='sample-cluster-detail'
@@ -1079,11 +1060,7 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         read_only=True,
         many=True
     )
-    event_indices = serializers.RelatedField(
-        source='eventclassification_set',
-        read_only=True,
-        many=True
-    )
+    weight = serializers.CharField(source='weight', read_only=True)
 
     class Meta:
         model = SampleCluster
@@ -1096,5 +1073,53 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'cluster_index',
             'parameters',
             'labels',
-            'event_indices'
+            'weight'
+        )
+
+
+class SampleClusterComponentParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleClusterComponentParameter
+        fields = (
+            'id',
+            'sample_cluster_component',
+            'channel',
+            'location'
+        )
+
+
+class SampleClusterComponentSerializer(serializers.ModelSerializer):
+    process_request = serializers.CharField(
+        source='sample_cluster.cluster.process_request_id',
+        read_only=True
+    )
+    sample = serializers.CharField(
+        source='sample_cluster.sample_id',
+        read_only=True
+    )
+    cluster = serializers.CharField(
+        source='sample_cluster.cluster_id',
+        read_only=True
+    )
+    parameters = SampleClusterComponentParameterSerializer(
+        source='sampleclustercomponentparameter_set',
+        read_only=True
+    )
+    labels = serializers.RelatedField(
+        source='sample_cluster.cluster.clusterlabel_set',
+        read_only=True,
+        many=True
+    )
+    weight = serializers.CharField(source='weight', read_only=True)
+
+    class Meta:
+        model = SampleClusterComponent
+        fields = (
+            'id',
+            'process_request',
+            'sample',
+            'cluster',
+            'covariance_matrix',
+            'weight',
+            'parameters'
         )

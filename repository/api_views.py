@@ -24,6 +24,8 @@ from django.views.generic.detail import SingleObjectMixin
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
 
+import numpy as np
+
 from repository.models import *
 from repository.serializers import *
 from repository.controllers import *
@@ -88,17 +90,17 @@ def repository_api_root(request):
             'subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'process_request_stage2_create': reverse('process-request-stage2-create', request=request),
         'process_request_inputs': reverse(
             'process-request-input-list', request=request),
         'assigned_process_requests': reverse(
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
-        'process_request_outputs': reverse(
-            'process-request-output-list', request=request),
         'clusters': reverse('cluster-list', request=request),
         'cluster-labels': reverse('cluster-label-list', request=request),
-        'sample_clusters': reverse('sample-cluster-list', request=request)
+        'sample_clusters': reverse('sample-cluster-list', request=request),
+        'sample_cluster_components': reverse('sample-cluster-component-list', request=request)
     })
 
 
@@ -397,17 +399,17 @@ def retrieve_compensation_as_numpy(request, pk):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
-def retrieve_process_request_output_value(request, pk):
-    pr_output = get_object_or_404(ProcessRequestOutput, pk=pk)
+def retrieve_sample_cluster_events(request, pk):
+    sample_cluster = get_object_or_404(SampleCluster, pk=pk)
 
-    if not pr_output.has_view_permission(request.user):
+    if not sample_cluster.has_view_permission(request.user):
         raise PermissionDenied
 
     response = HttpResponse(
-        pr_output.value.file,
-        content_type='application/')
+        sample_cluster.events.file,
+        content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
-        %  pr_output.key
+        % "sc_" + str(sample_cluster.id) + '.csv'
     return response
 
 
@@ -2486,6 +2488,114 @@ class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for create 2nd stage process requests
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestSerializer
+
+    def create(self, request, *args, **kwargs):
+        # check permission for submitting process requests for this project
+        parent_pr = get_object_or_404(
+            ProcessRequest,
+            pk=request.DATA['parent_pr_id']
+        )
+        if not parent_pr.project.has_process_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            with transaction.atomic():
+                pr = ProcessRequest(
+                    project=parent_pr.project,
+                    sample_collection=parent_pr.sample_collection,
+                    description=request.DATA['description'],
+                    parent_stage=parent_pr,
+                    subsample_count=request.DATA['subsample_count'],
+                    request_user=request.user,
+                    status="Pending"
+                )
+                pr.save()
+
+                # now create the process inputs,
+                # starting w/ the parameters
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='filtering',
+                    name='parameter'
+                )
+                for param_string in request.DATA['parameters']:
+                    ProcessRequestInput.objects.create(
+                        process_request=pr,
+                        subprocess_input=subprocess_input,
+                        value=param_string
+                    )
+                # next, the clusters from stage 1 to include in stage 2
+                for cluster in request.DATA['clusters']:
+                    ProcessRequestStage2Cluster.objects.create(
+                        process_request=pr,
+                        cluster_id=cluster
+                    )
+
+                # finally, the clustering inputs:
+                #     seed, cluster count, burn-in, & iterations
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='random_seed'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value='123'
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='cluster_count'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['cluster_count']
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='burnin'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['burn_in_count']
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='iteration_count'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['iteration_count']
+                )
+
+        except Exception, e:
+            print e
+
+        serializer = ProcessRequestSerializer(
+            pr,
+            context={'request': request}
+        )
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+
 class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
     """
     API endpoint representing a list of process requests to which the
@@ -2603,42 +2713,6 @@ class ProcessRequestAssignmentUpdate(
             except ValidationError as e:
                 return Response(data={'detail': e.messages}, status=400)
 
-        return Response(data={'detail': 'Bad request'}, status=400)
-
-
-class ProcessRequestOutputList(
-        LoginRequiredMixin,
-        generics.ListCreateAPIView):
-    """
-    API endpoint for listing and creating a ProcessRequestOutput.
-    """
-    model = ProcessRequestOutput
-    serializer_class = ProcessRequestOutputSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Override post to ensure user is a worker.
-        """
-        if hasattr(self.request.user, 'worker'):
-            try:
-                worker = Worker.objects.get(user=self.request.user)
-                process_request = ProcessRequest.objects.get(
-                    id=request.DATA['process_request'])
-            except Exception as e:
-                return Response(data={'detail': e.message}, status=400)
-
-            # ensure ProcessRequest is assigned to this worker
-            if process_request.worker != worker:
-                return Response(
-                    data={
-                        'detail': 'Request is not assigned to this worker'
-                    },
-                    status=400)
-
-            # if we get here, the worker is bonafide! "He's a suitor!"
-            response = super(ProcessRequestOutputList, self).post(
-                request, *args, **kwargs)
-            return response
         return Response(data={'detail': 'Bad request'}, status=400)
 
 
@@ -2838,23 +2912,46 @@ class SampleClusterList(
                     cluster=cluster,
                     sample=sample,
                 )
+
+                # save event indices in a numpy file
+                events_file = TemporaryFile()
+                np.savetxt(
+                    events_file,
+                    np.array(request.DATA['events']),
+                    fmt='%s',
+                    delimiter=','
+                )
+                sample_cluster.events.save(
+                    join([str(sample.id), 'csv'], '.'),
+                    File(events_file),
+                    save=False
+                )
+
                 sample_cluster.clean()
                 sample_cluster.save()
 
                 # now create SampleClusterParameter instances
                 for param in request.DATA['parameters']:
-                    scp = SampleClusterParameter.objects.create(
+                    SampleClusterParameter.objects.create(
                         sample_cluster=sample_cluster,
                         channel=param,
                         location=request.DATA['parameters'][param]
                     )
 
-                # and finally the EventClassification instances
-                for event_index in request.DATA['event_indices']:
-                    scp = EventClassification.objects.create(
+                # Finally, save all the SampleClusterComponent instances
+                # along with their parameters
+                for comp in request.DATA['components']:
+                    scc = SampleClusterComponent.objects.create(
                         sample_cluster=sample_cluster,
-                        event_index=event_index,
+                        covariance_matrix=comp['covariance'],
+                        weight=comp['weight']
                     )
+                    for comp_param in comp['parameters']:
+                        SampleClusterComponentParameter.objects.create(
+                            sample_cluster_component=scc,
+                            channel=comp_param,
+                            location=comp['parameters'][comp_param]
+                        )
 
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
@@ -2867,3 +2964,38 @@ class SampleClusterList(
 
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
+
+
+class SampleClusterComponentFilter(django_filters.FilterSet):
+    process_request = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProcessRequest.objects.all(),
+        name='sample_cluster__cluster__process_request'
+    )
+    sample = django_filters.ModelMultipleChoiceFilter(
+        queryset=Sample.objects.all(),
+        name='sample_cluster__sample'
+    )
+    cluster = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        name='sample_cluster__cluster'
+    )
+
+    class Meta:
+        model = SampleClusterComponent
+        fields = [
+            'process_request',
+            'sample',
+            'cluster'
+        ]
+
+
+class SampleClusterComponentList(
+        LoginRequiredMixin,
+        generics.ListAPIView
+    ):
+    """
+    API endpoint for listing and creating a SampleCluster.
+    """
+    model = SampleClusterComponent
+    serializer_class = SampleClusterComponentSerializer
+    filter_class = SampleClusterComponentFilter

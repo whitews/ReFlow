@@ -30,6 +30,13 @@
       </tr>
 
       <tr>
+        <td>Sub-sample Count:</td>
+        <td>
+          {{ process_request.subsample_count }}<br/>
+        </td>
+      </tr>
+
+      <tr>
         <td>Worker:</td>
         <td>
           <span id="worker">
@@ -108,33 +115,6 @@
           <td>{{ request_input.implementation_name }}</td>
           <td>{{ request_input.input_name }}</td>
           <td>{{ request_input.value }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <table ts-wrapper class="table table-hover">
-      <thead>
-        <tr>
-          <th colspan="4" class="center">
-            <h4>
-              Process Request Outputs
-              <span class="badge badge-inverse align-top">{{ process_request.outputs.length }}</span>
-            </h4>
-          </th>
-        </tr>
-        <tr>
-            <th ts-criteria="key">Key</th>
-            <th ts-criteria="value">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ts-repeat ng-repeat="request_output in process_request.outputs">
-          <td>{{ request_output.key }}</td>
-          <td>
-            <a href="api/repository/process_request_outputs/{{ request_output.id }}/download/" download>
-              Download
-            </a>
-          </td>
         </tr>
       </tbody>
     </table>

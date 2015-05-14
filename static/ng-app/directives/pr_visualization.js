@@ -15,11 +15,11 @@ app.controller(
     [
         '$scope',
         '$q',
+        '$modal',
         'ModelService',
-        function ($scope, $q, ModelService) {
+        function ($scope, $q, $modal, ModelService) {
     var sample_clusters = null;
     var panel_data = null;
-    var event_data = null;
 
     // Cell subset label variables for tagging clusters
     if (ModelService.current_project) {
@@ -60,21 +60,15 @@ app.controller(
             $scope.chosen_member.sample.site_panel
         );
 
-        event_data = ModelService.getSampleCSV(
-            $scope.chosen_member.sample.id
-        );
-
-        $q.all([sample_clusters, panel_data, event_data]).then(function(data) {
+        $q.all([sample_clusters, panel_data]).then(function(data) {
             $scope.cached_plots[$scope.chosen_member.id] = {
                 'cluster_data': data[0],
-                'panel_data': data[1],
-                'event_data': data[2].data,
-                'compensation_data': $scope.chosen_member.compensation
+                'panel_data': data[1]
             };
             $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
             $scope.initialize_scatterplot();
             $scope.initialize_parallel_plot();
-        }).catch(function() {
+        }).catch(function(e) {
             // show errors here
             console.log('error!')
         }).finally(function() {
@@ -93,62 +87,6 @@ app.controller(
         }
         return null;
     };
-
-    function parse_compensation(comp_csv) {
-        // comp_csv is a text string to convert to a comp matrix object
-        // with 2 properties:
-        //     "indices": a list of indices to transform
-        //     "matrix": the compe matrix as a MathJS Matrix
-        var lines = [];
-        var header;
-
-        comp_csv.split("\n").forEach(function (line) {
-            if (line === "") {
-                return;
-            }
-            lines.push(line.split(","));
-        });
-
-        header = lines.shift();
-        for (var i=0; i < header.length; i++) {
-            header[i] = parseInt(header[i]) - 1;  // we want indices
-        }
-
-        lines.forEach(function(l) {
-            for (var i=0; i < l.length; i++) {
-                l[i] = parseFloat(l[i]);
-            }
-        });
-
-        lines = math.matrix(lines);
-
-        return {
-            "indices": header,
-            "matrix": lines
-        };
-    }
-
-    function compensate(event_object) {
-        var event_subset = [];
-        $scope.compensation.indices.forEach(function(i) {
-            // event object values are strings, we need floats for MathJS
-            event_subset.push(parseFloat(event_object[i]));
-        });
-
-        event_subset = math.multiply(
-            event_subset,
-            math.inv($scope.compensation.matrix)
-        ).toArray();  // and back to array
-
-        // and now convert back to strings
-        $scope.compensation.indices.forEach(function(i) {
-            event_object[i] = event_subset.shift().toString();
-        });
-    }
-
-    function asinh(number) {
-        return Math.log(number + Math.sqrt(number * number + 1));
-    }
 
     $scope.select_cluster = function (cluster) {
         cluster.selected = true;
@@ -237,71 +175,38 @@ app.controller(
         }
     };
 
-    $scope.process_event_data = function (event_csv) {
-        // The sample's CSV file doesn't contain a header row, we'll create
-        // one so the d3.csv.parse can conveniently make our objects for us.
-        var n_columns = 0;
-        var header = "event_index";
-        for (var i=0; i < event_csv.length; i++) {
-            if (event_csv[i] === ',') {
-                n_columns++;
-            } else if (event_csv[i] === '\n') {
-                break;
-            }
-        }
-        for (i=0; i < n_columns; i++) {
-            header += "," + i.toString();
-        }
+    $scope.process_cluster_events = function (cluster) {
+        // first retrieve SampleCluster CSV
+        var response = ModelService.getSampleClusterCSV(cluster.id);
 
-        event_csv = header + "\n" + event_csv;
+        response.then(function (event_csv) {
+            // success
+            cluster.events = d3.csv.parse(event_csv.data);
+            cluster.events_retrieved = true;
 
-        // convert the compensation text to a MathJS Matrix
-        $scope.compensation = parse_compensation($scope.plot_data.compensation_data);
+            $scope.render_plot();
+        }, function (error) {
 
-        // compensate & transform the event data,
-        // but not for scatter and time channels
-        var event_objects = d3.csv.parse(event_csv, function(d) {
-            // Always apply compensation first
-            compensate(d);
+        });
+    };
 
-            for (var prop in d) {
-                if (d.hasOwnProperty(prop) && prop !== 'event_index') {
-                    // check if this is a transform channel
-                    if ($scope.transform_indices.indexOf(prop) != -1) {
-                        // transform with pre-scaling factor
-                        d[prop] = asinh(parseFloat(d[prop]) / 100);
-                    }
+    $scope.launch_stage2_modal = function() {
+
+        // launch form modal
+        $modal.open({
+            templateUrl: MODAL_URLS.PR_STAGE2,
+            controller: 'ModalFormCtrl',
+            size: 'lg',
+            resolve: {
+                instance: function() {
+                    return {
+                        'parent_pr_id': $scope.$parent.process_request.id,
+                        'cell_subsets': $scope.labels,
+                        'parameters': $scope.plot_data.panel_data.parameters,
+                        'clusters': $scope.plot_data.cluster_data
+                    };
                 }
             }
-            return d;
-        });
-
-        // get extent for all channels for auto-ranging the axis
-        $scope.parameters.forEach(function(p) {
-            p.extent = d3.extent(event_objects, function(eo) {
-                return parseFloat(eo[p.fcs_number - 1]);
-            });
-
-            // pad ranges a bit, keeps the data points from
-            // overlapping the plot's edge, and round up to next integer
-            // for prettier user inputs for non-autoscaling
-            p.extent[0] = (p.extent[0] - (p.extent[1] - p.extent[0]) * 0.02).toFixed(2);
-            p.extent[1] = (p.extent[1] + (p.extent[1] - p.extent[0]) * 0.02).toFixed(2);
-        });
-
-        event_objects.forEach(function (e) {
-            for (var i = 0; i < $scope.plot_data.cluster_data.length; i++) {
-                if ($scope.plot_data.cluster_data[i].event_indices.indexOf(e.event_index) !== -1) {
-                    $scope.plot_data.cluster_data[i].events.push(e);
-                    break;
-                }
-            }
-        });
-
-        // populate cluster event percentage
-        $scope.plot_data.cluster_data.forEach(function (c) {
-            c.event_percent = (c.events.length / event_objects.length) * 100;
-            c.event_percent = c.event_percent.toFixed(2);
         });
     };
 }]);
@@ -313,7 +218,7 @@ app.directive('prscatterplot', function() {
         scope.canvas_width = 480;   // width of the canvas
         scope.canvas_height = 480;  // height of the canvas
         var colors = d3.scale.category20().range();
-        var margin = {            // used mainly for positioning the axes' labels
+        var margin = {          // used mainly for positioning the axes' labels
             top: 0,
             right: 0,
             bottom: height - scope.canvas_height,
@@ -327,13 +232,6 @@ app.directive('prscatterplot', function() {
         scope.auto_scale = true;  // automatically scales axes to data
         scope.animate = true;  // controls whether transitions animate
         scope.show_clusters = true;  // controls display of cluster centers
-        scope.transform_indices = [];  // data column indices to transform
-        var non_transform_param_types = [
-            'FSC',
-            'SSC',
-            'TIM',
-            'NUL'
-        ];
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -412,6 +310,8 @@ app.directive('prscatterplot', function() {
 
                 // and set an empty array for the cluster's event data
                 cluster.events = [];
+                // flag indicating cluster's events have been retrieved
+                cluster.events_retrieved = false;
 
                 // each cluster needs it's own canvas and canvas context
                 d3.select("#scatterplot")
@@ -428,10 +328,9 @@ app.directive('prscatterplot', function() {
             // reset the parameters, and build the friendly "full_name" for
             // each parameter to improve usability, otherwise users will not
             // be able to differentiate the parameters
-            // Also, set the channels to transform. Scatter, time, and null
-            // channels do not get transformed
+            // TODO: Bad! this just creates a reference and alters panel_data
+            // just iterate over panel_data.parameters directly
             scope.parameters = scope.plot_data.panel_data.parameters;
-            scope.transform_indices = [];
             scope.parameters.forEach(function(p) {
                 tmp_param = [];
                 tmp_markers = [];
@@ -457,17 +356,9 @@ app.directive('prscatterplot', function() {
 
                 p.full_name = tmp_param.join(' ');
 
-                // Now test if this is a channel we need to transform
-                if (non_transform_param_types.indexOf(p.parameter_type) == -1) {
-                    // data is zero-indexed
-                    scope.transform_indices.push((p.fcs_number - 1).toString());
-                }
-
+                // for submitting 2nd stage PRs
+                p.full_name_underscored = tmp_param.join('_');
             });
-
-            // Now, convert the event_data CSV string into usable objects
-            // and store each cluster's events in the cluster.events array
-            scope.process_event_data(scope.plot_data.event_data);
 
             // reset the SVG clusters
             scope.clusters = null;
@@ -485,9 +376,6 @@ app.directive('prscatterplot', function() {
                 scope.y_param = scope.parameters[0];
             }
 
-            scope.x_pre_scale = '0.01';
-            scope.y_pre_scale = '0.01';
-
             scope.clusters = cluster_plot_area.selectAll("circle").data(
                 scope.plot_data.cluster_data
             );
@@ -504,7 +392,7 @@ app.directive('prscatterplot', function() {
                     }
 
                     tooltip.style("visibility", "visible");
-                    tooltip.text("Cluster " + d.cluster_index + " (" + d.event_percent + "%)");
+                    tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
 
                     scope.select_cluster(d);
                     scope.$apply();
@@ -564,8 +452,11 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         // this function separates the transitioning logic to
         // allow both toggling of a single cluster and toggling
         // all clusters without creating lots of transition loops
-
         cluster.display_events = !cluster.display_events;
+        if (!cluster.events_retrieved) {
+            // retrieve sample cluster events & process
+            $scope.process_cluster_events(cluster);
+        }
 
         // toggle cluster lines
         if (cluster.display_events) {
@@ -584,14 +475,16 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         });
 
         // Now transition everything
-        $scope.transition_canvas_events(++$scope.transition_count);
+        $scope.render_plot();
     };
 
     $scope.toggle_cluster_events = function (cluster) {
         toggle_cluster_events(cluster);
 
-        // Now, transition the events
-        $scope.transition_canvas_events(++$scope.transition_count);
+        // Now, transition the events if we have them
+        if (cluster.events_retrieved) {
+            $scope.render_plot();
+        }
     };
 
     $scope.render_plot = function () {
@@ -599,8 +492,15 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.x_label.text($scope.x_param.full_name);
         $scope.y_label.text($scope.y_param.full_name);
 
+        // holds the x & y locations for the clusters
         x_data = [];
         y_data = [];
+
+        // for determining min/max values for x & y
+        var tmp_x_extent;
+        var tmp_y_extent;
+        $scope.x_param.extent = undefined;
+        $scope.y_param.extent = undefined;
 
         // Populate x_data and y_data using chosen x & y parameters
         for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
@@ -612,19 +512,102 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                     y_data[i] = p.location;
                 }
             });
+
+            // if auto-scaling, parse displayed events for extent
+            if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
+                tmp_x_extent = d3.extent(
+                    $scope.plot_data.cluster_data[i].events,
+                    function(e_obj) {
+                        return parseFloat(e_obj[$scope.x_param.fcs_number]);
+                    }
+                );
+                if ($scope.x_param.extent === undefined) {
+                    $scope.x_param.extent = tmp_x_extent;
+                } else {
+                    if (tmp_x_extent[0] < $scope.x_param.extent[0]) {
+                        $scope.x_param.extent[0] = tmp_x_extent[0];
+                    }
+                    if (tmp_x_extent[1] > $scope.x_param.extent[1]) {
+                        $scope.x_param.extent[1] = tmp_x_extent[1];
+                    }
+                }
+
+                tmp_y_extent = d3.extent(
+                    $scope.plot_data.cluster_data[i].events,
+                    function(e_obj) {
+                        return parseFloat(e_obj[$scope.y_param.fcs_number]);
+                    }
+                );
+                if ($scope.y_param.extent === undefined) {
+                    $scope.y_param.extent = tmp_y_extent;
+                } else {
+                    if (tmp_y_extent[0] < $scope.y_param.extent[0]) {
+                        $scope.y_param.extent[0] = tmp_y_extent[0];
+                    }
+                    if (tmp_y_extent[1] > $scope.y_param.extent[1]) {
+                        $scope.y_param.extent[1] = tmp_y_extent[1];
+                    }
+                }
+            }
         }
 
         // check for auto-scaling
         x_range = [];
         y_range = [];
         if ($scope.auto_scale) {
-            // Lookup ranges to calculate the axes' scaling
-            x_range = $scope.x_param.extent;
-            y_range = $scope.y_param.extent;
-            $scope.user_x_min = $scope.x_param.extent[0];
-            $scope.user_x_max = $scope.x_param.extent[1];
-            $scope.user_y_min = $scope.y_param.extent[0];
-            $scope.user_y_max = $scope.y_param.extent[1];
+            // find the true extent of the combined cluster locations and
+            // the displayed events.
+            if ($scope.x_param.extent !== undefined) {
+                if (x_data.length > 0) {
+                    x_range = [
+                        math.min(math.min(x_data), $scope.x_param.extent[0]),
+                        math.max(math.max(x_data), $scope.x_param.extent[1])
+                    ];
+                } else {
+                    x_range = $scope.x_param.extent;
+                }
+            } else {
+                if (x_data.length > 0) {
+                    x_range = [
+                        math.min(x_data),
+                        math.max(x_data)
+                    ];
+                }
+            }
+
+            if ($scope.y_param.extent !== undefined) {
+                if (y_data.length > 0) {
+                    y_range = [
+                        math.min(math.min(y_data), $scope.y_param.extent[0]),
+                        math.max(math.max(y_data), $scope.y_param.extent[1])
+                    ];
+                } else {
+                    y_range = $scope.y_param.extent;
+                }
+            } else {
+                if (y_data.length > 0) {
+                    y_range = [
+                        math.min(y_data),
+                        math.max(y_data)
+                    ];
+                }
+            }
+
+            // Add some padding as well to keep objects from the sides
+            x_range = [
+                x_range[0] - (0.05 * (x_range[1] - x_range[0])),
+                x_range[1] + (0.05 * (x_range[1] - x_range[0]))
+            ];
+            y_range = [
+                y_range[0] - (0.05 * (y_range[1] - y_range[0])),
+                y_range[1] + (0.05 * (y_range[1] - y_range[0]))
+            ];
+
+            // Set text box values
+            $scope.user_x_min = x_range[0];
+            $scope.user_x_max = x_range[1];
+            $scope.user_y_min = y_range[0];
+            $scope.user_y_max = y_range[1];
         } else {
             x_range.push($scope.user_x_min);
             x_range.push($scope.user_x_max);
@@ -675,8 +658,8 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 cluster.events.forEach(function (event) {
                     cluster.next_position.push(
                         [
-                            x_scale(event[$scope.x_param.fcs_number - 1]),
-                            y_scale(event[$scope.y_param.fcs_number - 1]),
+                            x_scale(event[$scope.x_param.fcs_number]),
+                            y_scale(event[$scope.y_param.fcs_number]),
                             $scope.show_heat ? $scope.heat_base_color : cluster.color
                         ]
                     );
