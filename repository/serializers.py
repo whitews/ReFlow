@@ -885,6 +885,12 @@ class SubprocessInputSerializer(serializers.ModelSerializer):
         )
 
 
+class ProcessRequestStage2ClusterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequestStage2Cluster
+        fields = ('process_request', 'cluster')
+
+
 class ProcessRequestSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
@@ -966,6 +972,10 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     inputs = ProcessRequestInputSerializer(
         source='processrequestinput_set'
     )
+    stage2_clusters = members = ProcessRequestStage2ClusterSerializer(
+        source='processrequeststage2cluster_set',
+        read_only=True
+    )
 
     class Meta:
         model = ProcessRequest
@@ -974,6 +984,7 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'url',
             'project',
             'parent_stage',
+            'stage2_clusters',
             'sample_collection',
             'subsample_count',
             'description',

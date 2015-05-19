@@ -2494,7 +2494,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
     """
 
     model = ProcessRequest
-    serializer_class = ProcessRequestSerializer
+    serializer_class = ProcessRequestDetailSerializer
 
     def create(self, request, *args, **kwargs):
         # check permission for submitting process requests for this project
@@ -2586,7 +2586,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
         except Exception, e:
             print e
 
-        serializer = ProcessRequestSerializer(
+        serializer = ProcessRequestDetailSerializer(
             pr,
             context={'request': request}
         )
