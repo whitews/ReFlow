@@ -8,8 +8,6 @@ app.controller(
             // PRVisualizationController pushes necessary vars through to this
             // controller
 
-            console.log();
-
             $scope.submit_request = function () {
                 var second_stage_clusters = [];
                 var second_stage_params = [];
@@ -41,7 +39,8 @@ app.controller(
                     }
                 );
                 pr.$promise.then(function () {
-
+                    // close modal
+                    $scope.ok();
                 });
             };
         }
