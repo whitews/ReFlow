@@ -51,6 +51,7 @@ app.controller(
         //}
 
         $scope.retrieving_data = true;
+        $scope.has_parent_stage = $scope.$parent.process_request.parent_stage > 0;
         sample_clusters = ModelService.getSampleClusters(
             $scope.$parent.process_request.id,
             $scope.chosen_member.sample.id
