@@ -18,7 +18,10 @@ app.controller(
                 project: $scope.current_project.id
             };
 
-            if ($scope.sample_upload_model.current_panel_template) {
+            // TODO: should we even get any site panel candidates if either
+            // the current_site or current_panel_template is not specified?
+
+            if ($scope.sample_upload_model.current_site) {
                 site_panel_query.site = $scope.sample_upload_model.current_site.id;
             }
 
