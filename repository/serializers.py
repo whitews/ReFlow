@@ -902,6 +902,10 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
         source='worker.worker_name',
         read_only=True
     )
+    parent_description = serializers.CharField(
+        source='parent_stage.description',
+        read_only=True
+    )
 
     class Meta:
         model = ProcessRequest
@@ -910,6 +914,7 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'url',
             'project',
             'parent_stage',
+            'parent_description',
             'sample_collection',
             'subsample_count',
             'description',
