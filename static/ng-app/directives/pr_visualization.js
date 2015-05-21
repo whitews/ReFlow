@@ -192,7 +192,12 @@ app.controller(
     };
 
     $scope.launch_stage2_modal = function() {
-
+        var stage2_params = [];
+        $scope.plot_data.panel_data.parameters.forEach(function (p) {
+            if (p.parameter_type != 'TIM' && p.parameter_type != 'NUL') {
+                stage2_params.push(p);
+            }
+        });
         // launch form modal
         $modal.open({
             templateUrl: MODAL_URLS.PR_STAGE2,
@@ -203,7 +208,7 @@ app.controller(
                     return {
                         'parent_pr_id': $scope.$parent.process_request.id,
                         'cell_subsets': $scope.labels,
-                        'parameters': $scope.plot_data.panel_data.parameters,
+                        'parameters': stage2_params,
                         'clusters': $scope.plot_data.cluster_data
                     };
                 }
