@@ -50,11 +50,21 @@ app.controller(
                 $stateParams.requestId
             );
 
-            $scope.process_request.$promise.then(function () {
+            $scope.process_request.$promise.then(function (pr) {
+                // get sample collection for this PR
                 ModelService.getSampleCollection(
                     $scope.process_request.sample_collection
                 ).$promise.then(function (data) {
                     $scope.sample_collection = data;
+                });
+
+                // get child 2nd stage PRs related to this PR
+                ModelService.getProcessRequests(
+                    {
+                        parent_stage: pr.id
+                    }
+                ).$promise.then(function (data) {
+                    $scope.children = data;
                 });
             });
         }
