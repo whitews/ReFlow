@@ -13,6 +13,37 @@ app.controller(
             $scope.instance.burn_in_count = 5000;
             $scope.instance.iteration_count = 50;
 
+            $scope.instance.invalid = true;
+
+            $scope.check_inputs = function () {
+                var invalid = false;
+
+                if (typeof $scope.instance.cluster_count !== 'number' || ($scope.instance.cluster_count % 1) !== 0) {
+                    invalid = true;
+                }
+                if (typeof $scope.instance.burn_in_count !=='number' || ($scope.instance.burn_in_count % 1) !== 0) {
+                    invalid = true;
+                }
+                if (typeof $scope.instance.iteration_count !== 'number' || ($scope.instance.iteration_count % 1) !== 0) {
+                    invalid = true;
+                }
+                if ($scope.instance.cell_subset === undefined) {
+                    invalid = true;
+                }
+
+                var selected_params = 0;
+                $scope.instance.parameters.forEach(function (p) {
+                    if (p.selected) {
+                        selected_params++;
+                    }
+                });
+                if (selected_params <= 0) {
+                    invalid = true;
+                }
+
+                $scope.instance.invalid = invalid;
+            };
+
             $scope.submit_request = function () {
                 var second_stage_clusters = [];
                 var second_stage_params = [];
