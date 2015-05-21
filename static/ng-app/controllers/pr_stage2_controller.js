@@ -8,6 +8,11 @@ app.controller(
             // PRVisualizationController pushes necessary vars through to this
             // controller
 
+            // some input defaults
+            $scope.instance.cluster_count = 32;
+            $scope.instance.burn_in_count = 5000;
+            $scope.instance.iteration_count = 50;
+
             $scope.submit_request = function () {
                 var second_stage_clusters = [];
                 var second_stage_params = [];
