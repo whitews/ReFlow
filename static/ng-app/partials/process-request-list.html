@@ -22,6 +22,7 @@
           <th ts-criteria="worker_name">Worker</th>
           <th ts-criteria="assignment_date">Assignment Date</th>
           <th ts-criteria="completion_date">Completion Date</th>
+          <th ts-criteria="parent_description">Parent Stage</th>
         </tr>
       </thead>
       <tbody>
@@ -47,6 +48,11 @@
           <td>
             <span ng-hide="request.completion_date==null">{{ request.completion_date }}</span>
             <span ng-show="request.completion_date==null">Not completed</span>
+          </td>
+          <td>
+            <a ui-sref="process-request-detail({ requestId: request.parent_stage })">
+              {{ request.parent_description }}
+            </a>
           </td>
         </tr>
       </tbody>
