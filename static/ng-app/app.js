@@ -64,6 +64,7 @@ var MODAL_URLS = {
     'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
     'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html',
     'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html',
+    'PR_STAGE2':          'static/ng-app/partials/pr-stage2-form.html',
 
     // admin modals
     'USER':               'static/ng-app/partials/user-form.html',

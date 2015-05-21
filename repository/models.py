@@ -42,9 +42,9 @@ class ProtectedModel(models.Model):
         return False
 
 
-##################################
-### Non-project related models ###
-##################################
+##############################
+# Non-project related models #
+##############################
 
 
 class Specimen(models.Model):
@@ -116,9 +116,9 @@ STATUS_CHOICES = (
 )
 
 
-##############################
-### Project related models ###
-##############################
+##########################
+# Project related models #
+##########################
 
 
 class ProjectManager(models.Manager):
@@ -229,7 +229,8 @@ class Project(ProtectedModel):
         return Sample.objects.filter(subject__project=self).count()
 
     def get_compensation_count(self):
-        return Compensation.objects.filter(site_panel__site__project=self).count()
+        return Compensation.objects.filter(
+            site_panel__site__project=self).count()
 
     def get_bead_sample_count(self):
         return BeadSample.objects.filter(cytometer__site__project=self).count()
@@ -1022,7 +1023,8 @@ class SubjectGroup(ProtectedModel):
         return False
 
     def get_sample_count(self):
-        sample_count = Sample.objects.filter(subject__in=self.subject_set.all()).count()
+        sample_count = Sample.objects.filter(
+            subject__in=self.subject_set.all()).count()
         return sample_count
 
     class Meta:
@@ -1190,7 +1192,7 @@ class Compensation(ProtectedModel):
 
         np.savetxt(
             csv_string,
-            compensation_array[1:,:],
+            compensation_array[1:, :],
             fmt='%f',
             delimiter=','
         )
@@ -1587,7 +1589,7 @@ class Sample(ProtectedModel):
         # The result is stored as a numpy object in a file field.
         # To ensure room for the indices and preserve precision for values,
         # we save as float32
-        numpy_data = n = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
+        numpy_data = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
         index_array = np.arange(len(numpy_data))
         np.random.shuffle(index_array)
         random_subsample = numpy_data[index_array[:10000]]
@@ -1986,7 +1988,7 @@ class BeadSample(ProtectedModel):
         # The result is stored as a numpy object in a file field.
         # To ensure room for the indices and preserve precision for values,
         # we save as float32
-        numpy_data = n = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
+        numpy_data = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
         index_array = np.arange(len(numpy_data))
         np.random.shuffle(index_array)
         random_subsample = numpy_data[index_array[:10000]]
@@ -2061,9 +2063,9 @@ class BeadSampleMetadata(ProtectedModel):
         return u'%s: %s' % (self.key, self.value)
 
 
-####################################
-### START PROCESS RELATED MODELS ###
-####################################
+################################
+# START PROCESS RELATED MODELS #
+################################
 
 
 class Worker(models.Model):
@@ -2180,6 +2182,16 @@ class ProcessRequest(ProtectedModel):
         max_length=128,
         null=False,
         blank=False)
+    # processing can be done in 2 stages, where the 2nd stage performs
+    # clustering on a single cell subset found in the 1st stage.
+    # The single cell subset may include one or more clusters.
+    # The 2nd stage is essentially a child of the 1st, with a self-referential
+    # key back to the parent. 1st stage parent_stage is null
+    parent_stage = models.ForeignKey('self', null=True, blank=True)
+
+    # number of events to subsample
+    subsample_count = models.IntegerField(null=False, blank=False)
+
     predefined = models.CharField(
         max_length=64,
         null=True,
@@ -2238,6 +2250,16 @@ class ProcessRequest(ProtectedModel):
         return u'%s' % self.description
 
 
+class ProcessRequestStage2Cluster(models.Model):
+    """
+    Stores which clusters from stage 1 to include in stage 2 analysis
+    """
+    # this process request is the 2nd stage PR:
+    process_request = models.ForeignKey(ProcessRequest)
+    # but the cluster is from the parent PR:
+    cluster = models.ForeignKey('Cluster')
+
+
 class ProcessRequestInput(models.Model):
     """
     The value for a specific SubprocessInput for a ProcessRequest
@@ -2254,49 +2276,6 @@ class ProcessRequestInput(models.Model):
             self.process_request_id,
             self.subprocess_input.name,
             self.value)
-
-
-def pr_output_path(instance, filename):
-    project_id = instance.process_request.project_id
-    pr_id = instance.process_request.id
-
-    upload_dir = join([
-        'ReFlow-data',
-        str(project_id),
-        'process_requests',
-        str(pr_id),
-        str(filename)],
-        "/")
-
-    return upload_dir
-
-
-class ProcessRequestOutput(ProtectedModel):
-    """
-    A key/value pair used to capture results from a specific ProcessRequest
-    """
-    process_request = models.ForeignKey(ProcessRequest)
-    # all values will be a (potentially large) file
-    key = models.CharField(null=False, blank=False, max_length=1024)
-    value = models.FileField(
-        upload_to=pr_output_path,
-        null=False,
-        blank=False,
-        max_length=256
-    )
-
-    def has_view_permission(self, user):
-
-        if self.process_request.has_view_permission(user):
-            return True
-
-        return False
-
-    def __unicode__(self):
-        return u'%s: %s' % (
-            self.process_request_id,
-            self.key
-        )
 
 
 class Cluster(ProtectedModel):
@@ -2358,47 +2337,74 @@ class ClusterLabel(ProtectedModel):
         return "%d" % self.label_id
 
 
-class SampleClusterMode(models.Model):
-    """
-    !!! Note: Currently not used anywhere
+def cluster_events_file_path(instance, filename):
+    project_id = instance.cluster.process_request.project_id
+    pr_id = instance.cluster.process_request.id
 
-    Used to group related SampleCLuster instances into a mode. The mode
-    itself has a different location from any of its SampleCluster members,
-    and the location of the SampleClusterMode is in the
-    SampleClusterModeParameter set
-    """
-    index = models.IntegerField(null=False, blank=False)
+    upload_dir = join([
+        'ReFlow-data',
+        str(project_id),
+        'process_requests',
+        str(pr_id),
+        'clusters',
+        str(instance.cluster.id),
+        filename],
+        "/")
 
-
-class SampleClusterModeParameter(models.Model):
-    """
-    !!! Note: Currently not used anywhere
-
-    Used to store the location of a SampleClusterMode.
-    Each parameter identifies a channel in the Sample along with the
-    coordinate for the SampleClusterMode.
-    """
-    mode = models.ForeignKey(SampleClusterMode)
-    channel = models.IntegerField(null=False, blank=False)
-    location = models.FloatField(null=False, blank=False)
+    return upload_dir
 
 
 class SampleCluster(ProtectedModel):
     """
     Each sample in a SampleCollection tied to a ProcessRequest will have
-    its own version of each cluster. The location of the SampleCluster is
-    in the SampleClusterParameter set. Additionally, there is an optional
-    SampleClusterMode to which one or more SampleCluster instances from the
-    same Sample may belong
+    its own version of each cluster, with its own location & associated
+    event indices. The location of the SampleCluster is stored in the
+    SampleClusterParameter set.
     """
     cluster = models.ForeignKey(Cluster)
     sample = models.ForeignKey(Sample)
+
+    # events stored with header row indicating channel index (starting at 0),
+    # and 1st column is the event's original index in the source FCS file
+    events = models.FileField(
+        upload_to=cluster_events_file_path,
+        null=False,
+        blank=False,
+        max_length=256
+    )
+
+    def _get_weight(self):
+        """
+        Returns the sum of the component weights as a percentage
+        """
+        weight = 0
+        for comp in self.sampleclustercomponent_set.all():
+            weight += comp.weight
+        return round(weight * 100.0, 3)
+
+    weight = property(_get_weight)
 
     def has_view_permission(self, user):
         if self.cluster.has_view_permission(user):
             return True
 
         return False
+
+    def get_events_as_csv(self):
+        csv_string = StringIO()
+        events_array = np.load(self.events.file)
+
+        header = ','.join(["%d" % n for n in compensation_array[0]])
+        csv_string.write(header + '\n')
+
+        np.savetxt(
+            csv_string,
+            compensation_array[1:, :],
+            fmt='%f',
+            delimiter=','
+        )
+        csv_string.seek(0)
+        return csv_string
 
 
 class SampleClusterParameter(ProtectedModel):
@@ -2418,18 +2424,40 @@ class SampleClusterParameter(ProtectedModel):
         return False
 
 
-class EventClassification(ProtectedModel):
+class SampleClusterComponent(ProtectedModel):
     """
-    Ties a Sample event index to a particular SampleCluster
+    A SampleCluster can be considered a mode comprised of one or more
+    components. Each component is a gaussian distribution with its own
+    location, weight, and covariance. The components are mainly used
+    for re-classification of events in 2nd stage processing
     """
     sample_cluster = models.ForeignKey(SampleCluster)
-    event_index = models.IntegerField(null=False, blank=False)
+    covariance_matrix = models.TextField(
+        null=False,
+        blank=False
+    )
+    # weight is essentially the percentage of events
+    weight = models.FloatField(null=False, blank=False)
+
+    def has_view_permission(self, user):
+        if self.cluster.has_view_permission(user):
+            return True
+
+        return False
+
+
+class SampleClusterComponentParameter(ProtectedModel):
+    """
+    Used to store the location of a SampleClusterComponent.
+    Each parameter identifies a channel in the Sample along with the
+    coordinate for the SampleClusterComponent.
+    """
+    sample_cluster_component = models.ForeignKey(SampleClusterComponent)
+    channel = models.IntegerField(null=False, blank=False)
+    location = models.FloatField(null=False, blank=False)
 
     def has_view_permission(self, user):
         if self.sample_cluster.has_view_permission(user):
             return True
 
         return False
-
-    def __unicode__(self):
-        return "%d" % self.event_index

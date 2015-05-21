@@ -39,10 +39,9 @@ var URLS = {
     'SUBPROCESS_INPUTS':          '/api/repository/subprocess_inputs/',
     'VERIFY_WORKER':           '/api/repository/verify_worker/',
     'PROCESS_REQUESTS':        '/api/repository/process_requests/',
+    'PROCESS_REQUEST_STAGE_2': '/api/repository/process_requests/stage2/',
     'PROCESS_REQUEST_INPUTS':     '/api/repository/process_request_inputs',
-    'PROCESS_REQUEST_OUTPUTS':     '/api/repository/process_request_outputs',
     'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
-    'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/',
     'SAMPLE_CLUSTERS':  '/api/repository/sample_clusters/',
     'CLUSTER_LABELS':  '/api/repository/cluster_labels/'
 };
@@ -378,6 +377,9 @@ service
 
         return ProcessRequest;
     }])
+    .factory('ProcessRequestStage2', ['$resource', function ($resource) {
+        return $resource(URLS.PROCESS_REQUEST_STAGE_2, {});
+    }])
     .factory('ProcessRequestInput', ['$resource', function ($resource) {
         return $resource(
             URLS.PROCESS_REQUEST_INPUTS,
@@ -389,9 +391,6 @@ service
                 }
             }
         );
-    }])
-    .factory('ProcessRequestOutput', ['$resource', function ($resource) {
-        return $resource(URLS.PROCESS_REQUEST_OUTPUTS);
     }])
     .factory('SampleCluster', ['$resource', function ($resource) {
         return $resource(URLS.SAMPLE_CLUSTERS);

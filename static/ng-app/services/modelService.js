@@ -32,6 +32,7 @@ service.factory('ModelService', function(
         ParameterFunction,
         ParameterValueType,
         ProcessRequest,
+        ProcessRequestStage2,
         ProcessRequestInput,
         SubprocessImplementation,
         SubprocessInput,
@@ -674,6 +675,9 @@ service.factory('ModelService', function(
     service.destroyProcessRequest = function (instance) {
         return ProcessRequest.delete({id: instance.id });
     };
+    service.createProcessRequestStage2 = function(instance) {
+        return ProcessRequestStage2.save(instance);
+    };
 
     // Subprocess Implementation services
     service.getSubprocessImplementations = function(query_object) {
@@ -722,6 +726,11 @@ service.factory('ModelService', function(
                 'sample': sample_id
             }
         ).$promise;
+    };
+    service.getSampleClusterCSV = function (id) {
+        return $http.get(
+            '/api/repository/sample_clusters/' + id.toString() + '/csv/'
+        );
     };
 
     // ClusterLabel services
