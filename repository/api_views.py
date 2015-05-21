@@ -2453,7 +2453,7 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('project', 'worker', 'request_user')
+    filter_fields = ('project', 'worker', 'request_user', 'parent_stage')
 
     def create(self, request, *args, **kwargs):
         # check permission for submitting process requests for this project
