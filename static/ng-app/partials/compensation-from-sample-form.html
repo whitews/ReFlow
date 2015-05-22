@@ -26,9 +26,9 @@
 
     <textarea class="form-control" rows="12" ng-model="comp_instance.matrix_text"></textarea>
 
-    <div class="well well-warning" ng-show="matrix_errors.length > 0">
+    <div class="well well-warning" ng-show="errors.matrix_text.length > 0">
       <ul class="list-unstyled">
-        <li ng-repeat="error in matrix_errors">{{ error }}</li>
+        <li ng-repeat="error in errors.matrix_text">{{ error }}</li>
       </ul>
     </div>
 
