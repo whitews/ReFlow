@@ -619,6 +619,10 @@ class SampleSerializer(serializers.ModelSerializer):
         source='upload_date',
         format='%Y-%m-%d %H:%M:%S',
         read_only=True)
+    has_compensation = serializers.BooleanField(
+        source='has_compensation',
+        read_only=True
+    )
 
     class Meta:
         model = Sample
@@ -647,6 +651,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'project_name',
             'original_filename',
             'exclude',
+            'has_compensation',
             'sha1',
         )
         read_only_fields = (

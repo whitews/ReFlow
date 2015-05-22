@@ -124,6 +124,7 @@
                 <th ts-criteria="original_filename">File name</th>
                 <th ts-criteria="upload_date">Upload Date</th>
                 <th ts-criteria="acquisition_date">Acquisition Date</th>
+                <th ts-criteria="has_compensation">Has Compensation?</th>
             </tr>
           </thead>
           <tbody>
@@ -151,6 +152,10 @@
               <td>{{ s.original_filename }}</td>
               <td>{{ s.upload_date }}</td>
               <td>{{ s.acquisition_date }}</td>
+              <td>
+                <i class="fa fa-check fa-lg text-success" ng-show="s.has_compensation"></i>
+                <i class="fa fa-ban fa-lg text-warning" ng-show="!s.has_compensation"></i>
+              </td>
             </tr>
           </tbody>
         </table>
