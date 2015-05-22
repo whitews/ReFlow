@@ -368,6 +368,7 @@ app.controller(
                 response.$promise.then(function () {
                     // notify to update comp list
                     ModelService.compensationsUpdated();
+                    ModelService.samplesUpdated();
 
                     // close modal
                     $scope.ok();
