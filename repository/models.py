@@ -1221,7 +1221,7 @@ class Compensation(ProtectedModel):
         # 'Null', scatter and time don't get compensated
         params = SitePanelParameter.objects.filter(
             site_panel_id=self.site_panel_id).exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
+                parameter_type__in=['FSC', 'SSC', 'TIM'])
 
         # parse the matrix text and validate the number of params match
         # the number of fluoro params in the site panel and that the matrix
