@@ -10,7 +10,7 @@ var app = angular.module(
         'ngResource',
         'ui.router',
         'ui.bootstrap',
-        'ui.select2',
+        'ui.select',
         'ncy-angular-breadcrumb',
         'angularFileUpload',
         'tableSort'
@@ -36,6 +36,8 @@ var MODAL_URLS = {
     'SITE':               'static/ng-app/partials/site-form.html',
     'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
     'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
+    'PANEL_VARIANT':      'static/ng-app/partials/panel-variant-form.html',
+    'CELL_SUBSET_LABEL':  'static/ng-app/partials/cell-subset-label-form.html',
     'STIMULATION':        'static/ng-app/partials/stimulation-form.html',
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
     'SAMPLE_METADATA':    'static/ng-app/partials/sample-metadata-list.html',
@@ -51,15 +53,18 @@ var MODAL_URLS = {
     'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html',
     'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
     'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
+    'CELL_SUBSET_LABEL_DELETE': 'static/ng-app/partials/cell-subset-label-delete.html',
     'STIMULATION_DELETE': 'static/ng-app/partials/stimulation-delete.html',
     'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
     'SITE_DELETE':        'static/ng-app/partials/site-delete.html',
     'PANEL_DELETE':       'static/ng-app/partials/panel-template-delete.html',
+    'PANEL_VARIANT_DELETE': 'static/ng-app/partials/panel-variant-delete.html',
     'SITE_PANEL_DELETE':  'static/ng-app/partials/site-panel-delete.html',
     'SUBJECT_DELETE':     'static/ng-app/partials/subject-delete.html',
     'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
     'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html',
     'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html',
+    'PR_STAGE2':          'static/ng-app/partials/pr-stage2-form.html',
 
     // admin modals
     'USER':               'static/ng-app/partials/user-form.html',
@@ -128,32 +133,6 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
             ncyBreadcrumbLabel: 'Specimens'
         }
     }).state({
-        name: 'marker-list',
-        parent: 'admin',
-        url: 'markers/',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/marker-list.html',
-                controller: 'MarkerController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Markers'
-        }
-    }).state({
-        name: 'fluorochrome-list',
-        parent: 'admin',
-        url: 'fluorochromes/',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/fluorochrome-list.html',
-                controller: 'FluorochromeController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Fluorochromes'
-        }
-    }).state({
         name: 'user-list',
         parent: 'admin',
         url: 'users/',
@@ -191,6 +170,32 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: '{{current_project.project_name}}'
+        }
+    }).state({
+        name: 'marker-list',
+        parent: 'project-detail',
+        url: '/markers/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/marker-list.html',
+                controller: 'MarkerController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Markers'
+        }
+    }).state({
+        name: 'fluorochrome-list',
+        parent: 'project-detail',
+        url: '/fluorochromes/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/fluorochrome-list.html',
+                controller: 'FluorochromeController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Fluorochromes'
         }
     }).state({
         name: 'process-request-list',
@@ -347,6 +352,19 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Stimulations'
+        }
+    }).state({
+        name: 'cell-subset-label-list',
+        parent: 'project-detail',
+        url: '/cell-subset-labels/',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/cell-subset-label-list.html',
+                controller: 'CellSubsetLabelController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Cell Subset Labels'
         }
     }).state({
         name: 'panel-template-list',

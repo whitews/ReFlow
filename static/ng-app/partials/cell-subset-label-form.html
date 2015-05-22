@@ -1,26 +1,30 @@
-<div ng-controller="SubjectGroupEditController">
+<div ng-controller="CellSubsetLabelEditController">
   <div class="modal-header">
     <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
-    Create or Edit Subject Group
+    Create or Edit Cell Subset Label
   </div>
   <div class="modal-body">
 
     <div class="form-group">
       <label class="col-md-3 control-label">Name</label>
-      <input maxlength="128" type="text" ng-model="instance.group_name" />
-      <strong ng-show="errors.group_name" class="help-inline text-danger">
-        {{ errors.group_name.join(', ') }}
+      <input maxlength="128" type="text" ng-required="true" ng-model="instance.name" />
+      <strong ng-show="errors.name" class="help-inline text-danger">
+        {{ errors.name.join(', ') }}
       </strong>
     </div>
 
+    <br/>
+
     <div class="form-group">
       <label class="col-md-3 control-label">Description</label>
-      <textarea cols="40" rows="10" ng-model="instance.group_description">
+      <textarea cols="40" rows="10" ng-model="instance.description">
       </textarea>
-      <strong ng-show="errors.group_description" class="help-inline text-danger">
-        {{ errors.group_description.join(', ') }}
+      <strong ng-show="errors.description" class="help-inline text-danger">
+        {{ errors.description.join(', ') }}
       </strong>
     </div>
+
+    <br/>
 
     <div class="well well-warning" ng-show="errors.__all__">
       <ul class="list-unstyled">

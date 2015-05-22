@@ -10,33 +10,6 @@
 
         <br/>
 
-        <div>
-          Staining:
-          <select class="form-control" ng-model="model.current_staining" ng-required="true" ng-change="stainingChanged()" ng-options="s[0] as s[1] for s in model.panel_template_types">
-          </select>
-        </div>
-
-        <br/>
-
-        <div ng-show="model.parent_template_required">
-        Parent Template:
-
-        <select class="form-control" ng-model="model.parent_template" ng-required="true" ng-change="validatePanel()" ng-options="p.panel_name for p in model.panel_templates">
-        </select>
-        </div>
-        <br/>
-        <ul class="list-unstyled" ng-show="model.parent_template">
-          <li ng-repeat="param in model.parent_template.parameters">
-            <span ng-show="param.match" class="fa fa-check"></span>
-            <span ng-hide="param.match" class="fa fa-exclamation-triangle danger"></span>
-            {{ param.parameter_type }},
-            {{ param.parameter_value_type }}<span ng-repeat="m in param.markers">,
-            {{ m.name }}</span><span ng-show="param.fluorochrome">,
-            {{ param.fluorochrome_abbreviation }}</span>
-            <span class="label label-info" ng-show="param.fmo_match == true">FMO</span>
-            <span class="label label-primary" ng-show="param.iso_match == true">ISO</span>
-          </li>
-        </ul>
       </div>
 
       <div class="alert alert-danger" ng-show="model.errors">
@@ -66,20 +39,26 @@
               </button>
             </td>
             <td>
-                <select class="form-control" ng-model="channel.function" ng-change="validatePanel()" ng-required="!channel.marker_disabled" ng-options="p[0] as p[1] for p in model.parameter_functions">
+                <select class="form-control" ng-model="channel.function" ng-change="validatePanel()" ng-required="true" ng-options="p[0] as p[1] for p in model.parameter_functions">
                 </select>
             </td>
             <td>
-                <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-options="p[0] as p[1] for p in model.parameter_value_types">
+                <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-required="true" ng-options="p[0] as p[1] for p in model.parameter_value_types">
                 </select>
             </td>
             <td>
-                <select ui-select2="{}" multiple ng-model="channel.markers" ng-change="validatePanel()" ng-disabled="channel.marker_disabled">
-                  <option value="{{ m.id }}" data-ng-repeat="m in model.markers">{{ m.marker_abbreviation }}</option>
-                </select>
+                <ui-select multiple theme="bootstrap" ng-model="channel.markers" search-enabled="true"
+                           ng-show="channel.function == 'FLR'" ng-change="validatePanel()" ng-disabled="channel.marker_disabled">
+                  <ui-select-match>{{ $item.marker_abbreviation }}</ui-select-match>
+
+                  <ui-select-choices repeat="m.id as m in model.markers | filter:$select.search">
+                    {{ m.marker_abbreviation }}
+                  </ui-select-choices>
+
+                </ui-select>
             </td>
             <td>
-                <select class="form-control" ng-model="channel.fluorochrome" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
+                <select class="form-control" ng-model="channel.fluorochrome" ng-show="channel.function == 'FLR'" ng-change="validatePanel()" ng-disabled="channel.fluoro_disabled" ng-options="f.id as f.fluorochrome_abbreviation for f in model.fluorochromes">
                   <option value=""></option>
                 </select>
             </td>

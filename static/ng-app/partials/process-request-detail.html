@@ -1,58 +1,90 @@
   <div class="container">
-    <table class="key-value">
+    <div class="row">
+      <div class="col-md-6">
+        <table class="key-value">
 
-      <tr>
-        <td>Requested by:</td>
-        <td>{{ process_request.request_username }}</td>
-      </tr>
+          <tr>
+            <td>Requested by:</td>
+            <td>{{ process_request.request_username }}</td>
+          </tr>
 
-      <tr>
-        <td>Requested on:</td>
-        <td>{{ process_request.request_date }}</td>
-      </tr>
+          <tr>
+            <td>Requested on:</td>
+            <td>{{ process_request.request_date | date:'short' }}</td>
+          </tr>
 
-      <tr>
-        <td>Status:</td>
-        <td>
-          {{ process_request.status }}
-          <span ng-show="process_request.status == 'Complete'"> - </span>
-          <a ng-show="process_request.status == 'Complete'" ui-sref="pr-visualization-detail({ requestId: process_request.id })">
-            Visualize Results
-          </a>
-        </td>
-      </tr>
-
-      <tr>
-        <td>Sample Collection:</td>
-        <td>
-          {{ process_request.sample_collection }}<br/>
-        </td>
-      </tr>
-
-      <tr>
-        <td>Worker:</td>
-        <td>
-          <span id="worker">
-            {{ process_request.worker_name }}
-              <a ng-show="superuser" class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
-                <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
+          <tr>
+            <td>Status:</td>
+            <td>
+              {{ process_request.status }}
+              <span ng-show="process_request.status == 'Complete'"> - </span>
+              <a ng-show="process_request.status == 'Complete'" ui-sref="pr-visualization-detail({ requestId: process_request.id })">
+                Visualize Results
               </a>
-            <span id="error_message"></span>
-          </span>
-        </td>
-      </tr>
+            </td>
+          </tr>
 
-      <tr>
-        <td>Assigned on:</td>
-        <td>{{ process_request.assignment_date }}</td>
-      </tr>
+          <tr>
+            <td>Sample Collection:</td>
+            <td>
+              {{ process_request.sample_collection }}<br/>
+            </td>
+          </tr>
 
-      <tr>
-        <td>Completion Date:</td>
-        <td>{{ process_request.completion_date }}</td>
-      </tr>
+          <tr>
+            <td>Sub-sample Count:</td>
+            <td>
+              {{ process_request.subsample_count }}<br/>
+            </td>
+          </tr>
 
-    </table>
+          <tr>
+            <td>Worker:</td>
+            <td>
+              <span id="worker">
+                {{ process_request.worker_name }}
+                  <a ng-show="superuser" class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+                    <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
+                  </a>
+                <span id="error_message"></span>
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Assigned on:</td>
+            <td>{{ process_request.assignment_date }}</td>
+          </tr>
+
+          <tr>
+            <td>Completion Date:</td>
+            <td>{{ process_request.completion_date }}</td>
+          </tr>
+
+        </table>
+      </div>
+
+      <div class="col-md-6">
+        <table class="key-value">
+          <tr>
+            <td>Stage 2 Process Requests:</td>
+          </tr>
+        </table>
+
+        <ul>
+          <li ng-repeat="child_pr in children">
+            <a ui-sref="process-request-detail({ requestId: child_pr.id })">
+              <strong>{{ child_pr.description }}</strong>
+            </a>
+            <em>submitted by</em> <strong>{{ child_pr.request_username }}</strong>
+            <em>on</em> <strong>{{ child_pr.request_date | date:'short' }}</strong>
+            <span class="label" ng-class="child_pr.status == 'Complete' ? 'label-success' : 'label-primary'">{{ child_pr.status }}</span>
+          </li>
+        </ul>
+
+      </div>
+
+    </div>
 
     <table ts-wrapper class="table table-hover">
       <thead>
@@ -108,33 +140,6 @@
           <td>{{ request_input.implementation_name }}</td>
           <td>{{ request_input.input_name }}</td>
           <td>{{ request_input.value }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <table ts-wrapper class="table table-hover">
-      <thead>
-        <tr>
-          <th colspan="4" class="center">
-            <h4>
-              Process Request Outputs
-              <span class="badge badge-inverse align-top">{{ process_request.outputs.length }}</span>
-            </h4>
-          </th>
-        </tr>
-        <tr>
-            <th ts-criteria="key">Key</th>
-            <th ts-criteria="value">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ts-repeat ng-repeat="request_output in process_request.outputs">
-          <td>{{ request_output.key }}</td>
-          <td>
-            <a href="api/repository/process_request_outputs/{{ request_output.id }}/download/" download>
-              Download
-            </a>
-          </td>
         </tr>
       </tbody>
     </table>

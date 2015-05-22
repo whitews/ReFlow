@@ -86,6 +86,13 @@ class ProjectUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'users')
 
 
+class CellSubsetLabelSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='cell-subset-label-detail')
+
+    class Meta:
+        model = CellSubsetLabel
+
+
 class VisitTypeSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='visittype-detail')
     sample_count = serializers.IntegerField(
@@ -260,14 +267,42 @@ class PanelTemplateParameterSerializer(serializers.ModelSerializer):
             'fluorochrome_abbreviation')
 
 
+class PanelVariantSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='panel-variant-detail'
+    )
+    staining_type_name = serializers.CharField(
+        source="get_staining_type_display",
+        read_only=True
+    )
+    sample_count = serializers.IntegerField(
+        source='sample_set.count',
+        read_only=True
+    )
+
+    class Meta:
+        model = PanelVariant
+        fields = (
+            'url',
+            'id',
+            'panel_template',
+            'staining_type',
+            'staining_type_name',
+            'name',
+            'sample_count'
+        )
+
+
 class PanelTemplateSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name='panel-template-detail')
+        view_name='panel-template-detail'
+    )
+    panel_variants = PanelVariantSerializer(
+        source='panelvariant_set'
+    )
     parameters = PanelTemplateParameterSerializer(
-        source='paneltemplateparameter_set')
-    staining_name = serializers.CharField(
-        source='get_staining_display',
-        read_only=True)
+        source='paneltemplateparameter_set'
+    )
     site_panel_count = serializers.IntegerField(
         source='sitepanel_set.count',
         read_only=True
@@ -293,9 +328,7 @@ class PanelTemplateSerializer(serializers.ModelSerializer):
             'project',
             'panel_name',
             'panel_description',
-            'staining',
-            'staining_name',
-            'parent_panel',
+            'panel_variants',
             'parameters',
             'site_panel_count',
             'sample_count',
@@ -362,14 +395,6 @@ class SitePanelSerializer(serializers.ModelSerializer):
         source='site.site_name',
         read_only=True
     )
-    panel_type = serializers.CharField(
-        source='panel_template.staining',
-        read_only=True
-    )
-    staining_name = serializers.CharField(
-        source='panel_template.get_staining_display',
-        read_only=True
-    )
     sample_count = serializers.IntegerField(
         source='sample_set.count',
         read_only=True
@@ -397,8 +422,6 @@ class SitePanelSerializer(serializers.ModelSerializer):
             'panel_template',
             'site_name',
             'implementation',
-            'panel_type',
-            'staining_name',
             'site_panel_comments',
             'panel_template_name',
             'name',
@@ -862,6 +885,12 @@ class SubprocessInputSerializer(serializers.ModelSerializer):
         )
 
 
+class ProcessRequestStage2ClusterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequestStage2Cluster
+        fields = ('process_request', 'cluster')
+
+
 class ProcessRequestSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail')
@@ -873,6 +902,10 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
         source='worker.worker_name',
         read_only=True
     )
+    parent_description = serializers.CharField(
+        source='parent_stage.description',
+        read_only=True
+    )
 
     class Meta:
         model = ProcessRequest
@@ -880,7 +913,10 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'project',
+            'parent_stage',
+            'parent_description',
             'sample_collection',
+            'subsample_count',
             'description',
             'predefined',
             'request_user',
@@ -926,17 +962,6 @@ class ProcessRequestInputSerializer(serializers.ModelSerializer):
         )
 
 
-class ProcessRequestOutputSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProcessRequestOutput
-        fields = (
-            'id',
-            'process_request',
-            'key',
-            'value'
-        )
-
-
 class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='process-request-detail'
@@ -952,8 +977,9 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
     inputs = ProcessRequestInputSerializer(
         source='processrequestinput_set'
     )
-    outputs = ProcessRequestOutputSerializer(
-        source='processrequestoutput_set'
+    stage2_clusters = members = ProcessRequestStage2ClusterSerializer(
+        source='processrequeststage2cluster_set',
+        read_only=True
     )
 
     class Meta:
@@ -962,7 +988,10 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'project',
+            'parent_stage',
+            'stage2_clusters',
             'sample_collection',
+            'subsample_count',
             'description',
             'predefined',
             'request_user',
@@ -973,8 +1002,7 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'worker',
             'worker_name',
             'status',
-            'inputs',
-            'outputs'
+            'inputs'
         )
 
 
@@ -988,6 +1016,34 @@ class ClusterSerializer(serializers.ModelSerializer):
         )
 
 
+class ClusterLabelSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='cluster-label-detail')
+    process_request = serializers.IntegerField(
+        source='cluster.process_request_id',
+        read_only=True
+    )
+    cluster_index = serializers.IntegerField(
+        source='cluster.index',
+        read_only=True
+    )
+    label_name = serializers.CharField(
+        source='label.name',
+        read_only=True
+    )
+
+    class Meta:
+        model = ClusterLabel
+        fields = (
+            'id',
+            'url',
+            'process_request',
+            'cluster',
+            'cluster_index',
+            'label',
+            'label_name'
+        )
+
+
 class SampleClusterParameterSerializer(serializers.ModelSerializer):
     class Meta:
         model = SampleClusterParameter
@@ -996,14 +1052,6 @@ class SampleClusterParameterSerializer(serializers.ModelSerializer):
             'sample_cluster',
             'channel',
             'location'
-        )
-
-
-class EventClassificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventClassification
-        fields = (
-            'event_index',
         )
 
 
@@ -1023,11 +1071,12 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         source='sampleclusterparameter_set',
         read_only=True
     )
-    event_indices = serializers.RelatedField(
-        source='eventclassification_set',
+    labels = serializers.RelatedField(
+        source='cluster.clusterlabel_set',
         read_only=True,
         many=True
     )
+    weight = serializers.CharField(source='weight', read_only=True)
 
     class Meta:
         model = SampleCluster
@@ -1039,5 +1088,54 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'cluster',
             'cluster_index',
             'parameters',
-            'event_indices'
+            'labels',
+            'weight'
+        )
+
+
+class SampleClusterComponentParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleClusterComponentParameter
+        fields = (
+            'id',
+            'sample_cluster_component',
+            'channel',
+            'location'
+        )
+
+
+class SampleClusterComponentSerializer(serializers.ModelSerializer):
+    process_request = serializers.CharField(
+        source='sample_cluster.cluster.process_request_id',
+        read_only=True
+    )
+    sample = serializers.CharField(
+        source='sample_cluster.sample_id',
+        read_only=True
+    )
+    cluster = serializers.CharField(
+        source='sample_cluster.cluster_id',
+        read_only=True
+    )
+    parameters = SampleClusterComponentParameterSerializer(
+        source='sampleclustercomponentparameter_set',
+        read_only=True
+    )
+    labels = serializers.RelatedField(
+        source='sample_cluster.cluster.clusterlabel_set',
+        read_only=True,
+        many=True
+    )
+    weight = serializers.CharField(source='weight', read_only=True)
+
+    class Meta:
+        model = SampleClusterComponent
+        fields = (
+            'id',
+            'process_request',
+            'sample',
+            'cluster',
+            'covariance_matrix',
+            'weight',
+            'parameters'
         )

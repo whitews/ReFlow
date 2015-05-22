@@ -73,6 +73,70 @@ app.controller(
 );
 
 app.controller(
+    'MarkerController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('markers:updated', function () {
+                $scope.markers = ModelService.getMarkers(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
+    'FluorochromeController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('fluorochromes:updated', function () {
+                $scope.fluorochromes = ModelService.getFluorochromes(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
     'SubjectGroupController',
     [
         '$scope',
@@ -263,6 +327,38 @@ app.controller(
 );
 
 app.controller(
+    'CellSubsetLabelController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope, $controller, ModelService) {
+            // Inherit ProjectDetail scope to ensure current project is set via
+            // $stateParams, important for browser refreshes & bookmarked URLs
+            $controller('ProjectDetailController', {$scope: $scope});
+
+            if ($scope.current_project) {
+                $scope.subset_labels = ModelService.getCellSubsetLabels(
+                    $scope.current_project.id
+                );
+            }
+
+            $scope.$on('current_project:updated', function () {
+                $scope.subset_labels = ModelService.getCellSubsetLabels(
+                    $scope.current_project.id
+                );
+            });
+
+            $scope.$on('cell_subset_labels:updated', function () {
+                $scope.subset_labels = ModelService.getCellSubsetLabels(
+                    $scope.current_project.id
+                );
+            });
+        }
+    ]
+);
+
+app.controller(
     'StimulationController',
     [
         '$scope',
@@ -293,6 +389,8 @@ app.controller(
         }
     ]
 );
+
+
 
 app.controller(
     'SampleController',
@@ -331,8 +429,7 @@ app.controller(
             function init_filter () {
                 $scope.panels = ModelService.getPanelTemplates(
                     {
-                        'project': $scope.current_project.id,
-                        'staining': ['FS', 'US', 'FM', 'IS']
+                        'project': $scope.current_project.id
                     }
                 );
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(
@@ -356,10 +453,17 @@ app.controller(
                 $scope.errors = [];
 
                 var panels = [];
+                var panel_variants = [];
                 $scope.panels.forEach(function (p) {
                     if (p.query) {
                         panels.push(p.id);
                     }
+
+                    p.panel_variants.forEach(function (v) {
+                        if (v.query) {
+                            panel_variants.push(v.id);
+                        }
+                    });
                 });
 
                 var subject_groups = [];
@@ -401,6 +505,7 @@ app.controller(
                     {
                         'project': $scope.current_project.id,
                         'panel': panels,
+                        'panel_variant': panel_variants,
                         'subject_group': subject_groups,
                         'subject': subjects,
                         'site': sites,
@@ -538,8 +643,7 @@ app.controller(
             function init_filter () {
                 $scope.panels = ModelService.getPanelTemplates(
                     {
-                        'project': $scope.current_project.id,
-                        'staining': ['CB']
+                        'project': $scope.current_project.id
                     }
                 );
                 $scope.sites = ModelService.getProjectSitesWithAddPermission(
@@ -597,85 +701,6 @@ app.controller(
                 $modal.open({
                     templateUrl: MODAL_URLS.SAMPLE_PARAMETERS,
                     controller: 'SampleParametersController',
-                    size: 'lg',
-                    resolve: {
-                        instance: function() {
-                            return instance;
-                        }
-                    }
-                });
-            };
-        }
-    ]
-);
-
-app.controller(
-    'CompensationController',
-    [
-        '$scope',
-        '$q',
-        '$controller',
-        '$modal',
-        'ModelService',
-        function ($scope, $q, $controller, $modal, ModelService) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
-            function populate_compensations() {
-                var sites_can_add = ModelService.getProjectSitesWithAddPermission(
-                    $scope.current_project.id
-                ).$promise;
-
-                var sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
-                    $scope.current_project.id
-                ).$promise;
-
-                var compensations = ModelService.getCompensations(
-                    {
-                        'project': $scope.current_project.id
-                    }
-                ).$promise;
-
-                $q.all([sites_can_add, sites_can_modify, compensations]).then(function (objects) {
-                    $scope.compensations = objects[2];
-
-                    // user has add privileges on at least one site
-                    if (objects[0].length > 0) {
-                        $scope.can_add_data = true;
-                    }
-
-                    $scope.compensations.forEach(function (c) {
-                        c.can_modify = false;
-
-                        // check if compensation's site is in modify list
-                        for (var i=0; i<objects[1].length; i++) {
-                            if (c.site == objects[1][i].id) {
-                                c.can_modify = true;
-                                break;
-                            }
-                        }
-                    });
-                });
-            }
-
-            if ($scope.current_project != undefined) {
-                populate_compensations();
-            }
-            $scope.$on('current_project:updated', function () {
-                populate_compensations();
-            });
-
-            $scope.$on('compensations:updated', function () {
-                populate_compensations();
-            });
-
-            $scope.show_matrix = function(instance) {
-                $scope.errors = [];
-
-                // launch form modal
-                $modal.open({
-                    templateUrl: MODAL_URLS.COMPENSATION_MATRIX,
-                    controller: 'ModalFormCtrl',
                     size: 'lg',
                     resolve: {
                         instance: function() {

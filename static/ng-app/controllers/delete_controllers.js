@@ -26,6 +26,54 @@ app.controller(
 );
 
 app.controller(
+    'MarkerDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyMarker(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.markersUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'FluorochromeDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyFluorochrome(instance);
+
+                response.$promise.then(function () {
+                    // notify to update list
+                    ModelService.fluorochromesUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'SampleDeleteController',
     [
         '$scope',
@@ -63,30 +111,6 @@ app.controller(
 
                 response.$promise.then(function () {
                     ModelService.beadSamplesUpdated();
-
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
-
-app.controller(
-    'CompensationDeleteController',
-    [
-        '$scope',
-        'ModelService',
-        function ($scope, ModelService) {
-            $scope.destroy = function (instance) {
-                var response = ModelService.destroyCompensation(instance);
-
-                response.$promise.then(function () {
-                    // notify to update comp list
-                    ModelService.compensationsUpdated();
 
                     // close modal
                     $scope.ok();
@@ -206,6 +230,30 @@ app.controller(
 
                 response.$promise.then(function () {
                     // notify to update list
+                    ModelService.panelTemplatesUpdated();
+
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
+    'PanelVariantDeleteController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.destroy = function (instance) {
+                var response = ModelService.destroyPanelVariant(instance);
+
+                response.$promise.then(function () {
+                    // notify to update panel template list
                     ModelService.panelTemplatesUpdated();
 
                     // close modal

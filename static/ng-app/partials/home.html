@@ -12,8 +12,7 @@
         </tr>
         <tr>
           <th ts-criteria="project_name">Project Name</th>
-          <th>Project Permissions</th>
-          <th>Site Permissions</th>
+          <th>Description</th>
         </tr>
       </thead>
 
@@ -24,17 +23,7 @@
             <a ui-sref="project-detail({ projectId: project.id })">{{ project.project_name }}</a>
           </td>
           <td>
-            <p ng-repeat="perm in project.permissions">{{ perm }}</p>
-          </td>
-          <td>
-            <ul>
-              <li ng-repeat="site in project.sites" ng-show="site.permissions.length > 0">{{ site.site_name }}
-              <ul>
-                <li ng-repeat="site_perm in site.permissions">{{ site_perm }}</li>
-              </ul>
-              </li>
-            </ul>
-
+            {{ project.project_desc }}
           </td>
         </tr>
 

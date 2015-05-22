@@ -50,11 +50,21 @@ app.controller(
                 $stateParams.requestId
             );
 
-            $scope.process_request.$promise.then(function () {
+            $scope.process_request.$promise.then(function (pr) {
+                // get sample collection for this PR
                 ModelService.getSampleCollection(
                     $scope.process_request.sample_collection
                 ).$promise.then(function (data) {
                     $scope.sample_collection = data;
+                });
+
+                // get child 2nd stage PRs related to this PR
+                ModelService.getProcessRequests(
+                    {
+                        parent_stage: pr.id
+                    }
+                ).$promise.then(function (data) {
+                    $scope.children = data;
                 });
             });
         }
@@ -316,21 +326,19 @@ app.controller(
                         }
                     });
                     $scope.model.parameters = [];
-                    var selected_param = true;
                     for (var i = 0; i < master_parameter_list.length; i++) {
                         if (indices_to_exclude.indexOf(i) == -1) {
-                            // by default, don't select NULL or TIME params
+                            // by default, don't show NULL or TIME params
                             if (["NUL", "TIM"].indexOf(master_parameter_list[i].substr(0, 3)) != -1) {
-                                selected_param = false;
+                                continue;
                             } else {
-                                selected_param = true;
+                                $scope.model.parameters.push(
+                                    {
+                                        parameter: master_parameter_list[i],
+                                        selected: false
+                                    }
+                                );
                             }
-                            $scope.model.parameters.push(
-                                {
-                                    parameter: master_parameter_list[i],
-                                    selected: selected_param
-                                }
-                            );
                         }
                     }
                 });
@@ -571,7 +579,10 @@ app.controller(
                         {
                             project: $scope.current_project.id,
                             sample_collection: collection.id,
-                            description: $scope.model.request_description
+                            description: $scope.model.request_description,
+                            // hard-coding 10k sub-samples for now
+                            // TODO: allow user to specify subsample_count
+                            subsample_count: 10000
                         }
                     );
                     $q.all([members.$promise, pr.$promise]).then(function () {
@@ -626,7 +637,7 @@ app.controller(
                     });
 
                 });
-            }
+            };
         }
     ]
 );

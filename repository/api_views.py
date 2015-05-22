@@ -24,6 +24,8 @@ from django.views.generic.detail import SingleObjectMixin
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
 
+import numpy as np
+
 from repository.models import *
 from repository.serializers import *
 from repository.controllers import *
@@ -59,6 +61,7 @@ def repository_api_root(request):
         'create_beads': reverse('create-bead-list', request=request),
         'compensations': reverse('compensation-list', request=request),
         'panel-templates': reverse('panel-template-list', request=request),
+        'panel-variants': reverse('panel-variant-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
         'cytometers': reverse('cytometer-list', request=request),
         'markers': reverse('marker-list', request=request),
@@ -67,6 +70,7 @@ def repository_api_root(request):
         'permissions': reverse('permission-list', request=request),
         'users': reverse('user-list', request=request),
         'projects': reverse('project-list', request=request),
+        'cell_subset_labels': reverse('cell-subset-label-list', request=request),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
@@ -86,16 +90,17 @@ def repository_api_root(request):
             'subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
+        'process_request_stage2_create': reverse('process-request-stage2-create', request=request),
         'process_request_inputs': reverse(
             'process-request-input-list', request=request),
         'assigned_process_requests': reverse(
             'assigned-process-request-list', request=request),
         'viable_process_requests': reverse(
             'viable-process-request-list', request=request),
-        'process_request_outputs': reverse(
-            'process-request-output-list', request=request),
         'clusters': reverse('cluster-list', request=request),
-        'sample_clusters': reverse('sample-cluster-list', request=request)
+        'cluster-labels': reverse('cluster-label-list', request=request),
+        'sample_clusters': reverse('sample-cluster-list', request=request),
+        'sample_cluster_components': reverse('sample-cluster-component-list', request=request)
     })
 
 
@@ -394,17 +399,17 @@ def retrieve_compensation_as_numpy(request, pk):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
-def retrieve_process_request_output_value(request, pk):
-    pr_output = get_object_or_404(ProcessRequestOutput, pk=pk)
+def retrieve_sample_cluster_events(request, pk):
+    sample_cluster = get_object_or_404(SampleCluster, pk=pk)
 
-    if not pr_output.has_view_permission(request.user):
+    if not sample_cluster.has_view_permission(request.user):
         raise PermissionDenied
 
     response = HttpResponse(
-        pr_output.value.file,
-        content_type='application/')
+        sample_cluster.events.file,
+        content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
-        %  pr_output.key
+        % "sc_" + str(sample_cluster.id) + '.csv'
     return response
 
 
@@ -634,15 +639,27 @@ class UserList(generics.ListCreateAPIView):
                     user_kwargs['first_name'] = serializer.init_data['first_name']
                 if 'last_name' in serializer.init_data:
                     user_kwargs['last_name'] = serializer.init_data['last_name']
-                if 'is_superuser' in serializer.init_data:
-                    user_kwargs['is_superuser'] = serializer.init_data['is_superuser']
 
-                user = User.objects.create_user(
-                    serializer.init_data['username'],
-                    email=serializer.init_data['email'],
-                    password=serializer.init_data['password'],
-                    **user_kwargs
-                )
+                # different calls needed for regular vs super users
+                is_superuser = False
+                if 'is_superuser' in serializer.init_data:
+                    if serializer.init_data['is_superuser'] == True:
+                        is_superuser = True
+
+                if is_superuser:
+                    user = User.objects.create_superuser(
+                        serializer.init_data['username'],
+                        email=serializer.init_data['email'],
+                        password=serializer.init_data['password'],
+                        **user_kwargs
+                    )
+                else:
+                    user = User.objects.create_user(
+                        serializer.init_data['username'],
+                        email=serializer.init_data['email'],
+                        password=serializer.init_data['password'],
+                        **user_kwargs
+                    )
             except IntegrityError, e:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             except Exception, e:
@@ -812,6 +829,64 @@ class ProjectSitesByPermissionList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
+class CellSubsetLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of cell subset labels.
+    """
+
+    model = CellSubsetLabel
+    serializer_class = CellSubsetLabelSerializer
+    filter_fields = ('project', 'name',)
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = CellSubsetLabel.objects.filter(project__in=user_projects)
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(CellSubsetLabelList, self).post(request, *args, **kwargs)
+        return response
+
+
+class CellSubsetLabelDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint representing a single cell subset label.
+    """
+
+    model = CellSubsetLabel
+    serializer_class = CellSubsetLabelSerializer
+
+    def put(self, request, *args, **kwargs):
+        subset_label = CellSubsetLabel.objects.get(id=kwargs['pk'])
+        if not subset_label.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CellSubsetLabelDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        subset_label = CellSubsetLabel.objects.get(id=kwargs['pk'])
+        if not subset_label.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(CellSubsetLabelDetail, self).delete(request, *args, **kwargs)
+
+
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of panels.
@@ -936,7 +1011,7 @@ class SubjectGroupDetail(
 
 class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of panels.
+    API endpoint representing a list of subjects.
     """
 
     model = Subject
@@ -999,16 +1074,12 @@ class PanelTemplateFilter(django_filters.FilterSet):
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='project')
-    staining = django_filters.MultipleChoiceFilter(
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        name='staining')
 
     class Meta:
         model = PanelTemplate
         fields = [
             'project',
-            'panel_name',
-            'staining'
+            'panel_name'
         ]
 
 
@@ -1046,17 +1117,11 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
         # an atomic transaction
         try:
             project = Project.objects.get(id=data['project'])
-            if data['parent_panel']:
-                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
-            else:
-                parent_panel = None
 
             with transaction.atomic():
                 panel_template = PanelTemplate(
                     project=project,
                     panel_name=data['panel_name'],
-                    parent_panel=parent_panel,
-                    staining=data['staining'],
                     panel_description=data['panel_description']
                 )
                 panel_template.clean()
@@ -1080,6 +1145,13 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                             panel_template_parameter=ppp,
                             marker=Marker.objects.get(id=marker)
                         )
+
+                # by default, every panel template gets a full stain variant
+                PanelVariant.objects.create(
+                    panel_template=panel_template,
+                    staining_type = 'FULL'
+                )
+
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
 
@@ -1122,16 +1194,10 @@ class PanelTemplateDetail(
         # an atomic transaction
         try:
             project = Project.objects.get(id=data['project'])
-            if data['parent_panel']:
-                parent_panel = PanelTemplate.objects.get(id=data['parent_panel'])
-            else:
-                parent_panel = None
 
             with transaction.atomic():
                 panel_template.project = project
                 panel_template.panel_name = data['panel_name']
-                panel_template.parent_panel = parent_panel
-                panel_template.staining = data['staining']
                 panel_template.panel_description = data['panel_description']
 
                 panel_template.clean()
@@ -1176,6 +1242,67 @@ class PanelTemplateDetail(
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(PanelTemplateDetail, self).delete(request, *args, **kwargs)
+
+
+class PanelVariantList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of panel variants.
+    """
+
+    model = PanelVariant
+    serializer_class = PanelVariantSerializer
+    filter_fields = ('panel_template', 'staining_type', 'name')
+
+    def get_queryset(self):
+        """
+        Override .get_queryset() to restrict panels to projects
+        to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+
+        # filter on user's projects
+        queryset = PanelVariant.objects.filter(panel_template__project__in=user_projects)
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        panel_template = PanelTemplate.objects.get(id=request.DATA['panel_template'])
+        if not panel_template.project.has_add_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        response = super(PanelVariantList, self).post(request, *args, **kwargs)
+        return response
+
+
+class PanelVariantDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint representing a single subject.
+    """
+
+    model = PanelVariant
+    serializer_class = PanelVariantSerializer
+
+    def put(self, request, *args, **kwargs):
+        panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
+        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(PanelVariantDetail, self).put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def delete(self, request, *args, **kwargs):
+        panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
+        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(PanelVariantDetail, self).delete(request, *args, **kwargs)
 
 
 class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -1241,9 +1368,6 @@ class SitePanelFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site')
-    panel_type = django_filters.MultipleChoiceFilter(
-        choices=PANEL_TEMPLATE_TYPE_CHOICES,
-        name='panel_template__staining')
     project = django_filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
         name='panel_template__project')
@@ -1259,7 +1383,6 @@ class SitePanelFilter(django_filters.FilterSet):
         model = SitePanel
         fields = [
             'site',
-            'panel_type',
             'panel_template',
             'project',
             'fluorochrome',
@@ -1459,24 +1582,39 @@ class CytometerDetail(
         return super(CytometerDetail, self).delete(request, *args, **kwargs)
 
 
-class MarkerList(generics.ListCreateAPIView):
+class MarkerList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of flow cytometry markers.
+    API endpoint representing a list of markers.
     """
 
     model = Marker
     serializer_class = MarkerSerializer
-    filter_fields = ('marker_abbreviation', 'marker_name')
+    filter_fields = ('project', 'marker_abbreviation')
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = Marker.objects.filter(project__in=user_projects)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerList, self).post(request, *args, **kwargs)
         return response
 
 
-class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
+class MarkerDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single marker.
     """
@@ -1485,28 +1623,28 @@ class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MarkerSerializer
 
     def put(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
-            Marker.objects.get(id=kwargs['pk'])
+            marker = Marker.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not marker.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(MarkerDetail, self).put(request, *args, **kwargs)
         return response
 
     def patch(self, request, *args, **kwargs):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
-    
-    def delete(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
 
+    def delete(self, request, *args, **kwargs):
         try:
             marker = Marker.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not marker.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         if marker.sitepanelparametermarker_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -1515,24 +1653,39 @@ class MarkerDetail(generics.RetrieveUpdateDestroyAPIView):
         return response
 
 
-class FluorochromeList(generics.ListCreateAPIView):
+class FluorochromeList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
-    API endpoint representing a list of flow cytometry fluorochromes.
+    API endpoint representing a list of fluorochromes.
     """
 
     model = Fluorochrome
     serializer_class = FluorochromeSerializer
-    filter_fields = ('fluorochrome_abbreviation', 'fluorochrome_name')
+    filter_fields = ('project', 'fluorochrome_abbreviation')
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = Fluorochrome.objects.filter(project__in=user_projects)
+
+        return queryset
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        project = Project.objects.get(id=request.DATA['project'])
+        if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeList, self).post(request, *args, **kwargs)
         return response
 
 
-class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
+class FluorochromeDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single fluorochrome.
     """
@@ -1541,13 +1694,13 @@ class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FluorochromeSerializer
 
     def put(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
-            Fluorochrome.objects.get(id=kwargs['pk'])
+            fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not fluorochrome.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         response = super(FluorochromeDetail, self).put(request, *args, **kwargs)
         return response
@@ -1556,13 +1709,13 @@ class FluorochromeDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def delete(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
             fluorochrome = Fluorochrome.objects.get(id=kwargs['pk'])
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not fluorochrome.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         if fluorochrome.sitepanelparameter_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -1720,6 +1873,8 @@ class SampleFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         name='site_panel__site')
+    panel_variant = django_filters.ModelMultipleChoiceFilter(
+        queryset=PanelVariant.objects.all())
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=SitePanel.objects.all())
     cytometer = django_filters.ModelMultipleChoiceFilter(
@@ -2298,7 +2453,7 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     model = ProcessRequest
     serializer_class = ProcessRequestSerializer
-    filter_fields = ('project', 'worker', 'request_user')
+    filter_fields = ('project', 'worker', 'request_user', 'parent_stage')
 
     def create(self, request, *args, **kwargs):
         # check permission for submitting process requests for this project
@@ -2331,6 +2486,114 @@ class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
                             headers=headers)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
+    """
+    API endpoint for create 2nd stage process requests
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequestDetailSerializer
+
+    def create(self, request, *args, **kwargs):
+        # check permission for submitting process requests for this project
+        parent_pr = get_object_or_404(
+            ProcessRequest,
+            pk=request.DATA['parent_pr_id']
+        )
+        if not parent_pr.project.has_process_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            with transaction.atomic():
+                pr = ProcessRequest(
+                    project=parent_pr.project,
+                    sample_collection=parent_pr.sample_collection,
+                    description=request.DATA['description'],
+                    parent_stage=parent_pr,
+                    subsample_count=request.DATA['subsample_count'],
+                    request_user=request.user,
+                    status="Pending"
+                )
+                pr.save()
+
+                # now create the process inputs,
+                # starting w/ the parameters
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='filtering',
+                    name='parameter'
+                )
+                for param_string in request.DATA['parameters']:
+                    ProcessRequestInput.objects.create(
+                        process_request=pr,
+                        subprocess_input=subprocess_input,
+                        value=param_string
+                    )
+                # next, the clusters from stage 1 to include in stage 2
+                for cluster in request.DATA['clusters']:
+                    ProcessRequestStage2Cluster.objects.create(
+                        process_request=pr,
+                        cluster_id=cluster
+                    )
+
+                # finally, the clustering inputs:
+                #     seed, cluster count, burn-in, & iterations
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='random_seed'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value='123'
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='cluster_count'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['cluster_count']
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='burnin'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['burn_in_count']
+                )
+
+                subprocess_input = SubprocessInput.objects.get(
+                    implementation__category__name='clustering',
+                    implementation__name='hdp',
+                    name='iteration_count'
+                )
+                ProcessRequestInput.objects.create(
+                    process_request=pr,
+                    subprocess_input=subprocess_input,
+                    value=request.DATA['iteration_count']
+                )
+
+        except Exception, e:
+            print e
+
+        serializer = ProcessRequestDetailSerializer(
+            pr,
+            context={'request': request}
+        )
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
 
 class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
@@ -2453,42 +2716,6 @@ class ProcessRequestAssignmentUpdate(
         return Response(data={'detail': 'Bad request'}, status=400)
 
 
-class ProcessRequestOutputList(
-        LoginRequiredMixin,
-        generics.ListCreateAPIView):
-    """
-    API endpoint for listing and creating a ProcessRequestOutput.
-    """
-    model = ProcessRequestOutput
-    serializer_class = ProcessRequestOutputSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Override post to ensure user is a worker.
-        """
-        if hasattr(self.request.user, 'worker'):
-            try:
-                worker = Worker.objects.get(user=self.request.user)
-                process_request = ProcessRequest.objects.get(
-                    id=request.DATA['process_request'])
-            except Exception as e:
-                return Response(data={'detail': e.message}, status=400)
-
-            # ensure ProcessRequest is assigned to this worker
-            if process_request.worker != worker:
-                return Response(
-                    data={
-                        'detail': 'Request is not assigned to this worker'
-                    },
-                    status=400)
-
-            # if we get here, the worker is bonafide! "He's a suitor!"
-            response = super(ProcessRequestOutputList, self).post(
-                request, *args, **kwargs)
-            return response
-        return Response(data={'detail': 'Bad request'}, status=400)
-
-
 class ClusterList(
         LoginRequiredMixin,
         generics.ListCreateAPIView
@@ -2518,12 +2745,106 @@ class ClusterList(
                     data={
                         'detail': 'Request is not assigned to this worker'
                     },
-                    status=400)
+                    status=status.HTTP_400_BAD_REQUEST)
 
             # if we get here, the worker is bonafide! "He's a suitor!"
             response = super(ClusterList, self).post(request, *args, **kwargs)
             return response
-        return Response(data={'detail': 'Bad request'}, status=400)
+        return Response(
+            data={'detail': 'Bad request'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ClusterLabelFilter(django_filters.FilterSet):
+    process_request = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProcessRequest.objects.all(),
+        name='cluster__process_request'
+    )
+    cluster_index = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        name='cluster__cluster_index'
+    )
+    label_name = django_filters.ModelMultipleChoiceFilter(
+        queryset=CellSubsetLabel.objects.all(),
+        name='label__name'
+    )
+
+    class Meta:
+        model = ClusterLabel
+        fields = [
+            'process_request',
+            'cluster',
+            'cluster_index',
+            'label',
+            'label_name'
+        ]
+
+
+class ClusterLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
+    """
+    API endpoint representing a list of cluster labels.
+    """
+
+    model = ClusterLabel
+    serializer_class = ClusterLabelSerializer
+    filter_class = ClusterLabelFilter
+
+    def get_queryset(self):
+        """
+        Results are restricted to projects to which the user belongs.
+        """
+
+        user_projects = Project.objects.get_projects_user_can_view(
+            self.request.user)
+        queryset = ClusterLabel.objects.filter(
+            label__project__in=user_projects
+        )
+
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        label = get_object_or_404(
+            CellSubsetLabel, id=request.DATA['label']
+        )
+        cluster = get_object_or_404(
+            Cluster, id=request.DATA['cluster']
+        )
+
+        # check for permission to add project data
+        if not label.project.has_add_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # check that label and cluster belong to the same project
+        if cluster.process_request.project != label.project:
+            return Response(
+                data={
+                    'detail': 'Cluster & label must belong to the same project'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        response = super(ClusterLabelList, self).post(request, *args, **kwargs)
+        return response
+
+
+class ClusterLabelDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveDestroyAPIView):
+    """
+    API endpoint representing a single cluster label.
+    """
+
+    model = ClusterLabel
+    serializer_class = ClusterLabelSerializer
+
+    def delete(self, request, *args, **kwargs):
+        cluster_label = ClusterLabel.objects.get(id=kwargs['pk'])
+        if not cluster_label.label.project.has_modify_permission(request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return super(ClusterLabelDetail, self).delete(request, *args, **kwargs)
 
 
 class SampleClusterFilter(django_filters.FilterSet):
@@ -2591,23 +2912,46 @@ class SampleClusterList(
                     cluster=cluster,
                     sample=sample,
                 )
+
+                # save event indices in a numpy file
+                events_file = TemporaryFile()
+                np.savetxt(
+                    events_file,
+                    np.array(request.DATA['events']),
+                    fmt='%s',
+                    delimiter=','
+                )
+                sample_cluster.events.save(
+                    join([str(sample.id), 'csv'], '.'),
+                    File(events_file),
+                    save=False
+                )
+
                 sample_cluster.clean()
                 sample_cluster.save()
 
                 # now create SampleClusterParameter instances
                 for param in request.DATA['parameters']:
-                    scp = SampleClusterParameter.objects.create(
+                    SampleClusterParameter.objects.create(
                         sample_cluster=sample_cluster,
                         channel=param,
                         location=request.DATA['parameters'][param]
                     )
 
-                # and finally the EventClassification instances
-                for event_index in request.DATA['event_indices']:
-                    scp = EventClassification.objects.create(
+                # Finally, save all the SampleClusterComponent instances
+                # along with their parameters
+                for comp in request.DATA['components']:
+                    scc = SampleClusterComponent.objects.create(
                         sample_cluster=sample_cluster,
-                        event_index=event_index,
+                        covariance_matrix=comp['covariance'],
+                        weight=comp['weight']
                     )
+                    for comp_param in comp['parameters']:
+                        SampleClusterComponentParameter.objects.create(
+                            sample_cluster_component=scc,
+                            channel=comp_param,
+                            location=comp['parameters'][comp_param]
+                        )
 
         except Exception as e:  # catch any exception to rollback changes
             return Response(data={'detail': e.message}, status=400)
@@ -2620,3 +2964,38 @@ class SampleClusterList(
 
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
+
+
+class SampleClusterComponentFilter(django_filters.FilterSet):
+    process_request = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProcessRequest.objects.all(),
+        name='sample_cluster__cluster__process_request'
+    )
+    sample = django_filters.ModelMultipleChoiceFilter(
+        queryset=Sample.objects.all(),
+        name='sample_cluster__sample'
+    )
+    cluster = django_filters.ModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        name='sample_cluster__cluster'
+    )
+
+    class Meta:
+        model = SampleClusterComponent
+        fields = [
+            'process_request',
+            'sample',
+            'cluster'
+        ]
+
+
+class SampleClusterComponentList(
+        LoginRequiredMixin,
+        generics.ListAPIView
+    ):
+    """
+    API endpoint for listing and creating a SampleCluster.
+    """
+    model = SampleClusterComponent
+    serializer_class = SampleClusterComponentSerializer
+    filter_class = SampleClusterComponentFilter

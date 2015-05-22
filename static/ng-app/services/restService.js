@@ -16,9 +16,11 @@ var URLS = {
     'SITES':               '/api/repository/sites/',
     'SUBJECTS':            '/api/repository/subjects/',
     'PANEL_TEMPLATES':     '/api/repository/panel_templates/',
+    'PANEL_VARIANT':       '/api/repository/panel_variants/',
     'SITE_PANELS':         '/api/repository/site_panels/',
     'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
+    'CELL_SUBSET_LABELS':  '/api/repository/cell_subset_labels/',
     'STIMULATIONS':        '/api/repository/stimulations/',
     'SAMPLES':             '/api/repository/samples/',
     'CREATE_SAMPLES':      '/api/repository/samples/add/',
@@ -37,11 +39,11 @@ var URLS = {
     'SUBPROCESS_INPUTS':          '/api/repository/subprocess_inputs/',
     'VERIFY_WORKER':           '/api/repository/verify_worker/',
     'PROCESS_REQUESTS':        '/api/repository/process_requests/',
+    'PROCESS_REQUEST_STAGE_2': '/api/repository/process_requests/stage2/',
     'PROCESS_REQUEST_INPUTS':     '/api/repository/process_request_inputs',
-    'PROCESS_REQUEST_OUTPUTS':     '/api/repository/process_request_outputs',
     'VIABLE_PROCESS_REQUESTS': '/api/repository/viable_process_requests/',
-    'CREATE_PROCESS_REQUEST_OUTPUT':  '/api/repository/process_request_outputs/add/',
-    'SAMPLE_CLUSTERS':  '/api/repository/sample_clusters/'
+    'SAMPLE_CLUSTERS':  '/api/repository/sample_clusters/',
+    'CLUSTER_LABELS':  '/api/repository/cluster_labels/'
 };
 
 var service = angular.module('ReFlowApp');
@@ -226,6 +228,17 @@ service
 
         return VisitType;
     }])
+    .factory('CellSubsetLabel', ['$resource', function ($resource) {
+        var CellSubsetLabel = $resource(
+            URLS.CELL_SUBSET_LABELS + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return CellSubsetLabel;
+    }])
     .factory('Stimulation', ['$resource', function ($resource) {
         var Stimulation = $resource(
             URLS.STIMULATIONS + ':id',
@@ -258,6 +271,17 @@ service
                 }
             }
         );
+    }])
+    .factory('PanelVariant', ['$resource', function ($resource) {
+        var PanelVariant = $resource(
+            URLS.PANEL_VARIANT + ':id',
+            {},
+            {
+                update: { method: 'PUT' }
+            }
+        );
+
+        return PanelVariant;
     }])
     .factory('SitePanel', ['$resource', function ($resource) {
         var SitePanel = $resource(
@@ -353,6 +377,9 @@ service
 
         return ProcessRequest;
     }])
+    .factory('ProcessRequestStage2', ['$resource', function ($resource) {
+        return $resource(URLS.PROCESS_REQUEST_STAGE_2, {});
+    }])
     .factory('ProcessRequestInput', ['$resource', function ($resource) {
         return $resource(
             URLS.PROCESS_REQUEST_INPUTS,
@@ -365,11 +392,16 @@ service
             }
         );
     }])
-    .factory('ProcessRequestOutput', ['$resource', function ($resource) {
-        return $resource(URLS.PROCESS_REQUEST_OUTPUTS);
-    }])
     .factory('SampleCluster', ['$resource', function ($resource) {
         return $resource(URLS.SAMPLE_CLUSTERS);
+    }])
+    .factory('ClusterLabel', ['$resource', function ($resource) {
+        var ClusterLabel = $resource(
+            URLS.CLUSTER_LABELS + ':id',
+            {},
+            {}
+        );
+        return ClusterLabel;
     }])
     .factory('ParameterFunction', ['$resource', function ($resource) {
         return $resource(URLS.PARAMETER_FUNCTIONS);
@@ -380,6 +412,28 @@ service
     .service('Pretreatment', [ function () {
         this.query = function () {
             return [{name:'In vitro'}, {name:'Ex vivo'}];
+        };
+    }])
+    .service('StainingType', [ function () {
+        this.query = function () {
+            return [
+                {
+                    abbreviation: 'FULL',
+                    name: 'Full Stain'
+                },
+                {
+                    abbreviation: 'FMO',
+                    name: 'Fluorescence Minus One'
+                },
+                {
+                    abbreviation: 'ISO',
+                    name: 'Isotype Control'
+                },
+                {
+                    abbreviation: 'UNS',
+                    name: 'Unstained'
+                }
+            ];
         };
     }])
     .service('Storage', [ function () {

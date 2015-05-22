@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{% static 'css/tablesort.css' %}">
     <link rel="stylesheet" href="{% static 'css/pr_scatter.css' %}">
     <link rel="stylesheet" href="{% static 'css/jquery-ui-1.9.2.custom.css' %}">
-    <link rel="stylesheet" href="{% static 'css/select2.css' %}">
+    <link rel="stylesheet" href="{% static 'css/select.css' %}">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,600,700,300' rel='stylesheet' type='text/css'>
     {% block extra_head %}{% endblock %}
   </head>
@@ -21,7 +21,7 @@
   <body>
     <div id="wrap">
       {% block header %}
-      <div class="navbar navbar-inverse navbar-static-top">
+      <div class="navbar navbar-static-top">
           <div class="container">
             <div class="navbar-brand">
               <img class="inline" src="{% static 'reflow_40.png' %}">
@@ -32,11 +32,11 @@
                 </p>
                 {% if user.is_superuser %}
                 <p class="navbar-text">
-                    <a href="#/admin/" class="navbar-link">Admin</a>
+                    <a href="#/admin/" class="navbar-link"><i class="fa fa-cogs"></i> Admin</a>
                 </p>
                 {% endif %}
-                <p class="navbar-text"><a href="{% static 'docs/html/index.html' %}" target="_blank" class="navbar-link">Documentation</a></p>
-                <p class="navbar-text"><a href="{% url 'logout' %}" class="navbar-link">Logout</a></p>
+                <p class="navbar-text"><a href="{% static 'docs/html/index.html' %}" target="_blank" class="navbar-link"><i class="fa fa-book"></i> Documentation</a></p>
+                <p class="navbar-text"><a href="{% url 'logout' %}" class="navbar-link"><i class="fa fa-sign-out"></i> Logout</a></p>
             </div>
           </div>
       </div>
@@ -59,14 +59,13 @@
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
     <!-- Angular stuff -->
-    <script src="{% static 'js/angular-1.2.17.min.js' %}"></script>
-    <script src="{% static 'js/angular-resource-1.2.17.min.js' %}"></script>
-    <script src="{% static 'js/angular-sanitize-1.2.17.min.js' %}"></script>
+    <script src="{% static 'js/angular-1.2.18.min.js' %}"></script>
+    <script src="{% static 'js/angular-resource-1.2.18.min.js' %}"></script>
+    <script src="{% static 'js/angular-sanitize-1.2.18.min.js' %}"></script>
     <script src="{% static 'js/angular-ui-router.min.js' %}"></script>
     <script src="{% static 'js/angular-cookies.js' %}"></script>
     <script src="{% static 'js/angular-ui-bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/select2.min.js' %}"></script>
-    <script src="{% static 'js/ng-select2.js' %}"></script>
+    <script src="{% static 'js/select.js' %}"></script>
     <script src="{% static 'js/angular-breadcrumb.min.js' %}"></script>
     <script src="{% static 'js/angular-file-upload-shim.js' %}"></script>
     <script src="{% static 'js/angular-file-upload.js' %}"></script>
@@ -79,6 +78,7 @@
     <script src="{% static 'ng-app/controllers/main_controller.js' %}"></script>
     <script src="{% static 'ng-app/controllers/edit_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/delete_controllers.js' %}"></script>
+    <script src="{% static 'ng-app/controllers/compensation_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/admin_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/user_profile_controllers.js' %}"></script>
     <script src="{% static 'ng-app/controllers/user_management_controller.js' %}"></script>
@@ -94,6 +94,7 @@
     <script src="{% static 'ng-app/services/modelService.js' %}"></script>
     <script src="{% static 'ng-app/directives/pr_visualization.js' %}"></script>
     <script src="{% static 'ng-app/directives/pr_parallel_plot.js' %}"></script>
+    <script src="{% static 'ng-app/controllers/pr_stage2_controller.js' %}"></script>
 
     <script type='text/javascript'>
         $(document).ready(function()

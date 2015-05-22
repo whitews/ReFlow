@@ -62,51 +62,16 @@ input[type="color"],
     background-color: #FFD2D4;
 }
 
-.select2-choices {
-    border: 1px solid #ccc !important;
-    border-radius: 4px;
-    font-size: 12px;
-    line-height: normal !important;
-    height: 28px;
-    min-height: none !important;
-}
-
-.select2-choices > li > input {
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    line-height: 1.1 !important;
-}
-
-select,
-input[type="text"],
-input[type="password"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="date"],
-input[type="month"],
-input[type="time"],
-input[type="week"],
-input[type="number"],
-input[type="email"],
-input[type="url"],
-input[type="search"],
-input[type="tel"],
-input[type="color"],
-.uneditable-input {
-  height: 30px;
-}
-
-textarea {
-    height: 200px;
-}
-
-.input-lg {
-    min-width: 360px !important;
+input[type="text"].ui-select-search {
+  border: 0px !important;
 }
 
 label {
   font-weight: 500;
+}
+
+.panel-variant-label {
+  margin-right: 3px;
 }
 
 .lead {
@@ -136,12 +101,12 @@ hr {
 .navbar {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   overflow: visible;
-  height: 66px;
+  height: 58px;
   margin-bottom: 0px;
   *position: relative;
   *z-index: 2;
-  background-color: #3a3a4f;
-  border-bottom: 1px solid #223;
+  /*background-color: #3a3a4f;*/
+  /*border-bottom: 1px solid #223;*/
   *zoom: 1;
 }
 
@@ -155,6 +120,10 @@ hr {
 .navbar-inverse .navbar-link, .navbar-inverse .navbar-text {
   font-size: 12px;
   color: #aaa;
+}
+
+p.navbar-text {
+  margin-top: 9px;
 }
 
 .well {
@@ -175,14 +144,9 @@ hr {
   width: 90% !important;
 }
 
-.select2-container {
-  max-width: 150px !important;
-  width: 150px;
-}
-
 .breadcrumb {
   padding: 8px 15px;
-  margin: 0 0 20px;
+  margin: 0 0 9px;
   list-style: none;
   background-color: #f9f9f9;
   border: 1px solid #dddddd;
@@ -232,8 +196,8 @@ html, body, #wrap {
 body > #wrap {height: auto; min-height: 100%;}
 
 #main {
-  padding-top: 20px;
-  padding-bottom: 64px;
+  padding-top: 0px;
+  padding-bottom: 32px;
 }
 
 #footer {
@@ -366,17 +330,6 @@ span.marker-field > select {
   white-space: nowrap;
 }
 /* ----------  Custom form stuff START---------- */
-.form-control {
-    padding: 3px;
-    font-size: 12px;
-    line-height: 1.1;
-    height: 30px;
-}
-
-.form-group {
-  margin-bottom: 12px;
-}
-
 select,
 input[type="file"] {
   height: 30px;
@@ -500,6 +453,11 @@ form.unstyled-checkboxes > ul > li > label {
 }
 form.unstyled-checkboxes > ul > li > label > input[type="checkbox"] {
     margin: 0px !important;
+}
+form.unstyled-checkboxes > ul > li > ul {
+    list-style-type: none;
+    margin: 3px 0px 6px 18px;
+    padding: 0;
 }
 
 .selected {

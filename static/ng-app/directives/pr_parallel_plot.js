@@ -37,9 +37,33 @@ app.directive('prparallelplot', function() {
                     }
                 }
             });
+
+            // determine extent for each analyzed parameter
+            var min_value;
+            var max_value;
             analyzed_parameters.forEach(function (p) {
+                min_value = undefined;
+                max_value = undefined;
+                scope.plot_data.cluster_data.forEach(function(cluster) {
+                    for (var cp=0; cp < cluster.parameters.length; cp++) {
+                        if (p.fcs_number == cluster.parameters[cp].channel) {
+                            if (min_value === undefined) {
+                                min_value = cluster.parameters[cp].location;
+                            } else if (cluster.parameters[cp].location < min_value) {
+                                min_value = cluster.parameters[cp].location;
+                            }
+
+                            if (max_value === undefined) {
+                                max_value = cluster.parameters[cp].location;
+                            } else if (cluster.parameters[cp].location > max_value) {
+                                max_value = cluster.parameters[cp].location;
+                            }
+                        }
+                    }
+                });
+
                 parameter_scale_functions[p.fcs_number] =
-                    d3.scale.linear().domain(p.extent)
+                    d3.scale.linear().domain([min_value, max_value * 1.02])
                         .range([0, width]);
             });
 
@@ -93,7 +117,7 @@ app.directive('prparallelplot', function() {
 
             axes.append('line')
                 .attr("x2", function (d) {
-                    return -1 * parameter_scale_functions[d.fcs_number](d.extent[1]);
+                    return -1 * width;
                 })
                 .attr("stroke", "#a1a1a1")
                 .attr("stroke-width", "2")
