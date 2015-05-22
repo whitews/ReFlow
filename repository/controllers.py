@@ -391,3 +391,15 @@ def find_matching_site_panel(pnn_list, panel_template, site):
             return site_panel
 
     return None
+
+
+def is_matching_site_panel(pnn_list, site_panel):
+    panel_text_set = set(
+        site_panel.sitepanelparameter_set.all().exclude(
+            parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL']
+        ).values_list('fcs_text', flat=True)
+    )
+    if len(panel_text_set.symmetric_difference(pnn_list)) == 0:
+        return True
+
+    return False

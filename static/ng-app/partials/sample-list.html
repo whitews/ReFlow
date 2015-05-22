@@ -155,6 +155,9 @@
               <td>
                 <i class="fa fa-check fa-lg text-success" ng-show="s.has_compensation"></i>
                 <i class="fa fa-ban fa-lg text-warning" ng-show="!s.has_compensation"></i>
+                <a class="btn btn-default btn-xs" ng-show="s.can_modify" ng-click="add_comp_from_sample(s)" tooltip="Create Comp Matrix from FCS file" tooltip-placement="bottom">
+                  <i style="opacity: 0.4" class="fa fa-plus align-middle"></i>
+                </a>
               </td>
             </tr>
           </tbody>

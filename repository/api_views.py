@@ -2187,12 +2187,6 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         """
         Override post to ensure user has permission to add data to the site.
         """
-        panel_template = get_object_or_404(
-            PanelTemplate, id=request.DATA['panel_template'])
-        site = get_object_or_404(Site, id=request.DATA['site'])
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
-
         matrix_text = request.DATA['matrix_text'].splitlines(False)
         if not len(matrix_text) > 1:
             raise ValidationError("Too few rows.")
@@ -2202,7 +2196,26 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
         pnn_list = re.split('\t|,\s*', matrix_text[0])
 
-        site_panel = find_matching_site_panel(pnn_list, panel_template, site)
+        if 'site_panel' in request.DATA:
+            site_panel_candidate = get_object_or_404(
+                SitePanel, id=request.DATA['site_panel']
+            )
+            site = site_panel_candidate.site
+            if is_matching_site_panel(pnn_list, site_panel_candidate):
+                site_panel = site_panel_candidate
+        else:
+            panel_template = get_object_or_404(
+                PanelTemplate, id=request.DATA['panel_template']
+            )
+            site = get_object_or_404(Site, id=request.DATA['site'])
+            site_panel = find_matching_site_panel(
+                pnn_list,
+                panel_template,
+                site
+            )
+
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
 
         if site_panel:
             request.DATA['site_panel'] = site_panel.id

@@ -562,6 +562,20 @@ app.controller(
                     }
                 });
             };
+
+            $scope.add_comp_from_sample = function(instance) {
+                // launch modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.COMPENSATION_FROM_SAMPLE,
+                    controller: 'CompensationFromSampleController',
+                    size: 'lg',
+                    resolve: {
+                        instance: function() {
+                            return instance;
+                        }
+                    }
+                });
+            };
         }
     ]
 );
