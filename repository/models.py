@@ -1245,7 +1245,7 @@ class Compensation(ProtectedModel):
                 "Missing fields: %s" % ", ".join(missing_fields))
 
         if len(headers) > params.count():
-            raise ValidationError("Too many parameters")
+            raise ValidationError("Too many parameters: " + ",".join(headers))
 
         # the header of matrix text adds a row
         if len(matrix_text) > params.count() + 1:
