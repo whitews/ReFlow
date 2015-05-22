@@ -600,7 +600,9 @@ app.controller(
             };
 
             $scope.metadata = ModelService.getSampleMetadata(
-                $scope.instance.id
+                {
+                    'sample': $scope.instance.id
+                }
             );
         }
     ]
