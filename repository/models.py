@@ -1396,6 +1396,20 @@ class Sample(ProtectedModel):
         default=False
     )
 
+    def _has_compensation(self):
+        """
+        Returns the True if a compensation matches the sample's site panel &
+        acquisition date
+        """
+        comps = Compensation.objects.filter(
+            site_panel=self.site_panel,
+            acquisition_date=self.acquisition_date
+        )
+
+        return comps.count() > 0
+
+    has_compensation = property(_has_compensation)
+
     def has_view_permission(self, user):
 
         if self.subject.project.has_view_permission(user):
