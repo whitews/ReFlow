@@ -18,13 +18,13 @@ app.controller(
             $scope.check_inputs = function () {
                 var invalid = false;
 
-                if (typeof $scope.instance.cluster_count !== 'number' || ($scope.instance.cluster_count % 1) !== 0) {
+                if ($scope.instance.cluster_count % 1 !== 0) {
                     invalid = true;
                 }
-                if (typeof $scope.instance.burn_in_count !=='number' || ($scope.instance.burn_in_count % 1) !== 0) {
+                if ($scope.instance.burn_in_count % 1 !== 0) {
                     invalid = true;
                 }
-                if (typeof $scope.instance.iteration_count !== 'number' || ($scope.instance.iteration_count % 1) !== 0) {
+                if ($scope.instance.iteration_count % 1 !== 0) {
                     invalid = true;
                 }
                 if ($scope.instance.cell_subset === undefined) {
