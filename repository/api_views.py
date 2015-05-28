@@ -2524,7 +2524,10 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
             CellSubsetLabel,
             pk=request.DATA['cell_subset_label']
         )
-        if cell_subset_label.clusterlabel_set.count() <= 0:
+        cluster_labels = cell_subset_label.clusterlabel_set.filter(
+            cluster__process_request=parent_pr
+        )
+        if cluster_labels <= 0:
             return Response(
                 data=['No clusters were found with specified label'],
                 status=400
@@ -2557,10 +2560,10 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                     )
 
                 # next, the clusters from stage 1 to include in stage 2
-                for cluster in cell_subset_label.clusterlabel_set.all():
+                for cluster_label in cluster_labels:
                     pr2_clust = ProcessRequestStage2Cluster(
                         process_request=pr,
-                        cluster_id=cluster.id
+                        cluster_id=cluster_label.cluster.id
                     )
                     pr2_clust.save()
 
