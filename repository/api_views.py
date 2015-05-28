@@ -2518,6 +2518,18 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
         if not parent_pr.project.has_process_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+        # ensure that a cell subset label was provided and that at least
+        # one cluster has been tagged with that label
+        cell_subset_label = get_object_or_404(
+            CellSubsetLabel,
+            pk=request.DATA['cell_subset_label']
+        )
+        if cell_subset_label.clusterlabel_set.count() <= 0:
+            return Response(
+                data=['No clusters were found with specified label'],
+                status=400
+            )
+
         try:
             with transaction.atomic():
                 pr = ProcessRequest(
@@ -2543,12 +2555,14 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                         subprocess_input=subprocess_input,
                         value=param_string
                     )
+
                 # next, the clusters from stage 1 to include in stage 2
-                for cluster in request.DATA['clusters']:
-                    ProcessRequestStage2Cluster.objects.create(
+                for cluster in cell_subset_label.clusterlabel_set.all():
+                    pr2_clust = ProcessRequestStage2Cluster(
                         process_request=pr,
-                        cluster_id=cluster
+                        cluster_id=cluster.id
                     )
+                    pr2_clust.save()
 
                 # finally, the clustering inputs:
                 #     seed, cluster count, burn-in, & iterations

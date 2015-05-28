@@ -12,6 +12,7 @@ app.controller(
             $scope.instance.cluster_count = 32;
             $scope.instance.burn_in_count = 5000;
             $scope.instance.iteration_count = 50;
+            $scope.instance.cell_subset = undefined;
 
             $scope.instance.invalid = true;
 
@@ -45,14 +46,7 @@ app.controller(
             };
 
             $scope.submit_request = function () {
-                var second_stage_clusters = [];
                 var second_stage_params = [];
-
-                $scope.instance.clusters.forEach(function (c) {
-                    if (c.labels.indexOf($scope.instance.cell_subset.id.toString()) != -1) {
-                        second_stage_clusters.push(c.cluster);
-                    }
-                });
 
                 $scope.instance.parameters.forEach(function (p) {
                     if (p.selected) {
@@ -70,13 +64,15 @@ app.controller(
                         cluster_count: $scope.instance.cluster_count,
                         burn_in_count: $scope.instance.burn_in_count,
                         iteration_count: $scope.instance.iteration_count,
-                        clusters: second_stage_clusters,
+                        cell_subset_label: $scope.instance.cell_subset.id,
                         parameters: second_stage_params
                     }
                 );
                 pr.$promise.then(function () {
                     // close modal
                     $scope.ok();
+                }, function (error) {
+                    $scope.errors = error.data;
                 });
             };
         }
