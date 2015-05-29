@@ -457,9 +457,8 @@ class PanelTemplateParameter(ProtectedModel):
         choices=PARAMETER_TYPE_CHOICES)
     parameter_value_type = models.CharField(
         max_length=1,
-        choices=PARAMETER_VALUE_TYPE_CHOICES,
-        null=True,
-        blank=True)
+        choices=PARAMETER_VALUE_TYPE_CHOICES
+    )
     fluorochrome = models.ForeignKey(
         Fluorochrome,
         null=True,
@@ -500,19 +499,22 @@ class PanelTemplateParameter(ProtectedModel):
         if len(error_message) > 0:
             raise ValidationError(error_message)
 
-        # count panel mappings with matching parameter and value_type,
+        # count panel mappings with matching parameter,
         # which don't have this pk
         # This is a little tricky since we need to match the marker set
         # but in any order (for multiplex channels)
         # i.e. these are duplicates: CD3+CD8 & CD8+CD3
         # We're using a an annotation approach by combining
         # '__in' with a matching count of the markers
+        #
+        # Note: We don't include value type in the duplicate check b/c
+        #       ReFlow doesn't support compensating mixed value type
+        #       fluorescence channels (e.g. a panel with PE-A & PE-H)
         ppm_duplicates = PanelTemplateParameter.objects.filter(
             panel_template=self.panel_template,
             fluorochrome=self.fluorochrome,
             paneltemplateparametermarker__in=self.paneltemplateparametermarker_set.all(),
-            parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(
+            parameter_type=self.parameter_type).exclude(
                 id=self.id)
         ppm_duplicates = ppm_duplicates.annotate(
             num_markers=models.Count('paneltemplateparametermarker')).filter(
