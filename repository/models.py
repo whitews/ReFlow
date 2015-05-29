@@ -564,6 +564,7 @@ class Site(ProtectedModel):
     objects = SiteManager()
 
     class Meta:
+        unique_together = (('project', 'site_name'),)
         permissions = (
             ('view_site_data', 'View Site'),
             ('add_site_data', 'Add Site Data'),
@@ -618,9 +619,6 @@ class Site(ProtectedModel):
         elif user.has_perm('modify_site_data', self):
             return True
         return False
-
-    class Meta:
-        unique_together = (('project', 'site_name'),)
 
     def __unicode__(self):
         return u'%s' % self.site_name
