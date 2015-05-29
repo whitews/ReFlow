@@ -313,27 +313,6 @@ class CellSubsetLabel(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        """
-        Check for duplicate subset labels in a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count labels with matching name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        duplicates = CellSubsetLabel.objects.filter(
-            name=self.name,
-            project=self.project).exclude(id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "CellSubsetLabel name already exists in this project."
-            )
-
     class Meta:
         unique_together = (('project', 'name'),)
 
