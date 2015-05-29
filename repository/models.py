@@ -399,15 +399,21 @@ class PanelTemplateParameter(ProtectedModel):
     panel_template = models.ForeignKey(PanelTemplate)
     parameter_type = models.CharField(
         max_length=3,
-        choices=PARAMETER_TYPE_CHOICES)
+        choices=PARAMETER_TYPE_CHOICES,
+        null=False,
+        blank=False,
+    )
     parameter_value_type = models.CharField(
         max_length=1,
-        choices=PARAMETER_VALUE_TYPE_CHOICES
+        choices=PARAMETER_VALUE_TYPE_CHOICES,
+        null=False,
+        blank=False,
     )
     fluorochrome = models.ForeignKey(
         Fluorochrome,
         null=True,
-        blank=True)
+        blank=True
+    )
 
     def _get_name(self):
         """
@@ -427,48 +433,6 @@ class PanelTemplateParameter(ProtectedModel):
 
     class Meta:
         ordering = ['parameter_type', 'parameter_value_type']
-
-    def clean(self):
-        """
-        Check for duplicate parameter/value_type combos in a panel.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # first check that there are no empty values
-        error_message = []
-        if not hasattr(self, 'panel_template'):
-            error_message.append("Panel template is required")
-        if not hasattr(self, 'parameter_type'):
-            error_message.append("Parameter type is required")
-
-        if len(error_message) > 0:
-            raise ValidationError(error_message)
-
-        # count panel mappings with matching parameter,
-        # which don't have this pk
-        # This is a little tricky since we need to match the marker set
-        # but in any order (for multiplex channels)
-        # i.e. these are duplicates: CD3+CD8 & CD8+CD3
-        # We're using a an annotation approach by combining
-        # '__in' with a matching count of the markers
-        #
-        # Note: We don't include value type in the duplicate check b/c
-        #       ReFlow doesn't support compensating mixed value type
-        #       fluorescence channels (e.g. a panel with PE-A & PE-H)
-        ppm_duplicates = PanelTemplateParameter.objects.filter(
-            panel_template=self.panel_template,
-            fluorochrome=self.fluorochrome,
-            paneltemplateparametermarker__in=self.paneltemplateparametermarker_set.all(),
-            parameter_type=self.parameter_type).exclude(
-                id=self.id)
-        ppm_duplicates = ppm_duplicates.annotate(
-            num_markers=models.Count('paneltemplateparametermarker')).filter(
-                num_markers=self.paneltemplateparametermarker_set.all().count())
-
-        if ppm_duplicates.count() > 0:
-            raise ValidationError(
-                "This combination already exists in this panel"
-            )
 
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s-%s' % (
