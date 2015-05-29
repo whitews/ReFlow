@@ -446,21 +446,8 @@ class PanelTemplateParameterMarker(models.Model):
     panel_template_parameter = models.ForeignKey(PanelTemplateParameter)
     marker = models.ForeignKey(Marker)
 
-    # override clean to prevent duplicate Ab's for a parameter...
-    # unique_together doesn't work for forms with the parameter excluded
-    def clean(self):
-        """
-        Verify the parameter & marker combo doesn't already exist
-        """
-
-        qs = PanelTemplateParameterMarker.objects.filter(
-            panel_template_parameter=self.panel_template_parameter,
-            marker=self.marker).exclude(id=self.id)
-
-        if qs.exists():
-            raise ValidationError(
-                "This marker is already included in this parameter."
-            )
+    class Meta:
+        unique_together = (('panel_template_parameter', 'marker'),)
 
     def __unicode__(self):
         return u'%s: %s' % (self.panel_template_parameter, self.marker)
