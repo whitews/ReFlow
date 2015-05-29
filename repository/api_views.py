@@ -1200,14 +1200,12 @@ class PanelTemplateDetail(
                 panel_template.project = project
                 panel_template.panel_name = data['panel_name']
                 panel_template.panel_description = data['panel_description']
-
-                panel_template.clean()
                 panel_template.save()
 
                 panel_template.paneltemplateparameter_set.all().delete()
 
                 for param in data['parameters']:
-                    if (param['fluorochrome']):
+                    if param['fluorochrome']:
                         param_fluoro = Fluorochrome.objects.get(
                             id=param['fluorochrome'])
                     else:
