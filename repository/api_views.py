@@ -40,13 +40,16 @@ def custom_exception_handler(exc):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     if isinstance(exc, NotAuthenticated):
-        response = Response({'detail': 'Not authenticated'},
-                        status=status.HTTP_401_UNAUTHORIZED,
-                        exception=True)
+        response = Response(
+            {'detail': 'Not authenticated'},
+            status=status.HTTP_401_UNAUTHORIZED,
+            exception=True
+        )
     else:
         response = exception_handler(exc)
 
     return response
+
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
@@ -70,7 +73,10 @@ def repository_api_root(request):
         'permissions': reverse('permission-list', request=request),
         'users': reverse('user-list', request=request),
         'projects': reverse('project-list', request=request),
-        'cell_subset_labels': reverse('cell-subset-label-list', request=request),
+        'cell_subset_labels': reverse(
+            'cell-subset-label-list',
+            request=request
+        ),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
@@ -90,7 +96,10 @@ def repository_api_root(request):
             'subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
-        'process_request_stage2_create': reverse('process-request-stage2-create', request=request),
+        'process_request_stage2_create': reverse(
+            'process-request-stage2-create',
+            request=request
+        ),
         'process_request_inputs': reverse(
             'process-request-input-list', request=request),
         'assigned_process_requests': reverse(
@@ -100,7 +109,10 @@ def repository_api_root(request):
         'clusters': reverse('cluster-list', request=request),
         'cluster-labels': reverse('cluster-label-list', request=request),
         'sample_clusters': reverse('sample-cluster-list', request=request),
-        'sample_cluster_components': reverse('sample-cluster-component-list', request=request)
+        'sample_cluster_components': reverse(
+            'sample-cluster-component-list',
+            request=request
+        )
     })
 
 
@@ -175,7 +187,8 @@ def is_user(request, username):
 def get_project_permissions(request, project):
     project = get_object_or_404(Project, pk=project)
 
-    if not (request.user in project.get_project_users() or request.user.is_superuser):
+    if not (request.user in project.get_project_users() or
+            request.user.is_superuser):
         raise PermissionDenied
 
     perms = project.get_user_permissions(request.user)
@@ -636,14 +649,18 @@ class UserList(generics.ListCreateAPIView):
                 # check for optional properties
                 user_kwargs = {}
                 if 'first_name' in serializer.init_data:
-                    user_kwargs['first_name'] = serializer.init_data['first_name']
+                    user_kwargs['first_name'] = serializer.init_data[
+                        'first_name'
+                    ]
                 if 'last_name' in serializer.init_data:
-                    user_kwargs['last_name'] = serializer.init_data['last_name']
+                    user_kwargs['last_name'] = serializer.init_data[
+                        'last_name'
+                    ]
 
                 # different calls needed for regular vs super users
                 is_superuser = False
                 if 'is_superuser' in serializer.init_data:
-                    if serializer.init_data['is_superuser'] == True:
+                    if serializer.init_data['is_superuser']:
                         is_superuser = True
 
                 if is_superuser:
@@ -667,7 +684,10 @@ class UserList(generics.ListCreateAPIView):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class UserDetail(
@@ -854,7 +874,11 @@ class CellSubsetLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        response = super(CellSubsetLabelList, self).post(request, *args, **kwargs)
+        response = super(CellSubsetLabelList, self).post(
+            request,
+            *args,
+            **kwargs
+        )
         return response
 
 
@@ -884,7 +908,11 @@ class CellSubsetLabelDetail(
         if not subset_label.project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return super(CellSubsetLabelDetail, self).delete(request, *args, **kwargs)
+        return super(CellSubsetLabelDetail, self).delete(
+            request,
+            *args,
+            **kwargs
+        )
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -1262,12 +1290,16 @@ class PanelVariantList(LoginRequiredMixin, generics.ListCreateAPIView):
             self.request.user)
 
         # filter on user's projects
-        queryset = PanelVariant.objects.filter(panel_template__project__in=user_projects)
+        queryset = PanelVariant.objects.filter(
+            panel_template__project__in=user_projects
+        )
 
         return queryset
 
     def post(self, request, *args, **kwargs):
-        panel_template = PanelTemplate.objects.get(id=request.DATA['panel_template'])
+        panel_template = PanelTemplate.objects.get(
+            id=request.DATA['panel_template']
+        )
         if not panel_template.project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1288,7 +1320,8 @@ class PanelVariantDetail(
 
     def put(self, request, *args, **kwargs):
         panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
-        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+        project = panel_variant.panel_template.project
+        if not project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(PanelVariantDetail, self).put(request, *args, **kwargs)
@@ -1298,7 +1331,8 @@ class PanelVariantDetail(
 
     def delete(self, request, *args, **kwargs):
         panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
-        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+        project = panel_variant.panel_template.project
+        if not project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(PanelVariantDetail, self).delete(request, *args, **kwargs)
@@ -1718,7 +1752,11 @@ class FluorochromeDetail(
         if fluorochrome.sitepanelparameter_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        response = super(FluorochromeDetail, self).delete(request, *args, **kwargs)
+        response = super(FluorochromeDetail, self).delete(
+            request,
+            *args,
+            **kwargs
+        )
         return response
 
 
@@ -1975,7 +2013,9 @@ class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView):
+class SampleCollectionMemberList(
+        LoginRequiredMixin,
+        generics.ListCreateAPIView):
     """
     API endpoint for listing and creating a SampleCollectionMember. Note
     this API POST takes a list of instances.
@@ -2193,7 +2233,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         # may be tab or comma delimited
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
         pnn_list = re.split('\t|,\s*', matrix_text[0])
-
+        site_panel = None
         if 'site_panel' in request.DATA:
             site_panel_candidate = get_object_or_404(
                 SitePanel, id=request.DATA['site_panel']
@@ -2475,7 +2515,11 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
         # add required fields for the user and status
         request.DATA['request_user'] = request.user.id
         request.DATA['status'] = 'Pending'
-        response = super(ProcessRequestList, self).create(request, *args, **kwargs)
+        response = super(ProcessRequestList, self).create(
+            request,
+            *args,
+            **kwargs
+        )
         return response
 
 
@@ -2612,7 +2656,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 )
 
         except Exception, e:
-            print e
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ProcessRequestDetailSerializer(
             pr,
@@ -2746,8 +2790,7 @@ class ProcessRequestAssignmentUpdate(
 
 class ClusterList(
         LoginRequiredMixin,
-        generics.ListCreateAPIView
-    ):
+        generics.ListCreateAPIView):
     """
     API endpoint for listing and creating a Cluster.
     """
@@ -2897,8 +2940,7 @@ class SampleClusterFilter(django_filters.FilterSet):
 
 class SampleClusterList(
         LoginRequiredMixin,
-        generics.ListCreateAPIView
-    ):
+        generics.ListCreateAPIView):
     """
     API endpoint for listing and creating a SampleCluster.
     """
@@ -3019,8 +3061,7 @@ class SampleClusterComponentFilter(django_filters.FilterSet):
 
 class SampleClusterComponentList(
         LoginRequiredMixin,
-        generics.ListAPIView
-    ):
+        generics.ListAPIView):
     """
     API endpoint for listing and creating a SampleCluster.
     """
