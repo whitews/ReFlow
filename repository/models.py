@@ -703,20 +703,7 @@ class SitePanel(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        try:
-            Site.objects.get(id=self.site_id)
-            PanelTemplate.objects.get(id=self.panel_template_id)
-        except ObjectDoesNotExist:
-            # site & panel template are required...
-            # will get caught by Form.is_valid()
-            return
-
-        # panel template must be in the same project as the site
-        if self.site.project_id != self.panel_template.project_id:
-            raise ValidationError(
-                "Chosen panel is not in site's project.")
-
+    def save(self, *args, **kwargs):
         # Get count of site panels for the panel template / site combo
         # to figure out the implementation number
         if not self.implementation:
@@ -732,6 +719,8 @@ class SitePanel(ProtectedModel):
             else:
                 raise ValidationError(
                     "Could not calculate implementation version.")
+
+        super(SitePanel, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'%s: %s (%d)' % (

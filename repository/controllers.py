@@ -195,7 +195,9 @@ def validate_site_panel_request(data, user):
 
     # validate panel template and site are in same project
     if site.project_id != panel_template.project_id:
-        errors['panel_template'] = ["Panel template is required"]
+        errors['panel_template'] = [
+            "Panel template & site belong to different projects"
+        ]
 
     if len(errors) > 0:
         return errors

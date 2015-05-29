@@ -1417,8 +1417,6 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
             id_list = id_value.split(',')
             queryset = queryset.filter(id__in=id_list)
 
-        # TODO: implement filtering by channel info: fluoro, marker, scatter
-
         return queryset
 
     def create(self, request, *args, **kwargs):
@@ -1433,7 +1431,9 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         # an atomic transaction
         try:
             site = Site.objects.get(id=data['site'])
-            panel_template = PanelTemplate.objects.get(id=data['panel_template'])
+            panel_template = PanelTemplate.objects.get(
+                id=data['panel_template']
+            )
 
             with transaction.atomic():
                 site_panel = SitePanel(
@@ -1441,11 +1441,10 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                     panel_template=panel_template,
                     site_panel_comments=data['site_panel_comments']
                 )
-                site_panel.clean()
                 site_panel.save()
 
                 for param in data['parameters']:
-                    if (param['fluorochrome']):
+                    if param['fluorochrome']:
                         param_fluoro = Fluorochrome.objects.get(
                             id=param['fluorochrome'])
                     else:
