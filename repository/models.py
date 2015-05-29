@@ -775,59 +775,6 @@ class SitePanelParameter(ProtectedModel):
     class Meta:
         ordering = ['fcs_number']
 
-    def clean(self):
-        """
-        Check for duplicate parameter/value_type combos in a panel.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # first check that there are no empty values
-        error_message = []
-        if not hasattr(self, 'site_panel'):
-            error_message.append("Site Panel is required")
-        if not hasattr(self, 'parameter_type'):
-            error_message.append("Parameter type is required")
-        if not hasattr(self, 'parameter_value_type'):
-            error_message.append("Value type is required")
-        if not hasattr(self, 'fcs_text'):
-            error_message.append("FCS Text is required")
-        if not hasattr(self, 'fcs_number'):
-            error_message.append("FCS channel number is required")
-
-        if len(error_message) > 0:
-            raise ValidationError(error_message)
-
-        # count panel mappings with matching parameter and value_type,
-        # which don't have this pk
-        spp_duplicates = SitePanelParameter.objects.filter(
-            site_panel=self.site_panel,
-            fluorochrome=self.fluorochrome,
-            parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(
-                id=self.id).exclude(parameter_type='NUL')
-
-        if spp_duplicates.count() > 0:
-            raise ValidationError(
-                "This combination already exists in this panel"
-            )
-
-        panel_fcs_text_duplicates = SitePanelParameter.objects.filter(
-            site_panel=self.site_panel,
-            fcs_text=self.fcs_text).exclude(id=self.id)
-
-        if panel_fcs_text_duplicates.count() > 0:
-            raise ValidationError("A site panel cannot have duplicate FCS text")
-
-        panel_fcs_number_duplicates = SitePanelParameter.objects.filter(
-            site_panel=self.site_panel,
-            fcs_number=self.fcs_number).exclude(id=self.id)
-
-        if panel_fcs_number_duplicates.count() > 0:
-            raise ValidationError("Channel numbers must be unique.")
-
-        if self.fcs_text == '':
-            raise ValidationError("FCS Text is required")
-
     def __unicode__(self):
         return u'%s, %s: %s-%s' % (
             self.site_panel,
