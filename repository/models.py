@@ -788,22 +788,6 @@ class SitePanelParameterMarker(models.Model):
     site_panel_parameter = models.ForeignKey(SitePanelParameter)
     marker = models.ForeignKey(Marker)
 
-    # override clean to prevent duplicate Ab's for a parameter...
-    # unique_together doesn't work for forms with the parameter excluded
-    def clean(self):
-        """
-        Verify the parameter & marker combo doesn't already exist
-        """
-
-        qs = SitePanelParameterMarker.objects.filter(
-            site_panel_parameter=self.site_panel_parameter,
-            marker=self.marker)
-
-        if qs.exists():
-            raise ValidationError(
-                "This marker is already included in this parameter."
-            )
-
     def __unicode__(self):
         return u'%s: %s' % (self.site_panel_parameter, self.marker)
 
