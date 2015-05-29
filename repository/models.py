@@ -839,6 +839,9 @@ class Subject(ProtectedModel):
         blank=False,
         default=False)
 
+    class Meta:
+        unique_together = (('project', 'subject_code'),)
+
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
             return True
@@ -851,29 +854,12 @@ class Subject(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate subject code in a project.
-        Returns ValidationError if any duplicates are found.
+        Check that project for both subject and subject group matches
+        Returns ValidationError if a mis-match is found.
         """
-
-        # count subjects with matching subject_code and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
         if self.subject_group is not None:
             if self.subject_group.project_id != self.project_id:
                 raise ValidationError("Group chosen is not in this Project")
-
-        subject_duplicates = Subject.objects.filter(
-            subject_code=self.subject_code,
-            project=self.project).exclude(
-                id=self.id)
-        if subject_duplicates.count() > 0:
-            raise ValidationError(
-                "Subject code already exists in this project."
-            )
 
     def __unicode__(self):
         return u'%s' % self.subject_code
@@ -888,6 +874,9 @@ class VisitType(ProtectedModel):
         max_length=128)
     visit_type_description = models.TextField(null=True, blank=True)
 
+    class Meta:
+        unique_together = (('project', 'visit_type_name'),)
+
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
             return True
@@ -897,26 +886,6 @@ class VisitType(ProtectedModel):
         if user.has_perm('modify_project_data', self.project):
             return True
         return False
-
-    def clean(self):
-        """
-        Check for duplicate visit types in a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count visit types with matching visit_type_name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        duplicates = VisitType.objects.filter(
-            visit_type_name=self.visit_type_name,
-            project=self.project).exclude(
-                id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError("Visit Name already exists in this project.")
 
     def __unicode__(self):
         return u'%s' % self.visit_type_name
