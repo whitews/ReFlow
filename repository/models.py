@@ -2080,9 +2080,8 @@ class ClusterLabel(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate labels for a cluster and ensure that both
-        the cluster and the label belong to the same project.
-        Returns ValidationError if either of the above requirements are
+        Check that both the cluster and label belong to the same project.
+        Returns ValidationError if the above requirements are
         not satisfied.
         """
 
@@ -2090,16 +2089,6 @@ class ClusterLabel(ProtectedModel):
         if self.cluster.process_request.project != self.label.project:
             raise ValidationError(
                 "Label and cluster must belong to the same project."
-            )
-
-        # count duplicate label / cluster combos,
-        # which don't have this pk
-        duplicates = ClusterLabel.objects.filter(
-            cluster=self.cluster,
-            label=self.label).exclude(id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "This cluster is already tagged with this label."
             )
 
     class Meta:
