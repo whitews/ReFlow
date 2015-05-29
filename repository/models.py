@@ -619,21 +619,8 @@ class Site(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        """
-        Check for duplicate site names within a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count sites with matching site_name and parent project,
-        # which don't have this pk
-        site_duplicates = Site.objects.filter(
-            site_name=self.site_name,
-            project=self.project).exclude(
-                id=self.id)
-
-        if site_duplicates.count() > 0:
-            raise ValidationError("Site name already exists in this project.")
+    class Meta:
+        unique_together = (('project', 'site_name'),)
 
     def __unicode__(self):
         return u'%s' % self.site_name
