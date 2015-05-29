@@ -1124,7 +1124,6 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                     panel_name=data['panel_name'],
                     panel_description=data['panel_description']
                 )
-                panel_template.clean()
                 panel_template.save()
 
                 for param in data['parameters']:
@@ -1153,6 +1152,8 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                 )
 
         except Exception as e:  # catch any exception to rollback changes
+            if hasattr(e, 'messages'):
+                return Response(data={'detail': e.messages}, status=400)
             return Response(data={'detail': e.message}, status=400)
 
         serializer = PanelTemplateSerializer(

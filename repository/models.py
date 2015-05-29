@@ -340,27 +340,8 @@ class Stimulation(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        """
-        Check for duplicate stimulations in a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count stims with matching name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        stim_duplicates = Stimulation.objects.filter(
-            stimulation_name=self.stimulation_name,
-            project=self.project).exclude(
-                id=self.id)
-        if stim_duplicates.count() > 0:
-            raise ValidationError(
-                "Stimulation name already exists in this project."
-            )
+    class Meta:
+        unique_together = (('project', 'stimulation_name'),)
 
     def __unicode__(self):
         return u'%s' % self.stimulation_name
@@ -403,27 +384,12 @@ class PanelTemplate(ProtectedModel):
             site_panel__in=site_panels).count()
         return compensations
 
-    def clean(self):
-        """
-        Check for duplicate panel names within a project.
-        Returns ValidationError if any duplicates are found.
-        """
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+        super(PanelTemplate, self).save(*args, **kwargs)
 
-        # count panels with matching panel_name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        duplicates = PanelTemplate.objects.filter(
-            panel_name=self.panel_name,
-            project=self.project).exclude(
-                id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "A template with this name already exists in this project."
-            )
+    class Meta:
+        unique_together = (('project', 'panel_name'),)
 
     def __unicode__(self):
         return u'%s' % self.panel_name
