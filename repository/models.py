@@ -637,6 +637,9 @@ class Cytometer(ProtectedModel):
         blank=False,
         max_length=256)
 
+    class Meta:
+        unique_together = (('site', 'cytometer_name'),)
+
     def has_view_permission(self, user):
         if user.has_perm('view_project_data', self.site.project):
             return True
@@ -653,23 +656,6 @@ class Cytometer(ProtectedModel):
         if self.site.has_modify_permission(user):
             return True
         return False
-
-    def clean(self):
-        """
-        Check for duplicate cytometer names within a site.
-        Returns ValidationError if any duplicates are found.
-        """
-        if not hasattr(self, 'site'):
-            return  # site is required and will get caught
-        # count cytos with matching name and parent site,
-        # which don't have this pk
-        duplicates = Cytometer.objects.filter(
-            cytometer_name=self.cytometer_name,
-            site=self.site).exclude(
-                id=self.id)
-
-        if duplicates.count() > 0:
-            raise ValidationError("Cytometer already exists in this site.")
 
     def __unicode__(self):
         return u'%s: %s' % (self.site.site_name, self.cytometer_name)
