@@ -1128,7 +1128,7 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                 panel_template.save()
 
                 for param in data['parameters']:
-                    if (param['fluorochrome']):
+                    if param['fluorochrome']:
                         param_fluoro = Fluorochrome.objects.get(
                             id=param['fluorochrome'])
                     else:
@@ -1149,7 +1149,7 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                 # by default, every panel template gets a full stain variant
                 PanelVariant.objects.create(
                     panel_template=panel_template,
-                    staining_type = 'FULL'
+                    staining_type='FULL'
                 )
 
         except Exception as e:  # catch any exception to rollback changes
