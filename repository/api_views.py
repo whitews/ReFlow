@@ -1478,6 +1478,11 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                 site_panel.save()
 
                 for param in data['parameters']:
+                    if param['parameter_type'] == 'NUL':
+                        param['parameter_value_type'] = 'N'
+                        param['fluorochrome'] = None
+                        param['markers'] = []
+
                     if param['fluorochrome']:
                         param_fluoro = Fluorochrome.objects.get(
                             id=param['fluorochrome'])
