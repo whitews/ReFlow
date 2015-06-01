@@ -64,7 +64,7 @@
                   </select>
                 </td>
                 <td>
-                  <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-options="p[0] as p[1] for p in site_panel_model.parameter_value_types">
+                  <select class="form-control" ng-model="channel.value_type" ng-change="validatePanel()" ng-options="p[0] as p[1] for p in site_panel_model.parameter_value_types" ng-hide="channel.function == 'NUL'">
                   </select>
                 </td>
                 <td>

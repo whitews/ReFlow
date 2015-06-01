@@ -64,7 +64,6 @@ app.controller(
         $scope.site_panel_model.fluorochromes = ModelService.getFluorochromes(ModelService.current_project.id);
 
         // everything but bead functions
-        // TODO: convert to ModelService call
         $scope.site_panel_model.parameter_functions = [
             ["FSC", "Forward Scatter"],
             ["SSC", "Side Scatter"],
@@ -75,7 +74,6 @@ app.controller(
 
         $scope.site_panel_model.parameter_value_types = ModelService.getParameterValueTypes();
 
-        $scope.site_panel_model.site_panel_errors = [];
         $scope.site_panel_model.site_panel_valid = false;
 
         // wait for all promises to return then initialize the site panel
@@ -96,9 +94,9 @@ app.controller(
             /*
             Validate the panel:
                 - Function and value type are required
-                - No fluorochromes in a scatter parameter
+                - No fluorochrome in a scatter parameter
                 - No markers in a scatter parameter
-                - Fluoroscent parameter must specify a fluorochrome
+                - Fluorescent parameter must specify a fluorochrome
                 - No duplicate fluorochrome + value type combinations
                 - No duplicate forward scatter + value type combinations
                 - No duplicate side scatter + value type combinations
@@ -124,34 +122,25 @@ app.controller(
                     channel.errors.push('Value type is required');
                 }
 
-                // Check for fluoro duplicates
-                if (channel.fluorochrome) {
-                    if (fluoro_duplicates.indexOf(channel.fluorochrome.toString() + "_" + channel.value_type) >= 0) {
-                        channel.errors.push('The same fluorochrome cannot be in multiple channels');
-                    } else {
-                        fluoro_duplicates.push(channel.fluorochrome.toString() + "_" + channel.value_type);
-                    }
-                }
+                if (channel.function == 'FSC' || channel.function == 'SSC' || channel.function == 'NUL') {
+                    // remove any markers & fluoro
+                    channel.markers = [];
+                    channel.fluorochrome = null;
 
-                // ensure no fluoro or markers in scatter channels
-                if (channel.function == 'FSC' || channel.function == 'SSC') {
-                    if (channel.fluorochrome) {
-                        channel.errors.push('Scatter channels cannot have a fluorochrome');
-                    }
-                    if (channel.markers.length > 0) {
-                        channel.errors.push('Scatter channels cannot have markers');
-                    }
-                }
-
-                // fluoro channels must have a fluorochrome
-                if (channel.function == 'FLR') {
+                    // hide marker and fluorochrome UI elements
+                    channel.marker_disabled = true;
+                    channel.fluoro_disabled = true;
+                } else if (channel.function == 'FLR') {
+                    // fluoro channels must have a fluorochrome
                     if (!channel.fluorochrome) {
                         channel.errors.push('Fluorescence channels must specify a fluorochrome');
                     }
-                }
-
-                // Time channels cannot have a fluoro or Ab, must have value type 'T'
-                if (channel.function == 'TIM') {
+                    // show marker and fluorochrome UI elements
+                    channel.marker_disabled = false;
+                    channel.fluoro_disabled = false;
+                } else if (channel.function == 'TIM') {
+                    // Time channels cannot have a fluoro or Ab,
+                    // and must have value type 'T'
                     if (channel.fluorochrome) {
                         channel.errors.push('Time channel cannot specify a fluorochrome');
                     }
@@ -160,6 +149,15 @@ app.controller(
                     }
                     if (channel.value_type != 'T') {
                         channel.errors.push('Time channel must have time value type')
+                    }
+                }
+
+                // Check for fluoro duplicates
+                if (channel.fluorochrome) {
+                    if (fluoro_duplicates.indexOf(channel.fluorochrome.toString() + "_" + channel.value_type) >= 0) {
+                        channel.errors.push('The same fluorochrome cannot be in multiple channels');
+                    } else {
+                        fluoro_duplicates.push(channel.fluorochrome.toString() + "_" + channel.value_type);
                     }
                 }
 
@@ -329,8 +327,8 @@ app.controller(
                 ModelService.sitePanelsUpdated();
                 // close modal
                 $scope.ok();
-            }, function(error) {
-                console.log(error);
+            }, function(errors) {
+                $scope.site_panel_model.errors = errors;
             });
         };
     }
