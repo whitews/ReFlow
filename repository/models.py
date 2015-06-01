@@ -423,7 +423,12 @@ class PanelTemplateParameter(ProtectedModel):
             self.parameter_type,
             self.parameter_value_type)
         if self.paneltemplateparametermarker_set.count() > 0:
-            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.paneltemplateparametermarker_set.all()]))
+            markers = self.paneltemplateparametermarker_set.all()
+            marker_string = "_".join(
+                sorted(
+                    [m.marker.marker_abbreviation for m in markers]
+                )
+            )
             name_string += '_' + marker_string
         if self.fluorochrome:
             name_string += '_' + self.fluorochrome.fluorochrome_abbreviation
@@ -1663,8 +1668,9 @@ class BeadSample(ProtectedModel):
         # Check if the project already has this file,
         # if so delete the temp file and raise ValidationError
         self.sha1 = file_hash.hexdigest()
+        project = self.site_panel.panel_template.project
         other_sha_values_in_project = BeadSample.objects.filter(
-            site_panel__panel_template__project=self.site_panel.panel_template.project).exclude(
+            site_panel__panel_template__project=project).exclude(
                 id=self.id).values_list('sha1', flat=True)
         if self.sha1 in other_sha_values_in_project:
             if hasattr(self.bead_file.file, 'temporary_file_path'):
@@ -2005,7 +2011,7 @@ class ProcessRequest(ProtectedModel):
 
     def save(self, *args, **kwargs):
         if self.completion_date:
-            # Dissallow editing if marked complete
+            # Disallow editing if marked complete
             # TODO: Figure out the best way to do this and raise a
             # ValidationError...can't prevent saving in clean() :(
             return
@@ -2150,22 +2156,6 @@ class SampleCluster(ProtectedModel):
             return True
 
         return False
-
-    def get_events_as_csv(self):
-        csv_string = StringIO()
-        events_array = np.load(self.events.file)
-
-        header = ','.join(["%d" % n for n in compensation_array[0]])
-        csv_string.write(header + '\n')
-
-        np.savetxt(
-            csv_string,
-            compensation_array[1:, :],
-            fmt='%f',
-            delimiter=','
-        )
-        csv_string.seek(0)
-        return csv_string
 
 
 class SampleClusterParameter(ProtectedModel):
