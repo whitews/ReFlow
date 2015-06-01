@@ -155,10 +155,10 @@ def validate_site_panel_request(data, user):
         - Ensure user has proper privileges to create site panel
         - Ensure all panel template parameters are present
         - No duplicate markers in a parameter
-        - No fluorochromes in a scatter parameter
+        - No fluorochrome in a scatter parameter
         - No markers in a scatter parameter
         - Fluorescent parameter must specify a fluorochrome
-        - No duplicate fluorochrome + value type combinations
+        - The same fluorochrome cannot be present in more than one parameter
         - No duplicate forward scatter + value type combinations
         - No duplicate side scatter + value type combinations
 
@@ -323,7 +323,14 @@ def validate_site_panel_request(data, user):
         # make a list of the combination for use in the Counter
         # ignoring null parameters
         if param_type not in ['NUL']:
-            param_components = [param_type, value_type]
+            param_components = [param_type]
+
+            # Only consider value_type for scatter & time channels.
+            # We don't allow the same fluorochrome in multiple channels
+            # regardless of the value type b/c of the difficulties with
+            # handling compensation matrices
+            if param_type in ['FSC', 'SSC', 'TIM']:
+                param_components.append(value_type)
             if fluorochrome_id:
                 param_components.append(fluorochrome_id)
 
