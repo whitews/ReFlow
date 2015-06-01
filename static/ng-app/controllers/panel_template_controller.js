@@ -206,11 +206,25 @@ app.controller(
                     }
 
                     // Check for duplicate channels
-                    var channel_string = [
-                        channel.function,
-                        channel.markers.sort().join("-"),
-                        channel.fluorochrome
-                    ].join("_");
+                    // For fluoro channels we don't consider value type b/c
+                    // mixed value type fluoro channels cause issues wiht the
+                    // automated analysis (mainly compensation). For scatter
+                    // channels we need to use the value type to prevent
+                    // "pure" duplicate scatter channels.
+                    if (channel.function == 'FSC' || channel.function == 'SSC') {
+                        var channel_string = [
+                            channel.function,
+                            channel.value_type,
+                            channel.markers.sort().join("-"),
+                            channel.fluorochrome
+                        ].join("_");
+                    } else {
+                        var channel_string = [
+                            channel.function,
+                            channel.markers.sort().join("-"),
+                            channel.fluorochrome
+                        ].join("_");
+                    }
                     if (channel_duplicates.indexOf(channel_string) >= 0) {
                         channel.errors.push('Duplicate channels are not allowed');
                     } else {
