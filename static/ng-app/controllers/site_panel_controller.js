@@ -327,8 +327,8 @@ app.controller(
                 ModelService.sitePanelsUpdated();
                 // close modal
                 $scope.ok();
-            }, function(errors) {
-                $scope.site_panel_model.errors = errors;
+            }, function(error) {
+                $scope.site_panel_model.errors = error.data;
             });
         };
     }
