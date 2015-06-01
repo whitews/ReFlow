@@ -194,7 +194,7 @@ app.controller(
                     channel.errors = [];
                     // Function type is required for all channels
                     if (!channel.function || !channel.value_type) {
-                        channel.errors.push('All channels must specify a function and a value type')
+                        channel.errors.push('All channels must specify a function and a value type');
                         valid = false;
                         $scope.model.template_valid = valid;
                         return valid;
@@ -211,15 +211,16 @@ app.controller(
                     // automated analysis (mainly compensation). For scatter
                     // channels we need to use the value type to prevent
                     // "pure" duplicate scatter channels.
+                    var channel_string;
                     if (channel.function == 'FSC' || channel.function == 'SSC') {
-                        var channel_string = [
+                        channel_string = [
                             channel.function,
                             channel.value_type,
                             channel.markers.sort().join("-"),
                             channel.fluorochrome
                         ].join("_");
                     } else {
-                        var channel_string = [
+                        channel_string = [
                             channel.function,
                             channel.markers.sort().join("-"),
                             channel.fluorochrome
@@ -318,7 +319,7 @@ app.controller(
                     data
                 );
 
-                panel_template.$promise.then(function (o) {
+                panel_template.$promise.then(function () {
                     // change to project's Panel template list
                     $state.go('panel-template-list')
                 }, function(error) {
