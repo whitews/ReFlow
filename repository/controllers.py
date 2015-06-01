@@ -42,13 +42,14 @@ def validate_panel_template_request(data, user):
 
     param_counter = Counter()
     param_errors = []
+    fluoro_set = set()  # don't allow duplicate fluoro in panel
     for param in data['parameters']:
         skip = False  # used for continuing to next loop iteration
         if 'parameter_type' not in param:
             param_errors.append('Function is required')
             skip = True
         if 'parameter_value_type' not in param:
-            param_errors.append('Value type is required, use null for None')
+            param_errors.append('Value type is required')
             skip = True
         if 'markers' not in param:
             param_errors.append(
@@ -86,11 +87,20 @@ def validate_panel_template_request(data, user):
                 "Time channels must have value type 'T'")
 
         fluorochrome_id = param['fluorochrome']
+        if fluorochrome_id:
+            if fluorochrome_id in fluoro_set:
+                param_errors.append(
+                    "Panels cannot have duplicate fluorochromes"
+                )
+            fluoro_set.add(fluorochrome_id)
 
         # fluorescence parameters must include a fluorochrome
-        if param_type == 'FLR' and not fluorochrome_id:
-            param_errors.append(
-                "A fluorescence channel must include a fluorochrome.")
+        if param_type == 'FLR':
+            if not fluorochrome_id and len(marker_set) <= 0:
+                param_errors.append(
+                    "Fluorescence parameters must specify either a marker or " +
+                    "a fluorochrome (or both)"
+                )
 
         # check for fluoro or markers in scatter channels
         if param_type == 'FSC' or param_type == 'SSC':
