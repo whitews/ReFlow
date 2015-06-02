@@ -2244,7 +2244,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
                 SitePanel, id=request.DATA['site_panel']
             )
             site = site_panel_candidate.site
-            if is_matching_site_panel(pnn_list, site_panel_candidate):
+            if matches_site_panel_colors(pnn_list, site_panel_candidate):
                 site_panel = site_panel_candidate
         else:
             panel_template = get_object_or_404(

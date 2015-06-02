@@ -424,10 +424,18 @@ def find_matching_site_panel(pnn_list, panel_template, site):
     return None
 
 
-def is_matching_site_panel(pnn_list, site_panel):
+def matches_site_panel_colors(pnn_list, site_panel):
+    """
+    Returns true or false depending on whether the given pnn_list matches
+    the fluorescent parameters of the given site_panel
+
+    :param pnn_list:
+    :param site_panel:
+    :return: boolean
+    """
     panel_text_set = set(
         site_panel.sitepanelparameter_set.all().exclude(
-            parameter_type__in=['FSC', 'SSC', 'TIM']
+            parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL']
         ).values_list('fcs_text', flat=True)
     )
     if len(panel_text_set.symmetric_difference(pnn_list)) == 0:
