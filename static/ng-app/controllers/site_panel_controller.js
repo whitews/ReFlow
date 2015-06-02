@@ -154,10 +154,10 @@ app.controller(
 
                 // Check for fluoro duplicates
                 if (channel.fluorochrome) {
-                    if (fluoro_duplicates.indexOf(channel.fluorochrome.toString() + "_" + channel.value_type) >= 0) {
+                    if (fluoro_duplicates.indexOf(channel.fluorochrome.toString()) >= 0) {
                         channel.errors.push('The same fluorochrome cannot be in multiple channels');
                     } else {
-                        fluoro_duplicates.push(channel.fluorochrome.toString() + "_" + channel.value_type);
+                        fluoro_duplicates.push(channel.fluorochrome.toString());
                     }
                 }
 
