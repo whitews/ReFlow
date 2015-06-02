@@ -99,31 +99,6 @@ app.controller(
 );
 
 app.controller(
-    'BeadSampleDeleteController',
-    [
-        '$scope',
-        'ModelService',
-        function ($scope, $rootScope, $controller, ModelService) {
-            $scope.destroy = function (instance) {
-                $scope.errors = [];
-                var response;
-                response = ModelService.destroyBeadSample(instance);
-
-                response.$promise.then(function () {
-                    ModelService.beadSamplesUpdated();
-
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
-
-app.controller(
     'CytometerDeleteController',
     [
         '$scope',

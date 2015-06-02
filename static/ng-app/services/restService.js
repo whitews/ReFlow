@@ -27,7 +27,6 @@ var URLS = {
     'SAMPLE_METADATA':     '/api/repository/samplemetadata/',
     'SAMPLE_COLLECTIONS':  '/api/repository/sample_collections/',
     'SAMPLE_COLLECTION_MEMBERS':  '/api/repository/sample_collection_members/',
-    'BEAD_SAMPLES':        '/api/repository/beads/',
     'VISIT_TYPES':         '/api/repository/visit_types/',
     'PARAMETER_FUNCTIONS': '/api/repository/parameter_functions/',
     'PARAMETER_VALUE_TYPES': '/api/repository/parameter_value_types/',
@@ -345,17 +344,6 @@ service
                 }
             }
         );
-    }])
-    .factory('BeadSample', ['$resource', function ($resource) {
-        var BeadSample = $resource(
-            URLS.BEAD_SAMPLES + ':id',
-            {},
-            {
-                update: { method: 'PUT' }
-            }
-        );
-
-        return BeadSample;
     }])
     .factory('SubprocessCategory', ['$resource', function ($resource) {
         return $resource(URLS.SUBPROCESS_CATEGORIES);

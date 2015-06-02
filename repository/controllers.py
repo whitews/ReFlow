@@ -162,10 +162,6 @@ def validate_site_panel_request(data, user):
         - No duplicate forward scatter + value type combinations
         - No duplicate side scatter + value type combinations
 
-    Bead panels have different validation, but a little simpler:
-        - The can only contain FSC, SSC, BEA, and TIM params
-        - Markers aren't allowed in any param
-
     Returns a dictionary of errors, with key as error field and value is a
     list of error messages pertaining to that field.
     An empty dictionary means successful validation
@@ -275,10 +271,6 @@ def validate_site_panel_request(data, user):
         if not param_type:
             param_errors.append("Function is required for all parameters")
 
-        if param_type == 'BEA' and len(marker_set) > 0:
-            param_errors.append(
-                "Bead parameters cannot have markers")
-
         # value type is required
         value_type = param['parameter_value_type']
         if not value_type:
@@ -290,11 +282,6 @@ def validate_site_panel_request(data, user):
         if param_type == 'FLR' and not fluorochrome_id:
             param_errors.append(
                 "An fluorescence channel must include a fluorochrome")
-
-        # exclusion must be a fluorescence channel
-        if param_type == 'BEA' and not fluorochrome_id:
-            param_errors.append(
-                "Bead parameters must include a fluorochrome")
 
         # check for fluoro or markers in scatter channels
         if param_type in ['FSC', 'SSC']:

@@ -51,7 +51,6 @@ var MODAL_URLS = {
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
-    'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html',
     'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
     'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
     'CELL_SUBSET_LABEL_DELETE': 'static/ng-app/partials/cell-subset-label-delete.html',
@@ -426,32 +425,6 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/sample-upload.html',
-                controller: 'MainSampleUploadController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Upload'
-        }
-    }).state({
-        name: 'bead-sample-list',
-        parent: 'project-detail',
-        url: '/bead-samples/',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/bead-sample-list.html',
-                controller: 'BeadSampleController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Bead Samples'
-        }
-    }).state({
-        name: 'bead-sample-upload',
-        parent: 'bead-sample-list',
-        url: '/bead-samples/upload',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/bead-sample-upload.html',
                 controller: 'MainSampleUploadController'
             }
         },
