@@ -971,6 +971,8 @@ class Compensation(ProtectedModel):
 
         # get comps with matching name and parent site,
         # which don't have this pk
+        # This should be a redundant check, as the matrix should have
+        # been vetted in the API view
         duplicates = Compensation.objects.filter(
             name=self.name,
             site_panel__site=self.site_panel.site_id).exclude(
@@ -981,10 +983,10 @@ class Compensation(ProtectedModel):
                 "Compensation with this name already exists in this site.")
 
         # get site panel parameter fcs_text, but just for the fluoro params
-        # scatter and time don't get compensated
+        # null, scatter and time don't get compensated
         params = SitePanelParameter.objects.filter(
             site_panel_id=self.site_panel_id).exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM'])
+                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
 
         # parse the matrix text and validate the number of params match
         # the number of fluoro params in the site panel and that the matrix
