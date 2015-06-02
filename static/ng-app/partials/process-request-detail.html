@@ -53,12 +53,12 @@
 
           <tr>
             <td>Assigned on:</td>
-            <td>{{ process_request.assignment_date }}</td>
+            <td>{{ process_request.assignment_date | date:'short'  }}</td>
           </tr>
 
           <tr>
             <td>Completion Date:</td>
-            <td>{{ process_request.completion_date }}</td>
+            <td>{{ process_request.completion_date | date:'short'  }}</td>
           </tr>
 
         </table>

@@ -194,7 +194,7 @@ app.controller(
                     channel.errors = [];
                     // Function type is required for all channels
                     if (!channel.function || !channel.value_type) {
-                        channel.errors.push('All channels must specify a function and a value type')
+                        channel.errors.push('All channels must specify a function and a value type');
                         valid = false;
                         $scope.model.template_valid = valid;
                         return valid;
@@ -206,12 +206,26 @@ app.controller(
                     }
 
                     // Check for duplicate channels
-                    var channel_string = [
-                        channel.function,
-                        channel.value_type,
-                        channel.markers.sort().join("-"),
-                        channel.fluorochrome
-                    ].join("_");
+                    // For fluoro channels we don't consider value type b/c
+                    // mixed value type fluoro channels cause issues wiht the
+                    // automated analysis (mainly compensation). For scatter
+                    // channels we need to use the value type to prevent
+                    // "pure" duplicate scatter channels.
+                    var channel_string;
+                    if (channel.function == 'FSC' || channel.function == 'SSC') {
+                        channel_string = [
+                            channel.function,
+                            channel.value_type,
+                            channel.markers.sort().join("-"),
+                            channel.fluorochrome
+                        ].join("_");
+                    } else {
+                        channel_string = [
+                            channel.function,
+                            channel.markers.sort().join("-"),
+                            channel.fluorochrome
+                        ].join("_");
+                    }
                     if (channel_duplicates.indexOf(channel_string) >= 0) {
                         channel.errors.push('Duplicate channels are not allowed');
                     } else {
@@ -220,10 +234,10 @@ app.controller(
 
                     // Check for fluoro duplicates
                     if (channel.fluorochrome) {
-                        if (fluoro_duplicates.indexOf(channel.fluorochrome.toString() + "_" + channel.value_type) >= 0) {
+                        if (fluoro_duplicates.indexOf(channel.fluorochrome.toString()) >= 0) {
                             channel.errors.push('The same fluorochrome cannot be in multiple channels');
                         } else {
-                            fluoro_duplicates.push(channel.fluorochrome.toString() + "_" + channel.value_type);
+                            fluoro_duplicates.push(channel.fluorochrome.toString());
                         }
                     }
 
@@ -305,7 +319,7 @@ app.controller(
                     data
                 );
 
-                panel_template.$promise.then(function (o) {
+                panel_template.$promise.then(function () {
                     // change to project's Panel template list
                     $state.go('panel-template-list')
                 }, function(error) {

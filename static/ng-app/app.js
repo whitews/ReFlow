@@ -43,6 +43,7 @@ var MODAL_URLS = {
     'SAMPLE_METADATA':    'static/ng-app/partials/sample-metadata-list.html',
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
     'COMPENSATION':       'static/ng-app/partials/compensation-form.html',
+    'COMPENSATION_FROM_SAMPLE': 'static/ng-app/partials/compensation-from-sample-form.html',
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
     'PROJECT_USER':       'static/ng-app/partials/project-user-form.html',
     'CHOOSE_USER':        'static/ng-app/partials/user-choose.html',

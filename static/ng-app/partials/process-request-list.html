@@ -37,16 +37,16 @@
               {{ request.description }}
             </a>
           </td>
-          <td>{{ request.request_date }}</td>
+          <td>{{ request.request_date | date:'short'  }}</td>
           <td>{{ request.request_username }}</td>
           <td>{{ request.status }}</td>
           <td>{{ request.worker_name }}</td>
           <td>
-            <span ng-hide="request.assignment_date==null">{{ request.assignment_date }}</span>
+            <span ng-hide="request.assignment_date==null">{{ request.assignment_date | date:'short'  }}</span>
             <span ng-show="request.assignment_date==null">Not assigned</span>
           </td>
           <td>
-            <span ng-hide="request.completion_date==null">{{ request.completion_date }}</span>
+            <span ng-hide="request.completion_date==null">{{ request.completion_date | date:'short'  }}</span>
             <span ng-show="request.completion_date==null">Not completed</span>
           </td>
           <td>

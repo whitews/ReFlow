@@ -605,14 +605,9 @@ service.factory('ModelService', function(
         return BeadSample.delete({id: instance.id });
     };
 
-
     // SampleMetadata related services
-    service.getSampleMetadata = function (sample_id) {
-        return SampleMetadata.query(
-            {
-                'sample': sample_id
-            }
-        );
+    service.getSampleMetadata = function (query_object) {
+        return SampleMetadata.query(query_object);
     };
 
     // Compensation related services

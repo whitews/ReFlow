@@ -313,27 +313,6 @@ class CellSubsetLabel(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        """
-        Check for duplicate subset labels in a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count labels with matching name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        duplicates = CellSubsetLabel.objects.filter(
-            name=self.name,
-            project=self.project).exclude(id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "CellSubsetLabel name already exists in this project."
-            )
-
     class Meta:
         unique_together = (('project', 'name'),)
 
@@ -361,27 +340,8 @@ class Stimulation(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        """
-        Check for duplicate stimulations in a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count stims with matching name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        stim_duplicates = Stimulation.objects.filter(
-            stimulation_name=self.stimulation_name,
-            project=self.project).exclude(
-                id=self.id)
-        if stim_duplicates.count() > 0:
-            raise ValidationError(
-                "Stimulation name already exists in this project."
-            )
+    class Meta:
+        unique_together = (('project', 'stimulation_name'),)
 
     def __unicode__(self):
         return u'%s' % self.stimulation_name
@@ -424,27 +384,12 @@ class PanelTemplate(ProtectedModel):
             site_panel__in=site_panels).count()
         return compensations
 
-    def clean(self):
-        """
-        Check for duplicate panel names within a project.
-        Returns ValidationError if any duplicates are found.
-        """
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+        super(PanelTemplate, self).save(*args, **kwargs)
 
-        # count panels with matching panel_name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        duplicates = PanelTemplate.objects.filter(
-            panel_name=self.panel_name,
-            project=self.project).exclude(
-                id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "A template with this name already exists in this project."
-            )
+    class Meta:
+        unique_together = (('project', 'panel_name'),)
 
     def __unicode__(self):
         return u'%s' % self.panel_name
@@ -454,16 +399,21 @@ class PanelTemplateParameter(ProtectedModel):
     panel_template = models.ForeignKey(PanelTemplate)
     parameter_type = models.CharField(
         max_length=3,
-        choices=PARAMETER_TYPE_CHOICES)
+        choices=PARAMETER_TYPE_CHOICES,
+        null=False,
+        blank=False,
+    )
     parameter_value_type = models.CharField(
         max_length=1,
         choices=PARAMETER_VALUE_TYPE_CHOICES,
-        null=True,
-        blank=True)
+        null=False,
+        blank=False,
+    )
     fluorochrome = models.ForeignKey(
         Fluorochrome,
         null=True,
-        blank=True)
+        blank=True
+    )
 
     def _get_name(self):
         """
@@ -473,7 +423,12 @@ class PanelTemplateParameter(ProtectedModel):
             self.parameter_type,
             self.parameter_value_type)
         if self.paneltemplateparametermarker_set.count() > 0:
-            marker_string = "_".join(sorted([m.marker.marker_abbreviation for m in self.paneltemplateparametermarker_set.all()]))
+            markers = self.paneltemplateparametermarker_set.all()
+            marker_string = "_".join(
+                sorted(
+                    [m.marker.marker_abbreviation for m in markers]
+                )
+            )
             name_string += '_' + marker_string
         if self.fluorochrome:
             name_string += '_' + self.fluorochrome.fluorochrome_abbreviation
@@ -483,45 +438,6 @@ class PanelTemplateParameter(ProtectedModel):
 
     class Meta:
         ordering = ['parameter_type', 'parameter_value_type']
-
-    def clean(self):
-        """
-        Check for duplicate parameter/value_type combos in a panel.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # first check that there are no empty values
-        error_message = []
-        if not hasattr(self, 'panel_template'):
-            error_message.append("Panel template is required")
-        if not hasattr(self, 'parameter_type'):
-            error_message.append("Parameter type is required")
-
-        if len(error_message) > 0:
-            raise ValidationError(error_message)
-
-        # count panel mappings with matching parameter and value_type,
-        # which don't have this pk
-        # This is a little tricky since we need to match the marker set
-        # but in any order (for multiplex channels)
-        # i.e. these are duplicates: CD3+CD8 & CD8+CD3
-        # We're using a an annotation approach by combining
-        # '__in' with a matching count of the markers
-        ppm_duplicates = PanelTemplateParameter.objects.filter(
-            panel_template=self.panel_template,
-            fluorochrome=self.fluorochrome,
-            paneltemplateparametermarker__in=self.paneltemplateparametermarker_set.all(),
-            parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(
-                id=self.id)
-        ppm_duplicates = ppm_duplicates.annotate(
-            num_markers=models.Count('paneltemplateparametermarker')).filter(
-                num_markers=self.paneltemplateparametermarker_set.all().count())
-
-        if ppm_duplicates.count() > 0:
-            raise ValidationError(
-                "This combination already exists in this panel"
-            )
 
     def __unicode__(self):
         return u'Panel: %s, Parameter: %s-%s' % (
@@ -535,21 +451,8 @@ class PanelTemplateParameterMarker(models.Model):
     panel_template_parameter = models.ForeignKey(PanelTemplateParameter)
     marker = models.ForeignKey(Marker)
 
-    # override clean to prevent duplicate Ab's for a parameter...
-    # unique_together doesn't work for forms with the parameter excluded
-    def clean(self):
-        """
-        Verify the parameter & marker combo doesn't already exist
-        """
-
-        qs = PanelTemplateParameterMarker.objects.filter(
-            panel_template_parameter=self.panel_template_parameter,
-            marker=self.marker).exclude(id=self.id)
-
-        if qs.exists():
-            raise ValidationError(
-                "This marker is already included in this parameter."
-            )
+    class Meta:
+        unique_together = (('panel_template_parameter', 'marker'),)
 
     def __unicode__(self):
         return u'%s: %s' % (self.panel_template_parameter, self.marker)
@@ -666,6 +569,7 @@ class Site(ProtectedModel):
     objects = SiteManager()
 
     class Meta:
+        unique_together = (('project', 'site_name'),)
         permissions = (
             ('view_site_data', 'View Site'),
             ('add_site_data', 'Add Site Data'),
@@ -721,22 +625,6 @@ class Site(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        """
-        Check for duplicate site names within a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count sites with matching site_name and parent project,
-        # which don't have this pk
-        site_duplicates = Site.objects.filter(
-            site_name=self.site_name,
-            project=self.project).exclude(
-                id=self.id)
-
-        if site_duplicates.count() > 0:
-            raise ValidationError("Site name already exists in this project.")
-
     def __unicode__(self):
         return u'%s' % self.site_name
 
@@ -754,6 +642,9 @@ class Cytometer(ProtectedModel):
         blank=False,
         max_length=256)
 
+    class Meta:
+        unique_together = (('site', 'cytometer_name'),)
+
     def has_view_permission(self, user):
         if user.has_perm('view_project_data', self.site.project):
             return True
@@ -770,23 +661,6 @@ class Cytometer(ProtectedModel):
         if self.site.has_modify_permission(user):
             return True
         return False
-
-    def clean(self):
-        """
-        Check for duplicate cytometer names within a site.
-        Returns ValidationError if any duplicates are found.
-        """
-        if not hasattr(self, 'site'):
-            return  # site is required and will get caught
-        # count cytos with matching name and parent site,
-        # which don't have this pk
-        duplicates = Cytometer.objects.filter(
-            cytometer_name=self.cytometer_name,
-            site=self.site).exclude(
-                id=self.id)
-
-        if duplicates.count() > 0:
-            raise ValidationError("Cytometer already exists in this site.")
 
     def __unicode__(self):
         return u'%s: %s' % (self.site.site_name, self.cytometer_name)
@@ -834,20 +708,7 @@ class SitePanel(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        try:
-            Site.objects.get(id=self.site_id)
-            PanelTemplate.objects.get(id=self.panel_template_id)
-        except ObjectDoesNotExist:
-            # site & panel template are required...
-            # will get caught by Form.is_valid()
-            return
-
-        # panel template must be in the same project as the site
-        if self.site.project_id != self.panel_template.project_id:
-            raise ValidationError(
-                "Chosen panel is not in site's project.")
-
+    def save(self, *args, **kwargs):
         # Get count of site panels for the panel template / site combo
         # to figure out the implementation number
         if not self.implementation:
@@ -863,6 +724,8 @@ class SitePanel(ProtectedModel):
             else:
                 raise ValidationError(
                     "Could not calculate implementation version.")
+
+        super(SitePanel, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'%s: %s (%d)' % (
@@ -917,59 +780,6 @@ class SitePanelParameter(ProtectedModel):
     class Meta:
         ordering = ['fcs_number']
 
-    def clean(self):
-        """
-        Check for duplicate parameter/value_type combos in a panel.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # first check that there are no empty values
-        error_message = []
-        if not hasattr(self, 'site_panel'):
-            error_message.append("Site Panel is required")
-        if not hasattr(self, 'parameter_type'):
-            error_message.append("Parameter type is required")
-        if not hasattr(self, 'parameter_value_type'):
-            error_message.append("Value type is required")
-        if not hasattr(self, 'fcs_text'):
-            error_message.append("FCS Text is required")
-        if not hasattr(self, 'fcs_number'):
-            error_message.append("FCS channel number is required")
-
-        if len(error_message) > 0:
-            raise ValidationError(error_message)
-
-        # count panel mappings with matching parameter and value_type,
-        # which don't have this pk
-        spp_duplicates = SitePanelParameter.objects.filter(
-            site_panel=self.site_panel,
-            fluorochrome=self.fluorochrome,
-            parameter_type=self.parameter_type,
-            parameter_value_type=self.parameter_value_type).exclude(
-                id=self.id).exclude(parameter_type='NUL')
-
-        if spp_duplicates.count() > 0:
-            raise ValidationError(
-                "This combination already exists in this panel"
-            )
-
-        panel_fcs_text_duplicates = SitePanelParameter.objects.filter(
-            site_panel=self.site_panel,
-            fcs_text=self.fcs_text).exclude(id=self.id)
-
-        if panel_fcs_text_duplicates.count() > 0:
-            raise ValidationError("A site panel cannot have duplicate FCS text")
-
-        panel_fcs_number_duplicates = SitePanelParameter.objects.filter(
-            site_panel=self.site_panel,
-            fcs_number=self.fcs_number).exclude(id=self.id)
-
-        if panel_fcs_number_duplicates.count() > 0:
-            raise ValidationError("Channel numbers must be unique.")
-
-        if self.fcs_text == '':
-            raise ValidationError("FCS Text is required")
-
     def __unicode__(self):
         return u'%s, %s: %s-%s' % (
             self.site_panel,
@@ -982,22 +792,6 @@ class SitePanelParameter(ProtectedModel):
 class SitePanelParameterMarker(models.Model):
     site_panel_parameter = models.ForeignKey(SitePanelParameter)
     marker = models.ForeignKey(Marker)
-
-    # override clean to prevent duplicate Ab's for a parameter...
-    # unique_together doesn't work for forms with the parameter excluded
-    def clean(self):
-        """
-        Verify the parameter & marker combo doesn't already exist
-        """
-
-        qs = SitePanelParameterMarker.objects.filter(
-            site_panel_parameter=self.site_panel_parameter,
-            marker=self.marker)
-
-        if qs.exists():
-            raise ValidationError(
-                "This marker is already included in this parameter."
-            )
 
     def __unicode__(self):
         return u'%s: %s' % (self.site_panel_parameter, self.marker)
@@ -1050,6 +844,9 @@ class Subject(ProtectedModel):
         blank=False,
         default=False)
 
+    class Meta:
+        unique_together = (('project', 'subject_code'),)
+
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
             return True
@@ -1062,29 +859,12 @@ class Subject(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate subject code in a project.
-        Returns ValidationError if any duplicates are found.
+        Check that project for both subject and subject group matches
+        Returns ValidationError if a mis-match is found.
         """
-
-        # count subjects with matching subject_code and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
         if self.subject_group is not None:
             if self.subject_group.project_id != self.project_id:
                 raise ValidationError("Group chosen is not in this Project")
-
-        subject_duplicates = Subject.objects.filter(
-            subject_code=self.subject_code,
-            project=self.project).exclude(
-                id=self.id)
-        if subject_duplicates.count() > 0:
-            raise ValidationError(
-                "Subject code already exists in this project."
-            )
 
     def __unicode__(self):
         return u'%s' % self.subject_code
@@ -1099,6 +879,9 @@ class VisitType(ProtectedModel):
         max_length=128)
     visit_type_description = models.TextField(null=True, blank=True)
 
+    class Meta:
+        unique_together = (('project', 'visit_type_name'),)
+
     def has_view_permission(self, user):
         if self.project in Project.objects.get_projects_user_can_view(user):
             return True
@@ -1108,26 +891,6 @@ class VisitType(ProtectedModel):
         if user.has_perm('modify_project_data', self.project):
             return True
         return False
-
-    def clean(self):
-        """
-        Check for duplicate visit types in a project.
-        Returns ValidationError if any duplicates are found.
-        """
-
-        # count visit types with matching visit_type_name and parent project,
-        # which don't have this pk
-        try:
-            Project.objects.get(id=self.project_id)
-        except ObjectDoesNotExist:
-            return  # Project is required and will get caught by Form.is_valid()
-
-        duplicates = VisitType.objects.filter(
-            visit_type_name=self.visit_type_name,
-            project=self.project).exclude(
-                id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError("Visit Name already exists in this project.")
 
     def __unicode__(self):
         return u'%s' % self.visit_type_name
@@ -1208,6 +971,8 @@ class Compensation(ProtectedModel):
 
         # get comps with matching name and parent site,
         # which don't have this pk
+        # This should be a redundant check, as the matrix should have
+        # been vetted in the API view
         duplicates = Compensation.objects.filter(
             name=self.name,
             site_panel__site=self.site_panel.site_id).exclude(
@@ -1218,7 +983,7 @@ class Compensation(ProtectedModel):
                 "Compensation with this name already exists in this site.")
 
         # get site panel parameter fcs_text, but just for the fluoro params
-        # 'Null', scatter and time don't get compensated
+        # null, scatter and time don't get compensated
         params = SitePanelParameter.objects.filter(
             site_panel_id=self.site_panel_id).exclude(
                 parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
@@ -1245,7 +1010,7 @@ class Compensation(ProtectedModel):
                 "Missing fields: %s" % ", ".join(missing_fields))
 
         if len(headers) > params.count():
-            raise ValidationError("Too many parameters")
+            raise ValidationError("Too many parameters: " + ",".join(headers))
 
         # the header of matrix text adds a row
         if len(matrix_text) > params.count() + 1:
@@ -1395,6 +1160,20 @@ class Sample(ProtectedModel):
         blank=False,
         default=False
     )
+
+    def _has_compensation(self):
+        """
+        Returns the True if a compensation matches the sample's site panel &
+        acquisition date
+        """
+        comps = Compensation.objects.filter(
+            site_panel=self.site_panel,
+            acquisition_date=self.acquisition_date
+        )
+
+        return comps.count() > 0
+
+    has_compensation = property(_has_compensation)
 
     def has_view_permission(self, user):
 
@@ -1720,7 +1499,7 @@ class SampleCollectionMember(ProtectedModel):
         """
 
         # get site panel parameter fcs_text, but just for the fluoro params
-        # 'Null', scatter and time don't get compensated
+        # scatter and time don't get compensated
         params = SitePanelParameter.objects.filter(
             site_panel_id=self.sample.site_panel_id).exclude(
                 parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
@@ -1891,8 +1670,9 @@ class BeadSample(ProtectedModel):
         # Check if the project already has this file,
         # if so delete the temp file and raise ValidationError
         self.sha1 = file_hash.hexdigest()
+        project = self.site_panel.panel_template.project
         other_sha_values_in_project = BeadSample.objects.filter(
-            site_panel__panel_template__project=self.site_panel.panel_template.project).exclude(
+            site_panel__panel_template__project=project).exclude(
                 id=self.id).values_list('sha1', flat=True)
         if self.sha1 in other_sha_values_in_project:
             if hasattr(self.bead_file.file, 'temporary_file_path'):
@@ -2233,7 +2013,7 @@ class ProcessRequest(ProtectedModel):
 
     def save(self, *args, **kwargs):
         if self.completion_date:
-            # Dissallow editing if marked complete
+            # Disallow editing if marked complete
             # TODO: Figure out the best way to do this and raise a
             # ValidationError...can't prevent saving in clean() :(
             return
@@ -2308,9 +2088,8 @@ class ClusterLabel(ProtectedModel):
 
     def clean(self):
         """
-        Check for duplicate labels for a cluster and ensure that both
-        the cluster and the label belong to the same project.
-        Returns ValidationError if either of the above requirements are
+        Check that both the cluster and label belong to the same project.
+        Returns ValidationError if the above requirements are
         not satisfied.
         """
 
@@ -2318,16 +2097,6 @@ class ClusterLabel(ProtectedModel):
         if self.cluster.process_request.project != self.label.project:
             raise ValidationError(
                 "Label and cluster must belong to the same project."
-            )
-
-        # count duplicate label / cluster combos,
-        # which don't have this pk
-        duplicates = ClusterLabel.objects.filter(
-            cluster=self.cluster,
-            label=self.label).exclude(id=self.id)
-        if duplicates.count() > 0:
-            raise ValidationError(
-                "This cluster is already tagged with this label."
             )
 
     class Meta:
@@ -2389,22 +2158,6 @@ class SampleCluster(ProtectedModel):
             return True
 
         return False
-
-    def get_events_as_csv(self):
-        csv_string = StringIO()
-        events_array = np.load(self.events.file)
-
-        header = ','.join(["%d" % n for n in compensation_array[0]])
-        csv_string.write(header + '\n')
-
-        np.savetxt(
-            csv_string,
-            compensation_array[1:, :],
-            fmt='%f',
-            delimiter=','
-        )
-        csv_string.seek(0)
-        return csv_string
 
 
 class SampleClusterParameter(ProtectedModel):

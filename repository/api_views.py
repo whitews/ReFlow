@@ -40,13 +40,16 @@ def custom_exception_handler(exc):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     if isinstance(exc, NotAuthenticated):
-        response = Response({'detail': 'Not authenticated'},
-                        status=status.HTTP_401_UNAUTHORIZED,
-                        exception=True)
+        response = Response(
+            {'detail': 'Not authenticated'},
+            status=status.HTTP_401_UNAUTHORIZED,
+            exception=True
+        )
     else:
         response = exception_handler(exc)
 
     return response
+
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
@@ -70,7 +73,10 @@ def repository_api_root(request):
         'permissions': reverse('permission-list', request=request),
         'users': reverse('user-list', request=request),
         'projects': reverse('project-list', request=request),
-        'cell_subset_labels': reverse('cell-subset-label-list', request=request),
+        'cell_subset_labels': reverse(
+            'cell-subset-label-list',
+            request=request
+        ),
         'create_samples': reverse('create-sample-list', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
@@ -90,7 +96,10 @@ def repository_api_root(request):
             'subprocess-implementation-list', request=request),
         'subprocess_inputs': reverse('subprocess-input-list', request=request),
         'process_requests': reverse('process-request-list', request=request),
-        'process_request_stage2_create': reverse('process-request-stage2-create', request=request),
+        'process_request_stage2_create': reverse(
+            'process-request-stage2-create',
+            request=request
+        ),
         'process_request_inputs': reverse(
             'process-request-input-list', request=request),
         'assigned_process_requests': reverse(
@@ -100,7 +109,10 @@ def repository_api_root(request):
         'clusters': reverse('cluster-list', request=request),
         'cluster-labels': reverse('cluster-label-list', request=request),
         'sample_clusters': reverse('sample-cluster-list', request=request),
-        'sample_cluster_components': reverse('sample-cluster-component-list', request=request)
+        'sample_cluster_components': reverse(
+            'sample-cluster-component-list',
+            request=request
+        )
     })
 
 
@@ -175,7 +187,8 @@ def is_user(request, username):
 def get_project_permissions(request, project):
     project = get_object_or_404(Project, pk=project)
 
-    if not (request.user in project.get_project_users() or request.user.is_superuser):
+    if not (request.user in project.get_project_users() or
+            request.user.is_superuser):
         raise PermissionDenied
 
     perms = project.get_user_permissions(request.user)
@@ -636,14 +649,18 @@ class UserList(generics.ListCreateAPIView):
                 # check for optional properties
                 user_kwargs = {}
                 if 'first_name' in serializer.init_data:
-                    user_kwargs['first_name'] = serializer.init_data['first_name']
+                    user_kwargs['first_name'] = serializer.init_data[
+                        'first_name'
+                    ]
                 if 'last_name' in serializer.init_data:
-                    user_kwargs['last_name'] = serializer.init_data['last_name']
+                    user_kwargs['last_name'] = serializer.init_data[
+                        'last_name'
+                    ]
 
                 # different calls needed for regular vs super users
                 is_superuser = False
                 if 'is_superuser' in serializer.init_data:
-                    if serializer.init_data['is_superuser'] == True:
+                    if serializer.init_data['is_superuser']:
                         is_superuser = True
 
                 if is_superuser:
@@ -667,7 +684,10 @@ class UserList(generics.ListCreateAPIView):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class UserDetail(
@@ -854,7 +874,11 @@ class CellSubsetLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        response = super(CellSubsetLabelList, self).post(request, *args, **kwargs)
+        response = super(CellSubsetLabelList, self).post(
+            request,
+            *args,
+            **kwargs
+        )
         return response
 
 
@@ -884,7 +908,11 @@ class CellSubsetLabelDetail(
         if not subset_label.project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return super(CellSubsetLabelDetail, self).delete(request, *args, **kwargs)
+        return super(CellSubsetLabelDetail, self).delete(
+            request,
+            *args,
+            **kwargs
+        )
 
 
 class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
@@ -1124,11 +1152,10 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                     panel_name=data['panel_name'],
                     panel_description=data['panel_description']
                 )
-                panel_template.clean()
                 panel_template.save()
 
                 for param in data['parameters']:
-                    if (param['fluorochrome']):
+                    if param['fluorochrome']:
                         param_fluoro = Fluorochrome.objects.get(
                             id=param['fluorochrome'])
                     else:
@@ -1149,10 +1176,12 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
                 # by default, every panel template gets a full stain variant
                 PanelVariant.objects.create(
                     panel_template=panel_template,
-                    staining_type = 'FULL'
+                    staining_type='FULL'
                 )
 
         except Exception as e:  # catch any exception to rollback changes
+            if hasattr(e, 'messages'):
+                return Response(data={'detail': e.messages}, status=400)
             return Response(data={'detail': e.message}, status=400)
 
         serializer = PanelTemplateSerializer(
@@ -1199,14 +1228,12 @@ class PanelTemplateDetail(
                 panel_template.project = project
                 panel_template.panel_name = data['panel_name']
                 panel_template.panel_description = data['panel_description']
-
-                panel_template.clean()
                 panel_template.save()
 
                 panel_template.paneltemplateparameter_set.all().delete()
 
                 for param in data['parameters']:
-                    if (param['fluorochrome']):
+                    if param['fluorochrome']:
                         param_fluoro = Fluorochrome.objects.get(
                             id=param['fluorochrome'])
                     else:
@@ -1263,12 +1290,16 @@ class PanelVariantList(LoginRequiredMixin, generics.ListCreateAPIView):
             self.request.user)
 
         # filter on user's projects
-        queryset = PanelVariant.objects.filter(panel_template__project__in=user_projects)
+        queryset = PanelVariant.objects.filter(
+            panel_template__project__in=user_projects
+        )
 
         return queryset
 
     def post(self, request, *args, **kwargs):
-        panel_template = PanelTemplate.objects.get(id=request.DATA['panel_template'])
+        panel_template = PanelTemplate.objects.get(
+            id=request.DATA['panel_template']
+        )
         if not panel_template.project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1289,7 +1320,8 @@ class PanelVariantDetail(
 
     def put(self, request, *args, **kwargs):
         panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
-        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+        project = panel_variant.panel_template.project
+        if not project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(PanelVariantDetail, self).put(request, *args, **kwargs)
@@ -1299,7 +1331,8 @@ class PanelVariantDetail(
 
     def delete(self, request, *args, **kwargs):
         panel_variant = PanelVariant.objects.get(id=kwargs['pk'])
-        if not panel_variant.panel_template.project.has_modify_permission(request.user):
+        project = panel_variant.panel_template.project
+        if not project.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return super(PanelVariantDetail, self).delete(request, *args, **kwargs)
@@ -1418,8 +1451,6 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
             id_list = id_value.split(',')
             queryset = queryset.filter(id__in=id_list)
 
-        # TODO: implement filtering by channel info: fluoro, marker, scatter
-
         return queryset
 
     def create(self, request, *args, **kwargs):
@@ -1434,7 +1465,9 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         # an atomic transaction
         try:
             site = Site.objects.get(id=data['site'])
-            panel_template = PanelTemplate.objects.get(id=data['panel_template'])
+            panel_template = PanelTemplate.objects.get(
+                id=data['panel_template']
+            )
 
             with transaction.atomic():
                 site_panel = SitePanel(
@@ -1442,11 +1475,15 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
                     panel_template=panel_template,
                     site_panel_comments=data['site_panel_comments']
                 )
-                site_panel.clean()
                 site_panel.save()
 
                 for param in data['parameters']:
-                    if (param['fluorochrome']):
+                    if param['parameter_type'] == 'NUL':
+                        param['parameter_value_type'] = 'N'
+                        param['fluorochrome'] = None
+                        param['markers'] = []
+
+                    if param['fluorochrome']:
                         param_fluoro = Fluorochrome.objects.get(
                             id=param['fluorochrome'])
                     else:
@@ -1720,7 +1757,11 @@ class FluorochromeDetail(
         if fluorochrome.sitepanelparameter_set.count() > 0:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        response = super(FluorochromeDetail, self).delete(request, *args, **kwargs)
+        response = super(FluorochromeDetail, self).delete(
+            request,
+            *args,
+            **kwargs
+        )
         return response
 
 
@@ -1977,7 +2018,9 @@ class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
         return queryset
 
 
-class SampleCollectionMemberList(LoginRequiredMixin, generics.ListCreateAPIView):
+class SampleCollectionMemberList(
+        LoginRequiredMixin,
+        generics.ListCreateAPIView):
     """
     API endpoint for listing and creating a SampleCollectionMember. Note
     this API POST takes a list of instances.
@@ -2187,12 +2230,6 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         """
         Override post to ensure user has permission to add data to the site.
         """
-        panel_template = get_object_or_404(
-            PanelTemplate, id=request.DATA['panel_template'])
-        site = get_object_or_404(Site, id=request.DATA['site'])
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
-
         matrix_text = request.DATA['matrix_text'].splitlines(False)
         if not len(matrix_text) > 1:
             raise ValidationError("Too few rows.")
@@ -2201,8 +2238,27 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         # may be tab or comma delimited
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
         pnn_list = re.split('\t|,\s*', matrix_text[0])
+        site_panel = None
+        if 'site_panel' in request.DATA:
+            site_panel_candidate = get_object_or_404(
+                SitePanel, id=request.DATA['site_panel']
+            )
+            site = site_panel_candidate.site
+            if matches_site_panel_colors(pnn_list, site_panel_candidate):
+                site_panel = site_panel_candidate
+        else:
+            panel_template = get_object_or_404(
+                PanelTemplate, id=request.DATA['panel_template']
+            )
+            site = get_object_or_404(Site, id=request.DATA['site'])
+            site_panel = find_matching_site_panel(
+                pnn_list,
+                panel_template,
+                site
+            )
 
-        site_panel = find_matching_site_panel(pnn_list, panel_template, site)
+        if not site.has_add_permission(request.user):
+            raise PermissionDenied
 
         if site_panel:
             request.DATA['site_panel'] = site_panel.id
@@ -2464,7 +2520,11 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
         # add required fields for the user and status
         request.DATA['request_user'] = request.user.id
         request.DATA['status'] = 'Pending'
-        response = super(ProcessRequestList, self).create(request, *args, **kwargs)
+        response = super(ProcessRequestList, self).create(
+            request,
+            *args,
+            **kwargs
+        )
         return response
 
 
@@ -2505,6 +2565,21 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
         if not parent_pr.project.has_process_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+        # ensure that a cell subset label was provided and that at least
+        # one cluster has been tagged with that label
+        cell_subset_label = get_object_or_404(
+            CellSubsetLabel,
+            pk=request.DATA['cell_subset_label']
+        )
+        cluster_labels = cell_subset_label.clusterlabel_set.filter(
+            cluster__process_request=parent_pr
+        )
+        if cluster_labels <= 0:
+            return Response(
+                data=['No clusters were found with specified label'],
+                status=400
+            )
+
         try:
             with transaction.atomic():
                 pr = ProcessRequest(
@@ -2530,12 +2605,14 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                         subprocess_input=subprocess_input,
                         value=param_string
                     )
+
                 # next, the clusters from stage 1 to include in stage 2
-                for cluster in request.DATA['clusters']:
-                    ProcessRequestStage2Cluster.objects.create(
+                for cluster_label in cluster_labels:
+                    pr2_clust = ProcessRequestStage2Cluster(
                         process_request=pr,
-                        cluster_id=cluster
+                        cluster_id=cluster_label.cluster.id
                     )
+                    pr2_clust.save()
 
                 # finally, the clustering inputs:
                 #     seed, cluster count, burn-in, & iterations
@@ -2584,7 +2661,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 )
 
         except Exception, e:
-            print e
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ProcessRequestDetailSerializer(
             pr,
@@ -2718,8 +2795,7 @@ class ProcessRequestAssignmentUpdate(
 
 class ClusterList(
         LoginRequiredMixin,
-        generics.ListCreateAPIView
-    ):
+        generics.ListCreateAPIView):
     """
     API endpoint for listing and creating a Cluster.
     """
@@ -2869,8 +2945,7 @@ class SampleClusterFilter(django_filters.FilterSet):
 
 class SampleClusterList(
         LoginRequiredMixin,
-        generics.ListCreateAPIView
-    ):
+        generics.ListCreateAPIView):
     """
     API endpoint for listing and creating a SampleCluster.
     """
@@ -2991,8 +3066,7 @@ class SampleClusterComponentFilter(django_filters.FilterSet):
 
 class SampleClusterComponentList(
         LoginRequiredMixin,
-        generics.ListAPIView
-    ):
+        generics.ListAPIView):
     """
     API endpoint for listing and creating a SampleCluster.
     """

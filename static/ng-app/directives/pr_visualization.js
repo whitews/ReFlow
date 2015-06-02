@@ -61,7 +61,7 @@ app.controller(
             $scope.chosen_member.sample.site_panel
         );
 
-        $q.all([sample_clusters, panel_data]).then(function(data) {
+        $q.all([sample_clusters, panel_data.$promise]).then(function(data) {
             $scope.cached_plots[$scope.chosen_member.id] = {
                 'cluster_data': data[0],
                 'panel_data': data[1]

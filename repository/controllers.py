@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from models import Project, PanelTemplate, SitePanel, Site, Marker
+from models import Project, PanelTemplate, SitePanel, Site, Marker, Fluorochrome
 from collections import Counter
 
 
@@ -9,9 +9,9 @@ def validate_panel_template_request(data, user):
     Validate the panel:
         - Ensure user has privileges to create panel template
         - No duplicate markers in a parameter
-        - No fluorochromes in a scatter parameter
+        - No fluorochrome in a scatter parameter
         - No markers in a scatter parameter
-        - No duplicate fluorochrome + value type combinations
+        - No duplicate fluorochrome combinations
         - No duplicate forward scatter + value type combinations
         - No duplicate side scatter + value type combinations
     """
@@ -32,9 +32,9 @@ def validate_panel_template_request(data, user):
         return errors
 
     # template must have parameters
-    if not 'parameters' in data:
+    if 'parameters' not in data:
         errors['parameters'] = ["Parameters are required"]
-    elif not len(data['parameters']) > 0:
+    elif len(data['parameters']) <= 0:
         errors['parameters'] = ["Specify at least one parameter"]
 
     if len(errors) > 0:
@@ -42,19 +42,20 @@ def validate_panel_template_request(data, user):
 
     param_counter = Counter()
     param_errors = []
+    fluoro_set = set()  # don't allow duplicate fluoro in panel
     for param in data['parameters']:
         skip = False  # used for continuing to next loop iteration
-        if not 'parameter_type' in param:
+        if 'parameter_type' not in param:
             param_errors.append('Function is required')
             skip = True
-        if not 'parameter_value_type' in param:
-            param_errors.append('Value type is required, use null for None')
+        if 'parameter_value_type' not in param:
+            param_errors.append('Value type is required')
             skip = True
-        if not 'markers' in param:
+        if 'markers' not in param:
             param_errors.append(
                 'Markers is a required field, use an empty array for None')
             skip = True
-        if not 'fluorochrome' in param:
+        if 'fluorochrome' not in param:
             param_errors.append(
                 'Fluorochrome is a required field, use null for None')
             skip = True
@@ -86,11 +87,20 @@ def validate_panel_template_request(data, user):
                 "Time channels must have value type 'T'")
 
         fluorochrome_id = param['fluorochrome']
+        if fluorochrome_id:
+            if fluorochrome_id in fluoro_set:
+                param_errors.append(
+                    "Panels cannot have duplicate fluorochromes"
+                )
+            fluoro_set.add(fluorochrome_id)
 
-        # fluoroscence parameters must include a fluorochrome
-        if param_type == 'FLR' and not fluorochrome_id:
-            param_errors.append(
-                "An fluorescence channel must include a fluorochrome.")
+        # fluorescence parameters must include a fluorochrome
+        if param_type == 'FLR':
+            if not fluorochrome_id and len(marker_set) <= 0:
+                param_errors.append(
+                    "Fluorescence parameters must specify either a marker or " +
+                    "a fluorochrome (or both)"
+                )
 
         # check for fluoro or markers in scatter channels
         if param_type == 'FSC' or param_type == 'SSC':
@@ -101,10 +111,20 @@ def validate_panel_template_request(data, user):
                 param_errors.append(
                     "A scatter channel cannot have an marker.")
 
-        # make a list of the combination for use in the Counter
-        param_components = [param_type, value_type]
+        # make a list of the combination for use in the Counter, except that
+        # fluoro channels won't use value_type for duplicate check, so we
+        # use a dummy value ''
+        if param_type == 'FLR':
+            param_components = [param_type]
+        else:
+            param_components = [param_type, value_type]
+
         if fluorochrome_id:
-            param_components.append(fluorochrome_id)
+            try:
+                fluoro = Fluorochrome.objects.get(id=fluorochrome_id)
+                param_components.append(fluoro.fluorochrome_abbreviation)
+            except ObjectDoesNotExist:
+                param_errors.append("Chosen fluorochrome doesn't exist")
         for marker_id in sorted(marker_set):
             try:
                 marker = Marker.objects.get(id=marker_id)
@@ -135,10 +155,10 @@ def validate_site_panel_request(data, user):
         - Ensure user has proper privileges to create site panel
         - Ensure all panel template parameters are present
         - No duplicate markers in a parameter
-        - No fluorochromes in a scatter parameter
+        - No fluorochrome in a scatter parameter
         - No markers in a scatter parameter
         - Fluorescent parameter must specify a fluorochrome
-        - No duplicate fluorochrome + value type combinations
+        - The same fluorochrome cannot be present in more than one parameter
         - No duplicate forward scatter + value type combinations
         - No duplicate side scatter + value type combinations
 
@@ -157,7 +177,9 @@ def validate_site_panel_request(data, user):
 
     if 'panel_template' in data:
         try:
-            panel_template = PanelTemplate.objects.get(id=data['panel_template'])
+            panel_template = PanelTemplate.objects.get(
+                id=data['panel_template']
+            )
             user_sites = Site.objects.get_sites_user_can_add(
                 user, panel_template.project).order_by('site_name')
         except ObjectDoesNotExist:
@@ -183,13 +205,15 @@ def validate_site_panel_request(data, user):
 
     # validate panel template and site are in same project
     if site.project_id != panel_template.project_id:
-        errors['panel_template'] = ["Panel template is required"]
+        errors['panel_template'] = [
+            "Panel template & site belong to different projects"
+        ]
 
     if len(errors) > 0:
         return errors
 
     # site panel must have parameters
-    if not 'parameters' in data:
+    if 'parameters' not in data:
         errors['parameters'] = ["Parameters are required"]
     elif not len(data['parameters']) > 0:
         errors['parameters'] = ["Specify at least one parameter"]
@@ -210,27 +234,27 @@ def validate_site_panel_request(data, user):
         #     - markers  ???
         #     - fluorochrome ???
         skip = False  # used for continuing to next loop iteration
-        if not 'fcs_number' in param:
+        if 'fcs_number' not in param:
             param_errors.append('FCS number is required')
             skip = True
-        if not 'fcs_text' in param:
+        if 'fcs_text' not in param:
             param_errors.append('FCS text is required')
             skip = True
-        if not 'fcs_opt_text' in param:
+        if 'fcs_opt_text' not in param:
             param_errors.append(
                 'FCS optional text is required, use null for None')
             skip = True
-        if not 'parameter_type' in param:
+        if 'parameter_type' not in param:
             param_errors.append('Function is required')
             skip = True
-        if not 'parameter_value_type' in param:
+        if 'parameter_value_type' not in param:
             param_errors.append('Value type is required')
             skip = True
-        if not 'markers' in param:
+        if 'markers' not in param:
             param_errors.append(
                 'Markers is a required field, use an empty array for None')
             skip = True
-        if not 'fluorochrome' in param:
+        if 'fluorochrome' not in param:
             param_errors.append(
                 'Fluorochrome is a required field, use null for None')
             skip = True
@@ -299,7 +323,14 @@ def validate_site_panel_request(data, user):
         # make a list of the combination for use in the Counter
         # ignoring null parameters
         if param_type not in ['NUL']:
-            param_components = [param_type, value_type]
+            param_components = [param_type]
+
+            # Only consider value_type for scatter & time channels.
+            # We don't allow the same fluorochrome in multiple channels
+            # regardless of the value type b/c of the difficulties with
+            # handling compensation matrices
+            if param_type in ['FSC', 'SSC', 'TIM']:
+                param_components.append(value_type)
             if fluorochrome_id:
                 param_components.append(fluorochrome_id)
 
@@ -364,7 +395,7 @@ def validate_site_panel_request(data, user):
     panel_template_parameters = panel_template_parameters.exclude(
         id__in=matching_ids)
     for ppp in panel_template_parameters:
-        if not 'panel_template' in errors:
+        if 'panel_template' not in errors:
             errors['panel_template'] = []
 
         errors['panel_template'].append(
@@ -384,10 +415,30 @@ def find_matching_site_panel(pnn_list, panel_template, site):
     for site_panel in site_panel_prospects:
         panel_text_set = set(
             site_panel.sitepanelparameter_set.all().exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL']
+                parameter_type__in=['FSC', 'SSC', 'TIM']
             ).values_list('fcs_text', flat=True)
         )
         if len(panel_text_set.symmetric_difference(pnn_list)) == 0:
             return site_panel
 
     return None
+
+
+def matches_site_panel_colors(pnn_list, site_panel):
+    """
+    Returns true or false depending on whether the given pnn_list matches
+    the fluorescent parameters of the given site_panel
+
+    :param pnn_list:
+    :param site_panel:
+    :return: boolean
+    """
+    panel_text_set = set(
+        site_panel.sitepanelparameter_set.all().exclude(
+            parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL']
+        ).values_list('fcs_text', flat=True)
+    )
+    if len(panel_text_set.symmetric_difference(pnn_list)) == 0:
+        return True
+
+    return False
