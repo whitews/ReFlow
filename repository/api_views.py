@@ -2074,16 +2074,6 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
             site = site_panel_candidate.site
             if matches_site_panel_colors(pnn_list, site_panel_candidate):
                 site_panel = site_panel_candidate
-        else:
-            panel_template = get_object_or_404(
-                PanelTemplate, id=request.DATA['panel_template']
-            )
-            site = get_object_or_404(Site, id=request.DATA['site'])
-            site_panel = find_matching_site_panel(
-                pnn_list,
-                panel_template,
-                site
-            )
 
         if not site.has_add_permission(request.user):
             raise PermissionDenied

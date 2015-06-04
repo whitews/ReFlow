@@ -393,24 +393,6 @@ def validate_site_panel_request(data, user):
     return errors
 
 
-def find_matching_site_panel(pnn_list, panel_template, site):
-    site_panel_prospects = SitePanel.objects.filter(
-        panel_template=panel_template,
-        site=site
-    )
-
-    for site_panel in site_panel_prospects:
-        panel_text_set = set(
-            site_panel.sitepanelparameter_set.all().exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM']
-            ).values_list('fcs_text', flat=True)
-        )
-        if len(panel_text_set.symmetric_difference(pnn_list)) == 0:
-            return site_panel
-
-    return None
-
-
 def matches_site_panel_colors(pnn_list, site_panel):
     """
     Returns true or false depending on whether the given pnn_list matches
