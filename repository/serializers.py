@@ -83,7 +83,9 @@ class ProjectUserSerializer(serializers.ModelSerializer):
 
 
 class CellSubsetLabelSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='cell-subset-label-detail')
+    url = serializers.HyperlinkedIdentityField(
+        view_name='cell-subset-label-detail'
+    )
 
     class Meta:
         model = CellSubsetLabel
@@ -886,9 +888,6 @@ class SampleClusterParameterSerializer(serializers.ModelSerializer):
 
 
 class SampleClusterSerializer(serializers.ModelSerializer):
-    # url = serializers.HyperlinkedIdentityField(
-    #     view_name='sample-cluster-detail'
-    # )
     process_request = serializers.CharField(
         source='cluster.process_request_id',
         read_only=True
@@ -912,7 +911,6 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         model = SampleCluster
         fields = (
             'id',
-            #'url',
             'process_request',
             'sample',
             'cluster',

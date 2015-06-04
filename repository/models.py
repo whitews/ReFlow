@@ -1690,8 +1690,6 @@ class ProcessRequest(ProtectedModel):
     def save(self, *args, **kwargs):
         if self.completion_date:
             # Disallow editing if marked complete
-            # TODO: Figure out the best way to do this and raise a
-            # ValidationError...can't prevent saving in clean() :(
             return
         if not self.id:
             self.request_date = datetime.datetime.now()
