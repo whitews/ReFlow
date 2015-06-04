@@ -99,29 +99,12 @@
 
         </div>
         <div class="col-md-4">
-          <h4>Sample Annotations</h4>
-
-              <a ui-sref="site-panel-list">View Sample Annotations</a><br/>
-
-        </div>
-      </div>
-
-      <div class="row">
-        <br/>
-      </div>
-
-      <div class="row">
-        <div class="col-md-4">
           <h4>Samples</h4>
 
-              <a ui-sref="sample-list">View Samples</a><br/>
-              <a ng-show="current_project.permissions.can_add_data" ui-sref="sample-upload">Upload Samples</a><br/>
-
-        </div>
-        <div class="col-md-4">
-          <h4>Compensation Matrices</h4>
-
-              <a ui-sref="compensation-list">View Compensation Matrices</a><br/>
+          <a ui-sref="sample-list">View Samples</a><br/>
+          <a ng-show="current_project.permissions.can_add_data" ui-sref="sample-upload">Upload Samples</a><br/>
+          <a ui-sref="site-panel-list">View Sample Annotations</a><br/>
+          <a ui-sref="compensation-list">View Compensation Matrices</a><br/>
 
         </div>
       </div>
