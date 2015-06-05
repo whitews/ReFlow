@@ -39,7 +39,12 @@
           </td>
           <td>{{ request.request_date | date:'short'  }}</td>
           <td>{{ request.request_username }}</td>
-          <td>{{ request.status }}</td>
+          <td>
+            <span class="label label-success" ng-show="request.status == 'Complete'">{{ request.status }}</span>
+            <span class="label label-warning" ng-show="request.status == 'Working'">{{ request.status }}</span>
+            <span class="label label-primary" ng-show="request.status == 'Pending'">{{ request.status }}</span>
+            <span class="label label-danger" ng-show="request.status == 'Error'">{{ request.status }}</span>
+          </td>
           <td>{{ request.worker_name }}</td>
           <td>
             <span ng-hide="request.assignment_date==null">{{ request.assignment_date | date:'short'  }}</span>
