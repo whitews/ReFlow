@@ -87,7 +87,6 @@ app.controller(
             $scope.model.fluorochromes = ModelService.getFluorochromes($scope.current_project.id);
             $scope.model.parameter_value_types = ModelService.getParameterValueTypes();
 
-            // everything but bead functions
             $scope.model.parameter_functions = [
                 ["FSC", "Forward Scatter"],
                 ["SSC", "Side Scatter"],
@@ -255,14 +254,6 @@ app.controller(
                         if (!channel.fluorochrome && channel.markers.length < 1) {
                             channel.errors.push("Fluorescence parameters must " +
                         "specify either a marker or a fluorochrome (or both)");
-                        }
-                    } else if (channel.function == 'BEA') {
-                        // Bead channels must specify a fluoro but no marker
-                        if (!channel.fluorochrome) {
-                            channel.errors.push('Bead channels must specify a fluorochrome');
-                        }
-                        if (channel.markers.length > 0) {
-                            channel.errors.push('Bead channels cannot have markers');
                         }
                     } else if (channel.function == 'TIM') {
                         // Time channels cannot have a fluoro or Ab, must have value type 'T'

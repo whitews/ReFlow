@@ -60,8 +60,6 @@ def repository_api_root(request):
     """
 
     return Response({
-        'beads': reverse('bead-list', request=request),
-        'create_beads': reverse('create-bead-list', request=request),
         'compensations': reverse('compensation-list', request=request),
         'panel-templates': reverse('panel-template-list', request=request),
         'panel-variants': reverse('panel-variant-list', request=request),
@@ -285,74 +283,6 @@ def retrieve_subsample_as_numpy(request, pk):
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % str(sample.id) + '.npy'
-    return response
-
-
-@api_view(['GET'])
-@authentication_classes((SessionAuthentication, TokenAuthentication))
-@permission_classes((IsAuthenticated,))
-def retrieve_bead_sample(request, pk):
-    bead_sample = get_object_or_404(BeadSample, pk=pk)
-
-    if not bead_sample.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        bead_sample.bead_file,
-        content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
-        % bead_sample.original_filename
-    return response
-
-
-@api_view(['GET'])
-@authentication_classes((SessionAuthentication, TokenAuthentication))
-@permission_classes((IsAuthenticated,))
-def retrieve_bead_sample_as_pk(request, pk):
-    bead_sample = get_object_or_404(BeadSample, pk=pk)
-
-    if not bead_sample.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        bead_sample.bead_file,
-        content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
-        % str(bead_sample.id) + '.fcs'
-    return response
-
-
-@api_view(['GET'])
-@authentication_classes((SessionAuthentication, TokenAuthentication))
-@permission_classes((IsAuthenticated,))
-def retrieve_bead_subsample_as_csv(request, pk):
-    bead_sample = get_object_or_404(BeadSample, pk=pk)
-
-    if not bead_sample.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        bead_sample.get_subsample_as_csv(),
-        content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
-        % str(bead_sample.id) + '.csv'
-    return response
-
-
-@api_view(['GET'])
-@authentication_classes((SessionAuthentication, TokenAuthentication))
-@permission_classes((IsAuthenticated,))
-def retrieve_bead_subsample_as_numpy(request, pk):
-    bead_sample = get_object_or_404(BeadSample, pk=pk)
-
-    if not bead_sample.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        bead_sample.subsample.file,
-        content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
-        % str(bead_sample.id) + '.npy'
     return response
 
 
@@ -2080,108 +2010,6 @@ class SampleCollectionDetail(
     serializer_class = SampleCollectionDetailSerializer
 
 
-class CreateBeadList(LoginRequiredMixin, generics.CreateAPIView):
-    """
-    API endpoint for creating a new Sample.
-    """
-
-    model = BeadSample
-    serializer_class = BeadSamplePOSTSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Override post to ensure user has permission to add data to the site.
-        Also removing the 'sample_file' field since it has the server path.
-        """
-        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
-        site = Site.objects.get(id=site_panel.site_id)
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
-
-        response = super(CreateBeadList, self).post(request, *args, **kwargs)
-        if hasattr(response, 'data'):
-            if 'bead_file' in response.data:
-                response.data.pop('bead_file')
-        return response
-
-
-class BeadFilter(django_filters.FilterSet):
-    panel_template = django_filters.ModelMultipleChoiceFilter(
-        queryset=PanelTemplate.objects.all(),
-        name='site_panel__panel_template')
-    site = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
-        name='site_panel__site')
-    site_panel = django_filters.ModelMultipleChoiceFilter(
-        queryset=SitePanel.objects.all())
-    cytometer = django_filters.ModelMultipleChoiceFilter(
-        queryset=Cytometer.objects.all())
-    original_filename = django_filters.CharFilter(lookup_type="icontains")
-
-    class Meta:
-        model = BeadSample
-        fields = [
-            'site_panel__panel_template__project',
-            'site_panel',
-            'site_panel__site',
-            'site_panel__panel_template',
-            'acquisition_date',
-            'original_filename',
-            'cytometer',
-            'sha1'
-        ]
-
-
-class BeadList(LoginRequiredMixin, generics.ListAPIView):
-    """
-    API endpoint representing a list of samples.
-    """
-
-    model = BeadSample
-    serializer_class = BeadSampleSerializer
-    filter_class = BeadFilter
-
-    def get_queryset(self):
-        """
-        Results are restricted to projects to which the user belongs.
-        """
-
-        user_sites = Site.objects.get_sites_user_can_view(self.request.user)
-        queryset = BeadSample.objects.filter(
-            site_panel__site__in=user_sites)
-
-        return queryset
-
-
-class BeadDetail(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        generics.RetrieveUpdateDestroyAPIView):
-    """
-    API endpoint representing a single FCS sample.
-    """
-
-    model = BeadSample
-    serializer_class = BeadSampleSerializer
-
-    def put(self, request, *args, **kwargs):
-        bead_sample = BeadSample.objects.get(id=request.DATA['id'])
-        if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        return super(BeadDetail, self).put(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    def delete(self, request, *args, **kwargs):
-        bead_sample = BeadSample.objects.get(id=kwargs['pk'])
-        if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        return super(BeadDetail, self).delete(request, *args, **kwargs)
-
-
 class CompensationFilter(django_filters.FilterSet):
 
     site = django_filters.ModelMultipleChoiceFilter(
@@ -2246,16 +2074,6 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
             site = site_panel_candidate.site
             if matches_site_panel_colors(pnn_list, site_panel_candidate):
                 site_panel = site_panel_candidate
-        else:
-            panel_template = get_object_or_404(
-                PanelTemplate, id=request.DATA['panel_template']
-            )
-            site = get_object_or_404(Site, id=request.DATA['site'])
-            site_panel = find_matching_site_panel(
-                pnn_list,
-                panel_template,
-                site
-            )
 
         if not site.has_add_permission(request.user):
             raise PermissionDenied
@@ -2273,23 +2091,13 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
 class CompensationDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveUpdateDestroyAPIView):
+        generics.RetrieveDestroyAPIView):
     """
     API endpoint representing a single FCS sample.
     """
 
     model = Compensation
     serializer_class = CompensationSerializer
-
-    def put(self, request, *args, **kwargs):
-        bead_sample = BeadSample.objects.get(id=request.DATA['id'])
-        if not bead_sample.has_modify_permission(request.user):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        return super(CompensationDetail, self).put(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def delete(self, request, *args, **kwargs):
         compensation = Compensation.objects.get(id=kwargs['pk'])
@@ -2684,7 +2492,7 @@ class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Filter process requests which do not have 'Completed' status
+        Filter process requests which do not have 'Complete' status
         and is currently assigned to the requesting worker
         Regular users receive zero results.
         """
@@ -2697,7 +2505,7 @@ class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
         # PRs need to be in Pending status with no completion date
         queryset = ProcessRequest.objects.filter(
             worker=worker, completion_date=None).exclude(
-                status='Completed')
+                status='Complete')
         return queryset
 
 

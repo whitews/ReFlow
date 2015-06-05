@@ -18,7 +18,6 @@
           <th ts-criteria="site_name">Site</th>
           <th>Cytometers</th>
           <th ts-criteria="sample_count">FCS Sample Count</th>
-          <th ts-criteria="bead_sample_count">Bead Count</th>
         </tr>
       </thead>
       <tbody>
@@ -36,7 +35,6 @@
               <span ng-repeat="cytometer in site.cytometers">{{ cytometer.cytometer_name }}<br/></span>
           </td>
           <td>{{ site.sample_count }}</td>
-          <td>{{ site.bead_sample_count }}</td>
         </tr>
       </tbody>
     </table>

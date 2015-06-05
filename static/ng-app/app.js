@@ -42,7 +42,6 @@ var MODAL_URLS = {
     'SAMPLE_PARAMETERS':  'static/ng-app/partials/sample-parameters-list.html',
     'SAMPLE_METADATA':    'static/ng-app/partials/sample-metadata-list.html',
     'SAMPLE':             'static/ng-app/partials/sample-form.html',
-    'COMPENSATION':       'static/ng-app/partials/compensation-form.html',
     'COMPENSATION_FROM_SAMPLE': 'static/ng-app/partials/compensation-from-sample-form.html',
     'COMPENSATION_MATRIX': 'static/ng-app/partials/compensation-matrix.html',
     'PROJECT_USER':       'static/ng-app/partials/project-user-form.html',
@@ -51,7 +50,6 @@ var MODAL_URLS = {
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
-    'BEAD_SAMPLE_DELETE': 'static/ng-app/partials/bead-sample-delete.html',
     'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
     'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
     'CELL_SUBSET_LABEL_DELETE': 'static/ng-app/partials/cell-subset-label-delete.html',
@@ -426,32 +424,6 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         views: {
             '@': {
                 templateUrl: '/static/ng-app/partials/sample-upload.html',
-                controller: 'MainSampleUploadController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Upload'
-        }
-    }).state({
-        name: 'bead-sample-list',
-        parent: 'project-detail',
-        url: '/bead-samples/',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/bead-sample-list.html',
-                controller: 'BeadSampleController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Bead Samples'
-        }
-    }).state({
-        name: 'bead-sample-upload',
-        parent: 'bead-sample-list',
-        url: '/bead-samples/upload',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/bead-sample-upload.html',
                 controller: 'MainSampleUploadController'
             }
         },

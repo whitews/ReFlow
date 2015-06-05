@@ -13,15 +13,8 @@
           {{ instance.sample_count }} sample(s) belong to this cytometer. These
           <strong>WILL</strong> be deleted if you remove this cytometer.
         </li>
-        <li ng-show="instance.bead_sample_count > 0">
-          {{ instance.bead_sample_count }} bead sample(s) belong to this cytometer. These
-          <strong>WILL</strong> be deleted if you remove this cytometer.
-        </li>
         <li ng-show="instance.sample_count == 0">
           There are no regular FCS samples that belong to this cytometer.
-        </li>
-        <li ng-show="instance.bead_sample_count == 0">
-          There are no bead samples that belong to this cytometer.
         </li>
       </ul>
     </div>

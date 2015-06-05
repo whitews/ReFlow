@@ -162,10 +162,6 @@ def validate_site_panel_request(data, user):
         - No duplicate forward scatter + value type combinations
         - No duplicate side scatter + value type combinations
 
-    Bead panels have different validation, but a little simpler:
-        - The can only contain FSC, SSC, BEA, and TIM params
-        - Markers aren't allowed in any param
-
     Returns a dictionary of errors, with key as error field and value is a
     list of error messages pertaining to that field.
     An empty dictionary means successful validation
@@ -275,10 +271,6 @@ def validate_site_panel_request(data, user):
         if not param_type:
             param_errors.append("Function is required for all parameters")
 
-        if param_type == 'BEA' and len(marker_set) > 0:
-            param_errors.append(
-                "Bead parameters cannot have markers")
-
         # value type is required
         value_type = param['parameter_value_type']
         if not value_type:
@@ -290,11 +282,6 @@ def validate_site_panel_request(data, user):
         if param_type == 'FLR' and not fluorochrome_id:
             param_errors.append(
                 "An fluorescence channel must include a fluorochrome")
-
-        # exclusion must be a fluorescence channel
-        if param_type == 'BEA' and not fluorochrome_id:
-            param_errors.append(
-                "Bead parameters must include a fluorochrome")
 
         # check for fluoro or markers in scatter channels
         if param_type in ['FSC', 'SSC']:
@@ -404,24 +391,6 @@ def validate_site_panel_request(data, user):
     if len(param_errors) > 0:
         errors['parameters'] = param_errors
     return errors
-
-
-def find_matching_site_panel(pnn_list, panel_template, site):
-    site_panel_prospects = SitePanel.objects.filter(
-        panel_template=panel_template,
-        site=site
-    )
-
-    for site_panel in site_panel_prospects:
-        panel_text_set = set(
-            site_panel.sitepanelparameter_set.all().exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM']
-            ).values_list('fcs_text', flat=True)
-        )
-        if len(panel_text_set.symmetric_difference(pnn_list)) == 0:
-            return site_panel
-
-    return None
 
 
 def matches_site_panel_colors(pnn_list, site_panel):

@@ -112,7 +112,7 @@ STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Working', 'Working'),
     ('Error', 'Error'),
-    ('Completed', 'Completed'),
+    ('Complete', 'Complete'),
 )
 
 
@@ -231,9 +231,6 @@ class Project(ProtectedModel):
     def get_compensation_count(self):
         return Compensation.objects.filter(
             site_panel__site__project=self).count()
-
-    def get_bead_sample_count(self):
-        return BeadSample.objects.filter(cytometer__site__project=self).count()
 
     def __unicode__(self):
         return u'Project: %s' % self.project_name
@@ -370,12 +367,6 @@ class PanelTemplate(ProtectedModel):
     def get_sample_count(self):
         site_panels = SitePanel.objects.filter(panel_template=self)
         sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
-        return sample_count
-
-    def get_bead_sample_count(self):
-        site_panels = SitePanel.objects.filter(panel_template=self)
-        sample_count = BeadSample.objects.filter(
-            site_panel__in=site_panels).count()
         return sample_count
 
     def get_compensation_count(self):
@@ -579,12 +570,6 @@ class Site(ProtectedModel):
     def get_sample_count(self):
         site_panels = SitePanel.objects.filter(site=self)
         sample_count = Sample.objects.filter(site_panel__in=site_panels).count()
-        return sample_count
-
-    def get_bead_sample_count(self):
-        site_panels = SitePanel.objects.filter(site=self)
-        sample_count = BeadSample.objects.filter(
-            site_panel__in=site_panels).count()
         return sample_count
 
     def get_compensation_count(self):
@@ -1534,315 +1519,6 @@ class SampleCollectionMember(ProtectedModel):
             raise ValidationError("Too few rows")
 
 
-def bead_file_path(instance, filename):
-    project_id = instance.site_panel.panel_template.project_id
-    site_id = instance.site_panel.site_id
-
-    upload_dir = join([
-        'ReFlow-data',
-        str(project_id),
-        'bead_data',
-        str(site_id),
-        str(filename)],
-        "/")
-
-    return upload_dir
-
-
-def bead_subsample_file_path(instance, filename):
-    project_id = instance.site_panel.panel_template.project_id
-    site_id = instance.site_panel.site_id
-
-    upload_dir = join([
-        'ReFlow-data',
-        str(project_id),
-        'bead_subsample',
-        str(site_id),
-        str(filename + ".npy")],
-        "/")
-
-    return upload_dir
-
-
-class BeadSample(ProtectedModel):
-    site_panel = models.ForeignKey(
-        SitePanel,
-        null=False,
-        blank=False)
-    cytometer = models.ForeignKey(
-        Cytometer,
-        null=False,
-        blank=False)
-    acquisition_date = models.DateField(
-        null=False,
-        blank=False
-    )
-    includes_negative_control = models.BooleanField(
-        null=False,
-        blank=False,
-        default=False
-    )
-    negative_control = models.BooleanField(
-        null=False,
-        blank=False,
-        default=False
-    )
-    compensation_channel = models.ForeignKey(
-        Fluorochrome,
-        null=True,
-        blank=False)
-    bead_file = models.FileField(
-        upload_to=bead_file_path,
-        null=False,
-        blank=False,
-        max_length=256)
-    original_filename = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        editable=False,
-        max_length=256)
-    subsample = models.FileField(
-        upload_to=bead_subsample_file_path,
-        null=False,
-        blank=False,
-        max_length=256)
-    sha1 = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        editable=False,
-        max_length=40)
-    upload_date = models.DateTimeField(
-        editable=False,
-        null=False,
-        blank=False)
-    exclude = models.BooleanField(
-        null=False,
-        blank=False,
-        default=False
-    )
-
-    def has_view_permission(self, user):
-
-        if self.site_panel.panel_template.project.has_view_permission(user):
-            return True
-        elif user.has_perm('view_site_data', self.site_panel.site):
-            return True
-
-        return False
-
-    def has_modify_permission(self, user):
-        if self.site_panel.panel_template.project.has_modify_permission(user):
-            return True
-        elif user.has_perm('modify_site_data', self.site_panel.site):
-            return True
-
-        return False
-
-    def get_subsample_as_csv(self):
-        csv_string = StringIO()
-        subsample_array = np.load(self.subsample.file)
-        # return the array as integers, the extra precision is questionable
-        np.savetxt(csv_string, subsample_array, fmt='%d', delimiter=',')
-        csv_string.seek(0)
-        return csv_string
-
-    def clean(self):
-        """
-        Overriding clean to do the following:
-            - Save  original file name, since it may already exist on our side.
-            - Save SHA-1 hash and check for duplicate FCS files in this project.
-        """
-
-        self.original_filename = self.bead_file.name.split('/')[-1]
-        # get the hash
-        file_hash = hashlib.sha1(self.bead_file.read())
-
-        # Verify cytometer and site panel share same site
-        if hasattr(self, 'cytometer'):
-            if self.cytometer is not None:
-                if self.cytometer.site != self.site_panel.site:
-                    raise ValidationError(
-                        "Cytometer and Site Panel must belong to the same site"
-                    )
-
-        # Check if the project already has this file,
-        # if so delete the temp file and raise ValidationError
-        self.sha1 = file_hash.hexdigest()
-        project = self.site_panel.panel_template.project
-        other_sha_values_in_project = BeadSample.objects.filter(
-            site_panel__panel_template__project=project).exclude(
-                id=self.id).values_list('sha1', flat=True)
-        if self.sha1 in other_sha_values_in_project:
-            if hasattr(self.bead_file.file, 'temporary_file_path'):
-                temp_file_path = self.bead_file.file.temporary_file_path()
-                os.unlink(temp_file_path)
-
-            raise ValidationError(
-                "This FCS file already exists in this Project."
-            )
-
-        # Verify the file is an FCS file
-        if hasattr(self.bead_file.file, 'temporary_file_path'):
-            try:
-                fcm_obj = flowio.FlowData(
-                    self.bead_file.file.temporary_file_path(),
-                )
-            except:
-                raise ValidationError(
-                    "Chosen file does not appear to be an FCS file."
-                )
-        else:
-            self.bead_file.seek(0)
-            try:
-                fcm_obj = flowio.FlowData(io.BytesIO(
-                    self.bead_file.read()))
-            except:
-                raise ValidationError(
-                    "Chosen file does not appear to be an FCS file."
-                )
-
-        # Read the FCS text segment and get the number of parameters
-        # save the dictionary for saving BeadSampleMetadata instances
-        # after saving the Sample instance
-        self.metadata_dict = fcm_obj.text
-
-        if 'par' in self.metadata_dict:
-            if not self.metadata_dict['par'].isdigit():
-                raise ValidationError(
-                    "FCS file reports non-numeric parameter count"
-                )
-        else:
-            raise ValidationError("No parameters found in FCS file")
-
-        # Get our parameter numbers from all the PnN matches
-        params = {}  # parameter_number: PnN text
-        for key in self.metadata_dict:
-            matches = re.search('^P(\d+)([N,S])$', key, flags=re.IGNORECASE)
-            if matches:
-                channel_number = matches.group(1)
-                n_or_s = str.lower(matches.group(2))
-                if channel_number not in params:
-                    params[channel_number] = {}
-                params[channel_number][n_or_s] = \
-                    self.metadata_dict[key]
-
-        # Now check parameters against the chosen site panel
-        # First, simply check the counts
-        panel_params = self.site_panel.sitepanelparameter_set.all()
-        if len(params) != panel_params.count():
-            raise ValidationError(
-                "FCS parameter count does not match chosen site panel")
-        for channel_number in params.keys():
-            try:
-                panel_param = panel_params.get(fcs_number=channel_number)
-            except ObjectDoesNotExist:
-                raise ValidationError(
-                    "Channel number '%s' not found in chosen site panel" %
-                    str(channel_number))
-            except MultipleObjectsReturned:
-                raise ValidationError(
-                    "Multiple channels found in chosen site panel " +
-                    "for channel number '%s'" % str(channel_number))
-
-            # Compare PnN field, this field is required so error if not found
-            if 'n' in params[channel_number]:
-                if params[channel_number]['n'] != panel_param.fcs_text:
-                    raise ValidationError(
-                        "FCS PnN text for channel '%s' does not match panel"
-                        % str(channel_number))
-            else:
-                raise ValidationError(
-                    "Required FCS field PnN not found in file for channel '%s'"
-                    % str(channel_number))
-
-            # We don't compare PnS field as this field typically identifies
-            # which channel is the signal channel, and we only want one site
-            # panel per comp bead data set.
-
-        # Save a sub-sample of the FCS data for more efficient retrieval
-        # We'll save a random 10,000 events (non-duplicated) if possible
-        # We'll also store the indices of the randomly chosen events for
-        # reproducibility. The indices will be inserted as the first column.
-        # The result is stored as a numpy object in a file field.
-        # To ensure room for the indices and preserve precision for values,
-        # we save as float32
-        numpy_data = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
-        index_array = np.arange(len(numpy_data))
-        np.random.shuffle(index_array)
-        random_subsample = numpy_data[index_array[:10000]]
-        random_subsample_indexed = np.insert(
-            random_subsample,
-            0,
-            index_array[:10000],
-            axis=1)
-        subsample_file = TemporaryFile()
-        np.save(subsample_file, random_subsample_indexed)
-        self.subsample.save(
-            self.original_filename,
-            File(subsample_file),
-            save=False)
-
-    def save(self, *args, **kwargs):
-        """ Populate upload date on save """
-        if not self.id:
-            self.upload_date = datetime.datetime.today()
-
-        super(BeadSample, self).save(*args, **kwargs)
-
-        # save metadata
-        for k, v in self.metadata_dict.items():
-            try:
-                BeadSampleMetadata(
-                    bead_sample=self,
-                    key=k,
-                    value=v.decode('utf-8', 'ignore')).save()
-            except Exception, e:
-                print e
-
-    def __unicode__(self):
-        return u'Project: %s, Bead File: %s' % (
-            self.site_panel.panel_template.project.project_name,
-            self.original_filename)
-
-
-class BeadSampleMetadata(ProtectedModel):
-    """
-    Key-value pairs for the metadata found in FCS samples
-    """
-    bead_sample = models.ForeignKey(BeadSample)
-    key = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=256
-    )
-    value = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=2048
-    )
-
-    def has_view_permission(self, user):
-
-        if user.has_perm(
-                'view_project_data',
-                self.bead_sample.site_panel.site.project):
-            return True
-        elif self.bead_sample.site_panel.site is not None:
-            if user.has_perm(
-                    'view_site_data',
-                    self.bead_sample.site_panel.site):
-                return True
-
-        return False
-
-    def __unicode__(self):
-        return u'%s: %s' % (self.key, self.value)
-
-
 ################################
 # START PROCESS RELATED MODELS #
 ################################
@@ -2014,8 +1690,6 @@ class ProcessRequest(ProtectedModel):
     def save(self, *args, **kwargs):
         if self.completion_date:
             # Disallow editing if marked complete
-            # TODO: Figure out the best way to do this and raise a
-            # ValidationError...can't prevent saving in clean() :(
             return
         if not self.id:
             self.request_date = datetime.datetime.now()

@@ -63,7 +63,6 @@ app.controller(
         $scope.site_panel_model.markers = ModelService.getMarkers(ModelService.current_project.id);
         $scope.site_panel_model.fluorochromes = ModelService.getFluorochromes(ModelService.current_project.id);
 
-        // everything but bead functions
         $scope.site_panel_model.parameter_functions = [
             ["FSC", "Forward Scatter"],
             ["SSC", "Side Scatter"],
