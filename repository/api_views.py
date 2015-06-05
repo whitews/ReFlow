@@ -2492,7 +2492,7 @@ class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
     def get_queryset(self):
         """
-        Filter process requests which do not have 'Completed' status
+        Filter process requests which do not have 'Complete' status
         and is currently assigned to the requesting worker
         Regular users receive zero results.
         """
@@ -2505,7 +2505,7 @@ class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
         # PRs need to be in Pending status with no completion date
         queryset = ProcessRequest.objects.filter(
             worker=worker, completion_date=None).exclude(
-                status='Completed')
+                status='Complete')
         return queryset
 
 

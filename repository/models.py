@@ -112,7 +112,7 @@ STATUS_CHOICES = (
     ('Pending', 'Pending'),
     ('Working', 'Working'),
     ('Error', 'Error'),
-    ('Completed', 'Completed'),
+    ('Complete', 'Complete'),
 )
 
 
