@@ -2504,8 +2504,10 @@ class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
         # PRs need to be in Pending status with no completion date
         queryset = ProcessRequest.objects.filter(
-            worker=worker, completion_date=None).exclude(
-                status='Complete')
+            worker=worker,
+            completion_date=None,
+            status__in=['Pending', 'Working']
+        )
         return queryset
 
 
