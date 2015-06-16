@@ -758,7 +758,8 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'completion_date',
             'worker',
             'worker_name',
-            'status'
+            'status',
+            'status_message'
         )
 
 
@@ -834,6 +835,7 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'worker',
             'worker_name',
             'status',
+            'status_message',
             'inputs'
         )
 
