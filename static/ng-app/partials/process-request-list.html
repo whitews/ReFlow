@@ -43,7 +43,9 @@
             <span class="label label-success" ng-show="request.status == 'Complete'">{{ request.status }}</span>
             <span class="label label-warning" ng-show="request.status == 'Working'">{{ request.status }}</span>
             <span class="label label-primary" ng-show="request.status == 'Pending'">{{ request.status }}</span>
-            <span class="label label-danger" ng-show="request.status == 'Error'">{{ request.status }}</span>
+            <span class="label label-danger" ng-show="request.status == 'Error'" tooltip="{{ request.status_message }}" tooltip-placement="bottom">
+              <i class="fa fa-exclamation-triangle align-middle"></i>{{ request.status }}
+            </span>
           </td>
           <td>{{ request.worker_name }}</td>
           <td>
