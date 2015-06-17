@@ -2504,8 +2504,10 @@ class AssignedProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 
         # PRs need to be in Pending status with no completion date
         queryset = ProcessRequest.objects.filter(
-            worker=worker, completion_date=None).exclude(
-                status='Complete')
+            worker=worker,
+            completion_date=None,
+            status__in=['Pending', 'Working']
+        )
         return queryset
 
 
@@ -2588,7 +2590,55 @@ class ProcessRequestAssignmentUpdate(
             try:
                 # now try to save the ProcessRequest
                 process_request.worker = worker
+                process_request.status = 'Working'
                 process_request.assignment_date = datetime.datetime.now()
+                process_request.save()
+
+                # serialize the updated ProcessRequest
+                serializer = ProcessRequestSerializer(process_request)
+
+                return Response(serializer.data, status=201)
+            except ValidationError as e:
+                return Response(data={'detail': e.messages}, status=400)
+
+        return Response(data={'detail': 'Bad request'}, status=400)
+
+
+class ProcessRequestReportError(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.UpdateAPIView):
+    """
+    API endpoint for reporting a ProcessRequest error.
+    """
+
+    model = ProcessRequest
+    serializer_class = ProcessRequest
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Override patch for validation:
+          - ensure user is a Worker
+          - ProcessRequest must be assigned to that worker
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = Worker.objects.get(user=self.request.user)
+                process_request = ProcessRequest.objects.get(id=kwargs['pk'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # check that PR is assigned to this worker
+            if process_request.worker.id != worker.id:
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            # make sure the ProcessRequest status is Working
+            if process_request.status != 'Working':
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            try:
+                process_request.status = 'Error'
+                process_request.status_message = request.DATA['status_message']
                 process_request.save()
 
                 # serialize the updated ProcessRequest

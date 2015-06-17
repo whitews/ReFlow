@@ -1679,6 +1679,10 @@ class ProcessRequest(ProtectedModel):
         null=False,
         blank=False,
         choices=STATUS_CHOICES)
+    status_message = models.CharField(
+        max_length=256,
+        null=True,
+        blank=True)
 
     def has_view_permission(self, user):
 
@@ -1694,8 +1698,6 @@ class ProcessRequest(ProtectedModel):
         if not self.id:
             self.request_date = datetime.datetime.now()
             self.status = 'Pending'
-        if self.worker and self.status != 'Complete':
-            self.status = 'Working'
         if self.status == 'Complete' and not self.completion_date:
             self.completion_date = datetime.datetime.now()
         super(ProcessRequest, self).save(*args, **kwargs)
