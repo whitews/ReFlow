@@ -255,6 +255,23 @@ def retrieve_sample_as_pk(request, pk):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
+def retrieve_clean_sample(request, pk):
+    sample = get_object_or_404(Sample, pk=pk)
+
+    if not sample.has_view_permission(request.user):
+        raise PermissionDenied
+    clean_file = sample.get_clean_fcs()
+    response = HttpResponse(
+        clean_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % str(sample.id) + '.fcs'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
 def retrieve_subsample_as_csv(request, pk):
     sample = get_object_or_404(Sample, pk=pk)
 

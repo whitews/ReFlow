@@ -68,6 +68,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/samples/(?P<pk>\d+)/fcs/?$', retrieve_sample_as_pk, name='sample-download-as-pk'),
     url(r'^api/repository/samples/(?P<pk>\d+)/csv/?$', retrieve_subsample_as_csv, name='retrieve_subsample_as_csv'),
     url(r'^api/repository/samples/(?P<pk>\d+)/npy/?$', retrieve_subsample_as_numpy, name='retrieve_subsample_as_numpy'),
+    url(r'^api/repository/samples/(?P<pk>\d+)/fcs_clean/?$', retrieve_clean_sample, name='retrieve_clean_sample'),
 
     url(r'^api/repository/samplemetadata/?$', SampleMetaDataList.as_view(), name='sample-metadata-list'),
 
