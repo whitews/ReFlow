@@ -262,8 +262,8 @@ def retrieve_clean_sample(request, pk):
         raise PermissionDenied
     file_name = "_".join([
         sample.site_panel.site.site_name,
-        sample.site_panel.panel_template.panel_name,
         sample.subject.subject_code,
+        sample.site_panel.panel_template.panel_name,
         str(sample.acquisition_date)
     ])
     clean_file = sample.get_clean_fcs()
