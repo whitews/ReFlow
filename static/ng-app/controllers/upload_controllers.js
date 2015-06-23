@@ -285,8 +285,11 @@ app.controller(
                     var index = null;
 
                     if (date_result) {
-                        // Try to parse into JS Date
-                        var date = new Date(non_paired_list[i+1]);
+                        // Try to parse into JS Date, convert dashes to
+                        // forward slashes for better browser compatibility
+                        var date = new Date(
+                            non_paired_list[i+1].replace(/-/g, '/')
+                        );
                         if (isNaN(date)) {
                             obj.acquisition_date = null;
                         } else {
