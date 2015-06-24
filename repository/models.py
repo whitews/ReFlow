@@ -1188,6 +1188,39 @@ class Sample(ProtectedModel):
         csv_string.seek(0)
         return csv_string
 
+    def get_clean_fcs(self):
+        channel_names = []
+        params = self.site_panel.sitepanelparameter_set.order_by('fcs_number')
+        for param in params:
+            name_components = [
+                param.parameter_type, param.parameter_value_type
+            ]
+            markers = param.sitepanelparametermarker_set.order_by(
+                'marker__marker_abbreviation'
+            )
+
+            for m in markers:
+                name_components.append(m.marker.marker_abbreviation)
+
+            if param.fluorochrome is not None:
+                name_components.append(
+                    param.fluorochrome.fluorochrome_abbreviation
+                )
+            channel_names.append(
+                " ".join(name_components)
+            )
+
+        flow_data = flowio.FlowData(
+            io.BytesIO(self.sample_file.read())
+        )
+        event_list = flow_data.events
+
+        clean_file = TemporaryFile()
+        flowio.create_fcs(event_list, channel_names, clean_file)
+        clean_file.seek(0)
+
+        return clean_file
+
     def clean(self):
         """
         Overriding clean to do the following:

@@ -139,7 +139,7 @@
                 <a class="btn btn-default btn-xs" href="/api/repository/samples/{{ s.id }}/fcs_original/" tooltip="Download FCS File" tooltip-placement="bottom">
                   <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
                 </a>
-                <a class="btn btn-default btn-xs" href="/api/repository/samples/{{ s.id }}/csv/" tooltip="Download Subsampled CSV File" tooltip-placement="bottom">
+                <a class="btn btn-success btn-xs" href="/api/repository/samples/{{ s.id }}/fcs_clean/" tooltip="Download Clean FCS" tooltip-placement="bottom">
                   <i style="opacity: 0.4" class="fa fa-download align-middle"></i>
                 </a>
                 <a class="btn btn-default btn-xs" ng-show="s.can_modify" ng-click="init_form(s, 'SAMPLE')" tooltip="Edit" tooltip-placement="bottom">

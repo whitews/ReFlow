@@ -255,6 +255,29 @@ def retrieve_sample_as_pk(request, pk):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
+def retrieve_clean_sample(request, pk):
+    sample = get_object_or_404(Sample, pk=pk)
+
+    if not sample.has_view_permission(request.user):
+        raise PermissionDenied
+    file_name = "_".join([
+        sample.site_panel.site.site_name,
+        sample.subject.subject_code,
+        sample.site_panel.panel_template.panel_name,
+        str(sample.acquisition_date)
+    ])
+    clean_file = sample.get_clean_fcs()
+    response = HttpResponse(
+        clean_file,
+        content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' \
+        % file_name + '.fcs'
+    return response
+
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication, TokenAuthentication))
+@permission_classes((IsAuthenticated,))
 def retrieve_subsample_as_csv(request, pk):
     sample = get_object_or_404(Sample, pk=pk)
 
