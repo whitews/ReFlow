@@ -57,6 +57,18 @@
         <br/>
 
         <div class="row">
+          <label class="col-md-3 control-label">Sub-sample Count:</label>
+          <div class="col-md-6">
+            <input class="form-control" type="text" ng-model="instance.subsample_count" ng-required="true" ng-change="check_inputs()">
+            <strong ng-show="errors.subsample_count" class="help-inline text-danger">
+              {{ errors.subsample_count.join(', ') }}
+            </strong>
+          </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
           <label class="col-md-3 control-label">Random Seed:</label>
           <div class="col-md-6">
             <input class="form-control" type="text" ng-model="instance.random_seed" ng-required="true" ng-change="check_inputs()">

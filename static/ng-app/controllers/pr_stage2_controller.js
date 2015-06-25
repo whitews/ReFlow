@@ -13,6 +13,7 @@ app.controller(
             $scope.instance.burn_in_count = 5000;
             $scope.instance.iteration_count = 50;
             $scope.instance.random_seed = 123;
+            $scope.instance.subsample_count = 10000;
             $scope.instance.cell_subset = undefined;
 
             $scope.instance.invalid = true;
@@ -23,6 +24,7 @@ app.controller(
                 var burn_in_count = parseInt($scope.instance.burn_in_count, 10);
                 var iteration_count = parseInt($scope.instance.iteration_count, 10);
                 var random_seed = parseInt($scope.instance.random_seed, 10);
+                var subsample_count = parseInt($scope.instance.subsample_count, 10);
 
                 if (cluster_count % 1 !== 0) {
                     invalid = true;
@@ -34,6 +36,9 @@ app.controller(
                     invalid = true;
                 }
                 if (random_seed < 0 || random_seed > math.pow(2, 32) - 1) {
+                    invalid = true;
+                }
+                if (subsample_count < 0 || subsample_count % 1 !== 0) {
                     invalid = true;
                 }
                 if ($scope.instance.cell_subset === undefined) {
@@ -66,9 +71,7 @@ app.controller(
                     {
                         parent_pr_id: $scope.instance.parent_pr_id,
                         description: $scope.instance.cell_subset.name,
-                        // hard-coding 10k sub-samples for now
-                        // TODO: allow user to specify subsample_count
-                        subsample_count: 10000,
+                        subsample_count: $scope.instance.subsample_count,
                         cluster_count: $scope.instance.cluster_count,
                         burn_in_count: $scope.instance.burn_in_count,
                         iteration_count: $scope.instance.iteration_count,
