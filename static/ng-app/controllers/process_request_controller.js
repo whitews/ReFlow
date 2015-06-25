@@ -127,7 +127,9 @@ app.controller(
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
-            $scope.model = {};
+            $scope.model = {
+                'subsample_count': 10000  // default sub-sample count is 10k
+            };
 
             function init_filters() {
                 // Populate our sample filters
@@ -580,9 +582,7 @@ app.controller(
                             project: $scope.current_project.id,
                             sample_collection: collection.id,
                             description: $scope.model.request_description,
-                            // hard-coding 10k sub-samples for now
-                            // TODO: allow user to specify subsample_count
-                            subsample_count: 10000
+                            subsample_count: $scope.model.subsample_count
                         }
                     );
                     $q.all([members.$promise, pr.$promise]).then(function () {
