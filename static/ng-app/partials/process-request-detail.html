@@ -85,7 +85,12 @@
             </a>
             <em>submitted by</em> <strong>{{ child_pr.request_username }}</strong>
             <em>on</em> <strong>{{ child_pr.request_date | date:'short' }}</strong>
-            <span class="label" ng-class="child_pr.status == 'Complete' ? 'label-success' : 'label-primary'">{{ child_pr.status }}</span>
+            <span class="label label-success" ng-show="child_pr.status == 'Complete'">{{ child_pr.status }}</span>
+            <span class="label label-warning" ng-show="child_pr.status == 'Working'">{{ child_pr.status }}</span>
+            <span class="label label-primary" ng-show="child_pr.status == 'Pending'">{{ child_pr.status }}</span>
+            <span class="label label-danger" ng-show="child_pr.status == 'Error'" tooltip="{{ child_pr.status_message }}" tooltip-placement="bottom">
+              <i class="fa fa-exclamation-triangle align-middle"></i>{{ child_pr.status }}
+            </span>
           </li>
         </ul>
 
