@@ -2455,7 +2455,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 ProcessRequestInput.objects.create(
                     process_request=pr,
                     subprocess_input=subprocess_input,
-                    value='123'
+                    value=request.DATA['random_seed']
                 )
 
                 subprocess_input = SubprocessInput.objects.get(

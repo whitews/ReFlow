@@ -5,9 +5,8 @@
       </p>
       <p>
           To make changes, go back by clicking the "Previous" button.
-          If you're happy with your selections, then label your
-          process request so you can find it later
-          and submit to our army of bots!
+          If you're happy with your selections, label your
+          process request so you can find it later.
       </p>
     </div>
     <div class="col-md-8">
@@ -32,6 +31,28 @@
           <h4 class="text-center text-muted">Summary</h4>
         </span>
       </div>
+
+      <table ts-wrapper class="table table-hover">
+        <thead>
+          <tr>
+            <th colspan="50"><h5>Sub-sampling</h5></th>
+          </tr>
+          <tr>
+            <th ts-criteria="name">Field</th>
+            <th ts-criteria="value">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              Sub-sample Count
+            </td>
+            <td>
+              {{ model.subsample_count }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <table ts-wrapper class="table table-hover">
         <thead>
