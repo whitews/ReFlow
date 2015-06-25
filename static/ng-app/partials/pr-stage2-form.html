@@ -53,6 +53,19 @@
             </strong>
           </div>
         </div>
+
+        <br/>
+
+        <div class="row">
+          <label class="col-md-3 control-label">Random Seed:</label>
+          <div class="col-md-6">
+            <input class="form-control" type="text" ng-model="instance.random_seed" ng-required="true" ng-change="check_inputs()">
+            <strong ng-show="errors.random_seed" class="help-inline text-danger">
+              {{ errors.random_seed.join(', ') }}
+            </strong>
+          </div>
+        </div>
+
       </div>
 
       <div class="col-md-6">
