@@ -1,13 +1,13 @@
   <div class="modal-header">
     <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
-    {{ instance.original_filename }}
+    <h3>{{ instance.original_filename }}</h3>
   </div>
   <div class="modal-body">
 
     <table ts-wrapper class="table table-hover" style="table-layout: fixed">
       <thead>
         <tr>
-          <th ts-criteria="key">Field</th>
+          <th ts-criteria="key" ts-default>Field</th>
           <th ts-criteria="value">Value</th>
         </tr>
       </thead>

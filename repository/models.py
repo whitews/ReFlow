@@ -1190,6 +1190,7 @@ class Sample(ProtectedModel):
 
     def get_clean_fcs(self):
         channel_names = []
+        fluoro_channel_names = []  # used for spill later on
         params = self.site_panel.sitepanelparameter_set.order_by('fcs_number')
         for param in params:
             name_components = [
@@ -1206,17 +1207,61 @@ class Sample(ProtectedModel):
                 name_components.append(
                     param.fluorochrome.fluorochrome_abbreviation
                 )
-            channel_names.append(
-                " ".join(name_components)
-            )
+            channel_string = " ".join(name_components)
+            channel_names.append(channel_string)
+            if param.parameter_type == 'FLR':
+                fluoro_channel_names.append(channel_string)
 
         flow_data = flowio.FlowData(
             io.BytesIO(self.sample_file.read())
         )
         event_list = flow_data.events
 
+        # get compensation matrix from the FCS metadata $SPILL or $SPILLOVER
+        # keys if available. If found, we need to replace the header values
+        # to match the channel_names since the old one will have the old
+        # $PnN values.
+        # Note: ReFlow saves all metadata keys without '$' and in lowercase.
+        new_spill_string = None
+        orig_spill = SampleMetadata.objects.filter(
+            key__in=['spill', 'spillover'],
+            sample=self
+        )
+        if orig_spill.count() > 0:
+            # noinspection PyBroadException
+            try:
+                # we'll take the first spill we find
+                orig_spill_list = orig_spill[0].value.split(",")
+
+                # 1st value is the number of compensated fluorescence channels
+                param_count = int(orig_spill_list[0])
+                if param_count == len(fluoro_channel_names):
+                    for x in range(int(orig_spill_list[0])):
+                        orig_spill_list[x + 1] = fluoro_channel_names[x]
+                    new_spill_string = ",".join(orig_spill_list)
+            except Exception as e:
+                # if anything bad happens we'll just set spill to None and
+                # continue. It's not a required FCS metadata field.
+                new_spill_string = None
+
+        cytometer = SampleMetadata.objects.filter(
+            key='cyt',
+            sample=self
+        )
+
+        if cytometer.count() > 0:
+            cyt_value = cytometer[0].value
+        else:
+            cyt_value = None
+
         clean_file = TemporaryFile()
-        flowio.create_fcs(event_list, channel_names, clean_file)
+        flowio.create_fcs(
+            event_list,
+            channel_names,
+            clean_file,
+            spill=new_spill_string,
+            cyt=cyt_value
+        )
         clean_file.seek(0)
 
         return clean_file
