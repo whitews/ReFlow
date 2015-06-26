@@ -137,14 +137,25 @@
                           <h3>Metadata from {{ file.filename }}</h3>
                       </div>
                       <div class="modal-body">
-                          <div>
-                            <ul>
-                              <li data-ng-repeat="field in file.metadata">{{ field.key }}: {{ field.value }}</li>
-                            </ul>
-                          </div>
+
+                        <table ts-wrapper class="table table-hover" style="table-layout: fixed">
+                          <thead>
+                            <tr>
+                              <th ts-criteria="key" ts-default>Field</th>
+                              <th ts-criteria="value">Value</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr ts-repeat ng-repeat="field in file.metadata">
+                              <td class="break-word" style="width: 50%;">{{ field.key }}</td>
+                              <td class="break-word" style="width: 50%;">{{ field.value }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+
                       </div>
                       <div class="modal-footer">
-                          <button class="btn btn-primary" ng-click="ok()">OK</button>
+                          <button class="btn btn-primary" ng-click="ok()">Close</button>
                       </div>
                   </script>
 
@@ -277,21 +288,7 @@
           </td>
           <td>
 
-            <script type="text/ng-template" id="metadata_content.html">
-                <div class="modal-header">
-                    <h3>Metadata from {{ file.filename }}</h3>
-                </div>
-                <div class="modal-body">
-                    <div>
-                      <ul>
-                        <li data-ng-repeat="field in file.metadata">{{ field.key }}: {{ field.value }}</li>
-                      </ul>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" ng-click="ok()">OK</button>
-                </div>
-            </script>
+
 
             <script type="text/ng-template" id="channels_content.html">
                 <div class="modal-header">
