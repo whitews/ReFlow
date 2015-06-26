@@ -1244,12 +1244,23 @@ class Sample(ProtectedModel):
                 # continue. It's not a required FCS metadata field.
                 new_spill_string = None
 
+        cytometer = SampleMetadata.objects.filter(
+            key='cyt',
+            sample=self
+        )
+
+        if cytometer.count() > 0:
+            cyt_value = cytometer[0].value
+        else:
+            cyt_value = None
+
         clean_file = TemporaryFile()
         flowio.create_fcs(
             event_list,
             channel_names,
             clean_file,
-            spill=new_spill_string
+            spill=new_spill_string,
+            cyt=cyt_value
         )
         clean_file.seek(0)
 
