@@ -17,10 +17,18 @@
             <td>Status:</td>
             <td>
               {{ process_request.status }}
-              <span ng-show="process_request.status == 'Complete'"> - </span>
-              <a ng-show="process_request.status == 'Complete'" ui-sref="pr-visualization-detail({ requestId: process_request.id })">
-                Visualize Results
-              </a>
+              <ul class="list-unstyled">
+                <li>
+                  <a ng-show="process_request.status == 'Complete'" ui-sref="pr-results-detail({ requestId: process_request.id })">
+                    View Results
+                  </a>
+                </li>
+                <li>
+                  <a ng-show="process_request.status == 'Complete'" ui-sref="pr-visualization-detail({ requestId: process_request.id })">
+                    Visualize Results
+                  </a>
+                </li>
+              </ul>
             </td>
           </tr>
 

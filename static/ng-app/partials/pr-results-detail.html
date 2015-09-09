@@ -1,0 +1,99 @@
+    <div class="row">
+      <div class="col-md-3">
+
+        <div class="well" style="margin-top:52px">
+          <div style="position: relative">
+            <h5>Filter Results</h5>
+            <div style="position: absolute; right:0;top:0;">
+              <button class="btn btn-default btn-xs" ng-click="apply_filter()">
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <hr/>
+
+
+
+            <b>FCS Sample</b>
+
+            <br/>
+
+            <ui-select multiple theme="bootstrap" ng-model="selected_samples" search-enabled="true" reset-search-input="true">
+              <ui-select-match>{{ $item.filename }}</ui-select-match>
+
+              <ui-select-choices repeat="s.id as s in samples | filter:$select.search">
+                {{ s.filename }}
+              </ui-select-choices>
+
+            </ui-select>
+
+
+            <br/>
+
+              <b>Event %</b>
+
+              <br/>
+
+              <div class="row">
+                <div class="col-sm-6">
+                  <input type="text" ng-model="filters.min_cv" placeholder="Min value" size="10">
+                </div>
+
+                <div class="col-sm-6">
+                  <input type="text" class="pull-right" ng-model="filters.max_cv" placeholder="Max value" size="10">
+                </div>
+              </div>
+
+        </div>
+      </div>
+
+      <div class="col-md-9">
+        <table ts-wrapper id="data-table" class="table table-hover">
+          <thead>
+            <tr>
+
+              <th colspan="50">
+
+                <div style="position:relative;">
+
+                  <div style="position: absolute; right:0;top:0;">
+                    <div>
+                      <button class="btn btn-primary btn-xs" type="button" ng-click="create_export()">
+                        Export CSV
+                      </button>
+                    </div>
+                  </div>
+
+                  <h4 class="text-center">
+                    Clustering Results
+                    <span class="badge badge-inverse align-top">
+                      {{ filtered_results.length }} of {{ results.length }}
+                    </span>
+                  </h4>
+                </div>
+
+              </th>
+            </tr>
+            <tr>
+                <th ts-criteria="file_name">File Name</th>
+                <th ts-criteria="cluster_index">Cluster Index</th>
+                <th ts-criteria="weight">Event %</th>
+                <th>Labels</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ts-repeat ng-repeat="r in results">
+              <td>{{ r.file_name }}</td>
+              <td>{{ r.cluster_index }}</td>
+              <td>{{ r.weight }}</td>
+              <td>
+                <ul class="list-unstyled">
+                  <li ng-repeat="label in r.labels">label</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>

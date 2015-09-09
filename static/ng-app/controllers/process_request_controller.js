@@ -43,8 +43,8 @@ app.controller(
         '$stateParams',
         'ModelService',
         function ($scope, $controller, $stateParams, ModelService) {
-            // Inherits ProcessRequestController $scope
-            $controller('ProcessRequestController', {$scope: $scope});
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.process_request = ModelService.getProcessRequest(
                 $stateParams.requestId
