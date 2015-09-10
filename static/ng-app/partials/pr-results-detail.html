@@ -54,6 +54,19 @@
 
           <br/>
 
+          <b>Label</b>
+
+          <br/>
+
+          <ui-select multiple theme="bootstrap" ng-model="filters.selected_labels" search-enabled="true" ng-change="apply_filter()">
+            <ui-select-match>{{ $item.name }}</ui-select-match>
+
+            <ui-select-choices repeat="l.name as l in labels | filter:$select.search">
+              {{ l.name }}
+            </ui-select-choices>
+
+          </ui-select>
+
         </div>
       </div>
 

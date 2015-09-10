@@ -13,6 +13,7 @@ app.controller(
 
             $scope.samples = [];
             $scope.clusters = [];
+            $scope.labels = [];
             $scope.filtered_results = [];
             var sample_lut = {};
             var label_lut = {};
@@ -21,6 +22,7 @@ app.controller(
             $scope.filters = {};
             $scope.filters.selected_samples = [];
             $scope.filters.selected_clusters = [];
+            $scope.filters.selected_labels = [];
             $scope.filters.min_event_percentage = null;
             $scope.filters.max_event_percentage = null;
 
@@ -98,6 +100,18 @@ app.controller(
                     // match against selected clusters
                     if ($scope.filters.selected_clusters.length > 0) {
                         if ($scope.filters.selected_clusters.indexOf(r.cluster_index) == -1) {
+                            continue;
+                        }
+                    }
+                    // match against selected labels
+                    if ($scope.filters.selected_labels.length > 0) {
+                        var label_found = true;
+                        $scope.filters.selected_labels.forEach(function (l) {
+                            if (r.labels.indexOf(l) == -1) {
+                                label_found = false;
+                            }
+                        });
+                        if (!label_found) {
                             continue;
                         }
                     }
