@@ -11,6 +11,7 @@ app.controller(
             // Inherits ProcessRequestController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
+            $scope.retrieving_data = true;
             $scope.samples = [];
             $scope.clusters = [];
             $scope.labels = [];
@@ -67,6 +68,7 @@ app.controller(
                 });
 
                 $scope.filtered_results = $scope.results;
+                $scope.retrieving_data = false;
             }
 
             var r;  // each result when iterating during filtering
