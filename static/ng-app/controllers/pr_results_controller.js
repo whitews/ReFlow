@@ -12,6 +12,7 @@ app.controller(
             $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.samples = [];
+            $scope.clusters = [];
             $scope.filtered_results = [];
             var sample_lut = {};
             var label_lut = {};
@@ -19,6 +20,7 @@ app.controller(
 
             $scope.filters = {};
             $scope.filters.selected_samples = [];
+            $scope.filters.selected_clusters = [];
             $scope.filters.min_event_percentage = null;
             $scope.filters.max_event_percentage = null;
 
@@ -39,7 +41,13 @@ app.controller(
                     label_lut[label.id] = label.name;
                 });
 
+                $scope.clusters = [];
+
                 sample_clusters.forEach(function(sc) {
+                    if ($scope.clusters.indexOf(sc.cluster_index) == -1) {
+                        $scope.clusters.push(sc.cluster_index);
+                    }
+
                     sc_labels = [];
                     sc.labels.forEach(function (label_id) {
                         sc_labels.push(label_lut[label_id])
@@ -69,7 +77,7 @@ app.controller(
 
                     r = $scope.results[i];  // for easier reference
 
-                    // match against selected notebooks
+                    // match against selected samples
                     if ($scope.filters.selected_samples.length > 0) {
                         if ($scope.filters.selected_samples.indexOf(r.id) == -1) {
                             continue;
@@ -84,6 +92,12 @@ app.controller(
                     // match against max event_percentage
                     if ($scope.filters.max_event_percentage) {
                         if (parseFloat(r.event_percentage) > parseFloat($scope.filters.max_event_percentage)) {
+                            continue;
+                        }
+                    }
+                    // match against selected clusters
+                    if ($scope.filters.selected_clusters.length > 0) {
+                        if ($scope.filters.selected_clusters.indexOf(r.cluster_index) == -1) {
                             continue;
                         }
                     }

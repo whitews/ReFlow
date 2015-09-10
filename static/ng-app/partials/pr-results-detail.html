@@ -23,6 +23,21 @@
 
           <br/>
 
+          <b>Cluster</b>
+
+          <br/>
+
+          <ui-select multiple theme="bootstrap" ng-model="filters.selected_clusters" search-enabled="true" ng-change="apply_filter()">
+            <ui-select-match>{{ $item }}</ui-select-match>
+
+            <ui-select-choices repeat="c in clusters | filter:$select.search">
+              {{ c }}
+            </ui-select-choices>
+
+          </ui-select>
+
+          <br/>
+
           <b>Event %</b>
 
           <br/>
@@ -36,6 +51,8 @@
               <input type="text" class="pull-right" ng-model="filters.max_event_percentage" ng-change="apply_filter()" placeholder="Max value" size="10">
             </div>
           </div>
+
+          <br/>
 
         </div>
       </div>
