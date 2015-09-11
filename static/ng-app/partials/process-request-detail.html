@@ -16,19 +16,12 @@
           <tr>
             <td>Status:</td>
             <td>
-              {{ process_request.status }}
-              <ul class="list-unstyled">
-                <li>
-                  <a ng-show="process_request.status == 'Complete'" ui-sref="pr-results-detail({ requestId: process_request.id })">
-                    View Results
-                  </a>
-                </li>
-                <li>
-                  <a ng-show="process_request.status == 'Complete'" ui-sref="pr-visualization-detail({ requestId: process_request.id })">
-                    Visualize Results
-                  </a>
-                </li>
-              </ul>
+              <span class="label label-success" ng-show="process_request.status == 'Complete'">{{ process_request.status }}</span>
+              <span class="label label-warning" ng-show="process_request.status == 'Working'">{{ process_request.status }}</span>
+              <span class="label label-primary" ng-show="process_request.status == 'Pending'">{{ process_request.status }}</span>
+              <span class="label label-danger" ng-show="process_request.status == 'Error'" tooltip="{{ process_request.status_message }}" tooltip-placement="bottom">
+                <i class="fa fa-exclamation-triangle align-middle"></i>{{ process_request.status }}
+              </span>
             </td>
           </tr>
 
@@ -79,28 +72,46 @@
         </table>
       </div>
 
-      <div class="col-md-6">
-        <table class="key-value">
-          <tr>
-            <td>Stage 2 Process Requests:</td>
-          </tr>
-        </table>
+      <div class="col-md-5">
 
-        <ul>
-          <li ng-repeat="child_pr in children">
-            <a ui-sref="process-request-detail({ requestId: child_pr.id })">
-              <strong>{{ child_pr.description }}</strong>
-            </a>
-            <em>submitted by</em> <strong>{{ child_pr.request_username }}</strong>
-            <em>on</em> <strong>{{ child_pr.request_date | date:'short' }}</strong>
-            <span class="label label-success" ng-show="child_pr.status == 'Complete'">{{ child_pr.status }}</span>
-            <span class="label label-warning" ng-show="child_pr.status == 'Working'">{{ child_pr.status }}</span>
-            <span class="label label-primary" ng-show="child_pr.status == 'Pending'">{{ child_pr.status }}</span>
-            <span class="label label-danger" ng-show="child_pr.status == 'Error'" tooltip="{{ child_pr.status_message }}" tooltip-placement="bottom">
-              <i class="fa fa-exclamation-triangle align-middle"></i>{{ child_pr.status }}
-            </span>
-          </li>
-        </ul>
+        <br/>
+
+        <div ng-show="process_request.status == 'Complete'" class="well well-large">
+          <h4>View Results</h4>
+
+          <a ng-show="process_request.status == 'Complete'" ui-sref="pr-results-detail({ requestId: process_request.id })">
+            View & Export Tabular Results
+          </a>
+
+          <br/>
+
+          <a ng-show="process_request.status == 'Complete'" ui-sref="pr-visualization-detail({ requestId: process_request.id })">
+            Interactive Visualization
+          </a>
+
+          <div ng-show="children.length > 0">
+
+            <h5>Stage 2 Process Requests:</h5>
+
+
+            <ul>
+              <li ng-repeat="child_pr in children">
+                <a ui-sref="process-request-detail({ requestId: child_pr.id })">
+                  <strong>{{ child_pr.description }}</strong>
+                </a>
+                <em>submitted by</em> <strong>{{ child_pr.request_username }}</strong>
+                <em>on</em> <strong>{{ child_pr.request_date | date:'short' }}</strong>
+                <span class="label label-success" ng-show="child_pr.status == 'Complete'">{{ child_pr.status }}</span>
+                <span class="label label-warning" ng-show="child_pr.status == 'Working'">{{ child_pr.status }}</span>
+                <span class="label label-primary" ng-show="child_pr.status == 'Pending'">{{ child_pr.status }}</span>
+                <span class="label label-danger" ng-show="child_pr.status == 'Error'" tooltip="{{ child_pr.status_message }}" tooltip-placement="bottom">
+                  <i class="fa fa-exclamation-triangle align-middle"></i>{{ child_pr.status }}
+                </span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
 
       </div>
 
