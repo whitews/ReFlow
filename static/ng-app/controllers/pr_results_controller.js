@@ -88,7 +88,44 @@ app.controller(
                 $scope.retrieving_data = false;
             }
 
+            var column_names = [
+                'id',
+                'file_name',
+                'panel_name',
+                'site_name',
+                'subject_group',
+                'subject_code',
+                'visit_name',
+                'stimulation_name',
+                'specimen_name',
+                'storage',
+                'pretreatment',
+                'cluster_index',
+                'event_percentage',
+                'labels'
+            ];
+
             $scope.results_columns = {
+                'id': {
+                    'name': 'Sample ID',
+                    'show': false
+                },
+                'file_name': {
+                    'name': 'File Name',
+                    'show': true
+                },
+                'cluster_index': {
+                    'name': 'Cluster Index',
+                    'show': true
+                },
+                'event_percentage': {
+                    'name': 'Event %',
+                    'show': true
+                },
+                'labels': {
+                    'name': 'Labels',
+                    'show': true
+                },
                 'panel_name': {
                     'name': 'Panel',
                     'show': true
@@ -193,15 +230,18 @@ app.controller(
             };
 
             $scope.create_export = function () {
+                export_fields = [];
+
+                column_names.forEach(function (name) {
+                    if ($scope.results_columns[name].show) {
+                        export_fields.push(name);
+                    }
+                });
+
                 // use angular.toJson, removes ng internal props like $$hashkey
                 var exported_csv = Papa.unparse(
                     {
-                        fields: [
-                            "file_name",
-                            "cluster_index",
-                            "event_percentage",
-                            "labels"
-                        ],
+                        fields: export_fields,
                         data: angular.toJson($scope.filtered_results)
                     }
                 );
