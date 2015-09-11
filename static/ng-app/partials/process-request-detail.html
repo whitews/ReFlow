@@ -19,7 +19,7 @@
               <span class="label label-success" ng-show="process_request.status == 'Complete'">{{ process_request.status }}</span>
               <span class="label label-warning" ng-show="process_request.status == 'Working'">{{ process_request.status }}</span>
               <span class="label label-primary" ng-show="process_request.status == 'Pending'">{{ process_request.status }}</span>
-              <span class="label label-danger" ng-show="process_request.status == 'Error'" tooltip="{{ process_request.status_message }}" tooltip-placement="bottom">
+              <span class="label label-danger" ng-show="process_request.status == 'Error'">
                 <i class="fa fa-exclamation-triangle align-middle"></i>{{ process_request.status }}
               </span>
             </td>
