@@ -79,6 +79,31 @@
 
                 <div style="position:relative;">
 
+                  <div style="position: absolute; left:0;top:0;">
+                    <button class="btn btn-info btn-xs" type="button" ng-click="open_column_chooser('sm')">
+                      Choose Columns
+                    </button>
+
+                    <script type="text/ng-template" id="myModalContent.html">
+                      <div class="modal-header">
+                        <h3 class="modal-title">Choose Columns</h3>
+                      </div>
+                      <div class="modal-body">
+                        <ul class="list-unstyled">
+                          <li ng-repeat="(key, value) in instance">
+                            <label>
+                              <input type="checkbox" ng-model="value.show" />
+                              {{ value.name }}
+                            </label>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-primary" ng-click="ok()">OK</button>
+                      </div>
+                    </script>
+                  </div>
+
                   <div style="position: absolute; right:0;top:0;">
                     <div>
                       <button class="btn btn-primary btn-xs" type="button" ng-click="create_export()">
@@ -99,6 +124,15 @@
             </tr>
             <tr>
                 <th ts-criteria="file_name">File Name</th>
+                <th ng-show="results_columns.panel_name.show" ts-criteria="panel_name">Panel</th>
+                <th ng-show="results_columns.site_name.show" ts-criteria="site_name">Site</th>
+                <th ng-show="results_columns.subject_group.show" ts-criteria="subject_group">Subject Group</th>
+                <th ng-show="results_columns.subject_code.show" ts-criteria="subject_code">Subject</th>
+                <th ng-show="results_columns.visit_name.show" ts-criteria="visit_name">Visit</th>
+                <th ng-show="results_columns.stimulation_name.show" ts-criteria="stimulation_name">Stimulation</th>
+                <th ng-show="results_columns.specimen_name.show" ts-criteria="specimen_name">Specimen</th>
+                <th ng-show="results_columns.storage.show" ts-criteria="storage">Storage</th>
+                <th ng-show="results_columns.pretreatment.show" ts-criteria="pretreatment">Pre-treatment</th>
                 <th ts-criteria="cluster_index">Cluster Index</th>
                 <th ts-criteria="event_percentage">Event %</th>
                 <th>Labels</th>
@@ -107,6 +141,15 @@
           <tbody>
             <tr ts-repeat ng-repeat="r in filtered_results">
               <td>{{ r.file_name }}</td>
+              <td ng-show="results_columns.panel_name.show" >{{ r.panel_name }}</td>
+              <td ng-show="results_columns.site_name.show" >{{ r.site_name }}</td>
+              <td ng-show="results_columns.subject_group.show" >{{ r.subject_group }}</td>
+              <td ng-show="results_columns.subject_code.show" >{{ r.subject_code }}</td>
+              <td ng-show="results_columns.visit_name.show" >{{ r.visit_name }}</td>
+              <td ng-show="results_columns.stimulation_name.show" >{{ r.stimulation_name }}</td>
+              <td ng-show="results_columns.specimen_name.show" >{{ r.specimen_name }}</td>
+              <td ng-show="results_columns.storage.show" >{{ r.storage }}</td>
+              <td ng-show="results_columns.pretreatment.show" >{{ r.pretreatment }}</td>
               <td>{{ r.cluster_index }}</td>
               <td>{{ r.event_percentage }}</td>
               <td>

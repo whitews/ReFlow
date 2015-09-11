@@ -1,13 +1,21 @@
+var PRResultsColumnsModalCtrl = function ($scope, $modalInstance, instance) {
+    $scope.instance = instance;
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+};
+
 app.controller(
     'PRResultsController',
     [
         '$scope',
         '$q',
+        '$modal',
         '$controller',
         '$stateParams',
         '$window',
         'ModelService',
-        function ($scope, $q, $controller, $stateParams, $window, ModelService) {
+        function ($scope, $q, $modal, $controller, $stateParams, $window, ModelService) {
             // Inherits ProcessRequestController $scope
             $controller('ProjectDetailController', {$scope: $scope});
 
@@ -30,7 +38,7 @@ app.controller(
             function create_results(sample_collection, sample_clusters) {
                 $scope.results = [];
                 sample_collection.members.forEach(function (member) {
-                    sample_lut[member.sample.id] = member.sample.original_filename;
+                    sample_lut[member.sample.id] = member.sample;
 
                     $scope.samples.push(
                         {
@@ -59,10 +67,19 @@ app.controller(
                     $scope.results.push(
                         {
                             'id': sc.sample,
-                            'file_name': sample_lut[sc.sample],
+                            'file_name': sample_lut[sc.sample].original_filename,
                             'cluster_index': sc.cluster_index,
                             'event_percentage': sc.weight,
-                            'labels': sc_labels
+                            'labels': sc_labels,
+                            'site_name': sample_lut[sc.sample].site_name,
+                            'subject_group': sample_lut[sc.sample].subject_group_name,
+                            'subject_code': sample_lut[sc.sample].subject_code,
+                            'visit_name': sample_lut[sc.sample].visit_name,
+                            'stimulation_name': sample_lut[sc.sample].stimulation_name,
+                            'specimen_name': sample_lut[sc.sample].specimen_name,
+                            'storage': sample_lut[sc.sample].storage,
+                            'pretreatment': sample_lut[sc.sample].pretreatment,
+                            'panel_name': sample_lut[sc.sample].panel_name
                         }
                     )
                 });
@@ -70,6 +87,59 @@ app.controller(
                 $scope.filtered_results = $scope.results;
                 $scope.retrieving_data = false;
             }
+
+            $scope.results_columns = {
+                'panel_name': {
+                    'name': 'Panel',
+                    'show': true
+                },
+                'site_name': {
+                    'name': 'Site',
+                    'show': true
+                },
+                'subject_group': {
+                    'name': 'Subject Group',
+                    'show': false
+                },
+                'subject_code': {
+                    'name': 'Subject',
+                    'show': true
+                },
+                'visit_name': {
+                    'name': 'Visit',
+                    'show': false
+                },
+                'stimulation_name': {
+                    'name': 'Stimulation',
+                    'show': false
+                },
+                'specimen_name': {
+                    'name': 'Specimen',
+                    'show': false
+                },
+                'storage': {
+                    'name': 'Storage',
+                    'show': false
+                },
+                'pretreatment': {
+                    'name': 'Pre-treatment',
+                    'show': false
+                }
+            };
+
+            $scope.open_column_chooser = function (size) {
+
+                var modalInstance = $modal.open({
+                    templateUrl: 'myModalContent.html',
+                    controller: PRResultsColumnsModalCtrl,
+                    size: size,
+                    resolve: {
+                        instance: function () {
+                            return $scope.results_columns;
+                        }
+                    }
+                });
+            };
 
             var r;  // each result when iterating during filtering
 
