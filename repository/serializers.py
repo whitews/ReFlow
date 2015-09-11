@@ -493,6 +493,10 @@ class SampleSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(
         source='subject.project.project_name',
         read_only=True)
+    subject_group_name = serializers.CharField(
+        source='subject.subject_group.group_name',
+        read_only=True
+    )
     subject_code = serializers.CharField(
         source='subject.subject_code',
         read_only=True)
@@ -535,6 +539,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'visit_name',
             'acquisition_date',
             'upload_date',
+            'subject_group_name',
             'subject',
             'subject_code',
             'specimen',
