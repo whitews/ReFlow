@@ -84,6 +84,8 @@ app.controller(
                     )
                 });
 
+                $scope.clusters.sort(function(a, b) {return a-b;});
+
                 $scope.filtered_results = $scope.results;
                 $scope.retrieving_data = false;
             }
