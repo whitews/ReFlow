@@ -1,7 +1,7 @@
 django==1.7
 django-guardian==1.2.4
-django-filter==0.7
-djangorestframework==2.3.13
+django-filter>=0.7
+djangorestframework>=3
 django-rest-framework-docs==0.1.7
 django-extensions==1.4.0
 numpy>=1.7
