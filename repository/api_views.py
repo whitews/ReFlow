@@ -36,7 +36,7 @@ from repository.controllers import *
 # of objects by user
 
 
-def custom_exception_handler(exc):
+def custom_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     if isinstance(exc, NotAuthenticated):
@@ -46,7 +46,7 @@ def custom_exception_handler(exc):
             exception=True
         )
     else:
-        response = exception_handler(exc)
+        response = exception_handler(exc, context)
 
     return response
 
@@ -75,7 +75,7 @@ def repository_api_root(request):
             'cell-subset-label-list',
             request=request
         ),
-        'create_samples': reverse('create-sample-list', request=request),
+        'create_samples': reverse('create-sample', request=request),
         'samples': reverse('sample-list', request=request),
         'sample_metadata': reverse('sample-metadata-list', request=request),
         'sample_collections': reverse(
@@ -134,9 +134,9 @@ def get_user_details(request):
 @permission_classes((IsAuthenticated,))
 def change_user_password(request):
     try:
-        user_id = int(request.DATA['user_id'])
-        current_password = request.DATA['current_password']
-        new_password = request.DATA['new_password']
+        user_id = int(request.data['user_id'])
+        current_password = request.data['current_password']
+        new_password = request.data['new_password']
     except KeyError:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     except ValueError:
@@ -526,26 +526,26 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         # determine if model is 'site' or 'project'
         # also check that the a valid permission was provided
-        if request.DATA['model'] == 'project':
-            project = Project.objects.get(id=request.DATA['object_pk'])
-            if request.DATA['permission_codename'] not in project_perms:
+        if request.data['model'] == 'project':
+            project = Project.objects.get(id=request.data['object_pk'])
+            if request.data['permission_codename'] not in project_perms:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             obj = project
-        elif request.DATA['model'] == 'site':
+        elif request.data['model'] == 'site':
             try:
-                obj = Site.objects.get(id=request.DATA['object_pk'])
+                obj = Site.objects.get(id=request.data['object_pk'])
                 project = obj.project
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            if request.DATA['permission_codename'] not in site_perms:
+            if request.data['permission_codename'] not in site_perms:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # verify user is valid
         try:
-            user = User.objects.get(username=request.DATA['username'])
+            user = User.objects.get(username=request.data['username'])
         except (ObjectDoesNotExist, MultipleObjectsReturned):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -555,7 +555,7 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         # save the permission
         assign_perm(
-            request.DATA['permission_codename'],
+            request.data['permission_codename'],
             user,
             obj
         )
@@ -563,7 +563,7 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
         perm = UserObjectPermission.objects.get(
             user=user,
             object_pk=obj.id,
-            permission__codename=request.DATA['permission_codename']
+            permission__codename=request.data['permission_codename']
         )
 
         serializer = self.get_serializer(perm)
@@ -596,38 +596,38 @@ class UserList(generics.ListCreateAPIView):
         if not request.user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        serializer = self.get_serializer(data=request.DATA)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             try:
                 # check for optional properties
                 user_kwargs = {}
-                if 'first_name' in serializer.init_data:
-                    user_kwargs['first_name'] = serializer.init_data[
+                if 'first_name' in serializer.validated_data:
+                    user_kwargs['first_name'] = serializer.validated_data[
                         'first_name'
                     ]
-                if 'last_name' in serializer.init_data:
-                    user_kwargs['last_name'] = serializer.init_data[
+                if 'last_name' in serializer.validated_data:
+                    user_kwargs['last_name'] = serializer.validated_data[
                         'last_name'
                     ]
 
                 # different calls needed for regular vs super users
                 is_superuser = False
-                if 'is_superuser' in serializer.init_data:
-                    if serializer.init_data['is_superuser']:
+                if 'is_superuser' in serializer.validated_data:
+                    if serializer.validated_data['is_superuser']:
                         is_superuser = True
 
                 if is_superuser:
                     user = User.objects.create_superuser(
-                        serializer.init_data['username'],
-                        email=serializer.init_data['email'],
-                        password=serializer.init_data['password'],
+                        serializer.validated_data['username'],
+                        email=serializer.validated_data['email'],
+                        password=serializer.validated_data['password'],
                         **user_kwargs
                     )
                 else:
                     user = User.objects.create_user(
-                        serializer.init_data['username'],
-                        email=serializer.init_data['email'],
-                        password=serializer.init_data['password'],
+                        serializer.validated_data['username'],
+                        email=serializer.validated_data['email'],
+                        password=serializer.validated_data['password'],
                         **user_kwargs
                     )
             except IntegrityError, e:
@@ -670,18 +670,18 @@ class UserDetail(
         # b/c you can't set model instance attributes as strings like a
         # dictionary can, so we need to set them each explicitly, then save
         try:
-            if 'username' in request.DATA :
-                user.username = request.DATA['username']
-            if 'email' in request.DATA:
-                user.email = request.DATA['email']
-            if 'first_name' in request.DATA:
-                user.first_name = request.DATA['first_name']
-            if 'last_name' in request.DATA:
-                user.last_name = request.DATA['last_name']
-            if 'is_active' in request.DATA:
-                user.is_active = request.DATA['is_active']
-            if 'is_superuser' in request.DATA:
-                user.is_superuser = request.DATA['is_superuser']
+            if 'username' in request.data :
+                user.username = request.data['username']
+            if 'email' in request.data:
+                user.email = request.data['email']
+            if 'first_name' in request.data:
+                user.first_name = request.data['first_name']
+            if 'last_name' in request.data:
+                user.last_name = request.data['last_name']
+            if 'is_active' in request.data:
+                user.is_active = request.data['is_active']
+            if 'is_superuser' in request.data:
+                user.is_superuser = request.data['is_superuser']
             user.save()
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
@@ -788,13 +788,13 @@ class ProjectSitesByPermissionList(LoginRequiredMixin, generics.ListAPIView):
 
         queryset = []
 
-        if 'permission' in self.request.QUERY_PARAMS:
-            if 'add_site_data' in self.request.QUERY_PARAMS['permission']:
+        if 'permission' in self.request.query_params:
+            if 'add_site_data' in self.request.query_params['permission']:
                 queryset = Site.objects.get_sites_user_can_add(
                     self.request.user,
                     project
                 )
-            elif 'modify_site_data' in self.request.QUERY_PARAMS['permission']:
+            elif 'modify_site_data' in self.request.query_params['permission']:
                 queryset = Site.objects.get_sites_user_can_modify(
                     self.request.user,
                     project
@@ -823,7 +823,7 @@ class CellSubsetLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -892,7 +892,7 @@ class VisitTypeList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -953,7 +953,7 @@ class SubjectGroupList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1014,7 +1014,7 @@ class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1087,7 +1087,7 @@ class PanelTemplateList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        data = request.DATA
+        data = request.data
 
         # validate all the template components
         errors = validate_panel_template_request(data, request.user)
@@ -1159,7 +1159,7 @@ class PanelTemplateDetail(
     serializer_class = PanelTemplateSerializer
 
     def put(self, request, *args, **kwargs):
-        data = request.DATA
+        data = request.data
 
         # first, check if template has any site panels, editing templates
         # with existing site panels is not allowed
@@ -1251,7 +1251,7 @@ class PanelVariantList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         panel_template = PanelTemplate.objects.get(
-            id=request.DATA['panel_template']
+            id=request.data['panel_template']
         )
         if not panel_template.project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -1310,7 +1310,7 @@ class SiteList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1399,7 +1399,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         # filter on user's projects
         queryset = SitePanel.objects.filter(site__in=user_sites)
 
-        id_value = self.request.QUERY_PARAMS.get('id', None)
+        id_value = self.request.query_params.get('id', None)
         if id_value:
             id_list = id_value.split(',')
             queryset = queryset.filter(id__in=id_list)
@@ -1407,7 +1407,7 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        data = request.DATA
+        data = request.data
 
         # validate all the site panel components
         errors = validate_site_panel_request(data, request.user)
@@ -1534,7 +1534,7 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        site = Site.objects.get(id=request.DATA['site'])
+        site = Site.objects.get(id=request.data['site'])
         if not site.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1593,7 +1593,7 @@ class MarkerList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1664,7 +1664,7 @@ class FluorochromeList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1726,6 +1726,7 @@ class SpecimenList(LoginRequiredMixin, generics.ListCreateAPIView):
     model = Specimen
     serializer_class = SpecimenSerializer
     filter_fields = ('specimen_name',)
+    queryset = Specimen.objects.all()
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -1795,7 +1796,7 @@ class StimulationList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-        project = Project.objects.get(id=request.DATA['project'])
+        project = Project.objects.get(id=request.data['project'])
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1832,7 +1833,7 @@ class StimulationDetail(
         return super(StimulationDetail, self).delete(request, *args, **kwargs)
 
 
-class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
+class CreateSample(LoginRequiredMixin, generics.CreateAPIView):
     """
     API endpoint for creating a new Sample.
     """
@@ -1845,12 +1846,12 @@ class CreateSampleList(LoginRequiredMixin, generics.CreateAPIView):
         Override post to ensure user has permission to add data to the site.
         Also removing the 'sample_file' field since it has the server path.
         """
-        site_panel = SitePanel.objects.get(id=request.DATA['site_panel'])
+        site_panel = SitePanel.objects.get(id=request.data['site_panel'])
         site = Site.objects.get(id=site_panel.site_id)
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
-        response = super(CreateSampleList, self).post(request, *args, **kwargs)
+        response = super(CreateSample, self).post(request, *args, **kwargs)
         if hasattr(response, 'data'):
             if 'sample_file' in response.data:
                 response.data.pop('sample_file')
@@ -1933,7 +1934,7 @@ class SampleDetail(
     serializer_class = SampleSerializer
 
     def put(self, request, *args, **kwargs):
-        sample = Sample.objects.get(id=request.DATA['id'])
+        sample = Sample.objects.get(id=request.data['id'])
         if not sample.has_modify_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -1983,8 +1984,20 @@ class SampleCollectionMemberList(
     serializer_class = SampleCollectionMemberSerializer
     filter_fields = ('sample_collection', 'sample')
 
+    def get_queryset(self):
+        """
+        Restrict collection members to users with process permissions
+        """
+        user_projects = Project.objects.get_projects_user_can_process(
+            self.request.user
+        )
+        queryset = SampleCollectionMember.objects.filter(
+            sample_collection__project__in=user_projects)
+
+        return queryset
+
     def create(self, request, *args, **kwargs):
-        data = request.DATA
+        data = request.data
 
         if not isinstance(data, list):
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -2021,9 +2034,22 @@ class SampleCollectionList(LoginRequiredMixin, generics.ListCreateAPIView):
     serializer_class = SampleCollectionSerializer
     filter_fields = ('id', 'project',)
 
+    def get_queryset(self):
+        """
+        Restrict collections to users with process permissions
+        """
+        user_projects = Project.objects.get_projects_user_can_process(
+            self.request.user
+        )
+        queryset = SampleCollection.objects.filter(
+            project__in=user_projects)
+
+        return queryset
+
 
 class SampleCollectionDetail(
         LoginRequiredMixin,
+        PermissionRequiredMixin,
         generics.RetrieveAPIView):
     """
     API endpoint representing a single sample collection.
@@ -2081,7 +2107,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         """
         Override post to ensure user has permission to add data to the site.
         """
-        matrix_text = request.DATA['matrix_text'].splitlines(False)
+        matrix_text = request.data['matrix_text'].splitlines(False)
         if not len(matrix_text) > 1:
             raise ValidationError("Too few rows.")
 
@@ -2090,9 +2116,9 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
         pnn_list = re.split('\t|,\s*', matrix_text[0])
         site_panel = None
-        if 'site_panel' in request.DATA:
+        if 'site_panel' in request.data:
             site_panel_candidate = get_object_or_404(
-                SitePanel, id=request.DATA['site_panel']
+                SitePanel, id=request.data['site_panel']
             )
             site = site_panel_candidate.site
             if matches_site_panel_colors(pnn_list, site_panel_candidate):
@@ -2102,7 +2128,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
             raise PermissionDenied
 
         if site_panel:
-            request.DATA['site_panel'] = site_panel.id
+            request.data['site_panel'] = site_panel.id
 
         response = super(CompensationList, self).post(request, *args, **kwargs)
 
@@ -2146,6 +2172,7 @@ class SubprocessCategoryList(LoginRequiredMixin, generics.ListAPIView):
     model = SubprocessCategory
     serializer_class = SubprocessCategorySerializer
     filter_class = SubprocessCategoryFilter
+    queryset = SubprocessCategory.objects.all()
 
 
 class SubprocessImplementationFilter(django_filters.FilterSet):
@@ -2173,6 +2200,7 @@ class SubprocessImplementationList(LoginRequiredMixin, generics.ListAPIView):
     model = SubprocessImplementation
     serializer_class = SubprocessImplementationSerializer
     filter_class = SubprocessImplementationFilter
+    queryset = SubprocessImplementation.objects.all()
 
 
 class SubprocessInputFilter(django_filters.FilterSet):
@@ -2207,6 +2235,7 @@ class SubprocessInputList(LoginRequiredMixin, generics.ListAPIView):
     model = SubprocessInput
     serializer_class = SubprocessInputSerializer
     filter_class = SubprocessInputFilter
+    queryset = SubprocessInput.objects.all()
 
 
 @api_view(['GET'])
@@ -2324,6 +2353,7 @@ class WorkerList(AdminRequiredMixin, generics.ListCreateAPIView):
     model = Worker
     serializer_class = WorkerSerializer
     filter_fields = ('worker_name',)
+    queryset = Worker.objects.all()
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -2342,15 +2372,27 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
     serializer_class = ProcessRequestSerializer
     filter_fields = ('project', 'worker', 'request_user', 'parent_stage')
 
+    def get_queryset(self):
+        """
+        Restrict process requests to users with process permissions
+        """
+        user_projects = Project.objects.get_projects_user_can_process(
+            self.request.user
+        )
+        queryset = ProcessRequest.objects.filter(
+            project__in=user_projects)
+
+        return queryset
+
     def create(self, request, *args, **kwargs):
         # check permission for submitting process requests for this project
-        project = get_object_or_404(Project, pk=request.DATA['project'])
+        project = get_object_or_404(Project, pk=request.data['project'])
         if not project.has_process_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         # add required fields for the user and status
-        request.DATA['request_user'] = request.user.id
-        request.DATA['status'] = 'Pending'
+        request.data['request_user'] = request.user.id
+        request.data['status'] = 'Pending'
         response = super(ProcessRequestList, self).create(
             request,
             *args,
@@ -2368,8 +2410,20 @@ class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
     serializer_class = ProcessRequestInputSerializer
     filter_fields = ('process_request', 'subprocess_input')
 
+    def get_queryset(self):
+        """
+        Restrict process request inputs to users with process permissions
+        """
+        user_projects = Project.objects.get_projects_user_can_process(
+            self.request.user
+        )
+        queryset = ProcessRequestInput.objects.filter(
+            process_request__project__in=user_projects)
+
+        return queryset
+
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.DATA, many=True)
+        serializer = self.get_serializer(data=request.data, many=True)
         if serializer.is_valid():
             serializer.save()
             headers = self.get_success_headers(serializer.data)
@@ -2391,7 +2445,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
         # check permission for submitting process requests for this project
         parent_pr = get_object_or_404(
             ProcessRequest,
-            pk=request.DATA['parent_pr_id']
+            pk=request.data['parent_pr_id']
         )
         if not parent_pr.project.has_process_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -2400,7 +2454,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
         # one cluster has been tagged with that label
         cell_subset_label = get_object_or_404(
             CellSubsetLabel,
-            pk=request.DATA['cell_subset_label']
+            pk=request.data['cell_subset_label']
         )
         cluster_labels = cell_subset_label.clusterlabel_set.filter(
             cluster__process_request=parent_pr
@@ -2416,9 +2470,9 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 pr = ProcessRequest(
                     project=parent_pr.project,
                     sample_collection=parent_pr.sample_collection,
-                    description=request.DATA['description'],
+                    description=request.data['description'],
                     parent_stage=parent_pr,
-                    subsample_count=request.DATA['subsample_count'],
+                    subsample_count=request.data['subsample_count'],
                     request_user=request.user,
                     status="Pending"
                 )
@@ -2430,7 +2484,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                     implementation__category__name='filtering',
                     name='parameter'
                 )
-                for param_string in request.DATA['parameters']:
+                for param_string in request.data['parameters']:
                     ProcessRequestInput.objects.create(
                         process_request=pr,
                         subprocess_input=subprocess_input,
@@ -2455,7 +2509,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 ProcessRequestInput.objects.create(
                     process_request=pr,
                     subprocess_input=subprocess_input,
-                    value=request.DATA['random_seed']
+                    value=request.data['random_seed']
                 )
 
                 subprocess_input = SubprocessInput.objects.get(
@@ -2466,7 +2520,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 ProcessRequestInput.objects.create(
                     process_request=pr,
                     subprocess_input=subprocess_input,
-                    value=request.DATA['cluster_count']
+                    value=request.data['cluster_count']
                 )
 
                 subprocess_input = SubprocessInput.objects.get(
@@ -2477,7 +2531,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 ProcessRequestInput.objects.create(
                     process_request=pr,
                     subprocess_input=subprocess_input,
-                    value=request.DATA['burn_in_count']
+                    value=request.data['burn_in_count']
                 )
 
                 subprocess_input = SubprocessInput.objects.get(
@@ -2488,7 +2542,7 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
                 ProcessRequestInput.objects.create(
                     process_request=pr,
                     subprocess_input=subprocess_input,
-                    value=request.DATA['iteration_count']
+                    value=request.data['iteration_count']
                 )
 
         except Exception, e:
@@ -2661,7 +2715,7 @@ class ProcessRequestReportError(
 
             try:
                 process_request.status = 'Error'
-                process_request.status_message = request.DATA['status_message']
+                process_request.status_message = request.data['status_message']
                 process_request.save()
 
                 # serialize the updated ProcessRequest
@@ -2684,6 +2738,18 @@ class ClusterList(
     serializer_class = ClusterSerializer
     filter_fields = ('process_request',)
 
+    def get_queryset(self):
+        """
+        Restrict clusters to users with process permissions
+        """
+        user_projects = Project.objects.get_projects_user_can_process(
+            self.request.user
+        )
+        queryset = Cluster.objects.filter(
+            process_request__project__in=user_projects)
+
+        return queryset
+
     def post(self, request, *args, **kwargs):
         """
         Override post to ensure user is a worker.
@@ -2692,7 +2758,7 @@ class ClusterList(
             try:
                 worker = Worker.objects.get(user=self.request.user)
                 process_request = ProcessRequest.objects.get(
-                    id=request.DATA['process_request'])
+                    id=request.data['process_request'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
 
@@ -2762,10 +2828,10 @@ class ClusterLabelList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         label = get_object_or_404(
-            CellSubsetLabel, id=request.DATA['label']
+            CellSubsetLabel, id=request.data['label']
         )
         cluster = get_object_or_404(
-            Cluster, id=request.DATA['cluster']
+            Cluster, id=request.data['cluster']
         )
 
         # check for permission to add project data
@@ -2834,6 +2900,18 @@ class SampleClusterList(
     serializer_class = SampleClusterSerializer
     filter_class = SampleClusterFilter
 
+    def get_queryset(self):
+        """
+        Restrict sample clusters to users with process permissions
+        """
+        user_projects = Project.objects.get_projects_user_can_process(
+            self.request.user
+        )
+        queryset = SampleCluster.objects.filter(
+            cluster__process_request__project__in=user_projects)
+
+        return queryset
+
     def post(self, request, *args, **kwargs):
         """
         Override post to ensure user is a worker and matches the
@@ -2842,7 +2920,7 @@ class SampleClusterList(
         if hasattr(self.request.user, 'worker'):
             try:
                 worker = Worker.objects.get(user=self.request.user)
-                cluster = Cluster.objects.get(id=request.DATA['cluster_id'])
+                cluster = Cluster.objects.get(id=request.data['cluster_id'])
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
 
@@ -2861,7 +2939,7 @@ class SampleClusterList(
         # we can create the SampleCluster instance now,
         # but we'll do so inside an atomic transaction
         try:
-            sample = Sample.objects.get(id=request.DATA['sample_id'])
+            sample = Sample.objects.get(id=request.data['sample_id'])
 
             with transaction.atomic():
                 sample_cluster = SampleCluster(
@@ -2873,7 +2951,7 @@ class SampleClusterList(
                 events_file = TemporaryFile()
                 np.savetxt(
                     events_file,
-                    np.array(request.DATA['events']),
+                    np.array(request.data['events']),
                     fmt='%s',
                     delimiter=','
                 )
@@ -2887,16 +2965,16 @@ class SampleClusterList(
                 sample_cluster.save()
 
                 # now create SampleClusterParameter instances
-                for param in request.DATA['parameters']:
+                for param in request.data['parameters']:
                     SampleClusterParameter.objects.create(
                         sample_cluster=sample_cluster,
                         channel=param,
-                        location=request.DATA['parameters'][param]
+                        location=request.data['parameters'][param]
                     )
 
                 # Finally, save all the SampleClusterComponent instances
                 # along with their parameters
-                for comp in request.DATA['components']:
+                for comp in request.data['components']:
                     scc = SampleClusterComponent.objects.create(
                         sample_cluster=sample_cluster,
                         covariance_matrix=comp['covariance'],
@@ -2954,3 +3032,15 @@ class SampleClusterComponentList(
     model = SampleClusterComponent
     serializer_class = SampleClusterComponentSerializer
     filter_class = SampleClusterComponentFilter
+
+    def get_queryset(self):
+        """
+        Restrict sample clusters to users with process permissions
+        """
+        user_projects = Project.objects.get_projects_user_can_process(
+            self.request.user
+        )
+        queryset = SampleClusterComponent.objects.filter(
+            sample_cluster__cluster__process_request__project__in=user_projects)
+
+        return queryset

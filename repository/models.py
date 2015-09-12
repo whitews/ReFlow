@@ -158,6 +158,19 @@ class ProjectManager(models.Manager):
 
         return projects
 
+    @staticmethod
+    def get_projects_user_can_process(user):
+        """
+        Return a list of projects for which the given user has user management
+        permissions.
+        """
+        projects = get_objects_for_user(
+            user,
+            'submit_process_requests',
+            klass=Project)
+
+        return projects
+
 
 class Project(ProtectedModel):
     project_name = models.CharField(
@@ -1512,6 +1525,11 @@ class SampleCollection(ProtectedModel):
     A collection of Samples from the same Project
     """
     project = models.ForeignKey(Project)
+
+    def has_view_permission(self, user):
+        if user.has_perm('submit_process_requests', self.project):
+            return True
+        return False
 
 
 class FrozenCompensation(models.Model):

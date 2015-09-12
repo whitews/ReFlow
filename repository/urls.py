@@ -62,7 +62,7 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/stimulations/(?P<pk>\d+)/?$', StimulationDetail.as_view(), name='stimulation-detail'),
 
     url(r'^api/repository/samples/?$', SampleList.as_view(), name='sample-list'),
-    url(r'^api/repository/samples/add/?$', CreateSampleList.as_view(), name='create-sample-list'),
+    url(r'^api/repository/samples/add/?$', CreateSample.as_view(), name='create-sample'),
     url(r'^api/repository/samples/(?P<pk>\d+)/?$', SampleDetail.as_view(), name='sample-detail'),
     url(r'^api/repository/samples/(?P<pk>\d+)/fcs_original/?$', retrieve_sample, name='retrieve_sample'),
     url(r'^api/repository/samples/(?P<pk>\d+)/fcs/?$', retrieve_sample_as_pk, name='sample-download-as-pk'),
