@@ -238,13 +238,15 @@ class PanelTemplateParameterMarkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PanelTemplateParameterMarker
-        exclude = ('parameter', 'marker')
+        exclude = ('panel_template_parameter', 'marker')
 
 
 class PanelTemplateParameterSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='name', read_only=True)
+    name = serializers.CharField(read_only=True)
     markers = PanelTemplateParameterMarkerSerializer(
-        source='paneltemplateparametermarker_set')
+        source='paneltemplateparametermarker_set',
+        many=True
+    )
     fluorochrome_abbreviation = serializers.CharField(
         source="fluorochrome.fluorochrome_abbreviation",
         read_only=True)
@@ -297,10 +299,12 @@ class PanelTemplateSerializer(serializers.ModelSerializer):
         view_name='panel-template-detail'
     )
     panel_variants = PanelVariantSerializer(
-        source='panelvariant_set'
+        source='panelvariant_set',
+        many=True
     )
     parameters = PanelTemplateParameterSerializer(
-        source='paneltemplateparameter_set'
+        source='paneltemplateparameter_set',
+        many=True
     )
     site_panel_count = serializers.IntegerField(
         source='sitepanel_set.count',
@@ -472,9 +476,7 @@ class CompensationSerializer(serializers.ModelSerializer):
         source='site_panel.site.site_name',
         read_only=True
     )
-    compensation_file = serializers.FileField(
-        source='compensation_file',
-        read_only=True)
+    compensation_file = serializers.FileField(read_only=True)
 
     class Meta:
         model = Compensation
