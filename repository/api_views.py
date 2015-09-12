@@ -2313,6 +2313,7 @@ class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateDestroyAPIView):
 
     model = Worker
     serializer_class = WorkerSerializer
+    queryset = Worker.objects.all()
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:

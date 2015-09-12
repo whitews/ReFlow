@@ -573,7 +573,6 @@ class SampleSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'original_filename', 'sha1', 'site_panel', 'cytometer'
         )
-        #exclude = ('sample_file',)
 
 
 class SamplePOSTSerializer(serializers.ModelSerializer):
@@ -581,22 +580,6 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
     project = serializers.IntegerField(
         source='subject.subject_group.project_id',
         read_only=True)
-
-    def get_fields(self):
-        fields = super(SamplePOSTSerializer, self).get_default_fields()
-        user = self.context['view'].request.user
-        user_projects = Project.objects.get_projects_user_can_view(user)
-        if 'subject' in fields:
-            fields['subject'].queryset = Subject.objects.filter(
-                project__in=user_projects)
-        if 'site' in fields:
-            fields['site'].queryset = Site.objects.filter(
-                project__in=user_projects)
-        if 'visit' in fields:
-            fields['visit'].queryset = VisitType.objects.filter(
-                project__in=user_projects)
-
-        return fields
 
     class Meta:
         model = Sample
@@ -606,7 +589,6 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'sample_file'
         )
         read_only_fields = ('original_filename', 'sha1', 'subsample')
-        exclude = ('subsample',)
 
 
 class SampleMetadataSerializer(serializers.ModelSerializer):
