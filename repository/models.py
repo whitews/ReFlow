@@ -1291,29 +1291,37 @@ class Sample(ProtectedModel):
 
         try:
             Subject.objects.get(id=self.subject_id)
+        except ObjectDoesNotExist:
+            # Subject is required
+            raise ValidationError(
+                "Subject is required"
+            )
+
+        try:
             self.original_filename = self.sample_file.name.split('/')[-1]
             # get the hash
             file_hash = hashlib.sha1(self.sample_file.read())
-        except (ObjectDoesNotExist, ValueError):
-            # Subject & sample_file are required...
-            # will get caught by Form.is_valid()
-            return
+        except ValueError:
+            # sample_file is required
+            raise ValidationError(
+                "FCS file is required"
+            )
 
         # Verify subject project is the same as the site and
         # visit project (if either site or visit is specified)
-        if hasattr(self, 'site'):
-            if self.site is not None:
-                if self.subject.project != self.site_panel.site.project:
-                    raise ValidationError(
-                        "Subject and Site Panel must belong to the same project"
-                    )
+        try:
+            assert self.subject.project_id == self.site_panel.site.project_id
+        except:
+            raise ValidationError(
+                "Subject and Site Panel must belong to the same project"
+            )
 
-        if hasattr(self, 'visit'):
-            if self.visit is not None:
-                if self.subject.project != self.visit.project:
-                    raise ValidationError(
-                        "Subject and Visit must belong to the same project"
-                    )
+        try:
+            assert self.subject.project_id == self.visit.project_id
+        except:
+            raise ValidationError(
+                "Subject and Visit must belong to the same project"
+            )
 
         # Check if the project already has this file,
         # if so delete the temp file and raise ValidationError
@@ -1327,6 +1335,7 @@ class Sample(ProtectedModel):
                 )
         else:
             self.sha1 = file_hash.hexdigest()
+
         other_sha_values_in_project = Sample.objects.filter(
             subject__project=self.subject.project).exclude(
                 id=self.id).values_list('sha1', flat=True)
@@ -1338,14 +1347,6 @@ class Sample(ProtectedModel):
             raise ValidationError(
                 "This FCS file already exists in this Project."
             )
-
-        if self.site_panel is not None and \
-                self.site_panel.site.project_id != self.subject.project_id:
-            raise ValidationError("Site panel chosen is not in this Project")
-
-        if self.visit is not None and \
-                self.visit.project_id != self.subject.project_id:
-            raise ValidationError("Visit Type chosen is not in this Project")
 
         # Verify the file is an FCS file
         if hasattr(self.sample_file.file, 'temporary_file_path'):

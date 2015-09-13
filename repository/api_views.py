@@ -1841,21 +1841,46 @@ class CreateSample(LoginRequiredMixin, generics.CreateAPIView):
     model = Sample
     serializer_class = SamplePOSTSerializer
 
-    def post(self, request, *args, **kwargs):
-        """
-        Override post to ensure user has permission to add data to the site.
-        Also removing the 'sample_file' field since it has the server path.
-        """
+    def create(self, request, *args, **kwargs):
         site_panel = SitePanel.objects.get(id=request.data['site_panel'])
         site = Site.objects.get(id=site_panel.site_id)
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
-        response = super(CreateSample, self).post(request, *args, **kwargs)
-        if hasattr(response, 'data'):
-            if 'sample_file' in response.data:
-                response.data.pop('sample_file')
-        return response
+        try:
+            with transaction.atomic():
+                sample = Sample(
+                    acquisition_date=datetime.datetime.strptime(
+                        request.data['acquisition_date'],
+                        "%Y-%m-%d"
+                    ).date(),
+                    subject_id=request.data['subject'],
+                    visit_id=request.data['visit'],
+                    cytometer_id=request.data['cytometer'],
+                    panel_variant_id=request.data['panel_variant'],
+                    site_panel_id=request.data['site_panel'],
+                    pretreatment=request.data['pretreatment'],
+                    storage=request.data['storage'],
+                    specimen_id=request.data['specimen'],
+                    stimulation_id=request.data['stimulation'],
+                    sample_file=request.data['sample_file']
+                )
+                sample.clean()
+                sample.save()
+        except Exception as e:  # catch any exception to rollback changes
+            return Response(data={'detail': e.message}, status=400)
+
+        serializer = SamplePOSTSerializer(
+            sample,
+            context={'request': request}
+        )
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
 
 
 class SampleFilter(django_filters.FilterSet):

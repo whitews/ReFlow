@@ -584,9 +584,9 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
         fields = (
-            'id', 'url', 'visit', 'subject', 'specimen',
-            'site_panel', 'project', 'original_filename',
-            'sample_file'
+            'id', 'url', 'visit', 'subject', 'specimen', 'stimulation',
+            'cytometer', 'site_panel', 'panel_variant', 'project',
+            'original_filename', 'acquisition_date', 'sample_file'
         )
         read_only_fields = ('original_filename', 'sha1', 'subsample')
 
