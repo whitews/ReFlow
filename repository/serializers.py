@@ -76,11 +76,17 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
 
 
-class ProjectUserSerializer(serializers.ModelSerializer):
-    users = serializers.Field(source='get_project_users')
-
+class UsernameSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = ('username',)
+
+
+class ProjectUserSerializer(serializers.ModelSerializer):
+    users = UsernameSerializer(source='get_project_users', many=True)
+
+    class Meta:
+        model = Project
         fields = ('id', 'users')
 
 
