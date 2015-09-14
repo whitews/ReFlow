@@ -754,9 +754,9 @@ class ProjectDetail(
 
 
 class ProjectUserDetail(
-    LoginRequiredMixin,
-    PermissionRequiredMixin,
-    generics.RetrieveUpdateAPIView):
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveUpdateAPIView):
     """
     API endpoint representing the users within a single project.
     """
