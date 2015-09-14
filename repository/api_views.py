@@ -2128,7 +2128,7 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
             site_panel__site__in=user_sites)
         return queryset
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         """
         Override post to ensure user has permission to add data to the site.
         """
@@ -2152,14 +2152,31 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not site.has_add_permission(request.user):
             raise PermissionDenied
 
-        if site_panel:
-            request.data['site_panel'] = site_panel.id
+        try:
+            comp = Compensation(
+                site_panel_id=request.data['site_panel'],
+                acquisition_date=datetime.datetime.strptime(
+                    request.data['acquisition_date'],
+                    "%Y-%m-%d"
+                ).date(),
+                name=request.data['name'],
+                matrix_text=request.data['matrix_text']
+            )
+            comp.clean()
+            comp.save()
+        except Exception as e:
+            return Response(data={'detail': e.message}, status=400)
 
-        response = super(CompensationList, self).post(request, *args, **kwargs)
-
-        if not site_panel and response.status_code != 201:
-            response.data['site_panel_match'] = False
-        return response
+        serializer = CompensationSerializer(
+            comp,
+            context={'request': request}
+        )
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
 
 
 class CompensationDetail(
@@ -2410,7 +2427,7 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         return queryset
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         # check permission for submitting process requests for this project
         project = get_object_or_404(Project, pk=request.data['project'])
         if not project.has_process_permission(request.user):
@@ -2419,7 +2436,7 @@ class ProcessRequestList(LoginRequiredMixin, generics.ListCreateAPIView):
         # add required fields for the user and status
         request.data['request_user'] = request.user.id
         request.data['status'] = 'Pending'
-        response = super(ProcessRequestList, self).create(
+        response = super(ProcessRequestList, self).post(
             request,
             *args,
             **kwargs
