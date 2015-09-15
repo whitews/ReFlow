@@ -1729,8 +1729,8 @@ class ProcessRequest(ProtectedModel):
     sample_collection = models.ForeignKey(
         SampleCollection,
         null=False,
-        blank=False,
-        editable=False)
+        blank=False
+    )
     description = models.CharField(
         max_length=128,
         null=False,
@@ -1753,8 +1753,8 @@ class ProcessRequest(ProtectedModel):
     request_user = models.ForeignKey(
         User,
         null=False,
-        blank=False,
-        editable=False)
+        blank=False
+    )
     request_date = models.DateTimeField(
         editable=False,
         auto_now_add=True)
