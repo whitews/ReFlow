@@ -1,7 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic import TemplateView
 
+from repository.api_utils import repository_api_root
 from repository.api_views import *
+from repository.api_views_process_request import *
+from repository.views import reflow_app, permission_denied
 
 # Override handler403 to provide a custom permission denied page.
 # Otherwise, a user has no links to get to their resources
@@ -9,8 +12,8 @@ from repository.api_views import *
 handler403 = TemplateView.as_view(template_name='403.html')
 
 # API routes
-urlpatterns = patterns('repository.api_views',
-    url(r'^api/repository/?$', 'repository_api_root', name='repository-api-root'),
+urlpatterns = [
+    url(r'^api/repository/?$', repository_api_root, name='repository-api-root'),
 
     url(r'^api/repository/permissions/?$', PermissionList.as_view(), name='permission-list'),
     url(r'^api/repository/permissions/(?P<pk>\d+)/?$', PermissionDetail.as_view(), name='permission-detail'),
@@ -105,11 +108,9 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/sample_clusters/?$', SampleClusterList.as_view(), name='sample-cluster-list'),
     url(r'^api/repository/sample_clusters/(?P<pk>\d+)/csv/?$', retrieve_sample_cluster_events, name='retrieve_sample_cluster_events'),
     url(r'^api/repository/sample_cluster_components/?$', SampleClusterComponentList.as_view(), name='sample-cluster-component-list'),
-)
 
-# Non-API routes
-urlpatterns += patterns('repository.views',
-    url(r'^403$', 'permission_denied', name='permission_denied'),
+    # Non-API routes
+    url(r'^403$', permission_denied, name='permission_denied'),
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
-    url(r'^$', 'reflow_app', name='home'),
-)
+    url(r'^$', reflow_app, name='home')
+]
