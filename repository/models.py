@@ -855,15 +855,6 @@ class Subject(ProtectedModel):
             return True
         return False
 
-    def clean(self):
-        """
-        Check that project for both subject and subject group matches
-        Returns ValidationError if a mis-match is found.
-        """
-        if self.subject_group is not None:
-            if self.subject_group.project_id != self.project_id:
-                raise ValidationError("Group chosen is not in this Project")
-
     def __unicode__(self):
         return u'%s' % self.subject_code
 

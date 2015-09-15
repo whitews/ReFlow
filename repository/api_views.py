@@ -1028,6 +1028,14 @@ class SubjectList(LoginRequiredMixin, generics.ListCreateAPIView):
         if not project.has_add_permission(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+        # Verify project for both subject and subject group matches
+        if request.data.has_key('subject_group'):
+            subject_group = models.SubjectGroup.objects.get(
+                id=request.data['subject_group']
+            )
+            if subject_group.project_id != project.id:
+                raise ValidationError("Group chosen is not in this Project")
+
         response = super(SubjectList, self).post(request, *args, **kwargs)
         return response
 
@@ -1860,6 +1868,11 @@ class CreateSample(LoginRequiredMixin, generics.CreateAPIView):
     serializer_class = serializers.SamplePOSTSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Override create b/c we need to call Sample.clean() and DRF's create
+        doesn't call the model's clean method
+        """
+
         site_panel = models.SitePanel.objects.get(id=request.data['site_panel'])
         site = models.Site.objects.get(id=site_panel.site_id)
         if not site.has_add_permission(request.user):
