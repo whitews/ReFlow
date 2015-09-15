@@ -583,15 +583,12 @@ class SampleSerializer(serializers.ModelSerializer):
 
 class SamplePOSTSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(
-        source='subject.subject_group.project_id',
-        read_only=True)
 
     class Meta:
         model = Sample
         fields = (
-            'id', 'url', 'visit', 'subject', 'specimen', 'stimulation',
-            'cytometer', 'site_panel', 'panel_variant', 'project',
+            'id', 'url', 'visit', 'subject', 'specimen',
+            'stimulation', 'cytometer', 'panel_variant', 'site_panel',
             'original_filename', 'acquisition_date', 'sample_file'
         )
         read_only_fields = ('original_filename', 'sha1', 'subsample')
