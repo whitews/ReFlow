@@ -623,14 +623,14 @@ class UserList(generics.ListCreateAPIView):
                         is_superuser = True
 
                 if is_superuser:
-                    user = User.objects.create_superuser(
+                    User.objects.create_superuser(
                         serializer.validated_data['username'],
                         email=serializer.validated_data['email'],
                         password=serializer.validated_data['password'],
                         **user_kwargs
                     )
                 else:
-                    user = User.objects.create_user(
+                    User.objects.create_user(
                         serializer.validated_data['username'],
                         email=serializer.validated_data['email'],
                         password=serializer.validated_data['password'],
@@ -670,13 +670,13 @@ class UserDetail(
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # Only allow editing certain User attributes,
-        # and calling super's put oddly resets user's date_joined & last_login
+        # and calling super put oddly resets user's date_joined & last_login
         # We don't want that, so we'll have to save the user ourselves,
         # But the fun doesn't stop there! This ends up a little messy
         # b/c you can't set model instance attributes as strings like a
         # dictionary can, so we need to set them each explicitly, then save
         try:
-            if 'username' in request.data :
+            if 'username' in request.data:
                 user.username = request.data['username']
             if 'email' in request.data:
                 user.email = request.data['email']
@@ -1405,7 +1405,9 @@ class SitePanelList(LoginRequiredMixin, generics.ListCreateAPIView):
         to which the user belongs.
         """
 
-        user_sites = models.Site.objects.get_sites_user_can_view(self.request.user)
+        user_sites = models.Site.objects.get_sites_user_can_view(
+            self.request.user
+        )
 
         # need to filter by multiple IDs but django-filter doesn't seem to like
         # that, so we'll do it ourselves here
@@ -1540,7 +1542,9 @@ class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
         to which the user belongs.
         """
 
-        user_sites = models.Site.objects.get_sites_user_can_view(self.request.user)
+        user_sites = models.Site.objects.get_sites_user_can_view(
+            self.request.user
+        )
 
         # filter on user's projects
         queryset = models.Cytometer.objects.filter(site__in=user_sites)
@@ -1954,7 +1958,9 @@ class SampleList(LoginRequiredMixin, generics.ListAPIView):
         Results are restricted to projects to which the user belongs.
         """
 
-        user_sites = models.Site.objects.get_sites_user_can_view(self.request.user)
+        user_sites = models.Site.objects.get_sites_user_can_view(
+            self.request.user
+        )
         queryset = models.Sample.objects.filter(
             site_panel__site__in=user_sites)
 
@@ -2004,7 +2010,9 @@ class SampleMetaDataList(LoginRequiredMixin, generics.ListAPIView):
         Override .get_queryset() to restrict sites for which
         the user has view permission.
         """
-        user_sites = models.Site.objects.get_sites_user_can_view(self.request.user)
+        user_sites = models.Site.objects.get_sites_user_can_view(
+            self.request.user
+        )
         queryset = models.SampleMetadata.objects.filter(
             sample__site_panel__site__in=user_sites)
 
@@ -2135,7 +2143,9 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         Override .get_queryset() to restrict panels to projects
         to which the user belongs.
         """
-        user_sites = models.Site.objects.get_sites_user_can_view(self.request.user)
+        user_sites = models.Site.objects.get_sites_user_can_view(
+            self.request.user
+        )
 
         # filter on user's sites
         queryset = models.Compensation.objects.filter(
@@ -2242,7 +2252,7 @@ class SubprocessImplementationFilter(django_filters.FilterSet):
         name='category__name')
 
     class Meta:
-        model =models. SubprocessImplementation
+        model = models.SubprocessImplementation
         fields = [
             'category',
             'category_name',
@@ -2371,7 +2381,7 @@ class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateDestroyAPIView):
 
     model = models.Worker
     serializer_class = serializers.WorkerSerializer
-    queryset =models. Worker.objects.all()
+    queryset = models.Worker.objects.all()
 
     def put(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -2733,7 +2743,9 @@ class ProcessRequestAssignmentUpdate(
                 process_request.save()
 
                 # serialize the updated ProcessRequest
-                serializer = serializers.ProcessRequestSerializer(process_request)
+                serializer = serializers.ProcessRequestSerializer(
+                    process_request
+                )
 
                 return Response(serializer.data, status=201)
             except ValidationError as e:
@@ -2762,7 +2774,9 @@ class ProcessRequestReportError(
         if hasattr(self.request.user, 'worker'):
             try:
                 worker = models.Worker.objects.get(user=self.request.user)
-                process_request = models.ProcessRequest.objects.get(id=kwargs['pk'])
+                process_request = models.ProcessRequest.objects.get(
+                    id=kwargs['pk']
+                )
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
 
@@ -2983,7 +2997,9 @@ class SampleClusterList(
         if hasattr(self.request.user, 'worker'):
             try:
                 worker = models.Worker.objects.get(user=self.request.user)
-                cluster = models.Cluster.objects.get(id=request.data['cluster_id'])
+                cluster = models.Cluster.objects.get(
+                    id=request.data['cluster_id']
+                )
             except Exception as e:
                 return Response(data={'detail': e.message}, status=400)
 
@@ -3104,6 +3120,7 @@ class SampleClusterComponentList(
             self.request.user
         )
         queryset = models.SampleClusterComponent.objects.filter(
-            sample_cluster__cluster__process_request__project__in=user_projects)
+            sample_cluster__cluster__process_request__project__in=user_projects
+        )
 
         return queryset
