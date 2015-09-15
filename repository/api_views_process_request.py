@@ -291,6 +291,12 @@ class SampleCollectionMemberList(
         return queryset
 
     def create(self, request, *args, **kwargs):
+        """
+        Override create to get serializer w/ many=True.
+
+        This API handles a POST containing a list of sample collection members
+        to reduce the HTTP chatter.
+        """
         data = request.data
 
         if not isinstance(data, list):
@@ -401,6 +407,13 @@ class ProcessRequestInputList(LoginRequiredMixin, generics.ListCreateAPIView):
         return queryset
 
     def create(self, request, *args, **kwargs):
+        """
+        Override create to get serializer w/ many=True.
+
+        This API handles a POST containing a list of process request inputs
+        to reduce the HTTP chatter.
+        """
+
         serializer = self.get_serializer(data=request.data, many=True)
         if serializer.is_valid():
             serializer.save()
@@ -420,6 +433,10 @@ class ProcessRequestStage2Create(LoginRequiredMixin, generics.CreateAPIView):
     serializer_class = serializers.ProcessRequestDetailSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Override create to handle creating nested relationships
+        """
+
         # check permission for submitting process requests for this project
         parent_pr = get_object_or_404(
             models.ProcessRequest,
@@ -898,10 +915,10 @@ class SampleClusterList(
 
         return queryset
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         """
-        Override post to ensure user is a worker and matches the
-        ProcessRequest and save all relations in an atomic transaction
+        Override create to save all relations in an atomic transaction.
+        Also, verify user is a worker and is assigned to this ProcessRequest
         """
         if hasattr(self.request.user, 'worker'):
             try:

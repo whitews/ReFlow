@@ -366,7 +366,11 @@ class PermissionList(LoginRequiredMixin, generics.ListCreateAPIView):
 
         return project_perms | site_perms
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
+        """
+        Override create to call guardian's assign_perm to save
+        permissions
+        """
         project_perms = [
             'view_project_data',
             'add_project_data',
@@ -449,7 +453,11 @@ class UserList(generics.ListCreateAPIView):
         response = super(UserList, self).get(request, *args, **kwargs)
         return response
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
+        """
+        Override create to differentiate between creating a regular user and
+        a superuser
+        """
         if not request.user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -487,11 +495,9 @@ class UserList(generics.ListCreateAPIView):
                         password=serializer.validated_data['password'],
                         **user_kwargs
                     )
-            except IntegrityError, e:
+            except IntegrityError:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
-            except Exception, e:
-                # TODO: remove this after more experimentation
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(
@@ -1931,7 +1937,8 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """
-        Override post to ensure user has permission to add data to the site.
+        Override create to verify user has permission to add data to the site
+        & call the Compensation model's clean method
         """
         matrix_text = request.data['matrix_text'].splitlines(False)
         if not len(matrix_text) > 1:
@@ -1941,21 +1948,22 @@ class CompensationList(LoginRequiredMixin, generics.ListCreateAPIView):
         # may be tab or comma delimited
         # (spaces can't be delimiters b/c they are allowed in the PnN value)
         pnn_list = re.split('\t|,\s*', matrix_text[0])
-        site_panel = None
-        if 'site_panel' in request.data:
-            site_panel_candidate = get_object_or_404(
-                models.SitePanel,
-                id=request.data['site_panel']
-            )
-            site = site_panel_candidate.site
-            if controllers.matches_site_panel_colors(
-                    pnn_list, site_panel_candidate):
-                site_panel = site_panel_candidate
-
-        if not site.has_add_permission(request.user):
-            raise PermissionDenied
 
         try:
+            site_panel_candidate = models.SitePanel.objects.get(
+                id=request.data['site_panel']
+            )
+
+            if not site_panel_candidate.site.has_add_permission(request.user):
+                raise PermissionDenied
+
+            is_match = controllers.matches_site_panel_colors(
+                pnn_list,
+                site_panel_candidate
+            )
+            if not is_match:
+                raise Exception("Compensation header doesn't match site panel")
+
             comp = models.Compensation(
                 site_panel_id=request.data['site_panel'],
                 acquisition_date=datetime.datetime.strptime(
