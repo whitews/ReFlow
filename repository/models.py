@@ -1566,46 +1566,6 @@ class SampleCollectionMember(ProtectedModel):
     class Meta:
         unique_together = (('sample_collection', 'sample'),)
 
-    def clean(self):
-        """
-        verify comp matrix matches sample's channels
-        """
-
-        # get site panel parameter fcs_text, but just for the fluoro params
-        # scatter and time don't get compensated
-        params = SitePanelParameter.objects.filter(
-            site_panel_id=self.sample.site_panel_id).exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
-
-        # parse the matrix text and validate the number of params match
-        # the number of fluoro params in the site panel and that the matrix
-        # values are numbers (can be exp notation)
-        matrix_text = self.compensation.matrix_text.splitlines(False)
-        if not len(matrix_text) > 1:
-            raise ValidationError("Too few rows.")
-
-        # first row should be headers matching the channel number
-        # comma delimited
-        headers = re.split(',\s*', matrix_text[0])
-
-        missing_fields = list()
-        for p in params:
-            if str(p.fcs_number) not in headers:
-                missing_fields.append(p.fcs_number)
-
-        if len(missing_fields) > 0:
-            raise ValidationError(
-                "Missing fields: %s" % ", ".join(missing_fields))
-
-        if len(headers) > params.count():
-            raise ValidationError("Too many parameters")
-
-        # the header of matrix text adds a row
-        if len(matrix_text) > params.count() + 1:
-            raise ValidationError("Too many rows")
-        elif len(matrix_text) < params.count() + 1:
-            raise ValidationError("Too few rows")
-
 
 ################################
 # START PROCESS RELATED MODELS #
@@ -1849,19 +1809,6 @@ class ClusterLabel(ProtectedModel):
             return True
 
         return False
-
-    def clean(self):
-        """
-        Check that both the cluster and label belong to the same project.
-        Returns ValidationError if the above requirements are
-        not satisfied.
-        """
-
-        # ensure both the label and cluster belong to the same project
-        if self.cluster.process_request.project != self.label.project:
-            raise ValidationError(
-                "Label and cluster must belong to the same project."
-            )
 
     class Meta:
         unique_together = (('cluster', 'label'),)
