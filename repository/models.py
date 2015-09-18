@@ -1290,12 +1290,25 @@ class Sample(ProtectedModel):
 
         try:
             self.original_filename = self.sample_file.name.split('/')[-1]
-            # get the hash
-            file_hash = hashlib.sha1(self.sample_file.read())
         except ValueError:
             # sample_file is required
             raise ValidationError(
                 "FCS file is required"
+            )
+
+        try:
+            # calculate SHA-1 in 64KB chunks to avoid excessive memory use
+            buffer_size = 65536
+            file_hash = hashlib.sha1()
+
+            while True:
+                chunk = self.sample_file.read(buffer_size)
+                if not chunk:
+                    break
+                file_hash.update(chunk)
+        except:
+            raise ValidationError(
+                "Failed to create SHA-1 hash for FCS file"
             )
 
         # Verify subject project is the same as the site and
