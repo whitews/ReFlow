@@ -591,7 +591,7 @@ class SamplePOSTSerializer(serializers.ModelSerializer):
             'stimulation', 'cytometer', 'panel_variant', 'site_panel',
             'original_filename', 'acquisition_date', 'sample_file'
         )
-        read_only_fields = ('original_filename', 'sha1', 'subsample')
+        read_only_fields = ('original_filename', 'sha1')
 
 
 class SampleMetadataSerializer(serializers.ModelSerializer):

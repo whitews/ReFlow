@@ -1129,11 +1129,6 @@ class Sample(ProtectedModel):
         blank=False,
         editable=False,
         max_length=256)
-    subsample = models.FileField(
-        upload_to=subsample_file_path,
-        null=False,
-        blank=False,
-        max_length=256)
     sha1 = models.CharField(
         unique=False,
         null=False,
@@ -1183,14 +1178,6 @@ class Sample(ProtectedModel):
                 return True
 
         return False
-
-    def get_subsample_as_csv(self):
-        csv_string = StringIO()
-        subsample_array = np.load(self.subsample.file)
-        # return the array as integers, the extra precision is questionable
-        np.savetxt(csv_string, subsample_array, fmt='%d', delimiter=',')
-        csv_string.seek(0)
-        return csv_string
 
     def get_clean_fcs(self):
         channel_names = []
@@ -1441,29 +1428,6 @@ class Sample(ProtectedModel):
                     raise ValidationError(
                         "FCS PnS text for channel '%s' does not match panel"
                         % str(channel_number))
-
-        # Save a sub-sample of the FCS data for more efficient retrieval
-        # We'll save a random 10,000 events (non-duplicated) if possible
-        # We'll also store the indices of the randomly chosen events for
-        # reproducibility. The indices will be inserted as the first column.
-        # The result is stored as a numpy object in a file field.
-        # To ensure room for the indices and preserve precision for values,
-        # we save as float32
-        numpy_data = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
-        index_array = np.arange(len(numpy_data))
-        np.random.shuffle(index_array)
-        random_subsample = numpy_data[index_array[:10000]]
-        random_subsample_indexed = np.insert(
-            random_subsample,
-            0,
-            index_array[:10000],
-            axis=1)
-        subsample_file = TemporaryFile()
-        np.save(subsample_file, random_subsample_indexed)
-        self.subsample.save(
-            self.original_filename,
-            File(subsample_file),
-            save=False)
 
     def save(self, *args, **kwargs):
         """ Populate upload date on save """

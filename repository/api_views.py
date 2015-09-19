@@ -198,40 +198,6 @@ def retrieve_clean_sample(request, pk):
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
-def retrieve_subsample_as_csv(request, pk):
-    sample = get_object_or_404(models.Sample, pk=pk)
-
-    if not sample.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        sample.get_subsample_as_csv(),
-        content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
-        % str(sample.id) + '.csv'
-    return response
-
-
-@api_view(['GET'])
-@authentication_classes((SessionAuthentication, TokenAuthentication))
-@permission_classes((IsAuthenticated,))
-def retrieve_subsample_as_numpy(request, pk):
-    sample = get_object_or_404(models.Sample, pk=pk)
-
-    if not sample.has_view_permission(request.user):
-        raise PermissionDenied
-
-    response = HttpResponse(
-        sample.subsample.file,
-        content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
-        % str(sample.id) + '.npy'
-    return response
-
-
-@api_view(['GET'])
-@authentication_classes((SessionAuthentication, TokenAuthentication))
-@permission_classes((IsAuthenticated,))
 def retrieve_compensation_as_csv(request, pk):
     compensation = get_object_or_404(models.Compensation, pk=pk)
 
