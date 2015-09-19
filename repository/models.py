@@ -1063,21 +1063,6 @@ def fcs_file_path(instance, filename):
     return upload_dir
 
 
-def subsample_file_path(instance, filename):
-    project_id = instance.subject.project_id
-    site_id = instance.site_panel.site_id
-
-    upload_dir = join([
-        'ReFlow-data',
-        str(project_id),
-        'subsample',
-        str(site_id),
-        str(filename + ".npy")],
-        "/")
-
-    return upload_dir
-
-
 class Sample(ProtectedModel):
     subject = models.ForeignKey(
         Subject,
