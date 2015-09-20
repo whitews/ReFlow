@@ -21,6 +21,8 @@ from rest_framework.authtoken.models import Token
 import flowio
 import numpy as np
 
+from utils import parse_fcs_text
+
 
 class ProtectedModel(models.Model):
     class Meta:
@@ -1269,9 +1271,27 @@ class Sample(ProtectedModel):
             )
 
         try:
+            # get text section of FCS file for saving metadata later
+            self.sample_file.seek(10)
+            text_start = int(self.sample_file.read(8))
+            self.sample_file.seek(18)
+            text_end = int(self.sample_file.read(8))
+
+            self.sample_file.seek(text_start)
+            text = self.sample_file.read(text_end - text_start + 1)
+
+            self.sample_metadata_dict = parse_fcs_text(text)
+            text = None
+        except:
+            raise ValidationError(
+                "The file uploaded does not appear to be an FCS file"
+            )
+
+        try:
             # calculate SHA-1 in 64KB chunks to avoid excessive memory use
             buffer_size = 65536
             file_hash = hashlib.sha1()
+            self.sample_file.seek(0)
 
             while True:
                 chunk = self.sample_file.read(buffer_size)
@@ -1280,7 +1300,7 @@ class Sample(ProtectedModel):
                 file_hash.update(chunk)
         except:
             raise ValidationError(
-                "Failed to create SHA-1 hash for FCS file"
+                "Failed to create checksum for uploaded file"
             )
 
         # Verify subject project is the same as the site and
@@ -1323,31 +1343,6 @@ class Sample(ProtectedModel):
             raise ValidationError(
                 "This FCS file already exists in this Project."
             )
-
-        # Verify the file is an FCS file
-        if hasattr(self.sample_file.file, 'temporary_file_path'):
-            try:
-                fcm_obj = flowio.FlowData(
-                    self.sample_file.file.temporary_file_path(),
-                )
-            except:
-                raise ValidationError(
-                    "Chosen file does not appear to be an FCS file."
-                )
-        else:
-            self.sample_file.seek(0)
-            try:
-                fcm_obj = flowio.FlowData(io.BytesIO(
-                    self.sample_file.read()))
-            except:
-                raise ValidationError(
-                    "Chosen file does not appear to be an FCS file."
-                )
-
-        # Read the FCS text segment and get the number of parameters
-        # save the dictionary for saving SampleMetadata instances
-        # after saving the Sample instance
-        self.sample_metadata_dict = fcm_obj.text
 
         if 'par' in self.sample_metadata_dict:
             if not self.sample_metadata_dict['par'].isdigit():
