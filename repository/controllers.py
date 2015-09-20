@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from models import Project, PanelTemplate, SitePanel, Site, Marker, Fluorochrome
+from models import Project, PanelTemplate, Site, Marker, Fluorochrome
 from collections import Counter
 
 
