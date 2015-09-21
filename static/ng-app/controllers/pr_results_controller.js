@@ -60,8 +60,8 @@ app.controller(
                     }
 
                     sc_labels = [];
-                    sc.labels.forEach(function (label_id) {
-                        sc_labels.push(label_lut[label_id])
+                    sc.labels.forEach(function (sc_label) {
+                        sc_labels.push(label_lut[sc_label.label])
                     });
 
                     $scope.results.push(
