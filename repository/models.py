@@ -1476,8 +1476,10 @@ class SampleCollection(ProtectedModel):
     project = models.ForeignKey(Project)
 
     def has_view_permission(self, user):
-        if user.has_perm('submit_process_requests', self.project):
+
+        if self.project.has_view_permission(user):
             return True
+
         return False
 
 
