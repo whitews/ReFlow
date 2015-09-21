@@ -910,7 +910,7 @@ class SampleClusterSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
-    labels = serializers.PrimaryKeyRelatedField(
+    labels = serializers.ClusterLabelSerializer(
         source='cluster.clusterlabel_set',
         read_only=True,
         many=True
