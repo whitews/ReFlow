@@ -791,7 +791,7 @@ class ClusterLabelFilter(django_filters.FilterSet):
         queryset=models.Cluster.objects.all(),
         name='cluster__cluster_index'
     )
-    label_name = django_filters.ModelMultipleChoiceFilter(
+    name = django_filters.ModelMultipleChoiceFilter(
         queryset=models.CellSubsetLabel.objects.all(),
         name='label__name'
     )
@@ -803,7 +803,7 @@ class ClusterLabelFilter(django_filters.FilterSet):
             'cluster',
             'cluster_index',
             'label',
-            'label_name'
+            'name'
         ]
 
 

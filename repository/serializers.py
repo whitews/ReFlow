@@ -867,7 +867,7 @@ class ClusterLabelSerializer(serializers.ModelSerializer):
         source='cluster.index',
         read_only=True
     )
-    label_name = serializers.CharField(
+    name = serializers.CharField(
         source='label.name',
         read_only=True
     )
@@ -881,7 +881,7 @@ class ClusterLabelSerializer(serializers.ModelSerializer):
             'cluster',
             'cluster_index',
             'label',
-            'label_name'
+            'name'
         )
 
 

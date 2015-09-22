@@ -135,29 +135,16 @@ app.controller(
     $scope.remove_cluster_label = function (label, sample_cluster) {
         sample_cluster.label_error = null;
 
-        // first, need to retrieve the PK for our ClusterLabel, as
-        // the sample_cluster.labels stores the CellSubsetLabel PK
-        // So, we do a query and expect only one result, a faux-GET
-        var cluster_labels = ModelService.getClusterLabels(
-            {
-                'cluster': sample_cluster.cluster,
-                'label': label.id
-            }
+        var response = ModelService.destroyClusterLabel(
+            label
         );
 
-        cluster_labels.$promise.then(function (object) {
-            var response = ModelService.destroyClusterLabel(
-                object[0]
-            );
-
-            response.$promise.then(function (object) {
-                // success, nothing to do
-            }, function (error) {
-                sample_cluster.label_error = "Deleting label failed!";
-            });
+        response.$promise.then(function (object) {
+            // success, nothing to do
         }, function (error) {
             sample_cluster.label_error = "Deleting label failed!";
         });
+
     };
 
     $scope.toggle_animation = function () {

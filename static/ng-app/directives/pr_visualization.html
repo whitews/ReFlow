@@ -130,7 +130,7 @@
                          on-select="add_cluster_label($item, sc)" on-remove="remove_cluster_label($item, sc)">
                 <ui-select-match>{{ $item.name }}</ui-select-match>
 
-                <ui-select-choices repeat="l.id as l in labels | filter:$select.search">
+                <ui-select-choices repeat="l in labels | filter:$select.search track by l.name">
                   {{ l.name }}
                 </ui-select-choices>
 
