@@ -227,12 +227,6 @@ app.controller(
             $scope.upload[index] = null;
         };
 
-        $scope.toggleAllFileQueue = function () {
-            for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
-                $scope.sample_upload_model.file_queue[i].selected = $scope.master_file_queue_checkbox;
-            }
-        };
-
         function setupReader(obj) {
             var reader = new FileReader();
             reader.addEventListener("loadend", function(evt) {
