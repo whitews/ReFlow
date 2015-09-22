@@ -2,12 +2,22 @@ app.controller(
     'PanelTemplateQueryController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
 
+        if ($scope.current_project) {
+            getPanelTemplates();
+        }
+
+        $scope.$on('current_project:updated', function () {
+            getPanelTemplates();
+        });
+
         // get panel templates
-        $scope.sample_upload_model.panel_templates = ModelService.getPanelTemplates(
-            {
-                project: $scope.current_project.id
-            }
-        );
+        function getPanelTemplates() {
+            $scope.sample_upload_model.panel_templates = ModelService.getPanelTemplates(
+                {
+                    project: $scope.current_project.id
+                }
+            );
+        }
 
         $scope.panelChanged = function () {
             ModelService.sitePanelsUpdated();
