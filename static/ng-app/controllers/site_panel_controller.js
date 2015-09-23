@@ -188,11 +188,23 @@ app.controller(
 
                     // if template has markers, check them all
                     if (param.markers.length > 0) {
-                        var marker_match = true;
+                        var marker_match = false;
+
+                        if (param.markers.length != channel.markers.length) {
+                            continue;
+                        }
+
                         for (var j = 0; j < param.markers.length; j++) {
-                            if (channel.markers.indexOf(parseInt(param.markers[j].marker_id)) == -1) {
-                                // no match
-                                marker_match = false;
+                            marker_match = false;
+                            for (var k = 0; k < channel.markers.length; k++) {
+
+                                if (parseInt(param.markers[j].marker_id) === parseInt(channel.markers[k].id)) {
+                                    // no match
+                                    marker_match = true;
+                                    break;
+                                }
+                            }
+                            if (!marker_match) {
                                 break;
                             }
                         }
@@ -263,7 +275,7 @@ app.controller(
                         words.forEach(function(w) {
                             // strip out non-alphanumeric characters, and ignore case
                             if (m.marker_abbreviation.toLowerCase().replace(/[^A-Z,a-z,0-9]/g,"") === w.toLowerCase().replace(/[^A-Z,a-z,0-9]/g,"")) {
-                                c.markers.push(m.id.toString());
+                                c.markers.push(m);
                             }
                         });
                     });
@@ -303,16 +315,23 @@ app.controller(
             }
 
             var params = [];
+            var param;
             $scope.site_panel_model.site_panel_sample.channels.forEach(function (c) {
-                params.push({
+                param = {
                     fcs_number: c.channel,
                     fcs_text: c.pnn,
                     fcs_opt_text: c.pns,
                     parameter_type: c.function,
                     parameter_value_type: c.value_type,
-                    markers: c.markers,
+                    markers: [],
                     fluorochrome: c.fluorochrome || null
-                })
+                };
+
+                c.markers.forEach(function(m) {
+                    param.markers.push(m.id);
+                });
+
+                params.push(param);
             });
             var data = {
                 site: $scope.site_panel_model.current_site.id,
