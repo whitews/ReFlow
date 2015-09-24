@@ -1171,9 +1171,7 @@ class Sample(ProtectedModel):
         fluoro_channel_names = []  # used for spill later on
         params = self.site_panel.sitepanelparameter_set.order_by('fcs_number')
         for param in params:
-            name_components = [
-                param.parameter_type, param.parameter_value_type
-            ]
+            name_components = []
             markers = param.sitepanelparametermarker_set.order_by(
                 'marker__marker_abbreviation'
             )
@@ -1185,7 +1183,21 @@ class Sample(ProtectedModel):
                 name_components.append(
                     param.fluorochrome.fluorochrome_abbreviation
                 )
-            channel_string = " ".join(name_components)
+
+            name_components.append(
+                "-".join(
+                    [
+                        param.parameter_type,
+                        param.parameter_value_type
+                    ]
+                )
+            )
+
+            if param.parameter_type == 'TIM':
+                channel_string = 'Time'
+            else:
+                channel_string = " ".join(name_components)
+
             channel_names.append(channel_string)
             if param.parameter_type == 'FLR':
                 fluoro_channel_names.append(channel_string)
@@ -1232,13 +1244,41 @@ class Sample(ProtectedModel):
         else:
             cyt_value = None
 
+        if 'date' in flow_data.text:
+            acq_date = flow_data.text['date']
+        else:
+            acq_date = None
+
+        if 'timestep' in flow_data.text:
+            timestep = flow_data.text['timestep']
+        else:
+            timestep = None
+
+        if 'btim' in flow_data.text:
+            btim = flow_data.text['btim']
+        else:
+            btim = None
+
+        if 'etim' in flow_data.text:
+            etim = flow_data.text['etim']
+        else:
+            etim = None
+
+        extra = {
+            'TIMESTEP': timestep,
+            'BTIM': btim,
+            'ETIM': etim
+        }
+
         clean_file = TemporaryFile()
         flowio.create_fcs(
             event_list,
             channel_names,
             clean_file,
             spill=new_spill_string,
-            cyt=cyt_value
+            cyt=cyt_value,
+            date=acq_date,
+            extra=extra
         )
         clean_file.seek(0)
 
