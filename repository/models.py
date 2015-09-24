@@ -1249,26 +1249,16 @@ class Sample(ProtectedModel):
         else:
             acq_date = None
 
+        extra = {}
+
         if 'timestep' in flow_data.text:
-            timestep = flow_data.text['timestep']
-        else:
-            timestep = None
+            extra['TIMESTEP'] = flow_data.text['timestep']
 
         if 'btim' in flow_data.text:
-            btim = flow_data.text['btim']
-        else:
-            btim = None
+            extra['BTIM'] = flow_data.text['btim']
 
         if 'etim' in flow_data.text:
-            etim = flow_data.text['etim']
-        else:
-            etim = None
-
-        extra = {
-            'TIMESTEP': timestep,
-            'BTIM': btim,
-            'ETIM': etim
-        }
+            extra['ETIM'] = flow_data.text['etim']
 
         clean_file = TemporaryFile()
         flowio.create_fcs(
