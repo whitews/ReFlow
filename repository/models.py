@@ -1205,7 +1205,6 @@ class Sample(ProtectedModel):
         flow_data = flowio.FlowData(
             io.BytesIO(self.sample_file.read())
         )
-        event_list = flow_data.events
 
         # get compensation matrix from the FCS metadata $SPILL or $SPILLOVER
         # keys if available. If found, we need to replace the header values
@@ -1262,7 +1261,7 @@ class Sample(ProtectedModel):
 
         clean_file = TemporaryFile()
         flowio.create_fcs(
-            event_list,
+            flow_data.events,
             channel_names,
             clean_file,
             spill=new_spill_string,
@@ -1270,6 +1269,8 @@ class Sample(ProtectedModel):
             date=acq_date,
             extra=extra
         )
+        flow_data = None
+        self.sample_file.close()
         clean_file.seek(0)
 
         return clean_file
