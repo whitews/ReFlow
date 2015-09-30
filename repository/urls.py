@@ -50,8 +50,6 @@ urlpatterns = [
     url(r'^api/repository/sites/(?P<site>\d+)/permissions/?$', get_site_permissions, name='get-site-permissions'),
     url(r'^api/repository/site_panels/?$', SitePanelList.as_view(), name='site-panel-list'),
     url(r'^api/repository/site_panels/(?P<pk>\d+)/?$', SitePanelDetail.as_view(), name='site-panel-detail'),
-    url(r'^api/repository/cytometers/?$', CytometerList.as_view(), name='cytometer-list'),
-    url(r'^api/repository/cytometers/(?P<pk>\d+)/?$', CytometerDetail.as_view(), name='cytometer-detail'),
 
     url(r'^api/repository/subject_groups/?$', SubjectGroupList.as_view(), name='subject-group-list'),
     url(r'^api/repository/subject_groups/(?P<pk>\d+)/?$', SubjectGroupDetail.as_view(), name='subject-group-detail'),

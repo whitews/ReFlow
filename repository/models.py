@@ -237,9 +237,6 @@ class Project(ProtectedModel):
     def get_user_permissions(self, user):
         return get_perms(user, self)
 
-    def get_cytometer_count(self):
-        return Cytometer.objects.filter(site__project=self).count()
-
     def get_sample_count(self):
         return Sample.objects.filter(subject__project=self).count()
 
@@ -627,43 +624,6 @@ class Site(ProtectedModel):
 
     def __unicode__(self):
         return u'%s' % self.site_name
-
-
-class Cytometer(ProtectedModel):
-    site = models.ForeignKey(Site, null=False, blank=False)
-    cytometer_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-    serial_number = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=256)
-
-    class Meta:
-        unique_together = (('site', 'cytometer_name'),)
-
-    def has_view_permission(self, user):
-        if user.has_perm('view_project_data', self.site.project):
-            return True
-        elif user.has_perm('view_site_data', self.site):
-            return True
-        return False
-
-    def has_add_permission(self, user):
-        if self.site.has_add_permission(user):
-            return True
-        return False
-
-    def has_modify_permission(self, user):
-        if self.site.has_modify_permission(user):
-            return True
-        return False
-
-    def __unicode__(self):
-        return u'%s: %s' % (self.site.site_name, self.cytometer_name)
 
 
 class SitePanel(ProtectedModel):

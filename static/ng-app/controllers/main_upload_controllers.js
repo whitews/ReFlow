@@ -40,20 +40,6 @@ app.controller(
 ]);
 
 app.controller(
-    'CytometerQueryController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        $scope.$on('siteChangedEvent', function () {
-            $scope.sample_upload_model.cytometers = ModelService.getCytometers(
-                {
-                    site: $scope.sample_upload_model.current_site.id
-                }
-            );
-            $scope.sample_upload_model.current_cytometer = null;
-        });
-    }
-]);
-
-app.controller(
     'SubjectQueryController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
         if ($scope.current_project) {

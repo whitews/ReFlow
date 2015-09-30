@@ -111,8 +111,7 @@ app.controller(
         $scope.format = $scope.formats[0];
 
         function verifyCategories() {
-            return $scope.sample_upload_model.current_cytometer &&
-                $scope.sample_upload_model.current_panel_template &&
+            return $scope.sample_upload_model.current_panel_template &&
                 $scope.sample_upload_model.current_panel_variant &&
                 $scope.sample_upload_model.current_subject &&
                 $scope.sample_upload_model.current_visit &&
@@ -383,7 +382,6 @@ app.controller(
                     acquisition_date: null,
                     panel_variant: null,
                     site_panel: null,
-                    cytometer: null,
                     subject: null,
                     visit_type: null,
                     stimulation: null,
@@ -409,7 +407,6 @@ app.controller(
 
                     // populate the file object properties
                     $scope.sample_upload_model.file_queue[i].panel_variant = $scope.sample_upload_model.current_panel_variant;
-                    $scope.sample_upload_model.file_queue[i].cytometer = $scope.sample_upload_model.current_cytometer;
                     $scope.sample_upload_model.file_queue[i].subject = $scope.sample_upload_model.current_subject;
                     $scope.sample_upload_model.file_queue[i].visit_type = $scope.sample_upload_model.current_visit;
                     $scope.sample_upload_model.file_queue[i].stimulation = $scope.sample_upload_model.current_stimulation;
@@ -464,7 +461,6 @@ app.controller(
         $scope.recategorizeFile = function(f) {
 
             // clear the file object properties
-            f.cytometer = null;
             f.subject = null;
             f.visit_type = null;
             f.stimulation = null;
@@ -523,7 +519,6 @@ app.controller(
                 ! $scope.sample_upload_model.upload_queue[index].stimulation ||
                 ! $scope.sample_upload_model.upload_queue[index].site_panel ||
                 ! $scope.sample_upload_model.upload_queue[index].panel_variant ||
-                ! $scope.sample_upload_model.upload_queue[index].cytometer ||
                 ! $scope.sample_upload_model.upload_queue[index].acquisition_date)
             {
                 $scope.sample_upload_model.upload_queue[index].errors = [];
@@ -552,7 +547,6 @@ app.controller(
                     'stimulation': $scope.sample_upload_model.upload_queue[index].stimulation.id,
                     'panel_variant': $scope.sample_upload_model.upload_queue[index].panel_variant.id,
                     'site_panel': $scope.sample_upload_model.upload_queue[index].site_panel.id,
-                    'cytometer': $scope.sample_upload_model.upload_queue[index].cytometer.id,
                     'acquisition_date':
                             $scope.sample_upload_model.upload_queue[index].acquisition_date.getFullYear().toString() +
                             "-" +

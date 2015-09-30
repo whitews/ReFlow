@@ -233,68 +233,6 @@ app.controller(
 );
 
 app.controller(
-    'CytometerController',
-    [
-        '$scope',
-        '$q',
-        '$controller',
-        'ModelService',
-        function ($scope, $q, $controller, ModelService) {
-            // Inherits ProjectDetailController $scope
-            $controller('ProjectDetailController', {$scope: $scope});
-
-            function populate_cytometers() {
-                var sites_can_add = ModelService.getProjectSitesWithAddPermission(
-                    $scope.current_project.id
-                ).$promise;
-
-                var sites_can_modify = ModelService.getProjectSitesWithModifyPermission(
-                    $scope.current_project.id
-                ).$promise;
-
-                var cytometers = ModelService.getCytometers(
-                    {
-                        'project': $scope.current_project.id
-                    }
-                ).$promise;
-
-                $q.all([sites_can_add, sites_can_modify, cytometers]).then(function (objects) {
-                    $scope.cytometers = objects[2];
-
-                    // user has add privileges on at least one site
-                    if (objects[0].length > 0) {
-                        $scope.can_add_data = true;
-                    }
-
-                    $scope.cytometers.forEach(function (c) {
-                        c.can_modify = false;
-
-                        // check if cytometer's site is in modify list
-                        for (var i=0; i<objects[1].length; i++) {
-                            if (c.site == objects[1][i].id) {
-                                c.can_modify = true;
-                                break;
-                            }
-                        }
-                    });
-                });
-            }
-
-            if ($scope.current_project != undefined) {
-                populate_cytometers();
-            }
-            $scope.$on('current_project:updated', function () {
-                populate_cytometers();
-            });
-
-            $scope.$on('cytometers:updated', function () {
-                populate_cytometers();
-            });
-        }
-    ]
-);
-
-app.controller(
     'VisitTypeController',
     [
         '$scope',

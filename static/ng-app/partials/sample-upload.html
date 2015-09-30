@@ -16,15 +16,6 @@
                       </div>
                   </td>
               </tr>
-              <tr>
-                  <td><strong>Cytometer:</strong></td>
-                  <td>
-                    <div ng-controller="CytometerQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_cytometer" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.cytometers.length == 0" ng-required="true" ng-options="c.cytometer_name for c in sample_upload_model.cytometers">
-                      </select>
-                    </div>
-                  </td>
-              </tr>
 
               <div ng-controller="PanelTemplateQueryController">
               <tr>

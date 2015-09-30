@@ -1335,92 +1335,6 @@ class SitePanelDetail(
         return super(SitePanelDetail, self).delete(request, *args, **kwargs)
 
 
-class CytometerFilter(django_filters.FilterSet):
-
-    site = django_filters.ModelMultipleChoiceFilter(
-        queryset=models.Site.objects.all(),
-        name='site')
-    site_name = django_filters.MultipleChoiceFilter(
-        choices=models.Site.objects.all().values_list('site_name', 'id'),
-        name='site__site_name')
-    project = django_filters.ModelMultipleChoiceFilter(
-        queryset=models.Project.objects.all(),
-        name='site__project')
-
-    class Meta:
-        model = models.Cytometer
-        fields = [
-            'site',
-            'site_name',
-            'project',
-            'cytometer_name',
-            'serial_number'
-        ]
-
-
-class CytometerList(LoginRequiredMixin, generics.ListCreateAPIView):
-    """
-    API endpoint representing a list of cytometers.
-    """
-
-    model = models.Cytometer
-    serializer_class = serializers.CytometerSerializer
-    filter_class = CytometerFilter
-
-    def get_queryset(self):
-        """
-        Override .get_queryset() to restrict panels to sites
-        to which the user belongs.
-        """
-
-        user_sites = models.Site.objects.get_sites_user_can_view(
-            self.request.user
-        )
-
-        # filter on user's projects
-        queryset = models.Cytometer.objects.filter(site__in=user_sites)
-
-        return queryset
-
-    def post(self, request, *args, **kwargs):
-        site = models.Site.objects.get(id=request.data['site'])
-        if not site.has_add_permission(request.user):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        response = super(CytometerList, self).post(request, *args, **kwargs)
-        return response
-
-
-class CytometerDetail(
-        LoginRequiredMixin,
-        PermissionRequiredMixin,
-        generics.RetrieveUpdateDestroyAPIView):
-    """
-    API endpoint representing a single cytometer.
-    """
-
-    model = models.Cytometer
-    serializer_class = serializers.CytometerSerializer
-
-    def put(self, request, *args, **kwargs):
-        cytometer = models.Cytometer.objects.get(id=kwargs['pk'])
-        if not cytometer.has_modify_permission(request.user):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        response = super(CytometerDetail, self).put(request, *args, **kwargs)
-        return response
-
-    def patch(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    def delete(self, request, *args, **kwargs):
-        cytometer = models.Cytometer.objects.get(id=kwargs['pk'])
-        if not cytometer.has_modify_permission(request.user):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        return super(CytometerDetail, self).delete(request, *args, **kwargs)
-
-
 class MarkerList(LoginRequiredMixin, generics.ListCreateAPIView):
     """
     API endpoint representing a list of markers.
@@ -1710,7 +1624,6 @@ class CreateSample(LoginRequiredMixin, generics.CreateAPIView):
                     ).date(),
                     subject_id=request.data['subject'],
                     visit_id=request.data['visit'],
-                    cytometer_id=request.data['cytometer'],
                     panel_variant_id=request.data['panel_variant'],
                     site_panel_id=request.data['site_panel'],
                     pretreatment=request.data['pretreatment'],
@@ -1751,9 +1664,6 @@ class SampleFilter(django_filters.FilterSet):
         queryset=models.PanelVariant.objects.all())
     site_panel = django_filters.ModelMultipleChoiceFilter(
         queryset=models.SitePanel.objects.all())
-    cytometer = django_filters.ModelMultipleChoiceFilter(
-        queryset=models.Cytometer.objects.all(),
-        name='cytometer')
     subject = django_filters.ModelMultipleChoiceFilter(
         queryset=models.Subject.objects.all())
     subject_group = django_filters.ModelMultipleChoiceFilter(

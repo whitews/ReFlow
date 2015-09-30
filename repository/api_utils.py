@@ -44,7 +44,6 @@ def repository_api_root(request):
         'panel-templates': reverse('panel-template-list', request=request),
         'panel-variants': reverse('panel-variant-list', request=request),
         'site-panels': reverse('site-panel-list', request=request),
-        'cytometers': reverse('cytometer-list', request=request),
         'markers': reverse('marker-list', request=request),
         'fluorochromes': reverse('fluorochrome-list', request=request),
         'specimens': reverse('specimen-list', request=request),
