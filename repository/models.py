@@ -1096,10 +1096,6 @@ class Sample(ProtectedModel):
         SitePanel,
         null=False,
         blank=False)
-    cytometer = models.ForeignKey(
-        Cytometer,
-        null=False,
-        blank=False)
     panel_variant = models.ForeignKey(PanelVariant)
     acquisition_date = models.DateField(
         null=False,
