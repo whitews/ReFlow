@@ -670,7 +670,8 @@ class ProcessRequestAssignmentUpdate(
 
                 # serialize the updated ProcessRequest
                 serializer = serializers.ProcessRequestSerializer(
-                    process_request
+                    process_request,
+                    context={'request': request}
                 )
 
                 return Response(serializer.data, status=201)
