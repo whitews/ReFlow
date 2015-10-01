@@ -22,6 +22,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 import datetime
 import re
+import io
 
 from repository import models
 from repository import serializers
@@ -137,7 +138,6 @@ def get_parameter_functions(request):
 def get_parameter_value_types(request):
     return Response(models.PARAMETER_VALUE_TYPE_CHOICES)
 
-
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
@@ -147,8 +147,14 @@ def retrieve_sample(request, pk):
     if not sample.has_view_permission(request.user):
         raise PermissionDenied
 
+    # using BytesIO to make download faster, for some reason
+    # using the sample.sample_file takes ~30 seconds to start 
+    # downloading...maybe a bug in Django?
+    sample_file = io.BytesIO(sample.sample_file.read())
+    sample_file.seek(0)
+
     response = HttpResponse(
-        sample.sample_file,
+        sample_file,
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % sample.original_filename
@@ -164,8 +170,14 @@ def retrieve_sample_as_pk(request, pk):
     if not sample.has_view_permission(request.user):
         raise PermissionDenied
 
+    # using BytesIO to make download faster, for some reason
+    # using the sample.sample_file takes ~30 seconds to start 
+    # downloading...maybe a bug in Django?
+    sample_file = io.BytesIO(sample.sample_file.read())
+    sample_file.seek(0)
+
     response = HttpResponse(
-        sample.sample_file,
+        sample_file,
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
         % str(sample.id) + '.fcs'
