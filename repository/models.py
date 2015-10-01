@@ -166,10 +166,14 @@ class ProjectManager(models.Manager):
         Return a list of projects for which the given user has user management
         permissions.
         """
-        projects = get_objects_for_user(
-            user,
-            'submit_process_requests',
-            klass=Project)
+        if hasattr(user, 'worker'):
+            # Workers need to be able to view all data
+            projects = Project.objects.all()
+        else:
+            projects = get_objects_for_user(
+                user,
+                'submit_process_requests',
+                klass=Project)
 
         return projects
 
