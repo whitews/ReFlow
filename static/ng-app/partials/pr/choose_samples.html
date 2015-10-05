@@ -54,17 +54,6 @@
         </accordion-group>
         <accordion-group>
             <accordion-heading>
-                Cytometer <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopen, 'glyphicon-chevron-right': !isopen}"></i>
-            </accordion-heading>
-            <div data-ng-repeat="cytometer in model.cytometers">
-              <label>
-                  <input type="checkbox" ng-model="cytometer.selected" ng-change="updateSamples()" />
-              {{ cytometer.cytometer_name }}
-              </label>
-            </div>
-        </accordion-group>
-        <accordion-group>
-            <accordion-heading>
                 Pre-treatment <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopen, 'glyphicon-chevron-right': !isopen}"></i>
             </accordion-heading>
             <div data-ng-repeat="pretreatment in model.pretreatments">

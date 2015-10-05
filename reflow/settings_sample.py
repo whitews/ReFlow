@@ -163,12 +163,12 @@ REST_FRAMEWORK = {
     #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser'),
     'PAGINATE_BY': None,
     'PAGINATE_BY_PARAM': 'paginate_by',
-    'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'EXCEPTION_HANDLER': 'repository.api_views.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'repository.api_utils.custom_exception_handler'
 }
 
 INTERNAL_IPS = ('127.0.0.1',)

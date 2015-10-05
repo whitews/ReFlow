@@ -1,4 +1,4 @@
-<div ng-controller="MainSampleUploadController">
+<div>
   <div ng-controller="CategorizationController">
     <div ng-show="!dropSupported">HTML5 Drop File is not supported on this browser</div>
 
@@ -14,15 +14,6 @@
                       <select class="form-control width-200" ng-model="sample_upload_model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
                       </select>
                       </div>
-                  </td>
-              </tr>
-              <tr>
-                  <td><strong>Cytometer:</strong></td>
-                  <td>
-                    <div ng-controller="CytometerQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_cytometer" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.cytometers.length == 0" ng-required="true" ng-options="c.cytometer_name for c in sample_upload_model.cytometers">
-                      </select>
-                    </div>
                   </td>
               </tr>
 
@@ -43,15 +34,6 @@
               </tr>
               </div>
 
-              <tr>
-                  <td><strong>Subject:</strong></td>
-                  <td>
-                    <div ng-controller="SubjectQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_subject" ng-required="true" ng-options="s.subject_code for s in sample_upload_model.subjects">
-                      </select>
-                    </div>
-                  </td>
-              </tr>
               <tr>
                   <td><strong>Visit:</strong></td>
                   <td>
@@ -116,11 +98,10 @@
                 </th>
               </tr>
               <tr>
-                <th style="width:1%;">
-                  <input type="checkbox" ng-model="master_file_queue_checkbox" ng-change="toggleAllFileQueue()"/>
-                </th>
+                <th style="width:1%;"></th>
                 <th ts-criteria="filename">File Name</th>
                 <th ts-criteria="acquisition_date">Date</th>
+                <th ts-criteria="subject">Subject</th>
                 <th ts-criteria="channels.length">Channels</th>
                 <th ts-criteria="file.size">Size</th>
               </tr>
@@ -206,6 +187,10 @@
                 </td>
                 <td class="align-middle">
                   <input type="text" class="form-control" ng-click="open($event, f)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="f.datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                </td>
+                <td>
+                  <select class="form-control" ng-model="f.subject" ng-required="true" ng-options="s.subject_code for s in sample_upload_model.subjects">
+                  </select>
                 </td>
                 <td class="align-middle">{{ f.channels.length }}</td>
                 <td class="align-middle">{{ f.file.size | bytes }}</td>

@@ -90,29 +90,29 @@
       </div>
     </div>
 
-    <div class="col-md-3">
-        <table class="table table-hover">
+    <div class="col-md-3" style="overflow-y: auto; height: 520px">
+        <table ts-wrapper id="data-table" class="table table-hover">
           <thead>
             <tr>
-              <th style="width: 1%">
+              <th style="width: 1%" ts-criteria="display_events">
                 <div class="color-box" ng-click="toggle_all_events()">
                   <i ng-show="show_all_clusters" class="fa fa-check master"></i>
                 </div>
               </th>
-              <th>
+              <th ts-criteria="cluster_index" ts-default="ascending">
                 Cluster ID
               </th>
-              <th>
+              <th ts-criteria="weight">
                 Event %
               </th>
-              <th>
+              <th ts-criteria="labels">
                 Cluster Labels
               </th>
             </tr>
           </thead>
 
           <tbody>
-          <tr ng-repeat="sc in plot_data.cluster_data | orderBy:'cluster_index':false">
+          <tr ts-repeat ng-repeat="sc in plot_data.cluster_data">
             <td style="width: 1%" ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
               <div class="color-box" ng-style="{ 'background-color': sc.color }" ng-click="toggle_cluster_events(sc)">
                 <i ng-show="sc.display_events" class="fa fa-check"></i>
@@ -130,7 +130,7 @@
                          on-select="add_cluster_label($item, sc)" on-remove="remove_cluster_label($item, sc)">
                 <ui-select-match>{{ $item.name }}</ui-select-match>
 
-                <ui-select-choices repeat="l.id as l in labels | filter:$select.search">
+                <ui-select-choices repeat="l in labels | filter:$select.search track by l.name">
                   {{ l.name }}
                 </ui-select-choices>
 

@@ -2,12 +2,22 @@ app.controller(
     'PanelTemplateQueryController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
 
+        if ($scope.current_project) {
+            getPanelTemplates();
+        }
+
+        $scope.$on('current_project:updated', function () {
+            getPanelTemplates();
+        });
+
         // get panel templates
-        $scope.sample_upload_model.panel_templates = ModelService.getPanelTemplates(
-            {
-                project: $scope.current_project.id
-            }
-        );
+        function getPanelTemplates() {
+            $scope.sample_upload_model.panel_templates = ModelService.getPanelTemplates(
+                {
+                    project: $scope.current_project.id
+                }
+            );
+        }
 
         $scope.panelChanged = function () {
             ModelService.sitePanelsUpdated();
@@ -44,6 +54,20 @@ app.controller(
     ['$scope', '$modal', 'ModelService', function ($scope, $modal, ModelService) {
         $scope.sample_upload_model.file_queue = [];
         $scope.sample_upload_model.site_panels = [];
+
+        if ($scope.current_project) {
+            getSubjects();
+        }
+
+        $scope.$on('current_project:updated', function () {
+            getSubjects();
+        });
+
+        function getSubjects() {
+            $scope.sample_upload_model.subjects = ModelService.getSubjects(
+                $scope.current_project.id
+            );
+        }
 
         $scope.siteChanged = function () {
             $scope.$broadcast('siteChangedEvent');
@@ -101,10 +125,8 @@ app.controller(
         $scope.format = $scope.formats[0];
 
         function verifyCategories() {
-            return $scope.sample_upload_model.current_cytometer &&
-                $scope.sample_upload_model.current_panel_template &&
+            return $scope.sample_upload_model.current_panel_template &&
                 $scope.sample_upload_model.current_panel_variant &&
-                $scope.sample_upload_model.current_subject &&
                 $scope.sample_upload_model.current_visit &&
                 $scope.sample_upload_model.current_stimulation &&
                 $scope.sample_upload_model.current_specimen &&
@@ -225,12 +247,6 @@ app.controller(
         $scope.abort = function(index) {
             $scope.upload[index].abort();
             $scope.upload[index] = null;
-        };
-
-        $scope.toggleAllFileQueue = function () {
-            for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
-                $scope.sample_upload_model.file_queue[i].selected = $scope.master_file_queue_checkbox;
-            }
         };
 
         function setupReader(obj) {
@@ -366,7 +382,18 @@ app.controller(
         }
 
         $scope.onFileSelect = function($files) {
+            var subject = null;
+
             for (var i = 0; i < $files.length; i++) {
+                // try to match subject to sub-string of file name
+                subject = null;
+
+                for (var j = 0; j < $scope.sample_upload_model.subjects.length; j++) {
+                    if ($files[i].name.search($scope.sample_upload_model.subjects[j].subject_code) != -1) {
+                        subject = $scope.sample_upload_model.subjects[j];
+                    }
+                }
+
                 setupReader({
                     filename: $files[i].name,
                     file: $files[i],
@@ -379,8 +406,7 @@ app.controller(
                     acquisition_date: null,
                     panel_variant: null,
                     site_panel: null,
-                    cytometer: null,
-                    subject: null,
+                    subject: subject,
                     visit_type: null,
                     stimulation: null,
                     specimen: null,
@@ -391,10 +417,15 @@ app.controller(
         };
 
         $scope.addSelectedToUploadQueue = function() {
+            // ensure all the category fields have data
+            if (! verifyCategories()) {
+                return false;
+            }
+
             for (var i = 0; i < $scope.sample_upload_model.file_queue.length; i++) {
                 if ($scope.sample_upload_model.file_queue[i].selected) {
-                    // ensure all the category fields have data
-                    if (! verifyCategories() || ! $scope.sample_upload_model.file_queue[i].acquisition_date) {
+                    // ensure file's acq date & subject fields have data
+                    if (! $scope.sample_upload_model.file_queue[i].acquisition_date || ! $scope.sample_upload_model.file_queue[i].subject) {
                         return false;
                     }
 
@@ -405,8 +436,6 @@ app.controller(
 
                     // populate the file object properties
                     $scope.sample_upload_model.file_queue[i].panel_variant = $scope.sample_upload_model.current_panel_variant;
-                    $scope.sample_upload_model.file_queue[i].cytometer = $scope.sample_upload_model.current_cytometer;
-                    $scope.sample_upload_model.file_queue[i].subject = $scope.sample_upload_model.current_subject;
                     $scope.sample_upload_model.file_queue[i].visit_type = $scope.sample_upload_model.current_visit;
                     $scope.sample_upload_model.file_queue[i].stimulation = $scope.sample_upload_model.current_stimulation;
                     $scope.sample_upload_model.file_queue[i].specimen = $scope.sample_upload_model.current_specimen;
@@ -460,7 +489,6 @@ app.controller(
         $scope.recategorizeFile = function(f) {
 
             // clear the file object properties
-            f.cytometer = null;
             f.subject = null;
             f.visit_type = null;
             f.stimulation = null;
@@ -519,7 +547,6 @@ app.controller(
                 ! $scope.sample_upload_model.upload_queue[index].stimulation ||
                 ! $scope.sample_upload_model.upload_queue[index].site_panel ||
                 ! $scope.sample_upload_model.upload_queue[index].panel_variant ||
-                ! $scope.sample_upload_model.upload_queue[index].cytometer ||
                 ! $scope.sample_upload_model.upload_queue[index].acquisition_date)
             {
                 $scope.sample_upload_model.upload_queue[index].errors = [];
@@ -548,7 +575,6 @@ app.controller(
                     'stimulation': $scope.sample_upload_model.upload_queue[index].stimulation.id,
                     'panel_variant': $scope.sample_upload_model.upload_queue[index].panel_variant.id,
                     'site_panel': $scope.sample_upload_model.upload_queue[index].site_panel.id,
-                    'cytometer': $scope.sample_upload_model.upload_queue[index].cytometer.id,
                     'acquisition_date':
                             $scope.sample_upload_model.upload_queue[index].acquisition_date.getFullYear().toString() +
                             "-" +

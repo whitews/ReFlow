@@ -18,9 +18,9 @@ app.controller(
                     if (!data.hasOwnProperty('users')) {
                         return;
                     }
-                    data.users.forEach(function (username) {
+                    data.users.forEach(function (u) {
                         // create a user object and add to users
-                        var user = {'username': username};
+                        var user = {'username': u.username};
                         users.push(user);
 
                         // get user's project-level permissions for current

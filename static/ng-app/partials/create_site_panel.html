@@ -73,7 +73,7 @@
                              ng-hide="channel.marker_disabled">
                     <ui-select-match>{{ $item.marker_abbreviation }}</ui-select-match>
 
-                    <ui-select-choices repeat="m.id as m in site_panel_model.markers | filter:$select.search">
+                    <ui-select-choices repeat="m in site_panel_model.markers | filter:$select.search">
                       {{ m.marker_abbreviation }}
                     </ui-select-choices>
 

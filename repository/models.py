@@ -21,6 +21,8 @@ from rest_framework.authtoken.models import Token
 import flowio
 import numpy as np
 
+from utils import parse_fcs_text
+
 
 class ProtectedModel(models.Model):
     class Meta:
@@ -158,6 +160,23 @@ class ProjectManager(models.Manager):
 
         return projects
 
+    @staticmethod
+    def get_projects_user_can_process(user):
+        """
+        Return a list of projects for which the given user has user management
+        permissions.
+        """
+        if hasattr(user, 'worker'):
+            # Workers need to be able to view all data
+            projects = Project.objects.all()
+        else:
+            projects = get_objects_for_user(
+                user,
+                'submit_process_requests',
+                klass=Project)
+
+        return projects
+
 
 class Project(ProtectedModel):
     project_name = models.CharField(
@@ -221,9 +240,6 @@ class Project(ProtectedModel):
 
     def get_user_permissions(self, user):
         return get_perms(user, self)
-
-    def get_cytometer_count(self):
-        return Cytometer.objects.filter(site__project=self).count()
 
     def get_sample_count(self):
         return Sample.objects.filter(subject__project=self).count()
@@ -614,43 +630,6 @@ class Site(ProtectedModel):
         return u'%s' % self.site_name
 
 
-class Cytometer(ProtectedModel):
-    site = models.ForeignKey(Site, null=False, blank=False)
-    cytometer_name = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=128)
-    serial_number = models.CharField(
-        unique=False,
-        null=False,
-        blank=False,
-        max_length=256)
-
-    class Meta:
-        unique_together = (('site', 'cytometer_name'),)
-
-    def has_view_permission(self, user):
-        if user.has_perm('view_project_data', self.site.project):
-            return True
-        elif user.has_perm('view_site_data', self.site):
-            return True
-        return False
-
-    def has_add_permission(self, user):
-        if self.site.has_add_permission(user):
-            return True
-        return False
-
-    def has_modify_permission(self, user):
-        if self.site.has_modify_permission(user):
-            return True
-        return False
-
-    def __unicode__(self):
-        return u'%s: %s' % (self.site.site_name, self.cytometer_name)
-
-
 class SitePanel(ProtectedModel):
     # a SitePanel must be "based" off of a PanelTemplate
     # and is required to have at least the parameters specified in the
@@ -841,15 +820,6 @@ class Subject(ProtectedModel):
         if user.has_perm('modify_project_data', self.project):
             return True
         return False
-
-    def clean(self):
-        """
-        Check that project for both subject and subject group matches
-        Returns ValidationError if a mis-match is found.
-        """
-        if self.subject_group is not None:
-            if self.subject_group.project_id != self.project_id:
-                raise ValidationError("Group chosen is not in this Project")
 
     def __unicode__(self):
         return u'%s' % self.subject_code
@@ -1059,21 +1029,6 @@ def fcs_file_path(instance, filename):
     return upload_dir
 
 
-def subsample_file_path(instance, filename):
-    project_id = instance.subject.project_id
-    site_id = instance.site_panel.site_id
-
-    upload_dir = join([
-        'ReFlow-data',
-        str(project_id),
-        'subsample',
-        str(site_id),
-        str(filename + ".npy")],
-        "/")
-
-    return upload_dir
-
-
 class Sample(ProtectedModel):
     subject = models.ForeignKey(
         Subject,
@@ -1105,10 +1060,6 @@ class Sample(ProtectedModel):
         SitePanel,
         null=False,
         blank=False)
-    cytometer = models.ForeignKey(
-        Cytometer,
-        null=False,
-        blank=False)
     panel_variant = models.ForeignKey(PanelVariant)
     acquisition_date = models.DateField(
         null=False,
@@ -1124,11 +1075,6 @@ class Sample(ProtectedModel):
         null=False,
         blank=False,
         editable=False,
-        max_length=256)
-    subsample = models.FileField(
-        upload_to=subsample_file_path,
-        null=False,
-        blank=False,
         max_length=256)
     sha1 = models.CharField(
         unique=False,
@@ -1180,22 +1126,12 @@ class Sample(ProtectedModel):
 
         return False
 
-    def get_subsample_as_csv(self):
-        csv_string = StringIO()
-        subsample_array = np.load(self.subsample.file)
-        # return the array as integers, the extra precision is questionable
-        np.savetxt(csv_string, subsample_array, fmt='%d', delimiter=',')
-        csv_string.seek(0)
-        return csv_string
-
     def get_clean_fcs(self):
         channel_names = []
         fluoro_channel_names = []  # used for spill later on
         params = self.site_panel.sitepanelparameter_set.order_by('fcs_number')
         for param in params:
-            name_components = [
-                param.parameter_type, param.parameter_value_type
-            ]
+            name_components = []
             markers = param.sitepanelparametermarker_set.order_by(
                 'marker__marker_abbreviation'
             )
@@ -1207,7 +1143,21 @@ class Sample(ProtectedModel):
                 name_components.append(
                     param.fluorochrome.fluorochrome_abbreviation
                 )
-            channel_string = " ".join(name_components)
+
+            name_components.append(
+                "-".join(
+                    [
+                        param.parameter_type,
+                        param.parameter_value_type
+                    ]
+                )
+            )
+
+            if param.parameter_type == 'TIM':
+                channel_string = 'Time'
+            else:
+                channel_string = " ".join(name_components)
+
             channel_names.append(channel_string)
             if param.parameter_type == 'FLR':
                 fluoro_channel_names.append(channel_string)
@@ -1215,7 +1165,6 @@ class Sample(ProtectedModel):
         flow_data = flowio.FlowData(
             io.BytesIO(self.sample_file.read())
         )
-        event_list = flow_data.events
 
         # get compensation matrix from the FCS metadata $SPILL or $SPILLOVER
         # keys if available. If found, we need to replace the header values
@@ -1254,14 +1203,34 @@ class Sample(ProtectedModel):
         else:
             cyt_value = None
 
+        if 'date' in flow_data.text:
+            acq_date = flow_data.text['date']
+        else:
+            acq_date = None
+
+        extra = {}
+
+        if 'timestep' in flow_data.text:
+            extra['TIMESTEP'] = flow_data.text['timestep']
+
+        if 'btim' in flow_data.text:
+            extra['BTIM'] = flow_data.text['btim']
+
+        if 'etim' in flow_data.text:
+            extra['ETIM'] = flow_data.text['etim']
+
         clean_file = TemporaryFile()
         flowio.create_fcs(
-            event_list,
+            flow_data.events,
             channel_names,
             clean_file,
             spill=new_spill_string,
-            cyt=cyt_value
+            cyt=cyt_value,
+            date=acq_date,
+            extra=extra
         )
+        flow_data = None
+        self.sample_file.close()
         clean_file.seek(0)
 
         return clean_file
@@ -1278,29 +1247,68 @@ class Sample(ProtectedModel):
 
         try:
             Subject.objects.get(id=self.subject_id)
+        except ObjectDoesNotExist:
+            # Subject is required
+            raise ValidationError(
+                "Subject is required"
+            )
+
+        try:
             self.original_filename = self.sample_file.name.split('/')[-1]
-            # get the hash
-            file_hash = hashlib.sha1(self.sample_file.read())
-        except (ObjectDoesNotExist, ValueError):
-            # Subject & sample_file are required...
-            # will get caught by Form.is_valid()
-            return
+        except ValueError:
+            # sample_file is required
+            raise ValidationError(
+                "FCS file is required"
+            )
+
+        try:
+            # get text section of FCS file for saving metadata later
+            self.sample_file.seek(10)
+            text_start = int(self.sample_file.read(8))
+            self.sample_file.seek(18)
+            text_end = int(self.sample_file.read(8))
+
+            self.sample_file.seek(text_start)
+            text = self.sample_file.read(text_end - text_start + 1)
+
+            self.sample_metadata_dict = parse_fcs_text(text)
+            text = None
+        except:
+            raise ValidationError(
+                "The file uploaded does not appear to be an FCS file"
+            )
+
+        try:
+            # calculate SHA-1 in 64KB chunks to avoid excessive memory use
+            buffer_size = 65536
+            file_hash = hashlib.sha1()
+            self.sample_file.seek(0)
+
+            while True:
+                chunk = self.sample_file.read(buffer_size)
+                if not chunk:
+                    break
+                file_hash.update(chunk)
+        except:
+            raise ValidationError(
+                "Failed to create checksum for uploaded file"
+            )
 
         # Verify subject project is the same as the site and
         # visit project (if either site or visit is specified)
-        if hasattr(self, 'site'):
-            if self.site is not None:
-                if self.subject.project != self.site_panel.site.project:
-                    raise ValidationError(
-                        "Subject and Site Panel must belong to the same project"
-                    )
+        try:
+            assert self.subject.project_id == self.site_panel.site.project_id
+        except:
+            raise ValidationError(
+                "Subject and Site Panel must belong to the same project"
+            )
 
-        if hasattr(self, 'visit'):
-            if self.visit is not None:
-                if self.subject.project != self.visit.project:
-                    raise ValidationError(
-                        "Subject and Visit must belong to the same project"
-                    )
+        try:
+            assert self.subject.project_id == self.visit.project_id
+        except:
+            raise ValidationError(
+                "Subject and Visit must belong to the same project"
+            )
 
         # Check if the project already has this file,
         # if so delete the temp file and raise ValidationError
@@ -1314,6 +1322,7 @@ class Sample(ProtectedModel):
                 )
         else:
             self.sha1 = file_hash.hexdigest()
+
         other_sha_values_in_project = Sample.objects.filter(
             subject__project=self.subject.project).exclude(
                 id=self.id).values_list('sha1', flat=True)
@@ -1325,39 +1334,6 @@ class Sample(ProtectedModel):
             raise ValidationError(
                 "This FCS file already exists in this Project."
             )
-
-        if self.site_panel is not None and \
-                self.site_panel.site.project_id != self.subject.project_id:
-            raise ValidationError("Site panel chosen is not in this Project")
-
-        if self.visit is not None and \
-                self.visit.project_id != self.subject.project_id:
-            raise ValidationError("Visit Type chosen is not in this Project")
-
-        # Verify the file is an FCS file
-        if hasattr(self.sample_file.file, 'temporary_file_path'):
-            try:
-                fcm_obj = flowio.FlowData(
-                    self.sample_file.file.temporary_file_path(),
-                )
-            except:
-                raise ValidationError(
-                    "Chosen file does not appear to be an FCS file."
-                )
-        else:
-            self.sample_file.seek(0)
-            try:
-                fcm_obj = flowio.FlowData(io.BytesIO(
-                    self.sample_file.read()))
-            except:
-                raise ValidationError(
-                    "Chosen file does not appear to be an FCS file."
-                )
-
-        # Read the FCS text segment and get the number of parameters
-        # save the dictionary for saving SampleMetadata instances
-        # after saving the Sample instance
-        self.sample_metadata_dict = fcm_obj.text
 
         if 'par' in self.sample_metadata_dict:
             if not self.sample_metadata_dict['par'].isdigit():
@@ -1423,29 +1399,6 @@ class Sample(ProtectedModel):
                     raise ValidationError(
                         "FCS PnS text for channel '%s' does not match panel"
                         % str(channel_number))
-
-        # Save a sub-sample of the FCS data for more efficient retrieval
-        # We'll save a random 10,000 events (non-duplicated) if possible
-        # We'll also store the indices of the randomly chosen events for
-        # reproducibility. The indices will be inserted as the first column.
-        # The result is stored as a numpy object in a file field.
-        # To ensure room for the indices and preserve precision for values,
-        # we save as float32
-        numpy_data = np.reshape(fcm_obj.events, (-1, fcm_obj.channel_count))
-        index_array = np.arange(len(numpy_data))
-        np.random.shuffle(index_array)
-        random_subsample = numpy_data[index_array[:10000]]
-        random_subsample_indexed = np.insert(
-            random_subsample,
-            0,
-            index_array[:10000],
-            axis=1)
-        subsample_file = TemporaryFile()
-        np.save(subsample_file, random_subsample_indexed)
-        self.subsample.save(
-            self.original_filename,
-            File(subsample_file),
-            save=False)
 
     def save(self, *args, **kwargs):
         """ Populate upload date on save """
@@ -1513,6 +1466,13 @@ class SampleCollection(ProtectedModel):
     """
     project = models.ForeignKey(Project)
 
+    def has_view_permission(self, user):
+
+        if self.project.has_view_permission(user):
+            return True
+
+        return False
+
 
 class FrozenCompensation(models.Model):
     """
@@ -1555,46 +1515,6 @@ class SampleCollectionMember(ProtectedModel):
 
     class Meta:
         unique_together = (('sample_collection', 'sample'),)
-
-    def clean(self):
-        """
-        verify comp matrix matches sample's channels
-        """
-
-        # get site panel parameter fcs_text, but just for the fluoro params
-        # scatter and time don't get compensated
-        params = SitePanelParameter.objects.filter(
-            site_panel_id=self.sample.site_panel_id).exclude(
-                parameter_type__in=['FSC', 'SSC', 'TIM', 'NUL'])
-
-        # parse the matrix text and validate the number of params match
-        # the number of fluoro params in the site panel and that the matrix
-        # values are numbers (can be exp notation)
-        matrix_text = self.compensation.matrix_text.splitlines(False)
-        if not len(matrix_text) > 1:
-            raise ValidationError("Too few rows.")
-
-        # first row should be headers matching the channel number
-        # comma delimited
-        headers = re.split(',\s*', matrix_text[0])
-
-        missing_fields = list()
-        for p in params:
-            if str(p.fcs_number) not in headers:
-                missing_fields.append(p.fcs_number)
-
-        if len(missing_fields) > 0:
-            raise ValidationError(
-                "Missing fields: %s" % ", ".join(missing_fields))
-
-        if len(headers) > params.count():
-            raise ValidationError("Too many parameters")
-
-        # the header of matrix text adds a row
-        if len(matrix_text) > params.count() + 1:
-            raise ValidationError("Too many rows")
-        elif len(matrix_text) < params.count() + 1:
-            raise ValidationError("Too few rows")
 
 
 ################################
@@ -1710,8 +1630,8 @@ class ProcessRequest(ProtectedModel):
     sample_collection = models.ForeignKey(
         SampleCollection,
         null=False,
-        blank=False,
-        editable=False)
+        blank=False
+    )
     description = models.CharField(
         max_length=128,
         null=False,
@@ -1734,8 +1654,8 @@ class ProcessRequest(ProtectedModel):
     request_user = models.ForeignKey(
         User,
         null=False,
-        blank=False,
-        editable=False)
+        blank=False
+    )
     request_date = models.DateTimeField(
         editable=False,
         auto_now_add=True)
@@ -1839,19 +1759,6 @@ class ClusterLabel(ProtectedModel):
             return True
 
         return False
-
-    def clean(self):
-        """
-        Check that both the cluster and label belong to the same project.
-        Returns ValidationError if the above requirements are
-        not satisfied.
-        """
-
-        # ensure both the label and cluster belong to the same project
-        if self.cluster.process_request.project != self.label.project:
-            raise ValidationError(
-                "Label and cluster must belong to the same project."
-            )
 
     class Meta:
         unique_together = (('cluster', 'label'),)

@@ -18,7 +18,6 @@ var URLS = {
     'PANEL_TEMPLATES':     '/api/repository/panel_templates/',
     'PANEL_VARIANT':       '/api/repository/panel_variants/',
     'SITE_PANELS':         '/api/repository/site_panels/',
-    'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
     'CELL_SUBSET_LABELS':  '/api/repository/cell_subset_labels/',
     'STIMULATIONS':        '/api/repository/stimulations/',
@@ -248,17 +247,6 @@ service
         );
 
         return Stimulation;
-    }])
-    .factory('Cytometer', ['$resource', function ($resource) {
-        var Cytometer = $resource(
-            URLS.CYTOMETERS + ':id',
-            {},
-            {
-                update: { method: 'PUT' }
-            }
-        );
-
-        return Cytometer;
     }])
     .factory('PanelTemplate', ['$resource', function ($resource) {
         return $resource(
