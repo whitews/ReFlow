@@ -35,15 +35,6 @@
               </div>
 
               <tr>
-                  <td><strong>Subject:</strong></td>
-                  <td>
-                    <div ng-controller="SubjectQueryController">
-                      <select class="form-control" ng-model="sample_upload_model.current_subject" ng-required="true" ng-options="s.subject_code for s in sample_upload_model.subjects">
-                      </select>
-                    </div>
-                  </td>
-              </tr>
-              <tr>
                   <td><strong>Visit:</strong></td>
                   <td>
                     <div ng-controller="VisitTypeQueryController">
@@ -110,6 +101,7 @@
                 <th style="width:1%;"></th>
                 <th ts-criteria="filename">File Name</th>
                 <th ts-criteria="acquisition_date">Date</th>
+                <th ts-criteria="subject">Subject</th>
                 <th ts-criteria="channels.length">Channels</th>
                 <th ts-criteria="file.size">Size</th>
               </tr>
@@ -195,6 +187,10 @@
                 </td>
                 <td class="align-middle">
                   <input type="text" class="form-control" ng-click="open($event, f)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="f.datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                </td>
+                <td>
+                  <select class="form-control" ng-model="f.subject" ng-required="true" ng-options="s.subject_code for s in sample_upload_model.subjects">
+                  </select>
                 </td>
                 <td class="align-middle">{{ f.channels.length }}</td>
                 <td class="align-middle">{{ f.file.size | bytes }}</td>

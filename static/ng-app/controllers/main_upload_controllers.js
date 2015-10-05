@@ -40,26 +40,6 @@ app.controller(
 ]);
 
 app.controller(
-    'SubjectQueryController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
-        if ($scope.current_project) {
-            getSubjects();
-        }
-
-        $scope.$on('current_project:updated', function () {
-            getSubjects();
-        });
-
-        function getSubjects() {
-            $scope.sample_upload_model.subjects = ModelService.getSubjects(
-                $scope.current_project.id
-            );
-        }
-        $scope.sample_upload_model.current_subject = null;
-    }
-]);
-
-app.controller(
     'VisitTypeQueryController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
 
