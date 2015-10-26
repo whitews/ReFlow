@@ -109,7 +109,8 @@
             <tbody>
               <tr ts-repeat data-ng-repeat="f in sample_upload_model.file_queue">
                 <td class="no-wrap align-middle">
-                  <input type="checkbox" ng-disabled="sample_upload_model.current_site == null || sample_upload_model.current_panel_template == null" ng-model="f.selected" ng-click="initSitePanel(f)" />
+                  <button class="btn btn-warning btn-xs" ng-show="f.site_panel == null && sample_upload_model.current_site && sample_upload_model.current_panel_template" ng-click="initSitePanel(f)">Label Parameters</button>
+                  <input type="checkbox" ng-hide="f.site_panel == null" ng-model="f.selected" />
                 </td>
                 <td class="align-middle">
 
