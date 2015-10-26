@@ -468,7 +468,7 @@ class SampleSerializer(serializers.ModelSerializer):
     subject_code = serializers.CharField(
         source='subject.subject_code',
         read_only=True)
-    site = serializers.CharField(
+    site = serializers.IntegerField(
         source='site_panel.site_id',
         read_only=True)
     site_name = serializers.CharField(
