@@ -681,7 +681,7 @@ class SitePanel(ProtectedModel):
                 panel_template=self.panel_template).values_list(
                     'implementation', flat=True)
 
-            proposed_number = len(current_implementations) + 1
+            proposed_number = max(current_implementations) + 1
 
             if proposed_number not in current_implementations:
                 self.implementation = proposed_number
