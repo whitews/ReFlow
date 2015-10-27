@@ -2,12 +2,12 @@
 
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Worker Setup &mdash; ReFlow 0.1 documentation</title>
@@ -17,25 +17,9 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   
   
-
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:'',
-        VERSION:'0.1',
-        COLLAPSE_INDEX:false,
-        FILE_SUFFIX:'.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
     
 
   
@@ -43,110 +27,115 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <script type="text/javascript" src="_static/js/theme.js"></script>
   
 
   
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+
+  
     <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
         <link rel="prev" title="Server Setup" href="server-setup.html"/> 
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        <a href="index.html" class="icon icon-home"> ReFlow</a>
-        <form class="wy-form" action="search.html" method="get">
-  <input type="text" name="q" placeholder="Search docs" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-      </div>
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix">
-        
-        
-            <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-reflow">What is ReFlow?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#why-was-reflow-built">Why was ReFlow built?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#major-features">Major Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#data-organization">Data Organization</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="site-nav.html">Site Navigation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#login-screen">Login Screen</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#home-page">Home Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-detail">Project Detail</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-subject">Project Category - Subject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-site">Project Category - Site</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-cytometer">Project Category - Cytometer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-visit-type">Project Category - Visit Type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#project-category-stimulation">Project Category - Stimulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="site-nav.html#non-project-categories">Non-project Categories</a></li>
-</ul>
-</li>
+          
+            <a href="index.html" class="icon icon-home"> ReFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="site-nav.html">Site Navigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="panels.html">Panels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="permissions.html#project-permissions">Project Permissions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="permissions.html#site-permissions">Site Permissions</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-project.html">Tutorial - Adding a New Project</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-site.html">Tutorial - Adding a Site</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-cytometer.html">Tutorial - Adding a Cytometer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/upload-samples.html">Tutorial - Uploading Samples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/labelling-fcs-data.html">Tutorial - Labelling FCS Data</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="server-setup.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="server-setup.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Worker Setup</a></li>
 </ul>
 
-        
+            
+          
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top">
-        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
-        <a href="/">ReFlow</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ReFlow</a>
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <ul class="wy-breadcrumbs">
-  <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href="">Worker Setup</a></li>
-  
-</ul>
-<hr/>
-
           
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Worker Setup</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="_sources/worker-setup.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
   <div class="section" id="worker-setup">
 <h1>Worker Setup<a class="headerlink" href="#worker-setup" title="Permalink to this headline">¶</a></h1>
 <p>Guide for setting up a ReFlow Worker client.</p>
@@ -154,83 +143,84 @@
 <li><p class="first">Start with a fresh install of 12.04 LTS Server (64-bit).</p>
 </li>
 <li><p class="first">Install the NVIDIA driver dependencies make, binutils, and gcc:</p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">make</span> <span class="pre">binutils</span> <span class="pre">gcc</span></tt></p>
+<p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">make</span> <span class="pre">binutils</span> <span class="pre">gcc</span></code></p>
 </li>
 <li><p class="first">Download the latest nvidia driver:</p>
-<p><tt class="docutils literal"><span class="pre">curl</span> <span class="pre">-O</span> <span class="pre">http://us.download.nvidia.com/XFree86/Linux-x86_64/331.49/NVIDIA-Linux-x86_64-331.49.run</span></tt></p>
+<p><code class="docutils literal"><span class="pre">curl</span> <span class="pre">-O</span> <span class="pre">http://us.download.nvidia.com/XFree86/Linux-x86_64/331.49/NVIDIA-Linux-x86_64-331.49.run</span></code></p>
 </li>
 <li><p class="first">Make the installer executable:</p>
-<p><tt class="docutils literal"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">NVIDIA-Linux-x86_64-331.49.run</span></tt></p>
+<p><code class="docutils literal"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">NVIDIA-Linux-x86_64-331.49.run</span></code></p>
 </li>
 <li><p class="first">Run the installer and follow the instructions.</p>
-<p><tt class="docutils literal"><span class="pre">./NVIDIA-Linux-x86_64-331.49.run</span></tt></p>
+<p><code class="docutils literal"><span class="pre">./NVIDIA-Linux-x86_64-331.49.run</span></code></p>
 </li>
 <li><p class="first">Check the driver is working using:</p>
-<p><tt class="docutils literal"><span class="pre">nvidia-smi</span></tt></p>
+<p><code class="docutils literal"><span class="pre">nvidia-smi</span></code></p>
 </li>
 <li><p class="first">Reboot the server to make sure everything is OK.</p>
 </li>
 <li><p class="first">Download CUDA 5.5:</p>
-<p><tt class="docutils literal"><span class="pre">curl</span> <span class="pre">-O</span> <span class="pre">http://developer.download.nvidia.com/compute/cuda/5_5/rel/installers/cuda_5.5.22_linux_64.run</span></tt></p>
+<p><code class="docutils literal"><span class="pre">curl</span> <span class="pre">-O</span> <span class="pre">http://developer.download.nvidia.com/compute/cuda/5_5/rel/installers/cuda_5.5.22_linux_64.run</span></code></p>
 </li>
 <li><p class="first">Make the installer executable:</p>
-<p><tt class="docutils literal"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">cuda_5.5.22_linux_64.run</span></tt></p>
+<p><code class="docutils literal"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">cuda_5.5.22_linux_64.run</span></code></p>
 </li>
 <li><p class="first">Run the installer, and follow the instructions. Do not install the
 NVIDIA driver when prompted (we have already done this in the previous
 step). However, do choose to install the samples, noting their location.</p>
-<p><tt class="docutils literal"><span class="pre">./cuda_5.5.22_linux_64.run</span></tt></p>
+<p><code class="docutils literal"><span class="pre">./cuda_5.5.22_linux_64.run</span></code></p>
 </li>
 <li><p class="first">Install g++ to test the CUDA installation.</p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">g++</span></tt></p>
+<p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">g++</span></code></p>
 </li>
 <li><p class="first">Change directories to the location of the CUDA samples.</p>
 </li>
 <li><p class="first">Change directories to:</p>
-<p><tt class="docutils literal"><span class="pre">../NVIDIA_CUDA-5.5_Samples/1_Utilities/deviceQuery/</span></tt></p>
+<p><code class="docutils literal"><span class="pre">../NVIDIA_CUDA-5.5_Samples/1_Utilities/deviceQuery/</span></code></p>
 </li>
 <li><p class="first">Run make to build the sample deviceQuery utility.</p>
 </li>
 <li><p class="first">Once the deviceQuery program compiles, run it and make sure it passes:</p>
-<p><tt class="docutils literal"><span class="pre">./deviceQuery</span></tt></p>
+<p><code class="docutils literal"><span class="pre">./deviceQuery</span></code></p>
 </li>
 <li><p class="first">Install python-pip and python-dev so we can pip install other Python dependencies:</p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-pip</span> <span class="pre">python-dev</span></tt></p>
+<p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-pip</span> <span class="pre">python-dev</span></code></p>
 </li>
 <li><p class="first">Install numpy 1.7 using pip:</p>
-<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">numpy==1.7.1</span></tt></p>
+<p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">numpy==1.7.1</span></code></p>
 </li>
 <li><p class="first">Install scipy dependencies:</p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libblas-dev</span> <span class="pre">liblapack-dev</span> <span class="pre">gfortran</span></tt></p>
+<p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libblas-dev</span> <span class="pre">liblapack-dev</span> <span class="pre">gfortran</span></code></p>
 </li>
 <li><p class="first">Install scipy 0.12 using pip:</p>
-<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">scipy==0.12</span></tt></p>
+<p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">scipy==0.12</span></code></p>
 </li>
 <li><p class="first">Install dpmix dependencies:</p>
-<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cython</span> <span class="pre">cyarma</span> <span class="pre">cyrand</span></tt></p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libarmadillo-dev</span> <span class="pre">libboost1.48-dev</span> <span class="pre">python-mpi4py</span></tt></p>
+<p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cython</span> <span class="pre">cyarma</span> <span class="pre">cyrand</span></code></p>
+<p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libarmadillo-dev</span> <span class="pre">libboost1.48-dev</span> <span class="pre">python-mpi4py</span></code></p>
 </li>
 <li><p class="first">Install git to clone the flow packages.</p>
-<p><tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></tt></p>
+<p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">git</span></code></p>
 </li>
 <li><p class="first">Clone the gpustats, dpmix, FlowIO, FlowUtils, FlowStats, and ReFlowRESTClient repos:</p>
-<div class="highlight-python"><pre>git clone --recursive http://git.tiker.net/trees/pycuda.git
+<div class="highlight-python"><div class="highlight"><pre>git clone --recursive http://git.tiker.net/trees/pycuda.git
 git clone https://github.com/dukestats/gpustats.git
 git clone https://github.com/andrewcron/dpmix.git
 git clone https://github.com/whitews/FlowIO.git
 git clone https://github.com/whitews/FlowUtils.git
 git clone https://github.com/whitews/FlowStats.git
-git clone https://github.com/whitews/ReFlowRESTClient.git</pre>
+git clone https://github.com/whitews/ReFlowRESTClient.git
+</pre></div>
 </div>
 </li>
 <li><p class="first">Make sure you have sudo privileges to install Python packages and install
 all the above. Change to each of the directories and install using setup.py:</p>
-<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></tt></p>
+<p><code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code></p>
 </li>
 <li><p class="first">Create a new worker on the ReFlow server and get the new worker&#8217;s token from the Django admin site.</p>
 </li>
 <li><p class="first">On the worker&#8217;s client machine (Ubuntu) add the worker config file as:</p>
-<p><tt class="docutils literal"><span class="pre">/etc/reflow_worker.conf</span></tt></p>
+<p><code class="docutils literal"><span class="pre">/etc/reflow_worker.conf</span></code></p>
 </li>
 <li><p class="first">Edit the file and add the JSON content (edit with proper values):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
@@ -241,31 +231,37 @@ all the above. Change to each of the directories and install using setup.py:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">As root, from the <tt class="docutils literal"><span class="pre">ReFlowWorker/reflowworker</span></tt> directory, start the worker:</p>
-<p><tt class="docutils literal"><span class="pre">python</span> <span class="pre">worker.py</span> <span class="pre">start</span></tt></p>
+<li><p class="first">As root, from the <code class="docutils literal"><span class="pre">ReFlowWorker/reflowworker</span></code> directory, start the worker:</p>
+<p><code class="docutils literal"><span class="pre">python</span> <span class="pre">worker.py</span> <span class="pre">start</span></code></p>
 </li>
 </ol>
 </div>
 
 
+           </div>
+          </div>
           <footer>
   
-    <div class="rst-footer-buttons">
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="server-setup.html" class="btn btn-neutral" title="Server Setup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="server-setup.html" class="btn btn-neutral" title="Server Setup" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
 
   <hr/>
 
-  <p>
-      &copy; Copyright 2013, Scott White.
-  </p>
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Scott White.
 
-  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
 </footer>
+
         </div>
       </div>
 
@@ -273,6 +269,39 @@ all the above. Change to each of the directories and install using setup.py:</p>
 
   </div>
   
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
 
 </body>
 </html>
