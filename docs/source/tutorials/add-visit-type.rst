@@ -7,15 +7,17 @@ Tutorial - Adding a Visit Type
 
 #.  From the ReFlow home page, navigate to the project by clicking on the project link.
 
-#.  From the project detail page, click the **Add Visit Type** link.
+#.  From the project detail page, click the **Add Visit Type** link located under the **Visit Types** heading.
 
     .. image:: ../images/project-detail.png
+       :width: 1000
 
     .. note:: Visit types can also be added from the **Visit Type** list page by clicking on the **Add Visit Type** button located near the upper right of that page (beside the main heading).
 
 #. A new modal window will appear displaying the form fields.
 
     .. image:: ../images/new-visit-type-modal.png
+       :scale: 50
 
 #.  Fill out the form fields. Note, **Name** is required and a project cannot have duplicate visit type names. The description field is optional. Once the form is completed, click the **Save** button.
 
