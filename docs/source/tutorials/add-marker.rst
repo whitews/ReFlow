@@ -21,7 +21,7 @@ Tutorial - Adding a Marker
 
 #.  Fill out the form fields. Note, **Abbreviation** is required and a project cannot have duplicate marker abbreviations. Once the form is completed, click the **Save** button.
 
-    .. note:: If possible, avoid spaces in marker names and try to keep them as succinct as possible. It is recommended to use commonly used abbreviations (e.g. APC or FITC).
+    .. note:: If possible, avoid spaces in marker abbreviations and try to keep them as succinct as possible. It is recommended to use commonly used abbreviations (e.g. CD3 or IFNg).
 
        If there were validation errors with the submitted form, the form will be re-displayed along with the validation errors.
 
