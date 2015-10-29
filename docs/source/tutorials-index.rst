@@ -5,6 +5,7 @@ Tutorials
    :maxdepth: 2
 
    tutorials/add-project
+   tutorials/add-marker
    tutorials/add-subject-group
    tutorials/add-subject
    tutorials/add-site
