@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tutorial - Adding a Subject Group &mdash; ReFlow 0.1 documentation</title>
+  <title>Tutorial - Adding a Marker &mdash; ReFlow 0.1 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
   
     <link rel="top" title="ReFlow 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorials" href="../tutorials-index.html"/>
-        <link rel="next" title="Tutorial - Adding a Subject" href="add-subject.html"/>
-        <link rel="prev" title="Tutorial - Creating a Panel Template" href="create-panel-template.html"/> 
+        <link rel="next" title="Tutorial - Adding a Fluorochrome" href="add-fluorochrome.html"/>
+        <link rel="prev" title="Tutorial - Adding a New Project" href="add-project.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -92,10 +92,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../permissions.html">User Accounts &amp; Permissions</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials-index.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="add-project.html">Tutorial - Adding a New Project</a></li>
-<li class="toctree-l2"><a class="reference internal" href="add-marker.html">Tutorial - Adding a Marker</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Adding a Marker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-fluorochrome.html">Tutorial - Adding a Fluorochrome</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create-panel-template.html">Tutorial - Creating a Panel Template</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-subject.html">Tutorial - Adding a Subject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-site.html">Tutorial - Adding a Site</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
@@ -138,11 +138,11 @@
       
         <li><a href="../tutorials-index.html">Tutorials</a> &raquo;</li>
       
-    <li>Tutorial - Adding a Subject Group</li>
+    <li>Tutorial - Adding a Marker</li>
     <li class="wy-breadcrumbs-aside">
       
         
-          <a href="../_sources/tutorials/add-subject-group.txt" rel="nofollow"> View page source</a>
+          <a href="../_sources/tutorials/add-marker.txt" rel="nofollow"> View page source</a>
         
       
     </li>
@@ -152,36 +152,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tutorial-adding-a-subject-group">
-<h1>Tutorial - Adding a Subject Group<a class="headerlink" href="#tutorial-adding-a-subject-group" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="tutorial-adding-a-marker">
+<h1>Tutorial - Adding a Marker<a class="headerlink" href="#tutorial-adding-a-marker" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Adding a subject group requires the project-level permission &#8220;Add Project Data&#8221;.  See <a class="reference internal" href="../permissions.html"><em>User Accounts &amp; Permissions</em></a></p>
+<p class="last">Adding a marker requires the project-level permission &#8220;Add Project Data&#8221;.  See <a class="reference internal" href="../permissions.html"><em>User Accounts &amp; Permissions</em></a></p>
 </div>
 <ol class="arabic">
 <li><p class="first">Login to the ReFlow server.</p>
 </li>
 <li><p class="first">From the ReFlow home page, navigate to the project by clicking on the project link.</p>
 </li>
-<li><p class="first">From the project detail page, click the <strong>Add Subject Group</strong> link located under the <strong>Subject</strong> heading.</p>
+<li><p class="first">From the project detail page, click the <strong>Add Marker</strong> link located under the <strong>Markers</strong> heading.</p>
 <a class="reference internal image-reference" href="../_images/project-detail1.png"><img alt="../_images/project-detail1.png" src="../_images/project-detail1.png" style="width: 1000px;" /></a>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Subject groups can also be added from the <strong>Subject Group</strong> list page by clicking on the <strong>Add Subject Group</strong> button located near the upper right of that page (beside the main heading).</p>
+<p class="last">Markers can also be added from the <strong>Marker</strong> list page by clicking on the <strong>Add Marker</strong> button located near the upper right of that page (beside the main heading).</p>
 </div>
 </li>
 <li><p class="first">A new modal window will appear displaying the form fields.</p>
 <blockquote>
-<div><a class="reference internal image-reference" href="../_images/new-subject-group-modal.png"><img alt="../_images/new-subject-group-modal.png" src="../_images/new-subject-group-modal.png" style="width: 340.0px; height: 259.5px;" /></a>
+<div><a class="reference internal image-reference" href="../_images/new-marker-modal.png"><img alt="../_images/new-marker-modal.png" src="../_images/new-marker-modal.png" style="width: 340.0px; height: 150.0px;" /></a>
 </div></blockquote>
 </li>
-<li><p class="first">Fill out the form fields. Note, subject group <strong>Name</strong> is required and a project cannot have duplicate subject group names. The description field is optional. Once the form is completed, click the <strong>Save</strong> button.</p>
+<li><p class="first">Fill out the form fields. Note, <strong>Abbreviation</strong> is required and a project cannot have duplicate marker abbreviations. Once the form is completed, click the <strong>Save</strong> button.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
+<p>If possible, avoid spaces in marker abbreviations and try to keep them as succinct as possible. It is recommended to use commonly used abbreviations (e.g. CD3 or IFNg).</p>
 <p class="last">If there were validation errors with the submitted form, the form will be re-displayed along with the validation errors.</p>
 </div>
 </li>
-<li><p class="first">Once the new subject group is created, the modal window will close.</p>
+<li><p class="first">Once the new marker is created, the modal window will close.</p>
 </li>
 </ol>
 </div>
@@ -193,10 +194,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="add-subject.html" class="btn btn-neutral float-right" title="Tutorial - Adding a Subject" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="add-fluorochrome.html" class="btn btn-neutral float-right" title="Tutorial - Adding a Fluorochrome" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="create-panel-template.html" class="btn btn-neutral" title="Tutorial - Creating a Panel Template" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="add-project.html" class="btn btn-neutral" title="Tutorial - Adding a New Project" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
