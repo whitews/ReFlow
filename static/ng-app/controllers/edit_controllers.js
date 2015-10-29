@@ -8,13 +8,10 @@ app.controller(
 
             $scope.create_update = function (instance) {
                 if (!instance) {
-                    $scope.errors = [
-                        "Please fill out the required fields"
-                    ];
+                    $scope.errors = {};
+                    $scope.errors['detail'] = "Please fill out the required fields";
                     return;
                 }
-
-                $scope.errors = [];
                 var response = ModelService.createUpdateProject(instance);
 
                 response.$promise.then(function (object) {
@@ -97,7 +94,12 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
