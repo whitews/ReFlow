@@ -84,7 +84,7 @@ In flow cytometry it is common to have multiple panels that are related. For exa
 .. note:: It is important to note that panel templates do not specify the text used for annotating an FCS channel, that is role of the Sample Annotation.
 
 
-:doc:`tutorials/add-panel-template`
+:doc:`tutorials/create-panel-template`
 
 Sample Annotation
 -----------------
