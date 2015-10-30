@@ -8,6 +8,7 @@ Tutorials
    tutorials/add-marker
    tutorials/add-fluorochrome
    tutorials/create-panel-template
+   tutorials/add-panel-variant
    tutorials/add-subject-group
    tutorials/add-subject
    tutorials/add-site
