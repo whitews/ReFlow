@@ -152,8 +152,8 @@ To view or modify data for these categories requires superuser privileges. To na
 .. image:: images/admin-view.png
    :width: 1000
 
-Specimens
----------
+Specimen
+--------
 
 A specimen represents a type of biological tissue from which an FCS sample was acquired. There are several specimens included by default in ReFlow, but the list may be modified when deploying a ReFlow server. The default list includes:
 
@@ -167,7 +167,7 @@ PBMC  Peripheral Blood Mononuclear Cells
 WB    Whole Blood
 ====  ===========
 
-Workers
--------
+Worker
+------
 
 ReFlow workers are special user accounts used for automated analysis of FCS files. Workers do not have passwords, rather they authenticate to the ReFlow server via token authentication. They are deployed on remote computers with one or more NVIDIA GPUs. See the :doc:`../worker-setup`  for more information about setting up remote workers.

@@ -36,7 +36,7 @@
   
     <link rel="top" title="ReFlow 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorials" href="../tutorials-index.html"/>
-        <link rel="next" title="Tutorial - Labelling FCS Data" href="labelling-fcs-data.html"/>
+        <link rel="next" title="Tutorial - Labelling FCS Channels" href="labelling-fcs-channels.html"/>
         <link rel="prev" title="Tutorial - Adding a Stimulation" href="add-stimulation.html"/> 
 
   
@@ -102,7 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Uploading Samples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="labelling-fcs-data.html">Tutorial - Labelling FCS Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labelling-fcs-channels.html">Tutorial - Labelling FCS Channels</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../server-setup.html">Server Setup</a></li>
@@ -163,37 +163,51 @@
 <li><p class="first">Login to the ReFlow server.</p>
 </li>
 <li><p class="first">From the ReFlow home page, navigate to the project by clicking on the project link.</p>
-<img alt="../_images/project-detail1.png" src="../_images/project-detail1.png" />
 </li>
-<li><p class="first">From the project detail page, click the <strong>Upload Samples</strong> link to navigate to the sample upload page.</p>
-<img alt="../_images/sample-upload-blank.png" src="../_images/sample-upload-blank.png" />
-</li>
-<li><p class="first">To add FCS files, either drag and drop them anywhere within the light grey region with the dashed-line border or click on the <strong>Choose Files</strong> button to the left of the &#8220;FCS Files&#8221; heading.</p>
-<p>The files should show up in <strong>FCS Files</strong> list. The file name is also a drop-down menu for viewing the metadata, the file&#8217;s channel labels, and for removing a file from the list. The next column displays the acquisition date, which is pre-populated from the metadata if present. However, if the acquisition date field is not present in the FCS metadata, this value would need to be entered manually using the drop-down calendar menu. The last 2 columns are the channel count and file size, respectively.</p>
-<img alt="../_images/sample-upload-new-samples.png" src="../_images/sample-upload-new-samples.png" />
-</li>
-<li><p class="first">Choose the appropriate categories from the drop-down menus on the left for the first file in the list.</p>
-<img alt="../_images/sample-upload-pre-site-panel.png" src="../_images/sample-upload-pre-site-panel.png" />
-</li>
-<li><p class="first">Once all the category selections have been made, click the checkbox for the first file.</p>
-<p>If ReFlow has previously seen a file with matching annotation for this site and panel template combination, it will automatically associate the file with that annotation. In this case, continue with the next step to add the file to the upload queue.</p>
-<p>However, if this is the first time this annotation set has been seen by ReFlow, a new dialog window will appear to identify all the channels present in the file. In this case, follow the instructions in <a class="reference internal" href="labelling-fcs-data.html"><em>Tutorial - Labelling FCS Data</em></a></p>
-<img alt="../_images/sample-upload-create-site-panel.png" src="../_images/sample-upload-create-site-panel.png" />
+<li><p class="first">From the project detail page, navigate to the sample upload page by clicking the <strong>Upload Samples</strong> link located under the <strong>Samples</strong> heading.</p>
+<a class="reference internal image-reference" href="../_images/project-detail1.png"><img alt="../_images/project-detail1.png" src="../_images/project-detail1.png" style="width: 1000px;" /></a>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Any other files in the list that also match the categories can also be selected by clicking their checkboxes and adding the upload queue.</p>
+<p class="last">The sample upload page can also be reached from the <strong>Sample</strong> list page by clicking on the <strong>Upload Samples</strong> button located near the upper right of that page (beside the main heading).</p>
 </div>
 </li>
-<li><p class="first">Click the <strong>Add to Queue</strong> button and the file will be added to the upload queue below.</p>
-<p>After adding to the upload queue</p>
-<img alt="../_images/sample-upload-file-queued.png" src="../_images/sample-upload-file-queued.png" />
+<li><p class="first">To add FCS files, either drag and drop them anywhere in the light grey region (within the dashed-line border) or click on the <strong>Choose Files</strong> button to the left of the &#8220;FCS Files&#8221; heading.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-blank.png"><img alt="../_images/sample-upload-blank.png" src="../_images/sample-upload-blank.png" style="width: 1000px;" /></a>
+<p>The files should show up in <strong>FCS Files</strong> list. The file name is displayed in the first column (which is also a drop-down menu for viewing the metadata, viewing the file&#8217;s channel labels, or removing a file from the list).</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-new-samples.png"><img alt="../_images/sample-upload-new-samples.png" src="../_images/sample-upload-new-samples.png" style="width: 1000px;" /></a>
 </li>
-<li><p class="first">Once all the files have been added to the upload queue, verify they have been categorized correctly <strong>before</strong> uploading. If a file is categorized incorrectly, click on the file name and choose <strong>Move to File List</strong> from the drop-down menu. This will place the file back in the FCS File List above. From there it can be re-categorized and added back to the upload queue.</p>
+<li><p class="first">Ensure that the acquisition date and subject are correct. These 2 fields are auto-populated in an attempt to reduce the amount of user interaction when uploading large numbers of FCS files.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The acquisition date is pre-populated from the metadata of each FCS file. However, if the acquisition date field is not present in the FCS metadata, this value would need to be entered manually using the drop-down calendar menu. The subject is auto-populated from the FCS file name, but should be verified by the user to make sure the correct subject code was selected.</p>
+</div>
+<a class="reference internal image-reference" href="../_images/sample-upload-new-samples.png"><img alt="../_images/sample-upload-new-samples.png" src="../_images/sample-upload-new-samples.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">For the first file in the list, choose the appropriate site and panel template from the drop-down menus on the left. At this point, an orange <strong>Label Parameters</strong> button will appear beside the file name of FCS samples that do not match an existing Sample Annotation for this project. For samples that do have a matching Sample Annotation, then a checkbox will be displayed.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-pre-site-panel.png"><img alt="../_images/sample-upload-pre-site-panel.png" src="../_images/sample-upload-pre-site-panel.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">If a sample in the list has a <strong>Label Parameters</strong> button, click on it to open the sample annotation dialog window. Follow the instructions in <a class="reference internal" href="labelling-fcs-channels.html"><em>Tutorial - Labelling FCS Channels</em></a> to identify all the channels present in the file. Otherwise, if the file has a checkbox, then proceed to the next step.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-create-site-panel.png"><img alt="../_images/sample-upload-create-site-panel.png" src="../_images/sample-upload-create-site-panel.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">For FCS files with a checkbox to the left of their file name (i.e. files that ReFlow has matched to a Sample Annotation), continue choosing the appropriate selections from the various drop-down menus on the left site (Panel Variant, Visit, etc.).</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-post-site-panel.png"><img alt="../_images/sample-upload-post-site-panel.png" src="../_images/sample-upload-post-site-panel.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Once all the category selections have been made, click the checkbox for the files you wish to add to the upload queue.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-file-queue-selected.png"><img alt="../_images/sample-upload-file-queue-selected.png" src="../_images/sample-upload-file-queue-selected.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Click the <strong>Add to Queue</strong> button and the file will be added to the upload queue below.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If any of the categories have not been chosen, the <strong>Add to Queue</strong> button will not add the files to the queue. All the categories on the left, as well as the acquisition date and subject drop down menus, are required for all FCS files.</p>
+</div>
+<a class="reference internal image-reference" href="../_images/sample-upload-file-queued.png"><img alt="../_images/sample-upload-file-queued.png" src="../_images/sample-upload-file-queued.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Once all the files have been added to the upload queue, verify they have been categorized correctly <strong>before</strong> uploading. If a file is categorized incorrectly, click on the file name and choose <strong>Move to File List</strong> from the drop-down menu. This will place the file back in the FCS file list above. From there it can be re-categorized and added back to the upload queue.</p>
 <img alt="../_images/sample-upload-file-queue-menu.png" src="../_images/sample-upload-file-queue-menu.png" />
 </li>
 </ol>
 <ol class="arabic" start="12">
-<li><p class="first">Once all the files are correct, start uploading by clicking on the <strong>Upload</strong> button. For each file uploaded the progress bar for each file will update.</p>
+<li><p class="first">Once all the files have been correctly categorized, select the files to upload by clicking their check boxes, then clicking on the <strong>Upload Selected</strong> button. A progress bar will be displayed showing the upload status for each file.</p>
 <img alt="../_images/sample-upload-uploading.png" src="../_images/sample-upload-uploading.png" />
 <p>And the view when all uploads are complete:</p>
 <img alt="../_images/sample-upload-finished.png" src="../_images/sample-upload-finished.png" />
@@ -212,7 +226,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="labelling-fcs-data.html" class="btn btn-neutral float-right" title="Tutorial - Labelling FCS Data" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="labelling-fcs-channels.html" class="btn btn-neutral float-right" title="Tutorial - Labelling FCS Channels" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="add-stimulation.html" class="btn btn-neutral" title="Tutorial - Adding a Stimulation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
