@@ -62,7 +62,7 @@ Tutorial - Uploading Samples
 
     .. image:: ../images/sample-upload-file-queue-menu.png
 
-12. Once all the files have been correctly categorized, select the files to upload by clicking their check boxes, then clicking on the **Upload Selected** button. A progress bar will be displayed showing the upload status for each file.
+#.  Once all the files have been correctly categorized, select the files to upload by clicking their check boxes, then clicking on the **Upload Selected** button. A progress bar will be displayed showing the upload status for each file.
 
     .. image:: ../images/sample-upload-uploading.png
 
