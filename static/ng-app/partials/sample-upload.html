@@ -5,13 +5,13 @@
     <div class="drop-box" ng-show="dropSupported" ng-file-drop="onFileSelect($files);" ng-file-drop-available="dropSupported=true">
 
       <div class="row">
-        <div class="col-md-4 no-padding">
+        <div class="col-md-3 no-padding">
           <table>
               <tr>
                   <td><strong>Site:</strong></td>
                   <td>
                     <div ng-controller="SiteQueryController">
-                      <select class="form-control width-200" ng-model="sample_upload_model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
+                      <select class="form-control width-160" ng-model="sample_upload_model.current_site" ng-required="true" ng-change="siteChanged()" ng-options="s.site_name for s in sample_upload_model.sites">
                       </select>
                       </div>
                   </td>
@@ -81,7 +81,7 @@
               </tr>
           </table>
         </div>
-        <div class="col-md-8 no-padding">
+        <div class="col-md-9">
           <table ts-wrapper class="table table-hover">
             <thead>
               <tr>
@@ -187,7 +187,7 @@
                   </li>
                 </td>
                 <td class="align-middle">
-                  <input type="text" class="form-control" ng-click="open($event, f)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="f.datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
+                  <input type="text" class="form-control width-160" ng-click="open($event, f)" datepicker-popup="{{format}}" ng-model="f.acquisition_date" is-open="f.datepicker_open" datepicker-options="dateOptions" show-weeks="false" ng-required="true" close-text="Close" />
                 </td>
                 <td>
                   <select class="form-control" ng-model="f.subject" ng-required="true" ng-options="s.subject_code for s in sample_upload_model.subjects">

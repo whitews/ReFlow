@@ -11,6 +11,11 @@ body {
     min-width: 100%;
 }
 
+.width-160 {
+    width: 160px;
+    min-width: 160px;
+}
+
 .width-200 {
     min-width: 200px;
 }
