@@ -1,5 +1,5 @@
-Tutorial - Labelling FCS Data
-=============================
+Tutorial - Labelling FCS Channels
+=================================
 
 .. note:: Labelling data is part of the FCS upload process for files with new annotation. See the tutorial on uploading data for more information. :doc:`../tutorials/upload-samples`
 
