@@ -138,7 +138,7 @@ Guide for setting up a ReFlow Worker client.
 
         apt-get install git
 
-#.  Clone the PyCUDA git repository from Github:
+#.  Clone the PyCUDA git repository:
 
     ::
 
