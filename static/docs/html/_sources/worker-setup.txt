@@ -3,108 +3,242 @@ Worker Setup
 
 Guide for setting up a ReFlow Worker client.
 
-#.  Start with a fresh install of 12.04 LTS Server (64-bit).
+#.  Start with a fresh install of 14.04 LTS Server (64-bit). Update and upgrade system packages:
 
-#.  Install the NVIDIA driver dependencies make, binutils, and gcc:
+    ::
 
-    ``apt-get install make binutils gcc``
+        apt-get update
+        apt-get upgrade
 
-#.  Download the latest nvidia driver:
+#.  Install latest kernel:
 
-    ``curl -O http://us.download.nvidia.com/XFree86/Linux-x86_64/331.49/NVIDIA-Linux-x86_64-331.49.run``
+    ::
 
-#.  Make the installer executable:
+        apt-get install linux-image-virtual
 
-    ``chmod +x NVIDIA-Linux-x86_64-331.49.run``
+    .. note:: On virtual machines (such as the GPU instances on Amazon EC2), you will also need to install the package ``linux-image-extra-virtual``.
 
-#.  Run the installer and follow the instructions.
+#.  Reboot the system to ensure the kernel update was successful.
 
-    ``./NVIDIA-Linux-x86_64-331.49.run``
+#.  Add the "restricted" option to the trusty-updates deb repository. In the file ``/etc/apt/sources.list``, find and change this line:
 
-#.  Check the driver is working using:
+    ::
 
-    ``nvidia-smi``
+        deb http://us.archive.ubuntu.com/ubuntu/ trusty-updates main
 
-#.  Reboot the server to make sure everything is OK.
+    to:
 
-#.  Download CUDA 5.5:
+    ::
 
-    ``curl -O http://developer.download.nvidia.com/compute/cuda/5_5/rel/installers/cuda_5.5.22_linux_64.run``
+        deb http://us.archive.ubuntu.com/ubuntu/ trusty-updates main restricted
 
-#.  Make the installer executable:
+    .. note:: The URL of the apt repository may be different on your system.
 
-    ``chmod +x cuda_5.5.22_linux_64.run``
+#.  Update the apt packages:
 
-#.  Run the installer, and follow the instructions. Do not install the
-    NVIDIA driver when prompted (we have already done this in the previous
-    step). However, do choose to install the samples, noting their location.
+    ::
 
-    ``./cuda_5.5.22_linux_64.run``
+        apt-get update
 
-#.  Install g++ to test the CUDA installation.
+#.  Install the NVIDIA driver via apt-get, choosing the current "tested" version (currently 346.96):
 
-    ``apt-get install g++``
+    ::
+
+        apt-get install nvidia-346 nvidia-prime
+
+#.  Reboot the server and check the driver is working using:
+
+    ::
+
+        nvidia-smi
+
+#.  Download the CUDA 7.0 installer:
+
+    ::
+
+        curl -O http://developer.download.nvidia.com/compute/cuda/7_0/Prod/local_installers/cuda_7.0.28_linux.run
+
+#.  Make the installer executable, but do not install cuda yet:
+
+    ::
+
+        chmod +x cuda_7.0.28_linux.run
+
+#.  Extract the various cuda installers to a new directory:
+
+    ::
+
+        mkdir cuda-installer
+        mv cuda_7.0.28_linux.run cuda-installer
+        cd cuda-installer
+        ./cuda_7.0.28_linux.run -extract=`pwd`
+
+#.  Run the isolated cuda installer, and follow the instructions:
+
+    ::
+
+        ./cuda-linux64-rel-7.0.28-19326674.run
+
+#.  Install the cuda samples, noting their install location:
+
+    ::
+
+        ./cuda-samples-linux-7.0.28-19326674.run
+
+#.  Edit any user profiles (~/.profile) to add the paths to the cuda compiler and libraries:
+
+    ::
+
+        PATH=/usr/local/cuda/bin:$PATH
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib:/usr/local/cuda/lib64
+
+#.  Either logout or source the profile to update the paths.
+
+#.  Install tools to build the CUDA samples to test the CUDA installation:
+
+    ::
+
+        apt-get install build-essential
 
 #.  Change directories to the location of the CUDA samples.
 
-#.  Change directories to:
+    ::
 
-    ``../NVIDIA_CUDA-5.5_Samples/1_Utilities/deviceQuery/``
+        cd /usr/local/cuda/samples
+
+#.  Change directories to the device query example:
+
+    ::
+
+        cd 1_Utilities/deviceQuery/
 
 #.  Run make to build the sample deviceQuery utility.
 
+    ::
+
+        make
+
 #.  Once the deviceQuery program compiles, run it and make sure it passes:
 
-    ``./deviceQuery``
+    ::
 
-#.  Install python-pip and python-dev so we can pip install other Python dependencies:
+        ./deviceQuery
 
-    ``apt-get install python-pip python-dev``
+#.  Install dependencies for PyCUDA:
 
-#.  Install numpy 1.7 using pip:
+    ::
 
-    ``pip install numpy==1.7.1``
+        apt-get install python-dev python-setuptools
+        apt-get install python-numpy
+        apt-get install libboost-dev
 
-#.  Install scipy dependencies:
+#.  Install git:
 
-    ``apt-get install libblas-dev liblapack-dev gfortran``
+    ::
 
-#.  Install scipy 0.12 using pip:
+        apt-get install git
 
-    ``pip install scipy==0.12``
-
-#.  Install dpmix dependencies:
-
-    ``pip install cython cyarma cyrand``
-
-    ``apt-get install libarmadillo-dev libboost1.48-dev python-mpi4py``
-
-#.  Install git to clone the flow packages.
-
-    ``apt-get install git``
-
-#.  Clone the gpustats, dpmix, FlowIO, FlowUtils, FlowStats, and ReFlowRESTClient repos:
+#.  Clone the PyCUDA git repository from Github:
 
     ::
 
         git clone --recursive http://git.tiker.net/trees/pycuda.git
-        git clone https://github.com/dukestats/gpustats.git
+
+#.  Install PyCUDA:
+
+    ::
+
+        cd pycuda/
+        ./configure.py
+        make
+        python setup.py install
+
+#.  Install ipython (optional) and test the PyCUDA installation:
+
+    ::
+
+        apt-get install ipython
+        ipython
+        import pycuda._driver as drv
+        drv.init()
+        quit
+
+#.  Install gpustats:
+
+    ::
+
+        git clone https://github.com/whitews/gpustats.git
+        cd gpustats/
+        python setup.py install
+
+#.  Install cyarma and cyrand:
+
+    ::
+
+        git clone https://github.com/andrewcron/cyrand.git
+        git clone https://github.com/andrewcron/cy_armadillo.git
+        cd cyrand/
+        python setup.py install
+        cd ../cy_armadillo/
+        python setup.py install
+
+#.  Install dpmix dependencies:
+
+    ::
+
+        apt-get install python-scipy cython libarmadillo-dev python-mpi4py
+
+#.  Install dpmix from the development branch:
+
+    ::
+
         git clone https://github.com/andrewcron/dpmix.git
+        cd dpmix
+        git checkout develop
+        python setup.py install
+
+#.  Clone the git repositories for the various flow libraries:
+
+    ::
+
         git clone https://github.com/whitews/FlowIO.git
         git clone https://github.com/whitews/FlowUtils.git
         git clone https://github.com/whitews/FlowStats.git
+
+#.  Install the flow libraries:
+
+    ::
+
+        cd FlowIO
+        python setup.py install
+        cd ../FlowUtils
+        python setup.py install
+        cd ../FlowStats
+        python setup.py install
+
+#.  Install the Python library requests (dependency for the ReFlow REST client):
+
+    ::
+
+        apt-get install python-requests
+
+#.  Clone and install the ReFlow REST client:
+
+    ::
+
         git clone https://github.com/whitews/ReFlowRESTClient.git
+        cd ReFlowRESTClient
+        python setup.py install
 
-#.  Make sure you have sudo privileges to install Python packages and install
-    all the above. Change to each of the directories and install using setup.py:
+#.  Clone the ReFlowWorker repository (but do not install):
 
-    ``python setup.py install``
+    ::
 
-#.  Create a new worker on the ReFlow server and get the new worker's token from the Django admin site.
+        git clone https://github.com/whitews/ReFlowWorker.git
 
-#.  On the worker's client machine (Ubuntu) add the worker config file as:
+#.  Create a new worker on the ReFlow server and get the new worker's token.
 
-    ``/etc/reflow_worker.conf``
+#.  On the worker's client machine (Ubuntu) add the worker config file ``/etc/reflow_worker.conf``.
 
 #.  Edit the file and add the JSON content (edit with proper values):
 
@@ -113,10 +247,12 @@ Guide for setting up a ReFlow Worker client.
         {
             "host": "<reflow_server_ip_address",
             "name": "<worker_name>",
-            "token": "<worker_token>"
+            "token": "<worker_token>",
+            "devices": <list of GPU device numbers>
         }
-
 
 #.  As root, from the ``ReFlowWorker/reflowworker`` directory, start the worker:
 
-    ``python worker.py start``
+    ::
+
+        python worker.py start
