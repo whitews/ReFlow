@@ -89,12 +89,14 @@ STAINING_CHOICES = (
 
 PRETREATMENT_CHOICES = (
     ('In vitro', 'In vitro'),
-    ('Ex vivo', 'Ex vivo')
+    ('Ex vivo', 'Ex vivo'),
+    ('Comp Beads', 'Comp Beads')
 )
 
 STORAGE_CHOICES = (
     ('Fresh', 'Fresh'),
-    ('Cryopreserved', 'Cryopreserved')
+    ('Cryopreserved', 'Cryopreserved'),
+    ('Comp Beads', 'Comp Beads')
 )
 
 PREDEFINED_PROCESS_CHOICES = (

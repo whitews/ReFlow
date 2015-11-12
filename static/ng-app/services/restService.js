@@ -387,7 +387,17 @@ service
     }])
     .service('Pretreatment', [ function () {
         this.query = function () {
-            return [{name:'In vitro'}, {name:'Ex vivo'}];
+            return [
+                {
+                    name:'In vitro'
+                },
+                {
+                    name:'Ex vivo'
+                },
+                {
+                    name:'Comp Beads'
+                }
+            ];
         };
     }])
     .service('StainingType', [ function () {
@@ -418,6 +428,16 @@ service
     }])
     .service('Storage', [ function () {
         this.query = function () {
-            return [{name:'Fresh'}, {name:'Cryopreserved'}];
+            return [
+                {
+                    name:'Fresh'
+                },
+                {
+                    name:'Cryopreserved'
+                },
+                {
+                    name:'Comp Beads'
+                }
+            ];
         };
     }]);
