@@ -83,7 +83,8 @@ STAINING_CHOICES = (
     ('FULL', 'Full Stain'),
     ('FMO', 'Fluorescence Minus One'),
     ('ISO', 'Isotype Control'),
-    ('UNS', 'Unstained')
+    ('UNS', 'Unstained'),
+    ('COMP', 'Compensation Beads')
 )
 
 PRETREATMENT_CHOICES = (

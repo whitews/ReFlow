@@ -408,6 +408,10 @@ service
                 {
                     abbreviation: 'UNS',
                     name: 'Unstained'
+                },
+                {
+                    abbreviation: 'COMP',
+                    name: 'Compensation Beads'
                 }
             ];
         };
