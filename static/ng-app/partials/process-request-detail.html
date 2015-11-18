@@ -51,7 +51,7 @@
             <td>
               <span id="worker">
                 {{ process_request.worker_name }}
-                  <a ng-show="superuser" class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
+                  <a ng-show="current_project.permissions.can_process_data" class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
                     <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
                   </a>
                 <span id="error_message"></span>
@@ -61,12 +61,12 @@
 
           <tr>
             <td>Assigned on:</td>
-            <td>{{ process_request.assignment_date | date:'short'  }}</td>
+            <td>{{ process_request.assignment_date | date:'short' }}</td>
           </tr>
 
           <tr>
             <td>Completion Date:</td>
-            <td>{{ process_request.completion_date | date:'short'  }}</td>
+            <td>{{ process_request.completion_date | date:'short' }}</td>
           </tr>
 
         </table>
