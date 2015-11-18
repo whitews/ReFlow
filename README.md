@@ -12,14 +12,15 @@ Development branch:
 Requirements
 ----
 
-* django 1.7
-* django-guardian 1.2.0
-* djangorestframework 2.3.13
-* FlowIO 0.4 (https://github.com/whitews/FlowIO)
-* numpy 1.6.2
+* django 1.8
+* django-guardian 1.3.2
+* djangorestframework 3.2
+* django-filter 0.11
+* FlowIO 0.6 (https://github.com/whitews/FlowIO)
+* numpy 1.7
 
 Optional, But Recommended Packages
 __
 
-* django-extensions 1.3.3
+* django-extensions 1.5
 * django-rest-framework-docs 0.1.7
