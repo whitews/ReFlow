@@ -192,19 +192,31 @@ def retrieve_clean_sample(request, pk):
 
     if not sample.has_view_permission(request.user):
         raise PermissionDenied
-    file_name = "_".join([
-        sample.site_panel.site.site_name,
-        sample.subject.subject_code,
-        sample.stimulation.stimulation_name,
-        sample.site_panel.panel_template.panel_name,
-        str(sample.acquisition_date)
-    ])
+
+    pattern = re.compile(r'\.fcs$')
+    match = pattern.search(sample.original_filename.lower())
+
+    if match is not None:
+        file_name = "_".join(
+            [
+                sample.original_filename[0:match.start()],
+                'clean.fcs'
+            ]
+        )
+    else:
+        file_name = "_".join(
+            [
+                sample.original_filename,
+                'clean.fcs'
+            ]
+        )
+
     clean_file = sample.get_clean_fcs()
     response = HttpResponse(
         clean_file,
         content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename=%s' \
-        % file_name + '.fcs'
+        % file_name
     return response
 
 
