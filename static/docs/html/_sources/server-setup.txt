@@ -1,15 +1,17 @@
 Server Setup
 ============
 
-Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.
+Guide for installing dependencies and configuring Apache2 on Ubuntu Server 14.04 LTS.
 
 ============
 Installation
 ============
 
-#.  Install Ubuntu 12.04 LTS (http://www.ubuntu.com/download/server).
+#.  Install Ubuntu 14.04 LTS (http://www.ubuntu.com/download/server).
 
-#.  Update system packages
+#.  Update and upgrade system packages
+
+    ``apt-get update``
 
     ``apt-get upgrade``
 
@@ -25,7 +27,7 @@ Installation
 
     ``apt-get install python-pip``
 
-#.  Use pip to install Django to get version 1.7. *You'll get a previous version using apt-get*
+#.  Use pip to install Django to get version 1.8. *You'll get a previous version using apt-get*
 
     ``pip install django``
 

@@ -153,13 +153,14 @@
             
   <div class="section" id="server-setup">
 <h1>Server Setup<a class="headerlink" href="#server-setup" title="Permalink to this headline">¶</a></h1>
-<p>Guide for installing dependencies and configuring Apache2 on Ubuntu Server 12.04 LTS.</p>
+<p>Guide for installing dependencies and configuring Apache2 on Ubuntu Server 14.04 LTS.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
-<li><p class="first">Install Ubuntu 12.04 LTS (<a class="reference external" href="http://www.ubuntu.com/download/server">http://www.ubuntu.com/download/server</a>).</p>
+<li><p class="first">Install Ubuntu 14.04 LTS (<a class="reference external" href="http://www.ubuntu.com/download/server">http://www.ubuntu.com/download/server</a>).</p>
 </li>
-<li><p class="first">Update system packages</p>
+<li><p class="first">Update and upgrade system packages</p>
+<p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">update</span></code></p>
 <p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">upgrade</span></code></p>
 </li>
 <li><p class="first">Install Apache and mod-wsgi</p>
@@ -170,7 +171,7 @@
 <p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-numpy</span></code></p>
 <p><code class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-pip</span></code></p>
 </li>
-<li><p class="first">Use pip to install Django to get version 1.7. <em>You&#8217;ll get a previous version using apt-get</em></p>
+<li><p class="first">Use pip to install Django to get version 1.8. <em>You&#8217;ll get a previous version using apt-get</em></p>
 <p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">django</span></code></p>
 </li>
 <li><p class="first">Install Django app dependencies</p>
