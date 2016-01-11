@@ -24,27 +24,22 @@ app.controller(
         };
 
         $scope.$on('site_panels:updated', function (evt, id) {
-            var site_panel_query = {
-                project: $scope.current_project.id
-            };
-
-            // TODO: should we even get any site panel candidates if either
-            // the current_site or current_panel_template is not specified?
-
+            // Do not retrieve any site panel candidates if either
+            // the current_site or current_panel_template is not specified
             if ($scope.sample_upload_model.current_site) {
-                site_panel_query.site = $scope.sample_upload_model.current_site.id;
+                if ($scope.sample_upload_model.current_panel_template) {
+                    $scope.sample_upload_model.site_panels = ModelService.getSitePanels(
+                        {
+                            project: $scope.current_project.id,
+                            site: $scope.sample_upload_model.current_site.id,
+                            panel_template: $scope.sample_upload_model.current_panel_template.id
+                        }
+                    );
+                    $scope.sample_upload_model.site_panels.$promise.then(function (o) {
+                        $scope.evaluateParameterMatch();
+                    });
+                }
             }
-
-            if ($scope.sample_upload_model.current_panel_template) {
-                site_panel_query.panel_template = $scope.sample_upload_model.current_panel_template.id;
-            }
-
-            $scope.sample_upload_model.site_panels = ModelService.getSitePanels(
-                site_panel_query
-            );
-            $scope.sample_upload_model.site_panels.$promise.then(function (o) {
-                $scope.evaluateParameterMatch();
-            });
         });
     }
 ]);
