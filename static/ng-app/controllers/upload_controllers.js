@@ -1,14 +1,24 @@
 app.controller(
-    'PanelTemplateQueryController',
-    ['$scope', 'ModelService', function ($scope, ModelService) {
+    'CategorizationController',
+    ['$scope', '$modal', 'ModelService', function ($scope, $modal, ModelService) {
+        $scope.sample_upload_model.file_queue = [];
+        $scope.sample_upload_model.site_panels = [];
 
         if ($scope.current_project) {
+            getSubjects();
             getPanelTemplates();
         }
 
         $scope.$on('current_project:updated', function () {
+            getSubjects();
             getPanelTemplates();
         });
+
+        function getSubjects() {
+            $scope.sample_upload_model.subjects = ModelService.getSubjects(
+                $scope.current_project.id
+            );
+        }
 
         // get panel templates
         function getPanelTemplates() {
@@ -22,6 +32,15 @@ app.controller(
         $scope.panelChanged = function () {
             ModelService.sitePanelsUpdated();
         };
+
+        $scope.siteChanged = function () {
+            $scope.$broadcast('siteChangedEvent');
+            ModelService.sitePanelsUpdated();
+        };
+
+        $scope.$on('recheckSitePanels', function () {
+            $scope.evaluateParameterMatch();
+        });
 
         $scope.$on('site_panels:updated', function (evt, id) {
             // Do not retrieve any site panel candidates if either
@@ -40,37 +59,6 @@ app.controller(
                     });
                 }
             }
-        });
-    }
-]);
-
-app.controller(
-    'CategorizationController',
-    ['$scope', '$modal', 'ModelService', function ($scope, $modal, ModelService) {
-        $scope.sample_upload_model.file_queue = [];
-        $scope.sample_upload_model.site_panels = [];
-
-        if ($scope.current_project) {
-            getSubjects();
-        }
-
-        $scope.$on('current_project:updated', function () {
-            getSubjects();
-        });
-
-        function getSubjects() {
-            $scope.sample_upload_model.subjects = ModelService.getSubjects(
-                $scope.current_project.id
-            );
-        }
-
-        $scope.siteChanged = function () {
-            $scope.$broadcast('siteChangedEvent');
-            ModelService.sitePanelsUpdated();
-        };
-
-        $scope.$on('recheckSitePanels', function () {
-            $scope.evaluateParameterMatch();
         });
 
         $scope.evaluateParameterMatch = function () {
