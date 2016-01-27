@@ -202,6 +202,24 @@ app.controller(
             }
         });
     };
+
+    $scope.launch_multi_label_modal = function() {
+        // launch form modal
+        $modal.open({
+            templateUrl: MODAL_URLS.PR_MULTI_LABEL,
+            controller: 'ModalFormCtrl',
+            resolve: {
+                instance: function() {
+                    return {
+                        'add_cluster_label': $scope.add_cluster_label,
+                        'parent_pr_id': $scope.$parent.process_request.id,
+                        'cell_subsets': $scope.labels,
+                        'clusters': $scope.plot_data.cluster_data
+                    };
+                }
+            }
+        });
+    };
 }]);
 
 app.directive('prscatterplot', function() {
