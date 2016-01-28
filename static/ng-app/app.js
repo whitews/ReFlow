@@ -64,6 +64,7 @@ var MODAL_URLS = {
 
     // Other modals
     'PR_STAGE2':          'static/ng-app/partials/pr-stage2-form.html',
+    'PR_SINGLE_LABEL':    'static/ng-app/partials/pr-single-label.html',
     'PR_MULTI_LABEL':     'static/ng-app/partials/pr-multi-label.html',
 
     // admin modals
