@@ -1,4 +1,41 @@
 app.controller(
+    'PRSingleLabelController',
+    [
+        '$scope',
+        '$controller',
+        'ModelService',
+        function ($scope) {
+            // PRVisualizationController pushes necessary vars through to this
+            // controller
+
+            // some input defaults
+            $scope.instance.cell_subset = undefined;
+
+            $scope.instance.invalid = true;
+
+            $scope.check_inputs = function () {
+                var invalid = false;
+
+                if ($scope.instance.cell_subset === undefined) {
+                    invalid = true;
+                }
+
+                $scope.instance.invalid = invalid;
+            };
+
+            $scope.apply_labels = function () {
+                $scope.instance.add_cluster_label(
+                    $scope.instance.cell_subset,
+                    $scope.instance.cluster
+                );
+                // close modal
+                $scope.ok();
+            };
+        }
+    ]
+);
+
+app.controller(
     'PRMultiLabelController',
     [
         '$scope',
@@ -40,7 +77,6 @@ app.controller(
                                 $scope.instance.cell_subset,
                                 c
                             );
-                            c.labels.push($scope.instance.cell_subset)
                         }
                     }
                 });

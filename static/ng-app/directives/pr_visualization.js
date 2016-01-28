@@ -115,6 +115,22 @@ app.controller(
         $scope.deselect_cluster_line(cluster);
     };
 
+    function update_cluster_labels(sample_cluster) {
+        var response = ModelService.getClusterLabels(
+            {
+                'cluster': sample_cluster.cluster  // the cluster ID
+            }
+        );
+
+        response.$promise.then(function (object) {
+            // success, remove current label array from sample cluster and
+            // replace it with the new labels
+            sample_cluster.labels = object;
+        }, function (error) {
+            sample_cluster.label_error = "Updating cluster labels failed!";
+        });
+    }
+
     $scope.add_cluster_label = function (label, sample_cluster) {
         sample_cluster.label_error = null;
         var response = ModelService.createClusterLabel(
@@ -125,7 +141,8 @@ app.controller(
         );
 
         response.$promise.then(function (object) {
-            // success, nothing to do
+            // success, update the sample cluster's cluster labels
+            update_cluster_labels(sample_cluster);
         }, function (error) {
             sample_cluster.label_error = "Saving label failed!";
         });
@@ -140,7 +157,8 @@ app.controller(
         );
 
         response.$promise.then(function (object) {
-            // success, nothing to do
+            // success, update the sample cluster's cluster labels
+            update_cluster_labels(sample_cluster);
         }, function (error) {
             sample_cluster.label_error = "Deleting label failed!";
         });
@@ -215,6 +233,24 @@ app.controller(
                         'parent_pr_id': $scope.$parent.process_request.id,
                         'cell_subsets': $scope.labels,
                         'clusters': $scope.plot_data.cluster_data
+                    };
+                }
+            }
+        });
+    };
+
+    $scope.launch_single_label_modal = function(sample_cluster) {
+        // launch form modal
+        $modal.open({
+            templateUrl: MODAL_URLS.PR_SINGLE_LABEL,
+            controller: 'ModalFormCtrl',
+            resolve: {
+                instance: function() {
+                    return {
+                        'add_cluster_label': $scope.add_cluster_label,
+                        'parent_pr_id': $scope.$parent.process_request.id,
+                        'cell_subsets': $scope.labels,
+                        'cluster': sample_cluster
                     };
                 }
             }
