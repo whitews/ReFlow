@@ -279,6 +279,7 @@ app.directive('prscatterplot', function() {
         scope.auto_scale = true;  // automatically scales axes to data
         scope.animate = true;  // controls whether transitions animate
         scope.show_clusters = true;  // controls display of cluster centers
+        scope.enable_brushing = false;  // toggles selection by brushing mode
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -305,9 +306,48 @@ app.directive('prscatterplot', function() {
         var plot_area = scope.svg.append("g")
             .attr("id", "plot-area");
 
-        var cluster_plot_area = plot_area.append("g")
+        scope.cluster_plot_area = plot_area.append("g")
             .attr("id", "cluster-plot-area")
             .attr("transform", "translate(" + margin.left + ", " + 0 + ")");
+
+        scope.brush = d3.svg.brush()
+            .on("brush", brushed);
+
+        function brushed() {
+            var e = scope.brush.extent();
+
+            // Breaking down the extent for easier reading :)
+            var x_min = e[0][0];
+            var x_max = e[1][0];
+            var y_min = e[0][1];
+            var y_max = e[1][1];
+
+            // Highlight selected circles
+            scope.svg.selectAll("circle").classed("selected", function(d) {
+                var x_location = null;
+                var y_location = null;
+
+                d.parameters.forEach(function (p) {
+                    if (p.channel == scope.x_param.fcs_number) {
+                        x_location = p.location;
+                    }
+                    if (p.channel == scope.y_param.fcs_number) {
+                        y_location = p.location;
+                    }
+                });
+
+                var is_selected = x_location > x_min && x_location < x_max
+                    && y_location > y_min && y_location < y_max;
+
+                if (is_selected) {
+                    scope.select_cluster(d);
+                } else {
+                    scope.deselect_cluster(d);
+                }
+
+                return is_selected;
+            });
+        }
 
         scope.x_axis = plot_area.append("g")
             .attr("class", "axis")
@@ -409,7 +449,7 @@ app.directive('prscatterplot', function() {
 
             // reset the SVG clusters
             scope.clusters = null;
-            cluster_plot_area.selectAll("circle").remove();
+            scope.cluster_plot_area.selectAll("circle").remove();
 
             // if the user is switching between samples, the new sample
             // may have a matching parameter but it may be a different
@@ -423,7 +463,7 @@ app.directive('prscatterplot', function() {
                 scope.y_param = scope.parameters[0];
             }
 
-            scope.clusters = cluster_plot_area.selectAll("circle").data(
+            scope.clusters = scope.cluster_plot_area.selectAll("circle").data(
                 scope.plot_data.cluster_data
             );
 
@@ -686,6 +726,20 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                     }
                 }
             });
+
+        // Clear any existing brushes
+        d3.selectAll("g.brush").remove();
+
+        // If brushing is enabled, update the brush scale
+        // Need to re-append our updated brush to the plot as well
+        if ($scope.enable_brushing) {
+            $scope.brush
+                .x(x_scale)
+                .y(y_scale);
+            $scope.cluster_plot_area.append("g")
+                .attr("class", "brush")
+                .call($scope.brush);
+        }
 
         $scope.transition_canvas_events(++$scope.transition_count);
     };

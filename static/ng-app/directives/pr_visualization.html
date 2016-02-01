@@ -50,14 +50,19 @@
             <input ng-model="show_heat" type="checkbox"> Show heat map
           </label>
         </div>
-        <div class="col-md-3 no-padding">
+        <div class="col-md-2 no-padding">
           <label>
             <input ng-model="auto_scale" type="checkbox"> Auto-scale
           </label>
         </div>
-        <div class="col-md-3 no-padding">
+        <div class="col-md-2 no-padding">
           <label>
             <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
+          </label>
+        </div>
+        <div class="col-md-2 no-padding">
+          <label>
+            <input ng-model="enable_brushing" type="checkbox" ng-change="render_plot()"> Brushing
           </label>
         </div>
         <div class="col-md-3 no-padding">
