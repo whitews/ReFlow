@@ -89,6 +89,79 @@ app.controller(
                 return null;
             };
 
+            /*
+            Note: Difference between highlighted, selected, & expanded
+
+            There are 3 different boolean states for each cluster, all of which
+            control the look or behaviour of the cluster.
+
+            highlighted:
+                Only one of the clusters can be highlighted at any single time,
+                and is meant to help identify the cluster in the various
+                components (parallel plot, scatter plot, and the data table).
+                A cluster is highlighted when the user's mouse cursor hovers
+                over either the cluster circle in the scatter-plot OR the
+                table row for that cluster in the data table on the right hand
+                side of the page. When highlighted the cluster circle is
+                larger, the cluster circle is annotated with the cluster index
+                & event percentage, the parallel plot line is bolder, and the
+                table row background is grey. Highlighting when hovering over
+                a cluster circle only works when brush mode is disabled.
+            selected:
+                Any number of clusters (including zero) can be selected at a
+                single time. The only way clusters can be selected is using the
+                rectangular brush when the brush mode is enabled. Brush mode
+                is controlled by a check-box found above the scatter-plot.
+                Cluster selection is intended to be used in conjunction with
+                the "expand selected" button and then with the "label expanded"
+                button to label multiple clusters at once. The selected state
+                looks exactly like the highlighted state (perhaps this should
+                be changed?)
+            expanded:
+                A cluster is expanded when the events for that cluster are
+                visible. To expand a cluster the user can either click on the
+                cluster circle (when brush mode is disabled) or click the
+                check-box in that cluster's row of the data table.
+             */
+
+            $scope.highlight_cluster = function (cluster) {
+                cluster.highlighted = true;
+
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    }).attr("r", 12);
+
+                    // sort circles by highlighted to bring it to the front
+                    // SVG elements don't obey z-index, they are in the order of
+                    // appearance
+                    $scope.svg.selectAll("circle").sort(
+                        function (a, b) {
+                            return a.highlighted - b.highlighted;
+                        }
+                    );
+
+                //$scope.highlight_cluster_line(cluster);
+            };
+
+            $scope.dehighlight_cluster = function (cluster) {
+                cluster.highlighted = false;
+
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    }).attr("r", function(o) {
+                        return o.selected ? 12 : 8;
+                    }
+                );
+
+                //$scope.dehighlight_cluster_line(cluster);
+            };
+
             $scope.select_cluster = function (cluster) {
                 cluster.selected = true;
 
@@ -392,8 +465,10 @@ app.directive('prscatterplot', function() {
 
             scope.plot_data.cluster_data.forEach(function (cluster) {
                 // set booleans for controlling the display of a
-                // cluster's events & for whether cluster is selected
+                // cluster's events & for whether cluster is highlighted,
+                // selected, or expanded
                 cluster.display_events = false;
+                cluster.highlighted = false;
                 cluster.selected = false;
                 cluster.color = colors[cluster.cluster_index % 20];
 
