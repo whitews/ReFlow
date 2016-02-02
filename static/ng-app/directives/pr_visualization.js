@@ -558,7 +558,7 @@ app.directive('prscatterplot', function() {
                     tooltip.style("visibility", "visible");
                     tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
 
-                    scope.select_cluster(d);
+                    scope.highlight_cluster(d);
                     scope.$apply();
                 })
                 .on("mousemove", function() {
@@ -572,7 +572,7 @@ app.directive('prscatterplot', function() {
                     );
                 })
                 .on("mouseout", function(d) {
-                    scope.deselect_cluster(d);
+                    scope.dehighlight_cluster(d);
                     scope.$apply();
                     return tooltip.style("visibility", "hidden");
                 })
