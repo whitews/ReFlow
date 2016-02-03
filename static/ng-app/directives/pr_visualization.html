@@ -121,18 +121,18 @@
 
           <tbody>
           <tr ts-repeat ng-repeat="sc in plot_data.cluster_data">
-            <td style="width: 1%" ng-class="{ hover: sc.highlighted }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
+            <td style="width: 1%" ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
               <div class="color-box" ng-style="{ 'background-color': sc.color }" ng-click="toggle_cluster_events(sc)">
                 <i ng-show="sc.display_events" class="fa fa-check"></i>
               </div>
             </td>
-            <td ng-class="{ hover: sc.highlighted }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
+            <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
               {{ sc.cluster_index }}
             </td>
-            <td ng-class="{ hover: sc.highlighted }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
+            <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
               {{ sc.weight }}
             </td>
-            <td ng-class="{ hover: sc.highlighted }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
+            <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
 
               <span class="panel-variant-label btn btn-success btn-xs" ng-repeat="label in sc.labels">
                 {{ label.name }}
