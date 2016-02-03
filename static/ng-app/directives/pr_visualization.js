@@ -424,6 +424,8 @@ app.directive('prscatterplot', function() {
 
                 return is_selected;
             });
+
+            scope.$apply();
         }
 
         scope.x_axis = plot_area.append("g")
