@@ -39,16 +39,37 @@ app.controller(
             });
 
             $scope.initialize_visualization = function() {
-                // TODO: turning off cached_plots checking b/c the cluster
-                // labels need to be updated, need to create a different mechanism
-                // to update only the labels
+                // May be "re-initializing" the vis so remember any expanded
+                // clusters so we can "re-expand" them in the new sample
+                var expanded_cluster_indices = [];
+                if ($scope.hasOwnProperty('plot_data')) {
+                    $scope.plot_data.cluster_data.forEach(function (c) {
+                        if (c.display_events) {
+                            expanded_cluster_indices.push(c.cluster_index);
+                        }
+                    });
+                }
 
-                //if ($scope.chosen_member.id in $scope.cached_plots) {
-                //    $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
-                //    $scope.initialize_scatterplot();
-                //    $scope.initialize_parallel_plot();
-                //    return;
-                //}
+                if ($scope.chosen_member.id in $scope.cached_plots) {
+                    $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+
+                    // turn on display_events for originally expanded clusters
+                    $scope.plot_data.cluster_data.forEach(function(c) {
+                        if (expanded_cluster_indices.indexOf(c.cluster_index) != -1) {
+                            c.display_events = true;
+                            if (c.events_retrieved == false) {
+                                $scope.process_cluster_events(c);
+                            }
+                        } else {
+                            c.display_events = false;
+                        }
+                    });
+
+                    $scope.initialize_scatterplot(true);
+                    $scope.initialize_parallel_plot();
+
+                    return;
+                }
 
                 $scope.retrieving_data = true;
                 $scope.has_parent_stage = $scope.$parent.process_request.parent_stage > 0;
@@ -67,8 +88,16 @@ app.controller(
                         'panel_data': data[1]
                     };
                     $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
-                    $scope.initialize_scatterplot();
+                    $scope.initialize_scatterplot(false);
                     $scope.initialize_parallel_plot();
+
+                    // display events for previously expanded clusters
+                    $scope.plot_data.cluster_data.forEach(function(c) {
+                        // since the sample is new we can just toggle it
+                        if (expanded_cluster_indices.indexOf(c.cluster_index) != -1) {
+                            $scope.toggle_cluster_events(c);
+                        }
+                    });
                 }).catch(function(e) {
                     // show errors here
                     console.log('error!')
@@ -444,7 +473,7 @@ app.directive('prscatterplot', function() {
             .attr("class", "axis-label")
             .attr("transform", "translate(" + margin.left / 4 + "," + (scope.canvas_height / 2) + ") rotate(-90)");
 
-        scope.initialize_scatterplot = function() {
+        scope.initialize_scatterplot = function(is_cached) {
             // clear any existing canvases
             d3.select('#scatterplot').selectAll('canvas').remove();
 
@@ -468,18 +497,20 @@ app.directive('prscatterplot', function() {
             );
 
             scope.plot_data.cluster_data.forEach(function (cluster) {
-                // set booleans for controlling the display of a
-                // cluster's events & for whether cluster is highlighted,
-                // selected, or expanded
-                cluster.display_events = false;
-                cluster.highlighted = false;
-                cluster.selected = false;
-                cluster.color = colors[cluster.cluster_index % 20];
+                if (!is_cached) {
+                    // set booleans for controlling the display of a
+                    // cluster's events & for whether cluster is highlighted,
+                    // selected, or expanded
+                    cluster.display_events = false;
+                    cluster.highlighted = false;
+                    cluster.selected = false;
+                    cluster.color = colors[cluster.cluster_index % 20];
 
-                // and set an empty array for the cluster's event data
-                cluster.events = [];
-                // flag indicating cluster's events have been retrieved
-                cluster.events_retrieved = false;
+                    // and set an empty array for the cluster's event data
+                    cluster.events = [];
+                    // flag indicating cluster's events have been retrieved
+                    cluster.events_retrieved = false;
+                }
 
                 // each cluster needs it's own canvas and canvas context
                 d3.select("#scatterplot")
