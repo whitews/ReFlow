@@ -53,10 +53,16 @@ app.controller(
                 if ($scope.chosen_member.id in $scope.cached_plots) {
                     $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
 
+                    // Need to init the parallel plot first so we can
+                    // "bold" the expanded clusters
+                    $scope.initialize_parallel_plot();
+
                     // turn on display_events for originally expanded clusters
                     $scope.plot_data.cluster_data.forEach(function(c) {
                         if (expanded_cluster_indices.indexOf(c.cluster_index) != -1) {
                             c.display_events = true;
+                            $scope.select_cluster_line(c);
+
                             if (c.events_retrieved == false) {
                                 $scope.process_cluster_events(c);
                             }
@@ -66,7 +72,6 @@ app.controller(
                     });
 
                     $scope.initialize_scatterplot(true);
-                    $scope.initialize_parallel_plot();
 
                     return;
                 }
@@ -96,6 +101,7 @@ app.controller(
                         // since the sample is new we can just toggle it
                         if (expanded_cluster_indices.indexOf(c.cluster_index) != -1) {
                             $scope.toggle_cluster_events(c);
+                            $scope.select_cluster_line(c);
                         }
                     });
                 }).catch(function(e) {
