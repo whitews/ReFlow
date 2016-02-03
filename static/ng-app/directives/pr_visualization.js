@@ -106,6 +106,32 @@ app.controller(
                 });
             };
 
+            $scope.previous_sample = function() {
+                var current_index = $scope.sample_collection.members.indexOf(
+                    $scope.chosen_member
+                );
+
+                if (current_index === 0) {
+                    return;
+                } else {
+                    $scope.chosen_member = $scope.sample_collection.members[current_index-1];
+                    $scope.initialize_visualization();
+                }
+            };
+
+            $scope.next_sample = function() {
+                var current_index = $scope.sample_collection.members.indexOf(
+                    $scope.chosen_member
+                );
+
+                if (current_index === $scope.sample_collection.members.length - 1) {
+                    return;
+                } else {
+                    $scope.chosen_member = $scope.sample_collection.members[current_index+1];
+                    $scope.initialize_visualization();
+                }
+            };
+
             $scope.find_matching_parameter = function (param) {
                 if (param == null) {
                     return null;

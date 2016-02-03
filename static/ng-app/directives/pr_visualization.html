@@ -4,6 +4,11 @@
     <div class="col-md-3">
       FCS Sample:</br>
       <select ng-model="chosen_member" ng-change="initialize_visualization()" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
+      <br/>
+      <br/>
+      <button class="btn btn-default btn-sm" ng-click="previous_sample()"><< Previous</button>
+      <button class="btn btn-default btn-sm" ng-click="next_sample()">Next >></button>
+
     </div>
 
     <div class="col-md-offset-1 col-md-5 no-padding">
@@ -33,11 +38,11 @@
     <div class="col-md-3">
       <br/>
       <button class="btn btn-primary" ng-click="render_plot()">Update Plot</button>
-      <button class="btn pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
+      <button class="btn btn-default pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
       <br/>
       <br/>
-      <button class="btn pull-left" ng-click="expand_selected_clusters()">Expand Selected</button>
-      <button class="btn pull-right" ng-click="launch_multi_label_modal()">Label Expanded</button>
+      <button class="btn btn-default pull-left" ng-click="expand_selected_clusters()">Expand Selected</button>
+      <button class="btn btn-default pull-right" ng-click="launch_multi_label_modal()">Label Expanded</button>
     </div>
 
   </div>
