@@ -56,16 +56,11 @@ circle, ellipse {
     cursor: pointer;
 }
 
-/*circle.selected {*/
-    /*fill: yellow;*/
-    /*stroke: lime;*/
-/*}*/
-
 .brush .extent {
     z-index: -1;
-    stroke: #bbb;
+    stroke: #777;
     stroke-width: 1.5px;
-    fill-opacity: .05;
+    fill-opacity: .25;
 }
 
 #heat_map_canvas {
