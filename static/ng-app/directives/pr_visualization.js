@@ -143,7 +143,7 @@ app.controller(
                         }
                     );
 
-                //$scope.highlight_cluster_line(cluster);
+                $scope.select_cluster_line(cluster);
             };
 
             $scope.dehighlight_cluster = function (cluster) {
@@ -159,7 +159,9 @@ app.controller(
                     }
                 );
 
-                //$scope.dehighlight_cluster_line(cluster);
+                if (!cluster.selected) {
+                    $scope.deselect_cluster_line(cluster);
+                }
             };
 
             $scope.select_cluster = function (cluster) {
