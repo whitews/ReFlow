@@ -396,6 +396,9 @@ service
                 },
                 {
                     name:'Comp Beads'
+                },
+                {
+                    name:'Untreated'
                 }
             ];
         };
