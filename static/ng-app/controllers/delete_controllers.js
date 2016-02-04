@@ -99,30 +99,6 @@ app.controller(
 );
 
 app.controller(
-    'CytometerDeleteController',
-    [
-        '$scope',
-        'ModelService',
-        function ($scope, ModelService) {
-            $scope.destroy = function (instance) {
-                var response = ModelService.destroyCytometer(instance);
-
-                response.$promise.then(function () {
-                    // notify to update list
-                    ModelService.cytometersUpdated();
-
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
-
-app.controller(
     'StimulationDeleteController',
     [
         '$scope',

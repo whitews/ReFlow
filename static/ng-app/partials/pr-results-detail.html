@@ -1,0 +1,172 @@
+    <div class="row">
+      <div class="col-md-3">
+
+        <div class="well" style="margin-top:52px">
+          <div style="position: relative">
+            <h5>Filter Results</h5>
+          </div>
+
+          <hr/>
+
+          <b>FCS Sample</b>
+
+          <br/>
+
+          <ui-select multiple theme="bootstrap" ng-model="filters.selected_samples" search-enabled="true" ng-change="apply_filter()">
+            <ui-select-match>{{ $item.filename }}</ui-select-match>
+
+            <ui-select-choices repeat="s.id as s in samples | filter:$select.search">
+              {{ s.filename }}
+            </ui-select-choices>
+
+          </ui-select>
+
+          <br/>
+
+          <b>Cluster</b>
+
+          <br/>
+
+          <ui-select multiple theme="bootstrap" ng-model="filters.selected_clusters" search-enabled="true" ng-change="apply_filter()">
+            <ui-select-match>{{ $item }}</ui-select-match>
+
+            <ui-select-choices repeat="c in clusters | filter:$select.search">
+              {{ c }}
+            </ui-select-choices>
+
+          </ui-select>
+
+          <br/>
+
+          <b>Event %</b>
+
+          <br/>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <input type="text" ng-model="filters.min_event_percentage" ng-change="apply_filter()" placeholder="Min value" size="10">
+            </div>
+
+            <div class="col-sm-6">
+              <input type="text" class="pull-right" ng-model="filters.max_event_percentage" ng-change="apply_filter()" placeholder="Max value" size="10">
+            </div>
+          </div>
+
+          <br/>
+
+          <b>Label</b>
+
+          <br/>
+
+          <ui-select multiple theme="bootstrap" ng-model="filters.selected_labels" search-enabled="true" ng-change="apply_filter()">
+            <ui-select-match>{{ $item.name }}</ui-select-match>
+
+            <ui-select-choices repeat="l.name as l in labels | filter:$select.search">
+              {{ l.name }}
+            </ui-select-choices>
+
+          </ui-select>
+
+        </div>
+      </div>
+
+      <div class="col-md-9">
+        <table ts-wrapper id="data-table" class="table table-hover">
+          <thead>
+            <tr>
+
+              <th colspan="50">
+
+                <div style="position:relative;">
+
+                  <div style="position: absolute; left:0;top:0;">
+                    <button class="btn btn-info btn-xs" type="button" ng-click="open_column_chooser('sm')">
+                      Choose Columns
+                    </button>
+
+                    <script type="text/ng-template" id="myModalContent.html">
+                      <div class="modal-header">
+                        <h3 class="modal-title">Choose Columns</h3>
+                      </div>
+                      <div class="modal-body">
+                        <ul class="list-unstyled">
+                          <li ng-repeat="(key, value) in instance">
+                            <label>
+                              <input type="checkbox" ng-model="value.show" />
+                              {{ value.name }}
+                            </label>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-primary" ng-click="ok()">OK</button>
+                      </div>
+                    </script>
+                  </div>
+
+                  <div style="position: absolute; right:0;top:0;">
+                    <div>
+                      <button class="btn btn-primary btn-xs" type="button" ng-click="create_export()">
+                        Export CSV
+                      </button>
+                    </div>
+                  </div>
+
+                  <h4 class="text-center">
+                    Clustering Results
+                    <span class="badge badge-inverse align-top">
+                      {{ filtered_results.length }} of {{ results.length }}
+                    </span>
+                  </h4>
+                </div>
+
+              </th>
+            </tr>
+            <tr>
+                <th ng-show="results_columns.id.show" ts-criteria="id">Sample ID</th>
+                <th ng-show="results_columns.file_name.show" ts-criteria="file_name">File Name</th>
+                <th ng-show="results_columns.panel_name.show" ts-criteria="panel_name">Panel</th>
+                <th ng-show="results_columns.site_name.show" ts-criteria="site_name">Site</th>
+                <th ng-show="results_columns.subject_group.show" ts-criteria="subject_group">Subject Group</th>
+                <th ng-show="results_columns.subject_code.show" ts-criteria="subject_code">Subject</th>
+                <th ng-show="results_columns.visit_name.show" ts-criteria="visit_name">Visit</th>
+                <th ng-show="results_columns.stimulation_name.show" ts-criteria="stimulation_name">Stimulation</th>
+                <th ng-show="results_columns.specimen_name.show" ts-criteria="specimen_name">Specimen</th>
+                <th ng-show="results_columns.storage.show" ts-criteria="storage">Storage</th>
+                <th ng-show="results_columns.pretreatment.show" ts-criteria="pretreatment">Pre-treatment</th>
+                <th ng-show="results_columns.cluster_index.show" ts-criteria="cluster_index">Cluster Index</th>
+                <th ng-show="results_columns.event_percentage.show" ts-criteria="event_percentage">Event %</th>
+                <th ng-show="results_columns.labels.show"  ts-criteria="labels">Labels</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ts-repeat ng-repeat="r in filtered_results">
+              <td ng-show="results_columns.id.show">{{ r.id }}</td>
+              <td ng-show="results_columns.file_name.show">{{ r.file_name }}</td>
+              <td ng-show="results_columns.panel_name.show" >{{ r.panel_name }}</td>
+              <td ng-show="results_columns.site_name.show" >{{ r.site_name }}</td>
+              <td ng-show="results_columns.subject_group.show" >{{ r.subject_group }}</td>
+              <td ng-show="results_columns.subject_code.show" >{{ r.subject_code }}</td>
+              <td ng-show="results_columns.visit_name.show" >{{ r.visit_name }}</td>
+              <td ng-show="results_columns.stimulation_name.show" >{{ r.stimulation_name }}</td>
+              <td ng-show="results_columns.specimen_name.show" >{{ r.specimen_name }}</td>
+              <td ng-show="results_columns.storage.show" >{{ r.storage }}</td>
+              <td ng-show="results_columns.pretreatment.show" >{{ r.pretreatment }}</td>
+              <td ng-show="results_columns.cluster_index.show">{{ r.cluster_index }}</td>
+              <td ng-show="results_columns.event_percentage.show">{{ r.event_percentage }}</td>
+              <td ng-show="results_columns.labels.show">
+                <span ng-repeat="label in r.labels"><span class="panel-variant-label btn btn-success btn-xs">{{ label }}</span></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div ng-show="retrieving_data" class="text-center">
+          <img src="/static/giant_whirligig.gif">
+          <h4>
+            Retrieving clustering data...
+          </h4>
+        </div>
+
+      </div>
+    </div>

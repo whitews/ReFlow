@@ -34,7 +34,6 @@ var MODAL_URLS = {
     'SUBJECT':            'static/ng-app/partials/subject-form.html',
     'PROJECT':            'static/ng-app/partials/project-form.html',
     'SITE':               'static/ng-app/partials/site-form.html',
-    'CYTOMETER':          'static/ng-app/partials/cytometer-form.html',
     'VISIT_TYPE':         'static/ng-app/partials/visit-type-form.html',
     'PANEL_VARIANT':      'static/ng-app/partials/panel-variant-form.html',
     'CELL_SUBSET_LABEL':  'static/ng-app/partials/cell-subset-label-form.html',
@@ -51,7 +50,6 @@ var MODAL_URLS = {
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',
     'COMPENSATION_DELETE': 'static/ng-app/partials/compensation-delete.html',
-    'CYTOMETER_DELETE':   'static/ng-app/partials/cytometer-delete.html',
     'CELL_SUBSET_LABEL_DELETE': 'static/ng-app/partials/cell-subset-label-delete.html',
     'STIMULATION_DELETE': 'static/ng-app/partials/stimulation-delete.html',
     'VISIT_TYPE_DELETE':  'static/ng-app/partials/visit-type-delete.html',
@@ -63,7 +61,11 @@ var MODAL_URLS = {
     'SUBJECT_GROUP_DELETE': 'static/ng-app/partials/subject-group-delete.html',
     'PROJECT_DELETE':     'static/ng-app/partials/project-delete.html',
     'PROCESS_REQUEST_DELETE': 'static/ng-app/partials/process-request-delete.html',
+
+    // Other modals
     'PR_STAGE2':          'static/ng-app/partials/pr-stage2-form.html',
+    'PR_SINGLE_LABEL':    'static/ng-app/partials/pr-single-label.html',
+    'PR_MULTI_LABEL':     'static/ng-app/partials/pr-multi-label.html',
 
     // admin modals
     'USER':               'static/ng-app/partials/user-form.html',
@@ -236,6 +238,19 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
             ncyBreadcrumbLabel: '{{process_request.description}}'
         }
     }).state({
+        name: 'pr-results-detail',
+        parent: 'process-request-detail',
+        url: '/results',
+        views: {
+            '@': {
+                templateUrl: '/static/ng-app/partials/pr-results-detail.html',
+                controller: 'PRResultsController'
+            }
+        },
+        data: {
+            ncyBreadcrumbLabel: 'Results'
+        }
+    }).state({
         name: 'pr-visualization-detail',
         parent: 'process-request-detail',
         url: '/visualize',
@@ -299,19 +314,6 @@ app.config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
         },
         data: {
             ncyBreadcrumbLabel: 'Sites'
-        }
-    }).state({
-        name: 'cytometer-list',
-        parent: 'project-detail',
-        url: '/cytometers/',
-        views: {
-            '@': {
-                templateUrl: '/static/ng-app/partials/cytometer-list.html',
-                controller: 'CytometerController'
-            }
-        },
-        data: {
-            ncyBreadcrumbLabel: 'Cytometers'
         }
     }).state({
         name: 'site-panel-list',

@@ -15,8 +15,7 @@
         </tr>
         <tr>
           <th></th>
-          <th ts-criteria="site_name">Site</th>
-          <th>Cytometers</th>
+          <th ts-criteria="site_name" ts-default>Site</th>
           <th ts-criteria="sample_count">FCS Sample Count</th>
         </tr>
       </thead>
@@ -31,9 +30,6 @@
             </a>
           </td>
           <td>{{ site.site_name }}</td>
-          <td>
-              <span ng-repeat="cytometer in site.cytometers">{{ cytometer.cytometer_name }}<br/></span>
-          </td>
           <td>{{ site.sample_count }}</td>
         </tr>
       </tbody>

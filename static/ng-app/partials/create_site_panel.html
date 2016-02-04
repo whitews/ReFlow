@@ -73,7 +73,7 @@
                              ng-hide="channel.marker_disabled">
                     <ui-select-match>{{ $item.marker_abbreviation }}</ui-select-match>
 
-                    <ui-select-choices repeat="m.id as m in site_panel_model.markers | filter:$select.search">
+                    <ui-select-choices repeat="m in site_panel_model.markers | filter:$select.search">
                       {{ m.marker_abbreviation }}
                     </ui-select-choices>
 
@@ -102,6 +102,6 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
-      <button type="button" class="btn btn-primary" ng-disabled="!site_panel_model.site_panel_valid" ng-click="savePanel()">Save Panel</button>
+      <button type="button" class="btn btn-primary" ng-disabled="!site_panel_model.site_panel_valid" ng-click="savePanel()">Save Sample Annotation</button>
     </div>
   </div>

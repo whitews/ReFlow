@@ -1,7 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic import TemplateView
 
+from repository.api_utils import repository_api_root
 from repository.api_views import *
+from repository.api_views_process_request import *
+from repository.views import reflow_app, permission_denied
 
 # Override handler403 to provide a custom permission denied page.
 # Otherwise, a user has no links to get to their resources
@@ -9,8 +12,8 @@ from repository.api_views import *
 handler403 = TemplateView.as_view(template_name='403.html')
 
 # API routes
-urlpatterns = patterns('repository.api_views',
-    url(r'^api/repository/?$', 'repository_api_root', name='repository-api-root'),
+urlpatterns = [
+    url(r'^api/repository/?$', repository_api_root, name='repository-api-root'),
 
     url(r'^api/repository/permissions/?$', PermissionList.as_view(), name='permission-list'),
     url(r'^api/repository/permissions/(?P<pk>\d+)/?$', PermissionDetail.as_view(), name='permission-detail'),
@@ -47,8 +50,6 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/sites/(?P<site>\d+)/permissions/?$', get_site_permissions, name='get-site-permissions'),
     url(r'^api/repository/site_panels/?$', SitePanelList.as_view(), name='site-panel-list'),
     url(r'^api/repository/site_panels/(?P<pk>\d+)/?$', SitePanelDetail.as_view(), name='site-panel-detail'),
-    url(r'^api/repository/cytometers/?$', CytometerList.as_view(), name='cytometer-list'),
-    url(r'^api/repository/cytometers/(?P<pk>\d+)/?$', CytometerDetail.as_view(), name='cytometer-detail'),
 
     url(r'^api/repository/subject_groups/?$', SubjectGroupList.as_view(), name='subject-group-list'),
     url(r'^api/repository/subject_groups/(?P<pk>\d+)/?$', SubjectGroupDetail.as_view(), name='subject-group-detail'),
@@ -62,12 +63,10 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/stimulations/(?P<pk>\d+)/?$', StimulationDetail.as_view(), name='stimulation-detail'),
 
     url(r'^api/repository/samples/?$', SampleList.as_view(), name='sample-list'),
-    url(r'^api/repository/samples/add/?$', CreateSampleList.as_view(), name='create-sample-list'),
+    url(r'^api/repository/samples/add/?$', CreateSample.as_view(), name='create-sample'),
     url(r'^api/repository/samples/(?P<pk>\d+)/?$', SampleDetail.as_view(), name='sample-detail'),
     url(r'^api/repository/samples/(?P<pk>\d+)/fcs_original/?$', retrieve_sample, name='retrieve_sample'),
     url(r'^api/repository/samples/(?P<pk>\d+)/fcs/?$', retrieve_sample_as_pk, name='sample-download-as-pk'),
-    url(r'^api/repository/samples/(?P<pk>\d+)/csv/?$', retrieve_subsample_as_csv, name='retrieve_subsample_as_csv'),
-    url(r'^api/repository/samples/(?P<pk>\d+)/npy/?$', retrieve_subsample_as_numpy, name='retrieve_subsample_as_numpy'),
     url(r'^api/repository/samples/(?P<pk>\d+)/fcs_clean/?$', retrieve_clean_sample, name='retrieve_clean_sample'),
 
     url(r'^api/repository/samplemetadata/?$', SampleMetaDataList.as_view(), name='sample-metadata-list'),
@@ -105,11 +104,9 @@ urlpatterns = patterns('repository.api_views',
     url(r'^api/repository/sample_clusters/?$', SampleClusterList.as_view(), name='sample-cluster-list'),
     url(r'^api/repository/sample_clusters/(?P<pk>\d+)/csv/?$', retrieve_sample_cluster_events, name='retrieve_sample_cluster_events'),
     url(r'^api/repository/sample_cluster_components/?$', SampleClusterComponentList.as_view(), name='sample-cluster-component-list'),
-)
 
-# Non-API routes
-urlpatterns += patterns('repository.views',
-    url(r'^403$', 'permission_denied', name='permission_denied'),
+    # Non-API routes
+    url(r'^403$', permission_denied, name='permission_denied'),
     url(r'^warning$', TemplateView.as_view(template_name='warning.html'), name='warning_page'),
-    url(r'^$', 'reflow_app', name='home'),
-)
+    url(r'^$', reflow_app, name='home')
+]

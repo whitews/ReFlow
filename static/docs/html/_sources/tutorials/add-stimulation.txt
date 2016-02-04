@@ -7,15 +7,17 @@ Tutorial - Adding a Stimulation
 
 #.  From the ReFlow home page, navigate to the project by clicking on the project link.
 
-#.  From the project detail page, click the **Add Stimulation** link.
+#.  From the project detail page, click the **Add Stimulation** link located under the **Stimulations** heading.
 
     .. image:: ../images/project-detail.png
+       :width: 1000
 
     .. note:: Stimulations can also be added from the **Stimulation** list page by clicking on the **Add Stimulation** button located near the upper right of that page (beside the main heading).
 
 #. A new modal window will appear displaying the form fields.
 
     .. image:: ../images/new-stimulation-modal.png
+       :scale: 50
 
 #.  Fill out the form fields. Note, **Name** is required and a project cannot have duplicate stimulation names. The description field is optional. Once the form is completed, click the **Save** button.
 

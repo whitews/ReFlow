@@ -18,204 +18,383 @@ app.controller(
         '$modal',
         'ModelService',
         function ($scope, $q, $modal, ModelService) {
-    var sample_clusters = null;
-    var panel_data = null;
+            var sample_clusters = null;
+            var panel_data = null;
 
-    // Cell subset label variables for tagging clusters
-    if (ModelService.current_project) {
-        $scope.labels = ModelService.getCellSubsetLabels(
-            ModelService.current_project.id
-        );
-    }
-    $scope.$on('current_project:updated', function () {
-        $scope.labels = ModelService.getCellSubsetLabels(
-            ModelService.current_project.id
-        );
-    });
-
-    $scope.$watch('data', function(data) {
-        $scope.sample_collection = data;
-        $scope.cached_plots = {};
-    });
-
-    $scope.initialize_visualization = function() {
-        // TODO: turning off cached_plots checking b/c the cluster
-        // labels need to be updated, need to create a different mechanism
-        // to update only the labels
-
-        //if ($scope.chosen_member.id in $scope.cached_plots) {
-        //    $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
-        //    $scope.initialize_scatterplot();
-        //    $scope.initialize_parallel_plot();
-        //    return;
-        //}
-
-        $scope.retrieving_data = true;
-        $scope.has_parent_stage = $scope.$parent.process_request.parent_stage > 0;
-        sample_clusters = ModelService.getSampleClusters(
-            $scope.$parent.process_request.id,
-            $scope.chosen_member.sample.id
-        );
-
-        panel_data = ModelService.getSitePanel(
-            $scope.chosen_member.sample.site_panel
-        );
-
-        $q.all([sample_clusters, panel_data.$promise]).then(function(data) {
-            $scope.cached_plots[$scope.chosen_member.id] = {
-                'cluster_data': data[0],
-                'panel_data': data[1]
-            };
-            $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
-            $scope.initialize_scatterplot();
-            $scope.initialize_parallel_plot();
-        }).catch(function(e) {
-            // show errors here
-            console.log('error!')
-        }).finally(function() {
-            $scope.retrieving_data = false;
-        });
-    };
-
-    $scope.find_matching_parameter = function (param) {
-        if (param == null) {
-            return null;
-        }
-        for (var i = 0; i < $scope.parameters.length; i++) {
-            if (param.full_name === $scope.parameters[i].full_name) {
-                return $scope.parameters[i];
+            // Cell subset label variables for tagging clusters
+            if (ModelService.current_project) {
+                $scope.labels = ModelService.getCellSubsetLabels(
+                    ModelService.current_project.id
+                );
             }
-        }
-        return null;
-    };
-
-    $scope.select_cluster = function (cluster) {
-        cluster.selected = true;
-
-        $scope.clusters.filter(
-            function(d) {
-                if (d.cluster_index == cluster.cluster_index) {
-                    return d;
-                }
-            }).attr("r", 12);
-
-        $scope.select_cluster_line(cluster);
-    };
-
-    $scope.deselect_cluster = function (cluster) {
-        cluster.selected = false;
-
-        $scope.clusters.filter(
-            function(d) {
-                if (d.cluster_index == cluster.cluster_index) {
-                    return d;
-                }
-            }).attr("r", 8);
-
-        $scope.deselect_cluster_line(cluster);
-    };
-
-    $scope.add_cluster_label = function (label, sample_cluster) {
-        sample_cluster.label_error = null;
-        var response = ModelService.createClusterLabel(
-            {
-                'cluster': sample_cluster.cluster, // the cluster ID
-                'label': label.id
-            }
-        );
-
-        response.$promise.then(function (object) {
-            // success, nothing to do
-        }, function (error) {
-            sample_cluster.label_error = "Saving label failed!";
-        });
-
-    };
-
-    $scope.remove_cluster_label = function (label, sample_cluster) {
-        sample_cluster.label_error = null;
-
-        // first, need to retrieve the PK for our ClusterLabel, as
-        // the sample_cluster.labels stores the CellSubsetLabel PK
-        // So, we do a query and expect only one result, a faux-GET
-        var cluster_labels = ModelService.getClusterLabels(
-            {
-                'cluster': sample_cluster.cluster,
-                'label': label.id
-            }
-        );
-
-        cluster_labels.$promise.then(function (object) {
-            var response = ModelService.destroyClusterLabel(
-                object[0]
-            );
-
-            response.$promise.then(function (object) {
-                // success, nothing to do
-            }, function (error) {
-                sample_cluster.label_error = "Deleting label failed!";
+            $scope.$on('current_project:updated', function () {
+                $scope.labels = ModelService.getCellSubsetLabels(
+                    ModelService.current_project.id
+                );
             });
-        }, function (error) {
-            sample_cluster.label_error = "Deleting label failed!";
-        });
-    };
 
-    $scope.toggle_animation = function () {
-        if ($scope.animate) {
-            $scope.transition_ms = 1000;
-        } else {
-            $scope.transition_ms = 0;
-        }
-    };
+            $scope.$watch('data', function(data) {
+                $scope.sample_collection = data;
+                $scope.cached_plots = {};
+            });
 
-    $scope.toggle_clusters = function () {
-        if ($scope.show_clusters) {
-            $scope.clusters.style("opacity", 1);
-        } else {
-            $scope.clusters.style("opacity", 0);
-        }
-    };
-
-    $scope.process_cluster_events = function (cluster) {
-        // first retrieve SampleCluster CSV
-        var response = ModelService.getSampleClusterCSV(cluster.id);
-
-        response.then(function (event_csv) {
-            // success
-            cluster.events = d3.csv.parse(event_csv.data);
-            cluster.events_retrieved = true;
-
-            $scope.render_plot();
-        }, function (error) {
-
-        });
-    };
-
-    $scope.launch_stage2_modal = function() {
-        var stage2_params = [];
-        $scope.plot_data.panel_data.parameters.forEach(function (p) {
-            if (p.parameter_type != 'TIM' && p.parameter_type != 'NUL') {
-                stage2_params.push(p);
-            }
-        });
-        // launch form modal
-        $modal.open({
-            templateUrl: MODAL_URLS.PR_STAGE2,
-            controller: 'ModalFormCtrl',
-            size: 'lg',
-            resolve: {
-                instance: function() {
-                    return {
-                        'parent_pr_id': $scope.$parent.process_request.id,
-                        'cell_subsets': $scope.labels,
-                        'parameters': stage2_params,
-                        'clusters': $scope.plot_data.cluster_data
-                    };
+            $scope.initialize_visualization = function() {
+                // May be "re-initializing" the vis so remember any expanded
+                // clusters so we can "re-expand" them in the new sample
+                var expanded_cluster_indices = [];
+                if ($scope.hasOwnProperty('plot_data')) {
+                    $scope.plot_data.cluster_data.forEach(function (c) {
+                        if (c.display_events) {
+                            expanded_cluster_indices.push(c.cluster_index);
+                        }
+                    });
                 }
+
+                if ($scope.chosen_member.id in $scope.cached_plots) {
+                    $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+
+                    // Need to init the parallel plot first so we can
+                    // "bold" the expanded clusters
+                    $scope.initialize_parallel_plot();
+
+                    // turn on display_events for originally expanded clusters
+                    $scope.plot_data.cluster_data.forEach(function(c) {
+                        if (expanded_cluster_indices.indexOf(c.cluster_index) != -1) {
+                            c.display_events = true;
+                            $scope.select_cluster_line(c);
+
+                            if (c.events_retrieved == false) {
+                                $scope.process_cluster_events(c);
+                            }
+                        } else {
+                            c.display_events = false;
+                        }
+                    });
+
+                    $scope.initialize_scatterplot(true);
+
+                    return;
+                }
+
+                $scope.retrieving_data = true;
+                $scope.has_parent_stage = $scope.$parent.process_request.parent_stage > 0;
+                sample_clusters = ModelService.getSampleClusters(
+                    $scope.$parent.process_request.id,
+                    $scope.chosen_member.sample.id
+                );
+
+                panel_data = ModelService.getSitePanel(
+                    $scope.chosen_member.sample.site_panel
+                );
+
+                $q.all([sample_clusters, panel_data.$promise]).then(function(data) {
+                    $scope.cached_plots[$scope.chosen_member.id] = {
+                        'cluster_data': data[0],
+                        'panel_data': data[1]
+                    };
+                    $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+                    $scope.initialize_scatterplot(false);
+                    $scope.initialize_parallel_plot();
+
+                    // display events for previously expanded clusters
+                    $scope.plot_data.cluster_data.forEach(function(c) {
+                        // since the sample is new we can just toggle it
+                        if (expanded_cluster_indices.indexOf(c.cluster_index) != -1) {
+                            $scope.toggle_cluster_events(c);
+                            $scope.select_cluster_line(c);
+                        }
+                    });
+                }).catch(function(e) {
+                    // show errors here
+                    console.log('error!')
+                }).finally(function() {
+                    $scope.retrieving_data = false;
+                });
+            };
+
+            $scope.previous_sample = function() {
+                var current_index = $scope.sample_collection.members.indexOf(
+                    $scope.chosen_member
+                );
+
+                if (current_index === 0) {
+                    return;
+                } else {
+                    $scope.chosen_member = $scope.sample_collection.members[current_index-1];
+                    $scope.initialize_visualization();
+                }
+            };
+
+            $scope.next_sample = function() {
+                var current_index = $scope.sample_collection.members.indexOf(
+                    $scope.chosen_member
+                );
+
+                if (current_index === $scope.sample_collection.members.length - 1) {
+                    return;
+                } else {
+                    $scope.chosen_member = $scope.sample_collection.members[current_index+1];
+                    $scope.initialize_visualization();
+                }
+            };
+
+            $scope.find_matching_parameter = function (param) {
+                if (param == null) {
+                    return null;
+                }
+                for (var i = 0; i < $scope.parameters.length; i++) {
+                    if (param.full_name === $scope.parameters[i].full_name) {
+                        return $scope.parameters[i];
+                    }
+                }
+                return null;
+            };
+
+            /*
+            Note: Difference between highlighted, selected, & expanded
+
+            There are 3 different boolean states for each cluster, all of which
+            control the look or behaviour of the cluster.
+
+            highlighted:
+                Only one of the clusters can be highlighted at any single time,
+                and is meant to help identify the cluster in the various
+                components (parallel plot, scatter plot, and the data table).
+                A cluster is highlighted when the user's mouse cursor hovers
+                over either the cluster circle in the scatter-plot OR the
+                table row for that cluster in the data table on the right hand
+                side of the page. When highlighted the cluster circle is
+                larger, the cluster circle is annotated with the cluster index
+                & event percentage, the parallel plot line is bolder, and the
+                table row background is grey. Highlighting when hovering over
+                a cluster circle only works when brush mode is disabled.
+            selected:
+                Any number of clusters (including zero) can be selected at a
+                single time. The only way clusters can be selected is using the
+                rectangular brush when the brush mode is enabled. Brush mode
+                is controlled by a check-box found above the scatter-plot.
+                Cluster selection is intended to be used in conjunction with
+                the "expand selected" button and then with the "label expanded"
+                button to label multiple clusters at once. The selected state
+                looks exactly like the highlighted state (perhaps this should
+                be changed?)
+            expanded:
+                A cluster is expanded when the events for that cluster are
+                visible. To expand a cluster the user can either click on the
+                cluster circle (when brush mode is disabled) or click the
+                check-box in that cluster's row of the data table.
+             */
+
+            $scope.highlight_cluster = function (cluster) {
+                cluster.highlighted = true;
+
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    }).attr("r", 12);
+
+                    // sort circles by highlighted to bring it to the front
+                    // SVG elements don't obey z-index, they are in the order of
+                    // appearance
+                    $scope.svg.selectAll("circle").sort(
+                        function (a, b) {
+                            return a.highlighted - b.highlighted;
+                        }
+                    );
+
+                $scope.select_cluster_line(cluster);
+            };
+
+            $scope.dehighlight_cluster = function (cluster) {
+                cluster.highlighted = false;
+
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    }).attr("r", function(o) {
+                        return o.selected ? 12 : 8;
+                    }
+                );
+
+                if (!cluster.selected) {
+                    $scope.deselect_cluster_line(cluster);
+                }
+            };
+
+            $scope.select_cluster = function (cluster) {
+                cluster.selected = true;
+
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    }).attr("r", 12);
+
+                $scope.select_cluster_line(cluster);
+            };
+
+            $scope.deselect_cluster = function (cluster) {
+                cluster.selected = false;
+
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    }).attr("r", 8);
+
+                $scope.deselect_cluster_line(cluster);
+            };
+
+            function update_cluster_labels(sample_cluster) {
+                var response = ModelService.getClusterLabels(
+                    {
+                        'cluster': sample_cluster.cluster  // the cluster ID
+                    }
+                );
+
+                response.$promise.then(function (object) {
+                    // success, remove current label array from sample cluster and
+                    // replace it with the new labels
+                    sample_cluster.labels = object;
+                }, function (error) {
+                    sample_cluster.label_error = "Updating cluster labels failed!";
+                });
             }
-        });
-    };
-}]);
+
+            $scope.add_cluster_label = function (label, sample_cluster) {
+                sample_cluster.label_error = null;
+                var response = ModelService.createClusterLabel(
+                    {
+                        'cluster': sample_cluster.cluster, // the cluster ID
+                        'label': label.id
+                    }
+                );
+
+                response.$promise.then(function (object) {
+                    // success, update the sample cluster's cluster labels
+                    update_cluster_labels(sample_cluster);
+                }, function (error) {
+                    sample_cluster.label_error = "Saving label failed!";
+                });
+
+            };
+
+            $scope.remove_cluster_label = function (label, sample_cluster) {
+                sample_cluster.label_error = null;
+
+                var response = ModelService.destroyClusterLabel(
+                    label
+                );
+
+                response.$promise.then(function (object) {
+                    // success, update the sample cluster's cluster labels
+                    update_cluster_labels(sample_cluster);
+                }, function (error) {
+                    sample_cluster.label_error = "Deleting label failed!";
+                });
+
+            };
+
+            $scope.toggle_animation = function () {
+                if ($scope.animate) {
+                    $scope.transition_ms = 1000;
+                } else {
+                    $scope.transition_ms = 0;
+                }
+            };
+
+            $scope.toggle_clusters = function () {
+                if ($scope.show_clusters) {
+                    $scope.clusters.style("opacity", 1);
+                } else {
+                    $scope.clusters.style("opacity", 0);
+                }
+            };
+
+            $scope.process_cluster_events = function (cluster) {
+                // first retrieve SampleCluster CSV
+                var response = ModelService.getSampleClusterCSV(cluster.id);
+
+                response.then(function (event_csv) {
+                    // success
+                    cluster.events = d3.csv.parse(event_csv.data);
+                    cluster.events_retrieved = true;
+
+                    $scope.render_plot();
+                }, function (error) {
+
+                });
+            };
+
+            $scope.launch_stage2_modal = function() {
+                var stage2_params = [];
+                $scope.plot_data.panel_data.parameters.forEach(function (p) {
+                    if (p.parameter_type != 'TIM' && p.parameter_type != 'NUL') {
+                        stage2_params.push(p);
+                    }
+                });
+                // launch form modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.PR_STAGE2,
+                    controller: 'ModalFormCtrl',
+                    size: 'lg',
+                    resolve: {
+                        instance: function() {
+                            return {
+                                'parent_pr_id': $scope.$parent.process_request.id,
+                                'cell_subsets': $scope.labels,
+                                'parameters': stage2_params,
+                                'clusters': $scope.plot_data.cluster_data
+                            };
+                        }
+                    }
+                });
+            };
+
+            $scope.launch_multi_label_modal = function() {
+                // launch form modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.PR_MULTI_LABEL,
+                    controller: 'ModalFormCtrl',
+                    resolve: {
+                        instance: function() {
+                            return {
+                                'add_cluster_label': $scope.add_cluster_label,
+                                'parent_pr_id': $scope.$parent.process_request.id,
+                                'cell_subsets': $scope.labels,
+                                'clusters': $scope.plot_data.cluster_data
+                            };
+                        }
+                    }
+                });
+            };
+
+            $scope.launch_single_label_modal = function(sample_cluster) {
+                // launch form modal
+                $modal.open({
+                    templateUrl: MODAL_URLS.PR_SINGLE_LABEL,
+                    controller: 'ModalFormCtrl',
+                    resolve: {
+                        instance: function() {
+                            return {
+                                'add_cluster_label': $scope.add_cluster_label,
+                                'parent_pr_id': $scope.$parent.process_request.id,
+                                'cell_subsets': $scope.labels,
+                                'cluster': sample_cluster
+                            };
+                        }
+                    }
+                });
+            };
+        }
+    ]
+);
 
 app.directive('prscatterplot', function() {
     function link(scope) {
@@ -238,6 +417,7 @@ app.directive('prscatterplot', function() {
         scope.auto_scale = true;  // automatically scales axes to data
         scope.animate = true;  // controls whether transitions animate
         scope.show_clusters = true;  // controls display of cluster centers
+        scope.enable_brushing = false;  // toggles selection by brushing mode
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -264,9 +444,50 @@ app.directive('prscatterplot', function() {
         var plot_area = scope.svg.append("g")
             .attr("id", "plot-area");
 
-        var cluster_plot_area = plot_area.append("g")
+        scope.cluster_plot_area = plot_area.append("g")
             .attr("id", "cluster-plot-area")
             .attr("transform", "translate(" + margin.left + ", " + 0 + ")");
+
+        scope.brush = d3.svg.brush()
+            .on("brush", brushed);
+
+        function brushed() {
+            var e = scope.brush.extent();
+
+            // Breaking down the extent for easier reading :)
+            var x_min = e[0][0];
+            var x_max = e[1][0];
+            var y_min = e[0][1];
+            var y_max = e[1][1];
+
+            // Highlight selected circles
+            scope.svg.selectAll("circle").classed("selected", function(d) {
+                var x_location = null;
+                var y_location = null;
+
+                d.parameters.forEach(function (p) {
+                    if (p.channel == scope.x_param.fcs_number) {
+                        x_location = p.location;
+                    }
+                    if (p.channel == scope.y_param.fcs_number) {
+                        y_location = p.location;
+                    }
+                });
+
+                var is_selected = x_location > x_min && x_location < x_max
+                    && y_location > y_min && y_location < y_max;
+
+                if (is_selected) {
+                    scope.select_cluster(d);
+                } else {
+                    scope.deselect_cluster(d);
+                }
+
+                return is_selected;
+            });
+
+            scope.$apply();
+        }
 
         scope.x_axis = plot_area.append("g")
             .attr("class", "axis")
@@ -284,7 +505,7 @@ app.directive('prscatterplot', function() {
             .attr("class", "axis-label")
             .attr("transform", "translate(" + margin.left / 4 + "," + (scope.canvas_height / 2) + ") rotate(-90)");
 
-        scope.initialize_scatterplot = function() {
+        scope.initialize_scatterplot = function(is_cached) {
             // clear any existing canvases
             d3.select('#scatterplot').selectAll('canvas').remove();
 
@@ -308,16 +529,20 @@ app.directive('prscatterplot', function() {
             );
 
             scope.plot_data.cluster_data.forEach(function (cluster) {
-                // set booleans for controlling the display of a
-                // cluster's events & for whether cluster is selected
-                cluster.display_events = false;
-                cluster.selected = false;
-                cluster.color = colors[cluster.cluster_index % 20];
+                if (!is_cached) {
+                    // set booleans for controlling the display of a
+                    // cluster's events & for whether cluster is highlighted,
+                    // selected, or expanded
+                    cluster.display_events = false;
+                    cluster.highlighted = false;
+                    cluster.selected = false;
+                    cluster.color = colors[cluster.cluster_index % 20];
 
-                // and set an empty array for the cluster's event data
-                cluster.events = [];
-                // flag indicating cluster's events have been retrieved
-                cluster.events_retrieved = false;
+                    // and set an empty array for the cluster's event data
+                    cluster.events = [];
+                    // flag indicating cluster's events have been retrieved
+                    cluster.events_retrieved = false;
+                }
 
                 // each cluster needs it's own canvas and canvas context
                 d3.select("#scatterplot")
@@ -368,7 +593,7 @@ app.directive('prscatterplot', function() {
 
             // reset the SVG clusters
             scope.clusters = null;
-            cluster_plot_area.selectAll("circle").remove();
+            scope.cluster_plot_area.selectAll("circle").remove();
 
             // if the user is switching between samples, the new sample
             // may have a matching parameter but it may be a different
@@ -382,7 +607,7 @@ app.directive('prscatterplot', function() {
                 scope.y_param = scope.parameters[0];
             }
 
-            scope.clusters = cluster_plot_area.selectAll("circle").data(
+            scope.clusters = scope.cluster_plot_area.selectAll("circle").data(
                 scope.plot_data.cluster_data
             );
 
@@ -400,7 +625,7 @@ app.directive('prscatterplot', function() {
                     tooltip.style("visibility", "visible");
                     tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
 
-                    scope.select_cluster(d);
+                    scope.highlight_cluster(d);
                     scope.$apply();
                 })
                 .on("mousemove", function() {
@@ -414,7 +639,7 @@ app.directive('prscatterplot', function() {
                     );
                 })
                 .on("mouseout", function(d) {
-                    scope.deselect_cluster(d);
+                    scope.dehighlight_cluster(d);
                     scope.$apply();
                     return tooltip.style("visibility", "hidden");
                 })
@@ -491,6 +716,14 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         if (cluster.events_retrieved) {
             $scope.render_plot();
         }
+    };
+
+    $scope.expand_selected_clusters = function () {
+        $scope.plot_data.cluster_data.forEach(function(c) {
+            if (c.selected && !c.display_events) {
+                $scope.toggle_cluster_events(c);
+            }
+        });
     };
 
     $scope.render_plot = function () {
@@ -645,6 +878,20 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                     }
                 }
             });
+
+        // Clear any existing brushes
+        d3.selectAll("g.brush").remove();
+
+        // If brushing is enabled, update the brush scale
+        // Need to re-append our updated brush to the plot as well
+        if ($scope.enable_brushing) {
+            $scope.brush
+                .x(x_scale)
+                .y(y_scale);
+            $scope.cluster_plot_area.append("g")
+                .attr("class", "brush")
+                .call($scope.brush);
+        }
 
         $scope.transition_canvas_events(++$scope.transition_count);
     };

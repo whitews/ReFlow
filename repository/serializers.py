@@ -36,7 +36,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ('password',)
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -57,10 +59,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         source='site_set.count',
         read_only=True
     )
-    cytometer_count = serializers.IntegerField(
-        source='get_sample_count',
-        read_only=True
-    )
     sample_count = serializers.IntegerField(
         source='get_sample_count',
         read_only=True
@@ -74,11 +72,17 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
 
 
-class ProjectUserSerializer(serializers.ModelSerializer):
-    users = serializers.Field(source='get_project_users')
-
+class UsernameSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = ('username',)
+
+
+class ProjectUserSerializer(serializers.ModelSerializer):
+    users = UsernameSerializer(source='get_project_users', many=True)
+
+    class Meta:
+        model = Project
         fields = ('id', 'users')
 
 
@@ -125,26 +129,8 @@ class SubjectGroupSerializer(serializers.ModelSerializer):
         model = SubjectGroup
 
 
-class CytometerFlatSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
-
-    class Meta:
-        model = Cytometer
-        fields = (
-            'id',
-            'url',
-            'cytometer_name',
-            'serial_number'
-        )
-
-
 class SiteSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='site-detail')
-    cytometers = CytometerFlatSerializer(source='cytometer_set', read_only=True)
-    cytometer_count = serializers.IntegerField(
-        source='cytometer_set.count',
-        read_only=True
-    )
     sample_count = serializers.IntegerField(
         source='get_sample_count',
         read_only=True
@@ -160,9 +146,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'id',
             'url',
             'site_name',
-            'cytometers',
             'project',
-            'cytometer_count',
             'sample_count',
             'compensation_count'
         )
@@ -232,13 +216,15 @@ class PanelTemplateParameterMarkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PanelTemplateParameterMarker
-        exclude = ('parameter', 'marker')
+        exclude = ('panel_template_parameter', 'marker')
 
 
 class PanelTemplateParameterSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='name', read_only=True)
+    name = serializers.CharField(read_only=True)
     markers = PanelTemplateParameterMarkerSerializer(
-        source='paneltemplateparametermarker_set')
+        source='paneltemplateparametermarker_set',
+        many=True
+    )
     fluorochrome_abbreviation = serializers.CharField(
         source="fluorochrome.fluorochrome_abbreviation",
         read_only=True)
@@ -291,10 +277,12 @@ class PanelTemplateSerializer(serializers.ModelSerializer):
         view_name='panel-template-detail'
     )
     panel_variants = PanelVariantSerializer(
-        source='panelvariant_set'
+        source='panelvariant_set',
+        many=True
     )
     parameters = PanelTemplateParameterSerializer(
-        source='paneltemplateparameter_set'
+        source='paneltemplateparameter_set',
+        many=True
     )
     site_panel_count = serializers.IntegerField(
         source='sitepanel_set.count',
@@ -332,17 +320,19 @@ class SitePanelParameterMarkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SitePanelParameterMarker
-        exclude = ('id', 'parameter', 'marker')
+        exclude = ('id', 'site_panel_parameter', 'marker')
 
 
 class SitePanelParameterSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='name', read_only=True)
+    name = serializers.CharField(read_only=True)
     parameter_type_name = serializers.CharField(
         source="get_parameter_type_display",
         read_only=True
     )
     markers = SitePanelParameterMarkerSerializer(
-        source='sitepanelparametermarker_set')
+        source='sitepanelparametermarker_set',
+        many=True
+    )
 
     class Meta:
         model = SitePanelParameter
@@ -371,10 +361,11 @@ class SitePanelSerializer(serializers.ModelSerializer):
     )
     parameters = SitePanelParameterSerializer(
         source='sitepanelparameter_set',
+        many=True,
         read_only=True
     )
     url = serializers.HyperlinkedIdentityField(view_name='site-panel-detail')
-    name = serializers.CharField(source='name', read_only=True)
+    name = serializers.CharField(read_only=True)
     panel_template_name = serializers.CharField(
         source='panel_template.panel_name',
         read_only=True
@@ -412,27 +403,6 @@ class SitePanelSerializer(serializers.ModelSerializer):
         )
 
 
-class CytometerSerializer(serializers.ModelSerializer):
-    site_name = serializers.CharField(source='site.site_name', read_only=True)
-    sample_count = serializers.IntegerField(
-        source='sample_set.count',
-        read_only=True
-    )
-    url = serializers.HyperlinkedIdentityField(view_name='cytometer-detail')
-
-    class Meta:
-        model = Cytometer
-        fields = (
-            'id',
-            'url',
-            'site',
-            'site_name',
-            'cytometer_name',
-            'serial_number',
-            'sample_count'
-        )
-
-
 class StimulationSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='stimulation-detail')
     sample_count = serializers.IntegerField(
@@ -463,9 +433,7 @@ class CompensationSerializer(serializers.ModelSerializer):
         source='site_panel.site.site_name',
         read_only=True
     )
-    compensation_file = serializers.FileField(
-        source='compensation_file',
-        read_only=True)
+    compensation_file = serializers.FileField(read_only=True)
 
     class Meta:
         model = Compensation
@@ -493,10 +461,14 @@ class SampleSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(
         source='subject.project.project_name',
         read_only=True)
+    subject_group_name = serializers.CharField(
+        source='subject.subject_group.group_name',
+        read_only=True
+    )
     subject_code = serializers.CharField(
         source='subject.subject_code',
         read_only=True)
-    site = serializers.CharField(
+    site = serializers.IntegerField(
         source='site_panel.site_id',
         read_only=True)
     site_name = serializers.CharField(
@@ -518,11 +490,9 @@ class SampleSerializer(serializers.ModelSerializer):
         source='site_panel.panel_template.panel_name',
         read_only=True)
     upload_date = serializers.DateTimeField(
-        source='upload_date',
         format='%Y-%m-%d %H:%M:%S',
         read_only=True)
     has_compensation = serializers.BooleanField(
-        source='has_compensation',
         read_only=True
     )
 
@@ -535,13 +505,13 @@ class SampleSerializer(serializers.ModelSerializer):
             'visit_name',
             'acquisition_date',
             'upload_date',
+            'subject_group_name',
             'subject',
             'subject_code',
             'specimen',
             'specimen_name',
             'storage',
             'pretreatment',
-            'cytometer',
             'stimulation',
             'stimulation_name',
             'panel',
@@ -557,42 +527,21 @@ class SampleSerializer(serializers.ModelSerializer):
             'sha1',
         )
         read_only_fields = (
-            'original_filename', 'sha1', 'site_panel', 'cytometer'
+            'original_filename', 'sha1', 'site_panel'
         )
-        exclude = ('sample_file',)
 
 
 class SamplePOSTSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='sample-detail')
-    project = serializers.IntegerField(
-        source='subject.subject_group.project_id',
-        read_only=True)
-
-    def get_fields(self):
-        fields = super(SamplePOSTSerializer, self).get_default_fields()
-        user = self.context['view'].request.user
-        user_projects = Project.objects.get_projects_user_can_view(user)
-        if 'subject' in fields:
-            fields['subject'].queryset = Subject.objects.filter(
-                project__in=user_projects)
-        if 'site' in fields:
-            fields['site'].queryset = Site.objects.filter(
-                project__in=user_projects)
-        if 'visit' in fields:
-            fields['visit'].queryset = VisitType.objects.filter(
-                project__in=user_projects)
-
-        return fields
 
     class Meta:
         model = Sample
         fields = (
             'id', 'url', 'visit', 'subject', 'specimen',
-            'site_panel', 'project', 'original_filename',
-            'sample_file'
+            'stimulation', 'panel_variant', 'site_panel',
+            'original_filename', 'acquisition_date', 'sample_file'
         )
-        read_only_fields = ('original_filename', 'sha1', 'subsample')
-        exclude = ('subsample',)
+        read_only_fields = ('original_filename', 'sha1')
 
 
 class SampleMetadataSerializer(serializers.ModelSerializer):
@@ -632,7 +581,10 @@ class SampleCollectionMemberDetailSerializer(serializers.ModelSerializer):
 
 class SampleCollectionSerializer(serializers.ModelSerializer):
     members = SampleCollectionMemberSerializer(
-        source='samplecollectionmember_set', required=False)
+        source='samplecollectionmember_set',
+        required=False,
+        many=True
+    )
 
     class Meta:
         model = SampleCollection
@@ -641,7 +593,10 @@ class SampleCollectionSerializer(serializers.ModelSerializer):
 
 class SampleCollectionDetailSerializer(serializers.ModelSerializer):
     members = SampleCollectionMemberDetailSerializer(
-        source='samplecollectionmember_set', required=False)
+        source='samplecollectionmember_set',
+        many=True,
+        required=False
+    )
 
     class Meta:
         model = SampleCollection
@@ -808,10 +763,12 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
         read_only=True
     )
     inputs = ProcessRequestInputSerializer(
-        source='processrequestinput_set'
+        source='processrequestinput_set',
+        many=True
     )
-    stage2_clusters = members = ProcessRequestStage2ClusterSerializer(
+    stage2_clusters = ProcessRequestStage2ClusterSerializer(
         source='processrequeststage2cluster_set',
+        many=True,
         read_only=True
     )
 
@@ -860,7 +817,7 @@ class ClusterLabelSerializer(serializers.ModelSerializer):
         source='cluster.index',
         read_only=True
     )
-    label_name = serializers.CharField(
+    name = serializers.CharField(
         source='label.name',
         read_only=True
     )
@@ -874,7 +831,7 @@ class ClusterLabelSerializer(serializers.ModelSerializer):
             'cluster',
             'cluster_index',
             'label',
-            'label_name'
+            'name'
         )
 
 
@@ -900,14 +857,15 @@ class SampleClusterSerializer(serializers.ModelSerializer):
     )
     parameters = SampleClusterParameterSerializer(
         source='sampleclusterparameter_set',
+        many=True,
         read_only=True
     )
-    labels = serializers.RelatedField(
+    labels = ClusterLabelSerializer(
         source='cluster.clusterlabel_set',
         read_only=True,
         many=True
     )
-    weight = serializers.CharField(source='weight', read_only=True)
+    weight = serializers.CharField(read_only=True)
 
     class Meta:
         model = SampleCluster
@@ -949,14 +907,15 @@ class SampleClusterComponentSerializer(serializers.ModelSerializer):
     )
     parameters = SampleClusterComponentParameterSerializer(
         source='sampleclustercomponentparameter_set',
+        many=True,
         read_only=True
     )
-    labels = serializers.RelatedField(
+    labels = serializers.PrimaryKeyRelatedField(
         source='sample_cluster.cluster.clusterlabel_set',
         read_only=True,
         many=True
     )
-    weight = serializers.CharField(source='weight', read_only=True)
+    weight = serializers.CharField(read_only=True)
 
     class Meta:
         model = SampleClusterComponent
@@ -967,5 +926,6 @@ class SampleClusterComponentSerializer(serializers.ModelSerializer):
             'cluster',
             'covariance_matrix',
             'weight',
-            'parameters'
+            'parameters',
+            'labels'
         )

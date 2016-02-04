@@ -43,8 +43,8 @@ app.controller(
         '$stateParams',
         'ModelService',
         function ($scope, $controller, $stateParams, ModelService) {
-            // Inherits ProcessRequestController $scope
-            $controller('ProcessRequestController', {$scope: $scope});
+            // Inherits ProjectDetailController $scope
+            $controller('ProjectDetailController', {$scope: $scope});
 
             $scope.process_request = ModelService.getProcessRequest(
                 $stateParams.requestId
@@ -141,7 +141,6 @@ app.controller(
                 $scope.model.subjects = ModelService.getSubjects($scope.current_project.id);
                 $scope.model.visits = ModelService.getVisitTypes($scope.current_project.id);
                 $scope.model.stimulations = ModelService.getStimulations($scope.current_project.id);
-                $scope.model.cytometers = []; // depends on chosen sites
                 $scope.model.pretreatments = ModelService.getPretreatments();
                 $scope.model.chosen_samples = [];
                 $scope.model.comp_object_lut = {};
@@ -204,11 +203,6 @@ app.controller(
                         site_list.push(site.id);
                     }
                 });
-                $scope.model.cytometers = ModelService.getCytometers(
-                    {
-                        'site': site_list
-                    }
-                );
                 $scope.updateSamples();
             };
 
@@ -495,13 +489,6 @@ app.controller(
                     }
                 });
 
-                var cytometer_list = [];
-                $scope.model.cytometers.forEach(function(cytometer) {
-                    if (cytometer.selected) {
-                        cytometer_list.push(cytometer.id);
-                    }
-                });
-
                 var pretreatment_list = [];
                 $scope.model.pretreatments.forEach(function(pretreatment) {
                     if (pretreatment.selected) {
@@ -531,11 +518,6 @@ app.controller(
                     }
                     if (stimulation_list.length > 0) {
                         if (stimulation_list.indexOf(sample.stimulation) == -1) {
-                            ignore = true;
-                        }
-                    }
-                    if (cytometer_list.length > 0) {
-                        if (cytometer_list.indexOf(sample.cytometer) == -1) {
                             ignore = true;
                         }
                     }

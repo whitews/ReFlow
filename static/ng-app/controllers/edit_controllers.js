@@ -7,7 +7,11 @@ app.controller(
             $scope.current_project = ModelService.current_project;
 
             $scope.create_update = function (instance) {
-                $scope.errors = [];
+                if (!instance) {
+                    $scope.errors = {};
+                    $scope.errors['detail'] = "Please fill out the required fields";
+                    return;
+                }
                 var response = ModelService.createUpdateProject(instance);
 
                 response.$promise.then(function (object) {
@@ -38,7 +42,12 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
@@ -64,7 +73,12 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
@@ -90,7 +104,12 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
@@ -120,7 +139,12 @@ app.controller(
         );
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
@@ -147,7 +171,12 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
@@ -169,47 +198,17 @@ app.controller(
 ]);
 
 app.controller(
-    'CytometerEditController',
-    [
-        '$scope',
-        'ModelService',
-        function ($scope, ModelService) {
-            $scope.current_project = ModelService.current_project;
-
-            // get list of sites user has permission for new cytometers
-            // existing cytometers cannot change their site
-            if ($scope.instance == null) {
-                $scope.sites = ModelService.getProjectSitesWithAddPermission(
-                    $scope.current_project.id
-                );
-            }
-
-            $scope.create_update = function (instance) {
-                $scope.errors = [];
-                var response = ModelService.createUpdateCytometer(instance);
-
-                response.$promise.then(function () {
-                    // notify to update list
-                    ModelService.cytometersUpdated();
-
-                    // close modal
-                    $scope.ok();
-
-                }, function (error) {
-                    $scope.errors = error.data;
-                });
-            };
-        }
-    ]
-);
-
-app.controller(
     'VisitTypeEditController',
     ['$scope', 'ModelService', function ($scope, ModelService) {
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }
@@ -263,7 +262,12 @@ app.controller(
         $scope.current_project = ModelService.current_project;
 
         $scope.create_update = function (instance) {
-            $scope.errors = [];
+            if (!instance) {
+                $scope.errors = {};
+                $scope.errors['detail'] = "Please fill out the required fields";
+                return;
+            }
+
             if (!instance.id) {
                 instance.project = $scope.current_project.id;
             }

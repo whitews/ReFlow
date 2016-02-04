@@ -1,0 +1,47 @@
+<div ng-controller="PRMultiLabelController">
+  <div class="modal-header">
+    <button type="button" class="close" ng-click="ok()" aria-hidden="true">&times;</button>
+    Apply Cell Subset Label to All Expanded Clusters
+  </div>
+  <div class="modal-body">
+
+    <div class="row">
+      <div class="col-md-offset-1 col-md-5">
+        <div class="row">
+          <label class="col-md-6 control-label">Cell Subset:</label>
+          <div class="col-md-6">
+            <select ng-model="instance.cell_subset" ng-required="true" ng-options="cs as cs.name for cs in instance.cell_subsets" ng-change="check_inputs()">
+            </select>
+            <strong ng-show="errors.cell_subset" class="help-inline text-danger">
+              {{ errors.cell_subset.join(', ') }}
+            </strong>
+          </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+          <label class="col-md-6 control-label">Clusters: </label>
+          <div class="col-md-6">
+            <ul class="list-unstyled">
+              <li data-ng-repeat="c in instance.clusters | filter: { display_events: true }">
+                  {{ c.cluster_index }} ({{ c.weight }}%)
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="well well-warning" ng-show="errors">
+      <ul class="list-unstyled">
+        <li ng-repeat="error in errors">{{ error }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="ok()">Close</button>
+    <button type="button" class="btn btn-primary" ng-click="apply_labels()" ng-disabled="instance.invalid">Apply</button>
+  </div>
+</div>

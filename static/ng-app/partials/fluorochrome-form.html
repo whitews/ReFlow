@@ -13,9 +13,13 @@
       </strong>
     </div>
 
-    <div class="well well-warning" ng-show="errors.__all__">
+    <div class="well well-warning" ng-show="errors.detail">
+      {{ errors.detail }}
+    </div>
+
+    <div class="well well-warning" ng-show="errors.non_field_errors">
       <ul class="list-unstyled">
-        <li ng-repeat="error in errors.__all__">{{ error }}</li>
+        <li ng-repeat="error in errors.non_field_errors">{{ error }}</li>
       </ul>
     </div>
 

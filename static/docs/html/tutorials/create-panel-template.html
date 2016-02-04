@@ -1,0 +1,339 @@
+
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial - Creating a Panel Template &mdash; ReFlow 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="ReFlow 0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="../tutorials-index.html"/>
+        <link rel="next" title="Tutorial - Adding a Panel Variant" href="add-panel-variant.html"/>
+        <link rel="prev" title="Tutorial - Adding a Fluorochrome" href="add-fluorochrome.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ReFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../site-nav.html">Site Navigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../permissions.html">User Accounts &amp; Permissions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials-index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="add-project.html">Tutorial - Adding a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-marker.html">Tutorial - Adding a Marker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-fluorochrome.html">Tutorial - Adding a Fluorochrome</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Creating a Panel Template</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#procedure">Procedure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="add-panel-variant.html">Tutorial - Adding a Panel Variant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-subject.html">Tutorial - Adding a Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-site.html">Tutorial - Adding a Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upload-samples.html">Tutorial - Uploading Samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labelling-fcs-channels.html">Tutorial - Labelling FCS Channels</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../server-setup.html">Server Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../worker-setup.html">Worker Setup</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">ReFlow</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="../tutorials-index.html">Tutorials</a> &raquo;</li>
+      
+    <li>Tutorial - Creating a Panel Template</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="../_sources/tutorials/create-panel-template.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tutorial-creating-a-panel-template">
+<h1>Tutorial - Creating a Panel Template<a class="headerlink" href="#tutorial-creating-a-panel-template" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Creating a panel template requires the project-level permission &#8220;Add Project Data&#8221;.  See <a class="reference internal" href="../permissions.html"><em>User Accounts &amp; Permissions</em></a></p>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>In this tutorial, we will create an example panel template containing the following parameters:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Value Type</th>
+<th class="head">Markers</th>
+<th class="head">Fluorochrome</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Forward Scatter</td>
+<td>Area</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Side Scatter</td>
+<td>Area</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Fluorescence</td>
+<td>Area</td>
+<td>CD3</td>
+<td>FITC</td>
+</tr>
+<tr class="row-odd"><td>Fluorescence</td>
+<td>Area</td>
+<td>CD8</td>
+<td>PE-Cy7</td>
+</tr>
+<tr class="row-even"><td>Fluorescence</td>
+<td>Area</td>
+<td>Multimer</td>
+<td>PE</td>
+</tr>
+</tbody>
+</table>
+<p>All the parameters specified in the panel template will be <strong>required</strong> to be part of the <strong>Sample Annotation</strong> for any uploaded FCS samples associated with this panel template. FCS samples containing <em>extra</em> parameters are allowed, and those extra parameters will be described as part of the sample annotation. However, the markers and fluorochromes in the extra channels of any uploaded sample must be added to the project&#8217;s markers and fluorochromes.</p>
+<p>If a specific parameter is not required as part of the panel for the experiment, do not include it in the panel template, else those FCS samples not meeting the panel template parameter requirements will not be able to be uploaded to the project. For example, if the FCS samples from various sites are not actually required to have a forward scatter height channel, do not include it in the panel template.</p>
+<p><strong>*Add more information about optional markers and fluorochromes, perhaps info about viability recommendations? Also, should we re-describe the parameter properties (function, etc.) here?*</strong></p>
+</div>
+<div class="section" id="procedure">
+<h2>Procedure<a class="headerlink" href="#procedure" title="Permalink to this headline">¶</a></h2>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Prior to creating a panel template, all the markers and fluorochromes used for the parameters must have already been created. See <a class="reference internal" href="add-marker.html"><em>Tutorial - Adding a Marker</em></a> and <a class="reference internal" href="add-fluorochrome.html"><em>Tutorial - Adding a Fluorochrome</em></a> for instructions on creating markers and fluorochromes.</p>
+</div>
+<ol class="arabic">
+<li><p class="first">Login to the ReFlow server.</p>
+</li>
+<li><p class="first">From the ReFlow home page, navigate to the project by clicking on the project link.</p>
+</li>
+<li><p class="first">From the project detail page, click the <strong>Add Panel Template</strong> link located under the <strong>Panel Templates</strong> heading.</p>
+<a class="reference internal image-reference" href="../_images/project-detail1.png"><img alt="../_images/project-detail1.png" src="../_images/project-detail1.png" style="width: 1000px;" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Panel templates can also be added from the <strong>Panel Template</strong> list page by clicking on the <strong>Add Panel Template</strong> button located near the upper right of that page (beside the main heading).</p>
+</div>
+</li>
+<li><p class="first">On the panel template creation page, first give the panel template a name using the text field in the upper left-hand corner. We will call our example template &#8220;3-color Multimer&#8221;.</p>
+<a class="reference internal image-reference" href="../_images/create-panel-template-name.png"><img alt="../_images/create-panel-template-name.png" src="../_images/create-panel-template-name.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Begin adding the parameters. We&#8217;ll start by adding the forward scatter area channel by first choosing the corresponding function and value type.</p>
+<a class="reference internal image-reference" href="../_images/create-panel-template-first-parameter.png"><img alt="../_images/create-panel-template-first-parameter.png" src="../_images/create-panel-template-first-parameter.png" style="width: 1000px;" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The red text boxes under each parameter will appear if any required information is still needed.</p>
+<ul class="last simple">
+<li>Function and value type are required for all parameters</li>
+<li>Fluorescence channels must specify a marker or a fluorochrome (or both)</li>
+<li>Duplicate channels are not allowed</li>
+<li>The same fluorochrome cannot be in multiple channels</li>
+</ul>
+</div>
+</li>
+<li><p class="first">Add a new parameter by clicking the green &#8220;Add Channel&#8221; button in the lower right.</p>
+<a class="reference internal image-reference" href="../_images/create-panel-template-second-parameter.png"><img alt="../_images/create-panel-template-second-parameter.png" src="../_images/create-panel-template-second-parameter.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Continue adding the remaining channels for the panel template.</p>
+<a class="reference internal image-reference" href="../_images/create-panel-template-all-parameters.png"><img alt="../_images/create-panel-template-all-parameters.png" src="../_images/create-panel-template-all-parameters.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Once the form is completed, click the <strong>Sav Template</strong> button. If there are no errors in your panel template, you will be re-directed to the panel template list.</p>
+<a class="reference internal image-reference" href="../_images/create-panel-template-saved.png"><img alt="../_images/create-panel-template-saved.png" src="../_images/create-panel-template-saved.png" style="width: 1000px;" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A full stain panel variant named &#8220;FULL&#8221; is automatically created for each new panel template. Additional panel variants can also be added, see <a class="reference internal" href="add-panel-variant.html"><em>Tutorial - Adding a Panel Variant</em></a>.</p>
+</div>
+</li>
+</ol>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Editing a panel template is allowed as long as no Sample Annotations have been created using the template. Deleting associated Sample Annotations will enable editing the panel template, but note any existing FCS samples associated with the Sample Annotation will also be deleted.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="add-panel-variant.html" class="btn btn-neutral float-right" title="Tutorial - Adding a Panel Variant" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="add-fluorochrome.html" class="btn btn-neutral" title="Tutorial - Adding a Fluorochrome" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Scott White.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

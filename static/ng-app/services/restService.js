@@ -18,7 +18,6 @@ var URLS = {
     'PANEL_TEMPLATES':     '/api/repository/panel_templates/',
     'PANEL_VARIANT':       '/api/repository/panel_variants/',
     'SITE_PANELS':         '/api/repository/site_panels/',
-    'CYTOMETERS':          '/api/repository/cytometers/',
     'COMPENSATIONS':       '/api/repository/compensations/',
     'CELL_SUBSET_LABELS':  '/api/repository/cell_subset_labels/',
     'STIMULATIONS':        '/api/repository/stimulations/',
@@ -249,17 +248,6 @@ service
 
         return Stimulation;
     }])
-    .factory('Cytometer', ['$resource', function ($resource) {
-        var Cytometer = $resource(
-            URLS.CYTOMETERS + ':id',
-            {},
-            {
-                update: { method: 'PUT' }
-            }
-        );
-
-        return Cytometer;
-    }])
     .factory('PanelTemplate', ['$resource', function ($resource) {
         return $resource(
             URLS.PANEL_TEMPLATES + ':id',
@@ -399,7 +387,17 @@ service
     }])
     .service('Pretreatment', [ function () {
         this.query = function () {
-            return [{name:'In vitro'}, {name:'Ex vivo'}];
+            return [
+                {
+                    name:'In vitro'
+                },
+                {
+                    name:'Ex vivo'
+                },
+                {
+                    name:'Comp Beads'
+                }
+            ];
         };
     }])
     .service('StainingType', [ function () {
@@ -420,12 +418,26 @@ service
                 {
                     abbreviation: 'UNS',
                     name: 'Unstained'
+                },
+                {
+                    abbreviation: 'COMP',
+                    name: 'Compensation Beads'
                 }
             ];
         };
     }])
     .service('Storage', [ function () {
         this.query = function () {
-            return [{name:'Fresh'}, {name:'Cryopreserved'}];
+            return [
+                {
+                    name:'Fresh'
+                },
+                {
+                    name:'Cryopreserved'
+                },
+                {
+                    name:'Comp Beads'
+                }
+            ];
         };
     }]);

@@ -4,6 +4,11 @@
     <div class="col-md-3">
       FCS Sample:</br>
       <select ng-model="chosen_member" ng-change="initialize_visualization()" ng-options="member as member.sample.original_filename for member in sample_collection.members"></select>
+      <br/>
+      <br/>
+      <button class="btn btn-default btn-sm" ng-click="previous_sample()"><< Previous</button>
+      <button class="btn btn-default btn-sm" ng-click="next_sample()">Next >></button>
+
     </div>
 
     <div class="col-md-offset-1 col-md-5 no-padding">
@@ -32,8 +37,12 @@
 
     <div class="col-md-3">
       <br/>
-      <button class="btn btn-primary" ng-click="render_plot(plot_data)">Update Plot</button>
-      <button class="btn pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
+      <button class="btn btn-primary" ng-click="render_plot()">Update Plot</button>
+      <button class="btn btn-default pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
+      <br/>
+      <br/>
+      <button class="btn btn-default pull-left" ng-click="expand_selected_clusters()">Expand Selected</button>
+      <button class="btn btn-default pull-right" ng-click="launch_multi_label_modal()">Label Expanded</button>
     </div>
 
   </div>
@@ -47,14 +56,19 @@
             <input ng-model="show_heat" type="checkbox"> Show heat map
           </label>
         </div>
-        <div class="col-md-3 no-padding">
+        <div class="col-md-2 no-padding">
           <label>
             <input ng-model="auto_scale" type="checkbox"> Auto-scale
           </label>
         </div>
-        <div class="col-md-3 no-padding">
+        <div class="col-md-2 no-padding">
           <label>
             <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
+          </label>
+        </div>
+        <div class="col-md-2 no-padding">
+          <label>
+            <input ng-model="enable_brushing" type="checkbox" ng-change="render_plot()"> Brushing
           </label>
         </div>
         <div class="col-md-3 no-padding">
@@ -90,51 +104,53 @@
       </div>
     </div>
 
-    <div class="col-md-3">
-        <table class="table table-hover">
+    <div class="col-md-3" style="overflow-y: auto; height: 520px">
+        <table ts-wrapper id="data-table" class="table table-hover">
           <thead>
             <tr>
-              <th style="width: 1%">
+              <th style="width: 1%" ts-criteria="display_events">
                 <div class="color-box" ng-click="toggle_all_events()">
                   <i ng-show="show_all_clusters" class="fa fa-check master"></i>
                 </div>
               </th>
-              <th>
+              <th ts-criteria="cluster_index" ts-default="ascending">
                 Cluster ID
               </th>
-              <th>
+              <th ts-criteria="weight">
                 Event %
               </th>
-              <th>
+              <th ts-criteria="labels">
                 Cluster Labels
               </th>
             </tr>
           </thead>
 
           <tbody>
-          <tr ng-repeat="sc in plot_data.cluster_data | orderBy:'cluster_index':false">
-            <td style="width: 1%" ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
+          <tr ts-repeat ng-repeat="sc in plot_data.cluster_data">
+            <td style="width: 1%" ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
               <div class="color-box" ng-style="{ 'background-color': sc.color }" ng-click="toggle_cluster_events(sc)">
                 <i ng-show="sc.display_events" class="fa fa-check"></i>
               </div>
             </td>
-            <td ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
+            <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
               {{ sc.cluster_index }}
             </td>
-            <td ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
+            <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
               {{ sc.weight }}
             </td>
-            <td ng-class="{ hover: sc.selected }" ng-mouseover="select_cluster(sc)" ng-mouseleave="deselect_cluster(sc)">
+            <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
 
-              <ui-select multiple theme="bootstrap" ng-model="sc.labels" search-enabled="true"
-                         on-select="add_cluster_label($item, sc)" on-remove="remove_cluster_label($item, sc)">
-                <ui-select-match>{{ $item.name }}</ui-select-match>
+              <span class="panel-variant-label btn btn-success btn-xs" ng-repeat="label in sc.labels">
+                {{ label.name }}
 
-                <ui-select-choices repeat="l.id as l in labels | filter:$select.search">
-                  {{ l.name }}
-                </ui-select-choices>
+                <a ng-click="remove_cluster_label(label, sc)" tooltip="Delete" tooltip-placement="bottom">
+                  <span style="color:white" class="fa fa-times align-middle"></span>
+                </a>
+              </span>
 
-              </ui-select>
+              <a class="btn btn-default btn-xs" ng-click="launch_single_label_modal(sc)" tooltip="Add Label" tooltip-placement="bottom">
+                <span style="opacity: 0.4" class="fa fa-plus align-middle"></span>
+              </a>
 
               <div ng-show="sc.label_error" class="text-error">
                 {{ sc.label_error }}

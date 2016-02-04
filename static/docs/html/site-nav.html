@@ -2,12 +2,12 @@
 
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Site Navigation &mdash; ReFlow 0.1 documentation</title>
@@ -17,25 +17,9 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   
   
-
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:'',
-        VERSION:'0.1',
-        COLLAPSE_INDEX:false,
-        FILE_SUFFIX:'.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
     
 
   
@@ -43,111 +27,137 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <script type="text/javascript" src="_static/js/theme.js"></script>
   
 
   
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+
+  
     <link rel="top" title="ReFlow 0.1 documentation" href="index.html"/>
-        <link rel="next" title="Panels" href="panels.html"/>
+        <link rel="next" title="User Accounts &amp; Permissions" href="permissions.html"/>
         <link rel="prev" title="Introduction" href="intro.html"/> 
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        <a href="index.html" class="icon icon-home"> ReFlow</a>
-        <form class="wy-form" action="search.html" method="get">
-  <input type="text" name="q" placeholder="Search docs" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-      </div>
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix">
-        
-        
-            <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-reflow">What is ReFlow?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#why-was-reflow-built">Why was ReFlow built?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#major-features">Major Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#data-organization">Data Organization</a></li>
-</ul>
-</li>
+          
+            <a href="index.html" class="icon icon-home"> ReFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Site Navigation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#login-screen">Login Screen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#home-page">Home Page</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#project-detail">Project Detail</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-category-subject-group">Project Category - Subject Group</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-category-subject">Project Category - Subject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-category-site">Project Category - Site</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-category-cytometer">Project Category - Cytometer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-category-visit-type">Project Category - Visit Type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-category-stimulation">Project Category - Stimulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#non-project-categories">Non-project Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#project-categories">Project Categories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#marker">Marker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fluorochrome">Fluorochrome</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#panel-template">Panel Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sample-annotation">Sample Annotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subject-group">Subject Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subject">Subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#site">Site</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#visit-type">Visit Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stimulation">Stimulation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="panels.html">Panels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="permissions.html#project-permissions">Project Permissions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="permissions.html#site-permissions">Site Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#non-project-categories">Non-project Categories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#specimen">Specimen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#worker">Worker</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-project.html">Tutorial - Adding a New Project</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-subject.html">Tutorial - Adding a Subject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-site.html">Tutorial - Adding a Site</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-cytometer.html">Tutorial - Adding a Cytometer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/upload-samples.html">Tutorial - Uploading Samples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/labelling-fcs-data.html">Tutorial - Labelling FCS Data</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="server-setup.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="server-setup.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">User Accounts &amp; Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials-index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server-setup.html">Server Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="worker-setup.html">Worker Setup</a></li>
 </ul>
 
-        
+            
+          
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top">
-        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
-        <a href="/">ReFlow</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">ReFlow</a>
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <ul class="wy-breadcrumbs">
-  <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href="">Site Navigation</a></li>
-  
-</ul>
-<hr/>
-
           
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Site Navigation</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="_sources/site-nav.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
   <div class="section" id="site-navigation">
 <h1>Site Navigation<a class="headerlink" href="#site-navigation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="login-screen">
@@ -157,70 +167,110 @@
 </div>
 <div class="section" id="home-page">
 <h2>Home Page<a class="headerlink" href="#home-page" title="Permalink to this headline">¶</a></h2>
-<p>The home page is a dashboard view of all the projects to which you belong as well as the user permissions you have for each project. You will not see any projects to which you do not have view permissions. In the upper right corner of the page you will find your username and a &#8216;Logout&#8217; link to log out of the system. Note the &#8216;Documentation&#8217; link to access general ReFlow usage documentation. ReFlow administrators will have an additional &#8216;Admin&#8217; link to manage administrative tasks such as adding new markers, fluorochromes, etc.</p>
-<img alt="_images/home.png" src="_images/home.png" style="width: 1000px;" />
+<p>The home page is a dashboard view of all the projects to which you belong. You will not see any projects to which you do not have view permissions. In the upper right corner of the page you will find your username and a &#8216;Logout&#8217; link to log out of the system. Note the &#8216;Documentation&#8217; link to access general ReFlow usage documentation. ReFlow administrators will have an additional &#8216;Admin&#8217; link to manage administrative tasks such as adding new users.</p>
+<a class="reference internal image-reference" href="_images/home.png"><img alt="_images/home.png" src="_images/home.png" style="width: 1000px;" /></a>
 </div>
 <div class="section" id="project-detail">
 <h2>Project Detail<a class="headerlink" href="#project-detail" title="Permalink to this headline">¶</a></h2>
-<p>The project detail page is a dashboard view with links to all data categories within a project. Some categories are related to others, for example, a particular cytometer belongs to a particular site. Note the &#8220;breadcrumb&#8221; path directly below the ReFlow logo. This area displays your current browsing location, with links to that location&#8217;s parent pages. There are also links for the most common actions under each data category.</p>
-<img alt="_images/project-detail.png" src="_images/project-detail.png" />
+<p>The project detail page contains links to all data categories within a project. Note the &#8220;breadcrumb&#8221; path directly below the ReFlow logo. This area displays your current browsing location, with links to that location&#8217;s parent pages. There are also links for common actions, such as uploading samples, under each data category.</p>
+<a class="reference internal image-reference" href="_images/project-detail.png"><img alt="_images/project-detail.png" src="_images/project-detail.png" style="width: 1000px;" /></a>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Some pages within ReFlow will be displayed slightly different depending on user permissions. For example, on the project home page, users with &#8220;Manage users&#8221; permission for that project will see a &#8220;Manage Users&#8221; link to the right of the project name. Likewise, users with &#8220;Edit project&#8221; permission for that project will see an &#8220;Edit Project&#8221; link.</p>
+<p class="last">Some pages within ReFlow display slightly differently depending on user permissions. For example, on the project home page, users with &#8220;Manage users&#8221; permission for that project will see a &#8220;Manage Users&#8221; link to the right of the project name. Likewise, users with &#8220;Edit project&#8221; permission for that project will see an &#8220;Edit Project&#8221; link.</p>
 </div>
-<p>A non-admin user would see the project detail view as:</p>
-<img alt="_images/project-detail-non-admin-user.png" src="_images/project-detail-non-admin-user.png" />
+<p>An admin user would see the project detail view as:</p>
+<a class="reference internal image-reference" href="_images/project-detail-admin-user.png"><img alt="_images/project-detail-admin-user.png" src="_images/project-detail-admin-user.png" style="width: 1000px;" /></a>
 <p><a class="reference internal" href="tutorials/add-project.html"><em>Tutorial - Adding a New Project</em></a></p>
 </div>
-<div class="section" id="project-category-subject-group">
-<h2>Project Category - Subject Group<a class="headerlink" href="#project-category-subject-group" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="project-categories">
+<h2>Project Categories<a class="headerlink" href="#project-categories" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="marker">
+<h3>Marker<a class="headerlink" href="#marker" title="Permalink to this headline">¶</a></h3>
+<p>A marker is a property of a cell that can be used to discriminate cell subsets, such as a cell surface or intracellular protein. Typically, one or more markers are utilized in flow cytometry to identify a specific cell population.</p>
+<p>Within ReFlow, markers are used to build Panel Template and Sample Annotation parameters. These parameters are mapped to the channels of uploaded FCS files allowing a common naming convention across files from multiple sites or among files from the same site with differing channel labels.</p>
+<p><a class="reference internal" href="tutorials/add-marker.html"><em>Tutorial - Adding a Marker</em></a></p>
+</div>
+<div class="section" id="fluorochrome">
+<h3>Fluorochrome<a class="headerlink" href="#fluorochrome" title="Permalink to this headline">¶</a></h3>
+<p>A fluorochrome represents a specific fluorescent chemical (e.g. FITC or AquaAmine). Fluorochromes are typically conjugated to a marker.</p>
+<p>Similar to markers, fluorochromes are used to build Panel Template and Sample Annotation parameters, used to map channel labels of uploaded FCS files allowing a common naming convention for all project data.</p>
+<p><a class="reference internal" href="tutorials/add-fluorochrome.html"><em>Tutorial - Adding a Fluorochrome</em></a></p>
+</div>
+<div class="section" id="panel-template">
+<h3>Panel Template<a class="headerlink" href="#panel-template" title="Permalink to this headline">¶</a></h3>
+<p>A panel template is a collection of required parameters that an FCS file must contain in order to be uploaded to a project. A panel template is identified by it&#8217;s name, which can be any text string. Duplicate panel template names are not allowed within a project. Panel template parameters are defined by a combination of a function, value type, a set of markers, and a fluorochrome.</p>
+<p>A parameter function is required and can be one of the following values:</p>
+<ul class="simple">
+<li>Forward Scatter</li>
+<li>Side Scatter</li>
+<li>Fluorescence</li>
+<li>Time</li>
+</ul>
+<p>Value type is also required and can be one of the following values:</p>
+<ul class="simple">
+<li>Height</li>
+<li>Width</li>
+<li>Area</li>
+<li>Time</li>
+</ul>
+<p>A parameter may contain zero or more markers, however if no markers are specified, then a fluorochrome is required. Conversely, if no fluorochrome is specified then at least one marker is required. Of course, both markers and a fluorochrome can be specified if a project requires a specific pairing. The list of available markers and fluorochromes are limited to those added to the project. Duplicate parameters are not allowed.</p>
+<p>In flow cytometry it is common to have multiple panels that are related. For example, a panel may have a Full Stain variant as well as several fluorescence minus one (FMO) variants, as well as possible Isotype Control or Unstained variants. However, data acquired at a single site for these panel variants will have the same number of channels. ReFlow allows for the creation of panel variant tags to distinguish these files. By default, when a new Panel Template is created a &#8220;FULL&#8221; tag is created for the Full Stain variant. When creating new variants, a user must choose the variant category and optionally describe which parameter(s) have changed versus the full stain variant.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is important to note that panel templates do not specify the text used for annotating an FCS channel, that is role of the Sample Annotation.</p>
+</div>
+<p><a class="reference internal" href="tutorials/create-panel-template.html"><em>Tutorial - Creating a Panel Template</em></a></p>
+</div>
+<div class="section" id="sample-annotation">
+<h3>Sample Annotation<a class="headerlink" href="#sample-annotation" title="Permalink to this headline">¶</a></h3>
+<p>Flow laboratories often setup their cytometers using their own scheme for identifying channels. For example, some labs may use laser color names (e.g. &#8220;Green A&#8221;, or &#8220;Blue B&#8221;) or simply use numbers to indicate a fluorescence channel (e.g. &#8220;FL1&#8221;, &#8220;FL2&#8221;). Other labs may use more descriptive labels attempting to describe the markers and/or fluorochromes used. However, even in these cases labs may not use the exact marker or fluorochrome actually used in the experiment, instead using a similar or somewhat equivalent fluorochrome label. This may occur if the user does not have access to change the cytometer labels or simply forgets to update the cytometer settings prior to acquisition. Whatever the reason, inaccurate or ambiguous labelling of FCS channels can lead to problems when analyzing FCS data.</p>
+<p>ReFlow attempts to solve this problem through user-guided sample annotation at the time new FCS files are uploaded to the system. A sample annotation maps channel labels in uploaded FCS files to a common naming convention defined by the project&#8217;s markers and fluorochromes, allowing for the proper identification of parameters present. In addition, there are rules ensuring that the uploaded file contains the required channels in the associated Panel Template.</p>
+<p>Sample annotations are constructed from multiple parameters, each using the same functions, value types, markers, and fluorochrome options used to build panel template parameters. The difference is that the channel labels found in the uploaded FCS file are saved along with the user-specified information identifying the parameter. ReFlow retains this information so any subsequent FCS files matching the channel labels of the first file will be detected. If a laboratory acquires all their FCS files for a particular panel with the same set of labels the user will only have to create a sample annotation once for all the files. However, if there are typos or any deviations from the labels, a new sample annotation will be required.</p>
+<p><code class="xref doc docutils literal"><span class="pre">tutorials/managing-sample-annotations</span></code></p>
+</div>
+<div class="section" id="subject-group">
+<h3>Subject Group<a class="headerlink" href="#subject-group" title="Permalink to this headline">¶</a></h3>
 <p>Subject groups are simply a way to group subjects. There are no rules governing what the subject group represents and the subject group name can be any text string. However, duplicate subject group names are not allowed within a project.</p>
 <p><a class="reference internal" href="tutorials/add-subject-group.html"><em>Tutorial - Adding a Subject Group</em></a></p>
 </div>
-<div class="section" id="project-category-subject">
-<h2>Project Category - Subject<a class="headerlink" href="#project-category-subject" title="Permalink to this headline">¶</a></h2>
-<p>A subject represents an individual from which a specimen is taken to create an FCS sample. A subject code is required. Subjects may optionally belong to a subject group. A subject can also be marked as a batch control, a field used in the automated analysis pipeline.</p>
+<div class="section" id="subject">
+<h3>Subject<a class="headerlink" href="#subject" title="Permalink to this headline">¶</a></h3>
+<p>A subject represents an individual from which a specimen is taken to create an FCS sample. A subject code is required. Subjects may optionally belong to a subject group. A subject can also be marked as a batch control, potentially useful in an automated analysis pipeline.</p>
 <p><a class="reference internal" href="tutorials/add-subject.html"><em>Tutorial - Adding a Subject</em></a></p>
 </div>
-<div class="section" id="project-category-site">
-<h2>Project Category - Site<a class="headerlink" href="#project-category-site" title="Permalink to this headline">¶</a></h2>
-<p>Sites are locations at which FCS samples are created. There are no rules governing what the site represents, it could be an institution or a particular laboratory. The site name can be any text string. However, duplicate site names within a Project are not allowed.</p>
-<p>There are also site-level permissions which restrict access for site users. Users with access to one site within a project will not have access to data in other sites within the project. See <a class="reference internal" href="permissions.html"><em>User Accounts &amp; Permissions</em></a> for more information.</p>
+<div class="section" id="site">
+<h3>Site<a class="headerlink" href="#site" title="Permalink to this headline">¶</a></h3>
+<p>Sites are locations at which FCS samples are created. There are no rules governing what the site represents, it could be an institution or a particular laboratory. The site name can be any text string, though duplicate site names within a project are not allowed.</p>
+<p>There are also various site-level permissions. Users with access to one site within a project will not have access to data in other sites within the project. See <a class="reference internal" href="permissions.html"><em>User Accounts &amp; Permissions</em></a> for more information.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Sites are not shared across projects. While the same site name may be used in 2 different projects, it is purely coincidental. There is no formal relationship between sites with the same name across different projects, and user permissions are not shared between them.</p>
 </div>
 <p><a class="reference internal" href="tutorials/add-site.html"><em>Tutorial - Adding a Site</em></a></p>
 </div>
-<div class="section" id="project-category-cytometer">
-<h2>Project Category - Cytometer<a class="headerlink" href="#project-category-cytometer" title="Permalink to this headline">¶</a></h2>
-<p>Cytometers represent specific flow cytometers used to acquire FCS samples. A cytometer must belong to a pre-defined site, and the cytometer name and serial number fields are required. A cytometer name must be unique within a site.</p>
-<p><a class="reference internal" href="tutorials/add-cytometer.html"><em>Tutorial - Adding a Cytometer</em></a></p>
-</div>
-<div class="section" id="project-category-visit-type">
-<h2>Project Category - Visit Type<a class="headerlink" href="#project-category-visit-type" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="visit-type">
+<h3>Visit Type<a class="headerlink" href="#visit-type" title="Permalink to this headline">¶</a></h3>
 <p>Visit types can represent any temporal separation of data acquisition within a project. For clinical trials, a visit type may represent subject time points such as a baseline or 3 month follow-up. For proficiency tests, a visit type may represent a specific send out. The visit type name is required and must be unique within a project. The description is optional.</p>
 <p><a class="reference internal" href="tutorials/add-visit-type.html"><em>Tutorial - Adding a Visit Type</em></a></p>
 </div>
-<div class="section" id="project-category-stimulation">
-<h2>Project Category - Stimulation<a class="headerlink" href="#project-category-stimulation" title="Permalink to this headline">¶</a></h2>
-<p>A stimulation represents the use of a stimulant on a specimen prior to acquiring the FCS sample in order to evaluate activation of cell subsets in intracellular staining (ICS) or proliferation assays. Typically, the stimulant is a pathogen- or cancer-specific mixture of antigenic peptides designed to bind to and activate antigen-specific cells, but non-specific stimulants such as the SEB super antigen may also be used as positive controls.</p>
+<div class="section" id="stimulation">
+<h3>Stimulation<a class="headerlink" href="#stimulation" title="Permalink to this headline">¶</a></h3>
+<p>A stimulation describes the stimulation conditions of a specimen prior to acquiring the FCS sample in order to evaluate activation of cell subsets in intracellular staining (ICS) or proliferation assays. Typically, the stimulant is a pathogen- or cancer-specific mixture of antigenic peptides designed to bind to and activate antigen-specific cells, but non-specific stimulants such as the SEB super antigen may also be used as positive controls.</p>
 <p>The stimulation name is required and must be unique within a project. The description is optional. Since the stimulation category is required for uploaded samples, non-stimulated conditions can be represented by any text string such as &#8220;Unstimulated&#8221;, &#8220;No stim&#8221;, or any other preferred text string.</p>
 <p><a class="reference internal" href="tutorials/add-stimulation.html"><em>Tutorial - Adding a Stimulation</em></a></p>
+</div>
 </div>
 <div class="section" id="non-project-categories">
 <h2>Non-project Categories<a class="headerlink" href="#non-project-categories" title="Permalink to this headline">¶</a></h2>
 <p>Several categories within ReFlow are not defined within projects and their values are shared across all projects. These include:</p>
 <ul class="simple">
 <li>Specimens</li>
-<li>Markers</li>
-<li>Fluorochromes</li>
 <li>Workers</li>
 </ul>
 <p>To view or modify data for these categories requires superuser privileges. To navigate to the non-project category views, click on the <strong>Admin</strong> link in the upper right (only available for superusers).</p>
-<img alt="_images/admin-view.png" src="_images/admin-view.png" />
-<div class="section" id="specimens">
-<h3>Specimens<a class="headerlink" href="#specimens" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="_images/admin-view.png"><img alt="_images/admin-view.png" src="_images/admin-view.png" style="width: 1000px;" /></a>
+<div class="section" id="specimen">
+<h3>Specimen<a class="headerlink" href="#specimen" title="Permalink to this headline">¶</a></h3>
 <p>A specimen represents a type of biological tissue from which an FCS sample was acquired. There are several specimens included by default in ReFlow, but the list may be modified when deploying a ReFlow server. The default list includes:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -251,38 +301,40 @@
 </tbody>
 </table>
 </div>
-<div class="section" id="markers">
-<h3>Markers<a class="headerlink" href="#markers" title="Permalink to this headline">¶</a></h3>
-<p>A marker is a property of a cell that can be used to discriminate cell subsets, such as a cell surface or intracellular protein. Typically, one or more markers are utilized in flow cytometry to identify a specific cell population. There are many markers included by default in ReFlow, but the list may be modified when deploying a ReFlow server. The current list of default markers can be found in the <a class="reference external" href="https://raw.githubusercontent.com/whitews/ReFlow/master/repository/fixtures/marker.json">source code on GitHub</a>.</p>
-</div>
-<div class="section" id="fluorochromes">
-<h3>Fluorochromes<a class="headerlink" href="#fluorochromes" title="Permalink to this headline">¶</a></h3>
-<p>A fluorochrome represents a specific fluorescent chemical. Fluorochromes are typically conjugated to a marker. There are many fluorochromes included by default in ReFlow, but the list may be modified when deploying a ReFlow server. The current list of default fluorochromes can be found in the <a class="reference external" href="https://raw.githubusercontent.com/whitews/ReFlow/master/repository/fixtures/fluorochrome.json">source code on GitHub</a>.</p>
+<div class="section" id="worker">
+<h3>Worker<a class="headerlink" href="#worker" title="Permalink to this headline">¶</a></h3>
+<p>ReFlow workers are special user accounts used for automated analysis of FCS files. Workers do not have passwords, rather they authenticate to the ReFlow server via token authentication. They are deployed on remote computers with one or more NVIDIA GPUs. See the <a class="reference internal" href="worker-setup.html"><em>Worker Setup</em></a>  for more information about setting up remote workers.</p>
 </div>
 </div>
 </div>
 
 
+           </div>
+          </div>
           <footer>
   
-    <div class="rst-footer-buttons">
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="panels.html" class="btn btn-neutral float-right" title="Panels"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="permissions.html" class="btn btn-neutral float-right" title="User Accounts &amp; Permissions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="intro.html" class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="intro.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
 
   <hr/>
 
-  <p>
-      &copy; Copyright 2013, Scott White.
-  </p>
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Scott White.
 
-  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
 </footer>
+
         </div>
       </div>
 
@@ -290,6 +342,39 @@
 
   </div>
   
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
 
 </body>
 </html>

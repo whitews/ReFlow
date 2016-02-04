@@ -2,12 +2,12 @@
 
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Tutorial - Uploading Samples &mdash; ReFlow 0.1 documentation</title>
@@ -17,25 +17,9 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   
   
-
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:'../',
-        VERSION:'0.1',
-        COLLAPSE_INDEX:false,
-        FILE_SUFFIX:'.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
     
 
   
@@ -43,112 +27,132 @@
   
   
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <script type="text/javascript" src="_static/js/theme.js"></script>
   
 
   
     <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
+  
     <link rel="top" title="ReFlow 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorials" href="../tutorials-index.html"/>
-        <link rel="next" title="Tutorial - Labelling FCS Data" href="labelling-fcs-data.html"/>
+        <link rel="next" title="Tutorial - Labelling FCS Channels" href="labelling-fcs-channels.html"/>
         <link rel="prev" title="Tutorial - Adding a Stimulation" href="add-stimulation.html"/> 
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  
+  <script src="../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        <a href="../index.html" class="icon icon-home"> ReFlow</a>
-        <form class="wy-form" action="../search.html" method="get">
-  <input type="text" name="q" placeholder="Search docs" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-      </div>
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix">
-        
-        
-            <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-reflow">What is ReFlow?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro.html#why-was-reflow-built">Why was ReFlow built?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro.html#major-features">Major Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../intro.html#data-organization">Data Organization</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../site-nav.html">Site Navigation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#login-screen">Login Screen</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#home-page">Home Page</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-detail">Project Detail</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-subject-group">Project Category - Subject Group</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-subject">Project Category - Subject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-site">Project Category - Site</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-cytometer">Project Category - Cytometer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-visit-type">Project Category - Visit Type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#project-category-stimulation">Project Category - Stimulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../site-nav.html#non-project-categories">Non-project Categories</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../panels.html">Panels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../permissions.html">User Accounts &amp; Permissions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../permissions.html#project-permissions">Project Permissions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../permissions.html#site-permissions">Site Permissions</a></li>
-</ul>
-</li>
+          
+            <a href="../index.html" class="icon icon-home"> ReFlow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../site-nav.html">Site Navigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../permissions.html">User Accounts &amp; Permissions</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials-index.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="add-project.html">Tutorial - Adding a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-marker.html">Tutorial - Adding a Marker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-fluorochrome.html">Tutorial - Adding a Fluorochrome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create-panel-template.html">Tutorial - Creating a Panel Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add-panel-variant.html">Tutorial - Adding a Panel Variant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-subject-group.html">Tutorial - Adding a Subject Group</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-subject.html">Tutorial - Adding a Subject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-site.html">Tutorial - Adding a Site</a></li>
-<li class="toctree-l2"><a class="reference internal" href="add-cytometer.html">Tutorial - Adding a Cytometer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-visit-type.html">Tutorial - Adding a Visit Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add-stimulation.html">Tutorial - Adding a Stimulation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Tutorial - Uploading Samples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="labelling-fcs-data.html">Tutorial - Labelling FCS Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labelling-fcs-channels.html">Tutorial - Labelling FCS Channels</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../server-setup.html">Server Setup</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../server-setup.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../server-setup.html#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../server-setup.html#enable-apache-virtualhost">Enable Apache VirtualHost</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../server-setup.html">Server Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../worker-setup.html">Worker Setup</a></li>
 </ul>
 
-        
+            
+          
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top">
-        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
-        <a href="/">ReFlow</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">ReFlow</a>
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <ul class="wy-breadcrumbs">
-  <li><a href="../index.html">Docs</a> &raquo;</li>
-  <li><a href="">Tutorial - Uploading Samples</a></li>
-  
-</ul>
-<hr/>
-
           
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="../tutorials-index.html">Tutorials</a> &raquo;</li>
+      
+    <li>Tutorial - Uploading Samples</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="../_sources/tutorials/upload-samples.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
   <div class="section" id="tutorial-uploading-samples">
 <h1>Tutorial - Uploading Samples<a class="headerlink" href="#tutorial-uploading-samples" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
@@ -159,37 +163,49 @@
 <li><p class="first">Login to the ReFlow server.</p>
 </li>
 <li><p class="first">From the ReFlow home page, navigate to the project by clicking on the project link.</p>
-<img alt="../_images/project-detail1.png" src="../_images/project-detail1.png" />
 </li>
-<li><p class="first">From the project detail page, click the <strong>Upload Samples</strong> link to navigate to the sample upload page.</p>
-<img alt="../_images/sample-upload-blank.png" src="../_images/sample-upload-blank.png" />
-</li>
-<li><p class="first">To add FCS files, either drag and drop them anywhere within the light grey region with the dashed-line border or click on the <strong>Choose Files</strong> button to the left of the &#8220;FCS Files&#8221; heading.</p>
-<p>The files should show up in <strong>FCS Files</strong> list. The file name is also a drop-down menu for viewing the metadata, the file&#8217;s channel labels, and for removing a file from the list. The next column displays the acquisition date, which is pre-populated from the metadata if present. However, if the acquisition date field is not present in the FCS metadata, this value would need to be entered manually using the drop-down calendar menu. The last 2 columns are the channel count and file size, respectively.</p>
-<img alt="../_images/sample-upload-new-samples.png" src="../_images/sample-upload-new-samples.png" />
-</li>
-<li><p class="first">Choose the appropriate categories from the drop-down menus on the left for the first file in the list.</p>
-<img alt="../_images/sample-upload-pre-site-panel.png" src="../_images/sample-upload-pre-site-panel.png" />
-</li>
-<li><p class="first">Once all the category selections have been made, click the checkbox for the first file.</p>
-<p>If ReFlow has previously seen a file with matching annotation for this site and panel template combination, it will automatically associate the file with that annotation. In this case, continue with the next step to add the file to the upload queue.</p>
-<p>However, if this is the first time this annotation set has been seen by ReFlow, a new dialog window will appear to identify all the channels present in the file. In this case, follow the instructions in <a class="reference internal" href="labelling-fcs-data.html"><em>Tutorial - Labelling FCS Data</em></a></p>
-<img alt="../_images/sample-upload-create-site-panel.png" src="../_images/sample-upload-create-site-panel.png" />
+<li><p class="first">From the project detail page, navigate to the sample upload page by clicking the <strong>Upload Samples</strong> link located under the <strong>Samples</strong> heading.</p>
+<a class="reference internal image-reference" href="../_images/project-detail1.png"><img alt="../_images/project-detail1.png" src="../_images/project-detail1.png" style="width: 1000px;" /></a>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Any other files in the list that also match the categories can also be selected by clicking their checkboxes and adding the upload queue.</p>
+<p class="last">The sample upload page can also be reached from the <strong>Sample</strong> list page by clicking on the <strong>Upload Samples</strong> button located near the upper right of that page (beside the main heading).</p>
 </div>
 </li>
-<li><p class="first">Click the <strong>Add to Queue</strong> button and the file will be added to the upload queue below.</p>
-<p>After adding to the upload queue</p>
-<img alt="../_images/sample-upload-file-queued.png" src="../_images/sample-upload-file-queued.png" />
+<li><p class="first">To add FCS files, either drag and drop them anywhere in the light grey region (within the dashed-line border) or click on the <strong>Choose Files</strong> button to the left of the &#8220;FCS Files&#8221; heading.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-blank.png"><img alt="../_images/sample-upload-blank.png" src="../_images/sample-upload-blank.png" style="width: 1000px;" /></a>
+<p>The files should show up in <strong>FCS Files</strong> list. The file name is displayed in the first column (which is also a drop-down menu for viewing the metadata, viewing the file&#8217;s channel labels, or removing a file from the list).</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-new-samples.png"><img alt="../_images/sample-upload-new-samples.png" src="../_images/sample-upload-new-samples.png" style="width: 1000px;" /></a>
 </li>
-<li><p class="first">Once all the files have been added to the upload queue, verify they have been categorized correctly <strong>before</strong> uploading. If a file is categorized incorrectly, click on the file name and choose <strong>Move to File List</strong> from the drop-down menu. This will place the file back in the FCS File List above. From there it can be re-categorized and added back to the upload queue.</p>
+<li><p class="first">Ensure that the acquisition date and subject are correct. These 2 fields are auto-populated in an attempt to reduce the amount of user interaction when uploading large numbers of FCS files.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The acquisition date is pre-populated from the metadata of each FCS file. However, if the acquisition date field is not present in the FCS metadata, this value would need to be entered manually using the drop-down calendar menu. The subject is auto-populated from the FCS file name, but should be verified by the user to make sure the correct subject code was selected.</p>
+</div>
+<a class="reference internal image-reference" href="../_images/sample-upload-new-samples.png"><img alt="../_images/sample-upload-new-samples.png" src="../_images/sample-upload-new-samples.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">For the first file in the list, choose the appropriate site and panel template from the drop-down menus on the left. At this point, an orange <strong>Label Parameters</strong> button will appear beside the file name of FCS samples that do not match an existing Sample Annotation for this project. For samples that do have a matching Sample Annotation, then a checkbox will be displayed.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-pre-site-panel.png"><img alt="../_images/sample-upload-pre-site-panel.png" src="../_images/sample-upload-pre-site-panel.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">If a sample in the list has a <strong>Label Parameters</strong> button, click on it to open the sample annotation dialog window. Follow the instructions in <a class="reference internal" href="labelling-fcs-channels.html"><em>Tutorial - Labelling FCS Channels</em></a> to identify all the channels present in the file. Otherwise, if the file has a checkbox, then proceed to the next step.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-create-site-panel.png"><img alt="../_images/sample-upload-create-site-panel.png" src="../_images/sample-upload-create-site-panel.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">For FCS files with a checkbox to the left of their file name (i.e. files that ReFlow has matched to a Sample Annotation), continue choosing the appropriate selections from the various drop-down menus on the left site (Panel Variant, Visit, etc.).</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-post-site-panel.png"><img alt="../_images/sample-upload-post-site-panel.png" src="../_images/sample-upload-post-site-panel.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Once all the category selections have been made, click the checkbox for the files you wish to add to the upload queue.</p>
+<a class="reference internal image-reference" href="../_images/sample-upload-file-queue-selected.png"><img alt="../_images/sample-upload-file-queue-selected.png" src="../_images/sample-upload-file-queue-selected.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Click the <strong>Add to Queue</strong> button and the file will be added to the upload queue below.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If any of the categories have not been chosen, the <strong>Add to Queue</strong> button will not add the files to the queue. All the categories on the left, as well as the acquisition date and subject drop down menus, are required for all FCS files.</p>
+</div>
+<a class="reference internal image-reference" href="../_images/sample-upload-file-queued.png"><img alt="../_images/sample-upload-file-queued.png" src="../_images/sample-upload-file-queued.png" style="width: 1000px;" /></a>
+</li>
+<li><p class="first">Once all the files have been added to the upload queue, verify they have been categorized correctly <strong>before</strong> uploading. If a file is categorized incorrectly, click on the file name and choose <strong>Move to File List</strong> from the drop-down menu. This will place the file back in the FCS file list above. From there it can be re-categorized and added back to the upload queue.</p>
 <img alt="../_images/sample-upload-file-queue-menu.png" src="../_images/sample-upload-file-queue-menu.png" />
 </li>
-</ol>
-<ol class="arabic" start="12">
-<li><p class="first">Once all the files are correct, start uploading by clicking on the <strong>Upload</strong> button. For each file uploaded the progress bar for each file will update.</p>
+<li><p class="first">Once all the files have been correctly categorized, select the files to upload by clicking their check boxes, then clicking on the <strong>Upload Selected</strong> button. A progress bar will be displayed showing the upload status for each file.</p>
 <img alt="../_images/sample-upload-uploading.png" src="../_images/sample-upload-uploading.png" />
 <p>And the view when all uploads are complete:</p>
 <img alt="../_images/sample-upload-finished.png" src="../_images/sample-upload-finished.png" />
@@ -202,26 +218,32 @@
 </div>
 
 
+           </div>
+          </div>
           <footer>
   
-    <div class="rst-footer-buttons">
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="labelling-fcs-data.html" class="btn btn-neutral float-right" title="Tutorial - Labelling FCS Data"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="labelling-fcs-channels.html" class="btn btn-neutral float-right" title="Tutorial - Labelling FCS Channels" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="add-stimulation.html" class="btn btn-neutral" title="Tutorial - Adding a Stimulation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="add-stimulation.html" class="btn btn-neutral" title="Tutorial - Adding a Stimulation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
 
   <hr/>
 
-  <p>
-      &copy; Copyright 2013, Scott White.
-  </p>
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, Scott White.
 
-  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
 </footer>
+
         </div>
       </div>
 
@@ -229,6 +251,39 @@
 
   </div>
   
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
 
 </body>
 </html>

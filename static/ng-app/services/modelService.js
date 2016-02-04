@@ -23,7 +23,6 @@ service.factory('ModelService', function(
         PanelTemplate,
         PanelVariant,
         Site,
-        Cytometer,
         SitePanel,
         Sample,
         SampleMetadata,
@@ -520,27 +519,6 @@ service.factory('ModelService', function(
     };
     service.getSitePermissions = function (site_id) {
         return new Site({'id': site_id}).getUserPermissions();
-    };
-
-    // Cytometer services
-    service.cytometersUpdated = function () {
-        $rootScope.$broadcast('cytometers:updated');
-    };
-    service.getCytometers = function(query_object) {
-        return Cytometer.query(query_object);
-    };
-    service.createUpdateCytometer = function(instance) {
-        if (instance.id) {
-            return Cytometer.update(
-                {id: instance.id },
-                instance
-            );
-        } else {
-            return Cytometer.save(instance);
-        }
-    };
-    service.destroyCytometer = function (instance) {
-        return Cytometer.delete({id: instance.id });
     };
 
     // Sample related services
