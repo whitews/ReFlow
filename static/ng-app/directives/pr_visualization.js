@@ -741,6 +741,12 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.x_param.extent = undefined;
         $scope.y_param.extent = undefined;
 
+        if ($scope.show_clusters) {
+            $scope.clusters.style("opacity", 1);
+        } else {
+            $scope.clusters.style("opacity", 0);
+        }
+
         // Populate x_data and y_data using chosen x & y parameters
         for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
             $scope.plot_data.cluster_data[i].parameters.forEach(function (p) {
