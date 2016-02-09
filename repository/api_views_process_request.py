@@ -611,13 +611,60 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 class ProcessRequestDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveDestroyAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single process request.
     """
 
     model = models.ProcessRequest
     serializer_class = serializers.ProcessRequestDetailSerializer
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Override patch just for updating percent complete field. Validation
+        includes:
+          - ensuring user is a Worker
+          - verifying the ProcessRequest is assigned to that Worker
+          - verifying the percent complete is an integer between 0 & 100
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = models.Worker.objects.get(user=self.request.user)
+                process_request = models.ProcessRequest.objects.get(
+                    id=kwargs['pk']
+                )
+                percent_complete = int(self.request.data['percent_complete'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # check that PR is assigned to this worker
+            if process_request.worker.id != worker.id:
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            # make sure the ProcessRequest status is Working
+            if process_request.status != 'Working':
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            if percent_complete < 0 or percent_complete > 100:
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            # if we get here, everything checked out ok, update the PR
+            try:
+                # now try to save the ProcessRequest
+                process_request.percent_complete = percent_complete
+                process_request.save()
+
+                # serialize the updated ProcessRequest
+                serializer = serializers.ProcessRequestSerializer(
+                    process_request,
+                    context={'request': request}
+                )
+
+                return Response(serializer.data, status=201)
+            except ValidationError as e:
+                return Response(data={'detail': e.messages}, status=400)
+
+        return Response(data={'detail': 'Bad request'}, status=400)
 
     def delete(self, request, *args, **kwargs):
         process_request = models.ProcessRequest.objects.get(id=kwargs['pk'])
