@@ -25,13 +25,6 @@
             </td>
           </tr>
 
-          <tr ng-show="process_request.status == 'Error'">
-            <td>Error Detail:</td>
-            <td>
-              <strong class="text-danger">{{ process_request.status_message }}</strong><br/>
-            </td>
-          </tr>
-
           <tr>
             <td>Sample Collection:</td>
             <td>
@@ -43,6 +36,13 @@
             <td>Sub-sample Count:</td>
             <td>
               {{ process_request.subsample_count }}<br/>
+            </td>
+          </tr>
+
+          <tr ng-show="process_request.status == 'Error'">
+            <td>Error Detail:</td>
+            <td>
+              <strong class="text-danger">{{ process_request.status_message }}</strong><br/>
             </td>
           </tr>
 
