@@ -14,18 +14,6 @@
           </tr>
 
           <tr>
-            <td>Status:</td>
-            <td>
-              <span class="label label-success" ng-show="process_request.status == 'Complete'">{{ process_request.status }}</span>
-              <span class="label label-warning" ng-show="process_request.status == 'Working'">{{ process_request.status }}</span>
-              <span class="label label-primary" ng-show="process_request.status == 'Pending'">{{ process_request.status }}</span>
-              <span class="label label-danger" ng-show="process_request.status == 'Error'">
-                <i class="fa fa-exclamation-triangle align-middle"></i>{{ process_request.status }}
-              </span>
-            </td>
-          </tr>
-
-          <tr>
             <td>Sample Collection:</td>
             <td>
               {{ process_request.sample_collection }}<br/>
@@ -36,6 +24,18 @@
             <td>Sub-sample Count:</td>
             <td>
               {{ process_request.subsample_count }}<br/>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Status:</td>
+            <td>
+              <span class="label label-success" ng-show="process_request.status == 'Complete'">{{ process_request.status }}</span>
+              <span class="label label-warning" ng-show="process_request.status == 'Working'">{{ process_request.status }}</span>
+              <span class="label label-primary" ng-show="process_request.status == 'Pending'">{{ process_request.status }}</span>
+              <span class="label label-danger" ng-show="process_request.status == 'Error'">
+                <i class="fa fa-exclamation-triangle align-middle"></i>{{ process_request.status }}
+              </span>
             </td>
           </tr>
 
@@ -56,6 +56,13 @@
                   </a>
                 <span id="error_message"></span>
               </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Percent Complete:</td>
+            <td>
+              {{ process_request.percent_complete }}%<br/>
             </td>
           </tr>
 
