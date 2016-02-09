@@ -793,6 +793,7 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'worker_name',
             'status',
             'status_message',
+            'percent_complete',
             'inputs'
         )
 
