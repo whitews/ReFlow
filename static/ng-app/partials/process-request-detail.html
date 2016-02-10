@@ -31,7 +31,11 @@
             <td>Status:</td>
             <td>
               <span class="label label-success" ng-show="process_request.status == 'Complete'">{{ process_request.status }}</span>
-              <span class="label label-warning" ng-show="process_request.status == 'Working'">{{ process_request.status }}</span>
+              <span ng-show="process_request.status == 'Working'">
+                <progressbar value="process_request.percent_complete" type="warning">
+                  <strong style="margin: 0px 6px;"class="text-primary">{{ process_request.status }}&nbsp;({{ process_request.percent_complete }}%&nbsp;Complete)</strong>
+                </progressbar>
+              </span>
               <span class="label label-primary" ng-show="process_request.status == 'Pending'">{{ process_request.status }}</span>
               <span class="label label-danger" ng-show="process_request.status == 'Error'">
                 <i class="fa fa-exclamation-triangle align-middle"></i>{{ process_request.status }}
@@ -52,17 +56,10 @@
               <span id="worker">
                 {{ process_request.worker_name }}
                   <a ng-show="current_project.permissions.can_process_data" class="btn btn-default btn-xs" rel="tooltip" onclick="revoke_assignment()" href="#" data-original-title="Revoke Assignment" data-placement="right">
-                    <i style="opacity: 0.4;margin: 0 10px;" class="glyphicon glyphicon-remove align-middle"></i>
+                    <i style="opacity: 0.4;margin: 4px 2px 0 2px;" class="glyphicon glyphicon-remove"></i>
                   </a>
                 <span id="error_message"></span>
               </span>
-            </td>
-          </tr>
-
-          <tr>
-            <td>Percent Complete:</td>
-            <td>
-              {{ process_request.percent_complete }}%<br/>
             </td>
           </tr>
 
