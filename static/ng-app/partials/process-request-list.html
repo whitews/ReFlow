@@ -41,7 +41,11 @@
           <td>{{ request.request_username }}</td>
           <td>
             <span class="label label-success" ng-show="request.status == 'Complete'">{{ request.status }}</span>
-            <span class="label label-warning" ng-show="request.status == 'Working'">{{ request.status }}</span>
+            <span ng-show="request.status == 'Working'">
+              <progressbar value="request.percent_complete" type="warning">
+                <strong style="margin: 0px 6px;"class="text-primary">{{ request.status }}&nbsp;({{ request.percent_complete }}%&nbsp;Complete)</strong>
+              </progressbar>
+            </span>
             <span class="label label-primary" ng-show="request.status == 'Pending'">{{ request.status }}</span>
             <span class="label label-danger" ng-show="request.status == 'Error'" tooltip="{{ request.status_message }}" tooltip-placement="bottom">
               <i class="fa fa-exclamation-triangle align-middle"></i>{{ request.status }}
