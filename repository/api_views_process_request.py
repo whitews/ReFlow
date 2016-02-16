@@ -163,6 +163,44 @@ def revoke_process_request_assignment(request, pk):
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
+def purge_process_request_results(request, pk):
+    """
+    This API is necessary for workers that are already assigned to a
+    ProcessRequest, but for whatever reason re-started the analysis. It
+    is possible that the assigned Worker had previously uploaded a partial
+    set of Cluster and SampleCluster instances prior to failing. As a result,
+    the ProcessRequest would still be in 'Working' status and assigned. This
+    function allows a worker to purge any prior results prior to POSTing a
+    new set of results.
+
+    Prior results can only be purged by the assigned worker and only if the
+    ProcessRequest status is "Working".
+
+    :param request: Incoming HTTP request
+    :param pk: Primary key of ProcessRequest
+    :return: HTTP response
+    """
+    pr = get_object_or_404(models.ProcessRequest, pk=pk)
+    if not pr.worker or not hasattr(request.user, 'worker'):
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+    if pr.worker.user != request.user:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+    if pr.status != "Working":
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    try:
+        # deleting the cluster set will also take care of any SampleCluster
+        # instances (as well as any other child relationships)
+        pr.cluster_set.all().delete()
+    except:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    return Response(status=status.HTTP_200_OK, data={})
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def complete_process_request_assignment(request, pk):
     pr = get_object_or_404(models.ProcessRequest, pk=pk)
     if not pr.worker or not hasattr(request.user, 'worker'):
@@ -194,6 +232,9 @@ def verify_process_request_assignment(request, pk):
             data['assignment'] = True
 
     return Response(status=status.HTTP_200_OK, data=data)
+
+
+
 
 
 class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateDestroyAPIView):

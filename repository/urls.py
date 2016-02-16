@@ -97,6 +97,7 @@ urlpatterns = [
     url(r'^api/repository/process_requests/(?P<pk>\d+)/report_error/?$', ProcessRequestReportError.as_view(), name='process-request-report-error'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/revoke_assignment/?$', revoke_process_request_assignment, name='revoke-process-request-assignment'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/verify_assignment/?$', verify_process_request_assignment, name='verify-process-request-assignment'),
+    url(r'^api/repository/process_requests/(?P<pk>\d+)/purge_results/?$', purge_process_request_results, name='purge-process-request-results'),
     url(r'^api/repository/process_requests/(?P<pk>\d+)/complete_assignment/?$', complete_process_request_assignment, name='complete-process-request-assignment'),
     url(r'^api/repository/clusters/?$', ClusterList.as_view(), name='cluster-list'),
     url(r'^api/repository/cluster_labels/?$', ClusterLabelList.as_view(), name='cluster-label-list'),
