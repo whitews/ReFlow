@@ -799,6 +799,16 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
         )
 
 
+class ProcessRequestProgessDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequest
+        fields = (
+            'status',
+            'status_message',
+            'percent_complete'
+        )
+
+
 class ClusterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cluster
