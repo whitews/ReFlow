@@ -41,10 +41,13 @@ app.controller(
         '$scope',
         '$controller',
         '$stateParams',
+        '$interval',
         'ModelService',
-        function ($scope, $controller, $stateParams, ModelService) {
+        function ($scope, $controller, $stateParams, $interval, ModelService) {
             // Inherits ProjectDetailController $scope
             $controller('ProjectDetailController', {$scope: $scope});
+
+            var progress_interval;
 
             $scope.process_request = ModelService.getProcessRequest(
                 $stateParams.requestId
@@ -66,7 +69,32 @@ app.controller(
                 ).$promise.then(function (data) {
                     $scope.children = data;
                 });
+
+                // finally, for 'Working' PRs, set up interval to track progress
+                if (pr.status === 'Working' || pr.status === 'Pending') {
+                    // update progress every 15 seconds
+                    progress_interval = $interval(update_progress, 2000);
+                }
             });
+
+            function update_progress() {
+                // call to model service here
+                var progress_update = ModelService.getProcessRequestProgress(
+                    $scope.process_request.id
+                );
+                progress_update.$promise.then(function(pr_progress) {
+                    $scope.process_request.status = pr_progress.status;
+                    $scope.process_request.status_message = pr_progress.status_message;
+                    $scope.process_request.percent_complete = pr_progress.percent_complete;
+                    if (pr_progress.status === 'Complete' || pr_progress.status === 'Error') {
+                        kill_progress_interval();
+                    }
+                });
+            }
+
+            function kill_progress_interval() {
+                $interval.cancel(progress_interval);
+            }
         }
     ]
 );
