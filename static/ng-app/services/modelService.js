@@ -615,6 +615,11 @@ service.factory('ModelService', function(
             { id: process_request_id }
         );
     };
+    service.getProcessRequestProgress = function(process_request_id) {
+        return ProcessRequest.get_progress(
+            { id: process_request_id }
+        );
+    };
     service.createProcessRequest = function(instance) {
         return ProcessRequest.save(instance);
     };
