@@ -73,7 +73,7 @@ app.controller(
                 // finally, for 'Working' PRs, set up interval to track progress
                 if (pr.status === 'Working' || pr.status === 'Pending') {
                     // update progress every 15 seconds
-                    progress_interval = $interval(update_progress, 2000);
+                    progress_interval = $interval(update_progress, 15000);
                 }
             });
 
