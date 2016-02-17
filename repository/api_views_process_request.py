@@ -717,6 +717,19 @@ class ProcessRequestDetail(
         )
 
 
+class ProcessRequestProgressDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint for getting only the 'percent_complete' field for a single
+    ProcessRequest
+    """
+
+    model = models.ProcessRequest
+    serializer_class = serializers.ProcessRequestProgessDetailSerializer
+
+
 class ProcessRequestAssignmentUpdate(
         LoginRequiredMixin,
         PermissionRequiredMixin,
