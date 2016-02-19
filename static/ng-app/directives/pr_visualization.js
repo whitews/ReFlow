@@ -504,8 +504,6 @@ app.directive('prscatterplot', function() {
 
                 return is_selected;
             });
-
-            scope.$apply();
         }
 
         scope.x_axis = plot_area.append("g")
@@ -915,7 +913,8 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         d3.selectAll("g.brush").remove();
 
         // If brushing is enabled, update the brush scale
-        // Need to re-append our updated brush to the plot as well
+        // & re-append our updated brush to the plot, then finally
+        // issue brush.call
         if ($scope.enable_brushing) {
             $scope.brush
                 .x(x_scale)
@@ -923,6 +922,16 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             $scope.cluster_plot_area.append("g")
                 .attr("class", "brush")
                 .call($scope.brush);
+            $scope.brush.event(d3.select("g.brush"));
+        } else {
+            // turn off "selected" status on any previously selected clusters
+            // else they can get stuck as selected if the user disables the
+            // brushed mode
+            $scope.plot_data.cluster_data.forEach(function(c) {
+                if (c.selected) {
+                    $scope.deselect_cluster(c);
+                }
+            });
         }
 
         $scope.transition_canvas_events(++$scope.transition_count);
