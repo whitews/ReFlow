@@ -755,6 +755,14 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         });
     };
 
+    $scope.collapse_selected_clusters = function () {
+        $scope.plot_data.cluster_data.forEach(function(c) {
+            if (c.selected && c.display_events) {
+                $scope.toggle_cluster_events(c);
+            }
+        });
+    };
+
     $scope.render_plot = function () {
         // Update the axes' labels with the new categories
         $scope.x_label.text($scope.x_param.full_name);
