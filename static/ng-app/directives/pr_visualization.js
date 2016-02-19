@@ -753,6 +753,10 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 $scope.toggle_cluster_events(c);
             }
         });
+
+        // clear brush region
+        $scope.brush.clear();
+        $scope.svg.selectAll(".brush").call($scope.brush);
     };
 
     $scope.collapse_selected_clusters = function () {
@@ -761,6 +765,10 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 $scope.toggle_cluster_events(c);
             }
         });
+
+        // clear brush region
+        $scope.brush.clear();
+        $scope.svg.selectAll(".brush").call($scope.brush);
     };
 
     $scope.render_plot = function () {
@@ -919,8 +927,9 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 }
             });
 
-        // Clear any existing brushes
-        d3.selectAll("g.brush").remove();
+        // clear brush region
+        $scope.brush.clear();
+        $scope.svg.selectAll(".brush").call($scope.brush);
 
         // If brushing is enabled, update the brush scale
         // & re-append our updated brush to the plot, then finally
