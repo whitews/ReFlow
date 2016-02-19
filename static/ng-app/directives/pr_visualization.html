@@ -71,13 +71,13 @@
         </div>
         <div class="col-md-4 no-padding">
           <label>
-            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="all" ng-change="toggle_clusters()" /> Show all clusters
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="all" ng-change="set_cluster_display()" /> Show all clusters
           </label>
           <label>
-            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="expanded" ng-change="toggle_clusters()" /> Show expanded clusters
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="expanded" ng-change="set_cluster_display()" /> Show expanded clusters
           </label>
           <label>
-            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="none" ng-change="toggle_clusters()" /> Hide all clusters
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="none" ng-change="set_cluster_display()" /> Hide all clusters
           </label>
         </div>
       </div>
