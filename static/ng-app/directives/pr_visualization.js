@@ -309,8 +309,7 @@ app.controller(
                 }
             };
 
-            $scope.toggle_clusters = function () {
-                // TODO: rename and update
+            $scope.set_cluster_display = function () {
                 if ($scope.cluster_display_mode === "all") {
                     $scope.clusters.style("opacity", 1);
                 } else if ($scope.cluster_display_mode === "none")  {
@@ -772,7 +771,7 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.y_param.extent = undefined;
 
         // set cluster circle visibility
-        $scope.toggle_clusters();
+        $scope.set_cluster_display();
 
         // Populate x_data and y_data using chosen x & y parameters
         for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
