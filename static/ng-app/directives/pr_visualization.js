@@ -480,7 +480,9 @@ app.directive('prscatterplot', function() {
             var y_max = e[1][1];
 
             // Highlight selected circles
-            scope.svg.selectAll("circle").classed("selected", function(d) {
+            scope.svg.selectAll("circle").filter(function() {
+                return this.style.opacity == 1;
+            }).classed("selected", function(d) {
                 var x_location = null;
                 var y_location = null;
 
