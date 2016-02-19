@@ -927,10 +927,6 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 }
             });
 
-        // clear brush region
-        $scope.brush.clear();
-        $scope.svg.selectAll(".brush").call($scope.brush);
-
         // If brushing is enabled, update the brush scale
         // & re-append our updated brush to the plot, then finally
         // issue brush.call
