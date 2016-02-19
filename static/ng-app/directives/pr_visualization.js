@@ -310,10 +310,25 @@ app.controller(
             };
 
             $scope.toggle_clusters = function () {
-                if ($scope.show_clusters) {
+                // TODO: rename and update
+                if ($scope.cluster_display_mode === "all") {
                     $scope.clusters.style("opacity", 1);
-                } else {
+                } else if ($scope.cluster_display_mode === "none")  {
                     $scope.clusters.style("opacity", 0);
+                } else {
+                    // the only mode left is "expanded", and for that we need to
+                    // iterate over the clusters to see their "display_events"
+                    // property
+                    $scope.clusters.filter(function(d, i) {
+                        if (d.display_events) {
+                            return d;
+                        }
+                    }).style("opacity", 1);
+                    $scope.clusters.filter(function(d, i) {
+                        if (!d.display_events) {
+                            return d;
+                        }
+                    }).style("opacity", 0);
                 }
             };
 
@@ -416,8 +431,13 @@ app.directive('prscatterplot', function() {
         scope.show_heat = false;    // whether to show heat map
         scope.auto_scale = true;  // automatically scales axes to data
         scope.animate = true;  // controls whether transitions animate
-        scope.show_clusters = true;  // controls display of cluster centers
         scope.enable_brushing = false;  // toggles selection by brushing mode
+
+        // controls display of cluster centers, there are 3 modes:
+        //  - "all" (default)
+        //  - "expanded"
+        //  - "none"
+        scope.cluster_display_mode = "all";
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -533,6 +553,12 @@ app.directive('prscatterplot', function() {
                     // set booleans for controlling the display of a
                     // cluster's events & for whether cluster is highlighted,
                     // selected, or expanded
+                    // Note:
+                    //   When display_events is true the cluster is
+                    //   "expanded". If the cluster_display_mode is set to
+                    //   "expanded" then only those cluster circles shall
+                    //   be visible...this isn't controlled here directly but
+                    //   is related to the display_events property.
                     cluster.display_events = false;
                     cluster.highlighted = false;
                     cluster.selected = false;
@@ -618,8 +644,12 @@ app.directive('prscatterplot', function() {
                     return d.color;
                 })
                 .on("mouseenter", function(d) {
-                    if (!scope.show_clusters) {
+                    if (scope.cluster_display_mode === "none") {
                         return;
+                    } else if (scope.cluster_display_mode === "expanded") {
+                        if (!d.display_events) {
+                            return;
+                        }
                     }
 
                     tooltip.style("visibility", "visible");
@@ -741,11 +771,8 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.x_param.extent = undefined;
         $scope.y_param.extent = undefined;
 
-        if ($scope.show_clusters) {
-            $scope.clusters.style("opacity", 1);
-        } else {
-            $scope.clusters.style("opacity", 0);
-        }
+        // set cluster circle visibility
+        $scope.toggle_clusters();
 
         // Populate x_data and y_data using chosen x & y parameters
         for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {

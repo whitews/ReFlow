@@ -51,29 +51,33 @@
 
     <div class="col-md-offset-4 col-md-5 no-padding">
       <div class="row">
-        <div class="col-md-3 no-padding">
+        <div class="col-md-4 no-padding">
           <label>
-            <input ng-model="show_heat" type="checkbox"> Show heat map
+            <input type="checkbox" ng-model="auto_scale" type="checkbox"> Auto-scale axes
+          </label>
+          <br/>
+          <label>
+            <input type="checkbox" ng-model="show_heat" type="checkbox"> Show heat map
           </label>
         </div>
-        <div class="col-md-2 no-padding">
+        <div class="col-md-4 no-padding">
           <label>
-            <input ng-model="auto_scale" type="checkbox"> Auto-scale
+            <input type="checkbox" ng-model="animate" ng-change="toggle_animation()" /> Animate transitions
+          </label>
+          <br/>
+          <label>
+            <input type="checkbox" ng-model="enable_brushing" ng-change="render_plot()" /> Enable brushed selection
           </label>
         </div>
-        <div class="col-md-2 no-padding">
+        <div class="col-md-4 no-padding">
           <label>
-            <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="all" ng-change="toggle_clusters()" /> Show all clusters
           </label>
-        </div>
-        <div class="col-md-2 no-padding">
           <label>
-            <input ng-model="enable_brushing" type="checkbox" ng-change="render_plot()"> Brushing
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="expanded" ng-change="toggle_clusters()" /> Show expanded clusters
           </label>
-        </div>
-        <div class="col-md-3 no-padding">
           <label>
-            <input ng-model="show_clusters" type="checkbox" ng-change="toggle_clusters()"> Show Clusters
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="none" ng-change="toggle_clusters()" /> Hide all clusters
           </label>
         </div>
       </div>
