@@ -838,6 +838,12 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                         return parseFloat(e_obj[$scope.x_param.fcs_number]);
                     }
                 );
+
+                // there may be zero events in the cluster
+                if (tmp_x_extent.indexOf(undefined) !== -1) {
+                    tmp_x_extent = undefined;
+                }
+
                 if ($scope.x_param.extent === undefined) {
                     $scope.x_param.extent = tmp_x_extent;
                 } else {
@@ -855,6 +861,12 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                         return parseFloat(e_obj[$scope.y_param.fcs_number]);
                     }
                 );
+
+                // there may be zero events in the cluster
+                if (tmp_y_extent.indexOf(undefined) !== -1) {
+                    tmp_y_extent = undefined;
+                }
+
                 if ($scope.y_param.extent === undefined) {
                     $scope.y_param.extent = tmp_y_extent;
                 } else {
