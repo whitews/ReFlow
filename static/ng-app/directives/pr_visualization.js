@@ -435,6 +435,7 @@ app.directive('prscatterplot', function() {
         scope.auto_scale = true;  // automatically scales axes to data
         scope.animate = true;  // controls whether transitions animate
         scope.enable_brushing = false;  // toggles selection by brushing mode
+        scope.parameter_changed_flag = false;  // detect if x or y changed
 
         // controls display of cluster centers, there are 3 modes:
         //  - "all" (default)
@@ -987,6 +988,14 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             if ($scope.parameter_changed_flag) {
                 $scope.svg.selectAll(".brush").call($scope.brush.clear());
                 $scope.parameter_changed_flag = false;
+
+                // turn off "selected" status on any previously selected clusters
+                // else they can get stuck as selected
+                $scope.plot_data.cluster_data.forEach(function(c) {
+                    if (c.selected) {
+                        $scope.deselect_cluster(c);
+                    }
+                });
             }
         }
 
