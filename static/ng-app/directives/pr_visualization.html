@@ -41,16 +41,16 @@
           </label>
           <br/>
           <label>
-            <input type="checkbox" ng-model="show_heat" type="checkbox"> Show heat map
+            <input type="checkbox" ng-model="animate" ng-change="toggle_animation()" /> Animate transitions
           </label>
         </div>
         <div class="col-md-4 no-padding">
           <label>
-            <input type="checkbox" ng-model="animate" ng-change="toggle_animation()" /> Animate transitions
+            <input type="checkbox" ng-model="enable_brushing" ng-change="set_brushing_mode()" /> Enable brushed selection
           </label>
           <br/>
           <label>
-            <input type="checkbox" ng-model="enable_brushing" ng-change="set_brushing_mode()" /> Enable brushed selection
+            <input type="checkbox" ng-model="show_heat" type="checkbox"> Show heat map
           </label>
         </div>
         <div class="col-md-4 no-padding">
