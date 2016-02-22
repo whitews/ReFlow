@@ -771,6 +771,36 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.svg.selectAll(".brush").call($scope.brush);
     };
 
+    $scope.set_brushing_mode = function() {
+        // If brushing is enabled, update the brush scale
+        // & re-append our updated brush to the plot, then finally
+        // issue brush.call
+        if ($scope.enable_brushing) {
+            $scope.brush
+                .x(x_scale)
+                .y(y_scale);
+            $scope.cluster_plot_area.append("g")
+                .attr("class", "brush")
+                .call($scope.brush);
+            $scope.brush.event(d3.select("g.brush"));
+        } else {
+            // Clear any existing brushes if brush mode is off
+            $scope.svg.selectAll(".brush").call($scope.brush.clear());
+
+            // Remove brush from the SVG
+            d3.selectAll("g.brush").remove();
+
+            // turn off "selected" status on any previously selected clusters
+            // else they can get stuck as selected if the user disables the
+            // brushed mode
+            $scope.plot_data.cluster_data.forEach(function(c) {
+                if (c.selected) {
+                    $scope.deselect_cluster(c);
+                }
+            });
+        }
+    };
+
     $scope.render_plot = function () {
         // Update the axes' labels with the new categories
         $scope.x_label.text($scope.x_param.full_name);
@@ -927,26 +957,13 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 }
             });
 
-        // If brushing is enabled, update the brush scale
-        // & re-append our updated brush to the plot, then finally
-        // issue brush.call
+        // If brushing is enabled, update the brush scale as the scale may
+        // have changed and some clusters may have moved out of the brush
         if ($scope.enable_brushing) {
             $scope.brush
                 .x(x_scale)
                 .y(y_scale);
-            $scope.cluster_plot_area.append("g")
-                .attr("class", "brush")
-                .call($scope.brush);
             $scope.brush.event(d3.select("g.brush"));
-        } else {
-            // turn off "selected" status on any previously selected clusters
-            // else they can get stuck as selected if the user disables the
-            // brushed mode
-            $scope.plot_data.cluster_data.forEach(function(c) {
-                if (c.selected) {
-                    $scope.deselect_cluster(c);
-                }
-            });
         }
 
         $scope.transition_canvas_events(++$scope.transition_count);
