@@ -138,7 +138,7 @@ app.controller(
                 }
             };
 
-            $scope.find_matching_parameter = function (param) {
+            $scope.find_matching_parameter = function(param) {
                 if (param == null) {
                     return null;
                 }
@@ -148,6 +148,10 @@ app.controller(
                     }
                 }
                 return null;
+            };
+
+            $scope.parameter_changed = function() {
+                $scope.parameter_changed_flag = true;
             };
 
             /*
@@ -976,6 +980,14 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 .x(x_scale)
                 .y(y_scale);
             $scope.brush.event(d3.select("g.brush"));
+
+            // however, if the parameter had changed we want to clear any
+            // brush, since the old brush location doesn't really make
+            // sense in the new parameter
+            if ($scope.parameter_changed_flag) {
+                $scope.svg.selectAll(".brush").call($scope.brush.clear());
+                $scope.parameter_changed_flag = false;
+            }
         }
 
         $scope.transition_canvas_events(++$scope.transition_count);
