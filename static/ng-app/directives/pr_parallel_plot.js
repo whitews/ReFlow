@@ -116,8 +116,6 @@ app.directive('prparallelplot', function() {
                     return "translate(" + -(width+left_margin) + ", " + 12 + ")";
                 })
                 .style("font-weight", "bold");
-
-            scope.render_parallel_plot();
         };
     }
 
@@ -131,10 +129,6 @@ app.directive('prparallelplot', function() {
 });
 
 app.controller('PRParallelPlotController', ['$scope', function ($scope) {
-    $scope.render_parallel_plot = function () {
-
-    };
-
     $scope.select_cluster_line = function (cluster) {
         // highlight line in parallel chart
         $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)
