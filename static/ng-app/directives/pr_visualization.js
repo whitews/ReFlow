@@ -38,6 +38,33 @@ app.controller(
                 $scope.cached_plots = {};
             });
 
+            function get_analyzed_parameters(parameters, example_cluster) {
+                /*
+                 Determine analyzed parameters, as not all parameters
+                 may have been analyzed. We only need to copy the
+                 'fcs_number' and the 'full_text' properties. This is
+                 used for the parallel plot and for the initial selection
+                 of scatterplot x & y parameters
+
+                 Arguments:
+                    parameters: current list of site panel parameter objects
+                    example_cluster: an example cluster that will contain
+                                     only the analyzed channel numbers
+                 */
+                var analyzed_parameters = [];
+                parameters.forEach(function (param) {
+                    // use the cluster params for comparison
+                    for (var i = 0; i < example_cluster.parameters.length; i++) {
+                        if (param.fcs_number == example_cluster.parameters[i].channel) {
+                            analyzed_parameters.push(param);
+                            break;
+                        }
+                    }
+                });
+
+                return analyzed_parameters;
+            }
+
             $scope.initialize_visualization = function() {
                 // May be "re-initializing" the vis so remember any expanded
                 // clusters so we can "re-expand" them in the new sample
@@ -53,9 +80,17 @@ app.controller(
                 if ($scope.chosen_member.id in $scope.cached_plots) {
                     $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
 
+                    $scope.analyzed_parameters = get_analyzed_parameters(
+                        $scope.plot_data.panel_data.parameters,
+                        $scope.plot_data.cluster_data[0]
+                    );
+
                     // Need to init the parallel plot first so we can
                     // "bold" the expanded clusters
-                    $scope.initialize_parallel_plot();
+                    $scope.initialize_parallel_plot(
+                        $scope.analyzed_parameters,
+                        $scope.plot_data.cluster_data
+                    );
 
                     // turn on display_events for originally expanded clusters
                     $scope.plot_data.cluster_data.forEach(function(c) {
@@ -93,8 +128,17 @@ app.controller(
                         'panel_data': data[1]
                     };
                     $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+
+                    $scope.analyzed_parameters = get_analyzed_parameters(
+                        $scope.plot_data.panel_data.parameters,
+                        $scope.plot_data.cluster_data[0]
+                    );
+
                     $scope.initialize_scatterplot(false);
-                    $scope.initialize_parallel_plot();
+                    $scope.initialize_parallel_plot(
+                        $scope.analyzed_parameters,
+                        $scope.plot_data.cluster_data
+                    );
 
                     // display events for previously expanded clusters
                     $scope.plot_data.cluster_data.forEach(function(c) {
