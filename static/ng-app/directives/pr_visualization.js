@@ -745,8 +745,8 @@ app.directive('prscatterplot', function() {
 });
 
 app.controller('PRScatterplotController', ['$scope', function ($scope) {
-    var x_data;               // x data series to plot
-    var y_data;               // y data series to plot
+    var x_cluster_data;               // x data series to plot
+    var y_cluster_data;               // y data series to plot
     var x_range;              // used for "auto-range" for chosen x category
     var y_range;              // used for "auto-range" for chosen y category
     var x_scale;              // function to convert x data to svg pixels
@@ -860,9 +860,9 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.x_label.text($scope.x_param.full_name);
         $scope.y_label.text($scope.y_param.full_name);
 
-        // holds the x & y locations for the clusters
-        x_data = [];
-        y_data = [];
+        // the x & y locations for the clusters (only used for auto-scaling)
+        x_cluster_data = [];
+        y_cluster_data = [];
 
         // for determining min/max values for x & y
         var tmp_x_extent;
@@ -875,16 +875,19 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
 
         // Populate x_data and y_data using chosen x & y parameters
         for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
+            // for each cluster, get x_data & y_data
+            // (the x, y locations of the clusters)
             $scope.plot_data.cluster_data[i].parameters.forEach(function (p) {
                 if (p.channel == $scope.x_param.fcs_number) {
-                    x_data[i] = p.location;
+                    x_cluster_data[i] = p.location;
                 }
                 if (p.channel == $scope.y_param.fcs_number) {
-                    y_data[i] = p.location;
+                    y_cluster_data[i] = p.location;
                 }
             });
 
-            // if auto-scaling, parse displayed events for extent
+            // if auto-scaling, consider event data for clusters
+            // w/ displayed events
             if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
                 tmp_x_extent = d3.extent(
                     $scope.plot_data.cluster_data[i].events,
@@ -892,12 +895,22 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                         return parseFloat(e_obj[$scope.x_param.fcs_number]);
                     }
                 );
+                tmp_y_extent = d3.extent(
+                    $scope.plot_data.cluster_data[i].events,
+                    function(e_obj) {
+                        return parseFloat(e_obj[$scope.y_param.fcs_number]);
+                    }
+                );
 
                 // there may be zero events in the cluster
                 if (tmp_x_extent.indexOf(undefined) !== -1) {
                     tmp_x_extent = undefined;
                 }
+                if (tmp_y_extent.indexOf(undefined) !== -1) {
+                    tmp_y_extent = undefined;
+                }
 
+                // now compare cluster vs event data for most extreme values
                 if ($scope.x_param.extent === undefined) {
                     $scope.x_param.extent = tmp_x_extent;
                 } else {
@@ -907,18 +920,6 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                     if (tmp_x_extent[1] > $scope.x_param.extent[1]) {
                         $scope.x_param.extent[1] = tmp_x_extent[1];
                     }
-                }
-
-                tmp_y_extent = d3.extent(
-                    $scope.plot_data.cluster_data[i].events,
-                    function(e_obj) {
-                        return parseFloat(e_obj[$scope.y_param.fcs_number]);
-                    }
-                );
-
-                // there may be zero events in the cluster
-                if (tmp_y_extent.indexOf(undefined) !== -1) {
-                    tmp_y_extent = undefined;
                 }
 
                 if ($scope.y_param.extent === undefined) {
@@ -941,37 +942,37 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             // find the true extent of the combined cluster locations and
             // the displayed events.
             if ($scope.x_param.extent !== undefined) {
-                if (x_data.length > 0) {
+                if (x_cluster_data.length > 0) {
                     x_range = [
-                        math.min(math.min(x_data), $scope.x_param.extent[0]),
-                        math.max(math.max(x_data), $scope.x_param.extent[1])
+                        math.min(math.min(x_cluster_data), $scope.x_param.extent[0]),
+                        math.max(math.max(x_cluster_data), $scope.x_param.extent[1])
                     ];
                 } else {
                     x_range = $scope.x_param.extent;
                 }
             } else {
-                if (x_data.length > 0) {
+                if (x_cluster_data.length > 0) {
                     x_range = [
-                        math.min(x_data),
-                        math.max(x_data)
+                        math.min(x_cluster_data),
+                        math.max(x_cluster_data)
                     ];
                 }
             }
 
             if ($scope.y_param.extent !== undefined) {
-                if (y_data.length > 0) {
+                if (y_cluster_data.length > 0) {
                     y_range = [
-                        math.min(math.min(y_data), $scope.y_param.extent[0]),
-                        math.max(math.max(y_data), $scope.y_param.extent[1])
+                        math.min(math.min(y_cluster_data), $scope.y_param.extent[0]),
+                        math.max(math.max(y_cluster_data), $scope.y_param.extent[1])
                     ];
                 } else {
                     y_range = $scope.y_param.extent;
                 }
             } else {
-                if (y_data.length > 0) {
+                if (y_cluster_data.length > 0) {
                     y_range = [
-                        math.min(y_data),
-                        math.max(y_data)
+                        math.min(y_cluster_data),
+                        math.max(y_cluster_data)
                     ];
                 }
             }
