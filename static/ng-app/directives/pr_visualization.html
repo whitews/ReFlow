@@ -41,6 +41,10 @@
           </label>
           <br/>
           <label>
+            <input type="checkbox" ng-model="auto_transition" type="checkbox"> Auto-transition plot
+          </label>
+          <br/>
+          <label>
             <input type="checkbox" ng-model="animate" ng-change="toggle_animation()" /> Animate transitions
           </label>
         </div>
@@ -69,17 +73,33 @@
     </div>
 
     <div class="col-md-3">
-      <br/>
-      <button class="btn btn-primary" ng-click="render_plot()">Update Plot</button>
-      <button class="btn btn-default pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
-      <br/>
-      <br/>
-      <button class="btn btn-default pull-left" ng-click="expand_selected_clusters()">Expand Selected</button>
-      <button class="btn btn-default pull-right" ng-click="collapse_selected_clusters()">Collapse Selected</button>
-      <br/>
-      <br/>
-      <br/>
-      <button class="btn btn-default pull-right" ng-click="launch_multi_label_modal()">Label Expanded</button>
+
+      <div class="row" style="margin-top:20px">
+        <div class="col-md-6">
+          <button class="btn btn-primary" ng-click="render_plot()" ng-disabled="auto_transition">Update Plot</button>
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-default pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:20px">
+        <div class="col-md-6">
+          <button class="btn btn-default pull-left" ng-click="expand_selected_clusters()">Expand Selected</button>
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-default pull-right" ng-click="collapse_selected_clusters()">Collapse Selected</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:20px">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-default pull-right" ng-click="launch_multi_label_modal()">Label Expanded</button>
+        </div>
+      </div>
+
     </div>
 
   </div>

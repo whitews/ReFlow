@@ -433,6 +433,7 @@ app.directive('prscatterplot', function() {
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
         scope.auto_scale = true;  // automatically scales axes to data
+        scope.auto_transition = true;  // transition param changes immediately
         scope.animate = true;  // controls whether transitions animate
         scope.enable_brushing = false;  // toggles selection by brushing mode
         scope.parameter_changed_flag = false;  // detect if x or y changed
