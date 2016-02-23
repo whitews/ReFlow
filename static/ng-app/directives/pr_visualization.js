@@ -152,6 +152,10 @@ app.controller(
 
             $scope.parameter_changed = function() {
                 $scope.parameter_changed_flag = true;
+
+                if ($scope.auto_transition) {
+                    $scope.render_plot();
+                }
             };
 
             /*

@@ -18,8 +18,8 @@
           <select class="pr_form_field" ng-model="x_param" ng-change="parameter_changed()" ng-options="p as p.full_name for p in parameters"></select>
           <div>
             X axis scale:<br/>
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" type="text" ng-model="user_x_min" /> to
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_x_max" />
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" type="text" ng-model="user_x_min" ng-change="parameter_changed()" /> to
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_x_max" ng-change="parameter_changed()" />
           </div>
         </div>
 
@@ -28,8 +28,8 @@
           <select class="pr_form_field" ng-model="y_param" ng-change="parameter_changed()" ng-options="p as p.full_name for p in parameters"></select>
           <div>
             Y axis scale:<br/>
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_min" /> to
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_max" />
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_min" ng-change="parameter_changed()" /> to
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_max" ng-change="parameter_changed()" />
           </div>
         </div>
       </div>
@@ -54,7 +54,7 @@
           </label>
           <br/>
           <label>
-            <input type="checkbox" ng-model="show_heat" type="checkbox"> Show heat map
+            <input type="checkbox" ng-model="show_heat" ng-change="parameter_changed()" type="checkbox"> Show heat map
           </label>
         </div>
         <div class="col-md-4 no-padding">
