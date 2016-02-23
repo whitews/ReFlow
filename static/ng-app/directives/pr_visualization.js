@@ -679,11 +679,11 @@ app.directive('prscatterplot', function() {
             // channel (due to different site panels)
             scope.x_param = scope.find_matching_parameter(scope.x_param);
             if (scope.x_param == null) {
-                scope.x_param = scope.parameters[0];
+                scope.x_param = scope.analyzed_parameters[0];
             }
             scope.y_param = scope.find_matching_parameter(scope.y_param);
             if (scope.y_param == null) {
-                scope.y_param = scope.parameters[0];
+                scope.y_param = scope.analyzed_parameters[1];
             }
 
             scope.clusters = scope.cluster_plot_area.selectAll("circle").data(
