@@ -975,9 +975,30 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         x_scale = d3.scale.linear().domain(x_range).range([0, $scope.canvas_width]);
         y_scale = d3.scale.linear().domain(y_range).range([$scope.canvas_height, 0]);
 
-        // Update axes with the proper scaling
-        $scope.x_axis.call(d3.svg.axis().scale(x_scale).orient("bottom"));
-        $scope.y_axis.call(d3.svg.axis().scale(y_scale).orient("left"));
+        // Update axes with the proper scaling, but we'll determine tick format
+        // based on ranges first
+        var x_tick_format;
+        var y_tick_format;
+        if (x_range[1] >= 1000) {
+            x_tick_format = "s";
+        } else {
+            x_tick_format = "g";
+        }
+        if (y_range[1] >= 1000) {
+            y_tick_format = "s";
+        } else {
+            y_tick_format = "g";
+        }
+        $scope.x_axis.call(d3.svg.axis()
+            .scale(x_scale)
+            .tickFormat(d3.format(x_tick_format))
+            .orient("bottom")
+        );
+        $scope.y_axis.call(d3.svg.axis()
+            .scale(y_scale)
+            .tickFormat(d3.format(y_tick_format))
+            .orient("left")
+        );
 
         // transition SVG clusters
         $scope.clusters.transition().duration($scope.transition_ms)
