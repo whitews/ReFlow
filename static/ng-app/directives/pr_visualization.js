@@ -394,7 +394,7 @@ app.controller(
 
                     $scope.render_plot();
                 }, function (error) {
-
+                    console.log("Error retrieving sample cluster events")
                 });
             };
 
@@ -802,6 +802,7 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
     $scope.expand_selected_clusters = function () {
         $scope.plot_data.cluster_data.forEach(function(c) {
             if (c.selected && !c.display_events) {
+                // call $scope.toggle...here because events may not be retrieved
                 $scope.toggle_cluster_events(c);
             }
         });
@@ -809,18 +810,25 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         // clear brush region
         $scope.brush.clear();
         $scope.svg.selectAll(".brush").call($scope.brush);
+
+        $scope.render_plot();
     };
 
     $scope.collapse_selected_clusters = function () {
         $scope.plot_data.cluster_data.forEach(function(c) {
             if (c.selected && c.display_events) {
-                $scope.toggle_cluster_events(c);
+                // don't call $scope.toggle...we don't want to trigger renders
+                // as we'll do it ourselves afterwards
+                toggle_cluster_events(c);
             }
         });
 
         // clear brush region
         $scope.brush.clear();
         $scope.svg.selectAll(".brush").call($scope.brush);
+
+        $scope.parameter_changed_flag = true;  // trigger deselection in render
+        $scope.render_plot();
     };
 
     $scope.set_brushing_mode = function() {
