@@ -34,9 +34,49 @@ app.controller(
             });
 
             $scope.$watch('data', function(data) {
+                // first sort data.members by the sample's original_filename
+                if (data != undefined && data.hasOwnProperty("members")) {
+                    data.members.sort(function (a, b) {
+                        if (a.sample.original_filename < b.sample.original_filename) {
+                            return -1;
+                        } else if (a.sample.original_filename > b.sample.original_filename) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
+                }
+
                 $scope.sample_collection = data;
                 $scope.cached_plots = {};
             });
+
+            function get_analyzed_parameters(parameters, example_cluster) {
+                /*
+                 Determine analyzed parameters, as not all parameters
+                 may have been analyzed. We only need to copy the
+                 'fcs_number' and the 'full_text' properties. This is
+                 used for the parallel plot and for the initial selection
+                 of scatterplot x & y parameters
+
+                 Arguments:
+                    parameters: current list of site panel parameter objects
+                    example_cluster: an example cluster that will contain
+                                     only the analyzed channel numbers
+                 */
+                var analyzed_parameters = [];
+                parameters.forEach(function (param) {
+                    // use the cluster params for comparison
+                    for (var i = 0; i < example_cluster.parameters.length; i++) {
+                        if (param.fcs_number == example_cluster.parameters[i].channel) {
+                            analyzed_parameters.push(param);
+                            break;
+                        }
+                    }
+                });
+
+                return analyzed_parameters;
+            }
 
             $scope.initialize_visualization = function() {
                 // May be "re-initializing" the vis so remember any expanded
@@ -53,9 +93,17 @@ app.controller(
                 if ($scope.chosen_member.id in $scope.cached_plots) {
                     $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
 
+                    $scope.analyzed_parameters = get_analyzed_parameters(
+                        $scope.plot_data.panel_data.parameters,
+                        $scope.plot_data.cluster_data[0]
+                    );
+
                     // Need to init the parallel plot first so we can
                     // "bold" the expanded clusters
-                    $scope.initialize_parallel_plot();
+                    $scope.initialize_parallel_plot(
+                        $scope.analyzed_parameters,
+                        $scope.plot_data.cluster_data
+                    );
 
                     // turn on display_events for originally expanded clusters
                     $scope.plot_data.cluster_data.forEach(function(c) {
@@ -93,8 +141,17 @@ app.controller(
                         'panel_data': data[1]
                     };
                     $scope.plot_data = $scope.cached_plots[$scope.chosen_member.id];
+
+                    $scope.analyzed_parameters = get_analyzed_parameters(
+                        $scope.plot_data.panel_data.parameters,
+                        $scope.plot_data.cluster_data[0]
+                    );
+
                     $scope.initialize_scatterplot(false);
-                    $scope.initialize_parallel_plot();
+                    $scope.initialize_parallel_plot(
+                        $scope.analyzed_parameters,
+                        $scope.plot_data.cluster_data
+                    );
 
                     // display events for previously expanded clusters
                     $scope.plot_data.cluster_data.forEach(function(c) {
@@ -138,7 +195,7 @@ app.controller(
                 }
             };
 
-            $scope.find_matching_parameter = function (param) {
+            $scope.find_matching_parameter = function(param) {
                 if (param == null) {
                     return null;
                 }
@@ -148,6 +205,14 @@ app.controller(
                     }
                 }
                 return null;
+            };
+
+            $scope.parameter_changed = function() {
+                $scope.parameter_changed_flag = true;
+
+                if ($scope.auto_transition) {
+                    $scope.render_plot();
+                }
             };
 
             /*
@@ -309,11 +374,25 @@ app.controller(
                 }
             };
 
-            $scope.toggle_clusters = function () {
-                if ($scope.show_clusters) {
+            $scope.set_cluster_display = function () {
+                if ($scope.cluster_display_mode === "all") {
                     $scope.clusters.style("opacity", 1);
-                } else {
+                } else if ($scope.cluster_display_mode === "none")  {
                     $scope.clusters.style("opacity", 0);
+                } else {
+                    // the only mode left is "expanded", and for that we need to
+                    // iterate over the clusters to see their "display_events"
+                    // property
+                    $scope.clusters.filter(function(d, i) {
+                        if (d.display_events) {
+                            return d;
+                        }
+                    }).style("opacity", 1);
+                    $scope.clusters.filter(function(d, i) {
+                        if (!d.display_events) {
+                            return d;
+                        }
+                    }).style("opacity", 0);
                 }
             };
 
@@ -328,7 +407,7 @@ app.controller(
 
                     $scope.render_plot();
                 }, function (error) {
-
+                    console.log("Error retrieving sample cluster events")
                 });
             };
 
@@ -415,9 +494,16 @@ app.directive('prscatterplot', function() {
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
         scope.auto_scale = true;  // automatically scales axes to data
+        scope.auto_transition = true;  // transition param changes immediately
         scope.animate = true;  // controls whether transitions animate
-        scope.show_clusters = true;  // controls display of cluster centers
         scope.enable_brushing = false;  // toggles selection by brushing mode
+        scope.parameter_changed_flag = false;  // detect if x or y changed
+
+        // controls display of cluster centers, there are 3 modes:
+        //  - "all" (default)
+        //  - "expanded"
+        //  - "none"
+        scope.cluster_display_mode = "all";
 
         // Transition variables
         scope.prev_position = [];         // prev_position [x, y, color] pairs
@@ -461,7 +547,9 @@ app.directive('prscatterplot', function() {
             var y_max = e[1][1];
 
             // Highlight selected circles
-            scope.svg.selectAll("circle").classed("selected", function(d) {
+            scope.svg.selectAll("circle").filter(function() {
+                return this.style.opacity == 1;
+            }).classed("selected", function(d) {
                 var x_location = null;
                 var y_location = null;
 
@@ -485,8 +573,6 @@ app.directive('prscatterplot', function() {
 
                 return is_selected;
             });
-
-            scope.$apply();
         }
 
         scope.x_axis = plot_area.append("g")
@@ -533,6 +619,12 @@ app.directive('prscatterplot', function() {
                     // set booleans for controlling the display of a
                     // cluster's events & for whether cluster is highlighted,
                     // selected, or expanded
+                    // Note:
+                    //   When display_events is true the cluster is
+                    //   "expanded". If the cluster_display_mode is set to
+                    //   "expanded" then only those cluster circles shall
+                    //   be visible...this isn't controlled here directly but
+                    //   is related to the display_events property.
                     cluster.display_events = false;
                     cluster.highlighted = false;
                     cluster.selected = false;
@@ -600,11 +692,11 @@ app.directive('prscatterplot', function() {
             // channel (due to different site panels)
             scope.x_param = scope.find_matching_parameter(scope.x_param);
             if (scope.x_param == null) {
-                scope.x_param = scope.parameters[0];
+                scope.x_param = scope.analyzed_parameters[0];
             }
             scope.y_param = scope.find_matching_parameter(scope.y_param);
             if (scope.y_param == null) {
-                scope.y_param = scope.parameters[0];
+                scope.y_param = scope.analyzed_parameters[1];
             }
 
             scope.clusters = scope.cluster_plot_area.selectAll("circle").data(
@@ -618,8 +710,12 @@ app.directive('prscatterplot', function() {
                     return d.color;
                 })
                 .on("mouseenter", function(d) {
-                    if (!scope.show_clusters) {
+                    if (scope.cluster_display_mode === "none") {
                         return;
+                    } else if (scope.cluster_display_mode === "expanded") {
+                        if (!d.display_events) {
+                            return;
+                        }
                     }
 
                     tooltip.style("visibility", "visible");
@@ -662,8 +758,6 @@ app.directive('prscatterplot', function() {
 });
 
 app.controller('PRScatterplotController', ['$scope', function ($scope) {
-    var x_data;               // x data series to plot
-    var y_data;               // y data series to plot
     var x_range;              // used for "auto-range" for chosen x category
     var y_range;              // used for "auto-range" for chosen y category
     var x_scale;              // function to convert x data to svg pixels
@@ -721,9 +815,63 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
     $scope.expand_selected_clusters = function () {
         $scope.plot_data.cluster_data.forEach(function(c) {
             if (c.selected && !c.display_events) {
+                // call $scope.toggle...here because events may not be retrieved
                 $scope.toggle_cluster_events(c);
             }
         });
+
+        // clear brush region
+        $scope.brush.clear();
+        $scope.svg.selectAll(".brush").call($scope.brush);
+
+        $scope.render_plot();
+    };
+
+    $scope.collapse_selected_clusters = function () {
+        $scope.plot_data.cluster_data.forEach(function(c) {
+            if (c.selected && c.display_events) {
+                // don't call $scope.toggle...we don't want to trigger renders
+                // as we'll do it ourselves afterwards
+                toggle_cluster_events(c);
+            }
+        });
+
+        // clear brush region
+        $scope.brush.clear();
+        $scope.svg.selectAll(".brush").call($scope.brush);
+
+        $scope.parameter_changed_flag = true;  // trigger deselection in render
+        $scope.render_plot();
+    };
+
+    $scope.set_brushing_mode = function() {
+        // If brushing is enabled, update the brush scale
+        // & re-append our updated brush to the plot, then finally
+        // issue brush.call
+        if ($scope.enable_brushing) {
+            $scope.brush
+                .x(x_scale)
+                .y(y_scale);
+            $scope.cluster_plot_area.append("g")
+                .attr("class", "brush")
+                .call($scope.brush);
+            $scope.brush.event(d3.select("g.brush"));
+        } else {
+            // Clear any existing brushes if brush mode is off
+            $scope.svg.selectAll(".brush").call($scope.brush.clear());
+
+            // Remove brush from the SVG
+            d3.selectAll("g.brush").remove();
+
+            // turn off "selected" status on any previously selected clusters
+            // else they can get stuck as selected if the user disables the
+            // brushed mode
+            $scope.plot_data.cluster_data.forEach(function(c) {
+                if (c.selected) {
+                    $scope.deselect_cluster(c);
+                }
+            });
+        }
     };
 
     $scope.render_plot = function () {
@@ -731,122 +879,112 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         $scope.x_label.text($scope.x_param.full_name);
         $scope.y_label.text($scope.y_param.full_name);
 
-        // holds the x & y locations for the clusters
-        x_data = [];
-        y_data = [];
-
-        // for determining min/max values for x & y
+        // for determining min/max values for x & y auto-scaling
+        var x_cluster_location;  
+        var y_cluster_location;
         var tmp_x_extent;
         var tmp_y_extent;
-        $scope.x_param.extent = undefined;
-        $scope.y_param.extent = undefined;
+        var x_extent = undefined;  // no default starting extents
+        var y_extent = undefined;
 
-        // Populate x_data and y_data using chosen x & y parameters
-        for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
-            $scope.plot_data.cluster_data[i].parameters.forEach(function (p) {
-                if (p.channel == $scope.x_param.fcs_number) {
-                    x_data[i] = p.location;
-                }
-                if (p.channel == $scope.y_param.fcs_number) {
-                    y_data[i] = p.location;
-                }
-            });
+        // set cluster circle visibility
+        $scope.set_cluster_display();
 
-            // if auto-scaling, parse displayed events for extent
-            if ($scope.auto_scale && $scope.plot_data.cluster_data[i].display_events) {
-                tmp_x_extent = d3.extent(
-                    $scope.plot_data.cluster_data[i].events,
-                    function(e_obj) {
-                        return parseFloat(e_obj[$scope.x_param.fcs_number]);
-                    }
-                );
-                if ($scope.x_param.extent === undefined) {
-                    $scope.x_param.extent = tmp_x_extent;
-                } else {
-                    if (tmp_x_extent[0] < $scope.x_param.extent[0]) {
-                        $scope.x_param.extent[0] = tmp_x_extent[0];
-                    }
-                    if (tmp_x_extent[1] > $scope.x_param.extent[1]) {
-                        $scope.x_param.extent[1] = tmp_x_extent[1];
-                    }
-                }
-
-                tmp_y_extent = d3.extent(
-                    $scope.plot_data.cluster_data[i].events,
-                    function(e_obj) {
-                        return parseFloat(e_obj[$scope.y_param.fcs_number]);
-                    }
-                );
-                if ($scope.y_param.extent === undefined) {
-                    $scope.y_param.extent = tmp_y_extent;
-                } else {
-                    if (tmp_y_extent[0] < $scope.y_param.extent[0]) {
-                        $scope.y_param.extent[0] = tmp_y_extent[0];
-                    }
-                    if (tmp_y_extent[1] > $scope.y_param.extent[1]) {
-                        $scope.y_param.extent[1] = tmp_y_extent[1];
-                    }
-                }
-            }
-        }
-
-        // check for auto-scaling
+        // For auto-scaling, get cluster locations & any displayed event data
+        // for chosen x & y parameters to determine axis extents.
+        // If auto-scaling is off, use the user-provided values
         x_range = [];
         y_range = [];
         if ($scope.auto_scale) {
-            // find the true extent of the combined cluster locations and
-            // the displayed events.
-            if ($scope.x_param.extent !== undefined) {
-                if (x_data.length > 0) {
-                    x_range = [
-                        math.min(math.min(x_data), $scope.x_param.extent[0]),
-                        math.max(math.max(x_data), $scope.x_param.extent[1])
-                    ];
-                } else {
-                    x_range = $scope.x_param.extent;
-                }
-            } else {
-                if (x_data.length > 0) {
-                    x_range = [
-                        math.min(x_data),
-                        math.max(x_data)
-                    ];
-                }
-            }
+            for (var i=0, len=$scope.plot_data.cluster_data.length; i<len; i++) {
+                // get the x, y locations for this cluster...this will exist
+                // for all clusters
+                $scope.plot_data.cluster_data[i].parameters.forEach(function (p) {
+                    if (p.channel == $scope.x_param.fcs_number) {
+                        x_cluster_location = p.location;
+                    }
+                    if (p.channel == $scope.y_param.fcs_number) {
+                        y_cluster_location = p.location;
+                    }
+                });
 
-            if ($scope.y_param.extent !== undefined) {
-                if (y_data.length > 0) {
-                    y_range = [
-                        math.min(math.min(y_data), $scope.y_param.extent[0]),
-                        math.max(math.max(y_data), $scope.y_param.extent[1])
-                    ];
+                // x & y extents start out undefined, so set them the first go
+                // round using the guaranteed cluster data from the 1st cluster
+                if (x_extent === undefined) {
+                    x_extent = [x_cluster_location, x_cluster_location];
+                    y_extent = [y_cluster_location, y_cluster_location];
                 } else {
-                    y_range = $scope.y_param.extent;
+                    // compare against current cluster location
+                    if (x_cluster_location < x_extent[0]) {
+                        x_extent[0] = x_cluster_location;
+                    }
+                    if (x_cluster_location > x_extent[1]) {
+                        x_extent[1] = x_cluster_location;
+                    }
+
+                    if (y_cluster_location < y_extent[0]) {
+                        y_extent[0] = y_cluster_location;
+                    }
+                    if (y_cluster_location > y_extent[1]) {
+                        y_extent[1] = y_cluster_location;
+                    }
                 }
-            } else {
-                if (y_data.length > 0) {
-                    y_range = [
-                        math.min(y_data),
-                        math.max(y_data)
-                    ];
+
+                // consider event data for clusters w/ displayed events,
+                // however even if the cluster is set to display events, it
+                // still may have zero events to display, so we have to deal
+                // with possible undefined values returned from d3.extent
+                if ($scope.plot_data.cluster_data[i].display_events) {
+                    tmp_x_extent = d3.extent(
+                        $scope.plot_data.cluster_data[i].events,
+                        function (e_obj) {
+                            return parseFloat(e_obj[$scope.x_param.fcs_number]);
+                        }
+                    );
+                    tmp_y_extent = d3.extent(
+                        $scope.plot_data.cluster_data[i].events,
+                        function (e_obj) {
+                            return parseFloat(e_obj[$scope.y_param.fcs_number]);
+                        }
+                    );
+
+                    // there may be zero events in the cluster, and we don't
+                    // need to check both x & y, if x is undefined, so is y
+                    if (tmp_x_extent.indexOf(undefined) === -1) {
+                        // we've got event data, so compare
+                        // current extent vs event data
+                        if (tmp_x_extent[0] < x_extent[0]) {
+                            x_extent[0] = tmp_x_extent[0];
+                        }
+                        if (tmp_x_extent[1] > x_extent[1]) {
+                            x_extent[1] = tmp_x_extent[1];
+                        }
+
+                        if (tmp_y_extent[0] < y_extent[0]) {
+                            y_extent[0] = tmp_y_extent[0];
+                        }
+                        if (tmp_y_extent[1] > y_extent[1]) {
+                            y_extent[1] = tmp_y_extent[1];
+                        }
+                    }
                 }
             }
 
             // Add some padding as well to keep objects from the sides
             x_range = [
-                x_range[0] - (0.05 * (x_range[1] - x_range[0])),
-                x_range[1] + (0.05 * (x_range[1] - x_range[0]))
+                x_extent[0] - (0.05 * (x_extent[1] - x_extent[0])),
+                x_extent[1] + (0.05 * (x_extent[1] - x_extent[0]))
             ];
             y_range = [
-                y_range[0] - (0.05 * (y_range[1] - y_range[0])),
-                y_range[1] + (0.05 * (y_range[1] - y_range[0]))
+                y_extent[0] - (0.05 * (y_extent[1] - y_extent[0])),
+                y_extent[1] + (0.05 * (y_extent[1] - y_extent[0]))
             ];
 
             // Set text box values
-            $scope.user_x_min = x_range[0];
-            $scope.user_x_max = x_range[1];
-            $scope.user_y_min = y_range[0];
-            $scope.user_y_max = y_range[1];
+            $scope.user_x_min = x_range[0].toFixed(2);
+            $scope.user_x_max = x_range[1].toFixed(2);
+            $scope.user_y_min = y_range[0].toFixed(2);
+            $scope.user_y_max = y_range[1].toFixed(2);
         } else {
             x_range.push($scope.user_x_min);
             x_range.push($scope.user_x_max);
@@ -858,9 +996,30 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         x_scale = d3.scale.linear().domain(x_range).range([0, $scope.canvas_width]);
         y_scale = d3.scale.linear().domain(y_range).range([$scope.canvas_height, 0]);
 
-        // Update axes with the proper scaling
-        $scope.x_axis.call(d3.svg.axis().scale(x_scale).orient("bottom"));
-        $scope.y_axis.call(d3.svg.axis().scale(y_scale).orient("left"));
+        // Update axes with the proper scaling, but we'll determine tick format
+        // based on ranges first
+        var x_tick_format;
+        var y_tick_format;
+        if (x_range[1] >= 1000) {
+            x_tick_format = "s";
+        } else {
+            x_tick_format = "g";
+        }
+        if (y_range[1] >= 1000) {
+            y_tick_format = "s";
+        } else {
+            y_tick_format = "g";
+        }
+        $scope.x_axis.call(d3.svg.axis()
+            .scale(x_scale)
+            .tickFormat(d3.format(x_tick_format))
+            .orient("bottom")
+        );
+        $scope.y_axis.call(d3.svg.axis()
+            .scale(y_scale)
+            .tickFormat(d3.format(y_tick_format))
+            .orient("left")
+        );
 
         // transition SVG clusters
         $scope.clusters.transition().duration($scope.transition_ms)
@@ -879,18 +1038,29 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
                 }
             });
 
-        // Clear any existing brushes
-        d3.selectAll("g.brush").remove();
-
-        // If brushing is enabled, update the brush scale
-        // Need to re-append our updated brush to the plot as well
+        // If brushing is enabled, update the brush scale as the scale may
+        // have changed and some clusters may have moved out of the brush
         if ($scope.enable_brushing) {
             $scope.brush
                 .x(x_scale)
                 .y(y_scale);
-            $scope.cluster_plot_area.append("g")
-                .attr("class", "brush")
-                .call($scope.brush);
+            $scope.brush.event(d3.select("g.brush"));
+
+            // however, if the parameter had changed we want to clear any
+            // brush, since the old brush location doesn't really make
+            // sense in the new parameter
+            if ($scope.parameter_changed_flag) {
+                $scope.svg.selectAll(".brush").call($scope.brush.clear());
+                $scope.parameter_changed_flag = false;
+
+                // turn off "selected" status on any previously selected clusters
+                // else they can get stuck as selected
+                $scope.plot_data.cluster_data.forEach(function(c) {
+                    if (c.selected) {
+                        $scope.deselect_cluster(c);
+                    }
+                });
+            }
         }
 
         $scope.transition_canvas_events(++$scope.transition_count);

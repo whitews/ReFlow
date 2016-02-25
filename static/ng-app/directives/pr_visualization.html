@@ -15,71 +15,90 @@
       <div class="row">
         <div class="col-md-6 no-padding">
           X axis parameter:<br/>
-          <select class="pr_form_field" ng-model="x_param" ng-options="p as p.full_name for p in parameters"></select>
+          <select class="pr_form_field" ng-model="x_param" ng-change="parameter_changed()" ng-options="p as p.full_name for p in parameters"></select>
           <div>
             X axis scale:<br/>
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" type="text" ng-model="user_x_min" /> to
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_x_max" />
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" type="text" ng-model="user_x_min" ng-change="parameter_changed()" /> to
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_x_max" ng-change="parameter_changed()" />
           </div>
         </div>
 
         <div class="col-md-6 no-padding">
           Y axis parameter:<br/>
-          <select class="pr_form_field" ng-model="y_param" ng-options="p as p.full_name for p in parameters"></select>
+          <select class="pr_form_field" ng-model="y_param" ng-change="parameter_changed()" ng-options="p as p.full_name for p in parameters"></select>
           <div>
             Y axis scale:<br/>
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_min" /> to
-            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_max" />
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_min" ng-change="parameter_changed()" /> to
+            <input ng-disabled="auto_scale" class="pr_form_field scale_input" maxlength="6" type="text" ng-model="user_y_max" ng-change="parameter_changed()" />
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="col-md-3">
-      <br/>
-      <button class="btn btn-primary" ng-click="render_plot()">Update Plot</button>
-      <button class="btn btn-default pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
-      <br/>
-      <br/>
-      <button class="btn btn-default pull-left" ng-click="expand_selected_clusters()">Expand Selected</button>
-      <button class="btn btn-default pull-right" ng-click="launch_multi_label_modal()">Label Expanded</button>
-    </div>
-
-  </div>
-
-  <div class="row">
-
-    <div class="col-md-offset-4 col-md-5 no-padding">
       <div class="row">
-        <div class="col-md-3 no-padding">
+        <div class="col-md-4 no-padding">
           <label>
-            <input ng-model="show_heat" type="checkbox"> Show heat map
+            <input type="checkbox" ng-model="auto_scale" ng-change="parameter_changed()"> Auto-scale axes
+          </label>
+          <br/>
+          <label>
+            <input type="checkbox" ng-model="auto_transition"> Update plot automatically
+          </label>
+          <br/>
+          <label>
+            <input type="checkbox" ng-model="animate" ng-change="toggle_animation()" /> Animate transitions
           </label>
         </div>
-        <div class="col-md-2 no-padding">
+        <div class="col-md-4 no-padding">
           <label>
-            <input ng-model="auto_scale" type="checkbox"> Auto-scale
+            <input type="checkbox" ng-model="enable_brushing" ng-change="set_brushing_mode()" /> Enable brushed selection
+          </label>
+          <br/>
+          <label>
+            <input type="checkbox" ng-model="show_heat" ng-change="parameter_changed()"> Show heat map
           </label>
         </div>
-        <div class="col-md-2 no-padding">
+        <div class="col-md-4 no-padding">
           <label>
-            <input ng-model="animate" type="checkbox" ng-change="toggle_animation()"> Animate
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="all" ng-change="set_cluster_display()" /> Show all clusters
           </label>
-        </div>
-        <div class="col-md-2 no-padding">
           <label>
-            <input ng-model="enable_brushing" type="checkbox" ng-change="render_plot()"> Brushing
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="expanded" ng-change="set_cluster_display()" /> Show expanded clusters
           </label>
-        </div>
-        <div class="col-md-3 no-padding">
           <label>
-            <input ng-model="show_clusters" type="checkbox" ng-change="toggle_clusters()"> Show Clusters
+            <input type="radio" name="cluster_display_mode" ng-model="cluster_display_mode" value="none" ng-change="set_cluster_display()" /> Hide all clusters
           </label>
         </div>
       </div>
+
     </div>
 
     <div class="col-md-3">
+
+      <div class="row" style="margin-top:20px">
+        <div class="col-md-6">
+          <button class="btn btn-primary" ng-click="render_plot()" ng-disabled="auto_transition">Update Plot</button>
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-default pull-right" ng-hide="has_parent_stage || has_parent_stage == null" ng-click="launch_stage2_modal()">Stage 2</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:20px">
+        <div class="col-md-6">
+          <button class="btn btn-default pull-left" ng-click="expand_selected_clusters()">Expand Selected</button>
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-default pull-right" ng-click="collapse_selected_clusters()">Collapse Selected</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:20px">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-default pull-right" ng-click="launch_multi_label_modal()">Label Expanded</button>
+        </div>
+      </div>
 
     </div>
 
@@ -116,7 +135,7 @@
               <th ts-criteria="cluster_index" ts-default="ascending">
                 Cluster ID
               </th>
-              <th ts-criteria="weight">
+              <th ts-criteria="weight|parseFloat">
                 Event %
               </th>
               <th ts-criteria="labels">

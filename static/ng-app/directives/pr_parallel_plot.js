@@ -15,28 +15,12 @@ app.directive('prparallelplot', function() {
             .attr("width", width + left_margin)
             .attr("height", height + bottom_margin);
 
-        scope.initialize_parallel_plot = function() {
+        scope.initialize_parallel_plot = function(analyzed_parameters, clusters) {
             // clear plot area
             d3.select('#parallel-plot').selectAll("g").remove();
             var plot_area = scope.parallel_svg.append("g")
                 .attr("id", "parallel-plot-area")
                 .attr("transform", "translate(" + left_margin + ", 5)");
-
-            // get individual parameter scale functions, but we must take
-            // care to skip channels that were not analyzed since there
-            // are no cluster locations for those channels
-            // TODO: should all this analyzed cluster stuff be in parent ctrl?
-            var analyzed_parameters = [];
-            var example_cluster = scope.plot_data.cluster_data[0];
-            scope.parameters.forEach(function (param) {
-                // use the 1st cluster params for comparison
-                for (var i=0; i<example_cluster.parameters.length; i++) {
-                    if (param.fcs_number == example_cluster.parameters[i].channel) {
-                        analyzed_parameters.push(param);
-                        break;
-                    }
-                }
-            });
 
             // determine extent for each analyzed parameter
             var min_value;
@@ -44,7 +28,7 @@ app.directive('prparallelplot', function() {
             analyzed_parameters.forEach(function (p) {
                 min_value = undefined;
                 max_value = undefined;
-                scope.plot_data.cluster_data.forEach(function(cluster) {
+                clusters.forEach(function(cluster) {
                     for (var cp=0; cp < cluster.parameters.length; cp++) {
                         if (p.fcs_number == cluster.parameters[cp].channel) {
                             if (min_value === undefined) {
@@ -94,7 +78,7 @@ app.directive('prparallelplot', function() {
                     // to line_function in the correct order, which is the
                     // same order as scope.parameters
                     var cluster_locations = [];
-                    scope.parameters.forEach(function(scope_param) {
+                    analyzed_parameters.forEach(function(scope_param) {
                         for (var i = 0; i < d.parameters.length; i++) {
                             if (scope_param.fcs_number == d.parameters[i].channel) {
                                 cluster_locations.push(d.parameters[i]);
@@ -132,8 +116,6 @@ app.directive('prparallelplot', function() {
                     return "translate(" + -(width+left_margin) + ", " + 12 + ")";
                 })
                 .style("font-weight", "bold");
-
-            scope.render_parallel_plot();
         };
     }
 
@@ -147,10 +129,6 @@ app.directive('prparallelplot', function() {
 });
 
 app.controller('PRParallelPlotController', ['$scope', function ($scope) {
-    $scope.render_parallel_plot = function () {
-
-    };
-
     $scope.select_cluster_line = function (cluster) {
         // highlight line in parallel chart
         $scope.parallel_lines.select("#cluster_line_" + cluster.cluster_index)

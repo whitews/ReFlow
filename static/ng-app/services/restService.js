@@ -347,7 +347,11 @@ service
             URLS.PROCESS_REQUESTS + ':id',
             {},
             {
-                get: { isArray: false }
+                get: { isArray: false },
+                get_progress: {
+                    url: URLS.PROCESS_REQUESTS + ':id/progress/',
+                    isArray: false
+                }
             }
         );
 
@@ -396,6 +400,9 @@ service
                 },
                 {
                     name:'Comp Beads'
+                },
+                {
+                    name:'Untreated'
                 }
             ];
         };

@@ -714,7 +714,8 @@ class ProcessRequestSerializer(serializers.ModelSerializer):
             'worker',
             'worker_name',
             'status',
-            'status_message'
+            'status_message',
+            'percent_complete'
         )
 
 
@@ -793,7 +794,18 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
             'worker_name',
             'status',
             'status_message',
+            'percent_complete',
             'inputs'
+        )
+
+
+class ProcessRequestProgessDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessRequest
+        fields = (
+            'status',
+            'status_message',
+            'percent_complete'
         )
 
 

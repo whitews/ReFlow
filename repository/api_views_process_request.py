@@ -163,6 +163,44 @@ def revoke_process_request_assignment(request, pk):
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
+def purge_process_request_results(request, pk):
+    """
+    This API is necessary for workers that are already assigned to a
+    ProcessRequest, but for whatever reason re-started the analysis. It
+    is possible that the assigned Worker had previously uploaded a partial
+    set of Cluster and SampleCluster instances prior to failing. As a result,
+    the ProcessRequest would still be in 'Working' status and assigned. This
+    function allows a worker to purge any prior results prior to POSTing a
+    new set of results.
+
+    Prior results can only be purged by the assigned worker and only if the
+    ProcessRequest status is "Working".
+
+    :param request: Incoming HTTP request
+    :param pk: Primary key of ProcessRequest
+    :return: HTTP response
+    """
+    pr = get_object_or_404(models.ProcessRequest, pk=pk)
+    if not pr.worker or not hasattr(request.user, 'worker'):
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+    if pr.worker.user != request.user:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+    if pr.status != "Working":
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    try:
+        # deleting the cluster set will also take care of any SampleCluster
+        # instances (as well as any other child relationships)
+        pr.cluster_set.all().delete()
+    except:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    return Response(status=status.HTTP_200_OK, data={})
+
+
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def complete_process_request_assignment(request, pk):
     pr = get_object_or_404(models.ProcessRequest, pk=pk)
     if not pr.worker or not hasattr(request.user, 'worker'):
@@ -194,6 +232,9 @@ def verify_process_request_assignment(request, pk):
             data['assignment'] = True
 
     return Response(status=status.HTTP_200_OK, data=data)
+
+
+
 
 
 class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateDestroyAPIView):
@@ -611,13 +652,60 @@ class ViableProcessRequestList(LoginRequiredMixin, generics.ListAPIView):
 class ProcessRequestDetail(
         LoginRequiredMixin,
         PermissionRequiredMixin,
-        generics.RetrieveDestroyAPIView):
+        generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint representing a single process request.
     """
 
     model = models.ProcessRequest
     serializer_class = serializers.ProcessRequestDetailSerializer
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Override patch just for updating percent complete field. Validation
+        includes:
+          - ensuring user is a Worker
+          - verifying the ProcessRequest is assigned to that Worker
+          - verifying the percent complete is an integer between 0 & 100
+        """
+        if hasattr(self.request.user, 'worker'):
+            try:
+                worker = models.Worker.objects.get(user=self.request.user)
+                process_request = models.ProcessRequest.objects.get(
+                    id=kwargs['pk']
+                )
+                percent_complete = int(self.request.data['percent_complete'])
+            except Exception as e:
+                return Response(data={'detail': e.message}, status=400)
+
+            # check that PR is assigned to this worker
+            if process_request.worker.id != worker.id:
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            # make sure the ProcessRequest status is Working
+            if process_request.status != 'Working':
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            if percent_complete < 0 or percent_complete > 100:
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+            # if we get here, everything checked out ok, update the PR
+            try:
+                # now try to save the ProcessRequest
+                process_request.percent_complete = percent_complete
+                process_request.save()
+
+                # serialize the updated ProcessRequest
+                serializer = serializers.ProcessRequestSerializer(
+                    process_request,
+                    context={'request': request}
+                )
+
+                return Response(serializer.data, status=201)
+            except ValidationError as e:
+                return Response(data={'detail': e.messages}, status=400)
+
+        return Response(data={'detail': 'Bad request'}, status=400)
 
     def delete(self, request, *args, **kwargs):
         process_request = models.ProcessRequest.objects.get(id=kwargs['pk'])
@@ -627,6 +715,19 @@ class ProcessRequestDetail(
         return super(ProcessRequestDetail, self).delete(
             request, *args, **kwargs
         )
+
+
+class ProcessRequestProgressDetail(
+        LoginRequiredMixin,
+        PermissionRequiredMixin,
+        generics.RetrieveAPIView):
+    """
+    API endpoint for getting only the 'percent_complete' field for a single
+    ProcessRequest
+    """
+
+    model = models.ProcessRequest
+    serializer_class = serializers.ProcessRequestProgessDetailSerializer
 
 
 class ProcessRequestAssignmentUpdate(

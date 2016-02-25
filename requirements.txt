@@ -5,4 +5,4 @@ djangorestframework>=3.2
 django-rest-framework-docs==0.1.7
 django-extensions>=1.5
 numpy>=1.7
-flowio>=0.6b
+flowio>=0.6

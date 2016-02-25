@@ -90,7 +90,8 @@ STAINING_CHOICES = (
 PRETREATMENT_CHOICES = (
     ('In vitro', 'In vitro'),
     ('Ex vivo', 'Ex vivo'),
-    ('Comp Beads', 'Comp Beads')
+    ('Comp Beads', 'Comp Beads'),
+    ('Untreated', 'Untreated')
 )
 
 STORAGE_CHOICES = (
@@ -1687,6 +1688,10 @@ class ProcessRequest(ProtectedModel):
         max_length=256,
         null=True,
         blank=True)
+    percent_complete = models.IntegerField(
+        null=True,
+        blank=True
+    )
 
     def has_view_permission(self, user):
 
@@ -1702,8 +1707,10 @@ class ProcessRequest(ProtectedModel):
         if not self.id:
             self.request_date = datetime.datetime.now()
             self.status = 'Pending'
+            self.percent_complete = 0
         if self.status == 'Complete' and not self.completion_date:
             self.completion_date = datetime.datetime.now()
+            self.percent_complete = 100
         super(ProcessRequest, self).save(*args, **kwargs)
 
     def __unicode__(self):
