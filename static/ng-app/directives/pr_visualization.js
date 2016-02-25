@@ -968,10 +968,10 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
             ];
 
             // Set text box values
-            $scope.user_x_min = x_range[0];
-            $scope.user_x_max = x_range[1];
-            $scope.user_y_min = y_range[0];
-            $scope.user_y_max = y_range[1];
+            $scope.user_x_min = x_range[0].toFixed(2);
+            $scope.user_x_max = x_range[1].toFixed(2);
+            $scope.user_y_min = y_range[0].toFixed(2);
+            $scope.user_y_max = y_range[1].toFixed(2);
         } else {
             x_range.push($scope.user_x_min);
             x_range.push($scope.user_x_max);
