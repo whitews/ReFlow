@@ -34,6 +34,19 @@ app.controller(
             });
 
             $scope.$watch('data', function(data) {
+                // first sort data.members by the sample's original_filename
+                if (data != undefined && data.hasOwnProperty("members")) {
+                    data.members.sort(function (a, b) {
+                        if (a.sample.original_filename < b.sample.original_filename) {
+                            return -1;
+                        } else if (a.sample.original_filename > b.sample.original_filename) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
+                }
+
                 $scope.sample_collection = data;
                 $scope.cached_plots = {};
             });
