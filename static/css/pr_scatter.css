@@ -49,10 +49,8 @@ svg, canvas {
 }
 
 circle, ellipse {
-    z-index: 1000;
-    /*fill: #99c3d1;*/
-    stroke: #203148;
-    stroke-width: 2px;
+    stroke: rgba(15, 15, 15, 0.5);
+    stroke-width: 1px;
     cursor: pointer;
 }
 
