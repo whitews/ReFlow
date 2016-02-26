@@ -738,8 +738,9 @@ app.directive('prscatterplot', function() {
                         }
                     }
 
-                    tooltip.style("visibility", "visible");
-                    tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
+                    tooltip.style("visibility", "visible")
+                        .style("z-index", 9999)
+                        tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
 
                     scope.highlight_cluster(d);
                     scope.$apply();
