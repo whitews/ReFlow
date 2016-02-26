@@ -258,7 +258,9 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", $scope.cluster_radius_lg);
+                    }).attr("r", function (d) {
+                        return Math.round(d.weight) + 9;
+                    });
 
                 $scope.select_cluster_line(cluster);
             };
@@ -271,8 +273,8 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", function(o) {
-                        return o.selected ? $scope.cluster_radius_lg : $scope.cluster_radius;
+                    }).attr("r", function(d) {
+                        return d.selected ? Math.round(d.weight) + 9 : Math.round(d.weight) + 5;
                     }
                 );
 
@@ -289,7 +291,7 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", $scope.cluster_radius_lg);
+                    }).attr("r", Math.round(d.weight) + 9);
 
                 $scope.select_cluster_line(cluster);
             };
@@ -302,7 +304,7 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", $scope.cluster_radius);
+                    }).attr("r", Math.round(d.weight) + 5);
 
                 $scope.deselect_cluster_line(cluster);
             };
