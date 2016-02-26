@@ -316,6 +316,30 @@ app.controller(
                 $scope.deselect_cluster_line(cluster);
             };
 
+            $scope.expand_cluster = function (cluster) {
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    })
+                    .style("stroke-dasharray", "4, 1")
+                    .style("stroke-linecap", "butt")
+                    .style("stroke-width", "5");
+            };
+
+            $scope.collapse_cluster = function (cluster) {
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    })
+                    .style("stroke-dasharray", "1, 0")
+                    .style("stroke-linecap", "butt")
+                    .style("stroke-width", "2");
+            };
+
             function update_cluster_labels(sample_cluster) {
                 var response = ModelService.getClusterLabels(
                     {
@@ -786,8 +810,10 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         // toggle cluster lines
         if (cluster.display_events) {
             $scope.select_cluster_line(cluster);
+            $scope.expand_cluster(cluster);
         } else {
             $scope.deselect_cluster_line(cluster);
+            $scope.collapse_cluster(cluster);
         }
     }
 
