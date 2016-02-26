@@ -760,7 +760,11 @@ app.directive('prscatterplot', function() {
                     scope.$apply();
                     return tooltip.style("visibility", "hidden");
                 })
-                .on("click", function(cluster, index) {
+                .on("click", function(cluster) {
+                    // TODO: if in "expanded" display mode it's possible to
+                    // click on a hidden cluster, need to re-sort SVG circles
+                    // in this mode to move the visible ones to the front &
+                    // return it back for the other modes
                     scope.toggle_cluster_events(cluster);
                     scope.$apply();
                 });
