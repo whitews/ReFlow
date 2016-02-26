@@ -258,16 +258,7 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", 12);
-
-                    // sort circles by highlighted to bring it to the front
-                    // SVG elements don't obey z-index, they are in the order of
-                    // appearance
-                    $scope.svg.selectAll("circle").sort(
-                        function (a, b) {
-                            return a.highlighted - b.highlighted;
-                        }
-                    );
+                    }).attr("r", $scope.cluster_radius_lg);
 
                 $scope.select_cluster_line(cluster);
             };
@@ -281,7 +272,7 @@ app.controller(
                             return d;
                         }
                     }).attr("r", function(o) {
-                        return o.selected ? 12 : 8;
+                        return o.selected ? $scope.cluster_radius_lg : $scope.cluster_radius;
                     }
                 );
 
@@ -298,7 +289,7 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", 12);
+                    }).attr("r", $scope.cluster_radius_lg);
 
                 $scope.select_cluster_line(cluster);
             };
@@ -311,7 +302,7 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", 8);
+                    }).attr("r", $scope.cluster_radius);
 
                 $scope.deselect_cluster_line(cluster);
             };
@@ -337,7 +328,7 @@ app.controller(
                     })
                     .style("stroke-dasharray", "1, 0")
                     .style("stroke-linecap", "butt")
-                    .style("stroke-width", "2");
+                    .style("stroke-width", "1");
             };
 
             function update_cluster_labels(sample_cluster) {
@@ -512,7 +503,8 @@ app.directive('prscatterplot', function() {
             bottom: height - scope.canvas_height,
             left: width - scope.canvas_width
         };
-        var cluster_radius = 8;
+        scope.cluster_radius = 8;
+        scope.cluster_radius_lg = 10;
         scope.transition_ms = 1000;
         scope.heat_base_color = "#5888D0";
         scope.parameters = [];  // flow data column names
@@ -729,7 +721,9 @@ app.directive('prscatterplot', function() {
 
             scope.clusters.enter()
                 .append("circle")
-                .attr("r", cluster_radius)
+                .attr("r", function (d) {
+                    return Math.floor(d.weight) + 5;
+                })
                 .attr("fill", function (d) {
                     return d.color;
                 })
@@ -767,6 +761,24 @@ app.directive('prscatterplot', function() {
                     scope.toggle_cluster_events(cluster);
                     scope.$apply();
                 });
+
+            // sort circles by event percentage (weight) in descending order
+            // to bring smaller clusters to the front
+            // SVG elements don't obey z-index, they are in the order of
+            // appearance
+            scope.cluster_plot_area.selectAll("circle").sort(
+                function (a, b) {
+                    var a_weight = parseFloat(a.weight);
+                    var b_weight = parseFloat(b.weight);
+                    if (a_weight > b_weight) {
+                        return -1;
+                    } else if (a_weight < b_weight) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            );
 
             scope.render_plot();
         };
