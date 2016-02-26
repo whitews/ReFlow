@@ -316,6 +316,7 @@ app.controller(
                             return d;
                         }
                     })
+                    .style("stroke", "rgba(15, 15, 15, 0.8)")
                     .style("stroke-dasharray", "4, 1")
                     .style("stroke-linecap", "butt")
                     .style("stroke-width", "5");
@@ -328,6 +329,7 @@ app.controller(
                             return d;
                         }
                     })
+                    .style("stroke", "rgba(15, 15, 15, 0.5)")
                     .style("stroke-dasharray", "1, 0")
                     .style("stroke-linecap", "butt")
                     .style("stroke-width", "1");
