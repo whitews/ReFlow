@@ -722,7 +722,7 @@ app.directive('prscatterplot', function() {
             scope.clusters.enter()
                 .append("circle")
                 .attr("r", function (d) {
-                    return Math.floor(d.weight) + 5;
+                    return Math.round(d.weight) + 5;
                 })
                 .attr("fill", function (d) {
                     return d.color;
