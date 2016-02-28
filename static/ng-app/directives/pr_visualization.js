@@ -291,7 +291,9 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", Math.round(d.weight) + 10);
+                    }).attr("r", function(d) {
+                        return Math.round(d.weight) + 10;
+                    });
 
                 $scope.select_cluster_line(cluster);
             };
@@ -304,7 +306,9 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", Math.round(d.weight) + 6);
+                    }).attr("r", function(d) {
+                        return Math.round(d.weight) + 6;
+                    });
 
                 $scope.deselect_cluster_line(cluster);
             };
@@ -394,10 +398,13 @@ app.controller(
             };
 
             $scope.set_cluster_display = function () {
+                // Shows/hides cluster circles using visibility property,
+                // not opacity. Visibility lets us control mouse-events and
+                // is computationally less intense
                 if ($scope.cluster_display_mode === "all") {
-                    $scope.clusters.style("opacity", 1);
+                    $scope.clusters.attr("visibility", "visible");
                 } else if ($scope.cluster_display_mode === "none")  {
-                    $scope.clusters.style("opacity", 0);
+                    $scope.clusters.attr("visibility", "hidden");
                 } else {
                     // the only mode left is "expanded", and for that we need to
                     // iterate over the clusters to see their "display_events"
@@ -406,12 +413,12 @@ app.controller(
                         if (d.display_events) {
                             return d;
                         }
-                    }).style("opacity", 1);
+                    }).attr("visibility", "visible");
                     $scope.clusters.filter(function(d, i) {
                         if (!d.display_events) {
                             return d;
                         }
-                    }).style("opacity", 0);
+                    }).attr("visibility", "hidden");
                 }
             };
 
@@ -567,8 +574,8 @@ app.directive('prscatterplot', function() {
             var y_max = e[1][1];
 
             // Highlight selected circles
-            scope.svg.selectAll("circle").filter(function() {
-                return this.style.opacity == 1;
+            scope.svg.selectAll("circle").filter(function(d) {
+                return d3.select(this).attr("visibility") === "visible";
             }).classed("selected", function(d) {
                 var x_location = null;
                 var y_location = null;
@@ -731,6 +738,7 @@ app.directive('prscatterplot', function() {
                 .attr("fill", function (d) {
                     return d.color;
                 })
+                .style("pointer-events", "visible")  // disable mouse events for hidden clusters
                 .on("mouseenter", function(d) {
                     if (scope.cluster_display_mode === "none") {
                         return;
@@ -763,10 +771,6 @@ app.directive('prscatterplot', function() {
                     return tooltip.style("visibility", "hidden");
                 })
                 .on("click", function(cluster) {
-                    // TODO: if in "expanded" display mode it's possible to
-                    // click on a hidden cluster, need to re-sort SVG circles
-                    // in this mode to move the visible ones to the front &
-                    // return it back for the other modes
                     scope.toggle_cluster_events(cluster);
                     scope.$apply();
                 });
