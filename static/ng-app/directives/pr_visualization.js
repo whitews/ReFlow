@@ -259,7 +259,7 @@ app.controller(
                             return d;
                         }
                     }).attr("r", function (d) {
-                        return Math.round(d.weight) + 9;
+                        return Math.round(d.weight) + 10;
                     });
 
                 $scope.select_cluster_line(cluster);
@@ -274,7 +274,7 @@ app.controller(
                             return d;
                         }
                     }).attr("r", function(d) {
-                        return d.selected ? Math.round(d.weight) + 9 : Math.round(d.weight) + 5;
+                        return d.selected ? Math.round(d.weight) + 10 : Math.round(d.weight) + 6;
                     }
                 );
 
@@ -291,7 +291,7 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", Math.round(d.weight) + 9);
+                    }).attr("r", Math.round(d.weight) + 10);
 
                 $scope.select_cluster_line(cluster);
             };
@@ -304,7 +304,7 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", Math.round(d.weight) + 5);
+                    }).attr("r", Math.round(d.weight) + 6);
 
                 $scope.deselect_cluster_line(cluster);
             };
@@ -319,7 +319,7 @@ app.controller(
                     .style("stroke", "rgba(15, 15, 15, 0.8)")
                     .style("stroke-dasharray", "4, 1")
                     .style("stroke-linecap", "butt")
-                    .style("stroke-width", "5");
+                    .style("stroke-width", "4");
             };
 
             $scope.collapse_cluster = function (cluster) {
@@ -329,10 +329,10 @@ app.controller(
                             return d;
                         }
                     })
-                    .style("stroke", "rgba(15, 15, 15, 0.5)")
+                    .style("stroke", "rgba(0, 0, 0, 0.7)")
                     .style("stroke-dasharray", "1, 0")
                     .style("stroke-linecap", "butt")
-                    .style("stroke-width", "1");
+                    .style("stroke-width", "1.2");
             };
 
             function update_cluster_labels(sample_cluster) {
@@ -726,7 +726,7 @@ app.directive('prscatterplot', function() {
             scope.clusters.enter()
                 .append("circle")
                 .attr("r", function (d) {
-                    return Math.round(d.weight) + 5;
+                    return Math.round(d.weight) + 6;
                 })
                 .attr("fill", function (d) {
                     return d.color;
@@ -741,8 +741,8 @@ app.directive('prscatterplot', function() {
                     }
 
                     tooltip.style("visibility", "visible")
-                        .style("z-index", 9999)
-                        tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
+                        .style("z-index", 9999);
+                    tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
 
                     scope.highlight_cluster(d);
                     scope.$apply();
