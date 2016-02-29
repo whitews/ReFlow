@@ -306,14 +306,26 @@ app.controller(
             $scope.select_cluster = function (cluster) {
                 cluster.selected = true;
 
-                $scope.clusters.filter(
-                    function(d) {
-                        if (d.cluster_index == cluster.cluster_index) {
-                            return d;
+                // visible indicator for selected is a bolder stroke,
+                // but we need to differentiate between expanded and
+                // non-expanded clusters
+                if (cluster.display_events) {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
                         }
-                    }).attr("r", function(d) {
-                        return Math.round(d.weight) + 10;
-                    });
+                    ).style("stroke-width", "6");
+                } else {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
+                        }
+                    ).style("stroke-width", "2.5");
+                }
 
                 $scope.select_cluster_line(cluster);
             };
@@ -321,14 +333,26 @@ app.controller(
             $scope.deselect_cluster = function (cluster) {
                 cluster.selected = false;
 
-                $scope.clusters.filter(
-                    function(d) {
-                        if (d.cluster_index == cluster.cluster_index) {
-                            return d;
+                // remove visible indicator for selected state,
+                // but we need to differentiate between expanded and
+                // non-expanded clusters
+                if (cluster.display_events) {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
                         }
-                    }).attr("r", function(d) {
-                        return Math.round(d.weight) + 6;
-                    });
+                    ).style("stroke-width", "4");
+                } else {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
+                        }
+                    ).style("stroke-width", "1.2");
+                }
 
                 $scope.deselect_cluster_line(cluster);
             };
