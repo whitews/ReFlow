@@ -68,7 +68,8 @@ circle, ellipse {
     z-index: -1;
     stroke: #777;
     stroke-width: 1.5px;
-    fill-opacity: .25;
+    fill-opacity: 0.1;
+    fill: #888888;
 }
 
 #heat_map_canvas {
