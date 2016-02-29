@@ -250,17 +250,37 @@ app.controller(
                 check-box in that cluster's row of the data table.
              */
 
+            function pulsate(selection) {
+                recursive_transitions();
+                function recursive_transitions() {
+                    if (selection.data()[0].highlighted) {
+                        selection.transition()
+                            .duration(400)
+                            .attr("r", Math.round(selection.data()[0].weight) + 6)
+                            .ease('sin-in')
+                            .transition()
+                            .duration(800)
+                            .attr("r", Math.round(selection.data()[0].weight) + 12)
+                            .ease('bounce-in')
+                            .each("end", recursive_transitions);
+                    } else {
+                        // transition back to normal
+                        selection.transition()
+                            .duration(200)
+                            .attr("r", Math.round(selection.data()[0].weight) + 6);
+                    }
+                }
+            }
+
             $scope.highlight_cluster = function (cluster) {
                 cluster.highlighted = true;
 
-                $scope.clusters.filter(
-                    function(d) {
-                        if (d.cluster_index == cluster.cluster_index) {
-                            return d;
-                        }
-                    }).attr("r", function (d) {
-                        return Math.round(d.weight) + 10;
-                    });
+                $scope.clusters.filter(function(d) {
+                    if (d.highlighted) {
+                        var selected_circles = d3.select(this);
+                        pulsate(selected_circles);
+                    }
+                });
 
                 $scope.select_cluster_line(cluster);
             };
@@ -656,6 +676,7 @@ app.directive('prscatterplot', function() {
                     cluster.highlighted = false;
                     cluster.selected = false;
                     cluster.color = colors[cluster.cluster_index % 20];
+                    cluster.pulse = false;
 
                     // and set an empty array for the cluster's event data
                     cluster.events = [];
