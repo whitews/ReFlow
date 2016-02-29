@@ -364,9 +364,7 @@ app.controller(
                             return d;
                         }
                     })
-                    .style("stroke", "rgba(15, 15, 15, 0.8)")
                     .style("stroke-dasharray", "4, 1")
-                    .style("stroke-linecap", "butt")
                     .style("stroke-width", "4");
             };
 
@@ -377,9 +375,7 @@ app.controller(
                             return d;
                         }
                     })
-                    .style("stroke", "rgba(0, 0, 0, 0.7)")
                     .style("stroke-dasharray", "1, 0")
-                    .style("stroke-linecap", "butt")
                     .style("stroke-width", "1.2");
             };
 
@@ -782,6 +778,20 @@ app.directive('prscatterplot', function() {
                 })
                 .attr("fill", function (d) {
                     return d.color;
+                })
+                .style("stroke-width", function(d) {
+                    if (d.display_events) {
+                        return "4px";
+                    } else {
+                        return "1.2px";
+                    }
+                })
+                .style("stroke-dasharray", function(d) {
+                    if (d.display_events) {
+                        return "4, 1";
+                    } else {
+                        return "1, 0";
+                    }
                 })
                 .style("pointer-events", "visible")  // disable mouse events for hidden clusters
                 .on("mouseenter", function(d) {
