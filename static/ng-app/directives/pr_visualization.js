@@ -909,11 +909,19 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
     };
 
     $scope.expand_selected_clusters = function () {
+        // Make a list of the selected clusters since things may move
+        // with the toggle_cluster_events call and cause other clusters to
+        // move into the selection before the transitions are complete
+        var clusters_to_expand = [];
         $scope.plot_data.cluster_data.forEach(function(c) {
             if (c.selected && !c.display_events) {
                 // call $scope.toggle...here because events may not be retrieved
-                $scope.toggle_cluster_events(c);
+                clusters_to_expand.push(c);
             }
+        });
+
+        clusters_to_expand.forEach(function(c){
+            $scope.toggle_cluster_events(c);
         });
 
         // clear brush region
