@@ -156,7 +156,7 @@ def retrieve_sample(request, pk):
     response = HttpResponse(
         sample_file,
         content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
+    response['Content-Disposition'] = 'attachment; filename="%s"' \
         % sample.original_filename
     return response
 
@@ -179,7 +179,7 @@ def retrieve_sample_as_pk(request, pk):
     response = HttpResponse(
         sample_file,
         content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
+    response['Content-Disposition'] = 'attachment; filename="%s"' \
         % str(sample.id) + '.fcs'
     return response
 
@@ -215,7 +215,7 @@ def retrieve_clean_sample(request, pk):
     response = HttpResponse(
         clean_file,
         content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
+    response['Content-Disposition'] = 'attachment; filename="%s"' \
         % file_name
     return response
 
@@ -232,7 +232,7 @@ def retrieve_compensation_as_csv(request, pk):
     response = HttpResponse(
         compensation.get_compensation_as_csv(),
         content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
+    response['Content-Disposition'] = 'attachment; filename="%s"' \
         % "comp_" + str(compensation.id) + '.csv'
     return response
 
@@ -268,7 +268,7 @@ def retrieve_compensation_as_numpy(request, pk):
     response = HttpResponse(
         compensation.compensation_file.file,
         content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename=%s' \
+    response['Content-Disposition'] = 'attachment; filename="%s"' \
         % "comp_" + str(compensation.id) + '.npy'
     return response
 
