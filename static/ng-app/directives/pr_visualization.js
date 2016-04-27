@@ -250,24 +250,37 @@ app.controller(
                 check-box in that cluster's row of the data table.
              */
 
+            function pulsate(selection) {
+                recursive_transitions();
+                function recursive_transitions() {
+                    if (selection.data()[0].highlighted) {
+                        selection.transition()
+                            .duration(400)
+                            .attr("r", Math.round(selection.data()[0].weight) + 6)
+                            .ease('sin-in')
+                            .transition()
+                            .duration(800)
+                            .attr("r", Math.round(selection.data()[0].weight) + 12)
+                            .ease('bounce-in')
+                            .each("end", recursive_transitions);
+                    } else {
+                        // transition back to normal
+                        selection.transition()
+                            .duration(200)
+                            .attr("r", Math.round(selection.data()[0].weight) + 6);
+                    }
+                }
+            }
+
             $scope.highlight_cluster = function (cluster) {
                 cluster.highlighted = true;
 
-                $scope.clusters.filter(
-                    function(d) {
-                        if (d.cluster_index == cluster.cluster_index) {
-                            return d;
-                        }
-                    }).attr("r", 12);
-
-                    // sort circles by highlighted to bring it to the front
-                    // SVG elements don't obey z-index, they are in the order of
-                    // appearance
-                    $scope.svg.selectAll("circle").sort(
-                        function (a, b) {
-                            return a.highlighted - b.highlighted;
-                        }
-                    );
+                $scope.clusters.filter(function(d) {
+                    if (d.highlighted) {
+                        var selected_circles = d3.select(this);
+                        pulsate(selected_circles);
+                    }
+                });
 
                 $scope.select_cluster_line(cluster);
             };
@@ -280,8 +293,8 @@ app.controller(
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", function(o) {
-                        return o.selected ? 12 : 8;
+                    }).attr("r", function(d) {
+                        return d.selected ? Math.round(d.weight) + 10 : Math.round(d.weight) + 6;
                     }
                 );
 
@@ -293,12 +306,26 @@ app.controller(
             $scope.select_cluster = function (cluster) {
                 cluster.selected = true;
 
-                $scope.clusters.filter(
-                    function(d) {
-                        if (d.cluster_index == cluster.cluster_index) {
-                            return d;
+                // visible indicator for selected is a bolder stroke,
+                // but we need to differentiate between expanded and
+                // non-expanded clusters
+                if (cluster.display_events) {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
                         }
-                    }).attr("r", 12);
+                    ).style("stroke-width", "6");
+                } else {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
+                        }
+                    ).style("stroke-width", "2.5");
+                }
 
                 $scope.select_cluster_line(cluster);
             };
@@ -306,14 +333,50 @@ app.controller(
             $scope.deselect_cluster = function (cluster) {
                 cluster.selected = false;
 
+                // remove visible indicator for selected state,
+                // but we need to differentiate between expanded and
+                // non-expanded clusters
+                if (cluster.display_events) {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
+                        }
+                    ).style("stroke-width", "4");
+                } else {
+                    $scope.clusters.filter(
+                        function (d) {
+                            if (d.cluster_index == cluster.cluster_index) {
+                                return d;
+                            }
+                        }
+                    ).style("stroke-width", "1.2");
+                }
+
+                $scope.deselect_cluster_line(cluster);
+            };
+
+            $scope.expand_cluster = function (cluster) {
                 $scope.clusters.filter(
                     function(d) {
                         if (d.cluster_index == cluster.cluster_index) {
                             return d;
                         }
-                    }).attr("r", 8);
+                    })
+                    .style("stroke-dasharray", "4, 1")
+                    .style("stroke-width", "4");
+            };
 
-                $scope.deselect_cluster_line(cluster);
+            $scope.collapse_cluster = function (cluster) {
+                $scope.clusters.filter(
+                    function(d) {
+                        if (d.cluster_index == cluster.cluster_index) {
+                            return d;
+                        }
+                    })
+                    .style("stroke-dasharray", "1, 0")
+                    .style("stroke-width", "1.2");
             };
 
             function update_cluster_labels(sample_cluster) {
@@ -375,10 +438,13 @@ app.controller(
             };
 
             $scope.set_cluster_display = function () {
+                // Shows/hides cluster circles using visibility property,
+                // not opacity. Visibility lets us control mouse-events and
+                // is computationally less intense
                 if ($scope.cluster_display_mode === "all") {
-                    $scope.clusters.style("opacity", 1);
+                    $scope.clusters.attr("visibility", "visible");
                 } else if ($scope.cluster_display_mode === "none")  {
-                    $scope.clusters.style("opacity", 0);
+                    $scope.clusters.attr("visibility", "hidden");
                 } else {
                     // the only mode left is "expanded", and for that we need to
                     // iterate over the clusters to see their "display_events"
@@ -387,12 +453,12 @@ app.controller(
                         if (d.display_events) {
                             return d;
                         }
-                    }).style("opacity", 1);
+                    }).attr("visibility", "visible");
                     $scope.clusters.filter(function(d, i) {
                         if (!d.display_events) {
                             return d;
                         }
-                    }).style("opacity", 0);
+                    }).attr("visibility", "hidden");
                 }
             };
 
@@ -488,7 +554,8 @@ app.directive('prscatterplot', function() {
             bottom: height - scope.canvas_height,
             left: width - scope.canvas_width
         };
-        var cluster_radius = 8;
+        scope.cluster_radius = 8;
+        scope.cluster_radius_lg = 10;
         scope.transition_ms = 1000;
         scope.heat_base_color = "#5888D0";
         scope.parameters = [];  // flow data column names
@@ -547,8 +614,8 @@ app.directive('prscatterplot', function() {
             var y_max = e[1][1];
 
             // Highlight selected circles
-            scope.svg.selectAll("circle").filter(function() {
-                return this.style.opacity == 1;
+            scope.svg.selectAll("circle").filter(function(d) {
+                return d3.select(this).attr("visibility") === "visible";
             }).classed("selected", function(d) {
                 var x_location = null;
                 var y_location = null;
@@ -629,6 +696,7 @@ app.directive('prscatterplot', function() {
                     cluster.highlighted = false;
                     cluster.selected = false;
                     cluster.color = colors[cluster.cluster_index % 20];
+                    cluster.pulse = false;
 
                     // and set an empty array for the cluster's event data
                     cluster.events = [];
@@ -705,10 +773,27 @@ app.directive('prscatterplot', function() {
 
             scope.clusters.enter()
                 .append("circle")
-                .attr("r", cluster_radius)
+                .attr("r", function (d) {
+                    return Math.round(d.weight) + 6;
+                })
                 .attr("fill", function (d) {
                     return d.color;
                 })
+                .style("stroke-width", function(d) {
+                    if (d.display_events) {
+                        return "4px";
+                    } else {
+                        return "1.2px";
+                    }
+                })
+                .style("stroke-dasharray", function(d) {
+                    if (d.display_events) {
+                        return "4, 1";
+                    } else {
+                        return "1, 0";
+                    }
+                })
+                .style("pointer-events", "visible")  // disable mouse events for hidden clusters
                 .on("mouseenter", function(d) {
                     if (scope.cluster_display_mode === "none") {
                         return;
@@ -718,7 +803,8 @@ app.directive('prscatterplot', function() {
                         }
                     }
 
-                    tooltip.style("visibility", "visible");
+                    tooltip.style("visibility", "visible")
+                        .style("z-index", 9999);
                     tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
 
                     scope.highlight_cluster(d);
@@ -739,10 +825,28 @@ app.directive('prscatterplot', function() {
                     scope.$apply();
                     return tooltip.style("visibility", "hidden");
                 })
-                .on("click", function(cluster, index) {
+                .on("click", function(cluster) {
                     scope.toggle_cluster_events(cluster);
                     scope.$apply();
                 });
+
+            // sort circles by event percentage (weight) in descending order
+            // to bring smaller clusters to the front
+            // SVG elements don't obey z-index, they are in the order of
+            // appearance
+            scope.cluster_plot_area.selectAll("circle").sort(
+                function (a, b) {
+                    var a_weight = parseFloat(a.weight);
+                    var b_weight = parseFloat(b.weight);
+                    if (a_weight > b_weight) {
+                        return -1;
+                    } else if (a_weight < b_weight) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            );
 
             scope.render_plot();
         };
@@ -786,8 +890,10 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
         // toggle cluster lines
         if (cluster.display_events) {
             $scope.select_cluster_line(cluster);
+            $scope.expand_cluster(cluster);
         } else {
             $scope.deselect_cluster_line(cluster);
+            $scope.collapse_cluster(cluster);
         }
     }
 
@@ -813,11 +919,19 @@ app.controller('PRScatterplotController', ['$scope', function ($scope) {
     };
 
     $scope.expand_selected_clusters = function () {
+        // Make a list of the selected clusters since things may move
+        // with the toggle_cluster_events call and cause other clusters to
+        // move into the selection before the transitions are complete
+        var clusters_to_expand = [];
         $scope.plot_data.cluster_data.forEach(function(c) {
             if (c.selected && !c.display_events) {
                 // call $scope.toggle...here because events may not be retrieved
-                $scope.toggle_cluster_events(c);
+                clusters_to_expand.push(c);
             }
+        });
+
+        clusters_to_expand.forEach(function(c){
+            $scope.toggle_cluster_events(c);
         });
 
         // clear brush region
