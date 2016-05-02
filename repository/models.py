@@ -1022,6 +1022,12 @@ class Compensation(ProtectedModel):
         return u'%s' % self.name
 
 
+# noinspection PyUnusedLocal
+@receiver(models.signals.post_delete, sender=Compensation)
+def delete_compensation_file(sender, instance, *args, **kwargs):
+    instance.compensation_file.delete(save=False)
+
+
 def fcs_file_path(instance, filename):
     project_id = instance.subject.project_id
     site_id = instance.site_panel.site_id
@@ -1839,6 +1845,12 @@ class SampleCluster(ProtectedModel):
             return True
 
         return False
+
+
+# noinspection PyUnusedLocal
+@receiver(models.signals.post_delete, sender=SampleCluster)
+def delete_events_file(sender, instance, *args, **kwargs):
+    instance.events.delete(save=False)
 
 
 class SampleClusterParameter(ProtectedModel):
