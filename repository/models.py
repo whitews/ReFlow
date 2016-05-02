@@ -14,6 +14,7 @@ from django.core.exceptions import \
 from django.core.files import File
 from django.db import models
 from django.contrib.auth.models import User
+from django.dispatch import receiver
 from guardian.shortcuts import \
     get_perms, get_objects_for_user, get_users_with_perms
 from rest_framework.authtoken.models import Token
@@ -1429,6 +1430,12 @@ class Sample(ProtectedModel):
             self.subject.project.project_name,
             self.subject.subject_code,
             self.original_filename)
+
+
+# noinspection PyUnusedLocal
+@receiver(models.signals.post_delete, sender=Sample)
+def delete_sample_file(sender, instance, *args, **kwargs):
+    instance.sample_file.delete(save=False)
 
 
 class SampleMetadata(ProtectedModel):
