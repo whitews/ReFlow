@@ -256,18 +256,37 @@ app.controller(
                     if (selection.data()[0].highlighted) {
                         selection.transition()
                             .duration(400)
-                            .attr("r", Math.round(selection.data()[0].weight) + 6)
+                            .attr("r", function (d) {
+                                if ($scope.static_cluster_size) {
+                                    return 6;
+                                } else {
+                                    return Math.round(d.weight) + 6;
+                                }
+                            })
                             .ease('sin-in')
                             .transition()
                             .duration(800)
-                            .attr("r", Math.round(selection.data()[0].weight) + 12)
+                            .attr("r", function (d) {
+                                if ($scope.static_cluster_size) {
+                                    return 12;
+                                } else {
+                                    return Math.round(d.weight) + 12;
+                                }
+                            })
                             .ease('bounce-in')
                             .each("end", recursive_transitions);
                     } else {
                         // transition back to normal
                         selection.transition()
                             .duration(200)
-                            .attr("r", Math.round(selection.data()[0].weight) + 6);
+                            .attr("r", function (d) {
+                                if ($scope.static_cluster_size) {
+                                    return 6;
+                                } else {
+                                    return Math.round(d.weight) + 6;
+                                }
+                            }
+                        );
                     }
                 }
             }
@@ -294,7 +313,11 @@ app.controller(
                             return d;
                         }
                     }).attr("r", function(d) {
-                        return d.selected ? Math.round(d.weight) + 10 : Math.round(d.weight) + 6;
+                        if ($scope.static_cluster_size) {
+                            return d.selected ? 10 : 6;
+                        } else {
+                            return d.selected ? Math.round(d.weight) + 10 : Math.round(d.weight) + 6;
+                        }
                     }
                 );
 
@@ -462,6 +485,18 @@ app.controller(
                 }
             };
 
+            $scope.set_cluster_radius = function () {
+                // Controls size of cluster radii, either proportional
+                // to event percentage or fixed at 6 pixels
+                $scope.clusters.attr("r", function (d) {
+                    if ($scope.static_cluster_size) {
+                        return 6;
+                    } else {
+                        return Math.round(d.weight) + 6;
+                    }
+                });
+            };
+
             $scope.process_cluster_events = function (cluster) {
                 // first retrieve SampleCluster CSV
                 var response = ModelService.getSampleClusterCSV(cluster.id);
@@ -560,6 +595,7 @@ app.directive('prscatterplot', function() {
         scope.heat_base_color = "#5888D0";
         scope.parameters = [];  // flow data column names
         scope.show_heat = false;    // whether to show heat map
+        scope.static_cluster_size = false;  // fixed size cluster radii
         scope.auto_scale = true;  // automatically scales axes to data
         scope.auto_transition = true;  // transition param changes immediately
         scope.animate = true;  // controls whether transitions animate
@@ -774,8 +810,13 @@ app.directive('prscatterplot', function() {
             scope.clusters.enter()
                 .append("circle")
                 .attr("r", function (d) {
-                    return Math.round(d.weight) + 6;
-                })
+                        if (scope.static_cluster_size) {
+                            return 6;
+                        } else {
+                            return Math.round(d.weight) + 6;
+                        }
+                    }
+                )
                 .attr("fill", function (d) {
                     return d.color;
                 })
