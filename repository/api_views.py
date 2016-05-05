@@ -89,13 +89,13 @@ def change_user_password(request):
     return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
-def is_user(request, username):
+def is_user(request):
     try:
-        User.objects.get(username=username)
-    except ObjectDoesNotExist:
+        User.objects.get(username=request.data['username'])
+    except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     return Response(status=status.HTTP_200_OK)
 
