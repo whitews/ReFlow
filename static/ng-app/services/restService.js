@@ -64,12 +64,13 @@ service
     }])
     .factory('CurrentUser', ['$resource', function ($resource) {
         var CurrentUser = $resource(
-            URLS.CURRENT_USER + ':username',
+            URLS.CURRENT_USER,
+            {},
             {
-                username: '@username'
-            },
-            {
-                is_user: {method: 'GET'}
+                is_user: {
+                    method: 'POST',
+                    url: URLS.CURRENT_USER + 'exists/'
+                }
             }
         );
 
