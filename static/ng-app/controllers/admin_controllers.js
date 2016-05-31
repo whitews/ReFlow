@@ -111,6 +111,31 @@ app.controller(
 );
 
 app.controller(
+    'ResetPasswordController',
+    [
+        '$scope',
+        'ModelService',
+        function ($scope, ModelService) {
+            $scope.reset_password = function (instance) {
+                $scope.errors = [];
+                var response = ModelService.resetUserPassword(
+                    instance.id,
+                    instance.password
+                );
+
+                response.$promise.then(function () {
+                    // close modal
+                    $scope.ok();
+
+                }, function (error) {
+                    $scope.errors = error.data;
+                });
+            };
+        }
+    ]
+);
+
+app.controller(
     'UserDeleteController',
     [
         '$scope',
