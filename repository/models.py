@@ -1418,18 +1418,23 @@ class Sample(ProtectedModel):
         """ Populate upload date on save """
         if not self.id:
             self.upload_date = datetime.datetime.today()
+            new_sample = True
+        else:
+            new_sample = False
 
         super(Sample, self).save(*args, **kwargs)
 
-        # save metadata
-        for k, v in self.sample_metadata_dict.items():
-            try:
-                SampleMetadata(
-                    sample=self,
-                    key=k,
-                    value=v.decode('utf-8', 'ignore')).save()
-            except Exception, e:
-                print e
+        # save metadata if it's a new sample, otherwise save was called to
+        # edit a sample and there won't be any sample_metadata_dict
+        if new_sample:
+            for k, v in self.sample_metadata_dict.items():
+                try:
+                    SampleMetadata(
+                        sample=self,
+                        key=k,
+                        value=v.decode('utf-8', 'ignore')).save()
+                except Exception, e:
+                    print e
 
     def __unicode__(self):
         return u'Project: %s, Subject: %s, Sample File: %s' % (
