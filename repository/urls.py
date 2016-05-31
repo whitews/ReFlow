@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^api/repository/users/?$', UserList.as_view(), name='user-list'),
     url(r'^api/repository/users/(?P<pk>\d+)/?$', UserDetail.as_view(), name='user-detail'),
     url(r'^api/repository/user/?$', get_user_details, name='get_user_details'),
+    url(r'^api/repository/user/reset_password/?$', reset_user_password, name='reset_user_password'),
     url(r'^api/repository/user/change_password/?$', change_user_password, name='change_user_password'),
     url(r'^api/repository/user/exists/?$', is_user, name='is_user'),
 
