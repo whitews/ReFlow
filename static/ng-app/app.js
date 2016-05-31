@@ -46,6 +46,7 @@ var MODAL_URLS = {
     'PROJECT_USER':       'static/ng-app/partials/project-user-form.html',
     'CHOOSE_USER':        'static/ng-app/partials/user-choose.html',
     'CHANGE_PASSWORD':    'static/ng-app/partials/user-change-password-form.html',
+    'RESET_PASSWORD':     'static/ng-app/partials/reset-password-form.html',
 
     // delete modals
     'SAMPLE_DELETE':      'static/ng-app/partials/sample-delete.html',

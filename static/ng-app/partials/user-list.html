@@ -32,6 +32,9 @@
             <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(u, 'USER')" tooltip="Edit Profile" tooltip-placement="bottom">
               <span style="opacity: 0.4" class="fa fa-pencil align-middle"></span>
             </a>
+            <a class="btn btn-danger btn-xs" ng-show="user.superuser" ng-click="init_form(u, 'RESET_PASSWORD')" tooltip="Reset Password" tooltip-placement="bottom">
+              <span style="opacity: 0.4" class="fa fa-key align-middle"></span>
+            </a>
             <a class="btn btn-default btn-xs" ng-show="user.superuser" ng-click="init_form(u, 'USER_DELETE')" tooltip="Delete" tooltip-placement="bottom">
               <i style="opacity: 0.4" class="fa fa-times align-middle"></i>
             </a>
