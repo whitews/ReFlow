@@ -51,6 +51,47 @@ def get_user_details(request):
 
 
 @api_view(['PUT'])
+@authentication_classes((SessionAuthentication,))
+@permission_classes((IsAuthenticated,))
+def reset_user_password(request):
+    """
+    Only for superusers to reset a user's password (for example, if they
+    forgot their password). User's can change their own password using
+    "change_user_password" and providing their current password
+
+    :param request:
+    :return: Response
+    """
+    # Only superusers can reset passwords
+    if not request.user.is_superuser:
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user_id = int(request.data['user_id'])
+        user = User.objects.get(id=user_id)
+        new_password = request.data['new_password']
+    except KeyError:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    except ValueError:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    # new password cannot be empty and must be different from current one
+    if new_password == '':
+        return Response(
+            data=["Password cannot be blank"],
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        user.set_password(new_password)
+        user.save()
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
 @authentication_classes((SessionAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
 def change_user_password(request):
