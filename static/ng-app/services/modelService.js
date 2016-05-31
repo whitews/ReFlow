@@ -153,6 +153,16 @@ service.factory('ModelService', function(
         );
     };
 
+    // for super-users to reset a user's forgotten password
+    service.resetUserPassword = function(user_id, new_password) {
+        return User.reset_password(
+            {
+                user_id: user_id,
+                new_password: new_password
+            }
+        );
+    };
+
     // Worker services
     service.workersUpdated = function () {
         $rootScope.$broadcast('workers:updated');
