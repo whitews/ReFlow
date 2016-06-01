@@ -5,7 +5,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^', include('authenticate.urls')),
     (r'^', include('repository.urls')),
-    (r'^admin/', include(admin.site.urls)),
+    # (r'^admin/', include(admin.site.urls)),
 )
 
 # Base REST API routes
