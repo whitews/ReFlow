@@ -449,6 +449,9 @@ service
                     name:'Cryopreserved'
                 },
                 {
+                    name:'Lyophilized'
+                },
+                {
                     name:'Comp Beads'
                 }
             ];

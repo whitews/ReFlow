@@ -98,6 +98,7 @@ PRETREATMENT_CHOICES = (
 STORAGE_CHOICES = (
     ('Fresh', 'Fresh'),
     ('Cryopreserved', 'Cryopreserved'),
+    ('Lyophilized', 'Lyophilized'),
     ('Comp Beads', 'Comp Beads')
 )
 
