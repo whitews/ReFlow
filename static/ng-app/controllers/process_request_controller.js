@@ -77,6 +77,12 @@ app.controller(
                 }
             });
 
+            $scope.$on("$destroy", function() {
+                if (progress_interval) {
+                    kill_progress_interval();
+                }
+            });
+
             function update_progress() {
                 // call to model service here
                 var progress_update = ModelService.getProcessRequestProgress(
