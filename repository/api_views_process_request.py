@@ -147,11 +147,19 @@ def verify_worker(request):
 @permission_classes((IsAuthenticated, IsAdminUser))
 def revoke_process_request_assignment(request, pk):
     pr = get_object_or_404(models.ProcessRequest, pk=pk)
-    if not pr.worker:
+
+    # only workers or super-users can revoke status
+    if not pr.worker or not request.user.is_superuser:
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
+
+    # also don't modify completed PRs
+    if pr.status == "Complete":
         return Response(status=status.HTTP_304_NOT_MODIFIED)
 
     pr.worker = None
+    pr.status_message = None
     pr.status = "Pending"
+    pr.assignment_date = None
     try:
         pr.save()
     except:
@@ -232,9 +240,6 @@ def verify_process_request_assignment(request, pk):
             data['assignment'] = True
 
     return Response(status=status.HTTP_200_OK, data=data)
-
-
-
 
 
 class WorkerDetail(AdminRequiredMixin, generics.RetrieveUpdateDestroyAPIView):
