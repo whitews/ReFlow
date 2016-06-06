@@ -799,7 +799,7 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class ProcessRequestProgessDetailSerializer(serializers.ModelSerializer):
+class ProcessRequestProgressDetailSerializer(serializers.ModelSerializer):
     worker_name = serializers.CharField(
         source='worker.worker_name',
         read_only=True

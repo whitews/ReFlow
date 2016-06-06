@@ -732,7 +732,7 @@ class ProcessRequestProgressDetail(
     """
 
     model = models.ProcessRequest
-    serializer_class = serializers.ProcessRequestProgessDetailSerializer
+    serializer_class = serializers.ProcessRequestProgressDetailSerializer
 
 
 class ProcessRequestAssignmentUpdate(
