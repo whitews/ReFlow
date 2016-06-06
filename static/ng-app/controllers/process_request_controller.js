@@ -48,34 +48,53 @@ app.controller(
             $controller('ProjectDetailController', {$scope: $scope});
 
             var progress_interval;
+            var revoke_response;
+            get_process_request();
 
-            $scope.process_request = ModelService.getProcessRequest(
-                $stateParams.requestId
-            );
+            function get_process_request() {
+                $scope.process_request = ModelService.getProcessRequest(
+                    $stateParams.requestId
+                );
 
-            $scope.process_request.$promise.then(function (pr) {
-                // get sample collection for this PR
-                ModelService.getSampleCollection(
-                    $scope.process_request.sample_collection
-                ).$promise.then(function (data) {
-                    $scope.sample_collection = data;
+                $scope.process_request.$promise.then(function (pr) {
+                    // get sample collection for this PR
+                    ModelService.getSampleCollection(
+                        $scope.process_request.sample_collection
+                    ).$promise.then(function (data) {
+                        $scope.sample_collection = data;
+                    });
+
+                    // get child 2nd stage PRs related to this PR
+                    ModelService.getProcessRequests(
+                        {
+                            parent_stage: pr.id
+                        }
+                    ).$promise.then(function (data) {
+                        $scope.children = data;
+                    });
+
+                    setup_progress_interval();
                 });
+            }
 
-                // get child 2nd stage PRs related to this PR
-                ModelService.getProcessRequests(
-                    {
-                        parent_stage: pr.id
-                    }
-                ).$promise.then(function (data) {
-                    $scope.children = data;
+            $scope.revoke_assignment = function() {
+                revoke_response = ModelService.revokeProcessRequestAssignment(
+                    $scope.process_request.id
+                );
+
+                revoke_response.$promise.then(function (data) {
+                    kill_progress_interval();
+                    get_process_request();
                 });
+            };
 
-                // finally, for 'Working' PRs, set up interval to track progress
-                if (pr.status === 'Working' || pr.status === 'Pending') {
+            function setup_progress_interval() {
+                // for 'Working' PRs, set up interval to track progress
+                if ($scope.process_request.status === 'Working' || $scope.process_request.status === 'Pending') {
                     // update progress every 15 seconds
                     progress_interval = $interval(update_progress, 15000);
                 }
-            });
+            }
 
             $scope.$on("$destroy", function() {
                 if (progress_interval) {
@@ -91,6 +110,8 @@ app.controller(
                 progress_update.$promise.then(function(pr_progress) {
                     $scope.process_request.status = pr_progress.status;
                     $scope.process_request.status_message = pr_progress.status_message;
+                    $scope.process_request.worker_name = pr_progress.worker_name;
+                    $scope.process_request.assignment_date = pr_progress.assignment_date;
                     $scope.process_request.percent_complete = pr_progress.percent_complete;
                     if (pr_progress.status === 'Complete' || pr_progress.status === 'Error') {
                         kill_progress_interval();
