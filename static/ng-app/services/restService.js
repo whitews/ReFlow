@@ -357,6 +357,10 @@ service
                 get_progress: {
                     url: URLS.PROCESS_REQUESTS + ':id/progress/',
                     isArray: false
+                },
+                revoke_assignment: {
+                    url: URLS.PROCESS_REQUESTS + ':id/revoke_assignment/',
+                    isArray: false
                 }
             }
         );
