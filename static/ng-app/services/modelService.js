@@ -633,6 +633,11 @@ service.factory('ModelService', function(
     service.createProcessRequest = function(instance) {
         return ProcessRequest.save(instance);
     };
+    service.revokeProcessRequestAssignment = function(process_request_id) {
+        return ProcessRequest.revoke_assignment(
+            { id: process_request_id }
+        );
+    };
     service.destroyProcessRequest = function (instance) {
         return ProcessRequest.delete({id: instance.id });
     };
