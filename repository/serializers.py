@@ -800,11 +800,18 @@ class ProcessRequestDetailSerializer(serializers.ModelSerializer):
 
 
 class ProcessRequestProgessDetailSerializer(serializers.ModelSerializer):
+    worker_name = serializers.CharField(
+        source='worker.worker_name',
+        read_only=True
+    )
+
     class Meta:
         model = ProcessRequest
         fields = (
             'status',
             'status_message',
+            'worker_name',
+            'assignment_date',
             'percent_complete'
         )
 
