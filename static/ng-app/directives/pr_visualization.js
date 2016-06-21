@@ -260,7 +260,7 @@ app.controller(
                                 if ($scope.static_cluster_size) {
                                     return 6;
                                 } else {
-                                    return Math.round(d.weight) + 6;
+                                    return Math.round(d.event_percentage) + 6;
                                 }
                             })
                             .ease('sin-in')
@@ -270,7 +270,7 @@ app.controller(
                                 if ($scope.static_cluster_size) {
                                     return 12;
                                 } else {
-                                    return Math.round(d.weight) + 12;
+                                    return Math.round(d.event_percentage) + 12;
                                 }
                             })
                             .ease('bounce-in')
@@ -283,7 +283,7 @@ app.controller(
                                 if ($scope.static_cluster_size) {
                                     return 6;
                                 } else {
-                                    return Math.round(d.weight) + 6;
+                                    return Math.round(d.event_percentage) + 6;
                                 }
                             }
                         );
@@ -316,7 +316,7 @@ app.controller(
                         if ($scope.static_cluster_size) {
                             return d.selected ? 10 : 6;
                         } else {
-                            return d.selected ? Math.round(d.weight) + 10 : Math.round(d.weight) + 6;
+                            return d.selected ? Math.round(d.event_percentage) + 10 : Math.round(d.event_percentage) + 6;
                         }
                     }
                 );
@@ -492,7 +492,7 @@ app.controller(
                     if ($scope.static_cluster_size) {
                         return 6;
                     } else {
-                        return Math.round(d.weight) + 6;
+                        return Math.round(d.event_percentage) + 6;
                     }
                 });
             };
@@ -813,7 +813,7 @@ app.directive('prscatterplot', function() {
                         if (scope.static_cluster_size) {
                             return 6;
                         } else {
-                            return Math.round(d.weight) + 6;
+                            return Math.round(d.event_percentage) + 6;
                         }
                     }
                 )
@@ -846,7 +846,7 @@ app.directive('prscatterplot', function() {
 
                     tooltip.style("visibility", "visible")
                         .style("z-index", 9999);
-                    tooltip.text("Cluster " + d.cluster_index + " (" + d.weight + "%)");
+                    tooltip.text("Cluster " + d.cluster_index + " (" + d.event_percentage + "%)");
 
                     scope.highlight_cluster(d);
                     scope.$apply();
@@ -871,17 +871,17 @@ app.directive('prscatterplot', function() {
                     scope.$apply();
                 });
 
-            // sort circles by event percentage (weight) in descending order
+            // sort circles by event percentage in descending order
             // to bring smaller clusters to the front
             // SVG elements don't obey z-index, they are in the order of
             // appearance
             scope.cluster_plot_area.selectAll("circle").sort(
                 function (a, b) {
-                    var a_weight = parseFloat(a.weight);
-                    var b_weight = parseFloat(b.weight);
-                    if (a_weight > b_weight) {
+                    var a_event_percentage = parseFloat(a.event_percentage);
+                    var b_event_percentage = parseFloat(b.event_percentage);
+                    if (a_event_percentage > b_event_percentage) {
                         return -1;
-                    } else if (a_weight < b_weight) {
+                    } else if (a_event_percentage < b_event_percentage) {
                         return 1;
                     } else {
                         return 0;

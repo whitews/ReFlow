@@ -139,7 +139,7 @@
               <th ts-criteria="cluster_index" ts-default="ascending">
                 Cluster ID
               </th>
-              <th ts-criteria="weight|parseFloat">
+              <th ts-criteria="event_percentage|parseFloat">
                 Event %
               </th>
               <th ts-criteria="labels">
@@ -159,7 +159,7 @@
               {{ sc.cluster_index }}
             </td>
             <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
-              {{ sc.weight }}
+              {{ sc.event_percentage }}
             </td>
             <td ng-class="{ hover: sc.highlighted || sc.selected }" ng-mouseover="highlight_cluster(sc)" ng-mouseleave="dehighlight_cluster(sc)">
 
