@@ -1058,6 +1058,7 @@ class SampleClusterList(
                 sample_cluster = models.SampleCluster(
                     cluster=cluster,
                     sample=sample,
+                    event_percentage=request.data['event_percentage']
                 )
 
                 # save event indices in a numpy file

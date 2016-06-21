@@ -896,7 +896,8 @@ class SampleClusterSerializer(serializers.ModelSerializer):
             'cluster_index',
             'parameters',
             'labels',
-            'weight'
+            'weight',
+            'event_percentage'
         )
 
 
