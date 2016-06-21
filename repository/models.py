@@ -1835,6 +1835,13 @@ class SampleCluster(ProtectedModel):
         max_length=256
     )
 
+    event_percentage = models.DecimalField(
+        null=False,
+        blank=False,
+        max_digits=5,
+        decimal_places=2
+    )
+
     def _get_weight(self):
         """
         Returns the sum of the component weights as a percentage
