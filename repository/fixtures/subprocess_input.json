@@ -33,7 +33,7 @@
         "name": "cluster_count", 
         "implementation": 2, 
         "required": true, 
-        "default": "96",
+        "default": "64",
         "value_type": "PositiveInteger", 
         "description": "The number of clusters used for grouping events."
     }
@@ -46,7 +46,7 @@
         "name": "iteration_count", 
         "implementation": 2, 
         "required": true, 
-        "default": "1000",
+        "default": "500",
         "value_type": "PositiveInteger", 
         "description": "The number of iterations after burn-in."
     }
@@ -59,7 +59,7 @@
         "name": "burnin", 
         "implementation": 2, 
         "required": true, 
-        "default": "10000",
+        "default": "5000",
         "value_type": "PositiveInteger", 
         "description": "The number of burn-in cycles prior to saving iterations."
     }

@@ -11,7 +11,7 @@ app.controller(
             // some input defaults
             $scope.instance.cluster_count = 32;
             $scope.instance.burn_in_count = 5000;
-            $scope.instance.iteration_count = 50;
+            $scope.instance.iteration_count = 500;
             $scope.instance.random_seed = 123;
             $scope.instance.subsample_count = 10000;
             $scope.instance.cell_subset = undefined;
