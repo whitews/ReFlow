@@ -409,10 +409,18 @@ app.controller(
                     }
                 );
 
-                response.$promise.then(function (object) {
-                    // success, remove current label array from sample cluster and
-                    // replace it with the new labels
-                    sample_cluster.labels = object;
+                response.$promise.then(function (labels) {
+                    // success, replace label array for the matching
+                    // sample cluster for all samples in cached data
+                    for (var cp in $scope.cached_plots) {
+                        if ($scope.cached_plots.hasOwnProperty(cp)) {
+                            $scope.cached_plots[cp].cluster_data.forEach(function (cluster) {
+                                if (cluster.cluster == sample_cluster.cluster) {
+                                    cluster.labels = labels;
+                                }
+                            });
+                        }
+                    }
                 }, function (error) {
                     sample_cluster.label_error = "Updating cluster labels failed!";
                 });
