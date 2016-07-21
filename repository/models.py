@@ -1234,6 +1234,9 @@ class Sample(ProtectedModel):
         if 'etim' in flow_data.text:
             extra['ETIM'] = flow_data.text['etim']
 
+        if 'threshold' in flow_data.text:
+            extra['THRESHOLD'] = flow_data.text['btim']
+
         clean_file = TemporaryFile()
         flowio.create_fcs(
             flow_data.events,
