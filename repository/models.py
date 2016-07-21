@@ -1224,6 +1224,7 @@ class Sample(ProtectedModel):
             acq_date = None
 
         extra = {}
+        extra_non_standard = {}
 
         if 'timestep' in flow_data.text:
             extra['TIMESTEP'] = flow_data.text['timestep']
@@ -1235,7 +1236,7 @@ class Sample(ProtectedModel):
             extra['ETIM'] = flow_data.text['etim']
 
         if 'threshold' in flow_data.text:
-            extra['THRESHOLD'] = flow_data.text['btim']
+            extra_non_standard['THRESHOLD'] = flow_data.text['threshold']
 
         clean_file = TemporaryFile()
         flowio.create_fcs(
@@ -1245,7 +1246,8 @@ class Sample(ProtectedModel):
             spill=new_spill_string,
             cyt=cyt_value,
             date=acq_date,
-            extra=extra
+            extra=extra,
+            extra_non_standard=extra_non_standard
         )
         flow_data = None
         self.sample_file.close()
