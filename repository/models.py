@@ -1144,6 +1144,14 @@ class Sample(ProtectedModel):
     def get_clean_fcs(self):
         channel_names = []
         fluoro_channel_names = []  # used for spill later on
+
+        extra = {}
+        extra_non_standard = {}
+
+        flow_data = flowio.FlowData(
+            io.BytesIO(self.sample_file.read())
+        )
+
         params = self.site_panel.sitepanelparameter_set.order_by('fcs_number')
         for param in params:
             name_components = []
@@ -1177,9 +1185,11 @@ class Sample(ProtectedModel):
             if param.parameter_type == 'FLR':
                 fluoro_channel_names.append(channel_string)
 
-        flow_data = flowio.FlowData(
-            io.BytesIO(self.sample_file.read())
-        )
+            # add PnDISPLAY key/value if present in original metadata
+            p_display_str = 'P%dDISPLAY' % (param.fcs_number)
+
+            if p_display_str.lower() in flow_data.text:
+                extra_non_standard[p_display_str] = flow_data.text[p_display_str.lower()]
 
         # get compensation matrix from the FCS metadata $SPILL or $SPILLOVER
         # keys if available. If found, we need to replace the header values
@@ -1222,9 +1232,6 @@ class Sample(ProtectedModel):
             acq_date = flow_data.text['date']
         else:
             acq_date = None
-
-        extra = {}
-        extra_non_standard = {}
 
         if 'timestep' in flow_data.text:
             extra['TIMESTEP'] = flow_data.text['timestep']
