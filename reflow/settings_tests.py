@@ -147,7 +147,7 @@ INSTALLED_APPS = (
     'repository',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_docs',
+    'rest_framework_swagger',
     'django_extensions',
     #'debug_toolbar',
     'guardian'
