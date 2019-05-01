@@ -11,4 +11,4 @@ urlpatterns = [
     url(r'^api/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/docs/', include('rest_framework_docs.urls', namespace='rest_framework_docs')),
     url(r'^api/docs/$', 'rest_framework_docs.views.documentation', name='api-docs')
-)
+]
